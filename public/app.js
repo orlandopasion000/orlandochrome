@@ -118,6 +118,35 @@
     }
   }
 
+  // Discovered profiles fallback if local server is not running
+  const FALLBACK_PROFILES = [
+    { id: "p_profile_1", profileDir: "Profile 1", name: "Orlando (A2 000)", email: "orlandopasion000@gmail.com", taskbarNo: 1, color: "#3DDC97", emoji: "📘", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_16", profileDir: "Profile 16", name: "Orlando (A1 001 DepEd)", email: "orlando.pasion001@deped.gov.ph", taskbarNo: 2, color: "#4DA3FF", emoji: "🎓", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_17", profileDir: "Profile 17", name: "Blanca Eunice (DepEd)", email: "blancaeunice.pasion@deped.gov.ph", taskbarNo: 3, color: "#E8A33D", emoji: "🛠️", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_19", profileDir: "Profile 19", name: "Blanca Eunice", email: "btaborda07@gmail.com", taskbarNo: 4, color: "#E86A8A", emoji: "🧮", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_2", profileDir: "Profile 2", name: "Orlando (A3 0817)", email: "orlandopasion0817@gmail.com", taskbarNo: 5, color: "#A78BFA", emoji: "📊", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_20", profileDir: "Profile 20", name: "Nash (Nash Reviewer)", email: "revnash0@gmail.com", taskbarNo: 6, color: "#2DD4BF", emoji: "📝", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_22", profileDir: "Profile 22", name: "A", email: "yifyyts7@gmail.com", taskbarNo: 7, color: "#F97316", emoji: "🎯", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_24", profileDir: "Profile 24", name: "Your Chrome (Hero)", email: "heroesmeraldaepicalu@gmail.com", taskbarNo: 8, color: "#84CC16", emoji: "🧠", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_33", profileDir: "Profile 33", name: "Nancalobasaan NHS", email: "300406@deped.gov.ph", taskbarNo: 9, color: "#F472B6", emoji: "📚", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_39", profileDir: "Profile 39", name: "Orlando (A6 002 Gmail)", email: "orlandopasion002@gmail.com", taskbarNo: 10, color: "#60A5FA", emoji: "🏫", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_4", profileDir: "Profile 4", name: "Blanca Eunice", email: "bepasion07@gmail.com", taskbarNo: 11, color: "#FACC15", emoji: "💡", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_40", profileDir: "Profile 40", name: "Orlando (A5 003 Gmail)", email: "orlandopasion003@gmail.com", taskbarNo: 12, color: "#94A3B8", emoji: "⚡", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_41", profileDir: "Profile 41", name: "Orlando (A5 004 Gmail)", email: "orlandopasion004@gmail.com", taskbarNo: 13, color: "#3DDC97", emoji: "📘", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_44", profileDir: "Profile 44", name: "SCITE 3", email: "scite.orlandopasion003@gmail.com", taskbarNo: 14, color: "#4DA3FF", emoji: "🎓", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_45", profileDir: "Profile 45", name: "Your Chrome (scite001)", email: "scite.orlandopasion001@gmail.com", taskbarNo: 15, color: "#E8A33D", emoji: "🛠️", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_46", profileDir: "Profile 46", name: "Orlando (A6 scite002)", email: "scite.orlandopasion002@gmail.com", taskbarNo: 16, color: "#E86A8A", emoji: "🧮", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_48", profileDir: "Profile 48", name: "Gwapo", email: "gwapocpogi@gmail.com", taskbarNo: 17, color: "#A78BFA", emoji: "📊", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_49", profileDir: "Profile 49", name: "Gold Cloud", email: "goldcloudblack@gmail.com", taskbarNo: 18, color: "#2DD4BF", emoji: "📝", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_52", profileDir: "Profile 52", name: "Orlando (005 Gmail)", email: "orlandopasion005@gmail.com", taskbarNo: 19, color: "#F97316", emoji: "🎯", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_53", profileDir: "Profile 53", name: "Orlando (006 Gmail)", email: "orlandopasion006@gmail.com", taskbarNo: 20, color: "#84CC16", emoji: "🧠", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_56", profileDir: "Profile 56", name: "Orlando (pogiorlando)", email: "pogiorlandopasion@gmail.com", taskbarNo: 21, color: "#F472B6", emoji: "📚", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_57", profileDir: "Profile 57", name: "Watch", email: "watchonlineapple@gmail.com", taskbarNo: 22, color: "#60A5FA", emoji: "🏫", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_58", profileDir: "Profile 58", name: "Orlando (grammarly)", email: "grammarlyquillbot001@gmail.com", taskbarNo: 23, color: "#FACC15", emoji: "💡", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_59", profileDir: "Profile 59", name: "Orlando (netflix)", email: "netflixpasion1994@gmail.com", taskbarNo: 24, color: "#94A3B8", emoji: "⚡", status: "ready", readyAt: null, todos: [] },
+    { id: "p_profile_9", profileDir: "Profile 9", name: "Orlando (A5 001 Gmail)", email: "orlandopasion001@gmail.com", taskbarNo: 25, color: "#3DDC97", emoji: "📘", status: "ready", readyAt: null, todos: [] }
+  ];
+
   function fetchState() {
     fetch('/api/state')
       .then(r => r.json())
@@ -125,7 +154,13 @@
         S = Object.assign(S, data);
         render();
       })
-      .catch(err => console.warn('Fetch state error:', err));
+      .catch(err => {
+        console.warn('Fetch state error, using discovered taskbar profiles fallback:', err);
+        if (!S.profiles.length) {
+          S.profiles = FALLBACK_PROFILES;
+          render();
+        }
+      });
   }
 
   async function launchOrFocus(profileDir, url = '') {
