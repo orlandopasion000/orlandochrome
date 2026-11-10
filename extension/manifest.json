@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Taskbar Command Center Companion",
+  "version": "1.0.0",
+  "description": "Live bidirectional sync between this Chrome profile and your Windows Taskbar Command Center",
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:48100/*",
+    "ws://127.0.0.1:48100/*",
+    "*://*.claude.ai/*",
+    "*://*.chatgpt.com/*",
+    "*://*.openai.com/*",
+    "*://*.perplexity.ai/*",
+    "*://gemini.google.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Taskbar Command Center Sync"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.claude.ai/*",
+        "*://*.chatgpt.com/*",
+        "*://*.openai.com/*",
+        "*://*.perplexity.ai/*",
+        "*://gemini.google.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

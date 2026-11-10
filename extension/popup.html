@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 14px;
+      background: #0B1226;
+      color: #EDF1FA;
+      font: 13.5px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    h2 { font-size: 16px; margin: 0 0 10px; color: #E8C55A; display: flex; align-items: center; gap: 8px; }
+    label { font-size: 11.5px; color: #9AA6C3; display: block; margin-top: 8px; }
+    select, input {
+      width: 100%;
+      background: #14213D;
+      border: 1px solid #2A3B66;
+      color: #EDF1FA;
+      padding: 6px 8px;
+      border-radius: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .btn-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+    button {
+      background: #1B2A4E;
+      border: 1px solid #2A3B66;
+      color: #EDF1FA;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all .15s;
+    }
+    button:hover { border-color: #C9A227; }
+    button.pri { background: linear-gradient(135deg, #C9A227, #8a6d10); color: #14213D; border: none; font-weight: 700; }
+    .status-card {
+      background: #14213D;
+      border: 1px solid #2A3B66;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .status-badge.ok { background: rgba(61,220,151,.2); color: #3DDC97; border: 1px solid #3DDC97; }
+    .status-badge.warn { background: rgba(255,176,32,.2); color: #FFB020; border: 1px solid #FFB020; }
+  </style>
+</head>
+<body>
+  <h2>◎ Taskbar Sync Companion</h2>
+  
+  <label>This Chrome Profile is:</label>
+  <select id="profileSelect">
+    <option value="">Loading profiles...</option>
+  </select>
+
+  <div class="status-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-weight:700;">Live Status:</span>
+      <span class="status-badge ok" id="statusBadge">Ready</span>
+    </div>
+    <div id="countdownText" style="font-size:12px;color:#9AA6C3;margin-top:4px;">No active cooldown</div>
+  </div>
+
+  <label>Quick Hit Limit (Start Cooldown):</label>
+  <div class="btn-row">
+    <button data-h="0.5">30m</button>
+    <button data-h="1">1 Hour</button>
+    <button data-h="2">2 Hours</button>
+    <button data-h="3" class="pri">3 Hours</button>
+    <button data-h="5">5 Hours</button>
+    <button data-h="24">24 Hours</button>
+  </div>
+
+  <div style="margin-top:12px;display:flex;gap:6px;">
+    <button id="btnOpenDashboard" style="flex:1;">🖥️ Open Command Center</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

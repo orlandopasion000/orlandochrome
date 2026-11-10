@@ -1,0 +1,24 @@
+{
+  "name": "chrome-taskbar-command-center",
+  "version": "1.0.0",
+  "description": "Live bidirectional tracking, cooldown waitboard and window switcher for 22+ pinned Chrome profiles on the Windows taskbar",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "keywords": [
+    "chrome",
+    "profiles",
+    "taskbar",
+    "command-center",
+    "waitboard",
+    "cooldown",
+    "rate-limits"
+  ],
+  "author": "Orlando V. Pasion, Jr.",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "ws": "^8.22.2"
+  }
+}

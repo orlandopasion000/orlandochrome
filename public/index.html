@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chrome Taskbar Command Center</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23C9A227'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='%2314213D' font-weight='bold'>22</text></svg>">
+</head>
+<body>
+  <div class="wrap">
+    <!-- Header -->
+    <header class="top" id="hdr">
+      <div class="brand">
+        <div class="logo">◎</div>
+        <div>
+          <h1>Chrome Taskbar Command Center</h1>
+          <p>Live tracking, cooldown waitboard &amp; window switcher for your 22+ taskbar profiles</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="chip" id="wsChip">⚪ Connecting...</span>
+        <span class="chip ok" id="runningChip">🔍 0 Chrome Windows</span>
+        <button class="btn sm" id="btnRefresh" title="Re-scan taskbar shortcuts and running processes">🔄 Scan Taskbar</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs" id="tabs"></nav>
+
+    <!-- Main View Viewport -->
+    <main id="view"></main>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="sound.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
