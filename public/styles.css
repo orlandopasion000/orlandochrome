@@ -1,22 +1,22 @@
-/* CHROMEFLIX · Netflix-Themed Messenger Format
- * Direct 2-pane productivity: Bigger pictures, smooth transitions, Netflix dark styling
+/* OrlandoChrome · OLED Pure Black Theme
+ * 100% True Black (#000000) for OLED Displays with Netflix Red Accents
  */
 
 :root {
-  --nf-black: #141414;
-  --nf-dark-1: #181818;
-  --nf-dark-2: #202020;
-  --nf-dark-3: #282828;
-  --nf-border: #2e2e2e;
-  --nf-border-subtle: #242424;
+  --nf-black: #000000;
+  --nf-dark-1: #000000;
+  --nf-dark-2: #050505;
+  --nf-dark-3: #0a0a0a;
+  --nf-border: #161616;
+  --nf-border-subtle: #111111;
   --nf-red: #E50914;
   --nf-red-hover: #b80710;
-  --nf-red-glow: rgba(229, 9, 20, 0.35);
+  --nf-red-glow: rgba(229, 9, 20, 0.4);
   --nf-gold: #F59E0B;
   --nf-green: #10B981;
   --nf-text: #FFFFFF;
-  --nf-text-muted: #9E9E9E;
-  --nf-text-dim: #6E6E6E;
+  --nf-text-muted: #8E8E8E;
+  --nf-text-dim: #555555;
   --font-logo: 'Bebas Neue', 'Impact', sans-serif;
   --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --radius-sm: 6px;
@@ -37,7 +37,7 @@ html, body {
   width: 100%;
   overflow: hidden;
   font-family: var(--font-main);
-  background-color: var(--nf-black);
+  background-color: #000000;
   color: var(--nf-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -49,22 +49,22 @@ html, body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333333;
+  background: #222222;
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a4a4a;
+  background: #383838;
 }
 
 /* ==========================================================================
-   Top Application Bar
+   Top Application Bar (OLED Pure Black)
    ========================================================================== */
 .app-topbar {
   height: 54px;
-  background: var(--nf-dark-1);
+  background: #000000;
   border-bottom: 1px solid var(--nf-border);
   display: flex;
   align-items: center;
@@ -123,19 +123,14 @@ html, body {
   color: var(--nf-red);
   text-shadow: 0 2px 10px var(--nf-red-glow);
 }
-  font-family: var(--font-logo);
-  font-size: 22px;
-  letter-spacing: 1.5px;
-  color: #fff;
-  line-height: 1;
-}
 
 .brand-sub {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.2px;
   color: var(--nf-text-muted);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2px 8px;
   border-radius: 4px;
   margin-left: 4px;
@@ -159,15 +154,15 @@ html, body {
   font-size: 13px;
   font-weight: 800;
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #000000;
+  border: 1px solid #222222;
   padding: 4px 10px;
   border-radius: var(--radius-sm);
   letter-spacing: 0.5px;
 }
 
 .nf-alarm-pill {
-  background: rgba(229, 9, 20, 0.14);
+  background: rgba(229, 9, 20, 0.12);
   border: 1px solid rgba(229, 9, 20, 0.45);
   color: #ff858d;
   font-size: 12px;
@@ -183,30 +178,31 @@ html, body {
 }
 
 .nf-alarm-pill:hover {
-  background: rgba(229, 9, 20, 0.28);
+  background: rgba(229, 9, 20, 0.25);
   border-color: var(--nf-red);
   color: #fff;
   transform: translateY(-1px);
 }
 
 /* ==========================================================================
-   2-Pane Messenger Workspace
+   2-Pane Messenger Workspace (OLED Pure Black)
    ========================================================================== */
 .app-workspace {
   display: flex;
   height: calc(100vh - 54px);
   width: 100%;
   overflow: hidden;
+  background: #000000;
 }
 
 /* --------------------------------------------------------------------------
-   Left Column: Sidebar
+   Left Column: Sidebar (OLED Pure Black)
    -------------------------------------------------------------------------- */
 .sidebar {
   width: 380px;
   min-width: 340px;
   max-width: 440px;
-  background: var(--nf-dark-1);
+  background: #000000;
   border-right: 1px solid var(--nf-border);
   display: flex;
   flex-direction: column;
@@ -221,14 +217,14 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: var(--nf-dark-1);
+  background: #000000;
 }
 
 .search-box-wrap {
   display: flex;
   align-items: center;
-  background: #111111;
-  border: 1px solid var(--nf-border);
+  background: #000000;
+  border: 1px solid #222222;
   border-radius: var(--radius-full);
   padding: 7px 14px;
   gap: 8px;
@@ -256,7 +252,7 @@ html, body {
 }
 
 .search-input::placeholder {
-  color: #777;
+  color: #666;
 }
 
 /* Filter Tabs */
@@ -267,8 +263,8 @@ html, body {
 
 .filter-tab {
   flex: 1;
-  background: #111111;
-  border: 1px solid var(--nf-border);
+  background: #000000;
+  border: 1px solid #1f1f1f;
   color: var(--nf-text-muted);
   font-size: 12px;
   font-weight: 700;
@@ -281,15 +277,15 @@ html, body {
 }
 
 .filter-tab:hover {
-  background: #252525;
+  background: #0d0d0d;
   color: #fff;
+  border-color: #333;
 }
 
 .filter-tab.active {
-  background: #222222;
-  border-color: #555555;
+  background: #111111;
+  border-color: #444444;
   color: #fff;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .filter-tab.active[data-filter="pending"] {
@@ -310,28 +306,30 @@ html, body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  background: #000000;
 }
 
-/* Profile Item (Messenger format, Bigger Pictures, Netflix Accent) */
+/* Profile Item (OLED Black, 52px Pictures) */
 .profile-item {
   display: flex;
   align-items: center;
   padding: 12px 16px;
   gap: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  background: #000000;
+  border-bottom: 1px solid #0d0d0d;
   cursor: pointer;
   transition: var(--transition-smooth);
   position: relative;
 }
 
 .profile-item:hover {
-  background: #1f1f1f;
+  background: #080808;
   transform: translateX(3px);
 }
 
-/* Active Profile Item with Netflix Signature Red Bar */
+/* Active Profile Item with Netflix Red Bar */
 .profile-item.active {
-  background: #242424;
+  background: #111111;
 }
 
 .profile-item.active::before {
@@ -345,7 +343,7 @@ html, body {
   box-shadow: 2px 0 10px var(--nf-red-glow);
 }
 
-/* Bigger Picture Profile Avatar Container */
+/* Bigger Picture Profile Avatar Container (52px) */
 .profile-avatar-wrap {
   position: relative;
   width: 52px;
@@ -358,8 +356,8 @@ html, body {
   height: 52px;
   border-radius: var(--radius-full);
   object-fit: cover;
-  background: #282828;
-  border: 2px solid #333333;
+  background: #0a0a0a;
+  border: 2px solid #222222;
   display: block;
   transition: var(--transition-smooth);
 }
@@ -470,7 +468,7 @@ html, body {
 }
 
 .badge-timer-pill {
-  background: rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.16);
   border: 1px solid var(--nf-gold);
   color: #fde68a;
   font-size: 11px;
@@ -482,7 +480,7 @@ html, body {
 }
 
 .badge-reset-pill {
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.16);
   border: 1px solid var(--nf-green);
   color: #6ee7b7;
   font-size: 11px;
@@ -494,13 +492,13 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   Right Column: Main Chat & Notes Pane
+   Right Column: Main Chat & Notes Pane (OLED Pure Black)
    -------------------------------------------------------------------------- */
 .chat-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--nf-black);
+  background: #000000;
   height: 100%;
   overflow: hidden;
 }
@@ -509,7 +507,7 @@ html, body {
 .chat-header {
   height: 78px;
   padding: 0 24px;
-  background: var(--nf-dark-1);
+  background: #000000;
   border-bottom: 1px solid var(--nf-border);
   display: flex;
   align-items: center;
@@ -524,15 +522,15 @@ html, body {
   gap: 16px;
 }
 
-/* Bigger Picture in Header (64px) */
+/* Bigger Picture in Header (60px) */
 .chat-header-avatar {
   width: 60px;
   height: 60px;
   border-radius: var(--radius-full);
   object-fit: cover;
-  border: 2px solid var(--nf-border);
-  background: #222222;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  border: 2px solid #222222;
+  background: #050505;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.8);
   cursor: pointer;
   transition: var(--transition-smooth);
 }
@@ -568,24 +566,13 @@ html, body {
   gap: 10px;
 }
 
-.shortcut-gold-pill {
-  background: rgba(245, 158, 11, 0.14);
-  border: 1px solid var(--nf-gold);
-  color: var(--nf-gold);
-  font-size: 12.5px;
-  font-weight: 800;
-  font-family: Consolas, monospace;
-  padding: 5px 12px;
-  border-radius: var(--radius-sm);
-}
-
 .btn-header-action {
-  background: var(--nf-dark-2);
-  border: 1px solid var(--nf-border);
+  background: #000000;
+  border: 1px solid #2a2a2a;
   color: #e5e5e5;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -595,15 +582,15 @@ html, body {
 }
 
 .btn-header-action:hover {
-  background: #2e2e2e;
-  border-color: #555555;
+  background: #111111;
+  border-color: #444444;
   color: #fff;
   transform: translateY(-1px);
 }
 
-/* Quick Cooldown Timers Bar */
+/* Quick Cooldown Timers Bar (OLED Pure Black) */
 .quick-timer-bar {
-  background: #111111;
+  background: #000000;
   border-bottom: 1px solid var(--nf-border-subtle);
   padding: 10px 24px;
   display: flex;
@@ -622,12 +609,12 @@ html, body {
 }
 
 .timer-chip {
-  background: var(--nf-dark-2);
-  border: 1px solid var(--nf-border);
+  background: #000000;
+  border: 1px solid #222222;
   color: #ddd;
   font-size: 12px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -648,12 +635,12 @@ html, body {
 
 .timer-custom-input {
   width: 64px;
-  background: var(--nf-dark-2);
-  border: 1px solid var(--nf-border);
+  background: #000000;
+  border: 1px solid #222222;
   color: #fff;
   font-size: 12px;
   font-weight: 700;
-  padding: 4px 8px;
+  padding: 5px 8px;
   border-radius: var(--radius-sm);
   outline: none;
   text-align: center;
@@ -669,7 +656,7 @@ html, body {
   color: #fff;
   font-size: 11.5px;
   font-weight: 800;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -681,7 +668,7 @@ html, body {
 
 /* Active Timer & Reset Banners */
 .timer-active-banner {
-  background: rgba(245, 158, 11, 0.14);
+  background: rgba(245, 158, 11, 0.12);
   border-bottom: 1.5px solid var(--nf-gold);
   padding: 10px 24px;
   display: flex;
@@ -695,7 +682,7 @@ html, body {
 }
 
 .timer-reset-banner {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.14);
   border-bottom: 1.5px solid var(--nf-green);
   padding: 10px 24px;
   display: flex;
@@ -714,8 +701,8 @@ html, body {
 }
 
 .btn-banner-clear {
-  background: #111111;
-  border: 1px solid #444444;
+  background: #000000;
+  border: 1px solid #383838;
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
@@ -726,8 +713,8 @@ html, body {
 }
 
 .btn-banner-clear:hover {
-  background: #252525;
-  border-color: #666;
+  background: #161616;
+  border-color: #555;
 }
 
 .btn-banner-reset {
@@ -747,7 +734,7 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   Notes Stream
+   Notes Stream (OLED Pure Black)
    -------------------------------------------------------------------------- */
 .notes-stream {
   flex: 1;
@@ -756,6 +743,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: #000000;
 }
 
 /* Empty Notes State */
@@ -773,7 +761,7 @@ html, body {
 
 .empty-notes-icon {
   font-size: 44px;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
 }
 
 .empty-notes-title {
@@ -788,7 +776,7 @@ html, body {
   line-height: 1.5;
 }
 
-/* Note Bubbles (Messenger Style) */
+/* Note Bubbles (Crisp OLED Contrast) */
 .note-item-wrap {
   display: flex;
   flex-direction: column;
@@ -802,32 +790,32 @@ html, body {
 }
 
 .note-bubble {
-  background: #1e2638;
-  border: 1px solid #2d384e;
+  background: #0a0d14;
+  border: 1px solid #1a2233;
   border-radius: 12px 12px 12px 2px;
   padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
   transition: var(--transition-smooth);
 }
 
 .note-bubble:hover {
-  border-color: #4b5d82;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  border-color: #2e3d5c;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.8);
 }
 
 .note-bubble.done {
-  background: #181818;
-  border-color: #2e2e2e;
-  opacity: 0.65;
+  background: #000000;
+  border-color: #1a1a1a;
+  opacity: 0.6;
 }
 
 .note-bubble.done .note-text {
   text-decoration: line-through;
-  color: #888888;
+  color: #777777;
 }
 
 .note-text {
@@ -867,7 +855,7 @@ html, body {
 
 .btn-note-reopen {
   background: transparent;
-  border: 1px solid #444;
+  border: 1px solid #333;
   color: #bbb;
   font-size: 12px;
   font-weight: 600;
@@ -878,14 +866,14 @@ html, body {
 }
 
 .btn-note-reopen:hover {
-  background: #333;
+  background: #1a1a1a;
   color: #fff;
 }
 
 .btn-note-delete {
   background: transparent;
   border: none;
-  color: #777;
+  color: #666;
   font-size: 13px;
   padding: 4px 6px;
   cursor: pointer;
@@ -906,11 +894,11 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   Composer Bar (Bottom Input)
+   Composer Bar (OLED Pure Black)
    -------------------------------------------------------------------------- */
 .composer-bar {
   padding: 16px 24px;
-  background: var(--nf-dark-1);
+  background: #000000;
   border-top: 1px solid var(--nf-border);
   display: flex;
   align-items: center;
@@ -935,8 +923,8 @@ html, body {
 
 .composer-input {
   width: 100%;
-  background: #111111;
-  border: 1px solid #383838;
+  background: #000000;
+  border: 1px solid #282828;
   border-radius: var(--radius-full);
   padding: 12px 18px 12px 42px;
   color: #ffffff;
@@ -949,11 +937,11 @@ html, body {
 .composer-input:focus {
   border-color: var(--nf-red);
   box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.25);
-  background: #141414;
+  background: #050505;
 }
 
 .composer-input::placeholder {
-  color: #666666;
+  color: #555555;
 }
 
 .btn-composer-send {
@@ -989,19 +977,18 @@ html, body {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: rgba(20, 20, 20, 0.95);
+  background: #000000;
   border: 1px solid var(--nf-border);
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
   padding: 10px 22px;
   border-radius: var(--radius-full);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.9);
   pointer-events: none;
   opacity: 0;
   transition: var(--transition-smooth);
   z-index: 1000;
-  backdrop-filter: blur(8px);
 }
 
 #toast.show {
@@ -1009,11 +996,11 @@ html, body {
   opacity: 1;
 }
 
-/* Rename Inline Modal or Prompt */
+/* Rename Inline Modal */
 .rename-dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.85);
   backdrop-filter: blur(4px);
   z-index: 500;
   display: flex;
@@ -1023,8 +1010,8 @@ html, body {
 }
 
 .rename-dialog {
-  background: var(--nf-dark-1);
-  border: 1px solid var(--nf-border);
+  background: #050505;
+  border: 1px solid #222222;
   border-radius: var(--radius-lg);
   padding: 24px;
   width: 90%;
@@ -1032,7 +1019,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.9);
 }
 
 .rename-dialog h3 {
@@ -1042,8 +1029,8 @@ html, body {
 }
 
 .rename-input {
-  background: #111;
-  border: 1px solid var(--nf-border);
+  background: #000000;
+  border: 1px solid #282828;
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   color: #fff;

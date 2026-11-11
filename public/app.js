@@ -1,5 +1,5 @@
 /* OrlandoChrome · Chrome Taskbar Notes
- * Fast, smooth Messenger 2-column layout with bigger pictures and Netflix styling
+ * Fast, smooth Messenger 2-column layout with OLED pure black theme and bigger pictures
  */
 (function() {
   const $ = (s, r = document) => r.querySelector(s);
@@ -85,7 +85,7 @@
   function getAvatarSrc(profile) {
     if (profile.customAvatar) return profile.customAvatar;
     if (profile.profileDir) return `avatars/${encodeURIComponent(profile.profileDir)}.png`;
-    return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23E50914'/><text x='50' y='65' font-size='48' text-anchor='middle' fill='%23fff' font-family='sans-serif'>${esc(profile.name ? profile.name[0] : 'C')}</text></svg>`;
+    return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50' y='65' font-size='48' text-anchor='middle' fill='%23E50914' font-family='sans-serif'>${esc(profile.name ? profile.name[0] : 'C')}</text></svg>`;
   }
 
   // Toast notification
@@ -95,7 +95,7 @@
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(el._timer);
-    el._timer = setTimeout(() => el.classList.remove('show'), 2400);
+    el._timer = setTimeout(() => el.classList.remove('show'), 2200);
   }
 
   // Load state and clean sample notes
@@ -316,7 +316,7 @@
         <div class="profile-item ${isActive ? 'active' : ''}" data-id="${p.id}">
           <!-- Bigger Picture Avatar (52px) -->
           <div class="profile-avatar-wrap">
-            <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23222\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
+            <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
             <span class="profile-slot-badge">${esc(slotTag)}</span>
           </div>
 
@@ -361,7 +361,7 @@
     const notes = p.notes || [];
 
     main.innerHTML = `
-      <!-- Header with Bigger Picture (64px) & Direct Actions -->
+      <!-- Header with Bigger Picture (60px) & Rename Action -->
       <header class="chat-header">
         <div class="chat-header-profile">
           <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" title="Click to upload/change photo" alt="${esc(p.name)}">
@@ -376,22 +376,15 @@
         </div>
 
         <div class="chat-header-actions">
-          <span class="shortcut-gold-pill">Shortcut: ${esc(p.winShortcut)}</span>
-          <button class="btn-header-action" id="btnUploadPhoto">
-            📷 Photo
-          </button>
           <button class="btn-header-action" id="btnRenameProfile">
             ✏️ Rename
-          </button>
-          <button class="btn-header-action" id="btnCopyName">
-            📋 Copy Name
           </button>
         </div>
       </header>
 
       <!-- Quick AI Limit Cooldown Bar -->
       <div class="quick-timer-bar">
-        <span class="timer-bar-label">Hit AI limit? Start a quick timer:</span>
+        <span class="timer-bar-label">Start a quick timer:</span>
         <button class="timer-chip" data-min="15">15m</button>
         <button class="timer-chip" data-min="30">30m</button>
         <button class="timer-chip" data-min="60">1h</button>
@@ -460,29 +453,23 @@
     `;
 
     // Hook up interactive handlers
-    // 1. Photo upload
+    // 1. Photo upload via clicking avatar
     const triggerUpload = () => {
       state.uploadTargetId = p.id;
       $('#globalPhotoInput').click();
     };
-    $('#btnUploadPhoto').onclick = triggerUpload;
-    $('#headerAvatarImg').onclick = triggerUpload;
+    const avatarImg = $('#headerAvatarImg');
+    if (avatarImg) avatarImg.onclick = triggerUpload;
 
     // 2. Rename profile
-    $('#btnRenameProfile').onclick = () => {
-      promptRename(p);
-    };
+    const renameBtn = $('#btnRenameProfile');
+    if (renameBtn) {
+      renameBtn.onclick = () => {
+        promptRename(p);
+      };
+    }
 
-    // 3. Copy name
-    $('#btnCopyName').onclick = () => {
-      navigator.clipboard.writeText(p.name).then(() => {
-        showToast(`✓ Copied "${p.name}" to clipboard!`);
-      }).catch(() => {
-        showToast(`Profile: ${p.name}`);
-      });
-    };
-
-    // 4. Quick Timer Chips
+    // 3. Quick Timer Chips
     $$('.timer-chip', main).forEach(chip => {
       chip.onclick = () => {
         const mins = parseInt(chip.dataset.min, 10);
@@ -490,14 +477,17 @@
       };
     });
 
-    // 5. Custom Timer
-    $('#btnStartCustomTimer').onclick = () => {
-      const mins = parseInt($('#customMinInput').value, 10);
-      if (isNaN(mins) || mins <= 0) return;
-      startCooldown(p, mins);
-    };
+    // 4. Custom Timer
+    const customStart = $('#btnStartCustomTimer');
+    if (customStart) {
+      customStart.onclick = () => {
+        const mins = parseInt($('#customMinInput').value, 10);
+        if (isNaN(mins) || mins <= 0) return;
+        startCooldown(p, mins);
+      };
+    }
 
-    // 6. Clear timer
+    // 5. Clear timer
     const clearBtn = $('#btnClearTimer');
     if (clearBtn) {
       clearBtn.onclick = () => {
@@ -511,7 +501,7 @@
       };
     }
 
-    // 7. Dismiss reset
+    // 6. Dismiss reset
     const resetBtn = $('#btnDismissReset');
     if (resetBtn) {
       resetBtn.onclick = () => {
@@ -524,7 +514,7 @@
       };
     }
 
-    // 8. Note actions (Done / Delete)
+    // 7. Note actions (Done / Delete)
     $$('.notes-stream button', main).forEach(btn => {
       btn.onclick = () => {
         const nid = btn.dataset.nid;
@@ -545,7 +535,7 @@
       };
     });
 
-    // 9. Add note
+    // 8. Add note
     const input = $('#composerInput');
     const sendBtn = $('#btnSendNote');
     const handleAdd = () => {
@@ -570,10 +560,12 @@
       if (stream) stream.scrollTop = stream.scrollHeight;
     };
 
-    sendBtn.onclick = handleAdd;
-    input.onkeydown = (e) => {
-      if (e.key === 'Enter') handleAdd();
-    };
+    if (sendBtn) sendBtn.onclick = handleAdd;
+    if (input) {
+      input.onkeydown = (e) => {
+        if (e.key === 'Enter') handleAdd();
+      };
+    }
   }
 
   // Cooldown timer starter

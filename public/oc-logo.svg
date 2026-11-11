@@ -1,10 +1,10 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
   <defs>
-    <!-- Background Gradient: Deep Cinematic Charcoal to Obsidian -->
+    <!-- Background Gradient: Pure OLED Black -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1c1c1c"/>
-      <stop offset="45%" stop-color="#101010"/>
-      <stop offset="100%" stop-color="#040404"/>
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="50%" stop-color="#000000"/>
+      <stop offset="100%" stop-color="#000000"/>
     </linearGradient>
 
     <!-- Netflix Red Primary Gradient (Front Face) -->
