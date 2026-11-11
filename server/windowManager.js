@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { spawn, exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -18,27 +18,30 @@ const CHROME_PATH = findChromeExe();
 
 function launchProfile(profileDir, url = '') {
   return new Promise((resolve, reject) => {
-    let args = [`--profile-directory="${profileDir}"`];
-    if (url && typeof url === 'string' && url.trim()) {
-      args.push(`"${url.trim()}"`);
-    }
-
-    // Windows start command
-    const cmd = `start "" "${CHROME_PATH}" ${args.join(' ')}`;
-    exec(cmd, (err) => {
-      if (err) {
-        console.error(`[windowManager] Failed to launch ${profileDir}:`, err);
-        return reject(err);
+    try {
+      const args = [`--profile-directory=${profileDir}`];
+      if (url && typeof url === 'string' && url.trim()) {
+        args.push(url.trim());
       }
-      console.log(`[windowManager] Launched ${profileDir}`);
+
+      console.log(`[windowManager] Spawning Chrome: "${CHROME_PATH}" ${args.join(' ')}`);
+      
+      const child = spawn(CHROME_PATH, args, {
+        detached: true,
+        stdio: 'ignore'
+      });
+      child.unref();
+
       resolve({ ok: true, profileDir });
-    });
+    } catch (err) {
+      console.error(`[windowManager] Launch error for ${profileDir}:`, err);
+      reject(err);
+    }
   });
 }
 
 function getRunningProfiles() {
   return new Promise((resolve) => {
-    // Quick PowerShell query for running chrome processes with their command lines
     const ps = `Get-CimInstance Win32_Process -Filter "Name = 'chrome.exe'" | Select-Object ProcessId, CommandLine | ConvertTo-Json -Compress`;
     exec(`powershell -NoProfile -Command "${ps}"`, { maxBuffer: 10 * 1024 * 1024 }, (err, stdout) => {
       if (err || !stdout) {
@@ -66,27 +69,9 @@ function getRunningProfiles() {
 }
 
 function focusProfile(profileDir, profileName = '') {
-  // Try bringing the window to the front using WScript.Shell AppActivate
-  return new Promise((resolve) => {
-    const targetTitle = profileName ? profileName.split(' ')[0] : 'Chrome';
-    const ps = `
-      $wsh = New-Object -ComObject WScript.Shell;
-      $activated = $wsh.AppActivate("${profileName}");
-      if (-not $activated) {
-        $activated = $wsh.AppActivate("${profileDir}");
-      }
-      $activated
-    `;
-    exec(`powershell -NoProfile -Command "${ps.replace(/\r?\n/g, ' ')}"`, (err, stdout) => {
-      const ok = stdout && stdout.trim().toLowerCase() === 'true';
-      if (!ok) {
-        // If not running or couldn't focus, launch it
-        launchProfile(profileDir).then(resolve).catch(() => resolve({ ok: false }));
-      } else {
-        resolve({ ok: true, focused: true });
-      }
-    });
-  });
+  // In Chrome on Windows, running chrome.exe --profile-directory="Profile X" automatically
+  // switches focus to the existing window if it is already open, or opens it if closed.
+  return launchProfile(profileDir);
 }
 
 module.exports = {
