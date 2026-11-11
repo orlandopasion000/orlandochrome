@@ -43,7 +43,7 @@
 
         <div class="filter-tabs-row">
           <button class="filter-tab active" data-filter="all" id="tabAll">All (<span id="countAll">22</span>)</button>
-          <button class="filter-tab" data-filter="pending" id="tabPending">🔴 Pending (<span id="countPending">0</span>)</button>
+          <button class="filter-tab" data-filter="pending" id="tabPending"><span class="tab-red-radiant-dot"></span> Pending (<span id="countPending">0</span>)</button>
           <button class="filter-tab" data-filter="timers" id="tabTimers">⏳ Timers (<span id="countTimers">0</span>)</button>
         </div>
       </div>
@@ -60,8 +60,10 @@
     </main>
   </div>
 
-  <!-- Hidden Photo Upload Input -->
+  <!-- Hidden Photo Upload Input (Profile Avatar) -->
   <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
+  <!-- Hidden Screenshot / Media Attachment Input (Chat Notes) -->
+  <input type="file" id="noteImageInput" accept="image/*" style="display:none;">
 
   <!-- Toast Notification Container -->
   <div id="toast"></div>
