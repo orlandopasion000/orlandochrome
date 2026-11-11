@@ -37,7 +37,7 @@ body {
   margin: 0 auto;
 }
 
-/* Header (Compressed & Clean) */
+/* Header (Compressed & Clean with Live Clock & Schedule) */
 .app-header {
   height: 52px;
   background: var(--sidebar-bg);
@@ -47,6 +47,7 @@ body {
   align-items: center;
   padding: 0 16px;
   flex-shrink: 0;
+  gap: 12px;
 }
 
 .brand {
@@ -71,32 +72,51 @@ body {
   color: var(--tx-sub);
 }
 
+/* Live Clock & Schedule Widget */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
 
-.header-pill {
+.live-clock-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-clock-time {
+  font-family: Consolas, monospace;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  background: #090d16;
+  border: 1px solid var(--border-light);
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: .5px;
+}
+
+.live-schedule-pill {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: var(--gold2);
+  font-size: 11.5px;
+  font-weight: 700;
   padding: 4px 10px;
   border-radius: 12px;
-  font-size: 12px;
-  font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  text-decoration: none;
+  transition: all .15s ease;
+  white-space: nowrap;
 }
 
-.header-pill.pending {
-  background: rgba(239, 68, 68, 0.18);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-}
-
-.header-pill.clean {
-  background: rgba(16, 185, 129, 0.15);
-  color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+.live-schedule-pill:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: var(--gold);
 }
 
 /* Messenger 2-Pane Layout */
@@ -108,7 +128,7 @@ body {
 
 /* Left Sidebar (Compact Messenger Chat List) */
 .sidebar {
-  width: 360px;
+  width: 370px;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border);
   display: flex;
@@ -146,8 +166,8 @@ body {
 
 .filter-tab {
   flex: 1;
-  padding: 5px 8px;
-  font-size: 11.5px;
+  padding: 5px 6px;
+  font-size: 11px;
   font-weight: 700;
   border-radius: 8px;
   border: 1px solid transparent;
@@ -156,6 +176,7 @@ body {
   cursor: pointer;
   transition: all .15s;
   text-align: center;
+  white-space: nowrap;
 }
 
 .filter-tab:hover {
@@ -173,6 +194,12 @@ body {
   background: rgba(239, 68, 68, 0.2);
   color: #fca5a5;
   border-color: var(--red);
+}
+
+.filter-tab.active#filterTimers {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--gold2);
+  border-color: var(--gold);
 }
 
 /* Scrollable Contact List */
@@ -215,6 +242,10 @@ body {
 
 .chrome-item.has-pending-tasks {
   border-left-color: var(--red);
+}
+
+.chrome-item.has-active-timer {
+  border-left-color: var(--gold);
 }
 
 .item-avatar-wrap {
@@ -293,6 +324,18 @@ body {
   font-weight: 600;
 }
 
+.item-snippet.timer-highlight {
+  color: var(--gold2);
+  font-weight: 600;
+}
+
+.item-badges-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .item-badge {
   background: var(--red);
   color: #fff;
@@ -306,6 +349,18 @@ body {
   justify-content: center;
   padding: 0 4px;
   flex-shrink: 0;
+}
+
+.item-timer-badge {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid var(--gold);
+  color: var(--gold2);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-family: Consolas, monospace;
+  white-space: nowrap;
 }
 
 /* Right Chat Pane */
@@ -506,7 +561,7 @@ body {
   padding-left: 6px;
 }
 
-/* Cooldown Strip inside Thread (Optional & Simple) */
+/* Cooldown Strip inside Thread */
 .cooldown-bar {
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.3);
@@ -640,7 +695,8 @@ body {
   pointer-events: auto;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 850px) {
+  .app-header { height: auto; padding: 8px 12px; flex-wrap: wrap; }
   .messenger-layout { flex-direction: column; }
   .sidebar { width: 100%; height: 40vh; }
   .chat-pane { height: 60vh; }

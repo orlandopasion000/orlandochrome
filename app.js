@@ -1,5 +1,6 @@
 /* Chrome Taskbar Notes - Messenger Style
  * Direct, simple, compressed note-taking for your 21 taskbar Chrome profiles
+ * Includes Live Clock & Schedule from Daily Recharge Alarm
  */
 (function() {
   const $ = (s, r = document) => r.querySelector(s);
@@ -7,7 +8,34 @@
   const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   const now = () => Date.now();
 
-  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v1';
+  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v2';
+
+  // Schedule from Daily Recharge Alarm (Sir Orlando V. Pasion, Jr.)
+  const RECHARGE_SCHEDULE = [
+    [7, 0, "work", "Arrive — read, learn, develop"],
+    [8, 0, "rest", "Short recharge — 10 min"],
+    [8, 10, "work", "Work and print"],
+    [8, 20, "rest", "Recharge before class — 10 min"],
+    [8, 30, "class", "Class: Math 8"],
+    [9, 30, "rest", "Long recharge — 40 min"],
+    [10, 11, "work", "Work and print"],
+    [10, 30, "rest", "Recharge before class — 15 min"],
+    [10, 45, "class", "Class: Math 10"],
+    [11, 45, "err", "Principal’s office — log out/in"],
+    [12, 0, "rest", "Lunch and recharge — 45 min"],
+    [12, 45, "err", "Personal hygiene"],
+    [12, 50, "rest", "Recharge before class — 10 min"],
+    [13, 0, "class", "Class: Math 8"],
+    [14, 0, "rest", "Longest recharge — 60 min"],
+    [15, 0, "work", "Work and print"],
+    [15, 10, "rest", "Quick recharge — 5 min"],
+    [15, 15, "class", "Class: Gen Math 11"],
+    [16, 16, "err", "Organize files"],
+    [16, 21, "rest", "Recharge, then go home"],
+    [20, 0, "night", "Shutdown — write tomorrow’s top 3"],
+    [20, 30, "night", "Wind-down — no screens"],
+    [21, 30, "night", "Bedtime"]
+  ];
 
   // The 21 Chrome Profiles in order from Windows Taskband
   const DEFAULT_PROFILES = [
@@ -49,7 +77,8 @@
 
     // Migration of any existing tasks from previous keys
     const notesByDir = {};
-    ['chrome_real_taskbar_tracker_v5', 'chrome_taskbar_tracker_v4', 'chrome_taskbar_cc_state_v3'].forEach(k => {
+    const timersByDir = {};
+    ['chrome_taskbar_messenger_notes_v1', 'chrome_real_taskbar_tracker_v5', 'chrome_taskbar_tracker_v4'].forEach(k => {
       try {
         const raw = localStorage.getItem(k);
         if (raw) {
@@ -59,6 +88,9 @@
             if (p.profileDir && list.length && !notesByDir[p.profileDir]) {
               notesByDir[p.profileDir] = list;
             }
+            if (p.profileDir && p.timerUntil && !timersByDir[p.profileDir]) {
+              timersByDir[p.profileDir] = p.timerUntil;
+            }
           });
         }
       } catch (_) {}
@@ -67,9 +99,8 @@
     if (!saved || !saved.profiles || !saved.profiles.length) {
       saved = { profiles: DEFAULT_PROFILES };
       saved.profiles.forEach(p => {
-        if (notesByDir[p.profileDir]) {
-          p.notes = notesByDir[p.profileDir];
-        }
+        if (notesByDir[p.profileDir]) p.notes = notesByDir[p.profileDir];
+        if (timersByDir[p.profileDir]) p.timerUntil = timersByDir[p.profileDir];
       });
     } else {
       const existingMap = {};
@@ -79,7 +110,7 @@
         if (ex) {
           return Object.assign({}, dp, {
             notes: (ex.notes && ex.notes.length) ? ex.notes : (notesByDir[dp.profileDir] || dp.notes),
-            timerUntil: ex.timerUntil || null
+            timerUntil: ex.timerUntil || timersByDir[dp.profileDir] || null
           });
         }
         return dp;
@@ -91,10 +122,9 @@
 
   let S = loadState();
   let selectedId = "p_tb_4"; // Default to DepEd (Chrome #2) or first with pending notes
-  let currentFilter = 'all'; // 'all', 'pending'
+  let currentFilter = 'all'; // 'all', 'pending', 'timers'
   let searchQuery = '';
 
-  // Select first profile with pending note if any
   const firstWithNotes = S.profiles.find(p => p.notes && p.notes.some(n => !n.done));
   if (firstWithNotes) selectedId = firstWithNotes.id;
 
@@ -110,6 +140,10 @@
     return (p.notes || []).filter(n => !n.done);
   }
 
+  function hasActiveTimer(p, t = now()) {
+    return !!(p.timerUntil && p.timerUntil > t);
+  }
+
   function fmtTime(ts) {
     if (!ts) return '';
     const d = new Date(ts);
@@ -117,13 +151,23 @@
   }
 
   function fmtDur(ms) {
-    if (ms <= 0) return 'Timer Done';
+    if (ms <= 0) return '0s';
     const s = Math.floor(ms / 1000);
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const sec = s % 60;
     if (h > 0) return `${h}h ${m}m ${sec}s`;
-    return `${m}m ${sec}s`;
+    if (m > 0) return `${m}m ${sec}s`;
+    return `${sec}s`;
+  }
+
+  function fmtShortDur(ms) {
+    if (ms <= 0) return '0s';
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
   }
 
   function toast(html, dur = 3200) {
@@ -140,50 +184,87 @@
     }, dur);
   }
 
+  // --- Live Clock & Next Event Calculation from Daily Recharge Alarm ---
+  function updateLiveClock() {
+    const n = new Date();
+    const liveTimeStr = n.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+    // Find next schedule item
+    let found = null;
+    for (let dd = 0; dd < 3 && !found; dd++) {
+      const dt = new Date(n.getFullYear(), n.getMonth(), n.getDate() + dd);
+      for (let i = 0; i < RECHARGE_SCHEDULE.length; i++) {
+        const item = RECHARGE_SCHEDULE[i];
+        const at = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), item[0], item[1], 0);
+        if (at > n) {
+          found = { at, label: item[3] };
+          break;
+        }
+      }
+    }
+
+    let countdownText = 'No alarms';
+    if (found) {
+      const diffSec = Math.round((found.at - n) / 1000);
+      const h = Math.floor(diffSec / 3600);
+      const m = Math.floor((diffSec % 3600) / 60);
+      const s = diffSec % 60;
+      let leftStr = '';
+      if (h > 0) leftStr = `${h}h ${m}m`;
+      else if (m > 0) leftStr = `${m}m`;
+      else leftStr = `${s}s`;
+
+      countdownText = `${leftStr} — ${found.label}`;
+    }
+
+    const clockEl = $('#headerClockWidget');
+    if (clockEl) {
+      clockEl.innerHTML = `
+        <div class="live-clock-widget">
+          <span class="live-clock-time">${liveTimeStr}</span>
+          <a href="https://orlandopasion000.github.io/daily-recharge-alarm.html" target="_blank" class="live-schedule-pill" title="Daily Recharge Alarm — Click to open">
+            <span>⏰</span>
+            <span><b>${esc(countdownText)}</b></span>
+          </a>
+        </div>
+      `;
+    }
+  }
+
   // --- Rendering ---
 
   function render() {
-    renderHeaderStats();
+    updateLiveClock();
+    renderFilterStats();
     renderSidebarList();
     renderChatPane();
   }
 
-  function renderHeaderStats() {
-    const pendingProfiles = S.profiles.filter(p => getPendingNotes(p).length > 0);
-    const totalPendingNotes = S.profiles.reduce((sum, p) => sum + getPendingNotes(p).length, 0);
+  function renderFilterStats() {
+    const t = now();
+    const pendingCount = S.profiles.filter(p => getPendingNotes(p).length > 0).length;
+    const timersCount = S.profiles.filter(p => hasActiveTimer(p, t)).length;
 
-    const el = $('#headerStats');
-    if (!el) return;
+    const pl = $('#pendingCountLabel');
+    if (pl) pl.textContent = pendingCount;
 
-    if (totalPendingNotes > 0) {
-      el.innerHTML = `
-        <div class="header-pill pending">
-          <span>🔴</span>
-          <span><b>${pendingProfiles.length}</b> Chromes have pending notes (${totalPendingNotes} total)</span>
-        </div>
-      `;
-    } else {
-      el.innerHTML = `
-        <div class="header-pill clean">
-          <span>✓</span>
-          <span>All notes completed!</span>
-        </div>
-      `;
-    }
-
-    const countLabel = $('#pendingCountLabel');
-    if (countLabel) countLabel.textContent = pendingProfiles.length;
+    const tl = $('#timersCountLabel');
+    if (tl) tl.textContent = timersCount;
   }
 
   function renderSidebarList() {
     const listEl = $('#chromeList');
     if (!listEl) return;
 
+    const t = now();
     const q = searchQuery.toLowerCase().trim();
 
     let list = S.profiles.filter(p => {
       const pending = getPendingNotes(p);
+      const isTimer = hasActiveTimer(p, t);
+
       if (currentFilter === 'pending' && pending.length === 0) return false;
+      if (currentFilter === 'timers' && !isTimer) return false;
 
       if (q) {
         const matchesName = p.name.toLowerCase().includes(q);
@@ -200,7 +281,7 @@
     if (!list.length) {
       listEl.innerHTML = `
         <div style="padding:24px 16px;text-align:center;color:var(--tx-muted);font-size:12.5px;">
-          No Chrome profiles match your search.
+          No Chrome profiles match your selection.
         </div>
       `;
       return;
@@ -208,14 +289,19 @@
 
     listEl.innerHTML = list.map(p => {
       const pending = getPendingNotes(p);
+      const isTimer = hasActiveTimer(p, t);
       const isSelected = (p.id === selectedId);
       const lastNote = pending.length ? pending[pending.length - 1] : (p.notes && p.notes.length ? p.notes[p.notes.length - 1] : null);
 
       let snippetText = 'No notes yet';
-      let isHighlight = false;
-      if (pending.length) {
+      let snippetClass = 'item-snippet';
+
+      if (isTimer) {
+        snippetText = `⏳ Timer: ${fmtShortDur(p.timerUntil - t)} left`;
+        snippetClass += ' timer-highlight';
+      } else if (pending.length) {
         snippetText = `📌 ${lastNote.text}`;
-        isHighlight = true;
+        snippetClass += ' highlight';
       } else if (lastNote) {
         snippetText = `✓ ${lastNote.text}`;
       }
@@ -223,7 +309,7 @@
       const tag = p.taskbarSlot <= 9 ? `W+${p.taskbarSlot}` : `#${p.taskbarSlot}`;
 
       return `
-        <div class="chrome-item ${isSelected ? 'active' : ''} ${pending.length ? 'has-pending-tasks' : ''}" data-select-id="${p.id}">
+        <div class="chrome-item ${isSelected ? 'active' : ''} ${pending.length ? 'has-pending-tasks' : ''} ${isTimer ? 'has-active-timer' : ''}" data-select-id="${p.id}">
           <div class="item-avatar-wrap">
             <div class="item-avatar">${esc(p.emoji || '🌐')}</div>
             <div class="item-slot-tag">${tag}</div>
@@ -233,9 +319,12 @@
               <span class="item-name">${esc(p.name)}</span>
               <span class="item-shortcut">${esc(p.winShortcut)}</span>
             </div>
-            <div class="item-snippet ${isHighlight ? 'highlight' : ''}">${esc(snippetText)}</div>
+            <div class="${snippetClass}">${esc(snippetText)}</div>
           </div>
-          ${pending.length ? `<span class="item-badge">${pending.length}</span>` : ''}
+          <div class="item-badges-group">
+            ${isTimer ? `<span class="item-timer-badge" data-cd-short="${p.timerUntil}">⏳ ${fmtShortDur(p.timerUntil - t)}</span>` : ''}
+            ${pending.length ? `<span class="item-badge">${pending.length}</span>` : ''}
+          </div>
         </div>
       `;
     }).join('');
@@ -252,7 +341,6 @@
     }
 
     const notes = p.notes || [];
-    const pending = getPendingNotes(p);
     const t = now();
     const hasTimer = (p.timerUntil && p.timerUntil > t);
 
@@ -276,7 +364,7 @@
       </div>
     `;
 
-    // Optional Cooldown Bar
+    // Timer Bar
     let timerBarHtml = '';
     if (hasTimer) {
       timerBarHtml = `
@@ -381,9 +469,20 @@
 
   function updateTimers() {
     const t = now();
+
+    // Update live clock and countdown to next recharge alarm
+    updateLiveClock();
+
+    // Update cooldown text inside active chat pane
     document.querySelectorAll('[data-cd]').forEach(el => {
       const target = Number(el.dataset.cd);
       el.textContent = `${fmtDur(target - t)} remaining`;
+    });
+
+    // Update short timer badges in sidebar
+    document.querySelectorAll('[data-cd-short]').forEach(el => {
+      const target = Number(el.dataset.cdShort);
+      el.textContent = `⏳ ${fmtShortDur(target - t)}`;
     });
 
     let changed = false;
@@ -463,7 +562,7 @@
         p.timerUntil = now() + h * 3600000;
         save();
         render();
-        toast(`⏱️ Timer set for ${h}h on ${esc(p.name)}`);
+        toast(`⏱️ Cooldown timer set for ${h}h on <b>${esc(p.name)}</b>`);
       }
     } else if (act === 'clearTimer') {
       if (p) {

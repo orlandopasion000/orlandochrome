@@ -9,17 +9,17 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Top Compact Header Bar -->
+    <!-- Top Compact Header Bar with Live Clock & Schedule -->
     <header class="app-header">
       <div class="brand">
         <span class="brand-icon">💬</span>
         <div class="brand-text">
           <h1>Chrome Taskbar Notes</h1>
-          <p>Messenger for your 21 taskbar Chrome profiles — easily take notes &amp; track pending tasks</p>
+          <p>Messenger for your 21 taskbar Chrome profiles</p>
         </div>
       </div>
-      <div class="header-right" id="headerStats">
-        <!-- Rendered dynamically: e.g. 🔴 3 Chromes have pending notes -->
+      <div class="header-right" id="headerClockWidget">
+        <!-- Live Clock & Daily Recharge Alarm Next Event rendered dynamically -->
       </div>
     </header>
 
@@ -32,7 +32,8 @@
           <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search profiles or notes...">
           <div class="sidebar-filters">
             <button class="filter-tab active" data-filter="all" id="filterAll">All (21)</button>
-            <button class="filter-tab" data-filter="pending" id="filterPending">🔴 Pending Notes (<span id="pendingCountLabel">0</span>)</button>
+            <button class="filter-tab" data-filter="pending" id="filterPending">🔴 Pending (<span id="pendingCountLabel">0</span>)</button>
+            <button class="filter-tab" data-filter="timers" id="filterTimers">⏳ Timers (<span id="timersCountLabel">0</span>)</button>
           </div>
         </div>
 
