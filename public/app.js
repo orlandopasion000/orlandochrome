@@ -99,35 +99,35 @@
 
   // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 Gold Cloud Black", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "A7 C grammarlyquillbot001@gmail.com", email: "grammarlyquillbot001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_24", profileDir: "Profile 59", chromeNo: 22, taskbarSlot: 24, winShortcut: "Slot #24", name: "A7 D netflixpasion", email: "netflixpasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] }
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 Gold Cloud Black", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "A7 C grammarlyquillbot001@gmail.com", email: "grammarlyquillbot001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_24", profileDir: "Profile 59", chromeNo: 22, taskbarSlot: 24, winShortcut: "Slot #24", name: "A7 D netflixpasion", email: "netflixpasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] }
   ];
 
   // Clean Blank Edition starter profiles (zero personal data — ready to auto-scan installed laptop's taskbar)
   const BLANK_STARTER_PROFILES = [
-    { id: "b_slot_1", profileDir: "", chromeNo: 1, taskbarSlot: 1, winShortcut: "Win + 1", name: "Chrome Profile #1", email: "Click 'Scan Laptop Taskbar' to auto-detect", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "b_slot_2", profileDir: "", chromeNo: 2, taskbarSlot: 2, winShortcut: "Win + 2", name: "Chrome Profile #2", email: "Taskbar Slot #2", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "b_slot_3", profileDir: "", chromeNo: 3, taskbarSlot: 3, winShortcut: "Win + 3", name: "Chrome Profile #3", email: "Taskbar Slot #3", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] }
+    { id: "b_slot_1", profileDir: "", chromeNo: 1, taskbarSlot: 1, winShortcut: "Win + 1", name: "Chrome Profile #1", email: "Click 'Scan Laptop Taskbar' to auto-detect", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "b_slot_2", profileDir: "", chromeNo: 2, taskbarSlot: 2, winShortcut: "Win + 2", name: "Chrome Profile #2", email: "Taskbar Slot #2", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "b_slot_3", profileDir: "", chromeNo: 3, taskbarSlot: 3, winShortcut: "Win + 3", name: "Chrome Profile #3", email: "Taskbar Slot #3", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] }
   ];
 
   // Old sample text to purge
@@ -970,6 +970,7 @@
           taskbarSlot: p.taskbarSlot || (idx + 1),
           winShortcut: p.winShortcut || ((idx + 1) <= 9 ? `Win + ${idx + 1}` : `Slot #${idx + 1}`),
           stickyNote: p.stickyNote || '',
+          statusNote: p.statusNote || null,
           isUnread: !!(p.isUnread && Array.isArray(p.notes) && p.notes.length > 0),
           notes: (p.notes || []).map(n => ({
             ...n,
@@ -1024,6 +1025,7 @@
           isUnread: !!(found.isUnread && cleanedNotes.length > 0),
           stickyNote: found.stickyNote || '',
           customAvatar: found.customAvatar || null,
+          statusNote: found.statusNote || null,
           notes: cleanedNotes
         };
       });
@@ -1520,6 +1522,7 @@
       const isReset = p.isReset;
       const isUnread = !!(p.isUnread && canUnread);
       const avatarSrc = getAvatarSrc(p);
+      const statusNote = getActiveStatusNote(p);
 
       const allNotes = p.notes || [];
       const pendingNotes = allNotes.filter(n => !n.done);
@@ -1544,6 +1547,9 @@
       } else if (isUnread) {
         snippetHtml = '● Marked as Unread — Check window next';
         snippetClass = 'unread-glow';
+      } else if (statusNote) {
+        snippetHtml = `<span class="snippet-msg-text snippet-msg-note" title="24h Note: ${esc(statusNote.text)}">💭 "${esc(statusNote.text)}" <span style="opacity:0.6; font-size:11px;">· ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span></span>`;
+        snippetClass = 'note-row';
       } else if (allNotes.length > 0) {
         // Messenger Standard: After reading/completing task, show latest note in transparent/dim style like email
         const lastNote = allNotes[allNotes.length - 1];
@@ -1590,6 +1596,16 @@
         </div>
       `;
     }).join('');
+
+    // Attach profile avatar & note bubble click to open Messenger Note
+    $$('.profile-avatar-wrap', list).forEach(wrap => {
+      wrap.onclick = (e) => {
+        e.stopPropagation();
+        const pid = wrap.dataset.pid;
+        const prof = getProfile(pid);
+        if (prof) promptMessengerNote(prof);
+      };
+    });
 
     // Attach interactive Pin click handlers
     $$('.pin-btn', list).forEach(btn => {
@@ -1708,6 +1724,9 @@
               ➕ Add Profile
             </button>
           ` : ''}
+          <button class="btn-header-action ${statusNote ? 'note-active' : ''}" id="btnMessengerNote" title="Messenger 24-Hour Note (lasts 24 hours)">
+            💭 ${statusNote ? 'Edit Note' : 'Add Note'}
+          </button>
           <button class="btn-header-action ${p.stickyNote ? 'sticky-active' : ''}" id="btnStickyNote" title="Set a permanent sticky header note for ${esc(p.name)}">
             📌 ${p.stickyNote ? 'Edit Sticky' : 'Sticky Note'}
           </button>
@@ -2522,6 +2541,225 @@
     inp.onkeydown = (e) => {
       if (e.key === 'Enter') save();
       if (e.key === 'Escape') close();
+    };
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+  }
+
+
+  // Messenger 24-Hour Notes Helpers
+  function getActiveStatusNote(profile) {
+    if (!profile || !profile.statusNote) return null;
+    const cur = now();
+    if (profile.statusNote.expiresAt && cur >= profile.statusNote.expiresAt) {
+      profile.statusNote = null;
+      return null;
+    }
+    return profile.statusNote;
+  }
+
+  function formatRemainingNoteTime(ms) {
+    if (ms <= 0) return 'Expired';
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const mins = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours > 0) return `${hours}h ${mins}m left`;
+    return `${Math.max(1, mins)}m left`;
+  }
+
+  // Messenger Standard 24-Hour Note Modal (Tap avatar or note bubble)
+  function promptMessengerNote(profile) {
+    const cur = now();
+    const currentNote = getActiveStatusNote(profile);
+    const avatarSrc = getAvatarSrc(profile);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="rename-dialog messenger-note-dialog">
+        <div class="messenger-note-header">
+          <div class="note-modal-avatar-preview">
+            <div class="note-preview-bubble-wrap">
+              <div class="avatar-note-bubble preview-bubble" id="noteLivePreviewBubble" style="${currentNote ? '' : 'display:none;'}">
+                <span id="notePreviewText">${esc(currentNote ? currentNote.text : '')}</span>
+              </div>
+              <img src="${avatarSrc}" class="note-modal-avatar-img" alt="${esc(profile.name)}">
+            </div>
+            <div class="note-modal-titles">
+              <h3 style="margin:0; font-size:16px; font-weight:800; color:#fff;">💭 Messenger Note</h3>
+              <span style="font-size:12px; color:var(--nf-text-muted);">${esc(profile.name)} · ${esc(profile.winShortcut)}</span>
+            </div>
+          </div>
+          <button type="button" class="btn-subcheck-del" id="btnCloseNoteModal" title="Close" style="font-size:18px;">✕</button>
+        </div>
+
+        ${currentNote ? `
+          <div class="current-note-status-banner">
+            <div class="status-banner-row">
+              <span class="status-banner-title">Active 24h Note:</span>
+              <span class="status-banner-expires">⏳ ${formatRemainingNoteTime(currentNote.expiresAt - cur)}</span>
+            </div>
+            <div class="status-banner-text">"${esc(currentNote.text)}"</div>
+          </div>
+        ` : ''}
+
+        <div class="note-input-container">
+          <label for="messengerNoteInput" class="note-input-label">
+            <span>Share a thought... (shown above avatar)</span>
+            <span class="note-char-counter"><span id="noteCharCount">${currentNote ? currentNote.text.length : 0}</span> / 60</span>
+          </label>
+          <input type="text" id="messengerNoteInput" class="rename-input note-composer-input" maxlength="60" value="${esc(currentNote ? currentNote.text : '')}" placeholder="What's on your mind? (e.g. Focused on work 💻)">
+        </div>
+
+        <!-- Quick Emoji Tap Bar -->
+        <div class="note-emoji-bar">
+          <span class="emoji-bar-label">Quick Emojis:</span>
+          <div class="emoji-chips">
+            ${['☕', '📚', '💻', '🚀', '💡', '🔥', '⚡', '🎧', '💤', '🍕', '🎯', '✨'].map(em => `
+              <button type="button" class="btn-emoji-chip" data-emoji="${em}">${em}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="note-modal-hint">
+          ℹ️ In Messenger standard, your note floats as a thought bubble above your profile picture for <strong>24 hours</strong>, then disappears automatically (or sooner if deleted). Only 1 active note per profile.
+        </div>
+
+        <div class="rename-actions note-dialog-actions">
+          ${currentNote ? `
+            <button type="button" class="btn-banner-clear btn-delete-note" id="btnDeleteNote" style="color:#ef4444; border-color:rgba(239,68,68,0.4);">
+              🗑️ Delete Note
+            </button>
+            <button type="button" class="btn-banner-clear" id="btnSendNoteToChat" title="Copy this thought as a message note into chat">
+              💬 Send to Chat
+            </button>
+          ` : ''}
+          <button type="button" class="btn-banner-clear" id="btnCancelNote">Cancel</button>
+          <button type="button" class="btn-composer-send" id="btnSaveNote" style="padding:9px 20px;">
+            ${currentNote ? 'Update Note 💭' : 'Share Note 💭'}
+          </button>
+        </div>
+
+        <div class="note-modal-footer">
+          <button type="button" class="btn-link-action" id="btnChangeAvatarFromNote">📷 Change Profile Photo</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+    const inp = $('#messengerNoteInput', backdrop);
+    const charCount = $('#noteCharCount', backdrop);
+    const previewBubble = $('#noteLivePreviewBubble', backdrop);
+    const previewText = $('#notePreviewText', backdrop);
+    inp.focus();
+    inp.select();
+
+    const updatePreview = () => {
+      const val = inp.value;
+      charCount.textContent = val.length;
+      if (val.trim()) {
+        previewText.textContent = val;
+        previewBubble.style.display = 'block';
+      } else {
+        previewBubble.style.display = 'none';
+      }
+    };
+
+    inp.oninput = updatePreview;
+
+    // Quick emoji insertion
+    $$('.btn-emoji-chip', backdrop).forEach(btn => {
+      btn.onclick = () => {
+        const emoji = btn.dataset.emoji;
+        if (inp.value.length + emoji.length <= 60) {
+          inp.value += (inp.value.length > 0 && !inp.value.endsWith(' ') ? ' ' : '') + emoji;
+          updatePreview();
+          inp.focus();
+        }
+      };
+    });
+
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+
+    const saveNote = () => {
+      const trimmed = inp.value.trim().slice(0, 60);
+      if (!trimmed) {
+        if (profile.statusNote) {
+          profile.statusNote = null;
+          saveState();
+          renderSidebar();
+          renderMainChat();
+          showToast(`🗑️ Note cleared for ${profile.name}`);
+        }
+        close();
+        return;
+      }
+      const postTime = now();
+      profile.statusNote = {
+        text: trimmed,
+        createdAt: postTime,
+        expiresAt: postTime + (24 * 60 * 60 * 1000)
+      };
+      saveState();
+      if (window.soundMgr) window.soundMgr.playClick();
+      renderSidebar();
+      renderMainChat();
+      showToast(`💭 Note shared on ${profile.name} (lasts 24 hours)`);
+      close();
+    };
+
+    $('#btnSaveNote', backdrop).onclick = saveNote;
+    $('#btnCancelNote', backdrop).onclick = close;
+    $('#btnCloseNoteModal', backdrop).onclick = close;
+
+    const delBtn = $('#btnDeleteNote', backdrop);
+    if (delBtn) {
+      delBtn.onclick = () => {
+        profile.statusNote = null;
+        saveState();
+        if (window.soundMgr) window.soundMgr.playClick();
+        renderSidebar();
+        renderMainChat();
+        showToast(`🗑️ Note deleted for ${profile.name}`);
+        close();
+      };
+    }
+
+    const sendToChatBtn = $('#btnSendNoteToChat', backdrop);
+    if (sendToChatBtn && currentNote) {
+      sendToChatBtn.onclick = () => {
+        profile.notes.push({
+          id: `note_${now()}_${Math.random().toString(36).substr(2, 4)}`,
+          text: `💭 24h Note: ${currentNote.text}`,
+          done: false,
+          createdAt: now(),
+          reactions: [],
+          subItems: []
+        });
+        saveState();
+        if (window.soundMgr) window.soundMgr.playClick();
+        renderSidebar();
+        renderMainChat();
+        showToast(`💬 Note posted to ${profile.name}'s task chat!`);
+        close();
+      };
+    }
+
+    const changePhotoBtn = $('#btnChangeAvatarFromNote', backdrop);
+    if (changePhotoBtn) {
+      changePhotoBtn.onclick = () => {
+        close();
+        state.uploadTargetId = profile.id;
+        const photoInp = $('#globalPhotoInput');
+        if (photoInp) photoInp.click();
+      };
+    }
+
+    inp.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveNote();
+      } else if (e.key === 'Escape') {
+        close();
+      }
     };
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
   }
