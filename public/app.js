@@ -40,28 +40,28 @@
 
   // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gmail Gold Cloud", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "A7 C grammarlyquillbot001@gmail.com", email: "grammarlyquillbot001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_24", profileDir: "Profile 59", chromeNo: 22, taskbarSlot: 24, winShortcut: "Slot #24", name: "A7 D netflixpasion", email: "netflixpasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] }
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gmail Gold Cloud", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "A7 C grammarlyquillbot001@gmail.com", email: "grammarlyquillbot001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] },
+    { id: "p_tb_24", profileDir: "Profile 59", chromeNo: 22, taskbarSlot: 24, winShortcut: "Slot #24", name: "A7 D netflixpasion", email: "netflixpasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, customAvatar: null, notes: [] }
   ];
 
   // Old sample text to purge
@@ -143,6 +143,8 @@
           timerUntil: found.timerUntil || null,
           timerDurationMs: found.timerDurationMs || null,
           isReset: !!found.isReset,
+          isPinned: !!found.isPinned,
+          pinnedAt: found.pinnedAt || null,
           customAvatar: found.customAvatar || null,
           notes: cleanedNotes
         };
@@ -249,6 +251,45 @@
     `;
   }
 
+  // Render Interactive Pushpin Button (Unpinned red 📌 vs Pinned small green-white radiant gradient pin)
+  function renderPinButton(profile) {
+    const isPinned = !!(profile.isPinned && countPending(profile) > 0);
+    if (!isPinned) {
+      return `<button type="button" class="pin-btn unpinned" data-pin-id="${profile.id}" title="Click to pin ${esc(profile.name)} &amp; message to top">📌</button>`;
+    }
+    const gid = `pinGrad_${profile.id}`;
+    const nid = `needleGrad_${profile.id}`;
+    return `
+      <button type="button" class="pin-btn pinned" data-pin-id="${profile.id}" title="Pinned to top — Click to return ${esc(profile.name)} to original location (${esc(profile.winShortcut)})">
+        <svg class="pin-svg-radiant" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <defs>
+            <linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="32%" stop-color="#D1FAE5"/>
+              <stop offset="68%" stop-color="#34D399"/>
+              <stop offset="100%" stop-color="#10B981"/>
+            </linearGradient>
+            <linearGradient id="${nid}" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="100%" stop-color="#A7F3D0"/>
+            </linearGradient>
+          </defs>
+          <g transform="rotate(45 12 12)">
+            <!-- Needle -->
+            <path d="M11 14 L13 14 L12.4 22.2 L12 23.2 L11.6 22.2 Z" fill="url(#${nid})"/>
+            <!-- Lower Flange / Collar -->
+            <rect x="6" y="11" width="12" height="3.4" rx="1.7" fill="url(#${gid})"/>
+            <!-- Middle Cylinder Body -->
+            <path d="M8.5 5.2 L15.5 5.2 L14.5 11.2 L9.5 11.2 Z" fill="url(#${gid})"/>
+            <!-- Top Cap with White Radiant Highlight -->
+            <rect x="7" y="2.2" width="10" height="3.3" rx="1.65" fill="#FFFFFF"/>
+            <rect x="7.5" y="2.6" width="9" height="2.5" rx="1.25" fill="url(#${gid})"/>
+          </g>
+        </svg>
+      </button>
+    `;
+  }
+
   // Render Sidebar Profiles List
   function renderSidebar() {
     const list = $('#profileList');
@@ -274,6 +315,15 @@
       return inName || inEmail || inSlot || inNotes;
     });
 
+    // Sort: Pinned profiles with pending messages go to the top; unpinned stay in exact original taskbarSlot order
+    filtered.sort((a, b) => {
+      const aPin = !!(a.isPinned && countPending(a) > 0);
+      const bPin = !!(b.isPinned && countPending(b) > 0);
+      if (aPin !== bPin) return aPin ? -1 : 1;
+      if (aPin && bPin) return (b.pinnedAt || 0) - (a.pinnedAt || 0);
+      return a.taskbarSlot - b.taskbarSlot;
+    });
+
     // Update filter badge counts
     $('#countAll').textContent = state.profiles.length;
     $('#countPending').textContent = totalPendingCount();
@@ -291,23 +341,24 @@
     list.innerHTML = filtered.map(p => {
       const isActive = p.id === state.activeProfileId;
       const pendingCount = countPending(p);
+      const isPinned = !!(p.isPinned && pendingCount > 0);
       const isTimer = p.timerUntil && p.timerUntil > cur;
       const isReset = p.isReset;
       const avatarSrc = getAvatarSrc(p);
 
       const pendingNotes = (p.notes || []).filter(n => !n.done);
-      let snippet = 'No notes yet';
+      let snippetHtml = 'No notes yet';
       let snippetClass = '';
 
-      if (isReset) {
-        snippet = '🟢 Limit Reset · Ready for work';
+      if (pendingNotes.length > 0) {
+        snippetHtml = `${renderPinButton(p)}<span class="snippet-msg-text">${esc(pendingNotes[0].text)}</span>`;
+        snippetClass = isPinned ? 'pinned-glow' : 'pending-glow';
+      } else if (isReset) {
+        snippetHtml = '🟢 Limit Reset · Ready for work';
         snippetClass = 'reset-glow';
       } else if (isTimer) {
-        snippet = `⏳ Timer: ${formatRemainingShort(p.timerUntil - cur)} left`;
+        snippetHtml = `⏳ Timer: ${formatRemainingShort(p.timerUntil - cur)} left`;
         snippetClass = 'timer-glow';
-      } else if (pendingNotes.length > 0) {
-        snippet = `📌 ${pendingNotes[0].text}`;
-        snippetClass = 'pending-glow';
       }
 
       // Short slot tag e.g. W+3, W+4, #10
@@ -316,7 +367,7 @@
         : `#${p.taskbarSlot}`;
 
       return `
-        <div class="profile-item ${isActive ? 'active' : ''}" data-id="${p.id}">
+        <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''}" data-id="${p.id}">
           <!-- Bigger Picture Avatar (52px) -->
           <div class="profile-avatar-wrap">
             <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
@@ -330,7 +381,7 @@
               <span class="profile-shortcut">${esc(p.winShortcut)}</span>
             </div>
             <div class="profile-row-sub">
-              <span class="profile-snippet ${snippetClass}">${esc(snippet)}</span>
+              <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
               ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
               ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
               ${isReset ? `<span class="badge-reset-pill">🟢 Reset</span>` : ''}
@@ -339,6 +390,33 @@
         </div>
       `;
     }).join('');
+
+    // Attach interactive Pin click handlers (stops propagation so clicking the pin toggles top placement cleanly)
+    $$('.pin-btn', list).forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const pid = btn.dataset.pinId;
+        const prof = getProfile(pid);
+        if (!prof) return;
+
+        if (prof.isPinned) {
+          prof.isPinned = false;
+          prof.pinnedAt = null;
+          saveState();
+          if (window.soundMgr) window.soundMgr.playClick();
+          renderSidebar();
+          showToast(`Returned ${prof.name} to ${prof.winShortcut}`);
+        } else {
+          prof.isPinned = true;
+          prof.pinnedAt = now();
+          saveState();
+          if (window.soundMgr) window.soundMgr.playClick();
+          renderSidebar();
+          list.scrollTo({ top: 0, behavior: 'smooth' });
+          showToast(`Pinned ${prof.name} to top`);
+        }
+      };
+    });
 
     // Attach item click handlers
     $$('.profile-item', list).forEach(item => {
@@ -530,6 +608,11 @@
           if (note.done && window.soundMgr) window.soundMgr.playReadyChime();
         } else if (act === 'delete-note') {
           p.notes = p.notes.filter(n => n.id !== nid);
+        }
+
+        if (countPending(p) === 0) {
+          p.isPinned = false;
+          p.pinnedAt = null;
         }
 
         saveState();
