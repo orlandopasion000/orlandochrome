@@ -1,0 +1,20 @@
+{
+  "name": "OrlandoChrome · Taskbar Command Center",
+  "short_name": "OrlandoChrome",
+  "description": "OLED Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["productivity", "utilities", "education"],
+  "icons": [
+    {
+      "src": "oc-logo.svg",
+      "sizes": "160x160 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

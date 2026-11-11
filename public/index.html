@@ -2,10 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>OrlandoChrome · Taskbar Notes</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OrlandoChrome">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
+  <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="oc-logo.svg">
+  <link rel="apple-touch-icon" href="oc-logo.svg">
+  <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -18,12 +26,23 @@
         <img src="oc-logo.svg" class="oc-logo-img" alt="OC Logo">
         <div class="brand-text-wrap">
           <span class="brand-title"><span class="title-orlando">ORLANDO</span><span class="title-chrome">CHROME</span></span>
-          <span class="brand-sub">TASKBAR NOTES</span>
+          <span class="brand-sub" id="brandEditionBadge">TASKBAR NOTES</span>
         </div>
       </div>
     </div>
 
     <div class="topbar-right">
+      <!-- Jump to Next Pending / Reset Profile (Alt+N) -->
+      <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
+        ⚡ Next Ready
+      </button>
+
+      <!-- App Distribution & Command Suite Trigger -->
+      <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution &amp; Command Suite (Install, iPhone QR, Backup &amp; Blank Edition)">
+        <span>📲 App Suite</span>
+        <span class="pwa-ready-mini-badge">• PWA Ready</span>
+      </button>
+
       <!-- Live Clock & Daily Recharge Alarm Widget -->
       <div class="nav-clock-box" id="navClockBox">
         <!-- Rendered dynamically -->
@@ -32,13 +51,13 @@
   </header>
 
   <!-- Main 2-Pane Messenger Workspace -->
-  <div class="app-workspace">
+  <div class="app-workspace" id="appWorkspace">
     <!-- Left Column: Search, Filters, and Chrome Profiles -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header">
         <div class="search-box-wrap">
           <span class="search-icon">🔍</span>
-          <input type="text" id="profileSearch" class="search-input" placeholder="Search profiles or notes...">
+          <input type="text" id="profileSearch" class="search-input" placeholder="Search profiles or notes... (Alt+↑/↓)">
         </div>
 
         <div class="filter-tabs-row">
@@ -52,6 +71,14 @@
       <div class="profile-list" id="profileList">
         <!-- Rendered dynamically -->
       </div>
+
+      <!-- Sidebar Footer: App Distribution & Command Suite -->
+      <div class="sidebar-footer">
+        <button type="button" class="btn-sidebar-suite" id="btnSidebarAppSuite">
+          <span class="suite-footer-left">📲 App Distribution &amp; Command Suite</span>
+          <span class="pwa-ready-pill">• PWA Ready</span>
+        </button>
+      </div>
     </aside>
 
     <!-- Right Column: Active Chrome Profile Notes & Timers -->
@@ -64,6 +91,10 @@
   <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
   <!-- Hidden Screenshot / Media Attachment Input (Chat Notes) -->
   <input type="file" id="noteImageInput" accept="image/*" style="display:none;">
+  <!-- Hidden JSON Backup Restore Input -->
+  <input type="file" id="backupJsonInput" accept=".json,application/json" style="display:none;">
+  <!-- Hidden Chrome Local State / Taskbar Scanner File Input (For Blank Edition Laptop Sync) -->
+  <input type="file" id="localStateFileInput" style="display:none;">
 
   <!-- Toast Notification Container -->
   <div id="toast"></div>

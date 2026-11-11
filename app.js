@@ -1,8 +1,6 @@
-/* OrlandoChrome · Chrome Taskbar Notes
- * Fast, smooth Messenger 2-column layout with OLED pure black theme,
- * Small Red & White / Green & White Radiant Gradient Pins,
- * Bloody Red / Dark Red Radiant Gradients, Reactions, Inline Edit,
- * Screenshot Paste/Drop, Task Forwarding, Unread Dots, and Wispr Flow Pro Dictation Suite.
+/* OrlandoChrome · Chrome Taskbar Notes & Command Center
+ * OLED Pure Black (#000000) Theme · Small Green & White / Red & White Radiant Gradient Pins & Reset States
+ * 7 High-Impact Enhancements + Wispr Flow Pro Dictation + App Distribution & Command Suite (PWA & Blank Edition)
  */
 (function() {
   const $ = (s, r = document) => r.querySelector(s);
@@ -11,9 +9,25 @@
   const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   const now = () => Date.now();
 
-  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v5';
-  const OLD_STORAGE_KEYS = ['chrome_taskbar_messenger_notes_v4', 'chrome_taskbar_netflix_v1', 'chrome_taskbar_messenger_notes_v3'];
-  const WISPR_PREFS_KEY = 'orlandochrome_wispr_flow_pro_v1';
+  // Check if running in Clean Blank Edition mode (?edition=blank) for any external laptop
+  const URL_PARAMS = new URLSearchParams(window.location.search);
+  const IS_BLANK_EDITION = URL_PARAMS.get('edition') === 'blank';
+
+  const STORAGE_KEY = IS_BLANK_EDITION
+    ? 'orlandochrome_blank_edition_profiles_v1'
+    : 'chrome_taskbar_messenger_notes_v5';
+  const OLD_STORAGE_KEYS = IS_BLANK_EDITION
+    ? []
+    : ['chrome_taskbar_messenger_notes_v4', 'chrome_taskbar_netflix_v1', 'chrome_taskbar_messenger_notes_v3'];
+  const WISPR_PREFS_KEY = IS_BLANK_EDITION
+    ? 'orlandochrome_blank_wispr_v1'
+    : 'orlandochrome_wispr_flow_pro_v1';
+  const TEMPLATES_KEY = IS_BLANK_EDITION
+    ? 'orlandochrome_blank_templates_v1'
+    : 'orlandochrome_quick_templates_v1';
+
+  const LIVE_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/';
+  const BLANK_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/?edition=blank';
 
   // Priority & Color Reactions (Messenger / Discord Style)
   const REACTIONS_LIST = [
@@ -23,6 +37,24 @@
     { key: 'verified',  icon: '✅', label: 'Verified',  cls: 'react-verified' }
   ];
   const REACTIONS_MAP = Object.fromEntries(REACTIONS_LIST.map(r => [r.key, r]));
+
+  // Default 1-Click Quick-Task Templates (Enhancement #1)
+  const DEFAULT_TEMPLATES = IS_BLANK_EDITION
+    ? [
+        '📄 Print Document',
+        '🤖 Check AI Quota',
+        '📝 Draft Notes',
+        '🔍 Research Task',
+        '📧 Check Email'
+      ]
+    : [
+        '📄 Print',
+        '📊 DepEd LIS/Forms',
+        '📝 Lesson Plan',
+        '📑 Check BOW',
+        '🔍 Scite Search',
+        '🤖 Check AI Quota'
+      ];
 
   // Schedule from Daily Recharge Alarm (Sir Orlando V. Pasion, Jr.)
   const RECHARGE_SCHEDULE = [
@@ -53,28 +85,35 @@
 
   // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gmail Gold Cloud", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "A7 C grammarlyquillbot001@gmail.com", email: "grammarlyquillbot001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] },
-    { id: "p_tb_24", profileDir: "Profile 59", chromeNo: 22, taskbarSlot: 24, winShortcut: "Slot #24", name: "A7 D netflixpasion", email: "netflixpasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, customAvatar: null, notes: [] }
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gmail Gold Cloud", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "A7 C grammarlyquillbot001@gmail.com", email: "grammarlyquillbot001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_24", profileDir: "Profile 59", chromeNo: 22, taskbarSlot: 24, winShortcut: "Slot #24", name: "A7 D netflixpasion", email: "netflixpasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] }
+  ];
+
+  // Clean Blank Edition starter profiles (zero personal data — ready to auto-scan installed laptop's taskbar)
+  const BLANK_STARTER_PROFILES = [
+    { id: "b_slot_1", profileDir: "", chromeNo: 1, taskbarSlot: 1, winShortcut: "Win + 1", name: "Chrome Profile #1", email: "Click 'Scan Laptop Taskbar' to auto-detect", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "b_slot_2", profileDir: "", chromeNo: 2, taskbarSlot: 2, winShortcut: "Win + 2", name: "Chrome Profile #2", email: "Taskbar Slot #2", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "b_slot_3", profileDir: "", chromeNo: 3, taskbarSlot: 3, winShortcut: "Win + 3", name: "Chrome Profile #3", email: "Taskbar Slot #3", gaia: "", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] }
   ];
 
   // Old sample text to purge
@@ -87,23 +126,42 @@
   ];
 
   // Default Personal Dictionary for Wispr Flow Pro
-  const DEFAULT_WISPR_DICT = [
-    { from: "deped", to: "DepEd" },
-    { from: "bow", to: "BOW" },
-    { from: "st2", to: "ST2" },
-    { from: "scite", to: "Scite" },
-    { from: "quillbot", to: "QuillBot" },
-    { from: "grammarly", to: "Grammarly" },
-    { from: "math 8", to: "Math 8" },
-    { from: "math 10", to: "Math 10" },
-    { from: "gen math 11", to: "Gen Math 11" },
-    { from: "orlando", to: "Orlando" }
-  ];
+  const DEFAULT_WISPR_DICT = IS_BLANK_EDITION
+    ? [
+        { from: "ai", to: "AI" },
+        { from: "chatgpt", to: "ChatGPT" }
+      ]
+    : [
+        { from: "deped", to: "DepEd" },
+        { from: "bow", to: "BOW" },
+        { from: "st2", to: "ST2" },
+        { from: "scite", to: "Scite" },
+        { from: "quillbot", to: "QuillBot" },
+        { from: "grammarly", to: "Grammarly" },
+        { from: "math 8", to: "Math 8" },
+        { from: "math 10", to: "Math 10" },
+        { from: "gen math 11", to: "Gen Math 11" },
+        { from: "orlando", to: "Orlando" }
+      ];
+
+  // Deferred PWA Install Prompt Event
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+  });
+
+  // Register Service Worker for Offline PWA & iOS Home Screen Support
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
 
   // Application State
   const state = {
     profiles: [],
-    activeProfileId: "p_tb_4",
+    activeProfileId: IS_BLANK_EDITION ? "b_slot_1" : "p_tb_4",
     currentFilter: "all",      // "all" | "pending" | "timers"
     searchQuery: "",
     uploadTargetId: null,
@@ -111,6 +169,7 @@
     pendingAttachment: null,   // Base64 compressed image awaiting send
     pendingVoiceClip: null,    // Base64 audio clip from Wispr Flow Voice Memo
     pendingReactionTag: null,  // Reaction queued by voice command
+    quickTemplates: [...DEFAULT_TEMPLATES],
     wispr: {
       isListening: false,
       panelOpen: false,
@@ -125,6 +184,23 @@
       dictionary: [...DEFAULT_WISPR_DICT]
     }
   };
+
+  // Load & Save Quick Templates
+  function loadTemplates() {
+    try {
+      const raw = localStorage.getItem(TEMPLATES_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) state.quickTemplates = parsed;
+      }
+    } catch (e) {}
+  }
+
+  function saveTemplates() {
+    try {
+      localStorage.setItem(TEMPLATES_KEY, JSON.stringify(state.quickTemplates));
+    } catch (e) {}
+  }
 
   // Load & Save Wispr Flow Pro preferences
   function loadWisprPrefs() {
@@ -163,8 +239,9 @@
   // Helper to get avatar source
   function getAvatarSrc(profile) {
     if (profile.customAvatar) return profile.customAvatar;
-    if (profile.profileDir) return `avatars/${encodeURIComponent(profile.profileDir)}.png`;
-    return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50' y='65' font-size='48' text-anchor='middle' fill='%23E50914' font-family='sans-serif'>${esc(profile.name ? profile.name[0] : 'C')}</text></svg>`;
+    if (!IS_BLANK_EDITION && profile.profileDir) return `avatars/${encodeURIComponent(profile.profileDir)}.png`;
+    const initial = esc(profile.name ? profile.name[0].toUpperCase() : 'C');
+    return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='30%' cy='25%' r='75%'><stop offset='0%' stop-color='%23ff4d58'/><stop offset='50%' stop-color='%23b8000a'/><stop offset='100%' stop-color='%231a0002'/></radialGradient></defs><rect width='100' height='100' rx='50' fill='url(%23g)'/><text x='50' y='66' font-size='46' font-weight='800' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'>${initial}</text></svg>`;
   }
 
   // Toast notification
@@ -174,7 +251,40 @@
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(el._timer);
-    el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+    el._timer = setTimeout(() => el.classList.remove('show'), 2600);
+  }
+
+  // Enhancement #3: Auto-Linkify URLs inside message text & sticky notes
+  function linkifyText(raw) {
+    const safe = esc(raw);
+    return safe.replace(/(https?:\/\/[^\s<]+)/g, (url) => {
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="note-auto-link" onclick="event.stopPropagation()">🔗 ${url}</a>`;
+    });
+  }
+
+  // Enhancement #5: Update Browser Tab Title with Live Pending / Reset Count
+  function updateDocumentTitle() {
+    const pending = totalPendingCount();
+    const resets = state.profiles.filter(p => p.isReset).length;
+    const totalAlerts = pending + resets;
+    const baseName = IS_BLANK_EDITION ? 'OrlandoChrome · Blank Edition' : 'OrlandoChrome · Taskbar Notes';
+    document.title = totalAlerts > 0 ? `(${totalAlerts}) ${baseName}` : baseName;
+  }
+
+  // Enhancement #5: Fire Desktop Browser Notification on Timer Reset
+  function triggerDesktopNotification(title, body) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+      try {
+        new Notification(title, { body, icon: 'oc-logo.svg' });
+      } catch (e) {}
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(perm => {
+        if (perm === 'granted') {
+          try { new Notification(title, { body, icon: 'oc-logo.svg' }); } catch (e) {}
+        }
+      }).catch(() => {});
+    }
   }
 
   // Compress Image (for Ctrl+V Paste, Drag & Drop, or File Upload)
@@ -206,9 +316,60 @@
     });
   }
 
+  // Check if URL has ?import_b64=... from the Laptop Taskbar Auto-Scanner script
+  function checkUrlImportedProfiles() {
+    const b64 = URL_PARAMS.get('import_b64');
+    if (!b64) return null;
+    try {
+      const jsonStr = atob(b64);
+      const arr = JSON.parse(jsonStr);
+      if (Array.isArray(arr) && arr.length > 0) {
+        window.history.replaceState({}, document.title, window.location.pathname + (IS_BLANK_EDITION ? '?edition=blank' : ''));
+        return arr;
+      }
+    } catch (e) {
+      console.warn('Failed to parse URL imported profiles:', e);
+    }
+    return null;
+  }
+
   // Load state and clean sample notes
   function loadState() {
     loadWisprPrefs();
+    loadTemplates();
+
+    const badge = $('#brandEditionBadge');
+    if (badge && IS_BLANK_EDITION) {
+      badge.textContent = 'BLANK EDITION';
+    }
+
+    const urlImported = checkUrlImportedProfiles();
+    if (urlImported && IS_BLANK_EDITION) {
+      state.profiles = urlImported.map((p, idx) => ({
+        id: p.id || `b_slot_${idx + 1}`,
+        profileDir: p.profileDir || `Profile ${idx + 1}`,
+        chromeNo: idx + 1,
+        taskbarSlot: p.taskbarSlot || (idx + 1),
+        winShortcut: p.winShortcut || ((idx + 1) <= 9 ? `Win + ${idx + 1}` : `Slot #${idx + 1}`),
+        name: p.name || `Chrome #${idx + 1}`,
+        email: p.email || '',
+        gaia: p.gaia || '',
+        timerUntil: null,
+        timerDurationMs: null,
+        isReset: false,
+        isPinned: false,
+        pinnedAt: null,
+        isUnread: false,
+        stickyNote: '',
+        customAvatar: p.customAvatar || null,
+        notes: []
+      }));
+      state.activeProfileId = state.profiles[0].id;
+      saveState();
+      setTimeout(() => showToast(`✅ Synced ${state.profiles.length} taskbar Chrome profiles from this laptop!`), 300);
+      return;
+    }
+
     let raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       for (const k of OLD_STORAGE_KEYS) {
@@ -228,6 +389,30 @@
       }
     }
 
+    if (IS_BLANK_EDITION) {
+      if (!loaded || !loaded.length) {
+        state.profiles = JSON.parse(JSON.stringify(BLANK_STARTER_PROFILES));
+      } else {
+        state.profiles = loaded.map((p, idx) => ({
+          ...p,
+          id: p.id || `b_slot_${idx + 1}`,
+          chromeNo: p.chromeNo || (idx + 1),
+          taskbarSlot: p.taskbarSlot || (idx + 1),
+          winShortcut: p.winShortcut || ((idx + 1) <= 9 ? `Win + ${idx + 1}` : `Slot #${idx + 1}`),
+          stickyNote: p.stickyNote || '',
+          isUnread: !!(p.isUnread && Array.isArray(p.notes) && p.notes.length > 0),
+          notes: (p.notes || []).map(n => ({
+            ...n,
+            reactions: Array.isArray(n.reactions) ? n.reactions : [],
+            subItems: Array.isArray(n.subItems) ? n.subItems : []
+          }))
+        }));
+      }
+      state.activeProfileId = state.profiles[0] ? state.profiles[0].id : 'b_slot_1';
+      saveState();
+      return;
+    }
+
     if (!loaded || !loaded.length) {
       state.profiles = JSON.parse(JSON.stringify(DEFAULT_PROFILES));
     } else {
@@ -242,6 +427,7 @@
         }).map(n => ({
           ...n,
           reactions: Array.isArray(n.reactions) ? n.reactions : [],
+          subItems: Array.isArray(n.subItems) ? n.subItems : [],
           image: n.image || null,
           voiceClip: n.voiceClip || null,
           editedAt: n.editedAt || null,
@@ -261,6 +447,7 @@
           isPinned: !!found.isPinned,
           pinnedAt: found.pinnedAt || null,
           isUnread: !!(found.isUnread && cleanedNotes.length > 0),
+          stickyNote: found.stickyNote || '',
           customAvatar: found.customAvatar || null,
           notes: cleanedNotes
         };
@@ -274,6 +461,7 @@
   function saveState() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.profiles));
+      updateDocumentTitle();
     } catch (e) {
       console.error('Failed to save state:', e);
       showToast('⚠️ Storage nearly full — consider deleting old large screenshots.');
@@ -369,6 +557,10 @@
     if (!box) return;
     const d = new Date();
     const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    if (IS_BLANK_EDITION) {
+      box.innerHTML = `<div class="nf-clock-digital">${timeStr}</div>`;
+      return;
+    }
     const alarm = getNextAlarmInfo();
 
     let diffText = '';
@@ -386,6 +578,11 @@
         ⏰ ${diffText} — ${esc(alarm.title)}
       </a>
     `;
+  }
+
+  // Small Green & White Radiant Gradient Orb (Replaces flat 🟢 emoji on Limit Reset)
+  function renderGreenWhiteOrb() {
+    return `<span class="radiant-green-white-orb" aria-hidden="true"></span>`;
   }
 
   // Render Interactive Pushpin Button:
@@ -517,6 +714,7 @@
     $('#countAll').textContent = state.profiles.length;
     $('#countPending').textContent = totalPendingCount();
     $('#countTimers').textContent = totalTimersCount();
+    updateDocumentTitle();
 
     if (!filtered.length) {
       list.innerHTML = `
@@ -549,7 +747,8 @@
         snippetHtml = `${renderPinButton(p)}<span class="snippet-msg-text">${esc(displayMsg)}</span>${reactBadges}`;
         snippetClass = isPinned ? 'pinned-glow' : 'pending-glow';
       } else if (isReset) {
-        snippetHtml = '🟢 Limit Reset · Ready for work';
+        // Small Green & White Radiant Gradient for Limit Reset!
+        snippetHtml = `${renderGreenWhiteOrb()}<span class="reset-msg-text">Limit Reset · Ready for work</span>`;
         snippetClass = 'reset-glow';
       } else if (isTimer) {
         snippetHtml = `⏳ Timer: ${formatRemainingShort(p.timerUntil - cur)} left`;
@@ -589,7 +788,7 @@
                 <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
                 ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
                 ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
-                ${isReset ? `<span class="badge-reset-pill">🟢 Reset</span>` : ''}
+                ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
               </div>
             ` : ''}
           </div>
@@ -597,7 +796,7 @@
       `;
     }).join('');
 
-    // Attach interactive Pin click handlers (stops propagation so clicking the pin toggles top placement cleanly)
+    // Attach interactive Pin click handlers
     $$('.pin-btn', list).forEach(btn => {
       btn.onclick = (e) => {
         e.stopPropagation();
@@ -678,7 +877,7 @@
     const w = state.wispr;
 
     main.innerHTML = `
-      <!-- Header with Bigger Picture (60px), Unread Bookmark & Rename Action -->
+      <!-- Header with Bigger Picture (60px), Sticky Note, Unread Bookmark & Rename Action -->
       <header class="chat-header">
         <div class="chat-header-profile">
           <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" title="Click to upload/change photo" alt="${esc(p.name)}">
@@ -694,6 +893,14 @@
         </div>
 
         <div class="chat-header-actions">
+          ${IS_BLANK_EDITION ? `
+            <button class="btn-header-action" id="btnAddSlotBlank" title="Add another taskbar Chrome profile slot">
+              ➕ Add Profile
+            </button>
+          ` : ''}
+          <button class="btn-header-action ${p.stickyNote ? 'sticky-active' : ''}" id="btnStickyNote" title="Set a permanent sticky header note for ${esc(p.name)}">
+            📌 ${p.stickyNote ? 'Edit Sticky' : 'Sticky Note'}
+          </button>
           ${canUnread ? `
             <button class="btn-header-action ${isUnread ? 'unread-active' : ''}" id="btnToggleUnreadHeader" title="Bookmark this profile as Unread (or right-click in sidebar)">
               ● ${isUnread ? 'Unread' : 'Mark Unread'}
@@ -704,6 +911,38 @@
           </button>
         </div>
       </header>
+
+      <!-- Clean Blank Edition Laptop Taskbar Auto-Discovery Banner -->
+      ${IS_BLANK_EDITION ? `
+        <div class="blank-scanner-banner">
+          <div class="blank-scanner-info">
+            <strong>💻 Clean Blank Edition · Laptop Taskbar Sync:</strong>
+            <span>Auto-detect and load the Chrome profiles of this laptop in 1 click.</span>
+          </div>
+          <div class="blank-scanner-actions">
+            <button type="button" class="btn-scanner-action primary" id="btnSelectLocalState" title="Select %LOCALAPPDATA%\\Google\\Chrome\\User Data\\Local State to import all Chrome profiles">
+              📂 Load Chrome "Local State"
+            </button>
+            <button type="button" class="btn-scanner-action" id="btnDownloadTaskbarScanner" title="Download 1-Click Windows Taskbar Scanner (.cmd)">
+              ⚡ 1-Click Taskbar Scanner (.cmd)
+            </button>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Enhancement #2: Permanent Sticky Header Note Banner (When Set) -->
+      ${p.stickyNote ? `
+        <div class="profile-sticky-banner" id="profileStickyBanner">
+          <div class="sticky-banner-left">
+            <span class="sticky-pin-tag">📌 STICKY</span>
+            <span class="sticky-banner-text">${linkifyText(p.stickyNote)}</span>
+          </div>
+          <div class="sticky-banner-actions">
+            <button type="button" class="btn-sticky-mini" id="btnEditStickyInline" title="Edit sticky note">✏️</button>
+            <button type="button" class="btn-sticky-mini" id="btnClearStickyInline" title="Remove sticky note">✕</button>
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Quick AI Limit Cooldown Bar -->
       <div class="quick-timer-bar">
@@ -733,10 +972,10 @@
         </div>
       ` : ''}
 
-      <!-- Reset Limit Banner -->
+      <!-- Reset Limit Banner (Small Green & White Radiant Gradient) -->
       ${isReset ? `
         <div class="timer-reset-banner">
-          <span>🟢 AI Limit Reset! Your credits &amp; quota are ready for work.</span>
+          <span class="reset-banner-row">${renderGreenWhiteOrb()}<span class="reset-banner-text">AI Limit Reset! Your credits &amp; quota are ready for work.</span></span>
           <button class="btn-banner-reset" id="btnDismissReset">✓ Acknowledge</button>
         </div>
       ` : ''}
@@ -746,6 +985,7 @@
         ${!notes.length ? '' : notes.map(n => {
           const isEditing = state.editingNoteId === n.id;
           const reactions = Array.isArray(n.reactions) ? n.reactions : [];
+          const subItems = Array.isArray(n.subItems) ? n.subItems : [];
 
           return `
           <div class="note-item-wrap" data-nid="${n.id}">
@@ -784,8 +1024,21 @@
                     <button type="button" class="btn-inline-cancel" data-action="cancel-edit" data-nid="${n.id}">Cancel</button>
                   </div>
                 ` : (n.text ? `
-                  <div class="note-text" data-action="dblclick-edit" data-nid="${n.id}" title="Double-click to edit inline">${esc(n.text)}</div>
+                  <div class="note-text" data-action="dblclick-edit" data-nid="${n.id}" title="Double-click to edit inline">${linkifyText(n.text)}</div>
                 ` : '')}
+
+                <!-- Enhancement #4: Interactive Sub-Checklists Inside Message Bubble -->
+                ${subItems.length > 0 ? `
+                  <div class="note-subchecklist">
+                    ${subItems.map(sub => `
+                      <label class="subcheck-row ${sub.done ? 'sub-done' : ''}" data-action="toggle-subitem" data-nid="${n.id}" data-subid="${sub.id}">
+                        <input type="checkbox" ${sub.done ? 'checked' : ''} tabindex="-1">
+                        <span class="subcheck-text">${linkifyText(sub.text)}</span>
+                        <button type="button" class="btn-subcheck-del" data-action="del-subitem" data-nid="${n.id}" data-subid="${sub.id}" title="Remove item">✕</button>
+                      </label>
+                    `).join('')}
+                  </div>
+                ` : ''}
 
                 ${reactions.length > 0 ? `
                   <div class="note-reactions-row">
@@ -808,6 +1061,8 @@
                 ` : `
                   <button class="btn-note-done" data-action="toggle-done" data-nid="${n.id}">✓ Done</button>
                 `}
+                <button class="btn-note-action" data-action="copy-note" data-nid="${n.id}" title="Copy message text to clipboard">📋</button>
+                <button class="btn-note-action" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item to this note">☑️</button>
                 <button class="btn-note-action" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">✏️</button>
                 <button class="btn-note-action btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward or move task to another Chrome profile">↪ Forward</button>
                 <button class="btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">🗑️</button>
@@ -900,6 +1155,19 @@
         </div>
       ` : ''}
 
+      <!-- Enhancement #1: 1-Click Quick-Task Templates Bar -->
+      <div class="quick-templates-bar">
+        <span class="templates-label">⚡ Quick Tasks:</span>
+        <div class="templates-chips-scroll">
+          ${state.quickTemplates.map((tpl, idx) => `
+            <button type="button" class="template-chip" data-tpl="${esc(tpl)}" data-tidx="${idx}" title="Click to add immediately · Shift+Click to insert in input · Right-click to remove">
+              ${esc(tpl)}
+            </button>
+          `).join('')}
+        </div>
+        <button type="button" class="btn-add-template" id="btnManageTemplates" title="Add a custom 1-click quick task template">+ Template</button>
+      </div>
+
       <!-- Composer Bar (Bottom) -->
       <div class="composer-bar">
         <button type="button" class="btn-composer-tool" id="btnAttachImage" title="Upload or attach screenshot (or press Ctrl+V)">
@@ -954,12 +1222,69 @@
     const unreadHeaderBtn = $('#btnToggleUnreadHeader');
     if (unreadHeaderBtn) {
       unreadHeaderBtn.onclick = () => {
+        if (!hasMessages(p)) return;
         p.isUnread = !p.isUnread;
         saveState();
         renderSidebar();
         renderMainChat();
         showToast(p.isUnread ? `● Marked ${p.name} as Unread` : `Cleared Unread mark on ${p.name}`);
       };
+    }
+
+    // 1c. Sticky Note Header Button & Banner Controls
+    const btnSticky = $('#btnStickyNote');
+    if (btnSticky) btnSticky.onclick = () => promptStickyNote(p);
+    const btnEditSticky = $('#btnEditStickyInline');
+    if (btnEditSticky) btnEditSticky.onclick = () => promptStickyNote(p);
+    const btnClearSticky = $('#btnClearStickyInline');
+    if (btnClearSticky) {
+      btnClearSticky.onclick = () => {
+        p.stickyNote = '';
+        saveState();
+        renderMainChat();
+        showToast(`Cleared sticky note on ${p.name}`);
+      };
+    }
+
+    // 1d. Blank Edition controls
+    const btnAddSlotBlank = $('#btnAddSlotBlank');
+    if (btnAddSlotBlank) {
+      btnAddSlotBlank.onclick = () => {
+        const nextNum = state.profiles.length + 1;
+        const newProf = {
+          id: `b_slot_${uid()}`,
+          profileDir: `Profile ${nextNum}`,
+          chromeNo: nextNum,
+          taskbarSlot: nextNum,
+          winShortcut: nextNum <= 9 ? `Win + ${nextNum}` : `Slot #${nextNum}`,
+          name: `Chrome Profile #${nextNum}`,
+          email: `Taskbar Slot #${nextNum}`,
+          gaia: '',
+          timerUntil: null,
+          timerDurationMs: null,
+          isReset: false,
+          isPinned: false,
+          pinnedAt: null,
+          isUnread: false,
+          stickyNote: '',
+          customAvatar: null,
+          notes: []
+        };
+        state.profiles.push(newProf);
+        state.activeProfileId = newProf.id;
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        promptRename(newProf);
+      };
+    }
+    const btnSelectLocalState = $('#btnSelectLocalState');
+    if (btnSelectLocalState) {
+      btnSelectLocalState.onclick = () => $('#localStateFileInput').click();
+    }
+    const btnDownloadScanner = $('#btnDownloadTaskbarScanner');
+    if (btnDownloadScanner) {
+      btnDownloadScanner.onclick = () => downloadLaptopTaskbarScannerCmd();
     }
 
     // 2. Rename profile
@@ -1020,7 +1345,7 @@
       };
     }
 
-    // 7. Note actions (Done, Edit, Forward, Reactions, Lightbox, Delete)
+    // 7. Note actions (Done, Copy, Checklist, Edit, Forward, Reactions, Lightbox, Delete)
     $$('.notes-stream [data-action]', main).forEach(el => {
       const act = el.dataset.action;
       const nid = el.dataset.nid;
@@ -1047,6 +1372,27 @@
           }
           saveState();
           renderSidebar();
+          renderMainChat();
+        } else if (act === 'copy-note') {
+          navigator.clipboard.writeText(note.text || '').then(() => {
+            showToast('📋 Copied message to clipboard!');
+          }).catch(() => {});
+        } else if (act === 'add-subitem') {
+          promptAddChecklistItem(p, note);
+        } else if (act === 'toggle-subitem') {
+          e.preventDefault();
+          const subid = el.dataset.subid;
+          const sub = (note.subItems || []).find(s => s.id === subid);
+          if (sub) {
+            sub.done = !sub.done;
+            saveState();
+            renderMainChat();
+          }
+        } else if (act === 'del-subitem') {
+          e.preventDefault();
+          const subid = el.dataset.subid;
+          note.subItems = (note.subItems || []).filter(s => s.id !== subid);
+          saveState();
           renderMainChat();
         } else if (act === 'delete-note') {
           p.notes = p.notes.filter(n => n.id !== nid);
@@ -1089,6 +1435,53 @@
       };
     });
 
+    // 7b. Quick-Task Template Chips
+    $$('.template-chip', main).forEach(chip => {
+      chip.onclick = (e) => {
+        const tplText = chip.dataset.tpl;
+        if (!tplText) return;
+        const inp = $('#composerInput');
+        if (e.shiftKey && inp) {
+          inp.value = inp.value ? `${inp.value.trim()} ${tplText}` : tplText;
+          inp.focus();
+          return;
+        }
+        if (!p.notes) p.notes = [];
+        p.notes.push({
+          id: uid(),
+          text: tplText,
+          image: null,
+          voiceClip: null,
+          reactions: [],
+          subItems: [],
+          createdAt: now(),
+          editedAt: null,
+          forwardedFrom: null,
+          done: false
+        });
+        saveState();
+        if (window.soundMgr) window.soundMgr.playClick();
+        renderSidebar();
+        renderMainChat();
+        showToast(`⚡ Added "${tplText}" to ${p.name}`);
+      };
+      chip.oncontextmenu = (e) => {
+        e.preventDefault();
+        const idx = parseInt(chip.dataset.tidx, 10);
+        if (!isNaN(idx)) {
+          const removed = state.quickTemplates.splice(idx, 1);
+          saveTemplates();
+          renderMainChat();
+          showToast(`Removed template "${removed[0]}"`);
+        }
+      };
+    });
+
+    const btnManageTpl = $('#btnManageTemplates');
+    if (btnManageTpl) {
+      btnManageTpl.onclick = () => promptAddTemplate();
+    }
+
     // 8. Screenshot attachment button & preview removal
     const btnAttach = $('#btnAttachImage');
     if (btnAttach) {
@@ -1109,7 +1502,7 @@
       };
     }
 
-    // Drag and drop screenshots onto notesStream or composer
+    // Drag and drop screenshots onto notesStream
     const streamEl = $('#notesStream');
     if (streamEl) {
       streamEl.ondragover = (e) => {
@@ -1203,6 +1596,7 @@
         image: state.pendingAttachment || null,
         voiceClip: state.pendingVoiceClip || null,
         reactions: initialReactions,
+        subItems: [],
         createdAt: now(),
         editedAt: null,
         forwardedFrom: null,
@@ -1246,6 +1640,145 @@
     renderMainChat();
   }
 
+  // Enhancement #1 Modal: Add Quick-Task Template
+  function promptAddTemplate() {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="rename-dialog">
+        <h3>⚡ Add 1-Click Quick-Task Template</h3>
+        <input type="text" id="newTplInput" class="rename-input" placeholder="e.g. 📄 Print Grade 10 Exam">
+        <div style="font-size:11.5px; color:var(--nf-text-muted);">
+          Tip: Right-click any template chip above the composer to delete it.
+        </div>
+        <div class="rename-actions">
+          <button class="btn-banner-clear" id="btnCancelTpl">Cancel</button>
+          <button class="btn-composer-send" id="btnSaveTpl" style="padding:8px 18px;">Add Chip ✓</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    const inp = $('#newTplInput', backdrop);
+    inp.focus();
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    const save = () => {
+      const val = inp.value.trim();
+      if (val) {
+        state.quickTemplates.push(val);
+        saveTemplates();
+        renderMainChat();
+        showToast(`⚡ Added template "${val}"`);
+      }
+      close();
+    };
+    $('#btnCancelTpl', backdrop).onclick = close;
+    $('#btnSaveTpl', backdrop).onclick = save;
+    inp.onkeydown = (e) => {
+      if (e.key === 'Enter') save();
+      if (e.key === 'Escape') close();
+    };
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+  }
+
+  // Enhancement #2 Modal: Permanent Sticky Note Per Profile
+  function promptStickyNote(profile) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="rename-dialog">
+        <h3>📌 Sticky Header Note for ${esc(profile.name)}</h3>
+        <input type="text" id="stickyValInput" class="rename-input" value="${esc(profile.stickyNote || '')}" placeholder="e.g. Dedicated to Scite Research · https://scite.ai">
+        <div style="font-size:11.5px; color:var(--nf-text-muted);">
+          Stays pinned at the top of ${esc(profile.name)}'s chat window even when daily notes are cleared. URLs become clickable automatically!
+        </div>
+        <div class="rename-actions">
+          <button class="btn-banner-clear" id="btnCancelSticky">Cancel</button>
+          <button class="btn-composer-send" id="btnSaveSticky" style="padding:8px 18px;">Save Sticky 📌</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    const inp = $('#stickyValInput', backdrop);
+    inp.focus();
+    inp.select();
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    const save = () => {
+      profile.stickyNote = inp.value.trim();
+      saveState();
+      renderMainChat();
+      showToast(profile.stickyNote ? `📌 Sticky note pinned for ${profile.name}` : `Cleared sticky note`);
+      close();
+    };
+    $('#btnCancelSticky', backdrop).onclick = close;
+    $('#btnSaveSticky', backdrop).onclick = save;
+    inp.onkeydown = (e) => {
+      if (e.key === 'Enter') save();
+      if (e.key === 'Escape') close();
+    };
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+  }
+
+  // Enhancement #4 Modal: Add Sub-Checklist Item(s) Inside a Message Bubble
+  function promptAddChecklistItem(profile, note) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="rename-dialog">
+        <h3>☑️ Add Sub-Checklist Items</h3>
+        <input type="text" id="subItemValInput" class="rename-input" placeholder="Type item (or separate multiple with commas)...">
+        <div style="font-size:11.5px; color:var(--nf-text-muted);">
+          Tip: Separate multiple items with commas (e.g. <em>Print Math 8, Print Math 10, Sign logbook</em>) to add them all at once!
+        </div>
+        <div class="rename-actions">
+          <button class="btn-banner-clear" id="btnCancelSub">Cancel</button>
+          <button class="btn-composer-send" id="btnSaveSub" style="padding:8px 18px;">Add Checklist  ☑️</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    const inp = $('#subItemValInput', backdrop);
+    inp.focus();
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    const save = () => {
+      const raw = inp.value.trim();
+      if (raw) {
+        if (!Array.isArray(note.subItems)) note.subItems = [];
+        const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
+        parts.forEach(part => {
+          note.subItems.push({ id: uid(), text: part, done: false });
+        });
+        saveState();
+        renderMainChat();
+        showToast(`☑️ Added ${parts.length} checklist item(s)`);
+      }
+      close();
+    };
+    $('#btnCancelSub', backdrop).onclick = close;
+    $('#btnSaveSub', backdrop).onclick = save;
+    inp.onkeydown = (e) => {
+      if (e.key === 'Enter') save();
+      if (e.key === 'Escape') close();
+    };
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+  }
+
+  // Enhancement #6: Jump to Next Profile with Pending Note or Limit Reset
+  function jumpToNextReadyProfile() {
+    const actionable = state.profiles.filter(p => countPending(p) > 0 || p.isReset || p.isUnread);
+    if (!actionable.length) {
+      showToast('✨ All 22 profiles are clear — no pending notes or active resets!');
+      return;
+    }
+    const curIdx = actionable.findIndex(p => p.id === state.activeProfileId);
+    const nextProf = actionable[(curIdx + 1) % actionable.length];
+    state.activeProfileId = nextProf.id;
+    renderSidebar();
+    renderMainChat();
+    const activeEl = $(`.profile-item[data-id="${nextProf.id}"]`);
+    if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    showToast(`⚡ Jumped to ${nextProf.name} (${nextProf.winShortcut})`);
+  }
+
   // Full-Screen Lightbox Modal for Pasted/Dropped Screenshots
   function openLightboxModal(imgSrc, caption) {
     if (!imgSrc) return;
@@ -1286,6 +1819,7 @@
         image: note.image || null,
         voiceClip: note.voiceClip || null,
         reactions: Array.isArray(note.reactions) ? [...note.reactions] : [],
+        subItems: Array.isArray(note.subItems) ? JSON.parse(JSON.stringify(note.subItems)) : [],
         createdAt: now(),
         editedAt: null,
         forwardedFrom: sourceProfile.name,
@@ -1394,6 +1928,330 @@
   }
 
   // =========================================================================
+  // 📲 APP DISTRIBUTION & COMMAND SUITE (PWA Install, Mobile QR, iOS Guide, Backup, Blank Edition)
+  // =========================================================================
+  function downloadTextFile(filename, content, mime = 'text/plain;charset=utf-8') {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 200);
+  }
+
+  // Download Zero-Warning Windows Desktop App Launcher (.cmd)
+  function downloadWindowsDesktopLauncherCmd(isBlank = false) {
+    const targetUrl = isBlank ? BLANK_APP_URL : LIVE_APP_URL;
+    const appTitle = isBlank ? 'OrlandoChrome Blank Edition' : 'OrlandoChrome';
+    const shortcutName = isBlank ? 'OrlandoChrome-Blank.url' : 'OrlandoChrome.url';
+    const cmdContent = [
+      '@echo off',
+      'title ' + appTitle + ' Desktop App Installer',
+      'echo ========================================================',
+      'echo   Installing ' + appTitle + ' to Desktop...',
+      'echo ========================================================',
+      'set "DESKTOP=%USERPROFILE%\\Desktop"',
+      '(',
+      '  echo [InternetShortcut]',
+      '  echo URL=' + targetUrl,
+      '  echo IconIndex=0',
+      ') > "%DESKTOP%\\' + shortcutName + '"',
+      'start "" chrome.exe --app="' + targetUrl + '" 2>nul || start "" msedge.exe --app="' + targetUrl + '" 2>nul || start "" "' + targetUrl + '"',
+      'exit'
+    ].join('\r\n');
+    downloadTextFile(isBlank ? 'OrlandoChrome-Blank-Desktop-App.cmd' : 'OrlandoChrome-Desktop-App.cmd', cmdContent);
+    showToast('⬇ Downloaded Windows Desktop App Launcher (.cmd)!');
+  }
+
+  // Download 1-Click Laptop Taskbar Auto-Scanner (.cmd) that reads the installed laptop's Chrome profiles & opens Blank Edition synced!
+  function downloadLaptopTaskbarScannerCmd() {
+    const cmdContent = [
+      '@echo off',
+      'title OrlandoChrome - Laptop Taskbar Chrome Profile Auto-Scanner',
+      'echo ====================================================================',
+      'echo   Scanning this laptop\'s Chrome profiles and taskbar shortcuts...',
+      'echo ====================================================================',
+      'powershell -NoProfile -ExecutionPolicy Bypass -Command ^',
+      '  "$lsPath = Join-Path $env:LOCALAPPDATA \'Google\\Chrome\\User Data\\Local State\'; ^',
+      '   if (-not (Test-Path $lsPath)) { Write-Host \'Chrome Local State not found.\'; exit }; ^',
+      '   $json = Get-Content $lsPath -Raw -Encoding UTF8 | ConvertFrom-Json; ^',
+      '   $cache = $json.profile.info_cache; ^',
+      '   $list = @(); $idx = 1; ^',
+      '   foreach ($prop in $cache.PSObject.Properties) { ^',
+      '     $v = $prop.Value; ^',
+      '     $slot = $idx + 2; ^',
+      '     $sc = if ($slot -le 9) { \'Win + \' + $slot } else { \'Slot #\' + $slot }; ^',
+      '     $list += @{ id=(\'b_tb_\'+$slot); profileDir=$prop.Name; chromeNo=$idx; taskbarSlot=$slot; winShortcut=$sc; name=($v.name); email=($v.user_name); gaia=($v.gaia_name) }; ^',
+      '     $idx++; ^',
+      '   }; ^',
+      '   $outJson = ($list | ConvertTo-Json -Compress); ^',
+      '   $outFile = Join-Path $env:USERPROFILE \'Desktop\\my-laptop-chrome-profiles.json\'; ^',
+      '   Set-Content -Path $outFile -Value $outJson -Encoding UTF8; ^',
+      '   $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($outJson)); ^',
+      '   $url = \'' + BLANK_APP_URL + '&import_b64=\' + $b64; ^',
+      '   Start-Process \'chrome.exe\' -ArgumentList (\'--app=\'+$url)"',
+      'exit'
+    ].join('\r\n');
+    downloadTextFile('OrlandoChrome-Taskbar-AutoScanner.cmd', cmdContent);
+    showToast('⚡ Downloaded Laptop Taskbar Auto-Scanner (.cmd)!');
+  }
+
+  // Export Full JSON Backup (Enhancement #7)
+  function exportFullBackupJson() {
+    const payload = {
+      app: 'OrlandoChrome',
+      version: '5.0',
+      edition: IS_BLANK_EDITION ? 'blank' : 'personal',
+      exportedAt: new Date().toISOString(),
+      profiles: state.profiles,
+      quickTemplates: state.quickTemplates,
+      wispr: {
+        style: state.wispr.style,
+        commandMode: state.wispr.commandMode,
+        autoSend: state.wispr.autoSend,
+        recordAudioClip: state.wispr.recordAudioClip,
+        dictionary: state.wispr.dictionary
+      }
+    };
+    const dateTag = new Date().toISOString().slice(0, 10);
+    downloadTextFile(`orlandochrome-backup-${dateTag}.json`, JSON.stringify(payload, null, 2), 'application/json');
+    showToast('💾 Backup exported (.json)!');
+  }
+
+  // Download Standalone Offline Single-File HTML
+  async function downloadStandaloneHtml(isBlank = false) {
+    try {
+      const [cssRes, jsRes] = await Promise.all([
+        fetch('styles.css').then(r => r.text()).catch(() => ''),
+        fetch('app.js').then(r => r.text()).catch(() => '')
+      ]);
+      const standaloneHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OrlandoChrome · Standalone Offline Edition</title>
+<style>${cssRes}</style>
+</head>
+<body class="netflix-messenger-theme">
+${document.body.innerHTML}
+<script>
+${isBlank ? "history.replaceState({}, '', '?edition=blank');" : ""}
+${jsRes}
+</script>
+</body>
+</html>`;
+      downloadTextFile(isBlank ? 'OrlandoChrome-Blank-Standalone.html' : 'OrlandoChrome-Standalone.html', standaloneHtml, 'text/html');
+      showToast('💾 Downloaded Standalone (.html) App!');
+    } catch (e) {
+      showToast('⚠️ Failed to bundle standalone HTML.');
+    }
+  }
+
+  // Open Mobile QR Code & iPhone / iOS Home Screen Modal
+  function openMobileQrModal() {
+    const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&color=ffffff&bgcolor=000000&data=${encodeURIComponent(shareUrl)}`;
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="forward-modal" style="max-width:440px; text-align:center; align-items:center;">
+        <div class="forward-modal-header" style="width:100%;">
+          <h3>📲 Scan for iPhone / iOS &amp; Android</h3>
+          <button type="button" class="btn-banner-clear" id="btnCloseQrModal">✕</button>
+        </div>
+
+        <div class="qr-frame-box">
+          <img src="${qrApiUrl}" class="qr-code-img" alt="OrlandoChrome QR Code">
+        </div>
+
+        <div style="font-size:13px; color:#ffd1d6; font-weight:700; word-break:break-all;">
+          ${esc(shareUrl)}
+        </div>
+
+        <div class="ios-instructions-card">
+          <div style="font-weight:800; color:#fff; margin-bottom:4px;">🍏 How to Save on iPhone / iPad (iOS):</div>
+          <div>1. Point your iPhone Camera at the QR code above to open in <strong>Safari</strong>.</div>
+          <div>2. Tap the <strong>Share</strong> icon <span style="color:#6ee7b7;">(⬆️ square with arrow)</span> at the bottom.</div>
+          <div>3. Tap <strong>"Add to Home Screen"</strong> → <strong>Add</strong> for a full-screen OLED app!</div>
+        </div>
+
+        <div style="display:flex; gap:10px; width:100%; justify-content:center;">
+          <button type="button" class="btn-composer-send" id="btnQrCopyUrl" style="flex:1; justify-content:center;">↗ Copy Link</button>
+          <button type="button" class="btn-banner-clear" id="btnQrNativeShare" style="padding:10px 16px;">📲 Share...</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    $('#btnCloseQrModal', backdrop).onclick = close;
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+
+    $('#btnQrCopyUrl', backdrop).onclick = () => {
+      navigator.clipboard.writeText(shareUrl).then(() => showToast('🔗 Link copied to clipboard!'));
+    };
+    $('#btnQrNativeShare', backdrop).onclick = () => {
+      if (navigator.share) {
+        navigator.share({ title: 'OrlandoChrome · Taskbar Command Center', url: shareUrl }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(shareUrl).then(() => showToast('🔗 Link copied to clipboard!'));
+      }
+    };
+  }
+
+  // Open Full "App Distribution & Command Suite" Modal (Matches Uploaded Screenshot Design)
+  function openAppDistributionSuiteModal() {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="app-suite-modal">
+        <div class="app-suite-header">
+          <div>
+            <div class="app-suite-title-row">
+              <span class="suite-icon-box">📲</span>
+              <h2>App Distribution &amp; Command Suite</h2>
+              <span class="pwa-ready-pill">${renderGreenWhiteOrb()}<span>PWA Ready</span></span>
+            </div>
+            <p class="app-suite-subtitle">
+              Installed, offline-cached, shareable, and verified for Sir Orlando V. Pasion, Jr.
+            </p>
+          </div>
+          <button type="button" class="btn-banner-clear" id="btnCloseAppSuite">✕</button>
+        </div>
+
+        <!-- 3-Column Command Grid -->
+        <div class="app-suite-grid">
+          <!-- Card 1: Install to Device -->
+          <div class="suite-card">
+            <div class="suite-card-top">
+              <span class="suite-card-icon">💻</span>
+              <div>
+                <h3>Install to Device</h3>
+                <p>Install onto your Windows PC, Mac, Android phone, or iPhone with zero security warnings.</p>
+              </div>
+            </div>
+            <button type="button" class="btn-suite-gold" id="btnPwaOneClickInstall">
+              ⚡ 1-Click Install App (Zero Warnings)
+            </button>
+            <div class="suite-sub-btns">
+              <button type="button" class="btn-suite-dark" id="btnSuiteWinApp">⬇ Windows (.cmd)</button>
+              <button type="button" class="btn-suite-dark" id="btnSuiteTaskbarSync">⚡ Taskbar Sync (.cmd)</button>
+            </div>
+          </div>
+
+          <!-- Card 2: Mobile QR & Share -->
+          <div class="suite-card">
+            <div class="suite-card-top">
+              <span class="suite-card-icon">📲</span>
+              <div>
+                <h3>Mobile QR &amp; Share</h3>
+                <p>Instant phone camera scanner to open on iPhone / iOS or Android, or copy the direct web link to share.</p>
+              </div>
+            </div>
+            <div class="suite-spacer"></div>
+            <div class="suite-sub-btns">
+              <button type="button" class="btn-suite-dark" id="btnSuiteOpenQr">📷 Open Phone QR</button>
+              <button type="button" class="btn-suite-dark" id="btnSuiteCopyLink">↗ Copy Link</button>
+            </div>
+          </div>
+
+          <!-- Card 3: Backup & Restore -->
+          <div class="suite-card">
+            <div class="suite-card-top">
+              <span class="suite-card-icon">💾</span>
+              <div>
+                <h3>Backup &amp; Restore</h3>
+                <p>Save a secure JSON backup of your custom profiles, notes &amp; timers to your computer, or restore a saved backup.</p>
+              </div>
+            </div>
+            <div class="suite-spacer"></div>
+            <div class="suite-sub-btns">
+              <button type="button" class="btn-suite-dark" id="btnSuiteExportJson">💾 Export (.json)</button>
+              <button type="button" class="btn-suite-dark" id="btnSuiteImportJson">📁 Import</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Full-Width Card: Clean Blank Edition (For Anyone / Any Installed Laptop) -->
+        <div class="suite-blank-card">
+          <div class="suite-card-top">
+            <span class="suite-card-icon">🎁</span>
+            <div>
+              <h3 class="gold-heading">Clean Blank Edition (For Anyone / Any Installed Laptop)</h3>
+              <p>A 100% clean, personal-data-free app with isolated storage that automatically scans or imports the taskbar Chrome profiles of whatever laptop it is installed on.</p>
+            </div>
+          </div>
+          <div class="suite-blank-btns">
+            <button type="button" class="btn-suite-gold" id="btnOpenBlankWebApp">
+              🚀 Open Blank Web App
+            </button>
+            <button type="button" class="btn-suite-dark" id="btnBlankWinScanner">
+              ⬇ Laptop Auto-Scanner (.cmd)
+            </button>
+            <button type="button" class="btn-suite-dark" id="btnBlankStandaloneHtml">
+              💾 Standalone (.html)
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    $('#btnCloseAppSuite', backdrop).onclick = close;
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+
+    // 1-Click PWA Install
+    $('#btnPwaOneClickInstall', backdrop).onclick = async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice.catch(() => null);
+        deferredInstallPrompt = null;
+        if (choice && choice.outcome === 'accepted') {
+          showToast('✅ OrlandoChrome installed as a native app!');
+          close();
+        }
+      } else {
+        // Fallback: download desktop app launcher & show quick tip
+        downloadWindowsDesktopLauncherCmd(IS_BLANK_EDITION);
+        showToast('💡 Tip: On iPhone Safari tap Share → "Add to Home Screen"; on Chrome click the Install icon in the address bar!');
+      }
+    };
+
+    $('#btnSuiteWinApp', backdrop).onclick = () => downloadWindowsDesktopLauncherCmd(IS_BLANK_EDITION);
+    $('#btnSuiteTaskbarSync', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd();
+
+    $('#btnSuiteOpenQr', backdrop).onclick = () => {
+      close();
+      openMobileQrModal();
+    };
+
+    $('#btnSuiteCopyLink', backdrop).onclick = () => {
+      const link = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
+      navigator.clipboard.writeText(link).then(() => showToast('🔗 Direct link copied to clipboard!'));
+    };
+
+    $('#btnSuiteExportJson', backdrop).onclick = () => exportFullBackupJson();
+    $('#btnSuiteImportJson', backdrop).onclick = () => {
+      close();
+      $('#backupJsonInput').click();
+    };
+
+    $('#btnOpenBlankWebApp', backdrop).onclick = () => {
+      window.open('?edition=blank', '_blank');
+    };
+    $('#btnBlankWinScanner', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd();
+    $('#btnBlankStandaloneHtml', backdrop).onclick = () => downloadStandaloneHtml(true);
+  }
+
+  // =========================================================================
   // 🎙️ WISPR FLOW PRO ENGINE (Unlimited Dictation, Style Learning, Command Mode, Audio Waveform)
   // =========================================================================
   let recognition = null;
@@ -1404,12 +2262,10 @@
   let recordedChunks = [];
   let waveAnimId = null;
 
-  // Apply Personalized Writing Style & Custom Dictionary to Dictated Text
   function formatWithWisprStyle(rawText) {
     if (!rawText) return '';
     let text = rawText.trim();
 
-    // 1. Apply Personal Dictionary replacements (case-insensitive whole word)
     for (const entry of state.wispr.dictionary) {
       if (!entry.from || !entry.to) continue;
       const escaped = entry.from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1417,7 +2273,6 @@
       text = text.replace(re, entry.to);
     }
 
-    // Spoken punctuation replacements
     text = text
       .replace(/\bperiod\b/gi, '.')
       .replace(/\bcomma\b/gi, ',')
@@ -1431,7 +2286,6 @@
       return text;
     }
 
-    // Strip common conversational filler words (Wispr Flow Auto-Polish)
     text = text
       .replace(/\b(um+|uh+|erm+|er+|hmm+)\b[,\s]*/gi, '')
       .replace(/\s{2,}/g, ' ')
@@ -1439,11 +2293,9 @@
 
     if (!text) return '';
 
-    // Capitalize first letter
     text = text.charAt(0).toUpperCase() + text.slice(1);
 
     if (style === 'academic') {
-      // Expand contractions for formal DepEd / Academic style
       text = text
         .replace(/\bdon't\b/gi, 'do not')
         .replace(/\bcan't\b/gi, 'cannot')
@@ -1454,7 +2306,6 @@
         .replace(/\bgrade (\d+)\b/gi, 'Grade $1');
       if (!/[.!?]$/.test(text)) text += '.';
     } else if (style === 'action') {
-      // Crisp imperative task style (no trailing period needed, clean prefix)
       text = text.replace(/^(please |i need to |we need to |remember to |don't forget to )/i, '');
       if (text) text = text.charAt(0).toUpperCase() + text.slice(1);
       text = text.replace(/\.$/, '');
@@ -1463,13 +2314,11 @@
     return text;
   }
 
-  // Parse and execute Wispr Flow Pro Voice Commands when Command Mode is ON
   function checkAndExecuteVoiceCommand(transcriptChunk) {
     if (!state.wispr.commandMode) return { consumed: false, text: transcriptChunk };
     const lower = transcriptChunk.trim().toLowerCase().replace(/[.!?]+$/, '');
     const activeProf = getProfile(state.activeProfileId);
 
-    // 1. "scratch that" / "clear text" / "delete all"
     if (lower === 'scratch that' || lower === 'clear text' || lower === 'delete all') {
       const inp = $('#composerInput');
       if (inp) inp.value = '';
@@ -1477,7 +2326,6 @@
       return { consumed: true, text: '' };
     }
 
-    // 2. "pin profile" / "pin to top"
     if (lower.includes('pin profile') || lower.includes('pin to top')) {
       activeProf.isPinned = true;
       activeProf.pinnedAt = now();
@@ -1487,7 +2335,6 @@
       return { consumed: true, text: '' };
     }
 
-    // 3. "unpin profile"
     if (lower.includes('unpin profile')) {
       activeProf.isPinned = false;
       activeProf.pinnedAt = null;
@@ -1497,7 +2344,6 @@
       return { consumed: true, text: '' };
     }
 
-    // 4. "mark unread"
     if (lower === 'mark unread' || lower === 'mark as unread') {
       if (hasMessages(activeProf)) {
         activeProf.isUnread = true;
@@ -1511,7 +2357,6 @@
       return { consumed: true, text: '' };
     }
 
-    // 5. Reaction commands: "mark urgent", "mark waiting", "mark important", "mark verified"
     for (const r of REACTIONS_LIST) {
       if (lower === `mark ${r.key}` || lower === `tag ${r.key}`) {
         const pending = (activeProf.notes || []).filter(n => !n.done);
@@ -1531,12 +2376,11 @@
       }
     }
 
-    // 6. Timer commands: "start timer 30 minutes", "start timer 2 hours"
-    const timerMatch = lower.match(/start timer (\d+)\s*(minute|minutes|min|mins|hour|hours|hr|hrs)/);
+    const timerMatch = lower.match(/start timer (\d+)\s*(minute|minutes|min|mins|hour|hours|hr|hrs|day|days)/);
     if (timerMatch) {
       const val = parseInt(timerMatch[1], 10);
       const unit = timerMatch[2];
-      const mins = unit.startsWith('h') ? val * 60 : val;
+      const mins = unit.startsWith('d') ? val * 1440 : (unit.startsWith('h') ? val * 60 : val);
       if (mins > 0) {
         startCooldown(activeProf, mins);
         showToast(`🗣️ Flow Command: Started ${mins}m timer`);
@@ -1544,7 +2388,6 @@
       }
     }
 
-    // 7. Forward command: "forward task" / "move to next profile"
     if (lower === 'forward task' || lower === 'move to next profile') {
       const pending = (activeProf.notes || []).filter(n => !n.done);
       if (pending.length > 0) {
@@ -1554,7 +2397,6 @@
       }
     }
 
-    // 8. "send note" / "submit note" / "add task" (can also be at the end of a spoken sentence!)
     const sendSuffixMatch = transcriptChunk.match(/^(.*?)\b(send note|submit note|add task)\s*[.!?]*$/i);
     if (sendSuffixMatch) {
       const prefixText = sendSuffixMatch[1].trim();
@@ -1574,7 +2416,6 @@
     return { consumed: false, text: transcriptChunk };
   }
 
-  // Start Web Audio API Soundwave Visualizer + optional MediaRecorder
   async function startAudioVisualizerAndRecorder() {
     try {
       micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1598,7 +2439,6 @@
       };
       waveAnimId = requestAnimationFrame(animateBars);
 
-      // Optional Voice Memo Recorder
       if (state.wispr.recordAudioClip && window.MediaRecorder) {
         recordedChunks = [];
         mediaRecorder = new MediaRecorder(micStream);
@@ -1640,7 +2480,6 @@
     analyser = null;
   }
 
-  // Toggle Wispr Flow Pro Dictation On/Off
   function toggleWisprDictation() {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
@@ -1649,7 +2488,6 @@
     }
 
     if (state.wispr.isListening) {
-      // Stop dictation
       state.wispr.isListening = false;
       state.wispr.interimText = '';
       if (recognition) {
@@ -1677,7 +2515,6 @@
       return;
     }
 
-    // Start Unlimited Continuous Dictation
     state.wispr.isListening = true;
     state.wispr.panelOpen = true;
     state.wispr.sessionStartMs = now();
@@ -1751,7 +2588,6 @@
         }
       };
 
-      // Unlimited Session Watchdog: automatically restart if Chrome pauses recognition
       recognition.onend = () => {
         if (state.wispr.isListening) {
           try {
@@ -1774,7 +2610,6 @@
     showToast('🎙️ Wispr Flow Pro Active — Speak freely!');
   }
 
-  // Personal Writing Style Dictionary Modal (+ Teach Word)
   function openWisprDictionaryModal() {
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
@@ -1849,6 +2684,9 @@
     const labelStr = displayLabel || `${minutes}m`;
     showToast(`⏳ Cooldown set: ${labelStr} for ${profile.name}`);
     if (window.soundMgr) window.soundMgr.playClick();
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
   }
 
   // Rename Profile Modal
@@ -1857,8 +2695,9 @@
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
       <div class="rename-dialog">
-        <h3>✏️ Rename Chrome Profile</h3>
+        <h3>✏️ Edit Chrome Profile Details</h3>
         <input type="text" id="renameVal" class="rename-input" value="${esc(profile.name)}" placeholder="Profile name">
+        <input type="text" id="renameEmailVal" class="rename-input" value="${esc(profile.email || '')}" placeholder="Email or subtitle (optional)">
         <div class="rename-actions">
           <button class="btn-banner-clear" id="btnCancelRename">Cancel</button>
           <button class="btn-composer-send" id="btnConfirmRename" style="padding:8px 18px;">Save</button>
@@ -1868,6 +2707,7 @@
     document.body.appendChild(backdrop);
 
     const valInput = $('#renameVal', backdrop);
+    const emailInput = $('#renameEmailVal', backdrop);
     valInput.focus();
     valInput.select();
 
@@ -1879,10 +2719,11 @@
       const newName = valInput.value.trim();
       if (newName) {
         profile.name = newName;
+        if (emailInput) profile.email = emailInput.value.trim();
         saveState();
         renderSidebar();
         renderMainChat();
-        showToast(`Renamed profile to "${newName}"`);
+        showToast(`Saved profile "${newName}"`);
       }
       closeDialog();
     };
@@ -1893,6 +2734,12 @@
       if (e.key === 'Enter') confirmRename();
       if (e.key === 'Escape') closeDialog();
     };
+    if (emailInput) {
+      emailInput.onkeydown = (e) => {
+        if (e.key === 'Enter') confirmRename();
+        if (e.key === 'Escape') closeDialog();
+      };
+    }
     backdrop.onclick = (e) => {
       if (e.target === backdrop) closeDialog();
     };
@@ -1909,7 +2756,8 @@
         p.isReset = true;
         stateChanged = true;
         if (window.soundMgr) window.soundMgr.playReadyChime();
-        showToast(`🟢 Cooldown finished for ${p.name}! Limit Reset.`);
+        showToast(`✨ Cooldown finished for ${p.name}! Limit Reset.`);
+        triggerDesktopNotification(`🟢 Limit Reset: ${p.name}`, `${p.name} (${p.winShortcut}) is ready for work!`);
       }
     });
 
@@ -1918,7 +2766,6 @@
       renderSidebar();
       renderMainChat();
     } else {
-      // Refresh live countdown string in banner if active
       const banner = $('.timer-active-banner strong');
       if (banner) {
         const active = getProfile(state.activeProfileId);
@@ -1958,6 +2805,16 @@
       setFilter($('#tabAll'), 'all');
     };
 
+    // Topbar & Sidebar App Suite and Next Ready Buttons
+    const btnNextReady = $('#btnNextReady');
+    if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
+
+    const btnOpenSuite = $('#btnOpenAppSuite');
+    if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
+
+    const btnSidebarSuite = $('#btnSidebarAppSuite');
+    if (btnSidebarSuite) btnSidebarSuite.onclick = () => openAppDistributionSuiteModal();
+
     // Global Photo file uploader (Profile Avatar)
     $('#globalPhotoInput').addEventListener('change', (e) => {
       const file = e.target.files && e.target.files[0];
@@ -1993,6 +2850,116 @@
       });
     }
 
+    // JSON Backup Restore Uploader (Enhancement #7)
+    const backupInput = $('#backupJsonInput');
+    if (backupInput) {
+      backupInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            const profList = Array.isArray(parsed) ? parsed : parsed.profiles;
+            if (Array.isArray(profList) && profList.length > 0) {
+              state.profiles = profList;
+              state.activeProfileId = state.profiles[0].id;
+              if (Array.isArray(parsed.quickTemplates)) {
+                state.quickTemplates = parsed.quickTemplates;
+                saveTemplates();
+              }
+              saveState();
+              renderSidebar();
+              renderMainChat();
+              showToast(`✅ Restored ${state.profiles.length} profiles from backup!`);
+            } else {
+              showToast('⚠️ Invalid backup JSON file.');
+            }
+          } catch (err) {
+            showToast('⚠️ Could not parse JSON file.');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+    }
+
+    // Blank Edition: Direct Chrome "Local State" File Parser (Detects Installed Laptop's Chrome Profiles in Browser!)
+    const localStateInput = $('#localStateFileInput');
+    if (localStateInput) {
+      localStateInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            // Can be either Chrome's "Local State" file OR the JSON generated by our Taskbar Scanner script
+            if (Array.isArray(data) && data.length > 0) {
+              state.profiles = data.map((p, idx) => ({
+                id: p.id || `b_slot_${idx + 1}`,
+                profileDir: p.profileDir || `Profile ${idx + 1}`,
+                chromeNo: idx + 1,
+                taskbarSlot: p.taskbarSlot || (idx + 1),
+                winShortcut: p.winShortcut || ((idx + 1) <= 9 ? `Win + ${idx + 1}` : `Slot #${idx + 1}`),
+                name: p.name || `Chrome #${idx + 1}`,
+                email: p.email || '',
+                gaia: p.gaia || '',
+                timerUntil: null,
+                timerDurationMs: null,
+                isReset: false,
+                isPinned: false,
+                pinnedAt: null,
+                isUnread: false,
+                stickyNote: '',
+                customAvatar: null,
+                notes: []
+              }));
+            } else if (data && data.profile && data.profile.info_cache) {
+              const cache = data.profile.info_cache;
+              const entries = Object.entries(cache);
+              state.profiles = entries.map(([dir, info], idx) => {
+                const slot = idx + 3;
+                return {
+                  id: `b_tb_${slot}`,
+                  profileDir: dir,
+                  chromeNo: idx + 1,
+                  taskbarSlot: slot,
+                  winShortcut: slot <= 9 ? `Win + ${slot}` : `Slot #${slot}`,
+                  name: info.name || info.shortcut_name || dir,
+                  email: info.user_name || info.gaia_name || dir,
+                  gaia: info.gaia_name || '',
+                  timerUntil: null,
+                  timerDurationMs: null,
+                  isReset: false,
+                  isPinned: false,
+                  pinnedAt: null,
+                  isUnread: false,
+                  stickyNote: '',
+                  customAvatar: null,
+                  notes: []
+                };
+              });
+            } else {
+              showToast('⚠️ Select Chrome "Local State" or a scanned taskbar JSON file.');
+              return;
+            }
+            if (state.profiles.length > 0) {
+              state.activeProfileId = state.profiles[0].id;
+              saveState();
+              renderSidebar();
+              renderMainChat();
+              showToast(`🎉 Auto-detected ${state.profiles.length} Chrome profiles from this laptop!`);
+            }
+          } catch (err) {
+            showToast('⚠️ Failed to parse Chrome Local State file.');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+    }
+
     // Global Ctrl+V Paste Screenshot Handler
     document.addEventListener('paste', async (e) => {
       const items = e.clipboardData && e.clipboardData.items;
@@ -2018,11 +2985,27 @@
       }
     });
 
-    // Global Hotkey for Wispr Flow Pro Dictation (Alt + Space or Ctrl + Shift + Space)
+    // Enhancement #6: Global Keyboard Shortcuts (Alt+Space Dictation, Alt+↑/↓ Profile Nav, Alt+N Next Ready)
     document.addEventListener('keydown', (e) => {
       if ((e.altKey && e.code === 'Space') || (e.ctrlKey && e.shiftKey && e.code === 'Space')) {
         e.preventDefault();
         toggleWisprDictation();
+      } else if (e.altKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+        e.preventDefault();
+        const items = $$('#profileList .profile-item');
+        if (!items.length) return;
+        const curIdx = items.findIndex(el => el.dataset.id === state.activeProfileId);
+        const delta = e.key === 'ArrowDown' ? 1 : -1;
+        const nextIdx = (curIdx + delta + items.length) % items.length;
+        const nextId = items[nextIdx].dataset.id;
+        state.activeProfileId = nextId;
+        renderSidebar();
+        renderMainChat();
+        const activeEl = $(`#profileList .profile-item[data-id="${nextId}"]`);
+        if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      } else if (e.altKey && (e.key === 'n' || e.key === 'N')) {
+        e.preventDefault();
+        jumpToNextReadyProfile();
       }
     });
   }
@@ -2035,7 +3018,6 @@
     renderMainChat();
     renderClockBox();
 
-    // 1-second interval for clock and cooldown countdowns
     setInterval(timerTick, 1000);
   }
 
