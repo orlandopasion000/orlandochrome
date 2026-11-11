@@ -1,14 +1,21 @@
-/* Chrome Taskbar Notes - Messenger Style
- * Direct, simple, compressed note-taking for your 21 taskbar Chrome profiles
- * Real Google profile avatars, custom photo upload, and live recharge clock
+/* CHROMEFLIX · Netflix Themed Taskbar Command Center & Notes
+ * Features:
+ * 1. Netflix Browse View: Giant Outline Numbers 1-10, Top 10 Row, Today's Top Picks, AI Cooldowns, All Profiles
+ * 2. Messenger 2-Pane Split View: Fast note-taking & searching
+ * 3. In-Place Profile Linking & Editing: Rename profiles, change taskbar slots, upload real custom photos immediately
+ * 4. Expanded AI Limit Cooldowns: 15m to 24h presets + manual minutes input + "🟢 Reset" status when finished
+ * 5. Live Clock & Daily Recharge Alarm Countdown Schedule
+ * 6. 100% Clean Starter Template (Zero hardcoded starter notes)
  */
 (function() {
   const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   const now = () => Date.now();
 
-  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v3';
+  const STORAGE_KEY = 'chrome_taskbar_netflix_v1';
+  const OLD_STORAGE_KEY = 'chrome_taskbar_messenger_notes_v3';
 
   // Schedule from Daily Recharge Alarm (Sir Orlando V. Pasion, Jr.)
   const RECHARGE_SCHEDULE = [
@@ -39,651 +46,1245 @@
 
   // The 21 Chrome Profiles in order from Windows Taskband - 100% CLEAN (0 starter notes)
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", emoji: "🌐", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", emoji: "🎓", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", emoji: "📘", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", emoji: "📊", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "Hero", email: "heroesmeraldaepicalu@gmail.com", emoji: "🧠", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 A Yify", email: "yifyyts7@gmail.com", emoji: "🎯", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 B NASH", email: "revnash0@gmail.com", emoji: "📝", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 C Gwapo", email: "gwapocpogi@gmail.com", emoji: "📊", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", emoji: "📘", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", emoji: "🏫", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", emoji: "⚡", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", emoji: "📘", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", emoji: "🎯", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", emoji: "🧠", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gold Cloud", email: "goldcloudblack@gmail.com", emoji: "📝", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", emoji: "🛠️", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", emoji: "🧮", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", emoji: "🎓", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "pogiorlandopasion", email: "pogiorlandopasion@gmail.com", emoji: "📚", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "watchonlineapple", email: "watchonlineapple@gmail.com", emoji: "🏫", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "grammarly", email: "grammarlyquillbot001@gmail.com", emoji: "💡", timerUntil: null, isReset: false, customAvatar: null, notes: [] }
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", emoji: "🌐", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", emoji: "🎓", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", emoji: "📘", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", emoji: "📊", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "Hero", email: "heroesmeraldaepicalu@gmail.com", emoji: "🧠", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 A Yify", email: "yifyyts7@gmail.com", emoji: "🎯", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 B NASH", email: "revnash0@gmail.com", emoji: "📝", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 C Gwapo", email: "gwapocpogi@gmail.com", emoji: "📊", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", emoji: "📘", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", emoji: "🏫", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", emoji: "⚡", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", emoji: "📘", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", emoji: "🎯", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", emoji: "🧠", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gold Cloud", email: "goldcloudblack@gmail.com", emoji: "📝", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", emoji: "🛠️", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", emoji: "🧮", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", emoji: "🎓", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "pogiorlandopasion", email: "pogiorlandopasion@gmail.com", emoji: "📚", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "watchonlineapple", email: "watchonlineapple@gmail.com", emoji: "🎬", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "grammarly", email: "grammarlyorlandopasion@gmail.com", emoji: "✍️", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] }
   ];
 
-  // Filter out any of the 3 old sample tasks completely
-  const SAMPLE_TASKS = [
-    "Draft Grade 8 ST2 Test & Table of Specifications",
-    "Prepare Youth Devotion Slide Deck for Sunday",
-    "Revise Chapter 3 Instrumentation & Sampling Framework"
+  // Old hardcoded sample text to purge
+  const SAMPLES_TO_PURGE = [
+    "draft grade 8 st2 test",
+    "revise chapter 3",
+    "prepare youth devotion",
+    "table of specifications",
+    "sampling framework"
   ];
 
+  // Application State
+  const state = {
+    profiles: [],
+    activeProfileId: "p_tb_3",
+    currentView: "netflix", // "netflix" | "messenger"
+    netflixFilter: "all",    // "all" | "pending" | "timers"
+    messengerFilter: "all",  // "all" | "pending" | "timers"
+    searchQuery: "",
+    modalProfileId: null,
+    uploadTargetProfileId: null
+  };
+
+  // Helper to get avatar source
+  function getAvatarSrc(profile) {
+    if (profile.customAvatar) return profile.customAvatar;
+    if (profile.profileDir) return `avatars/${encodeURIComponent(profile.profileDir)}.png`;
+    return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23E50914'/><text x='50' y='65' font-size='48' text-anchor='middle' fill='%23fff' font-family='sans-serif'>${esc(profile.name ? profile.name[0] : 'C')}</text></svg>`;
+  }
+
+  // Toast notification
+  function showToast(msg) {
+    const el = $('#toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove('show'), 2600);
+  }
+
+  // Load and clean state from localStorage
   function loadState() {
-    let saved = null;
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) saved = JSON.parse(raw);
-    } catch (_) {}
+    let raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(OLD_STORAGE_KEY);
+    let loadedProfiles = null;
 
-    // Clean migration of only real user notes (excluding sample notes)
-    const notesByDir = {};
-    const timersByDir = {};
-    const avatarsByDir = {};
-
-    ['chrome_taskbar_messenger_notes_v2', 'chrome_taskbar_messenger_notes_v1'].forEach(k => {
+    if (raw) {
       try {
-        const raw = localStorage.getItem(k);
-        if (raw) {
-          const old = JSON.parse(raw);
-          (old.profiles || []).forEach(p => {
-            const list = (p.notes || []).filter(n => !SAMPLE_TASKS.includes(n.text));
-            if (p.profileDir && list.length && !notesByDir[p.profileDir]) {
-              notesByDir[p.profileDir] = list;
-            }
-            if (p.profileDir && p.timerUntil && !timersByDir[p.profileDir]) {
-              timersByDir[p.profileDir] = p.timerUntil;
-            }
-            if (p.profileDir && p.customAvatar && !avatarsByDir[p.profileDir]) {
-              avatarsByDir[p.profileDir] = p.customAvatar;
-            }
-          });
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) {
+          loadedProfiles = parsed;
+        } else if (parsed && Array.isArray(parsed.profiles)) {
+          loadedProfiles = parsed.profiles;
         }
-      } catch (_) {}
-    });
+      } catch (e) {
+        console.warn('Failed to parse saved state:', e);
+      }
+    }
 
-    if (!saved || !saved.profiles || !saved.profiles.length) {
-      saved = { profiles: DEFAULT_PROFILES };
-      saved.profiles.forEach(p => {
-        if (notesByDir[p.profileDir]) p.notes = notesByDir[p.profileDir];
-        if (timersByDir[p.profileDir]) p.timerUntil = timersByDir[p.profileDir];
-        if (avatarsByDir[p.profileDir]) p.customAvatar = avatarsByDir[p.profileDir];
-      });
+    if (!loadedProfiles || !loadedProfiles.length) {
+      state.profiles = JSON.parse(JSON.stringify(DEFAULT_PROFILES));
     } else {
-      const existingMap = {};
-      saved.profiles.forEach(p => { existingMap[p.profileDir] = p; });
-      saved.profiles = DEFAULT_PROFILES.map(dp => {
-        const ex = existingMap[dp.profileDir];
-        if (ex) {
-          return Object.assign({}, dp, {
-            notes: (ex.notes || []).filter(n => !SAMPLE_TASKS.includes(n.text)),
-            timerUntil: ex.timerUntil || null,
-            isReset: !!ex.isReset,
-            customAvatar: ex.customAvatar || null
-          });
-        }
-        return dp;
+      // Merge with defaults to guarantee all fields, strip old sample notes
+      state.profiles = DEFAULT_PROFILES.map(def => {
+        const found = loadedProfiles.find(p => p.id === def.id || (p.chromeNo === def.chromeNo && p.profileDir === def.profileDir));
+        if (!found) return { ...def };
+
+        const cleanedNotes = (found.notes || []).filter(note => {
+          const txt = (note.text || '').toLowerCase();
+          return !SAMPLES_TO_PURGE.some(sample => txt.includes(sample));
+        });
+
+        return {
+          ...def,
+          name: found.name || def.name,
+          taskbarSlot: found.taskbarSlot !== undefined ? found.taskbarSlot : def.taskbarSlot,
+          winShortcut: found.winShortcut || def.winShortcut,
+          email: found.email || def.email,
+          timerUntil: found.timerUntil || null,
+          timerDurationMs: found.timerDurationMs || null,
+          isReset: !!found.isReset,
+          customAvatar: found.customAvatar || null,
+          notes: cleanedNotes
+        };
       });
     }
 
-    return saved;
+    // Sort profiles by taskbarSlot ascending
+    state.profiles.sort((a, b) => a.taskbarSlot - b.taskbarSlot);
+
+    saveState();
   }
 
-  let S = loadState();
-  let selectedId = "p_tb_4"; // Default to DepEd (Chrome #2)
-  let currentFilter = 'all'; // 'all', 'pending', 'timers'
-  let searchQuery = '';
-
-  function save() {
+  function saveState() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.profiles));
     } catch (e) {
-      console.warn('Save error:', e);
+      console.error('Failed to save state to localStorage:', e);
     }
   }
 
-  function getPendingNotes(p) {
-    return (p.notes || []).filter(n => !n.done);
+  function getProfile(id) {
+    return state.profiles.find(p => p.id === id) || state.profiles[0];
   }
 
-  function hasActiveTimer(p, t = now()) {
-    return !!(p.timerUntil && p.timerUntil > t);
+  function countPending(profile) {
+    return (profile.notes || []).filter(n => !n.done).length;
   }
 
-  function fmtTime(ts) {
-    if (!ts) return '';
-    const d = new Date(ts);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  function totalPendingCount() {
+    return state.profiles.reduce((sum, p) => sum + countPending(p), 0);
   }
 
-  function fmtDur(ms) {
-    if (ms <= 0) return '0s';
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    if (h > 0) return `${h}h ${m}m ${sec}s`;
-    if (m > 0) return `${m}m ${sec}s`;
-    return `${sec}s`;
+  function totalTimersCount() {
+    const cur = now();
+    return state.profiles.filter(p => (p.timerUntil && p.timerUntil > cur) || p.isReset).length;
   }
 
-  function fmtShortDur(ms) {
-    if (ms <= 0) return '0s';
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    if (h > 0) return `${h}h ${m}m`;
-    return `${m}m`;
-  }
-
-  function toast(html, dur = 3200) {
-    const wrap = $('#toast');
-    if (!wrap) return;
-    const t = document.createElement('div');
-    t.className = 'toast-msg';
-    t.innerHTML = html;
-    wrap.appendChild(t);
-    setTimeout(() => {
-      t.style.opacity = '0';
-      t.style.transform = 'translateY(6px)';
-      setTimeout(() => t.remove(), 250);
-    }, dur);
-  }
-
-  // Avatar helper with fallback to real Google profile photo or emoji
-  function getAvatarHtml(p) {
-    if (p.customAvatar) {
-      return `<img src="${p.customAvatar}" alt="${esc(p.name)}">`;
+  // Format countdown string
+  function formatRemaining(ms) {
+    if (ms <= 0) return '00:00';
+    const totalSec = Math.floor(ms / 1000);
+    const hrs = Math.floor(totalSec / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = totalSec % 60;
+    if (hrs > 0) {
+      return `${hrs}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
     }
-    const realImgPath = `avatars/${encodeURIComponent(p.profileDir)}.png`;
-    return `
-      <img src="${realImgPath}" alt="${esc(p.name)}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';">
-      <span style="display:none;">${esc(p.emoji || '🌐')}</span>
+    return `${mins}m ${secs.toString().padStart(2, '0')}s`;
+  }
+
+  // Daily Recharge Alarm Schedule Calculator
+  function getNextAlarmInfo() {
+    const d = new Date();
+    const curMinutes = d.getHours() * 60 + d.getMinutes();
+    const curSec = d.getSeconds();
+
+    for (const item of RECHARGE_SCHEDULE) {
+      const itemMinutes = item[0] * 60 + item[1];
+      if (itemMinutes > curMinutes) {
+        const diffMin = itemMinutes - curMinutes;
+        return {
+          diffMin,
+          title: item[3],
+          type: item[2],
+          targetHour: item[0],
+          targetMin: item[1]
+        };
+      }
+    }
+    // Wraps around to tomorrow 7:00 AM
+    const minutesUntilTomorrow7am = (24 * 60 - curMinutes) + 7 * 60;
+    return {
+      diffMin: minutesUntilTomorrow7am,
+      title: RECHARGE_SCHEDULE[0][3],
+      type: RECHARGE_SCHEDULE[0][2],
+      targetHour: 7,
+      targetMin: 0
+    };
+  }
+
+  // Render Top Nav Clock Box
+  function renderClockBox() {
+    const box = $('#navClockBox');
+    if (!box) return;
+    const d = new Date();
+    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    const alarm = getNextAlarmInfo();
+
+    let diffText = '';
+    if (alarm.diffMin >= 60) {
+      const h = Math.floor(alarm.diffMin / 60);
+      const m = alarm.diffMin % 60;
+      diffText = `${h}h ${m}m`;
+    } else {
+      diffText = `${alarm.diffMin}m`;
+    }
+
+    box.innerHTML = `
+      <div class="nf-clock-digital">${timeStr}</div>
+      <a href="https://orlandopasion000.github.io/daily-recharge-alarm.html" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" title="Daily Recharge Alarm Schedule">
+        ⏰ ${diffText} — ${esc(alarm.title)}
+      </a>
     `;
   }
 
-  // --- Live Clock & Next Event Calculation from Daily Recharge Alarm ---
-  function updateLiveClock() {
-    const n = new Date();
-    const liveTimeStr = n.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  // Render Hero Spotlight Banner
+  function renderHeroBanner() {
+    const hero = $('#heroBanner');
+    if (!hero) return;
 
-    // Find next schedule item
-    let found = null;
-    for (let dd = 0; dd < 3 && !found; dd++) {
-      const dt = new Date(n.getFullYear(), n.getMonth(), n.getDate() + dd);
-      for (let i = 0; i < RECHARGE_SCHEDULE.length; i++) {
-        const item = RECHARGE_SCHEDULE[i];
-        const at = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), item[0], item[1], 0);
-        if (at > n) {
-          found = { at, label: item[3] };
-          break;
-        }
-      }
-    }
+    // Pick profile: prioritized by active timer / reset, then pending notes, then active profile
+    const cur = now();
+    let featured = state.profiles.find(p => p.id === state.activeProfileId);
+    const withReset = state.profiles.find(p => p.isReset);
+    const withTimer = state.profiles.find(p => p.timerUntil && p.timerUntil > cur);
+    const withPending = state.profiles.find(p => countPending(p) > 0);
 
-    let countdownText = 'No alarms';
-    if (found) {
-      const diffSec = Math.round((found.at - n) / 1000);
-      const h = Math.floor(diffSec / 3600);
-      const m = Math.floor((diffSec % 3600) / 60);
-      const s = diffSec % 60;
-      let leftStr = '';
-      if (h > 0) leftStr = `${h}h ${m}m`;
-      else if (m > 0) leftStr = `${m}m`;
-      else leftStr = `${s}s`;
+    if (withReset) featured = withReset;
+    else if (withTimer) featured = withTimer;
+    else if (withPending) featured = withPending;
 
-      countdownText = `${leftStr} — ${found.label}`;
-    }
+    if (!featured) featured = state.profiles[0];
 
-    const clockEl = $('#headerClockWidget');
-    if (clockEl) {
-      clockEl.innerHTML = `
-        <div class="live-clock-widget">
-          <span class="live-clock-time">${liveTimeStr}</span>
-          <a href="https://orlandopasion000.github.io/daily-recharge-alarm.html" target="_blank" class="live-schedule-pill" title="Daily Recharge Alarm — Click to open">
-            <span>⏰</span>
-            <span><b>${esc(countdownText)}</b></span>
-          </a>
+    const pendingCount = countPending(featured);
+    const pendingNotes = (featured.notes || []).filter(n => !n.done);
+    const snippet = pendingNotes.length ? `🔴 Pending: "${pendingNotes[0].text}"` : (featured.email || 'No pending tasks on this Chrome profile.');
+    const avatarSrc = getAvatarSrc(featured);
+
+    hero.style.backgroundImage = `url('${avatarSrc}')`;
+
+    hero.innerHTML = `
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-series-badge">
+          <span class="n-icon">N</span>
+          <span>CHROME PROFILE · TASKBAR ${esc(featured.winShortcut)}</span>
         </div>
-      `;
-    }
-  }
-
-  // --- Rendering ---
-
-  function render() {
-    updateLiveClock();
-    renderFilterStats();
-    renderSidebarList();
-    renderChatPane();
-  }
-
-  function renderFilterStats() {
-    const t = now();
-    const pendingCount = S.profiles.filter(p => getPendingNotes(p).length > 0).length;
-    // Timers count includes both actively running timers AND finished "Reset" profiles!
-    const timersCount = S.profiles.filter(p => hasActiveTimer(p, t) || p.isReset).length;
-
-    const pl = $('#pendingCountLabel');
-    if (pl) pl.textContent = pendingCount;
-
-    const tl = $('#timersCountLabel');
-    if (tl) tl.textContent = timersCount;
-  }
-
-  function renderSidebarList() {
-    const listEl = $('#chromeList');
-    if (!listEl) return;
-
-    const t = now();
-    const q = searchQuery.toLowerCase().trim();
-
-    let list = S.profiles.filter(p => {
-      const pending = getPendingNotes(p);
-      const isTimer = hasActiveTimer(p, t);
-      const isReset = !!p.isReset;
-
-      if (currentFilter === 'pending' && pending.length === 0) return false;
-      if (currentFilter === 'timers' && !isTimer && !isReset) return false;
-
-      if (q) {
-        const matchesName = p.name.toLowerCase().includes(q);
-        const matchesEmail = (p.email || '').toLowerCase().includes(q);
-        const matchesSlot = String(p.taskbarSlot).includes(q);
-        const matchesShortcut = p.winShortcut.toLowerCase().includes(q);
-        const matchesNote = (p.notes || []).some(n => n.text.toLowerCase().includes(q));
-        if (!matchesName && !matchesEmail && !matchesSlot && !matchesShortcut && !matchesNote) return false;
-      }
-
-      return true;
-    });
-
-    if (!list.length) {
-      listEl.innerHTML = `
-        <div style="padding:24px 16px;text-align:center;color:var(--tx-muted);font-size:12.5px;">
-          No Chrome profiles match your selection.
+        <h1 class="hero-title">${esc(featured.name)}</h1>
+        <p class="hero-subtitle">
+          ${esc(featured.email)} · <span class="hero-shortcut-badge">${esc(featured.winShortcut)}</span> · Taskbar Slot #${featured.taskbarSlot}
+        </p>
+        <p class="hero-subtitle" style="color: ${pendingCount > 0 ? '#ff858d' : '#9ca3af'}; font-weight: ${pendingCount > 0 ? '700' : '400'};">
+          ${esc(snippet)}
+        </p>
+        <div class="hero-actions">
+          <button class="btn-netflix-play" data-action="copy-name" data-id="${featured.id}">
+            ▶ Copy Name (${esc(featured.name)})
+          </button>
+          <button class="btn-netflix-info" data-action="open-modal" data-id="${featured.id}">
+            ℹ️ More Info &amp; Notes
+          </button>
         </div>
-      `;
-      return;
-    }
+      </div>
+    `;
+  }
 
-    listEl.innerHTML = list.map(p => {
-      const pending = getPendingNotes(p);
-      const isTimer = hasActiveTimer(p, t);
-      const isReset = !!p.isReset;
-      const isSelected = (p.id === selectedId);
-      const lastNote = pending.length ? pending[pending.length - 1] : (p.notes && p.notes.length ? p.notes[p.notes.length - 1] : null);
+  // Render Row 1: Top 10 Taskbar Chromes Today (With Giant Outline Numbers 1 to 10!)
+  function renderTop10Row() {
+    const container = $('#top10Row');
+    if (!container) return;
 
-      let snippetText = 'No notes yet';
-      let snippetClass = 'item-snippet';
+    const cur = now();
+    // Take the first 10 profiles in slot order
+    const top10 = state.profiles.slice(0, 10);
 
+    container.innerHTML = top10.map((p, idx) => {
+      const rank = idx + 1;
+      const pendingCount = countPending(p);
+      const isTimer = p.timerUntil && p.timerUntil > cur;
+      const isReset = p.isReset;
+      const avatarSrc = getAvatarSrc(p);
+
+      let bottomBadge = '';
       if (isReset) {
-        snippetText = `✨ Limit Reset — Ready to use`;
-        snippetClass += ' reset-highlight';
+        bottomBadge = `<div class="poster-bottom-badge reset-tag">🟢 Reset</div>`;
       } else if (isTimer) {
-        snippetText = `⏳ Timer: ${fmtShortDur(p.timerUntil - t)} left`;
-        snippetClass += ' timer-highlight';
-      } else if (pending.length) {
-        snippetText = `📌 ${lastNote.text}`;
-        snippetClass += ' highlight';
-      } else if (lastNote) {
-        snippetText = `✓ ${lastNote.text}`;
+        const rem = formatRemaining(p.timerUntil - cur);
+        bottomBadge = `<div class="poster-bottom-badge timer-tag">⏳ ${rem}</div>`;
+      } else if (pendingCount > 0) {
+        bottomBadge = `<div class="poster-bottom-badge">🔴 ${pendingCount} Pending</div>`;
+      } else {
+        bottomBadge = `<div class="poster-bottom-badge shortcut-tag">${esc(p.winShortcut)}</div>`;
       }
-
-      const tag = p.taskbarSlot <= 9 ? `W+${p.taskbarSlot}` : `#${p.taskbarSlot}`;
 
       return `
-        <div class="chrome-item ${isSelected ? 'active' : ''} ${pending.length ? 'has-pending-tasks' : ''} ${isTimer ? 'has-active-timer' : ''} ${isReset ? 'has-reset-timer' : ''}" data-select-id="${p.id}">
-          <div class="item-avatar-wrap">
-            <div class="item-avatar">${getAvatarHtml(p)}</div>
-            <div class="item-slot-tag">${tag}</div>
-          </div>
-          <div class="item-content">
-            <div class="item-row1">
-              <span class="item-name">${esc(p.name)}</span>
-              <span class="item-shortcut">${esc(p.winShortcut)}</span>
-            </div>
-            <div class="${snippetClass}">${esc(snippetText)}</div>
-          </div>
-          <div class="item-badges-group">
-            ${isReset ? `<span class="item-reset-badge" title="Cooldown finished — Limit reset!">🟢 Reset</span>` : ''}
-            ${isTimer ? `<span class="item-timer-badge" data-cd-short="${p.timerUntil}">⏳ ${fmtShortDur(p.timerUntil - t)}</span>` : ''}
-            ${pending.length ? `<span class="item-badge">${pending.length}</span>` : ''}
+        <div class="top10-item" data-id="${p.id}" title="${esc(p.name)} (${esc(p.winShortcut)})">
+          <div class="top10-rank-num">${rank}</div>
+          <div class="card-poster">
+            <span class="top10-corner-badge">TOP<br>10</span>
+            <img src="${avatarSrc}" class="poster-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23222\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
+            ${bottomBadge}
           </div>
         </div>
       `;
     }).join('');
   }
 
-  function renderChatPane() {
-    const pane = $('#chatPane');
-    if (!pane) return;
+  // Render Row 2: Today's Top Picks for You (Pending Work)
+  function renderTopPicksRow() {
+    const container = $('#topPicksRow');
+    if (!container) return;
 
-    const p = S.profiles.find(x => x.id === selectedId);
-    if (!p) {
-      pane.innerHTML = `<div class="empty-notes-view"><span class="empty-icon">💬</span><p>Select a Chrome profile on the left</p></div>`;
+    // Filter profiles with pending notes, fallback to first 6 profiles if none
+    const pendingProfiles = state.profiles.filter(p => countPending(p) > 0);
+    const displayList = pendingProfiles.length ? pendingProfiles : state.profiles.slice(0, 6);
+
+    container.innerHTML = displayList.map(p => {
+      const pendingCount = countPending(p);
+      const avatarSrc = getAvatarSrc(p);
+      const pendingNotes = (p.notes || []).filter(n => !n.done);
+      const snippet = pendingNotes.length ? `📌 ${pendingNotes[0].text}` : 'No pending tasks waiting';
+
+      return `
+        <div class="nf-card ${pendingCount > 0 ? 'has-pending' : ''}" data-id="${p.id}">
+          <div class="nf-card-thumb">
+            <img src="${avatarSrc}" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23222\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
+            <span class="top10-corner-badge" style="background:${pendingCount > 0 ? 'var(--nf-red)' : '#444'}">
+              ${pendingCount > 0 ? 'PENDING' : 'READY'}
+            </span>
+            ${pendingCount > 0 ? `<div class="poster-bottom-badge">🔴 ${pendingCount} Task${pendingCount > 1 ? 's' : ''} Waiting</div>` : `<div class="poster-bottom-badge shortcut-tag">Recently Added</div>`}
+          </div>
+          <div class="nf-card-info">
+            <div class="nf-card-title-row">
+              <span class="nf-card-title">${esc(p.name)}</span>
+              <span class="nf-card-shortcut">${esc(p.winShortcut)}</span>
+            </div>
+            <div class="nf-card-snippet ${pendingCount > 0 ? 'pending-glow' : ''}">
+              ${esc(snippet)}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render Row 3: Active Cooldowns & Reset Limits
+  function renderCooldownsRow() {
+    const container = $('#cooldownsRow');
+    if (!container) return;
+
+    const cur = now();
+    const cooldownProfiles = state.profiles.filter(p => (p.timerUntil && p.timerUntil > cur) || p.isReset);
+
+    if (!cooldownProfiles.length) {
+      container.innerHTML = `
+        <div style="padding: 24px 32px; background: var(--nf-surface); border: 1px dashed var(--nf-border); border-radius: 8px; color: var(--nf-tx-muted); font-size: 13.5px; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+          <span>⏳ No Chromes currently in cooldown. Click any profile to set an AI limit cooldown timer (15m, 1h, 5h, or custom minutes).</span>
+          <button class="btn-editor" data-action="open-modal" data-id="${state.profiles[0].id}">Set Timer on Chrome #1</button>
+        </div>
+      `;
       return;
     }
 
-    const notes = p.notes || [];
-    const t = now();
-    const hasTimer = hasActiveTimer(p, t);
-    const isReset = !!p.isReset;
+    container.innerHTML = cooldownProfiles.map(p => {
+      const avatarSrc = getAvatarSrc(p);
+      const isReset = p.isReset;
+      const rem = p.timerUntil ? formatRemaining(p.timerUntil - cur) : '';
 
-    // Header HTML with Click-to-Upload Avatar
-    const headerHtml = `
-      <div class="chat-header">
-        <div class="chat-header-left">
-          <div class="chat-avatar-wrap" data-act="triggerPhotoUpload" title="Click to upload custom photo for this profile">
-            <div class="chat-avatar">${getAvatarHtml(p)}</div>
-            <div class="chat-avatar-overlay">📷</div>
+      return `
+        <div class="nf-card ${isReset ? 'has-reset' : 'has-timer'}" data-id="${p.id}">
+          <div class="nf-card-thumb">
+            <img src="${avatarSrc}" alt="${esc(p.name)}">
+            <span class="top10-corner-badge" style="background:${isReset ? 'var(--nf-green)' : 'var(--nf-gold)'}; color:#000;">
+              ${isReset ? 'RESET' : 'TIMER'}
+            </span>
+            <div class="poster-bottom-badge ${isReset ? 'reset-tag' : 'timer-tag'}">
+              ${isReset ? '🟢 Limit Reset!' : `⏳ ${rem}`}
+            </div>
           </div>
-          <div class="chat-title-group">
-            <h2>Chrome #${p.chromeNo}: ${esc(p.name)}</h2>
-            <p>${esc(p.email || p.profileDir)} · Taskbar Slot #${p.taskbarSlot}</p>
+          <div class="nf-card-info">
+            <div class="nf-card-title-row">
+              <span class="nf-card-title">${esc(p.name)}</span>
+              <span class="nf-card-shortcut">${esc(p.winShortcut)}</span>
+            </div>
+            <div class="nf-card-snippet ${isReset ? '' : 'timer-glow'}" style="${isReset ? 'color: var(--nf-green); font-weight:700;' : ''}">
+              ${isReset ? '✓ Quota reset! Ready for work' : `AI Cooldown: ${rem} remaining`}
+            </div>
           </div>
         </div>
-        <div class="chat-header-right">
-          <div class="shortcut-pill" title="Press this shortcut on your keyboard to switch to this Chrome">
-            <span>Shortcut:</span>
-            <kbd>${esc(p.winShortcut)}</kbd>
+      `;
+    }).join('');
+  }
+
+  // Render Row 4: All 21 Taskbar Profiles
+  function renderAllProfilesRow() {
+    const container = $('#allProfilesRow');
+    if (!container) return;
+
+    const cur = now();
+    const query = state.searchQuery.toLowerCase().trim();
+
+    const filtered = state.profiles.filter(p => {
+      if (!query) return true;
+      const inName = p.name.toLowerCase().includes(query);
+      const inEmail = (p.email || '').toLowerCase().includes(query);
+      const inSlot = String(p.taskbarSlot).includes(query) || (p.winShortcut || '').toLowerCase().includes(query);
+      const inNotes = (p.notes || []).some(n => n.text.toLowerCase().includes(query));
+      return inName || inEmail || inSlot || inNotes;
+    });
+
+    if (!filtered.length) {
+      container.innerHTML = `<div style="padding: 20px; color: var(--nf-tx-muted);">No profiles matched "${esc(query)}".</div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(p => {
+      const pendingCount = countPending(p);
+      const isTimer = p.timerUntil && p.timerUntil > cur;
+      const isReset = p.isReset;
+      const avatarSrc = getAvatarSrc(p);
+
+      let badgeHtml = '';
+      if (isReset) {
+        badgeHtml = `<div class="poster-bottom-badge reset-tag">🟢 Reset</div>`;
+      } else if (isTimer) {
+        badgeHtml = `<div class="poster-bottom-badge timer-tag">⏳ ${formatRemaining(p.timerUntil - cur)}</div>`;
+      } else if (pendingCount > 0) {
+        badgeHtml = `<div class="poster-bottom-badge">🔴 ${pendingCount} Pending</div>`;
+      } else {
+        badgeHtml = `<div class="poster-bottom-badge shortcut-tag">Slot #${p.taskbarSlot}</div>`;
+      }
+
+      return `
+        <div class="nf-card ${pendingCount > 0 ? 'has-pending' : ''} ${isTimer ? 'has-timer' : ''} ${isReset ? 'has-reset' : ''}" data-id="${p.id}">
+          <div class="nf-card-thumb">
+            <img src="${avatarSrc}" alt="${esc(p.name)}">
+            <span class="top10-corner-badge">${esc(p.winShortcut)}</span>
+            ${badgeHtml}
           </div>
-          <button class="btn-util" data-act="triggerPhotoUpload" title="Upload custom photo for this profile">📷 Photo</button>
-          ${p.customAvatar ? `<button class="btn-util" data-act="removeCustomPhoto" data-pid="${p.id}" title="Revert to default photo">✕ Revert</button>` : ''}
-          <button class="btn-util" data-act="copyName" data-name="${esc(p.name)}">📋 Copy Name</button>
+          <div class="nf-card-info">
+            <div class="nf-card-title-row">
+              <span class="nf-card-title">${esc(p.name)}</span>
+              <span class="nf-card-shortcut">${esc(p.winShortcut)}</span>
+            </div>
+            <div class="nf-card-snippet ${pendingCount > 0 ? 'pending-glow' : ''}">
+              ${pendingCount > 0 ? `🔴 ${pendingCount} pending task${pendingCount > 1 ? 's' : ''}` : esc(p.email)}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render Netflix "More Info" Detailed Modal Dialog
+  function renderNetflixModal(profileId) {
+    const modal = $('#netflixModal');
+    const content = $('#netflixModalContent');
+    if (!modal || !content) return;
+
+    const p = getProfile(profileId);
+    state.modalProfileId = p.id;
+    const cur = now();
+    const isTimer = p.timerUntil && p.timerUntil > cur;
+    const isReset = p.isReset;
+    const rem = isTimer ? formatRemaining(p.timerUntil - cur) : '';
+    const avatarSrc = getAvatarSrc(p);
+    const notes = p.notes || [];
+
+    content.innerHTML = `
+      <!-- Modal Hero Header -->
+      <div class="modal-hero-cover">
+        <img src="${avatarSrc}" class="modal-hero-img" alt="${esc(p.name)}">
+        <div class="modal-hero-gradient"></div>
+        <button class="modal-close-btn" id="modalCloseBtn" title="Close">✕</button>
+        <div class="modal-header-info">
+          <div class="modal-title-text">
+            <h2>${esc(p.name)}</h2>
+            <p>${esc(p.email)} · Taskbar Slot #${p.taskbarSlot} · <strong>${esc(p.winShortcut)}</strong></p>
+          </div>
+          <div>
+            <button class="btn-netflix-play" data-action="copy-name" data-id="${p.id}">
+              ▶ Copy Name
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- 1. In-Place Profile Name & Photo Editor (Always Linked) -->
+        <div class="profile-editor-box">
+          <div class="editor-title">✏️ Profile Settings &amp; Picture (Directly Linked)</div>
+          <div class="editor-row">
+            <label style="font-size:12px; color:#aaa; width:80px;">Name:</label>
+            <input type="text" id="modalEditName" class="editor-input" value="${esc(p.name)}" placeholder="Profile Name">
+            <button class="btn-editor primary" id="btnSaveName">Save Name</button>
+          </div>
+          <div class="editor-row">
+            <label style="font-size:12px; color:#aaa; width:80px;">Taskbar Slot:</label>
+            <input type="number" id="modalEditSlot" class="editor-input" style="max-width:100px;" value="${p.taskbarSlot}" min="1" max="50">
+            <button class="btn-editor" id="btnSaveSlot">Update Slot</button>
+            <div style="flex:1;"></div>
+            <button class="btn-editor" id="btnUploadPhoto">📷 Upload Photo</button>
+            ${p.customAvatar ? `<button class="btn-editor" id="btnRevertPhoto" style="color:#f87171;">↩ Default Photo</button>` : ''}
+          </div>
+        </div>
+
+        <!-- 2. Expanded AI Limit Cooldown Timer Section -->
+        <div class="modal-timer-section">
+          <div class="timer-section-header">
+            <span class="timer-status-title">⏳ AI Limit Cooldown &amp; Reset Timer</span>
+            ${isTimer ? `<span style="font-size:12px; color:var(--nf-gold); font-weight:700;">Active Countdown</span>` : ''}
+          </div>
+
+          ${isTimer ? `
+            <div class="timer-active-banner">
+              <span>⏳ Cooldown Active: <strong>${rem}</strong> remaining</span>
+              <button class="btn-editor" id="btnClearTimer">✕ Clear Timer</button>
+            </div>
+          ` : ''}
+
+          ${isReset ? `
+            <div class="timer-reset-banner">
+              <span>🟢 Limit Reset! Your AI credits &amp; quota are ready for work.</span>
+              <button class="btn-editor" id="btnDismissReset" style="background:#059669; border-color:#059669; color:#fff;">✓ Acknowledge</button>
+            </div>
+          ` : ''}
+
+          <!-- Timer Presets Grid -->
+          <div class="timer-presets-grid">
+            <button class="btn-timer-preset" data-minutes="15">15 min</button>
+            <button class="btn-timer-preset" data-minutes="30">30 min</button>
+            <button class="btn-timer-preset" data-minutes="45">45 min</button>
+            <button class="btn-timer-preset" data-minutes="60">1 hr</button>
+            <button class="btn-timer-preset" data-minutes="120">2 hr</button>
+            <button class="btn-timer-preset" data-minutes="180">3 hr</button>
+            <button class="btn-timer-preset" data-minutes="240">4 hr</button>
+            <button class="btn-timer-preset" data-minutes="300">5 hr</button>
+            <button class="btn-timer-preset" data-minutes="480">8 hr</button>
+            <button class="btn-timer-preset" data-minutes="1440">24 hr</button>
+          </div>
+
+          <!-- Manual Minutes Input Bar -->
+          <div class="manual-timer-bar">
+            <span style="font-size:12px; color:#aaa; font-weight:600;">Manual Minutes:</span>
+            <input type="number" id="manualTimerInput" class="manual-timer-input" placeholder="e.g. 45" min="1" max="10000" value="45">
+            <button class="btn-editor" id="btnQuickPlus5">+5m</button>
+            <button class="btn-editor" id="btnQuickPlus15">+15m</button>
+            <button class="btn-editor primary" id="btnStartManualTimer">Start Timer ⏱️</button>
+          </div>
+        </div>
+
+        <!-- 3. Notes & Pending Tasks Stream -->
+        <div class="modal-notes-section">
+          <div style="font-size:13px; font-weight:800; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+            <span>📌 Pending Tasks &amp; Notes (${notes.filter(n => !n.done).length} waiting)</span>
+          </div>
+
+          <div class="modal-notes-list" id="modalNotesList">
+            ${!notes.length ? `<div style="text-align:center; padding:24px; color:#777; font-size:13px;">No notes for ${esc(p.name)} yet. Type below to add one!</div>` : notes.map(n => `
+              <div class="modal-note-item ${n.done ? 'done' : ''}" data-nid="${n.id}">
+                <div class="note-text-body">${esc(n.text)}</div>
+                <div class="note-item-meta">
+                  <span>${n.done ? '✓ Completed' : '🔴 Pending'}</span>
+                  <div class="note-item-actions">
+                    <button class="btn-note-action" data-action="toggle-done" data-nid="${n.id}">
+                      ${n.done ? '↩ Reopen' : '✓ Done'}
+                    </button>
+                    <button class="btn-note-action delete" data-action="delete-note" data-nid="${n.id}">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Add Note Bar -->
+          <div class="modal-note-composer">
+            <input type="text" id="modalNoteInput" class="modal-note-input" placeholder="Type a note or pending task for ${esc(p.name)}... (Press Enter to add)">
+            <button class="btn-netflix-play" id="btnModalAddNote" style="padding:10px 18px;">
+              Add ✓
+            </button>
+          </div>
         </div>
       </div>
     `;
 
-    // Reset Banner (When timer has completed!)
-    let resetBannerHtml = '';
-    if (isReset) {
-      resetBannerHtml = `
-        <div class="reset-banner">
-          <span>🟢 <b>Limit Reset!</b> Cooldown has finished. Credits / messages are reset and ready.</span>
-          <button class="btn-reset-dismiss" data-act="dismissReset" data-pid="${p.id}">✓ Acknowledge / Clear</button>
-        </div>
-      `;
+    modal.style.display = 'flex';
+
+    // Hook up modal event listeners
+    $('#modalCloseBtn').onclick = () => closeModal();
+
+    $('#btnSaveName').onclick = () => {
+      const newName = $('#modalEditName').value.trim();
+      if (!newName) return;
+      p.name = newName;
+      saveState();
+      renderAll();
+      renderNetflixModal(p.id);
+      showToast(`Updated profile name to "${newName}"`);
+    };
+
+    $('#btnSaveSlot').onclick = () => {
+      const newSlot = parseInt($('#modalEditSlot').value, 10);
+      if (isNaN(newSlot) || newSlot < 1) return;
+      p.taskbarSlot = newSlot;
+      p.winShortcut = newSlot <= 9 ? `Win + ${newSlot}` : `Slot #${newSlot}`;
+      state.profiles.sort((a, b) => a.taskbarSlot - b.taskbarSlot);
+      saveState();
+      renderAll();
+      renderNetflixModal(p.id);
+      showToast(`Moved to Taskbar Slot #${newSlot}`);
+    };
+
+    $('#btnUploadPhoto').onclick = () => {
+      state.uploadTargetProfileId = p.id;
+      $('#globalAvatarInput').click();
+    };
+
+    const revertBtn = $('#btnRevertPhoto');
+    if (revertBtn) {
+      revertBtn.onclick = () => {
+        p.customAvatar = null;
+        saveState();
+        renderAll();
+        renderNetflixModal(p.id);
+        showToast(`Reverted ${p.name} to default avatar`);
+      };
     }
 
-    // Timer Bar
-    let timerBarHtml = '';
-    if (hasTimer) {
-      timerBarHtml = `
-        <div class="cooldown-bar">
-          <div class="cooldown-info">
-            <span>⏳ Cooldown Active:</span>
-            <b data-cd="${p.timerUntil}">${fmtDur(p.timerUntil - t)} remaining</b>
-          </div>
-          <button class="btn-timer" data-act="clearTimer" data-pid="${p.id}">✕ Clear Timer</button>
-        </div>
-      `;
-    } else if (!isReset) {
-      timerBarHtml = `
-        <div class="cooldown-bar" style="background:rgba(255,255,255,0.02);border-color:var(--border);">
-          <span style="font-size:11.5px;color:var(--tx-sub);">Hit AI limit? Start a quick timer:</span>
-          <div class="cooldown-presets">
-            <button class="btn-timer" data-act="setTimer" data-pid="${p.id}" data-h="0.5">30m</button>
-            <button class="btn-timer" data-act="setTimer" data-pid="${p.id}" data-h="1">1h</button>
-            <button class="btn-timer" data-act="setTimer" data-pid="${p.id}" data-h="2">2h</button>
-            <button class="btn-timer" data-act="setTimer" data-pid="${p.id}" data-h="3">3h</button>
-            <button class="btn-timer" data-act="setTimer" data-pid="${p.id}" data-h="5">5h</button>
-          </div>
-        </div>
-      `;
+    // Timer presets
+    $$('.btn-timer-preset', content).forEach(btn => {
+      btn.onclick = () => {
+        const mins = parseInt(btn.dataset.minutes, 10);
+        startTimer(p, mins);
+      };
+    });
+
+    // Manual Timer
+    $('#btnQuickPlus5').onclick = () => {
+      const input = $('#manualTimerInput');
+      input.value = (parseInt(input.value || '0', 10) + 5);
+    };
+
+    $('#btnQuickPlus15').onclick = () => {
+      const input = $('#manualTimerInput');
+      input.value = (parseInt(input.value || '0', 10) + 15);
+    };
+
+    $('#btnStartManualTimer').onclick = () => {
+      const mins = parseInt($('#manualTimerInput').value, 10);
+      if (isNaN(mins) || mins <= 0) return;
+      startTimer(p, mins);
+    };
+
+    const clearBtn = $('#btnClearTimer');
+    if (clearBtn) {
+      clearBtn.onclick = () => {
+        p.timerUntil = null;
+        p.timerDurationMs = null;
+        p.isReset = false;
+        saveState();
+        renderAll();
+        renderNetflixModal(p.id);
+        showToast(`Cleared cooldown timer for ${p.name}`);
+      };
     }
 
-    // Notes list HTML
-    let streamHtml = '';
-    if (!notes.length) {
-      streamHtml = `
-        <div class="empty-notes-view">
-          <span class="empty-icon">📝</span>
-          <b style="color:var(--tx);">No pending notes for Chrome #${p.chromeNo} (${esc(p.name)})</b>
-          <p style="font-size:12.5px;">Type a note or pending task below to remember what to do.</p>
-        </div>
-      `;
+    const dismissResetBtn = $('#btnDismissReset');
+    if (dismissResetBtn) {
+      dismissResetBtn.onclick = () => {
+        p.isReset = false;
+        p.timerUntil = null;
+        saveState();
+        renderAll();
+        renderNetflixModal(p.id);
+        showToast(`Acknowledged reset for ${p.name}`);
+      };
+    }
+
+    // Note adding
+    const addNoteBtn = $('#btnModalAddNote');
+    const noteInput = $('#modalNoteInput');
+
+    const handleAddNote = () => {
+      const text = noteInput.value.trim();
+      if (!text) return;
+      if (!p.notes) p.notes = [];
+      p.notes.push({
+        id: uid(),
+        text,
+        createdAt: now(),
+        done: false
+      });
+      noteInput.value = '';
+      saveState();
+      renderAll();
+      renderNetflixModal(p.id);
+      showToast(`Added note to ${p.name}`);
+      if (window.soundMgr) window.soundMgr.playClick();
+    };
+
+    addNoteBtn.onclick = handleAddNote;
+    noteInput.onkeydown = (e) => {
+      if (e.key === 'Enter') handleAddNote();
+    };
+
+    // Note item actions
+    $$('.btn-note-action', content).forEach(btn => {
+      btn.onclick = () => {
+        const nid = btn.dataset.nid;
+        const act = btn.dataset.action;
+        const targetNote = (p.notes || []).find(n => n.id === nid);
+        if (!targetNote) return;
+
+        if (act === 'toggle-done') {
+          targetNote.done = !targetNote.done;
+          if (targetNote.done && window.soundMgr) window.soundMgr.playReadyChime();
+        } else if (act === 'delete-note') {
+          p.notes = p.notes.filter(n => n.id !== nid);
+        }
+
+        saveState();
+        renderAll();
+        renderNetflixModal(p.id);
+      };
+    });
+  }
+
+  function startTimer(profile, minutes) {
+    const durationMs = minutes * 60 * 1000;
+    profile.timerUntil = now() + durationMs;
+    profile.timerDurationMs = durationMs;
+    profile.isReset = false;
+    saveState();
+    renderAll();
+    renderNetflixModal(profile.id);
+    showToast(`⏳ Cooldown set: ${minutes}m for ${profile.name}`);
+    if (window.soundMgr) window.soundMgr.playClick();
+  }
+
+  function closeModal() {
+    const modal = $('#netflixModal');
+    if (modal) modal.style.display = 'none';
+    state.modalProfileId = null;
+  }
+
+  // Render Messenger View (Left column list + Right column chat pane)
+  function renderMessengerView() {
+    const chromeList = $('#mChromeList');
+    const chatPane = $('#mChatPane');
+    if (!chromeList || !chatPane) return;
+
+    const cur = now();
+    const query = (state.searchQuery || '').toLowerCase().trim();
+    const filter = state.messengerFilter;
+
+    // Filter profiles for messenger sidebar
+    const filtered = state.profiles.filter(p => {
+      const pendingCount = countPending(p);
+      const isTimer = (p.timerUntil && p.timerUntil > cur) || p.isReset;
+
+      if (filter === 'pending' && pendingCount === 0) return false;
+      if (filter === 'timers' && !isTimer) return false;
+
+      if (!query) return true;
+      const inName = p.name.toLowerCase().includes(query);
+      const inEmail = (p.email || '').toLowerCase().includes(query);
+      const inNotes = (p.notes || []).some(n => n.text.toLowerCase().includes(query));
+      return inName || inEmail || inNotes;
+    });
+
+    // Render left profile list
+    if (!filtered.length) {
+      chromeList.innerHTML = `<div style="padding:20px; color:#777; font-size:13px; text-align:center;">No matching Chromes</div>`;
     } else {
-      streamHtml = notes.map(n => {
-        const isDone = !!n.done;
+      chromeList.innerHTML = filtered.map(p => {
+        const isActive = p.id === state.activeProfileId;
+        const pendingCount = countPending(p);
+        const isTimer = p.timerUntil && p.timerUntil > cur;
+        const isReset = p.isReset;
+        const avatarSrc = getAvatarSrc(p);
+        const pendingNotes = (p.notes || []).filter(n => !n.done);
+        const snippet = pendingNotes.length ? `📌 ${pendingNotes[0].text}` : 'No notes yet';
+
         return `
-          <div class="note-bubble-row">
-            <div class="note-bubble ${isDone ? 'done-bubble' : 'pending-bubble'}">
-              <span class="note-text">${esc(n.text)}</span>
-              <div class="note-actions">
-                <button class="btn-note-action done-btn" data-act="toggleNote" data-pid="${p.id}" data-nid="${n.id}" title="${isDone ? 'Reopen' : 'Mark finished'}">
-                  ${isDone ? '↩ Reopen' : '✓ Done'}
-                </button>
-                <button class="btn-note-action del-btn" data-act="delNote" data-pid="${p.id}" data-nid="${n.id}" title="Delete note">🗑️</button>
+          <div class="chrome-item ${isActive ? 'active' : ''}" data-id="${p.id}">
+            <div class="chrome-avatar-wrap">
+              <img src="${avatarSrc}" class="chrome-avatar" alt="${esc(p.name)}">
+              <span class="slot-badge">${esc(p.winShortcut.replace('Win + ', 'W+'))}</span>
+            </div>
+            <div class="chrome-info">
+              <div class="chrome-row-1">
+                <span class="chrome-name">${esc(p.name)}</span>
+                <span class="chrome-shortcut">${esc(p.winShortcut)}</span>
+              </div>
+              <div class="chrome-row-2">
+                <span class="chrome-snippet ${pendingCount > 0 ? 'pending-glow' : ''}">${esc(snippet)}</span>
+                ${pendingCount > 0 ? `<span class="pending-badge">${pendingCount}</span>` : ''}
+                ${isTimer ? `<span class="timer-badge">⏳</span>` : ''}
+                ${isReset ? `<span class="reset-badge">🟢</span>` : ''}
               </div>
             </div>
-            <span class="note-meta">${fmtTime(n.createdAt)} ${isDone ? '· Completed' : '· Pending'}</span>
           </div>
         `;
       }).join('');
     }
 
-    // Composer HTML
-    const composerHtml = `
-      <form class="chat-composer" id="composerForm" data-pid="${p.id}">
-        <input type="text" class="composer-input" id="noteInput" placeholder="💬 Type a note or pending task for ${esc(p.name)} (Press Enter to add)..." autofocus autocomplete="off">
-        <button type="submit" class="btn-send">Add ✈️</button>
-      </form>
-    `;
+    // Attach click listeners to profile items in sidebar
+    $$('.chrome-item', chromeList).forEach(item => {
+      item.onclick = () => {
+        state.activeProfileId = item.dataset.id;
+        renderMessengerView();
+      };
+    });
 
-    pane.innerHTML = `
-      ${headerHtml}
-      <div class="notes-stream" id="notesStream">
-        ${resetBannerHtml}
-        ${timerBarHtml}
-        ${streamHtml}
+    // Render right chat pane for active profile
+    const active = getProfile(state.activeProfileId);
+    const activeAvatar = getAvatarSrc(active);
+    const activePending = countPending(active);
+    const isTimer = active.timerUntil && active.timerUntil > cur;
+    const isReset = active.isReset;
+    const rem = isTimer ? formatRemaining(active.timerUntil - cur) : '';
+    const notes = active.notes || [];
+
+    chatPane.innerHTML = `
+      <div class="chat-header">
+        <div class="chat-header-profile">
+          <img src="${activeAvatar}" class="chat-avatar" alt="${esc(active.name)}">
+          <div>
+            <div class="chat-title">${esc(active.name)}</div>
+            <div class="chat-meta">${esc(active.email)} · Taskbar Slot #${active.taskbarSlot}</div>
+          </div>
+        </div>
+        <div class="chat-header-actions">
+          <button class="btn-editor" id="mBtnUploadPhoto">📷 Photo</button>
+          <button class="btn-editor" data-action="copy-name" data-id="${active.id}">📋 Copy Name</button>
+          <span class="shortcut-pill">${esc(active.winShortcut)}</span>
+        </div>
       </div>
-      ${composerHtml}
-      <input type="file" id="hiddenAvatarInput" accept="image/*" style="display:none;">
+
+      <!-- Quick Timer Bar -->
+      <div class="quick-timer-bar">
+        <span class="quick-timer-label">Hit AI limit? Start a quick timer:</span>
+        <button class="btn-timer-chip" data-min="15">15m</button>
+        <button class="btn-timer-chip" data-min="30">30m</button>
+        <button class="btn-timer-chip" data-min="45">45m</button>
+        <button class="btn-timer-chip" data-min="60">1h</button>
+        <button class="btn-timer-chip" data-min="120">2h</button>
+        <button class="btn-timer-chip" data-min="180">3h</button>
+        <button class="btn-timer-chip" data-min="300">5h</button>
+        <button class="btn-timer-chip" id="mBtnMoreTimer">More Options...</button>
+      </div>
+
+      ${isTimer ? `
+        <div class="active-timer-banner">
+          <span>⏳ Cooldown Active: <strong>${rem}</strong> remaining</span>
+          <button class="btn-clear-timer" id="mBtnClearTimer">✕ Clear Timer</button>
+        </div>
+      ` : ''}
+
+      ${isReset ? `
+        <div class="active-reset-banner">
+          <span>🟢 Limit Reset! Quota ready for work.</span>
+          <button class="btn-clear-timer" id="mBtnDismissReset" style="background:#059669; border-color:#059669; color:#fff;">✓ Acknowledge</button>
+        </div>
+      ` : ''}
+
+      <!-- Notes Stream -->
+      <div class="notes-stream" id="mNotesStream">
+        ${!notes.length ? `
+          <div class="empty-notes">
+            <div class="empty-notes-icon">📝</div>
+            <h3>No pending notes for ${esc(active.name)}</h3>
+            <p>Type a note or pending task below to remember what to do.</p>
+          </div>
+        ` : notes.map(n => `
+          <div class="note-bubble-wrap" data-nid="${n.id}">
+            <div class="note-bubble ${n.done ? 'done' : ''}">
+              <div class="note-text">${esc(n.text)}</div>
+              <div class="note-bubble-actions">
+                <button class="bubble-btn" data-action="m-toggle" data-nid="${n.id}">
+                  ${n.done ? '↩' : '✓ Done'}
+                </button>
+                <button class="bubble-btn delete" data-action="m-delete" data-nid="${n.id}">
+                  🗑️
+                </button>
+              </div>
+            </div>
+            <div class="note-timestamp">${new Date(n.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · ${n.done ? 'Completed' : 'Pending'}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Chat Composer Bar -->
+      <div class="composer-bar">
+        <input type="text" id="mNoteInput" class="composer-input" placeholder="💬 Type a note or pending task for ${esc(active.name)} (Press Enter to add)...">
+        <button class="composer-send-btn" id="mBtnSendNote">Add ✓</button>
+      </div>
     `;
 
-    // Scroll stream to bottom
-    const streamEl = document.getElementById('notesStream');
-    if (streamEl) {
-      streamEl.scrollTop = streamEl.scrollHeight;
-    }
+    // Hook listeners for messenger right pane
+    $('#mBtnUploadPhoto').onclick = () => {
+      state.uploadTargetProfileId = active.id;
+      $('#globalAvatarInput').click();
+    };
 
-    // Form submit listener
-    const form = document.getElementById('composerForm');
-    if (form) {
-      form.onsubmit = ev => {
-        ev.preventDefault();
-        const inp = document.getElementById('noteInput');
-        if (inp && inp.value.trim()) {
-          p.notes = p.notes || [];
-          p.notes.push({
-            id: uid(),
-            text: inp.value.trim(),
-            done: false,
-            createdAt: now()
-          });
-          inp.value = '';
-          save();
-          render();
-          toast(`📝 Note saved for <b>${esc(p.name)}</b>`);
-        }
-      };
-    }
+    $('#mBtnMoreTimer').onclick = () => {
+      renderNetflixModal(active.id);
+    };
 
-    // Avatar file upload handler
-    const fileInp = document.getElementById('hiddenAvatarInput');
-    if (fileInp) {
-      fileInp.onchange = ev => {
-        const file = ev.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = new Image();
-          img.onload = () => {
-            // Resize to max 128x128 canvas for high performance & minimal storage
-            const canvas = document.createElement('canvas');
-            const size = 128;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext('2d');
-
-            // Center crop square
-            const minDim = Math.min(img.width, img.height);
-            const sx = (img.width - minDim) / 2;
-            const sy = (img.height - minDim) / 2;
-            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-
-            p.customAvatar = canvas.toDataURL('image/jpeg', 0.85);
-            save();
-            render();
-            toast(`📷 Profile photo updated for <b>${esc(p.name)}</b>`);
-          };
-          img.src = e.target.result;
+    $$('.btn-timer-chip', chatPane).forEach(chip => {
+      if (chip.dataset.min) {
+        chip.onclick = () => {
+          const mins = parseInt(chip.dataset.min, 10);
+          startTimer(active, mins);
+          renderMessengerView();
         };
-        reader.readAsDataURL(file);
+      }
+    });
+
+    const mClear = $('#mBtnClearTimer');
+    if (mClear) {
+      mClear.onclick = () => {
+        active.timerUntil = null;
+        active.timerDurationMs = null;
+        active.isReset = false;
+        saveState();
+        renderAll();
+        showToast(`Cleared cooldown timer for ${active.name}`);
       };
     }
+
+    const mDismiss = $('#mBtnDismissReset');
+    if (mDismiss) {
+      mDismiss.onclick = () => {
+        active.isReset = false;
+        active.timerUntil = null;
+        saveState();
+        renderAll();
+        showToast(`Acknowledged reset for ${active.name}`);
+      };
+    }
+
+    // Add note in messenger
+    const mSend = $('#mBtnSendNote');
+    const mInput = $('#mNoteInput');
+    const handleMSend = () => {
+      const text = mInput.value.trim();
+      if (!text) return;
+      if (!active.notes) active.notes = [];
+      active.notes.push({
+        id: uid(),
+        text,
+        createdAt: now(),
+        done: false
+      });
+      mInput.value = '';
+      saveState();
+      renderAll();
+      showToast(`Added note to ${active.name}`);
+      if (window.soundMgr) window.soundMgr.playClick();
+    };
+
+    mSend.onclick = handleMSend;
+    mInput.onkeydown = (e) => {
+      if (e.key === 'Enter') handleMSend();
+    };
+
+    // Bubble actions
+    $$('.bubble-btn', chatPane).forEach(btn => {
+      btn.onclick = () => {
+        const nid = btn.dataset.nid;
+        const act = btn.dataset.action;
+        const targetNote = (active.notes || []).find(n => n.id === nid);
+        if (!targetNote) return;
+
+        if (act === 'm-toggle') {
+          targetNote.done = !targetNote.done;
+          if (targetNote.done && window.soundMgr) window.soundMgr.playReadyChime();
+        } else if (act === 'm-delete') {
+          active.notes = active.notes.filter(n => n.id !== nid);
+        }
+
+        saveState();
+        renderAll();
+      };
+    });
   }
 
-  function updateTimers() {
-    const t = now();
+  // Update badges on top nav and sidebar tabs
+  function updateNavBadges() {
+    const pCount = totalPendingCount();
+    const tCount = totalTimersCount();
 
-    // Update live clock and countdown to next recharge alarm
-    updateLiveClock();
+    const pBadge = $('#navPendingBadge');
+    if (pBadge) pBadge.textContent = pCount;
 
-    // Update cooldown text inside active chat pane
-    document.querySelectorAll('[data-cd]').forEach(el => {
-      const target = Number(el.dataset.cd);
-      el.textContent = `${fmtDur(target - t)} remaining`;
-    });
+    const tBadge = $('#navTimersBadge');
+    if (tBadge) tBadge.textContent = tCount;
 
-    // Update short timer badges in sidebar
-    document.querySelectorAll('[data-cd-short]').forEach(el => {
-      const target = Number(el.dataset.cdShort);
-      el.textContent = `⏳ ${fmtShortDur(target - t)}`;
-    });
+    const mpBadge = $('#mPendingCount');
+    if (mpBadge) mpBadge.textContent = pCount;
 
-    // Check if any timer has finished -> mark as Reset!
-    let changed = false;
-    S.profiles.forEach(p => {
-      if (p.timerUntil && p.timerUntil <= t) {
+    const mtBadge = $('#mTimersCount');
+    if (mtBadge) mtBadge.textContent = tCount;
+
+    const mfilterAll = $('#mfilterAll');
+    if (mfilterAll) mfilterAll.textContent = `All (${state.profiles.length})`;
+  }
+
+  // Master Render Function
+  function renderAll() {
+    updateNavBadges();
+
+    if (state.currentView === 'netflix') {
+      $('#netflixView').style.display = 'block';
+      $('#messengerView').style.display = 'none';
+
+      renderHeroBanner();
+      renderTop10Row();
+      renderTopPicksRow();
+      renderCooldownsRow();
+      renderAllProfilesRow();
+    } else {
+      $('#netflixView').style.display = 'none';
+      $('#messengerView').style.display = 'block';
+
+      renderMessengerView();
+    }
+
+    // If modal is open, re-render its content
+    if (state.modalProfileId) {
+      renderNetflixModal(state.modalProfileId);
+    }
+  }
+
+  // Timer Tick Check: runs every second
+  function timerTick() {
+    const cur = now();
+    let stateChanged = false;
+
+    state.profiles.forEach(p => {
+      if (p.timerUntil && p.timerUntil <= cur) {
         p.timerUntil = null;
-        p.isReset = true; // Mark as RESET!
-        changed = true;
+        p.isReset = true;
+        stateChanged = true;
         if (window.soundMgr) window.soundMgr.playReadyChime();
-        toast(`🔔 <b>Chrome #${p.chromeNo} (${esc(p.name)})</b> limit has been RESET! Ready to use.`);
+        showToast(`🟢 Cooldown finished for ${p.name}! Limit Reset.`);
       }
     });
 
-    if (changed) {
-      save();
-      render();
-    }
-  }
-
-  // --- Event Listeners ---
-
-  document.addEventListener('click', ev => {
-    // Select Chrome profile from sidebar
-    const item = ev.target.closest('[data-select-id]');
-    if (item) {
-      selectedId = item.dataset.selectId;
-      render();
-      const inp = document.getElementById('noteInput');
-      if (inp) inp.focus();
-      return;
+    if (stateChanged) {
+      saveState();
     }
 
-    // Filter tabs
-    const filterBtn = ev.target.closest('[data-filter]');
-    if (filterBtn) {
-      currentFilter = filterBtn.dataset.filter;
-      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
-      filterBtn.classList.add('active');
-      renderSidebarList();
-      return;
+    renderClockBox();
+
+    // Refresh live time strings in UI
+    if (state.currentView === 'netflix') {
+      renderTop10Row();
+      renderCooldownsRow();
+      renderAllProfilesRow();
+    } else {
+      renderMessengerView();
     }
 
-    // Action buttons
-    const btn = ev.target.closest('[data-act]');
-    if (!btn) return;
-
-    const act = btn.dataset.act;
-    const pid = btn.dataset.pid;
-    const nid = btn.dataset.nid;
-    const p = S.profiles.find(x => x.id === pid);
-
-    if (act === 'triggerPhotoUpload') {
-      const fileInp = document.getElementById('hiddenAvatarInput');
-      if (fileInp) fileInp.click();
-    } else if (act === 'removeCustomPhoto') {
-      if (p) {
-        p.customAvatar = null;
-        save();
-        render();
-        toast(`Reverted to default photo`);
-      }
-    } else if (act === 'copyName') {
-      const name = btn.dataset.name;
-      try {
-        navigator.clipboard.writeText(name);
-        toast(`📋 Copied "${name}" to clipboard`);
-      } catch (_) {}
-    } else if (act === 'toggleNote') {
-      if (p && p.notes) {
-        const n = p.notes.find(x => x.id === nid);
-        if (n) {
-          n.done = !n.done;
-          save();
-          render();
-          toast(n.done ? `✓ Note marked finished` : `↩ Note reopened`);
+    if (state.modalProfileId) {
+      const banner = $('.timer-active-banner strong');
+      if (banner) {
+        const p = getProfile(state.modalProfileId);
+        if (p.timerUntil && p.timerUntil > cur) {
+          banner.textContent = formatRemaining(p.timerUntil - cur);
         }
       }
-    } else if (act === 'delNote') {
-      if (p && p.notes) {
-        p.notes = p.notes.filter(x => x.id !== nid);
-        save();
-        render();
-        toast(`🗑️ Note deleted`);
-      }
-    } else if (act === 'setTimer') {
-      const h = Number(btn.dataset.h) || 3;
-      if (p) {
-        p.timerUntil = now() + h * 3600000;
-        p.isReset = false;
-        save();
-        render();
-        toast(`⏱️ Cooldown timer set for ${h}h on <b>${esc(p.name)}</b>`);
-      }
-    } else if (act === 'clearTimer') {
-      if (p) {
-        p.timerUntil = null;
-        p.isReset = false;
-        save();
-        render();
-        toast(`Timer cleared`);
-      }
-    } else if (act === 'dismissReset') {
-      if (p) {
-        p.isReset = false;
-        save();
-        render();
-        toast(`Reset acknowledged`);
-      }
     }
-  });
+  }
 
-  // Search input live filtering
-  const sInp = $('#searchInput');
-  if (sInp) {
-    sInp.addEventListener('input', ev => {
-      searchQuery = ev.target.value;
-      renderSidebarList();
+  // Global Event Delegation & Setup
+  function initEvents() {
+    // Top Nav buttons
+    $('#logoBtn').onclick = () => {
+      state.currentView = 'netflix';
+      state.searchQuery = '';
+      $('#netflixSearch').value = '';
+      $$('.nav-link').forEach(l => l.classList.remove('active'));
+      $('#navHome').classList.add('active');
+      renderAll();
+    };
+
+    $('#navHome').onclick = () => {
+      state.currentView = 'netflix';
+      $$('.nav-link').forEach(l => l.classList.remove('active'));
+      $('#navHome').classList.add('active');
+      renderAll();
+    };
+
+    $('#navPending').onclick = () => {
+      state.currentView = 'netflix';
+      $$('.nav-link').forEach(l => l.classList.remove('active'));
+      $('#navPending').classList.add('active');
+      renderAll();
+      const topPicks = $('#topPicksSection');
+      if (topPicks) topPicks.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    $('#navTimers').onclick = () => {
+      state.currentView = 'netflix';
+      $$('.nav-link').forEach(l => l.classList.remove('active'));
+      $('#navTimers').classList.add('active');
+      renderAll();
+      const cdSection = $('#cooldownSection');
+      if (cdSection) cdSection.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    $('#navMessenger').onclick = () => {
+      state.currentView = 'messenger';
+      $$('.nav-link').forEach(l => l.classList.remove('active'));
+      $('#navMessenger').classList.add('active');
+      renderAll();
+    };
+
+    // Netflix Search input
+    $('#netflixSearch').oninput = (e) => {
+      state.searchQuery = e.target.value;
+      renderAllProfilesRow();
+    };
+
+    // Messenger Search input
+    $('#messengerSearch').oninput = (e) => {
+      state.searchQuery = e.target.value;
+      renderMessengerView();
+    };
+
+    // Messenger Filter Tabs
+    $('#mfilterAll').onclick = () => {
+      state.messengerFilter = 'all';
+      $$('.filter-tab').forEach(t => t.classList.remove('active'));
+      $('#mfilterAll').classList.add('active');
+      renderMessengerView();
+    };
+
+    $('#mfilterPending').onclick = () => {
+      state.messengerFilter = 'pending';
+      $$('.filter-tab').forEach(t => t.classList.remove('active'));
+      $('#mfilterPending').classList.add('active');
+      renderMessengerView();
+    };
+
+    $('#mfilterTimers').onclick = () => {
+      state.messengerFilter = 'timers';
+      $$('.filter-tab').forEach(t => t.classList.remove('active'));
+      $('#mfilterTimers').classList.add('active');
+      renderMessengerView();
+    };
+
+    // Global click delegate for cards and action buttons
+    document.addEventListener('click', (e) => {
+      // 1. Copy Name button
+      const copyBtn = e.target.closest('[data-action="copy-name"]');
+      if (copyBtn) {
+        e.stopPropagation();
+        const p = getProfile(copyBtn.dataset.id);
+        if (p) {
+          navigator.clipboard.writeText(p.name).then(() => {
+            showToast(`✓ Copied "${p.name}" to clipboard!`);
+          }).catch(() => {
+            showToast(`Profile: ${p.name}`);
+          });
+        }
+        return;
+      }
+
+      // 2. Open Modal button
+      const infoBtn = e.target.closest('[data-action="open-modal"]');
+      if (infoBtn) {
+        e.stopPropagation();
+        renderNetflixModal(infoBtn.dataset.id);
+        return;
+      }
+
+      // 3. Top 10 item clicked
+      const top10Item = e.target.closest('.top10-item');
+      if (top10Item) {
+        renderNetflixModal(top10Item.dataset.id);
+        return;
+      }
+
+      // 4. Standard Netflix Card clicked
+      const nfCard = e.target.closest('.nf-card');
+      if (nfCard && !e.target.closest('button')) {
+        renderNetflixModal(nfCard.dataset.id);
+        return;
+      }
+
+      // 5. Click outside modal to close
+      const modal = $('#netflixModal');
+      if (modal && modal.style.display === 'flex' && e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Escape key closes modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && state.modalProfileId) {
+        closeModal();
+      }
+    });
+
+    // File input handler for avatar photo uploads
+    $('#globalAvatarInput').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file || !state.uploadTargetProfileId) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target.result;
+        const target = getProfile(state.uploadTargetProfileId);
+        if (target) {
+          target.customAvatar = base64;
+          saveState();
+          renderAll();
+          if (state.modalProfileId === target.id) {
+            renderNetflixModal(target.id);
+          }
+          showToast(`✓ Photo updated for ${target.name}!`);
+        }
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
     });
   }
 
-  // Initial render & 1-second interval
-  render();
-  setInterval(updateTimers, 1000);
+  // Initialization
+  function init() {
+    loadState();
+    initEvents();
+    renderAll();
+    renderClockBox();
+
+    // Interval for 1-second countdowns & schedule clock
+    setInterval(timerTick, 1000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();

@@ -3,54 +3,118 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chrome Taskbar Notes · Messenger Style</title>
+  <title>CHROMEFLIX · Taskbar Notes &amp; Waitboard</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230084ff'/><text x='50' y='65' font-size='42' text-anchor='middle' fill='%23ffffff' font-weight='bold'>💬</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23141414'/><text y='78' x='50' font-size='80' text-anchor='middle' fill='%23E50914' font-weight='900' font-family='sans-serif'>N</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div class="app-container">
-    <!-- Top Compact Header Bar with Live Clock & Schedule -->
-    <header class="app-header">
-      <div class="brand">
-        <span class="brand-icon">💬</span>
-        <div class="brand-text">
-          <h1>Chrome Taskbar Notes</h1>
-          <p>Messenger for your 21 taskbar Chrome profiles</p>
-        </div>
-      </div>
-      <div class="header-right" id="headerClockWidget">
-        <!-- Live Clock & Daily Recharge Alarm Next Event rendered dynamically -->
-      </div>
-    </header>
+<body class="netflix-theme">
+  <!-- Netflix Top Navigation Bar -->
+  <header class="netflix-nav" id="netflixNav">
+    <div class="nav-left">
+      <div class="netflix-logo" id="logoBtn">CHROMEFLIX</div>
+      <nav class="nav-links">
+        <button class="nav-link active" data-view="netflix" id="navHome">Home</button>
+        <button class="nav-link" data-view="netflix" data-filter="pending" id="navPending">Pending Tasks <span class="nav-badge" id="navPendingBadge">0</span></button>
+        <button class="nav-link" data-view="netflix" data-filter="timers" id="navTimers">Active Timers <span class="nav-badge timer" id="navTimersBadge">0</span></button>
+        <button class="nav-link" data-view="messenger" id="navMessenger">💬 Messenger View</button>
+      </nav>
+    </div>
 
-    <!-- Messenger Main 2-Pane Layout -->
-    <div class="messenger-layout">
-      <!-- Left Column: Chrome Profiles List (Like Messenger Inbox) -->
-      <aside class="sidebar">
-        <!-- Search & Filter Controls -->
-        <div class="sidebar-top">
-          <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search profiles or notes...">
-          <div class="sidebar-filters">
-            <button class="filter-tab active" data-filter="all" id="filterAll">All (21)</button>
-            <button class="filter-tab" data-filter="pending" id="filterPending">🔴 Pending (<span id="pendingCountLabel">0</span>)</button>
-            <button class="filter-tab" data-filter="timers" id="filterTimers">⏳ Timers (<span id="timersCountLabel">0</span>)</button>
-          </div>
-        </div>
+    <div class="nav-right">
+      <!-- Live Clock & Daily Recharge Alarm Schedule Countdown -->
+      <div class="nav-clock-box" id="navClockBox">
+        <!-- Rendered dynamically -->
+      </div>
 
-        <!-- Scrollable Chrome Contact List -->
-        <div class="chrome-list" id="chromeList">
+      <div class="nav-search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="netflixSearch" class="nav-search-input" placeholder="Titles, profiles, notes...">
+      </div>
+
+      <div class="nav-profile-menu" id="navProfileIcon">
+        <img src="avatars/Profile%2016.png" class="nav-avatar" alt="Profile" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 40\'><rect width=\'40\' height=\'40\' fill=\'%23E50914\'/><text x=\'20\' y=\'26\' font-size=\'20\' text-anchor=\'middle\' fill=\'%23fff\'>O</text></svg>'">
+      </div>
+    </div>
+  </header>
+
+  <!-- View 1: Cinematic Netflix Browse Mode -->
+  <div class="view-container" id="netflixView">
+    <!-- Featured Hero Spotlight Banner -->
+    <section class="hero-banner" id="heroBanner">
+      <!-- Rendered dynamically -->
+    </section>
+
+    <!-- Netflix Carousels Container -->
+    <div class="carousels-container" id="carouselsContainer">
+      <!-- Row 1: Top 10 Taskbar Chromes Today (With Giant Outline Numbers 1 to 10!) -->
+      <section class="carousel-section">
+        <h2 class="carousel-title">Top 10 Taskbar Chromes Today</h2>
+        <div class="top10-carousel" id="top10Row">
+          <!-- Rendered dynamically with giant numbers -->
+        </div>
+      </section>
+
+      <!-- Row 2: Today's Top Picks for You (Pending Work & Recommendations) -->
+      <section class="carousel-section" id="topPicksSection">
+        <h2 class="carousel-title">Today's Top Picks for You <span class="title-sub">(Chromes with Pending Tasks)</span></h2>
+        <div class="standard-carousel" id="topPicksRow">
           <!-- Rendered dynamically -->
         </div>
-      </aside>
+      </section>
 
-      <!-- Right Column: Notes & Messages Thread for Selected Chrome -->
-      <main class="chat-pane" id="chatPane">
-        <!-- Rendered dynamically -->
-      </main>
+      <!-- Row 3: Active Cooldowns & Reset Limits -->
+      <section class="carousel-section" id="cooldownSection">
+        <h2 class="carousel-title">AI Cooldowns &amp; Limit Resets</h2>
+        <div class="standard-carousel" id="cooldownsRow">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- Row 4: All 21 Taskbar Chromes (Ordered by Slot #3 to #23) -->
+      <section class="carousel-section">
+        <h2 class="carousel-title">All Taskbar Profiles <span class="title-sub">(Ordered by your Windows Taskbar)</span></h2>
+        <div class="standard-carousel" id="allProfilesRow">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
     </div>
   </div>
 
-  <!-- Toast Notification -->
+  <!-- View 2: Messenger Split View (Compact 2-Pane Chat View) -->
+  <div class="view-container" id="messengerView" style="display:none;">
+    <div class="messenger-layout">
+      <!-- Left Column: Chrome Profiles List -->
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <input type="text" id="messengerSearch" class="search-input" placeholder="🔍 Search profiles or notes...">
+          <div class="sidebar-filters">
+            <button class="filter-tab active" data-mfilter="all" id="mfilterAll">All (21)</button>
+            <button class="filter-tab" data-mfilter="pending" id="mfilterPending">🔴 Pending (<span id="mPendingCount">0</span>)</button>
+            <button class="filter-tab" data-mfilter="timers" id="mfilterTimers">⏳ Timers (<span id="mTimersCount">0</span>)</button>
+          </div>
+        </div>
+        <div class="chrome-list" id="mChromeList"></div>
+      </aside>
+
+      <!-- Right Column: Notes Stream & Chat Composer -->
+      <main class="chat-pane" id="mChatPane"></main>
+    </div>
+  </div>
+
+  <!-- Netflix "More Info" Detailed Modal Dialog -->
+  <div class="netflix-modal-backdrop" id="netflixModal" style="display:none;">
+    <div class="netflix-modal-content" id="netflixModalContent">
+      <!-- Rendered dynamically -->
+    </div>
+  </div>
+
+  <!-- Hidden Avatar Uploader Input -->
+  <input type="file" id="globalAvatarInput" accept="image/*" style="display:none;">
+
+  <!-- Toast Notification Container -->
   <div id="toast"></div>
 
   <!-- Scripts -->
