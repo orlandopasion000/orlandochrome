@@ -891,6 +891,13 @@ body.is-resizing-pane * {
   font-weight: 500;
 }
 
+.snippet-msg-read {
+  color: #71717a;
+  font-size: 0.84rem;
+  font-weight: 500;
+  opacity: 0.88;
+}
+
 /* Unpinned Pending Message: High-Contrast Glass Pill (Matching Image 2 Standard) */
 .profile-snippet.pending-glow {
   background: rgba(229, 9, 20, 0.16);

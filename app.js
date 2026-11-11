@@ -1521,14 +1521,16 @@
       const isUnread = !!(p.isUnread && canUnread);
       const avatarSrc = getAvatarSrc(p);
 
-      const pendingNotes = (p.notes || []).filter(n => !n.done);
+      const allNotes = p.notes || [];
+      const pendingNotes = allNotes.filter(n => !n.done);
       let snippetHtml = '';
       let snippetClass = '';
 
       if (pendingNotes.length > 0) {
         const firstNote = pendingNotes[0];
         const mediaPrefix = firstNote.image ? '📸 ' : (firstNote.voiceClip ? '🎙️ ' : '');
-        const displayMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot attached' : '🎙️ Voice note');
+        const subCount = (firstNote.subItems || []).length;
+        const displayMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot attached' : (subCount > 0 ? `☑ Checklist (${subCount} items)` : '🎙️ Voice note'));
         const reactBadges = getSidebarReactionBadgesHtml(pendingNotes);
         snippetHtml = `${renderPinButton(p)}<span class="snippet-msg-text">${esc(displayMsg)}</span>${reactBadges}`;
         snippetClass = isPinned ? 'pinned-glow' : 'pending-glow';
@@ -1542,6 +1544,14 @@
       } else if (isUnread) {
         snippetHtml = '● Marked as Unread — Check window next';
         snippetClass = 'unread-glow';
+      } else if (allNotes.length > 0) {
+        // Messenger Standard: After reading/completing task, show latest note in transparent/dim style like email
+        const lastNote = allNotes[allNotes.length - 1];
+        const mediaPrefix = lastNote.image ? '📸 ' : (lastNote.voiceClip ? '🎙️ ' : '');
+        const subCount = (lastNote.subItems || []).length;
+        const lastMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount} items)` : '🎙️ Voice note'));
+        snippetHtml = `<span class="snippet-msg-text snippet-msg-read" title="Completed note">${esc(lastMsg)}</span>`;
+        snippetClass = 'read-row';
       } else {
         snippetHtml = `<span class="snippet-msg-text snippet-msg-idle">${esc(p.email || 'Ready · Tap to add notes')}</span>`;
         snippetClass = 'idle-row';
