@@ -158,33 +158,247 @@ img, video, audio, canvas, svg {
 }
 
 .nf-clock-digital {
-  font-family: Consolas, monospace;
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
   font-size: 0.78rem;
-  font-weight: 800;
-  color: #ffffff;
   background: #000000;
-  border: 1px solid #222222;
-  padding: 3px 9px;
-  border-radius: var(--radius-sm);
-  letter-spacing: 0.5px;
+  border: 1px solid #1C1C20;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
   white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+
+.nf-clock-digital::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D9B95C, transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.nf-clock-digital:hover {
+  border-color: rgba(217, 185, 92, 0.55);
+  box-shadow: 0 0 12px rgba(217, 185, 92, 0.22);
+  transform: translateY(-1px);
+}
+
+/* Precision Numerals — Master Inter Display Black 900 (Synced with OrlandoRecharge) */
+.nf-clock-digital .chrome {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 900 !important;
+  font-size: 0.78rem;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0.01em !important;
+}
+
+.nf-clock-digital .chrome span {
+  display: inline-block;
+  width: 0.62em !important;
+  text-align: center;
+}
+
+.nf-clock-digital .chrome span.c {
+  width: 0.24em !important;
+  transform: translateY(-0.04em);
+}
+
+.nf-clock-ampm {
+  font-family: 'Lexend', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
+  font-size: 0.62rem;
+  color: #D9B95C;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* 17 Bespoke Clock Metallic & Luminescent Colorways from OrlandoRecharge */
+.nf-clock-digital[data-clock-theme="platinum"] .chrome span,
+.nf-clock-digital .chrome span {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 18%, #CBD5E1 42%, #475569 64%, #1E293B 70%, #64748B 82%, #E2E8F0 96%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="chrome-3d"] .chrome span,
+.nf-clock-digital[data-clock-theme="chrome"] .chrome span {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 16%, #CBD5E1 38%, #475569 52%, #1E293B 56%, #334155 64%, #94A3B8 82%, #E2E8F0 96%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="gold"] .chrome span {
+  background: linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 18%, #FDE68A 36%, #D97706 54%, #78350F 62%, #B45309 76%, #FBBF24 92%, #FEF3C7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="cyber-emerald"] .chrome span {
+  background: linear-gradient(180deg, #ECFDF5 0%, #A7F3D0 22%, #34D399 48%, #065F46 74%, #10B981 90%, #A7F3D0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="ice-titanium"] .chrome span {
+  background: linear-gradient(180deg, #F0F9FF 0%, #BAE6FD 22%, #38BDF8 50%, #0C4A6E 74%, #0284C7 88%, #BAE6FD 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="amethyst"] .chrome span {
+  background: linear-gradient(180deg, #FAF5FF 0%, #E9D5FF 22%, #C084FC 50%, #7E22CE 76%, #A855F7 90%, #E9D5FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="sunset-rose"] .chrome span {
+  background: linear-gradient(180deg, #FFF1F2 0%, #FECDD3 22%, #FB7185 50%, #4C0519 74%, #E11D48 88%, #FDA4AF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="minimal-white"] .chrome span {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.nf-clock-digital[data-clock-theme="chronometer-din"] .chrome span {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 25%, #94A3B8 54%, #334155 76%, #64748B 90%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="sunset-amber"] .chrome span {
+  background: linear-gradient(180deg, #FFFBEB 0%, #FDE68A 20%, #F59E0B 52%, #451A03 76%, #D97706 90%, #FCD34D 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="midnight-gold"] .chrome span {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  text-shadow: -0.8px -0.8px 0 #D9B95C, 0.8px -0.8px 0 #D9B95C, -0.8px 0.8px 0 #D9B95C, 0.8px 0.8px 0 #D9B95C;
+}
+
+.nf-clock-digital[data-clock-theme="rainbow"] .chrome span {
+  background: linear-gradient(135deg, #FF7675 0%, #FDCB6E 20%, #55EFC4 40%, #74B9FF 60%, #A29BFE 80%, #FD79A8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="green-nature"] .chrome span {
+  background: linear-gradient(180deg, #F0FDF4 0%, #86EFAC 22%, #22C55E 50%, #14532D 74%, #4ADE80 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="royal-sapphire"] .chrome span {
+  background: linear-gradient(180deg, #EFF6FF 0%, #BFDBFE 18%, #60A5FA 46%, #1E3A8A 72%, #2563EB 88%, #93C5FD 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="crimson-laser"] .chrome span {
+  background: linear-gradient(180deg, #FEF2F2 0%, #FECACA 20%, #F87171 48%, #7F1D1D 74%, #EF4444 88%, #FCA5A5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="obsidian-noir"] .chrome span {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 18%, #94A3B8 46%, #0F172A 72%, #475569 88%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.nf-clock-digital[data-clock-theme="solis-gold"] .chrome span {
+  background: linear-gradient(180deg, #FEFCE8 0%, #FEF08A 18%, #FACC15 48%, #713F12 74%, #EAB308 88%, #FDE047 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 .nf-alarm-pill {
+  font-family: 'Lexend', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--nf-dark-red-grad);
   border: 1px solid rgba(255, 60, 75, 0.55);
   box-shadow: 0 0 12px rgba(229, 9, 20, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  color: #ffe4e8;
+  color: #F5F1E6;
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 3px 10px 3px 6px;
   border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   text-decoration: none;
   transition: var(--transition-smooth);
   white-space: nowrap;
+}
+
+.alarm-pill-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  object-fit: contain;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(217, 185, 92, 0.45);
+}
+
+.alarm-pill-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alarm-pill-countdown {
+  font-family: 'Lexend', 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 800;
+  color: #F0CF7A;
 }
 
 .nf-alarm-pill:hover {
@@ -3090,29 +3304,56 @@ body.is-resizing-pane * {
 
 .qr-holo-stage {
   position: relative;
-  padding: 14px;
-  border-radius: 16px;
+  padding: 16px;
+  border-radius: 18px;
   background: radial-gradient(circle at 50% 50%, rgba(255, 46, 56, 0.16), #000000 78%);
   border: 2px solid var(--qr-accent, #ff2e38);
-  box-shadow: 0 0 28px rgba(229, 9, 20, 0.25), inset 0 0 18px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 32px var(--qr-glow, rgba(229, 9, 20, 0.25)), inset 0 0 20px rgba(255, 255, 255, 0.04);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.qr-holo-stage:hover .qr-laser-beam {
-  opacity: 0;
+.qr-laser-beam {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--qr-accent, #ff2e38), #ffffff, var(--qr-accent, #ff2e38), transparent);
+  box-shadow: 0 0 12px var(--qr-accent, #ff2e38);
+  z-index: 2; /* CRITICAL: Sweeps in the holographic chamber BEHIND the QR pad (z-index: 5) so it NEVER interferes with optical camera reading! */
+  pointer-events: none;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+  animation: qrLaserScan 3s ease-in-out infinite alternate;
+}
+
+@keyframes qrLaserScan {
+  0% { top: 8px; }
+  100% { top: calc(100% - 8px); }
 }
 
 .qr-corner {
   position: absolute;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-color: var(--qr-accent, #ff2e38);
   border-style: solid;
-  z-index: 3;
+  z-index: 6;
   pointer-events: none;
+  filter: drop-shadow(0 0 6px var(--qr-accent, #ff2e38));
+  transition: all 0.2s ease;
+}
+
+.qr-corner::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: var(--qr-accent, #ff2e38);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--qr-accent, #ff2e38);
 }
 
 .qr-corner.tl {
@@ -3121,6 +3362,7 @@ body.is-resizing-pane * {
   border-width: 3px 0 0 3px;
   border-top-left-radius: 5px;
 }
+.qr-corner.tl::after { top: 2px; left: 2px; }
 
 .qr-corner.tr {
   top: 5px;
@@ -3128,6 +3370,7 @@ body.is-resizing-pane * {
   border-width: 3px 3px 0 0;
   border-top-right-radius: 5px;
 }
+.qr-corner.tr::after { top: 2px; right: 2px; }
 
 .qr-corner.bl {
   bottom: 5px;
@@ -3135,6 +3378,7 @@ body.is-resizing-pane * {
   border-width: 0 0 3px 3px;
   border-bottom-left-radius: 5px;
 }
+.qr-corner.bl::after { bottom: 2px; left: 2px; }
 
 .qr-corner.br {
   bottom: 5px;
@@ -3142,49 +3386,105 @@ body.is-resizing-pane * {
   border-width: 0 3px 3px 0;
   border-bottom-right-radius: 5px;
 }
-
-.qr-laser-beam {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent, var(--qr-accent, #ff2e38), transparent);
-  box-shadow: 0 0 8px var(--qr-accent, #ff2e38);
-  z-index: 4;
-  pointer-events: none;
-  opacity: 0.42;
-  transition: opacity 0.2s ease;
-  animation: qrLaserScan 3.4s ease-in-out infinite alternate;
-}
-
-@keyframes qrLaserScan {
-  0% { top: 10px; }
-  100% { top: calc(100% - 10px); }
-}
+.qr-corner.br::after { bottom: 2px; right: 2px; }
 
 .qr-img-wrapper {
   position: relative;
+  z-index: 5; /* Guarantees 100% unadulterated high-contrast quiet zone for camera sensors */
   width: 300px;
   height: 300px;
   max-width: 76vw;
   max-height: 76vw;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: width 0.2s ease, height 0.2s ease;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
+.qr-code-svg-holo,
 .qr-code-img-holo {
-  width: 300px;
-  height: 300px;
-  max-width: 76vw;
-  max-height: 76vw;
-  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
   display: block;
   object-fit: contain;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
   transition: width 0.2s ease, height 0.2s ease;
+}
+
+.btn-qr-size-group {
+  display: flex;
+  gap: 3px;
+  background: #0a0a0a;
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid #222;
+}
+
+.btn-qr-size-btn {
+  background: transparent;
+  border: 0;
+  color: #888;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-qr-size-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-qr-size-btn.active {
+  background: rgba(229, 9, 20, 0.25);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
+}
+
+.qr-scan-diagnostics {
+  background: #050608;
+  border: 1px solid #1f293d;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #94a3b8;
+  width: 100%;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qr-diag-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-qr-diag-toggle {
+  background: none;
+  border: none;
+  color: #71717a;
+  font-size: 0.70rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 2px 4px;
+  margin-top: 2px;
+}
+
+.btn-qr-diag-toggle:hover {
+  color: var(--qr-accent, #ff2e38);
 }
 
 .btn-suite-radiant-red {
