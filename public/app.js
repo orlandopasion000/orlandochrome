@@ -1,46 +1,47 @@
-/* Chrome Taskbar Tracker - Dedicated Pending Tasks & Cooldown Manager */
+/* Chrome Taskbar Tracker - 100% Real Windows Taskbar Sync
+ * Mapped directly from Windows Registry HKCU Taskband FavoritesResolve
+ */
 (function() {
   const $ = (s, r = document) => r.querySelector(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   const now = () => Date.now();
 
-  const STORAGE_KEY = 'chrome_taskbar_tracker_v4';
-  const OLD_STORAGE_KEY = 'chrome_taskbar_cc_state_v3';
+  const STORAGE_KEY = 'chrome_real_taskbar_tracker_v5';
 
-  // 25 Pre-configured Chrome profiles matching your exact Windows taskbar shortcuts (#1 to #25)
-  const DEFAULT_PROFILES = [
-    { id: "p1", profileDir: "Profile 1", name: "Orlando (A2 000)", email: "orlandopasion000@gmail.com", taskbarNo: 1, color: "#3DDC97", emoji: "📘", status: "ready", readyAt: null, purpose: "General AI / Personal", todos: [] },
-    { id: "p16", profileDir: "Profile 16", name: "Orlando (A1 001 DepEd)", email: "orlando.pasion001@deped.gov.ph", taskbarNo: 2, color: "#4DA3FF", emoji: "🎓", status: "ready", readyAt: null, purpose: "DepEd School Admin / Teaching", todos: [
-      { id: "td_init_1", text: "Draft Grade 8 ST2 Test & Table of Specifications", done: false, createdAt: now() }
+  // Exact 21 Chrome Profiles in order from Windows Taskband FavoritesResolve
+  // Slot 1 = File Explorer (Win + 1)
+  // Slot 2 = Microsoft Edge (Win + 2)
+  // Slot 3 = Chrome #1: A0 1994 (Win + 3)
+  // ...
+  const REAL_PINNED_PROFILES = [
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", color: "#3DDC97", emoji: "🌐", status: "ready", readyAt: null, purpose: "Primary / Default Chrome", todos: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", color: "#4DA3FF", emoji: "🎓", status: "ready", readyAt: null, purpose: "DepEd School Admin / Teaching", todos: [
+      { id: "t_deped_1", text: "Draft Grade 8 ST2 Test & Table of Specifications", done: false, createdAt: now() }
     ]},
-    { id: "p17", profileDir: "Profile 17", name: "Blanca Eunice (DepEd)", email: "blancaeunice.pasion@deped.gov.ph", taskbarNo: 3, color: "#E8A33D", emoji: "🛠️", status: "ready", readyAt: null, purpose: "DepEd Coordination", todos: [] },
-    { id: "p19", profileDir: "Profile 19", name: "Blanca Eunice", email: "btaborda07@gmail.com", taskbarNo: 4, color: "#E86A8A", emoji: "🧮", status: "ready", readyAt: null, purpose: "Personal / Review", todos: [] },
-    { id: "p2", profileDir: "Profile 2", name: "Orlando (A3 0817)", email: "orlandopasion0817@gmail.com", taskbarNo: 5, color: "#A78BFA", emoji: "📊", status: "ready", readyAt: null, purpose: "Research / Tools", todos: [] },
-    { id: "p20", profileDir: "Profile 20", name: "Nash (Nash Reviewer)", email: "revnash0@gmail.com", taskbarNo: 6, color: "#2DD4BF", emoji: "📝", status: "ready", readyAt: null, purpose: "Ministry & Devotion Review", todos: [
-      { id: "td_init_2", text: "Prepare Youth Devotion Slide Deck for Sunday", done: false, createdAt: now() }
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", color: "#E8A33D", emoji: "📘", status: "ready", readyAt: null, purpose: "General AI / Personal", todos: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", color: "#E86A8A", emoji: "📊", status: "ready", readyAt: null, purpose: "Research / Tools", todos: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "Hero", email: "heroesmeraldaepicalu@gmail.com", color: "#A78BFA", emoji: "🧠", status: "ready", readyAt: null, purpose: "AI Exploration", todos: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 A Yify", email: "yifyyts7@gmail.com", color: "#2DD4BF", emoji: "🎯", status: "ready", readyAt: null, purpose: "Media / Tools", todos: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 B NASH", email: "revnash0@gmail.com", color: "#F97316", emoji: "📝", status: "ready", readyAt: null, purpose: "Ministry & Devotion Review", todos: [
+      { id: "t_nash_1", text: "Prepare Youth Devotion Slide Deck for Sunday", done: false, createdAt: now() }
     ]},
-    { id: "p22", profileDir: "Profile 22", name: "A", email: "yifyyts7@gmail.com", taskbarNo: 7, color: "#F97316", emoji: "🎯", status: "ready", readyAt: null, purpose: "Media / Tools", todos: [] },
-    { id: "p24", profileDir: "Profile 24", name: "Your Chrome (Hero)", email: "heroesmeraldaepicalu@gmail.com", taskbarNo: 8, color: "#84CC16", emoji: "🧠", status: "ready", readyAt: null, purpose: "AI Exploration", todos: [] },
-    { id: "p33", profileDir: "Profile 33", name: "Nancalobasaan NHS", email: "300406@deped.gov.ph", taskbarNo: 9, color: "#F472B6", emoji: "📚", status: "ready", readyAt: null, purpose: "School Portal & Records", todos: [] },
-    { id: "p39", profileDir: "Profile 39", name: "Orlando (A6 002 Gmail)", email: "orlandopasion002@gmail.com", taskbarNo: 10, color: "#60A5FA", emoji: "🏫", status: "ready", readyAt: null, purpose: "Academic Writing", todos: [] },
-    { id: "p4", profileDir: "Profile 4", name: "Blanca Eunice", email: "bepasion07@gmail.com", taskbarNo: 11, color: "#FACC15", emoji: "💡", status: "ready", readyAt: null, purpose: "Family & Docs", todos: [] },
-    { id: "p40", profileDir: "Profile 40", name: "Orlando (A5 003 Gmail)", email: "orlandopasion003@gmail.com", taskbarNo: 12, color: "#94A3B8", emoji: "⚡", status: "ready", readyAt: null, purpose: "Dissertation Ch. 3", todos: [
-      { id: "td_init_3", text: "Revise Chapter 3 Instrumentation & Sampling Framework", done: false, createdAt: now() }
+    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Icon #10", name: "A4 C Gwapo", email: "gwapocpogi@gmail.com", color: "#84CC16", emoji: "📊", status: "ready", readyAt: null, purpose: "Grade Analysis", todos: [] },
+    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Icon #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", color: "#F472B6", emoji: "📘", status: "ready", readyAt: null, purpose: "Primary Account", todos: [] },
+    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Icon #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", color: "#60A5FA", emoji: "🏫", status: "ready", readyAt: null, purpose: "Academic Writing", todos: [] },
+    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Icon #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", color: "#FACC15", emoji: "⚡", status: "ready", readyAt: null, purpose: "Dissertation Ch. 3", todos: [
+      { id: "t_diss_1", text: "Revise Chapter 3 Instrumentation & Sampling Framework", done: false, createdAt: now() }
     ]},
-    { id: "p41", profileDir: "Profile 41", name: "Orlando (A5 004 Gmail)", email: "orlandopasion004@gmail.com", taskbarNo: 13, color: "#3DDC97", emoji: "📘", status: "ready", readyAt: null, purpose: "Lesson Plans / Tests", todos: [] },
-    { id: "p44", profileDir: "Profile 44", name: "SCITE 3", email: "scite.orlandopasion003@gmail.com", taskbarNo: 14, color: "#4DA3FF", emoji: "🎓", status: "ready", readyAt: null, purpose: "Academic Citations", todos: [] },
-    { id: "p45", profileDir: "Profile 45", name: "Your Chrome (scite001)", email: "scite.orlandopasion001@gmail.com", taskbarNo: 15, color: "#E8A33D", emoji: "🛠️", status: "ready", readyAt: null, purpose: "Literature Search", todos: [] },
-    { id: "p46", profileDir: "Profile 46", name: "Orlando (A6 scite002)", email: "scite.orlandopasion002@gmail.com", taskbarNo: 16, color: "#E86A8A", emoji: "🧮", status: "ready", readyAt: null, purpose: "Research Synthesis", todos: [] },
-    { id: "p48", profileDir: "Profile 48", name: "Gwapo", email: "gwapocpogi@gmail.com", taskbarNo: 17, color: "#A78BFA", emoji: "📊", status: "ready", readyAt: null, purpose: "Grade Analysis", todos: [] },
-    { id: "p49", profileDir: "Profile 49", name: "Gold Cloud", email: "goldcloudblack@gmail.com", taskbarNo: 18, color: "#2DD4BF", emoji: "📝", status: "ready", readyAt: null, purpose: "Notes & Summaries", todos: [] },
-    { id: "p52", profileDir: "Profile 52", name: "Orlando (005 Gmail)", email: "orlandopasion005@gmail.com", taskbarNo: 19, color: "#F97316", emoji: "🎯", status: "ready", readyAt: null, purpose: "Test Creation ST2", todos: [] },
-    { id: "p53", profileDir: "Profile 53", name: "Orlando (006 Gmail)", email: "orlandopasion006@gmail.com", taskbarNo: 20, color: "#84CC16", emoji: "🧠", status: "ready", readyAt: null, purpose: "Curriculum Work", todos: [] },
-    { id: "p56", profileDir: "Profile 56", name: "Orlando (pogiorlando)", email: "pogiorlandopasion@gmail.com", taskbarNo: 21, color: "#F472B6", emoji: "📚", status: "ready", readyAt: null, purpose: "Ministry Presentations", todos: [] },
-    { id: "p57", profileDir: "Profile 57", name: "Watch", email: "watchonlineapple@gmail.com", taskbarNo: 22, color: "#60A5FA", emoji: "🏫", status: "ready", readyAt: null, purpose: "Online Media / Video", todos: [] },
-    { id: "p58", profileDir: "Profile 58", name: "Orlando (grammarly)", email: "grammarlyquillbot001@gmail.com", taskbarNo: 23, color: "#FACC15", emoji: "💡", status: "ready", readyAt: null, purpose: "Grammar & Proofreading", todos: [] },
-    { id: "p59", profileDir: "Profile 59", name: "Orlando (netflix)", email: "netflixpasion1994@gmail.com", taskbarNo: 24, color: "#94A3B8", emoji: "⚡", status: "ready", readyAt: null, purpose: "Personal Media", todos: [] },
-    { id: "p9", profileDir: "Profile 9", name: "Orlando (A5 001 Gmail)", email: "orlandopasion001@gmail.com", taskbarNo: 25, color: "#3DDC97", emoji: "📘", status: "ready", readyAt: null, purpose: "Primary Account", todos: [] }
+    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Icon #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", color: "#94A3B8", emoji: "📘", status: "ready", readyAt: null, purpose: "Lesson Plans / Tests", todos: [] },
+    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Icon #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", color: "#3DDC97", emoji: "🎯", status: "ready", readyAt: null, purpose: "Test Creation ST2", todos: [] },
+    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Icon #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", color: "#4DA3FF", emoji: "🧠", status: "ready", readyAt: null, purpose: "Curriculum Work", todos: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Icon #17", name: "A6 scite003 Gold Cloud", email: "goldcloudblack@gmail.com", color: "#E8A33D", emoji: "📝", status: "ready", readyAt: null, purpose: "Notes & Summaries", todos: [] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Icon #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", color: "#E86A8A", emoji: "🛠️", status: "ready", readyAt: null, purpose: "Literature Search", todos: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Icon #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", color: "#A78BFA", emoji: "🧮", status: "ready", readyAt: null, purpose: "Research Synthesis", todos: [] },
+    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Icon #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", color: "#2DD4BF", emoji: "🎓", status: "ready", readyAt: null, purpose: "Academic Citations", todos: [] },
+    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Icon #21", name: "pogiorlandopasion", email: "pogiorlandopasion@gmail.com", color: "#F97316", emoji: "📚", status: "ready", readyAt: null, purpose: "Ministry Presentations", todos: [] },
+    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Icon #22", name: "watchonlineapple", email: "watchonlineapple@gmail.com", color: "#84CC16", emoji: "🏫", status: "ready", readyAt: null, purpose: "Online Media / Video", todos: [] },
+    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Icon #23", name: "grammarly", email: "grammarlyquillbot001@gmail.com", color: "#F472B6", emoji: "💡", status: "ready", readyAt: null, purpose: "Grammar & Proofreading", todos: [] }
   ];
 
   function loadState() {
@@ -50,26 +51,44 @@
       if (raw) saved = JSON.parse(raw);
     } catch (_) {}
 
-    // Migration from old storage if new storage is empty
-    if (!saved) {
+    // Migration of any custom user todos from previous storage keys by profileDir
+    const previousTodosByDir = {};
+    ['chrome_taskbar_tracker_v4', 'chrome_taskbar_cc_state_v3'].forEach(k => {
       try {
-        const oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
-        if (oldRaw) {
-          const old = JSON.parse(oldRaw);
-          if (old && old.profiles && old.profiles.length) {
-            saved = { profiles: old.profiles };
-          }
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          const old = JSON.parse(raw);
+          (old.profiles || []).forEach(p => {
+            if (p.profileDir && p.todos && p.todos.length) {
+              previousTodosByDir[p.profileDir] = p.todos;
+            }
+          });
         }
       } catch (_) {}
-    }
+    });
 
     if (!saved || !saved.profiles || !saved.profiles.length) {
-      saved = { profiles: DEFAULT_PROFILES };
+      saved = { profiles: REAL_PINNED_PROFILES };
+      // Copy over any user-created todos if present
+      saved.profiles.forEach(p => {
+        if (previousTodosByDir[p.profileDir]) {
+          p.todos = previousTodosByDir[p.profileDir];
+        }
+      });
     } else {
-      // Ensure all 25 profiles exist
-      DEFAULT_PROFILES.forEach(dp => {
-        const found = saved.profiles.find(p => p.profileDir === dp.profileDir || p.id === dp.id);
-        if (!found) saved.profiles.push(dp);
+      // Ensure exact real mapping order is maintained
+      const map = {};
+      saved.profiles.forEach(p => { map[p.profileDir] = p; });
+      saved.profiles = REAL_PINNED_PROFILES.map(rp => {
+        const existing = map[rp.profileDir];
+        if (existing) {
+          return Object.assign({}, rp, {
+            status: existing.status || rp.status,
+            readyAt: existing.readyAt || null,
+            todos: (existing.todos && existing.todos.length) ? existing.todos : rp.todos
+          });
+        }
+        return rp;
       });
     }
 
@@ -128,21 +147,20 @@
   }
 
   function showSwitchNote(p) {
-    const tNo = p.taskbarNo ? `#${p.taskbarNo}` : '';
-    const shortcut = p.taskbarNo && p.taskbarNo <= 9 ? `Press Win + ${p.taskbarNo}` : `Click icon ${tNo} on your taskbar`;
+    const shortcut = p.taskbarSlot <= 9 ? `Press Win + ${p.taskbarSlot}` : `Click Taskbar Icon #${p.taskbarSlot}`;
     
     try { navigator.clipboard.writeText(p.name); } catch (_) {}
 
     toast(`
-      <span style="font-size:22px;">👉</span>
+      <span style="font-size:24px;">👉</span>
       <div>
-        <b>Switch to: ${esc(p.name)}</b> <span style="background:var(--card);border:1px solid var(--gold);padding:1px 5px;border-radius:4px;color:var(--gold2);">${tNo}</span><br>
-        <span style="color:var(--gold2);font-weight:700;">${shortcut}</span> · <span style="color:#6ee7b7;">✓ Name copied to clipboard!</span>
+        <b style="font-size:14px;color:#fff;">Switch to: ${esc(p.name)}</b> (Chrome #${p.chromeNo})<br>
+        <span style="color:var(--gold2);font-weight:700;">Taskbar Slot #${p.taskbarSlot} · ${shortcut}</span> · <span style="color:#6ee7b7;">✓ Name copied!</span>
       </div>
-    `, 4500);
+    `, 5000);
   }
 
-  // --- Rendering Functions ---
+  // --- Rendering ---
 
   function render() {
     renderTopStats();
@@ -184,7 +202,25 @@
     const stripEl = $('#taskbarStrip');
     if (!stripEl) return;
 
-    stripEl.innerHTML = S.profiles.map(p => {
+    // Build the 1:1 replica of Windows Taskbar:
+    // Slot 1: File Explorer (Win + 1)
+    // Slot 2: Microsoft Edge (Win + 2)
+    // Slot 3..23: The 21 Chrome Profiles
+    // Slot 24: ChatGPT
+    // Slot 25: Antigravity
+
+    const systemItemsPrefix = `
+      <div class="tb-item system-item" title="Windows Taskbar Slot #1: File Explorer (Win + 1)" style="opacity:0.75;">
+        <span class="tb-num-tag">#1</span>
+        <span class="tb-icon">📁</span>
+      </div>
+      <div class="tb-item system-item" title="Windows Taskbar Slot #2: Microsoft Edge (Win + 2)" style="opacity:0.75;">
+        <span class="tb-num-tag">#2</span>
+        <span class="tb-icon">🌊</span>
+      </div>
+    `;
+
+    const chromesHtml = S.profiles.map(p => {
       const st = effStatus(p, t);
       const pending = getPendingTasks(p);
       const pCount = pending.length;
@@ -196,14 +232,29 @@
       else if (isCooldown) classes += ' is-cooldown';
       else if (isReady) classes += ' is-ready';
 
+      const tag = p.taskbarSlot <= 9 ? `W+${p.taskbarSlot}` : `#${p.taskbarSlot}`;
+
       return `
-        <div class="${classes}" data-scroll-to="card-${p.id}" title="Taskbar #${p.taskbarNo}: ${esc(p.name)} (${pCount} pending tasks)">
-          <span class="tb-num-tag">#${p.taskbarNo || '?'}</span>
-          <span class="tb-icon">${esc(p.emoji || '📘')}</span>
+        <div class="${classes}" data-scroll-to="card-${p.id}" title="Taskbar Slot #${p.taskbarSlot} (${p.winShortcut}): Chrome #${p.chromeNo} ${esc(p.name)} (${pCount} pending tasks)">
+          <span class="tb-num-tag">${tag}</span>
+          <span class="tb-icon">${esc(p.emoji || '🌐')}</span>
           ${pCount > 0 ? `<span class="tb-badge-count">${pCount}</span>` : ''}
         </div>
       `;
     }).join('');
+
+    const systemItemsSuffix = `
+      <div class="tb-item system-item" title="Windows Taskbar Slot #24: ChatGPT" style="opacity:0.75;">
+        <span class="tb-num-tag">#24</span>
+        <span class="tb-icon">🤖</span>
+      </div>
+      <div class="tb-item system-item" title="Windows Taskbar Slot #25: Antigravity" style="opacity:0.75;">
+        <span class="tb-num-tag">#25</span>
+        <span class="tb-icon">🚀</span>
+      </div>
+    `;
+
+    stripEl.innerHTML = systemItemsPrefix + chromesHtml + systemItemsSuffix;
   }
 
   function renderFilterButtons() {
@@ -226,7 +277,7 @@
         🟢 Ready for Work (${readyCount})
       </button>
       <button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-filter="all">
-        Show All 25 Chromes
+        Show All 21 Chromes
       </button>
     `;
   }
@@ -251,16 +302,16 @@
     section.innerHTML = `
       <div class="urgent-section">
         <div class="urgent-header">
-          <span>🚨 CURRENT PENDING TASKS (${items.length} waiting across your Chromes):</span>
-          <small style="color:var(--tx2);font-weight:normal;">Click any task to mark done, or click "Switch" to open that profile</small>
+          <span>🚨 PENDING TASKS WAITING RIGHT NOW (${items.length} total across your Chromes):</span>
+          <small style="color:var(--tx2);font-weight:normal;">Check off when done, or click "Switch" to see shortcut</small>
         </div>
         <div class="urgent-list">
           ${items.map(it => `
             <div class="urgent-item">
               <div class="urgent-item-left">
                 <span class="urgent-profile-tag">
-                  <span style="background:#090e1a;border:1px solid var(--gold);padding:0 5px;border-radius:4px;color:var(--gold2);">#${it.p.taskbarNo || '?'}</span>
-                  ${esc(it.p.name)}
+                  <span style="background:#090e1a;border:1px solid var(--gold);padding:0 5px;border-radius:4px;color:var(--gold2);">Slot #${it.p.taskbarSlot} · ${it.p.winShortcut}</span>
+                  <b>Chrome #${it.p.chromeNo}: ${esc(it.p.name)}</b>
                 </span>
                 <span class="urgent-task-text">${esc(it.todo.text)}</span>
               </div>
@@ -286,19 +337,18 @@
       const st = effStatus(p, t);
       const pending = getPendingTasks(p);
 
-      // Status filters
       if (currentFilter === 'pending' && pending.length === 0) return false;
       if (currentFilter === 'cooldown' && st !== 'waiting') return false;
       if (currentFilter === 'ready' && st !== 'ready') return false;
 
-      // Search query
       if (q) {
         const matchesName = p.name.toLowerCase().includes(q);
         const matchesEmail = (p.email || '').toLowerCase().includes(q);
         const matchesPurpose = (p.purpose || '').toLowerCase().includes(q);
-        const matchesNum = String(p.taskbarNo || '').includes(q);
+        const matchesSlot = String(p.taskbarSlot).includes(q);
+        const matchesChromeNo = String(p.chromeNo).includes(q);
         const matchesTask = (p.todos || []).some(td => td.text.toLowerCase().includes(q));
-        if (!matchesName && !matchesEmail && !matchesPurpose && !matchesNum && !matchesTask) return false;
+        if (!matchesName && !matchesEmail && !matchesPurpose && !matchesSlot && !matchesChromeNo && !matchesTask) return false;
       }
 
       return true;
@@ -308,7 +358,7 @@
       listEl.innerHTML = `
         <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:32px;text-align:center;">
           <h3 style="color:var(--tx2);">No Chrome profiles match your filter.</h3>
-          <p class="mu" style="margin-top:6px;">Try selecting "Show All 25 Chromes" or clearing your search.</p>
+          <p class="mu" style="margin-top:6px;">Select "Show All 21 Chromes" or clear search.</p>
         </div>
       `;
       return;
@@ -318,15 +368,12 @@
       const st = effStatus(p, t);
       const todos = p.todos || [];
       const pending = getPendingTasks(p);
-      const tNo = p.taskbarNo || '?';
-      const winShortcut = (p.taskbarNo && p.taskbarNo <= 9) ? `Win + ${p.taskbarNo}` : `Icon #${tNo}`;
 
       let cardClass = 'profile-card';
       if (pending.length > 0) cardClass += ' has-pending';
       else if (st === 'waiting') cardClass += ' is-cooldown';
       else if (st === 'ready') cardClass += ' is-ready';
 
-      // Status badge HTML
       let statusBadgeHtml = '';
       if (pending.length > 0) {
         statusBadgeHtml = `<span class="status-badge pending">🔴 ${pending.length} PENDING TASK${pending.length > 1 ? 'S' : ''}</span>`;
@@ -336,41 +383,44 @@
       } else if (st === 'ready' && pending.length === 0) {
         statusBadgeHtml += `<span class="status-badge ready">🟢 READY</span>`;
       } else if (st === 'running') {
-        statusBadgeHtml += `<span class="status-badge working">🔵 WORKING / BUSY</span>`;
+        statusBadgeHtml += `<span class="status-badge working">🔵 WORKING</span>`;
       }
 
       return `
         <div class="${cardClass}" id="card-${p.id}">
-          <!-- Card Header -->
+          <!-- Card Header with EXACT Taskbar Slot & Real Win Key -->
           <div class="card-header">
             <div class="card-header-left">
-              <div class="taskbar-num-badge">#${tNo}</div>
-              <div class="profile-avatar" style="border-color:${p.color};">${esc(p.emoji || '📘')}</div>
+              <div class="taskbar-num-badge" title="Windows Taskbar Slot #${p.taskbarSlot} (Position on your screen)">
+                <div style="font-size:10px;color:var(--tx2);line-height:1;">SLOT</div>
+                <div>#${p.taskbarSlot}</div>
+              </div>
+              <div class="profile-avatar" style="border-color:${p.color};">${esc(p.emoji || '🌐')}</div>
               <div class="profile-info">
                 <div class="profile-name-row">
-                  <span class="profile-name">${esc(p.name)}</span>
+                  <span class="profile-name">Chrome #${p.chromeNo}: <b>${esc(p.name)}</b></span>
                   <button class="btn sm" data-act="copyName" data-name="${esc(p.name)}" title="Copy profile name">📋 Copy</button>
                 </div>
-                <span class="profile-sub">${esc(p.email || p.profileDir)} · <i>${esc(p.purpose || 'General AI')}</i></span>
+                <span class="profile-sub">${esc(p.email || p.profileDir)} · <i>${esc(p.purpose || 'Active Profile')}</i></span>
               </div>
             </div>
 
             <div class="card-header-right">
               ${statusBadgeHtml}
               <div class="taskbar-switch-note">
-                <span>Taskbar:</span>
-                <kbd>${winShortcut}</kbd>
+                <span>Taskbar Shortcut:</span>
+                <kbd>${p.winShortcut}</kbd>
                 <button class="btn sm primary" data-act="switchNote" data-pid="${p.id}">👉 Note</button>
               </div>
             </div>
           </div>
 
-          <!-- Card Body: PENDING TASKS DIRECTLY VISIBLE -->
+          <!-- Card Body: Pending Tasks Directly Visible -->
           <div class="card-body">
             <div class="tasks-box ${pending.length > 0 ? 'highlight' : ''}">
               <div class="tasks-title-row">
                 <span class="tasks-title">
-                  📌 Pending Tasks for Chrome #${tNo} (${pending.length} waiting):
+                  📌 Pending Tasks for Chrome #${p.chromeNo} · Slot #${p.taskbarSlot} (${pending.length} waiting):
                 </span>
                 <small style="color:var(--tx2);">Check off when finished</small>
               </div>
@@ -390,7 +440,7 @@
 
               <!-- Add Task Input Form directly on the card -->
               <div class="task-add-row">
-                <input class="task-add-input" id="todoIn-${p.id}" placeholder="Type a task waiting on Chrome #${tNo} and press Enter..." data-pid="${p.id}">
+                <input class="task-add-input" id="todoIn-${p.id}" placeholder="Type a task waiting on Chrome #${p.chromeNo} and press Enter..." data-pid="${p.id}">
                 <button class="btn primary" data-act="addTodo" data-pid="${p.id}">+ Add Task</button>
               </div>
             </div>
@@ -433,7 +483,7 @@
               p.todos.push({ id: uid(), text, done: false, createdAt: now() });
               save();
               render();
-              toast(`📝 Task added to Taskbar #${p.taskbarNo} (${esc(p.name)})`);
+              toast(`📝 Task added to Chrome #${p.chromeNo} (${esc(p.name)})`);
             }
           }
         };
@@ -456,7 +506,7 @@
         p.status = 'ready';
         changed = true;
         if (window.soundMgr) window.soundMgr.playReadyChime();
-        toast(`🔔 <b>Taskbar #${p.taskbarNo} · ${esc(p.name)}</b> cooldown finished! Profile is READY.`);
+        toast(`🔔 <b>Chrome #${p.chromeNo} · ${esc(p.name)}</b> cooldown finished! Profile is READY.`);
       }
     });
 
@@ -514,7 +564,7 @@
         inp.value = '';
         save();
         render();
-        toast(`📝 Task added to Taskbar #${p.taskbarNo} (${esc(p.name)})`);
+        toast(`📝 Task added to Chrome #${p.chromeNo} (${esc(p.name)})`);
       }
     } else if (act === 'toggleTodo') {
       if (p && p.todos) {
@@ -523,7 +573,7 @@
           td.done = !td.done;
           save();
           render();
-          toast(td.done ? `✓ Task completed on Taskbar #${p.taskbarNo}` : `↩ Task reopened on Taskbar #${p.taskbarNo}`);
+          toast(td.done ? `✓ Task completed on Chrome #${p.chromeNo}` : `↩ Task reopened on Chrome #${p.chromeNo}`);
         }
       }
     } else if (act === 'delTodo') {
@@ -531,7 +581,7 @@
         p.todos = p.todos.filter(y => y.id !== tid);
         save();
         render();
-        toast(`🗑️ Task removed from Taskbar #${p.taskbarNo}`);
+        toast(`🗑️ Task removed from Chrome #${p.chromeNo}`);
       }
     } else if (act === 'quickLimit') {
       const hrs = Number(btn.dataset.h) || 3;
@@ -541,7 +591,7 @@
         p.notifiedFor = null;
         save();
         render();
-        toast(`⏱️ Taskbar #${p.taskbarNo} (${esc(p.name)}): Cooldown set for ${hrs}h (Ready at ${fmtAt(p.readyAt)})`);
+        toast(`⏱️ Chrome #${p.chromeNo} (${esc(p.name)}): Cooldown set for ${hrs}h (Ready at ${fmtAt(p.readyAt)})`);
       }
     } else if (act === 'markReady') {
       if (p) {
@@ -551,7 +601,7 @@
         if (window.soundMgr) window.soundMgr.playReadyChime();
         save();
         render();
-        toast(`🟢 Taskbar #${p.taskbarNo} (${esc(p.name)}) marked READY!`);
+        toast(`🟢 Chrome #${p.chromeNo} (${esc(p.name)}) marked READY!`);
       }
     } else if (act === 'unmarkReady') {
       if (p) {
@@ -559,7 +609,7 @@
         p.readyAt = null;
         save();
         render();
-        toast(`✕ Taskbar #${p.taskbarNo} (${esc(p.name)}) unmarked ready (Set to BUSY/WORKING).`);
+        toast(`✕ Chrome #${p.chromeNo} (${esc(p.name)}) unmarked ready (Set to BUSY/WORKING).`);
       }
     } else if (act === 'markWorking') {
       if (p) {
@@ -567,7 +617,7 @@
         p.readyAt = null;
         save();
         render();
-        toast(`🔵 Taskbar #${p.taskbarNo} (${esc(p.name)}) set to WORKING.`);
+        toast(`🔵 Chrome #${p.chromeNo} (${esc(p.name)}) set to WORKING.`);
       }
     }
   });
