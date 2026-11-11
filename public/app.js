@@ -1,4 +1,4 @@
-/* CHROMEFLIX · Netflix-Themed Chrome Taskbar Notes
+/* OrlandoChrome · Chrome Taskbar Notes
  * Fast, smooth Messenger 2-column layout with bigger pictures and Netflix styling
  */
 (function() {

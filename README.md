@@ -1,6 +1,6 @@
-# 🚀 Chrome Taskbar Command Center & Live Waitboard
+# ⚡ OrlandoChrome (OC) · Chrome Taskbar Notes & Waitboard
 
-> **Live tracking, cooldown waitboard, and 1-click window switcher for your 22+ pinned Chrome profiles on the Windows taskbar.**
+> **Live Web App**: [https://orlandopasion000.github.io/orlandochrome](https://orlandopasion000.github.io/orlandochrome)
 
 ![Chrome Taskbar Command Center](https://img.shields.io/badge/Chrome_Profiles-25_Detected-gold?style=for-the-badge&logo=googlechrome)
 ![Windows Taskbar Sync](https://img.shields.io/badge/Windows-Taskbar_Synced-0078D4?style=for-the-badge&logo=windows)
