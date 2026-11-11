@@ -1,6 +1,8 @@
-const { spawn, exec } = require('child_process');
+const { execFile, exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+
+const HELPER_PS1 = path.join(__dirname, 'launch_helper.ps1');
 
 function findChromeExe() {
   const candidates = [
@@ -16,27 +18,39 @@ function findChromeExe() {
 
 const CHROME_PATH = findChromeExe();
 
-function launchProfile(profileDir, url = '') {
+function launchProfile(profileDir, profile = null, url = '') {
   return new Promise((resolve, reject) => {
-    try {
-      const args = [`--profile-directory=${profileDir}`];
-      if (url && typeof url === 'string' && url.trim()) {
-        args.push(url.trim());
+    const shortcutPath = profile && profile.shortcutPath ? profile.shortcutPath : '';
+    const taskbarNo = profile && profile.taskbarNo ? Number(profile.taskbarNo) : 0;
+
+    const args = [
+      '-NoProfile',
+      '-ExecutionPolicy', 'Bypass',
+      '-File', HELPER_PS1,
+      '-ProfileDir', profileDir,
+      '-ShortcutPath', shortcutPath,
+      '-TaskbarNo', String(taskbarNo)
+    ];
+
+    console.log(`[windowManager] Launching profile "${profileDir}" via launch_helper.ps1 (Taskbar #${taskbarNo})`);
+
+    execFile('powershell.exe', args, (err, stdout, stderr) => {
+      if (err) {
+        console.warn(`[windowManager] Helper note for ${profileDir}:`, err.message);
+        // Fallback: direct Windows start command with shortcut or chrome.exe
+        const fallbackCmd = shortcutPath && fs.existsSync(shortcutPath)
+          ? `cmd /c start "" "${shortcutPath}"`
+          : `cmd /c start "" "${CHROME_PATH}" --profile-directory="${profileDir}" --source-shortcut-location=taskbar`;
+        
+        exec(fallbackCmd, (e2) => {
+          if (e2) return reject(err);
+          resolve({ ok: true, profileDir, fallback: true });
+        });
+        return;
       }
-
-      console.log(`[windowManager] Spawning Chrome: "${CHROME_PATH}" ${args.join(' ')}`);
-      
-      const child = spawn(CHROME_PATH, args, {
-        detached: true,
-        stdio: 'ignore'
-      });
-      child.unref();
-
-      resolve({ ok: true, profileDir });
-    } catch (err) {
-      console.error(`[windowManager] Launch error for ${profileDir}:`, err);
-      reject(err);
-    }
+      console.log(`[windowManager] Launch output:`, stdout.trim());
+      resolve({ ok: true, profileDir, output: stdout.trim() });
+    });
   });
 }
 
@@ -68,10 +82,8 @@ function getRunningProfiles() {
   });
 }
 
-function focusProfile(profileDir, profileName = '') {
-  // In Chrome on Windows, running chrome.exe --profile-directory="Profile X" automatically
-  // switches focus to the existing window if it is already open, or opens it if closed.
-  return launchProfile(profileDir);
+function focusProfile(profileDir, profile = null) {
+  return launchProfile(profileDir, profile);
 }
 
 module.exports = {

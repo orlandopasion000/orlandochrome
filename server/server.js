@@ -61,7 +61,8 @@ const server = http.createServer((req, res) => {
           return res.end(JSON.stringify({ error: 'Missing profileDir' }));
         }
 
-        const result = await focusProfile(pdir, profile ? profile.name : '');
+        const targetProfile = profile || stateStore.findProfile(data.id);
+        const result = await focusProfile(pdir, targetProfile);
         broadcast({ type: 'profile_launched', profileDir: pdir });
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
