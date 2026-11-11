@@ -1395,47 +1395,17 @@
     });
   }
 
-  // Smooth Native iOS Push / Pop Transitions for Mobile (<= 768px)
+  // Select Profile while ALWAYS keeping the Left Profile List & Right Message Pane Side-by-Side
   function openMobileChatWithSlide(profileId) {
     if (profileId) {
       state.activeProfileId = profileId;
     }
-    const chatMain = $('#chatMain');
-    const sidebar = $('#appSidebar');
-    if (chatMain) {
-      chatMain.style.transition = '';
-      chatMain.style.transform = '';
-    }
-    if (sidebar) {
-      sidebar.style.transition = '';
-      sidebar.style.transform = '';
-      sidebar.style.opacity = '';
-    }
-    if (window.innerWidth <= 768) {
-      const wasOpen = document.body.classList.contains('mobile-chat-open');
-      document.body.classList.add('mobile-chat-open');
-      if (!wasOpen) {
-        try {
-          window.history.pushState({ mobileChat: true, profileId: state.activeProfileId }, '');
-        } catch (e) {}
-      }
-    }
+    document.body.classList.remove('mobile-chat-open');
     renderSidebar();
     renderMainChat();
   }
 
   function closeMobileChatWithSlide() {
-    const chatMain = $('#chatMain');
-    const sidebar = $('#appSidebar');
-    if (chatMain) {
-      chatMain.style.transition = '';
-      chatMain.style.transform = '';
-    }
-    if (sidebar) {
-      sidebar.style.transition = '';
-      sidebar.style.transform = '';
-      sidebar.style.opacity = '';
-    }
     document.body.classList.remove('mobile-chat-open');
     renderSidebar();
   }
@@ -1450,6 +1420,12 @@
     state.activeProfileId = nextProf.id;
     renderSidebar();
     renderMainChat();
+    const activeRow = $(`#profileList .profile-item[data-id="${nextProf.id}"]`);
+    if (activeRow) {
+      try {
+        activeRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      } catch (e) {}
+    }
     const chatMain = $('#chatMain');
     if (chatMain) {
       chatMain.classList.remove('paging-slide-left', 'paging-slide-right');
@@ -1461,53 +1437,6 @@
     }
     if (window.soundMgr) window.soundMgr.playClick();
     showToast(`${delta > 0 ? '▶' : '◀'} Chrome #${nextProf.chromeNo}: ${nextProf.name}`);
-  }
-
-  // Render Always-Visible Mobile Quick-Tap Profile Switcher Dock (#mobileProfileDock)
-  // Lets iPhone users tap directly between ANY Chrome profile in 1 tap at all times!
-  function renderMobileProfileDockHtml(activeProfile) {
-    const cur = now();
-    const sorted = getSortedProfiles();
-    return `
-      <div class="mobile-profile-dock-bar" id="mobileProfileDockBar">
-        <button type="button" class="mobile-dock-list-btn" id="btnDockAllList" title="View full vertical profile list (or swipe right from left edge)">
-          <span class="dock-back-chevron">‹</span>
-          <span>List</span>
-        </button>
-        <div class="mobile-profile-dock-scroll" id="mobileProfileDockScroll">
-          ${sorted.map(prof => {
-            const isAct = prof.id === activeProfile.id;
-            const pend = countPending(prof);
-            const isPin = !!(prof.isPinned && pend > 0);
-            const isTmr = prof.timerUntil && prof.timerUntil > cur;
-            const isRst = prof.isReset;
-            const isUnr = !!(prof.isUnread && hasMessages(prof));
-            const av = getAvatarSrc(prof);
-            const shortSlot = prof.winShortcut.startsWith('Win + ')
-              ? `W+${prof.winShortcut.replace('Win + ', '')}`
-              : `#${prof.taskbarSlot}`;
-            const shortName = prof.name.replace(/^Gmail\s*/i, '').slice(0, 9);
-            const ringCls = isAct
-              ? 'dock-ring-active'
-              : (isPin || isRst ? 'dock-ring-green' : (isTmr ? 'dock-ring-amber' : (pend > 0 ? 'dock-ring-red' : '')));
-
-            return `
-              <button type="button" class="mobile-dock-item ${isAct ? 'active' : ''}" data-dock-pid="${prof.id}" title="${esc(prof.name)} (${esc(prof.winShortcut)})">
-                <div class="mobile-dock-avatar-wrap ${ringCls}">
-                  <img src="${av}" class="mobile-dock-avatar" alt="${esc(prof.name)}">
-                  <span class="mobile-dock-slot">${esc(shortSlot)}</span>
-                  ${pend > 0 ? `<span class="mobile-dock-badge-pending">${pend}</span>` : ''}
-                  ${(!pend && isRst) ? `<span class="mobile-dock-badge-reset"></span>` : ''}
-                  ${(!pend && !isRst && isTmr) ? `<span class="mobile-dock-badge-timer">⏳</span>` : ''}
-                  ${(!pend && !isRst && !isTmr && isUnr) ? `<span class="mobile-dock-badge-unread"></span>` : ''}
-                </div>
-                <span class="mobile-dock-name">${esc(shortName)}</span>
-              </button>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
   }
 
   // Render Sidebar Profiles List
@@ -1636,20 +1565,7 @@
           </div>
         </div>
       `;
-    }).join('') + (activeProf ? `
-      <div class="mobile-resume-chat-bar" id="mobileResumeChatBar">
-        <button type="button" class="btn-mobile-resume-chat" id="btnResumeActiveChat">
-          <img src="${getAvatarSrc(activeProf)}" class="resume-chat-avatar" alt="${esc(activeProf.name)}">
-          <span class="resume-chat-text">Open <strong>Chrome #${activeProf.chromeNo}: ${esc(activeProf.name)}</strong></span>
-          <span class="resume-chat-arrow">›</span>
-        </button>
-      </div>
-    ` : '');
-
-    const btnResume = $('#btnResumeActiveChat', list);
-    if (btnResume) {
-      btnResume.onclick = () => openMobileChatWithSlide(state.activeProfileId);
-    }
+    }).join('');
 
     // Attach interactive Pin click handlers
     $$('.pin-btn', list).forEach(btn => {
@@ -1742,15 +1658,9 @@
     const w = state.wispr;
 
     main.innerHTML = `
-      <!-- Always-Visible Mobile Quick-Tap Profile Dock (1-Tap Profile Switching on iPhone!) -->
-      ${renderMobileProfileDockHtml(p)}
-
       <!-- Header with Bigger Picture (60px), Prev/Next Paging, Sticky Note, Unread Bookmark & Rename Action -->
       <header class="chat-header" id="chatHeaderBar">
         <div class="chat-header-profile">
-          <button type="button" class="btn-mobile-back" id="btnMobileBackToList" title="Back to all profiles (or swipe right from left edge)">
-            <span class="ios-back-chevron">‹</span> Profiles
-          </button>
           <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" title="Click to upload/change photo" alt="${esc(p.name)}">
           <div class="chat-header-info">
             <div class="chat-header-title">
@@ -4054,10 +3964,16 @@ ${jsRes}
     const SIDEBAR_WIDTH_KEY = 'orlandochrome_sidebar_width_v1';
 
     if (sidebar) {
-      const savedWidth = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY), 10);
-      if (!isNaN(savedWidth) && savedWidth >= 210 && savedWidth <= 900) {
-        document.documentElement.style.setProperty('--sidebar-width', `${savedWidth}px`);
-      }
+      const applyClampedSavedWidth = () => {
+        const savedWidth = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY), 10);
+        if (!isNaN(savedWidth) && savedWidth >= 115 && savedWidth <= 900) {
+          const maxAllowed = Math.floor(window.innerWidth * (window.innerWidth <= 600 ? 0.44 : 0.56));
+          const clamped = Math.max(window.innerWidth <= 600 ? 115 : 155, Math.min(savedWidth, maxAllowed));
+          document.documentElement.style.setProperty('--sidebar-width', `${clamped}px`);
+        }
+      };
+      applyClampedSavedWidth();
+      window.addEventListener('resize', applyClampedSavedWidth);
     }
 
     if (resizer && sidebar) {
@@ -4066,8 +3982,8 @@ ${jsRes}
       const onPointerMove = (e) => {
         if (!isDragging) return;
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const minW = 210;
-        const maxW = Math.min(860, Math.floor(window.innerWidth * 0.7));
+        const minW = window.innerWidth <= 600 ? 115 : 155;
+        const maxW = Math.min(860, Math.floor(window.innerWidth * 0.64));
         const newWidth = Math.max(minW, Math.min(maxW, clientX));
         document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
       };
@@ -4078,7 +3994,7 @@ ${jsRes}
         resizer.classList.remove('dragging');
         document.body.classList.remove('is-resizing-pane');
         const currentW = sidebar.getBoundingClientRect().width;
-        if (currentW >= 210) {
+        if (currentW >= 115) {
           try {
             localStorage.setItem(SIDEBAR_WIDTH_KEY, String(Math.round(currentW)));
           } catch (err) {}
@@ -4090,7 +4006,6 @@ ${jsRes}
       };
 
       const startDrag = (e) => {
-        if (window.innerWidth <= 768) return;
         e.preventDefault();
         isDragging = true;
         resizer.classList.add('dragging');
@@ -4363,25 +4278,13 @@ ${jsRes}
       const isChatOpen = document.body.classList.contains('mobile-chat-open');
       const target = e.target;
 
-      // Ignore touches inside horizontal scroll strips or text inputs/sliders
-      if (target.closest('#mobileProfileDockScroll, .templates-chips-scroll, input, textarea, audio')) {
+      // Ignore touches inside horizontal scroll strips, resizer, or text inputs/sliders
+      if (target.closest('#workspaceResizer, .templates-chips-scroll, input, textarea, audio')) {
         startX = 0;
         return;
       }
 
-      // 1. True iOS Left-Edge Interactive Pop Gesture (<= 48px from left edge while chat is open)
-      if (isMobile && isChatOpen && startX <= 48) {
-        mode = 'edge-pop-candidate';
-        return;
-      }
-
-      // 2. Right-Edge Interactive Push Gesture (within 44px of right edge while on Profile List)
-      if (isMobile && !isChatOpen && startX >= window.innerWidth - 44) {
-        mode = 'edge-push-candidate';
-        return;
-      }
-
-      // 3. Message Bubble Swipe Candidate (Messenger Swipe-to-Reply / Quick Action)
+      // 1. Message Bubble Swipe Candidate (Messenger Swipe-to-Reply / Quick Action)
       const noteWrap = target.closest('.note-item-wrap');
       if (noteWrap && !target.closest('.note-inline-editor, .note-reaction-picker')) {
         mode = 'note-candidate';
@@ -4390,7 +4293,7 @@ ${jsRes}
         return;
       }
 
-      // 4. Sidebar Profile Row Swipe Candidate (Messenger Chat List Swipe Actions)
+      // 2. Sidebar Profile Row Swipe Candidate (Messenger Chat List Swipe Actions)
       const profSwipeWrap = target.closest('.profile-item-swipe-container');
       if (profSwipeWrap) {
         mode = 'profile-candidate';
@@ -4399,21 +4302,16 @@ ${jsRes}
         return;
       }
 
-      // 5. Chat Header Horizontal Paging (Swipe Left/Right to Switch Profiles, or Swipe Right to Pop)
-      if (target.closest('#chatHeaderBar')) {
+      // 3. Chat Header or Chat Area Horizontal Paging (Swipe Left/Right to Switch Profiles with Finger-Tracking & Cancel)
+      if (target.closest('#chatHeaderBar') || target.closest('#chatMain')) {
         mode = 'header-candidate';
         return;
       }
 
-      // 6. Sidebar Header Filter Paging (All <-> Pending <-> Timers)
+      // 4. Sidebar Header Filter Paging (All <-> Pending <-> Timers)
       if (target.closest('.sidebar-header')) {
         mode = 'filter-candidate';
         return;
-      }
-
-      // 7. General Chat Area Swipe-Back / Paging (empty space in #notesStream)
-      if (isMobile && isChatOpen && target.closest('#chatMain')) {
-        mode = 'chat-area-candidate';
       }
     }, { passive: true });
 
@@ -4432,32 +4330,21 @@ ${jsRes}
       lastTime = nowT;
 
       const chatMain = $('#chatMain');
-      const sidebar = $('#appSidebar');
-      const w = Math.max(1, window.innerWidth);
 
       // Promote candidate to active gesture once horizontal intent is clear
       if (mode.endsWith('-candidate')) {
         if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) {
-          // User is scrolling vertically; abort horizontal gesture
           startX = 0;
           mode = null;
           return;
         }
         if (Math.abs(dx) < 10) return;
 
-        if (mode === 'edge-pop-candidate' && dx > 8) {
-          mode = 'edge-pop';
-        } else if (mode === 'chat-area-candidate' && dx > 14 && Math.abs(dx) > Math.abs(dy) * 1.45) {
-          mode = 'edge-pop';
-        } else if (mode === 'chat-area-candidate' && dx < -18 && Math.abs(dx) > Math.abs(dy) * 1.6) {
-          mode = 'header-page';
-        } else if (mode === 'edge-push-candidate' && dx < -8) {
-          mode = 'edge-push';
-        } else if (mode === 'note-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
+        if (mode === 'note-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
           mode = 'note-swipe';
         } else if (mode === 'profile-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
           mode = 'profile-swipe';
-        } else if (mode === 'header-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
+        } else if (mode === 'header-candidate' && Math.abs(dx) > Math.abs(dy) * 1.4) {
           mode = 'header-page';
         } else if (mode === 'filter-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
           mode = 'filter-page';
@@ -4469,33 +4356,19 @@ ${jsRes}
       currentDx = dx;
 
       // Handle Active Gesture Modes
-      if (mode === 'edge-pop' && chatMain && sidebar) {
+      if (mode === 'header-page' && chatMain) {
         if (e.cancelable) e.preventDefault();
-        const clampedDx = Math.max(0, dx);
-        const progress = Math.min(1, clampedDx / w);
+        const damped = Math.sign(dx) * Math.min(72, Math.pow(Math.abs(dx), 0.82) * 1.15);
         chatMain.style.transition = 'none';
-        chatMain.style.transform = `translate3d(${clampedDx}px, 0, 0)`;
-        sidebar.style.transition = 'none';
-        sidebar.style.transform = `translate3d(${-28 * (1 - progress)}%, 0, 0)`;
-        sidebar.style.opacity = String(0.65 + 0.35 * progress);
-
+        chatMain.style.transform = `translate3d(${damped}px, 0, 0)`;
         if (edgeIndicator) {
-          const indX = Math.min(36, clampedDx * 0.28);
-          edgeIndicator.style.opacity = String(Math.min(1, progress * 2.5));
-          edgeIndicator.style.transform = `translate3d(${indX}px, -50%, 0) scale(${0.85 + Math.min(0.25, progress * 0.4)})`;
-          edgeIndicator.classList.toggle('ready', progress >= 0.30 || velocityX > 0.42);
+          const absDx = Math.abs(dx);
+          edgeIndicator.style.opacity = String(Math.min(1, absDx / 56));
+          edgeIndicator.style.transform = `translate3d(12px, -50%, 0) scale(${0.85 + Math.min(0.22, absDx / 220)})`;
+          const chev = $('.ios-edge-chevron', edgeIndicator);
+          if (chev) chev.textContent = dx > 0 ? '‹' : '›';
+          edgeIndicator.classList.toggle('ready', absDx >= 52);
         }
-      } else if (mode === 'edge-push' && chatMain && sidebar) {
-        if (e.cancelable) e.preventDefault();
-        const pullLeft = Math.min(0, dx);
-        const progress = Math.min(1, Math.abs(pullLeft) / w);
-        const tx = Math.max(0, w + pullLeft);
-        chatMain.style.transition = 'none';
-        chatMain.style.transform = `translate3d(${tx}px, 0, 0)`;
-        chatMain.style.pointerEvents = 'auto';
-        sidebar.style.transition = 'none';
-        sidebar.style.transform = `translate3d(${-28 * progress}%, 0, 0)`;
-        sidebar.style.opacity = String(1 - 0.35 * progress);
       } else if (mode === 'note-swipe' && activeEl && activeContainer) {
         if (e.cancelable) e.preventDefault();
         const damped = Math.sign(dx) * Math.min(130, Math.pow(Math.abs(dx), 0.86) * 1.45);
@@ -4555,8 +4428,6 @@ ${jsRes}
       }
 
       const chatMain = $('#chatMain');
-      const sidebar = $('#appSidebar');
-      const w = Math.max(1, window.innerWidth);
 
       if (edgeIndicator) {
         edgeIndicator.style.opacity = '0';
@@ -4564,60 +4435,13 @@ ${jsRes}
         edgeIndicator.classList.remove('ready');
       }
 
-      if (mode === 'edge-pop' && chatMain && sidebar) {
-        const clampedDx = Math.max(0, currentDx);
-        const shouldPop = (clampedDx > w * 0.30 || (clampedDx > 42 && velocityX > 0.42)) && velocityX >= -0.12;
-        chatMain.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
-        sidebar.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease';
-
-        if (shouldPop) {
-          chatMain.style.transform = 'translate3d(102%, 0, 0)';
-          sidebar.style.transform = 'translate3d(0, 0, 0)';
-          sidebar.style.opacity = '1';
-          if (window.soundMgr) window.soundMgr.playClickSoft();
-          setTimeout(() => {
-            closeMobileChatWithSlide();
-          }, 240);
-        } else {
-          // Stop midway -> cancel and spring smoothly back into place!
-          chatMain.style.transform = 'translate3d(0, 0, 0)';
-          sidebar.style.transform = 'translate3d(-28%, 0, 0)';
-          sidebar.style.opacity = '0.65';
-          setTimeout(() => {
-            if (document.body.classList.contains('mobile-chat-open')) {
-              chatMain.style.transition = '';
-              chatMain.style.transform = '';
-              sidebar.style.transition = '';
-              sidebar.style.transform = '';
-              sidebar.style.opacity = '';
-            }
-          }, 260);
-        }
-      } else if (mode === 'edge-push' && chatMain && sidebar) {
-        const pullLeft = Math.abs(Math.min(0, currentDx));
-        const shouldPush = (pullLeft > w * 0.28 || (pullLeft > 42 && velocityX < -0.42)) && velocityX <= 0.12;
-        chatMain.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
-        sidebar.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease';
-
-        if (shouldPush) {
-          chatMain.style.transform = 'translate3d(0, 0, 0)';
-          sidebar.style.transform = 'translate3d(-28%, 0, 0)';
-          sidebar.style.opacity = '0.65';
-          setTimeout(() => {
-            openMobileChatWithSlide(state.activeProfileId);
-          }, 230);
-        } else {
-          chatMain.style.transform = 'translate3d(102%, 0, 0)';
-          sidebar.style.transform = 'translate3d(0, 0, 0)';
-          sidebar.style.opacity = '1';
-          setTimeout(() => {
-            chatMain.style.transition = '';
-            chatMain.style.transform = '';
-            chatMain.style.pointerEvents = '';
-            sidebar.style.transition = '';
-            sidebar.style.transform = '';
-            sidebar.style.opacity = '';
-          }, 260);
+      if (mode === 'header-page' && chatMain) {
+        chatMain.style.transition = 'transform 0.24s cubic-bezier(0.22, 1, 0.36, 1)';
+        chatMain.style.transform = '';
+        if ((currentDx <= -52 || (currentDx <= -28 && velocityX < -0.42)) && velocityX <= 0.1) {
+          stepProfile(1);
+        } else if ((currentDx >= 52 || (currentDx >= 28 && velocityX > 0.42)) && velocityX >= -0.1) {
+          stepProfile(-1);
         }
       } else if (mode === 'note-swipe' && activeEl && activeContainer) {
         activeEl.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
@@ -4664,7 +4488,6 @@ ${jsRes}
         if (prof && Math.abs(currentDx) >= 64) {
           activeEl.dataset.justSwiped = '1';
           if (currentDx >= 64 && velocityX >= -0.15) {
-            // Swipe Right on Profile Row -> Toggle Pin (if pending notes) or Toggle Unread
             if (countPending(prof) > 0) {
               prof.isPinned = !prof.isPinned;
               prof.pinnedAt = prof.isPinned ? now() : null;
@@ -4682,7 +4505,6 @@ ${jsRes}
               openMobileChatWithSlide(prof.id);
             }
           } else if (currentDx <= -64 && velocityX <= 0.15) {
-            // Swipe Left on Profile Row -> Start 45m Cooldown Timer (or Clear active timer/reset)
             const cur = now();
             if ((prof.timerUntil && prof.timerUntil > cur) || prof.isReset) {
               prof.timerUntil = null;
@@ -4696,12 +4518,6 @@ ${jsRes}
               startCooldown(prof, 45, '45m');
             }
           }
-        }
-      } else if (mode === 'header-page') {
-        if (currentDx <= -52 && velocityX <= 0.1) {
-          stepProfile(1);
-        } else if (currentDx >= 52 && velocityX >= -0.1) {
-          stepProfile(-1);
         }
       } else if (mode === 'filter-page') {
         const order = ['all', 'pending', 'timers'];
@@ -4731,9 +4547,7 @@ ${jsRes}
   // Initializer
   function init() {
     loadState();
-    if (window.innerWidth <= 768) {
-      document.body.classList.add('mobile-chat-open');
-    }
+    document.body.classList.remove('mobile-chat-open');
     initEvents();
     initGestureNavigation();
     renderSidebar();

@@ -4210,83 +4210,106 @@ body.is-resizing-pane * {
   animation: pageSlideFromLeft 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Tablet Portrait & Cellphone Landscape / iPhone (<= 768px) */
+/* Compressed Window, Tablet & iPhone Side-by-Side Layout (<= 768px)
+   CRITICAL: Always keep Profiles on the LEFT and Message/Reminder/Composer on the RIGHT! */
 @media (max-width: 768px) {
   .app-topbar {
-    padding: 0.35rem 0.75rem;
+    padding: 0.3rem 0.6rem;
   }
   .nf-alarm-pill {
     display: none;
   }
-  .mobile-profile-dock-bar {
-    display: flex;
-  }
-  .mobile-resume-chat-bar {
-    display: block;
-  }
   .app-workspace {
+    display: flex;
+    flex-direction: row;
     position: relative;
     overflow: hidden;
-    display: block;
   }
   .workspace-resizer {
-    display: none;
+    display: flex;
+    width: 6px;
   }
-  /* Layer 1 (Underneath): Full-Screen Profile List with Native iOS Parallax */
   .sidebar {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
+    position: relative;
+    width: var(--sidebar-width, clamp(160px, 35vw, 245px));
+    min-width: 115px;
+    max-width: 64vw;
     height: 100%;
-    border-right: none;
+    border-right: 1px solid #1f1f1f;
     border-bottom: none;
-    z-index: 10;
-    background: #000000;
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
-    will-change: transform, opacity;
+    flex-shrink: 0;
   }
-  /* Layer 2 (Top Pushed View): Active Profile Chat with Edge-Swipe Tracking */
   .chat-main {
-    position: absolute;
-    inset: 0;
-    width: 100%;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    width: auto;
     height: 100%;
-    z-index: 25;
-    background: #000000;
-    transform: translate3d(102%, 0, 0);
-    pointer-events: none;
-    box-shadow: -14px 0 38px rgba(0, 0, 0, 0.92);
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
   }
-  /* When chat is open on mobile: Sidebar sits at -28% underneath for live Edge-Swipe Parallax! */
-  body.mobile-chat-open .sidebar {
-    transform: translate3d(-28%, 0, 0);
-    opacity: 0.65;
-    pointer-events: none;
+  .sidebar-header {
+    padding: 0.45rem 0.5rem;
+    gap: 0.38rem;
   }
-  body.mobile-chat-open .chat-main {
-    transform: translate3d(0, 0, 0);
-    pointer-events: auto;
+  .search-input {
+    padding: 0.36rem 0.5rem 0.36rem 1.85rem;
+    font-size: 0.72rem;
   }
-  .btn-mobile-back {
-    display: inline-flex;
-    align-items: center;
+  .search-icon {
+    left: 0.55rem;
+    font-size: 0.72rem;
+  }
+  .filter-tabs-row {
+    gap: 4px;
+  }
+  .filter-tab {
+    padding: 0.26rem 0.38rem;
+    font-size: 0.65rem;
+  }
+  .profile-item {
+    padding: 0.48rem 0.5rem;
+    gap: 0.5rem;
+  }
+  .profile-avatar-wrap {
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+  .profile-name {
+    font-size: 0.76rem;
+  }
+  .profile-shortcut {
+    font-size: 0.62rem;
+  }
+  .profile-snippet {
+    font-size: 0.68rem;
   }
   .chat-header {
     padding: 0.45rem 0.65rem;
-    min-height: 3.3rem;
+    min-height: 3.1rem;
+    gap: 0.45rem;
   }
   .chat-header-avatar {
-    width: 2.35rem;
-    height: 2.35rem;
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .chat-header-title {
+    font-size: 0.86rem;
+  }
+  .chat-header-meta {
+    font-size: 0.66rem;
+  }
+  .quick-timer-bar {
+    padding: 0.35rem 0.6rem;
+    gap: 0.25rem;
+  }
+  .timer-bar-label {
+    font-size: 0.66rem;
+  }
+  .timer-chip {
+    padding: 0.16rem 0.42rem;
+    font-size: 0.66rem;
   }
   .notes-stream {
-    padding: 0.75rem 0.85rem;
+    padding: 0.65rem 0.7rem;
   }
   .note-item-wrap {
     max-width: 100%;
@@ -4294,20 +4317,33 @@ body.is-resizing-pane * {
   .note-bubble {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
+    padding: 0.6rem 0.75rem;
   }
   .note-bubble-actions {
     width: 100%;
     justify-content: flex-end;
     flex-wrap: wrap;
   }
+  .quick-templates-bar {
+    padding: 0.26rem 0.6rem;
+  }
   .composer-bar {
-    padding: 0.5rem 0.65rem;
-    gap: 0.4rem;
-    flex-wrap: wrap;
+    padding: 0.45rem 0.6rem;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
   }
   .composer-input-wrap {
-    min-width: 150px;
+    min-width: 0;
+    flex: 1;
+  }
+  .composer-input {
+    padding: 0.48rem 0.65rem 0.48rem 1.85rem;
+    font-size: 0.76rem;
+  }
+  .composer-icon {
+    left: 0.6rem;
+    font-size: 0.76rem;
   }
   .btn-wispr-studio {
     display: none;
@@ -4318,8 +4354,54 @@ body.is-resizing-pane * {
   }
 }
 
-/* Cellphone Portrait (iPhone / Android <= 480px) */
-@media (max-width: 480px) {
+/* Cellphone Portrait / Narrow Compressed Window (iPhone / Android <= 520px)
+   Keeps Left Profile List + Right Message/Composer Side-by-Side with Compact Proportions! */
+@media (max-width: 520px) {
+  .sidebar {
+    width: var(--sidebar-width, clamp(128px, 37vw, 168px));
+    min-width: 110px;
+  }
+  .sidebar-header {
+    padding: 0.35rem 0.38rem;
+  }
+  .search-input {
+    padding: 0.3rem 0.4rem 0.3rem 1.55rem;
+    font-size: 0.66rem;
+  }
+  .filter-tab {
+    padding: 0.2rem 0.25rem;
+    font-size: 0.58rem;
+  }
+  .profile-item {
+    padding: 0.38rem 0.38rem;
+    gap: 0.38rem;
+  }
+  .profile-avatar-wrap {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+  .profile-slot-badge {
+    font-size: 0.5rem;
+    padding: 0 3px;
+  }
+  .profile-name {
+    font-size: 0.68rem;
+  }
+  .profile-shortcut {
+    display: none;
+  }
+  .profile-snippet {
+    font-size: 0.62rem;
+  }
+  .badge-pending-count {
+    min-width: 15px;
+    height: 15px;
+    font-size: 0.58rem;
+  }
+  .badge-timer-pill {
+    font-size: 0.56rem;
+    padding: 1px 4px;
+  }
   .qr-actions-grid {
     grid-template-columns: 1fr;
   }
@@ -4333,29 +4415,51 @@ body.is-resizing-pane * {
     display: none;
   }
   .nf-clock-digital {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     padding: 2px 6px;
+  }
+  .chat-header {
+    padding: 0.38rem 0.5rem;
+  }
+  .chat-header-avatar {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+  .chat-header-title {
+    font-size: 0.76rem;
+  }
+  .chat-header-meta {
+    font-size: 0.6rem;
   }
   .chat-header-actions {
     width: 100%;
     justify-content: flex-start;
+    gap: 4px;
   }
   .btn-header-action {
-    font-size: 0.68rem;
-    padding: 0.28rem 0.55rem;
+    font-size: 0.62rem;
+    padding: 0.22rem 0.45rem;
+  }
+  .timer-bar-label {
+    display: none;
   }
   .timer-custom-wrap {
     margin-left: 0;
+  }
+  .btn-composer-tool {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.85rem;
   }
   .mic-label {
     display: none;
   }
   .btn-wispr-mic {
-    padding: 0.5rem 0.7rem;
+    padding: 0.42rem 0.55rem;
   }
   .btn-composer-send {
-    padding: 0.55rem 0.95rem;
-    font-size: 0.8rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.74rem;
   }
 }
 
