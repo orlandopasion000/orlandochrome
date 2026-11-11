@@ -459,3 +459,70 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
   .row2 { grid-template-columns: 1fr; }
   .adv { flex-direction: column; align-items: flex-start; }
 }
+
+
+/* User-Friendly Taskbar Note Box */
+.note-box {
+  background: linear-gradient(135deg, rgba(201,162,39,.14), rgba(20,33,61,.95));
+  border: 1.5px solid var(--gold);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.note-box-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.note-title {
+  color: var(--gold2);
+  font-weight: 800;
+  font-size: 13.5px;
+  letter-spacing: .2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.note-sub {
+  color: var(--tx);
+  font-size: 13px;
+}
+.note-kbd {
+  background: #0e1833;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-family: Consolas, monospace;
+  font-weight: 700;
+  color: var(--gold2);
+}
+
+/* Status Button Groups */
+.status-btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.status-btn {
+  padding: 7px 14px;
+  font-size: 12.5px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--p2);
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.status-btn:hover { border-color: var(--gold); }
+.status-btn.active-ready { background: rgba(61,220,151,.25); border-color: var(--ok); color: var(--ok); }
+.status-btn.active-waiting { background: rgba(255,176,32,.25); border-color: var(--warn); color: var(--warn); }
+.status-btn.active-running { background: rgba(90,169,255,.25); border-color: var(--info); color: var(--info); }
