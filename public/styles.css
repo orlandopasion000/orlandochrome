@@ -4088,6 +4088,12 @@ body.is-resizing-pane * {
 .profile-item-swipe-container {
   position: relative;
   overflow: hidden;
+  flex: 0 0 auto; /* Never compress profile rows — list scrolls instead */
+  min-height: min-content;
+}
+
+.profile-list > * {
+  flex-shrink: 0;
 }
 
 .profile-swipe-tray {
