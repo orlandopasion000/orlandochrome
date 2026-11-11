@@ -2852,16 +2852,39 @@
   // =========================================================================
   // 📲 APP DISTRIBUTION & COMMAND SUITE (PWA Install, Mobile QR, iOS Guide, Backup, Blank Edition)
   // =========================================================================
-  // Direct Desktop App Launcher (Leads directly to running app without any browser tabs or URL bar)
+  // Direct Desktop App Launcher (Opens native OrlandoChrome.exe and brings it to focus on Windows)
   function launchDesktopApp() {
     if (window.soundMgr) window.soundMgr.playClickSoft();
     showToast('🚀 Launching OrlandoChrome Desktop App...');
+
+    // 1. Trigger registered Windows URI protocol (launches OrlandoChrome.exe directly)
     try {
-      window.location.href = 'orlandochrome://launch';
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = 'orlandochrome://launch';
+      document.body.appendChild(iframe);
+      setTimeout(() => { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }, 3000);
     } catch (e) {}
+
+    // 2. Also trigger direct link navigation for protocol handler
+    try {
+      const a = document.createElement('a');
+      a.href = 'orlandochrome://launch';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { if (a.parentNode) a.parentNode.removeChild(a); }, 1000);
+    } catch (e) {}
+
+    // 3. Fallback: Open pure standalone application window (no address bar, no tabs)
     setTimeout(() => {
-      window.open('https://orlandopasion000.github.io/orlandochrome/', 'OrlandoChromeApp', 'popup=yes,width=1280,height=820,menubar=no,toolbar=no,location=no,status=no');
-    }, 280);
+      const appUrl = window.location.href.split('#')[0];
+      const winFeatures = 'popup=yes,menubar=no,toolbar=no,location=no,status=no,personalbar=no,directories=no,resizable=yes,scrollbars=yes,width=1380,height=880,left=100,top=60';
+      const appWin = window.open(appUrl, 'OrlandoChromeDesktopAppWindow', winFeatures);
+      if (appWin) {
+        try { appWin.focus(); } catch (e) {}
+      }
+    }, 220);
   }
 
   function downloadTextFile(filename, content, mime = 'text/plain;charset=utf-8') {

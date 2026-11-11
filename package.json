@@ -2,9 +2,11 @@
   "name": "chrome-taskbar-command-center",
   "version": "1.0.0",
   "description": "Live bidirectional tracking, cooldown waitboard and window switcher for 22+ pinned Chrome profiles on the Windows taskbar",
-  "main": "server/server.js",
+  "main": "electron-main.js",
   "scripts": {
-    "start": "node server/server.js"
+    "start": "electron .",
+    "server": "node server/server.js",
+    "package": "electron-packager . OrlandoChrome --platform=win32 --arch=x64 --icon=public/favicon.ico --out=dist --overwrite --prune=true"
   },
   "keywords": [
     "chrome",
@@ -20,5 +22,9 @@
   "type": "commonjs",
   "dependencies": {
     "ws": "^8.22.2"
+  },
+  "devDependencies": {
+    "electron": "^45.3.0",
+    "electron-packager": "^17.1.2"
   }
 }
