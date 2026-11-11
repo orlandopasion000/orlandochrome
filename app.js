@@ -1,6 +1,6 @@
 /* Chrome Taskbar Notes - Messenger Style
  * Direct, simple, compressed note-taking for your 21 taskbar Chrome profiles
- * Includes Live Clock & Schedule from Daily Recharge Alarm
+ * Real Google profile avatars, custom photo upload, and live recharge clock
  */
 (function() {
   const $ = (s, r = document) => r.querySelector(s);
@@ -8,7 +8,7 @@
   const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   const now = () => Date.now();
 
-  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v2';
+  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v3';
 
   // Schedule from Daily Recharge Alarm (Sir Orlando V. Pasion, Jr.)
   const RECHARGE_SCHEDULE = [
@@ -37,35 +37,36 @@
     [21, 30, "night", "Bedtime"]
   ];
 
-  // The 21 Chrome Profiles in order from Windows Taskband
+  // The 21 Chrome Profiles in order from Windows Taskband - 100% CLEAN (0 starter notes)
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", emoji: "🌐", timerUntil: null, notes: [] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", emoji: "🎓", timerUntil: null, notes: [
-      { id: "n_init_1", text: "Draft Grade 8 ST2 Test & Table of Specifications", done: false, createdAt: now() }
-    ]},
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", emoji: "📘", timerUntil: null, notes: [] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", emoji: "📊", timerUntil: null, notes: [] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "Hero", email: "heroesmeraldaepicalu@gmail.com", emoji: "🧠", timerUntil: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 A Yify", email: "yifyyts7@gmail.com", emoji: "🎯", timerUntil: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 B NASH", email: "revnash0@gmail.com", emoji: "📝", timerUntil: null, notes: [
-      { id: "n_init_2", text: "Prepare Youth Devotion Slide Deck for Sunday", done: false, createdAt: now() }
-    ]},
-    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 C Gwapo", email: "gwapocpogi@gmail.com", emoji: "📊", timerUntil: null, notes: [] },
-    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", emoji: "📘", timerUntil: null, notes: [] },
-    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", emoji: "🏫", timerUntil: null, notes: [] },
-    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", emoji: "⚡", timerUntil: null, notes: [
-      { id: "n_init_3", text: "Revise Chapter 3 Instrumentation & Sampling Framework", done: false, createdAt: now() }
-    ]},
-    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", emoji: "📘", timerUntil: null, notes: [] },
-    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", emoji: "🎯", timerUntil: null, notes: [] },
-    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", emoji: "🧠", timerUntil: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gold Cloud", email: "goldcloudblack@gmail.com", emoji: "📝", timerUntil: null, notes: [] },
-    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", emoji: "🛠️", timerUntil: null, notes: [] },
-    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", emoji: "🧮", timerUntil: null, notes: [] },
-    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", emoji: "🎓", timerUntil: null, notes: [] },
-    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "pogiorlandopasion", email: "pogiorlandopasion@gmail.com", emoji: "📚", timerUntil: null, notes: [] },
-    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "watchonlineapple", email: "watchonlineapple@gmail.com", emoji: "🏫", timerUntil: null, notes: [] },
-    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "grammarly", email: "grammarlyquillbot001@gmail.com", emoji: "💡", timerUntil: null, notes: [] }
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", emoji: "🌐", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", emoji: "🎓", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", emoji: "📘", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", emoji: "📊", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "Hero", email: "heroesmeraldaepicalu@gmail.com", emoji: "🧠", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 A Yify", email: "yifyyts7@gmail.com", emoji: "🎯", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 B NASH", email: "revnash0@gmail.com", emoji: "📝", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 C Gwapo", email: "gwapocpogi@gmail.com", emoji: "📊", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", emoji: "📘", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", emoji: "🏫", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", emoji: "⚡", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", emoji: "📘", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", emoji: "🎯", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", emoji: "🧠", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gold Cloud", email: "goldcloudblack@gmail.com", emoji: "📝", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", emoji: "🛠️", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", emoji: "🧮", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", emoji: "🎓", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "pogiorlandopasion", email: "pogiorlandopasion@gmail.com", emoji: "📚", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "watchonlineapple", email: "watchonlineapple@gmail.com", emoji: "🏫", timerUntil: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "grammarly", email: "grammarlyquillbot001@gmail.com", emoji: "💡", timerUntil: null, isReset: false, customAvatar: null, notes: [] }
+  ];
+
+  // Filter out any of the 3 old sample tasks completely
+  const SAMPLE_TASKS = [
+    "Draft Grade 8 ST2 Test & Table of Specifications",
+    "Prepare Youth Devotion Slide Deck for Sunday",
+    "Revise Chapter 3 Instrumentation & Sampling Framework"
   ];
 
   function loadState() {
@@ -75,21 +76,26 @@
       if (raw) saved = JSON.parse(raw);
     } catch (_) {}
 
-    // Migration of any existing tasks from previous keys
+    // Clean migration of only real user notes (excluding sample notes)
     const notesByDir = {};
     const timersByDir = {};
-    ['chrome_taskbar_messenger_notes_v1', 'chrome_real_taskbar_tracker_v5', 'chrome_taskbar_tracker_v4'].forEach(k => {
+    const avatarsByDir = {};
+
+    ['chrome_taskbar_messenger_notes_v2', 'chrome_taskbar_messenger_notes_v1'].forEach(k => {
       try {
         const raw = localStorage.getItem(k);
         if (raw) {
           const old = JSON.parse(raw);
           (old.profiles || []).forEach(p => {
-            const list = p.todos || p.notes || [];
+            const list = (p.notes || []).filter(n => !SAMPLE_TASKS.includes(n.text));
             if (p.profileDir && list.length && !notesByDir[p.profileDir]) {
               notesByDir[p.profileDir] = list;
             }
             if (p.profileDir && p.timerUntil && !timersByDir[p.profileDir]) {
               timersByDir[p.profileDir] = p.timerUntil;
+            }
+            if (p.profileDir && p.customAvatar && !avatarsByDir[p.profileDir]) {
+              avatarsByDir[p.profileDir] = p.customAvatar;
             }
           });
         }
@@ -101,6 +107,7 @@
       saved.profiles.forEach(p => {
         if (notesByDir[p.profileDir]) p.notes = notesByDir[p.profileDir];
         if (timersByDir[p.profileDir]) p.timerUntil = timersByDir[p.profileDir];
+        if (avatarsByDir[p.profileDir]) p.customAvatar = avatarsByDir[p.profileDir];
       });
     } else {
       const existingMap = {};
@@ -109,8 +116,10 @@
         const ex = existingMap[dp.profileDir];
         if (ex) {
           return Object.assign({}, dp, {
-            notes: (ex.notes && ex.notes.length) ? ex.notes : (notesByDir[dp.profileDir] || dp.notes),
-            timerUntil: ex.timerUntil || timersByDir[dp.profileDir] || null
+            notes: (ex.notes || []).filter(n => !SAMPLE_TASKS.includes(n.text)),
+            timerUntil: ex.timerUntil || null,
+            isReset: !!ex.isReset,
+            customAvatar: ex.customAvatar || null
           });
         }
         return dp;
@@ -121,12 +130,9 @@
   }
 
   let S = loadState();
-  let selectedId = "p_tb_4"; // Default to DepEd (Chrome #2) or first with pending notes
+  let selectedId = "p_tb_4"; // Default to DepEd (Chrome #2)
   let currentFilter = 'all'; // 'all', 'pending', 'timers'
   let searchQuery = '';
-
-  const firstWithNotes = S.profiles.find(p => p.notes && p.notes.some(n => !n.done));
-  if (firstWithNotes) selectedId = firstWithNotes.id;
 
   function save() {
     try {
@@ -182,6 +188,18 @@
       t.style.transform = 'translateY(6px)';
       setTimeout(() => t.remove(), 250);
     }, dur);
+  }
+
+  // Avatar helper with fallback to real Google profile photo or emoji
+  function getAvatarHtml(p) {
+    if (p.customAvatar) {
+      return `<img src="${p.customAvatar}" alt="${esc(p.name)}">`;
+    }
+    const realImgPath = `avatars/${encodeURIComponent(p.profileDir)}.png`;
+    return `
+      <img src="${realImgPath}" alt="${esc(p.name)}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';">
+      <span style="display:none;">${esc(p.emoji || '🌐')}</span>
+    `;
   }
 
   // --- Live Clock & Next Event Calculation from Daily Recharge Alarm ---
@@ -243,7 +261,8 @@
   function renderFilterStats() {
     const t = now();
     const pendingCount = S.profiles.filter(p => getPendingNotes(p).length > 0).length;
-    const timersCount = S.profiles.filter(p => hasActiveTimer(p, t)).length;
+    // Timers count includes both actively running timers AND finished "Reset" profiles!
+    const timersCount = S.profiles.filter(p => hasActiveTimer(p, t) || p.isReset).length;
 
     const pl = $('#pendingCountLabel');
     if (pl) pl.textContent = pendingCount;
@@ -262,9 +281,10 @@
     let list = S.profiles.filter(p => {
       const pending = getPendingNotes(p);
       const isTimer = hasActiveTimer(p, t);
+      const isReset = !!p.isReset;
 
       if (currentFilter === 'pending' && pending.length === 0) return false;
-      if (currentFilter === 'timers' && !isTimer) return false;
+      if (currentFilter === 'timers' && !isTimer && !isReset) return false;
 
       if (q) {
         const matchesName = p.name.toLowerCase().includes(q);
@@ -290,13 +310,17 @@
     listEl.innerHTML = list.map(p => {
       const pending = getPendingNotes(p);
       const isTimer = hasActiveTimer(p, t);
+      const isReset = !!p.isReset;
       const isSelected = (p.id === selectedId);
       const lastNote = pending.length ? pending[pending.length - 1] : (p.notes && p.notes.length ? p.notes[p.notes.length - 1] : null);
 
       let snippetText = 'No notes yet';
       let snippetClass = 'item-snippet';
 
-      if (isTimer) {
+      if (isReset) {
+        snippetText = `✨ Limit Reset — Ready to use`;
+        snippetClass += ' reset-highlight';
+      } else if (isTimer) {
         snippetText = `⏳ Timer: ${fmtShortDur(p.timerUntil - t)} left`;
         snippetClass += ' timer-highlight';
       } else if (pending.length) {
@@ -309,9 +333,9 @@
       const tag = p.taskbarSlot <= 9 ? `W+${p.taskbarSlot}` : `#${p.taskbarSlot}`;
 
       return `
-        <div class="chrome-item ${isSelected ? 'active' : ''} ${pending.length ? 'has-pending-tasks' : ''} ${isTimer ? 'has-active-timer' : ''}" data-select-id="${p.id}">
+        <div class="chrome-item ${isSelected ? 'active' : ''} ${pending.length ? 'has-pending-tasks' : ''} ${isTimer ? 'has-active-timer' : ''} ${isReset ? 'has-reset-timer' : ''}" data-select-id="${p.id}">
           <div class="item-avatar-wrap">
-            <div class="item-avatar">${esc(p.emoji || '🌐')}</div>
+            <div class="item-avatar">${getAvatarHtml(p)}</div>
             <div class="item-slot-tag">${tag}</div>
           </div>
           <div class="item-content">
@@ -322,6 +346,7 @@
             <div class="${snippetClass}">${esc(snippetText)}</div>
           </div>
           <div class="item-badges-group">
+            ${isReset ? `<span class="item-reset-badge" title="Cooldown finished — Limit reset!">🟢 Reset</span>` : ''}
             ${isTimer ? `<span class="item-timer-badge" data-cd-short="${p.timerUntil}">⏳ ${fmtShortDur(p.timerUntil - t)}</span>` : ''}
             ${pending.length ? `<span class="item-badge">${pending.length}</span>` : ''}
           </div>
@@ -342,13 +367,17 @@
 
     const notes = p.notes || [];
     const t = now();
-    const hasTimer = (p.timerUntil && p.timerUntil > t);
+    const hasTimer = hasActiveTimer(p, t);
+    const isReset = !!p.isReset;
 
-    // Header HTML
+    // Header HTML with Click-to-Upload Avatar
     const headerHtml = `
       <div class="chat-header">
         <div class="chat-header-left">
-          <div class="chat-avatar">${esc(p.emoji || '🌐')}</div>
+          <div class="chat-avatar-wrap" data-act="triggerPhotoUpload" title="Click to upload custom photo for this profile">
+            <div class="chat-avatar">${getAvatarHtml(p)}</div>
+            <div class="chat-avatar-overlay">📷</div>
+          </div>
           <div class="chat-title-group">
             <h2>Chrome #${p.chromeNo}: ${esc(p.name)}</h2>
             <p>${esc(p.email || p.profileDir)} · Taskbar Slot #${p.taskbarSlot}</p>
@@ -359,10 +388,23 @@
             <span>Shortcut:</span>
             <kbd>${esc(p.winShortcut)}</kbd>
           </div>
+          <button class="btn-util" data-act="triggerPhotoUpload" title="Upload custom photo for this profile">📷 Photo</button>
+          ${p.customAvatar ? `<button class="btn-util" data-act="removeCustomPhoto" data-pid="${p.id}" title="Revert to default photo">✕ Revert</button>` : ''}
           <button class="btn-util" data-act="copyName" data-name="${esc(p.name)}">📋 Copy Name</button>
         </div>
       </div>
     `;
+
+    // Reset Banner (When timer has completed!)
+    let resetBannerHtml = '';
+    if (isReset) {
+      resetBannerHtml = `
+        <div class="reset-banner">
+          <span>🟢 <b>Limit Reset!</b> Cooldown has finished. Credits / messages are reset and ready.</span>
+          <button class="btn-reset-dismiss" data-act="dismissReset" data-pid="${p.id}">✓ Acknowledge / Clear</button>
+        </div>
+      `;
+    }
 
     // Timer Bar
     let timerBarHtml = '';
@@ -376,7 +418,7 @@
           <button class="btn-timer" data-act="clearTimer" data-pid="${p.id}">✕ Clear Timer</button>
         </div>
       `;
-    } else {
+    } else if (!isReset) {
       timerBarHtml = `
         <div class="cooldown-bar" style="background:rgba(255,255,255,0.02);border-color:var(--border);">
           <span style="font-size:11.5px;color:var(--tx-sub);">Hit AI limit? Start a quick timer:</span>
@@ -397,8 +439,8 @@
       streamHtml = `
         <div class="empty-notes-view">
           <span class="empty-icon">📝</span>
-          <b style="color:var(--tx);">No notes for Chrome #${p.chromeNo} (${esc(p.name)})</b>
-          <p style="font-size:12.5px;">Type a note or pending task in the box below to remember what to do.</p>
+          <b style="color:var(--tx);">No pending notes for Chrome #${p.chromeNo} (${esc(p.name)})</b>
+          <p style="font-size:12.5px;">Type a note or pending task below to remember what to do.</p>
         </div>
       `;
     } else {
@@ -421,7 +463,7 @@
       }).join('');
     }
 
-    // Composer HTML (Messenger Style Input at bottom)
+    // Composer HTML
     const composerHtml = `
       <form class="chat-composer" id="composerForm" data-pid="${p.id}">
         <input type="text" class="composer-input" id="noteInput" placeholder="💬 Type a note or pending task for ${esc(p.name)} (Press Enter to add)..." autofocus autocomplete="off">
@@ -432,10 +474,12 @@
     pane.innerHTML = `
       ${headerHtml}
       <div class="notes-stream" id="notesStream">
+        ${resetBannerHtml}
         ${timerBarHtml}
         ${streamHtml}
       </div>
       ${composerHtml}
+      <input type="file" id="hiddenAvatarInput" accept="image/*" style="display:none;">
     `;
 
     // Scroll stream to bottom
@@ -444,7 +488,7 @@
       streamEl.scrollTop = streamEl.scrollHeight;
     }
 
-    // Hook up composer form submit
+    // Form submit listener
     const form = document.getElementById('composerForm');
     if (form) {
       form.onsubmit = ev => {
@@ -463,6 +507,41 @@
           render();
           toast(`📝 Note saved for <b>${esc(p.name)}</b>`);
         }
+      };
+    }
+
+    // Avatar file upload handler
+    const fileInp = document.getElementById('hiddenAvatarInput');
+    if (fileInp) {
+      fileInp.onchange = ev => {
+        const file = ev.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            // Resize to max 128x128 canvas for high performance & minimal storage
+            const canvas = document.createElement('canvas');
+            const size = 128;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Center crop square
+            const minDim = Math.min(img.width, img.height);
+            const sx = (img.width - minDim) / 2;
+            const sy = (img.height - minDim) / 2;
+            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+            p.customAvatar = canvas.toDataURL('image/jpeg', 0.85);
+            save();
+            render();
+            toast(`📷 Profile photo updated for <b>${esc(p.name)}</b>`);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
       };
     }
   }
@@ -485,13 +564,15 @@
       el.textContent = `⏳ ${fmtShortDur(target - t)}`;
     });
 
+    // Check if any timer has finished -> mark as Reset!
     let changed = false;
     S.profiles.forEach(p => {
       if (p.timerUntil && p.timerUntil <= t) {
         p.timerUntil = null;
+        p.isReset = true; // Mark as RESET!
         changed = true;
         if (window.soundMgr) window.soundMgr.playReadyChime();
-        toast(`🔔 <b>Chrome #${p.chromeNo} (${esc(p.name)})</b> cooldown timer finished!`);
+        toast(`🔔 <b>Chrome #${p.chromeNo} (${esc(p.name)})</b> limit has been RESET! Ready to use.`);
       }
     });
 
@@ -533,7 +614,17 @@
     const nid = btn.dataset.nid;
     const p = S.profiles.find(x => x.id === pid);
 
-    if (act === 'copyName') {
+    if (act === 'triggerPhotoUpload') {
+      const fileInp = document.getElementById('hiddenAvatarInput');
+      if (fileInp) fileInp.click();
+    } else if (act === 'removeCustomPhoto') {
+      if (p) {
+        p.customAvatar = null;
+        save();
+        render();
+        toast(`Reverted to default photo`);
+      }
+    } else if (act === 'copyName') {
       const name = btn.dataset.name;
       try {
         navigator.clipboard.writeText(name);
@@ -560,6 +651,7 @@
       const h = Number(btn.dataset.h) || 3;
       if (p) {
         p.timerUntil = now() + h * 3600000;
+        p.isReset = false;
         save();
         render();
         toast(`⏱️ Cooldown timer set for ${h}h on <b>${esc(p.name)}</b>`);
@@ -567,9 +659,17 @@
     } else if (act === 'clearTimer') {
       if (p) {
         p.timerUntil = null;
+        p.isReset = false;
         save();
         render();
         toast(`Timer cleared`);
+      }
+    } else if (act === 'dismissReset') {
+      if (p) {
+        p.isReset = false;
+        save();
+        render();
+        toast(`Reset acknowledged`);
       }
     }
   });
