@@ -1,27 +1,21 @@
-/* Chrome Taskbar Tracker - Streamlined & Focused on Pending Tasks */
+/* Chrome Taskbar Notes - Messenger Style & Compressed Layout */
 :root {
-  --bg: #090e1a;
-  --panel: #111a2e;
-  --card: #16223b;
-  --card-hover: #1c2b4a;
-  --line: #223456;
-  --tx: #f1f5f9;
-  --tx2: #94a3b8;
+  --bg: #0b1120;
+  --sidebar-bg: #0f172a;
+  --chat-bg: #090d16;
+  --item-hover: #1e293b;
+  --item-active: #1e293b;
+  --border: #1e293b;
+  --border-light: #334155;
+  --tx: #f8fafc;
+  --tx-sub: #94a3b8;
   --tx-muted: #64748b;
+  --accent: #0084ff;
+  --accent-hover: #0073e6;
   --gold: #f59e0b;
   --gold2: #fbbf24;
   --red: #ef4444;
-  --red-bg: rgba(239, 68, 68, 0.15);
-  --red-border: #ef4444;
   --green: #10b981;
-  --green-bg: rgba(16, 185, 129, 0.15);
-  --green-border: #10b981;
-  --amber: #f59e0b;
-  --amber-bg: rgba(245, 158, 11, 0.15);
-  --amber-border: #f59e0b;
-  --blue: #3b82f6;
-  --blue-bg: rgba(59, 130, 246, 0.15);
-  --radius: 12px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,758 +24,624 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background: var(--bg);
   color: var(--tx);
-  min-height: 100vh;
-  padding: 16px;
-  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden;
+  line-height: 1.35;
 }
 
-.wrap {
-  max-width: 1400px;
-  margin: 0 auto;
+.app-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  height: 100vh;
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
-/* Header */
-.top {
+/* Header (Compressed & Clean) */
+.app-header {
+  height: 52px;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 14px 20px;
+  padding: 0 16px;
+  flex-shrink: 0;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.brand .logo {
-  font-size: 28px;
-  background: var(--card);
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  border: 1px solid var(--line);
+.brand-icon {
+  font-size: 24px;
 }
 
-.brand h1 {
-  font-size: 20px;
+.brand-text h1 {
+  font-size: 15px;
   font-weight: 800;
   color: #fff;
+  line-height: 1.1;
 }
 
-.brand p {
-  font-size: 13px;
-  color: var(--tx2);
+.brand-text p {
+  font-size: 11px;
+  color: var(--tx-sub);
 }
 
-.top-stats {
+.header-right {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
-.stat-pill {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
+.header-pill {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid transparent;
 }
 
-.stat-pill.pending {
-  background: var(--red-bg);
+.header-pill.pending {
+  background: rgba(239, 68, 68, 0.18);
   color: #fca5a5;
-  border-color: var(--red-border);
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
-.stat-pill.cooldown {
-  background: var(--amber-bg);
-  color: #fde68a;
-  border-color: var(--amber-border);
-}
-
-.stat-pill.ready {
-  background: var(--green-bg);
+.header-pill.clean {
+  background: rgba(16, 185, 129, 0.15);
   color: #6ee7b7;
-  border-color: var(--green-border);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-/* Taskbar Strip Container */
-.taskbar-strip-container {
-  background: #0d1527;
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius);
-  padding: 12px 16px;
-}
-
-.taskbar-strip-header {
+/* Messenger 2-Pane Layout */
+.messenger-layout {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
+  flex: 1;
+  overflow: hidden;
 }
 
-.taskbar-label {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--gold2);
-  letter-spacing: .2px;
-}
-
-.taskbar-hint {
-  font-size: 12px;
-  color: var(--tx2);
-}
-
-.taskbar-strip {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 6px 2px 10px;
-  scrollbar-width: thin;
-}
-
-.taskbar-strip::-webkit-scrollbar {
-  height: 6px;
-}
-.taskbar-strip::-webkit-scrollbar-thumb {
-  background: var(--line);
-  border-radius: 3px;
-}
-
-.tb-item {
-  position: relative;
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  background: var(--card);
-  border: 2px solid var(--line);
-  border-radius: 12px;
+/* Left Sidebar (Compact Messenger Chat List) */
+.sidebar {
+  width: 360px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all .15s ease;
-  user-select: none;
+  flex-shrink: 0;
 }
 
-.tb-item:hover {
-  transform: translateY(-2px);
-  border-color: var(--gold);
-}
-
-.tb-item.has-pending {
-  border-color: var(--red);
-  background: rgba(239, 68, 68, 0.15);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-}
-
-.tb-item.is-cooldown {
-  border-color: var(--amber);
-  background: rgba(245, 158, 11, 0.15);
-}
-
-.tb-item.is-ready {
-  border-color: var(--green);
-}
-
-.tb-item .tb-num-tag {
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  background: #090e1a;
-  border: 1px solid var(--gold);
-  color: var(--gold2);
-  font-size: 10px;
-  font-weight: 900;
-  padding: 1px 5px;
-  border-radius: 6px;
-}
-
-.tb-item .tb-icon {
-  font-size: 20px;
-}
-
-.tb-item .tb-badge-count {
-  position: absolute;
-  bottom: -6px;
-  right: -6px;
-  background: var(--red);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 900;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 9px;
+.sidebar-top {
+  padding: 10px 12px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
-  animation: pulse 1.8s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
-}
-
-/* Filter Bar */
-.filter-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.filter-buttons {
-  display: flex;
+  flex-direction: column;
   gap: 8px;
-  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
 }
 
-.filter-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--tx);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .15s ease;
-}
-
-.filter-btn:hover {
-  border-color: var(--gold);
-}
-
-.filter-btn.active {
-  background: var(--gold);
-  color: #090e1a;
-  border-color: var(--gold);
-}
-
-.filter-btn.active.pending {
-  background: var(--red);
+.search-input {
+  width: 100%;
+  padding: 7px 12px;
+  background: #0b1120;
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
   color: #fff;
-  border-color: var(--red);
-}
-
-.search-box input {
-  padding: 8px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--tx);
-  font-size: 13px;
-  width: 260px;
+  font-size: 12.5px;
   outline: none;
 }
 
-.search-box input:focus {
-  border-color: var(--gold);
+.search-input:focus {
+  border-color: var(--accent);
 }
 
-/* Urgent Pending Tasks Section */
-.urgent-section {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(17, 26, 46, 0.95));
-  border: 1.5px solid var(--red);
-  border-radius: var(--radius);
-  padding: 16px;
+.sidebar-filters {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
-.urgent-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 15px;
-  font-weight: 800;
-  color: #fca5a5;
-}
-
-.urgent-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 10px;
-}
-
-.urgent-item {
-  background: #0f172a;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: 10px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.urgent-item-left {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.filter-tab {
   flex: 1;
-}
-
-.urgent-profile-tag {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--gold2);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.urgent-task-text {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.urgent-item-right {
-  display: flex;
-  gap: 6px;
-}
-
-/* Profiles Grid */
-.profiles-container {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.profile-card {
-  background: var(--panel);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  transition: border-color .15s ease;
-}
-
-.profile-card:hover {
-  border-color: #3b5078;
-}
-
-.profile-card.has-pending {
-  border-color: var(--red);
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
-}
-
-.profile-card.is-cooldown {
-  border-color: var(--amber);
-}
-
-.profile-card.is-ready {
-  border-color: var(--green);
-}
-
-/* Card Header */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-}
-
-.card-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.taskbar-num-badge {
-  background: #090e1a;
-  border: 2px solid var(--gold);
-  color: var(--gold2);
-  font-size: 15px;
-  font-weight: 900;
-  padding: 4px 10px;
+  padding: 5px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
   border-radius: 8px;
-  min-width: 44px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tx-sub);
+  cursor: pointer;
+  transition: all .15s;
   text-align: center;
 }
 
-.profile-avatar {
-  font-size: 26px;
-  width: 44px;
-  height: 44px;
-  background: var(--card);
-  border-radius: 10px;
+.filter-tab:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.05);
+}
+
+.filter-tab.active {
+  background: #1e293b;
+  color: #fff;
+  border-color: var(--border-light);
+}
+
+.filter-tab.active#filterPending {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: var(--red);
+}
+
+/* Scrollable Contact List */
+.chrome-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 6px;
+  scrollbar-width: thin;
+}
+
+.chrome-list::-webkit-scrollbar {
+  width: 5px;
+}
+.chrome-list::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
+}
+
+.chrome-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .12s ease;
+  user-select: none;
+  border-left: 3px solid transparent;
+  margin-bottom: 2px;
+}
+
+.chrome-item:hover {
+  background: var(--item-hover);
+}
+
+.chrome-item.active {
+  background: var(--item-active);
+  border-left-color: var(--accent);
+}
+
+.chrome-item.has-pending-tasks {
+  border-left-color: var(--red);
+}
+
+.item-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.item-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 1.5px solid var(--border-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid var(--line);
+  font-size: 18px;
 }
 
-.profile-info {
+.item-slot-tag {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  background: #0b1120;
+  border: 1px solid var(--gold);
+  color: var(--gold2);
+  font-size: 9px;
+  font-weight: 900;
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+.item-content {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
-.profile-name-row {
+.item-row1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-shortcut {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--gold2);
+  font-family: Consolas, monospace;
+}
+
+.item-snippet {
+  font-size: 11.5px;
+  color: var(--tx-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-snippet.highlight {
+  color: #fca5a5;
+  font-weight: 600;
+}
+
+.item-badge {
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Right Chat Pane */
+.chat-pane {
+  flex: 1;
+  background: var(--chat-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Chat Header */
+.chat-header {
+  height: 58px;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px;
+  flex-shrink: 0;
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 1.5px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+}
+
+.chat-title-group h2 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.chat-title-group p {
+  font-size: 11.5px;
+  color: var(--tx-sub);
+}
+
+.chat-header-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.profile-name {
-  font-size: 16px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.profile-sub {
-  font-size: 12.5px;
-  color: var(--tx2);
-}
-
-.card-header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.status-badge {
-  padding: 5px 12px;
-  border-radius: 16px;
-  font-size: 12.5px;
-  font-weight: 800;
+.shortcut-pill {
+  background: #0f172a;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold2);
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.status-badge.pending {
-  background: var(--red-bg);
-  color: #fca5a5;
-  border: 1px solid var(--red-border);
-}
-
-.status-badge.cooldown {
-  background: var(--amber-bg);
-  color: #fde68a;
-  border: 1px solid var(--amber-border);
-}
-
-.status-badge.ready {
-  background: var(--green-bg);
-  color: #6ee7b7;
-  border: 1px solid var(--green-border);
-}
-
-.status-badge.working {
-  background: var(--blue-bg);
-  color: #93c5fd;
-  border: 1px solid var(--blue);
-}
-
-.taskbar-switch-note {
-  background: #0d1527;
-  border: 1px solid var(--gold);
-  border-radius: 8px;
-  padding: 5px 10px;
-  font-size: 12px;
-  color: var(--tx);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.taskbar-switch-note kbd {
+.shortcut-pill kbd {
   background: #1e293b;
-  border: 1px solid var(--gold2);
-  color: var(--gold2);
   padding: 1px 6px;
   border-radius: 4px;
-  font-weight: 800;
+  border: 1px solid var(--gold2);
   font-family: Consolas, monospace;
 }
 
-/* Card Body: Pending Tasks Section */
-.card-body {
+/* Notes Stream (Chat Messages Area) */
+.notes-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  scrollbar-width: thin;
 }
 
-.tasks-box {
-  background: #0d1527;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 12px 14px;
+.notes-stream::-webkit-scrollbar {
+  width: 5px;
+}
+.notes-stream::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
+}
+
+/* Empty State */
+.empty-notes-view {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.tasks-box.highlight {
-  border-color: rgba(239, 68, 68, 0.5);
-  background: rgba(239, 68, 68, 0.06);
-}
-
-.tasks-title-row {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--tx-muted);
+  gap: 8px;
+  text-align: center;
 }
 
-.tasks-title {
+.empty-icon {
+  font-size: 38px;
+  opacity: 0.7;
+}
+
+/* Note Message Bubbles (Messenger Style) */
+.note-bubble-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  max-width: 78%;
+}
+
+.note-bubble {
+  background: #1e293b;
+  border: 1px solid var(--border-light);
+  border-radius: 14px 14px 14px 3px;
+  padding: 9px 14px;
+  color: #fff;
   font-size: 13.5px;
-  font-weight: 800;
+  line-height: 1.4;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.note-bubble.pending-bubble {
+  background: #1e3a5f;
+  border-color: #38bdf8;
+}
+
+.note-bubble.done-bubble {
+  background: #0f172a;
+  border-color: var(--border);
+  opacity: 0.6;
+}
+
+.note-bubble.done-bubble .note-text {
+  text-decoration: line-through;
+  color: var(--tx-muted);
+}
+
+.note-text {
+  word-break: break-word;
+  flex: 1;
+}
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-note-action {
+  background: transparent;
+  border: none;
+  color: var(--tx-sub);
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all .12s;
+}
+
+.btn-note-action:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.btn-note-action.done-btn {
+  color: var(--green);
+}
+
+.btn-note-action.del-btn:hover {
+  color: var(--red);
+}
+
+.note-meta {
+  font-size: 10.5px;
+  color: var(--tx-muted);
+  padding-left: 6px;
+}
+
+/* Cooldown Strip inside Thread (Optional & Simple) */
+.cooldown-bar {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+.cooldown-info {
+  font-size: 12px;
+  font-weight: 700;
   color: var(--gold2);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.task-list {
+.cooldown-presets {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
-.task-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: var(--card);
-  border-radius: 8px;
-  border: 1px solid var(--line);
-}
-
-.task-item.done {
-  opacity: 0.5;
-}
-
-.task-item.done .task-text {
-  text-decoration: line-through;
-}
-
-.task-checkbox-btn {
-  background: transparent;
-  border: 1.5px solid var(--tx2);
-  color: transparent;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+.btn-timer {
+  background: #1e293b;
+  border: 1px solid var(--border-light);
+  color: var(--tx-sub);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
   cursor: pointer;
+}
+
+.btn-timer:hover {
+  border-color: var(--gold);
+  color: var(--gold2);
+}
+
+/* Messenger Composer (Input Bar at Bottom) */
+.chat-composer {
+  background: var(--sidebar-bg);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
   display: flex;
+  gap: 10px;
   align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  transition: all .15s;
   flex-shrink: 0;
 }
 
-.task-checkbox-btn:hover {
-  border-color: var(--green);
-}
-
-.task-checkbox-btn.checked {
-  background: var(--green);
-  border-color: var(--green);
-  color: #090e1a;
-  font-weight: 900;
-}
-
-.task-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
+.composer-input {
   flex: 1;
-}
-
-.task-del-btn {
-  background: transparent;
-  border: none;
-  color: var(--tx-muted);
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.task-del-btn:hover {
-  color: var(--red);
-}
-
-/* Inline Add Task Form */
-.task-add-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.task-add-input {
-  flex: 1;
-  padding: 8px 12px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  background: #090d16;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 10px 16px;
   color: #fff;
   font-size: 13.5px;
   outline: none;
 }
 
-.task-add-input:focus {
-  border-color: var(--gold);
+.composer-input:focus {
+  border-color: var(--accent);
 }
 
-/* Card Actions / Controls */
-.card-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding-top: 8px;
-}
-
-.action-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.action-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--tx2);
-  margin-right: 2px;
-}
-
-/* Generic Buttons */
-.btn {
-  padding: 6px 12px;
-  border-radius: 7px;
-  border: 1px solid var(--line);
-  background: var(--card);
-  color: var(--tx);
-  font-size: 12.5px;
+.btn-send {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 9px 18px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: all .15s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  transition: background .15s ease;
+  flex-shrink: 0;
 }
 
-.btn:hover {
-  border-color: var(--gold);
-  background: var(--card-hover);
+.btn-send:hover {
+  background: var(--accent-hover);
 }
 
-.btn.primary {
-  background: var(--gold);
-  color: #090e1a;
-  border-color: var(--gold);
-}
-
-.btn.primary:hover {
-  background: var(--gold2);
-}
-
-.btn.success {
-  background: var(--green-bg);
-  color: #6ee7b7;
-  border-color: var(--green-border);
-}
-
-.btn.success:hover {
-  background: var(--green);
-  color: #090e1a;
-}
-
-.btn.warn {
-  background: var(--amber-bg);
-  color: #fde68a;
-  border-color: var(--amber-border);
-}
-
-.btn.warn:hover {
-  background: var(--amber);
-  color: #090e1a;
-}
-
-.btn.danger {
-  background: var(--red-bg);
-  color: #fca5a5;
-  border-color: var(--red-border);
-}
-
-.btn.danger:hover {
-  background: var(--red);
-  color: #fff;
-}
-
-.btn.sm {
-  padding: 4px 9px;
+/* Generic Utility Button */
+.btn-util {
+  background: #1e293b;
+  border: 1px solid var(--border-light);
+  color: var(--tx);
+  padding: 5px 10px;
+  border-radius: 6px;
   font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-util:hover {
+  border-color: var(--gold);
 }
 
 /* Toast */
 #toast {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 20px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   z-index: 9999;
   pointer-events: none;
 }
 
 .toast-msg {
-  background: #111a2e;
-  border: 1.5px solid var(--gold);
+  background: #1e293b;
+  border: 1px solid var(--gold);
   color: #fff;
-  padding: 12px 18px;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  font-size: 13.5px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  font-size: 12.5px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: all .25s ease;
+  gap: 8px;
   pointer-events: auto;
 }
 
 @media (max-width: 768px) {
-  .card-header { flex-direction: column; align-items: flex-start; }
-  .card-actions { flex-direction: column; align-items: flex-start; }
-  .filter-bar { flex-direction: column; align-items: flex-start; }
-  .search-box input { width: 100%; }
+  .messenger-layout { flex-direction: column; }
+  .sidebar { width: 100%; height: 40vh; }
+  .chat-pane { height: 60vh; }
 }
