@@ -48,6 +48,11 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Responsive Flexible Images & Media */
+img, video, audio, canvas, svg {
+  max-width: 100%;
+}
+
 /* Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -65,16 +70,19 @@ html, body {
 }
 
 /* ==========================================================================
-   Top Application Bar (OLED Pure Black)
+   Top Application Bar (OLED Pure Black · Fluid & Responsive)
    ========================================================================== */
 .app-topbar {
-  height: 54px;
+  min-height: 3.25rem;
+  height: auto;
   background: #000000;
   border-bottom: 1px solid var(--nf-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0.35rem clamp(0.75rem, 2vw, 1.5rem);
+  gap: 0.75rem;
+  flex-wrap: wrap;
   user-select: none;
   flex-shrink: 0;
   z-index: 10;
@@ -83,13 +91,13 @@ html, body {
 .topbar-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 0.75rem;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.65rem;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -99,22 +107,23 @@ html, body {
 }
 
 .oc-logo-img {
-  width: 38px;
-  height: 38px;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 9px;
   box-shadow: 0 0 14px rgba(229, 9, 20, 0.55), 0 0 4px rgba(255, 255, 255, 0.35);
   display: block;
+  flex-shrink: 0;
 }
 
 .brand-text-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .brand-title {
   font-family: var(--font-logo);
-  font-size: 24px;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
   letter-spacing: 1.5px;
   line-height: 1;
   display: inline-flex;
@@ -134,41 +143,31 @@ html, body {
   filter: drop-shadow(0 2px 10px rgba(229, 9, 20, 0.6));
 }
 
-.brand-sub {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  color: var(--nf-text-muted);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-left: 4px;
-}
-
 /* Topbar Clock & Daily Recharge Alarm */
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: clamp(0.4rem, 1vw, 0.75rem);
+  flex-wrap: wrap;
 }
 
 .nav-clock-box {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
 .nf-clock-digital {
   font-family: Consolas, monospace;
-  font-size: 13px;
+  font-size: 0.78rem;
   font-weight: 800;
   color: #ffffff;
   background: #000000;
   border: 1px solid #222222;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: var(--radius-sm);
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .nf-alarm-pill {
@@ -176,13 +175,13 @@ html, body {
   border: 1px solid rgba(255, 60, 75, 0.55);
   box-shadow: 0 0 12px rgba(229, 9, 20, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   color: #ffe4e8;
-  font-size: 12px;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   text-decoration: none;
   transition: var(--transition-smooth);
   white-space: nowrap;
@@ -197,23 +196,24 @@ html, body {
 }
 
 /* ==========================================================================
-   2-Pane Messenger Workspace (OLED Pure Black)
+   2-Pane Messenger Workspace (OLED Pure Black · Fluid Flexbox Layout)
    ========================================================================== */
 .app-workspace {
   display: flex;
-  height: calc(100vh - 54px);
+  height: calc(100vh - 3.25rem);
+  height: calc(100dvh - 3.25rem);
   width: 100%;
   overflow: hidden;
   background: #000000;
 }
 
 /* --------------------------------------------------------------------------
-   Left Column: Sidebar (OLED Pure Black)
+   Left Column: Sidebar (OLED Pure Black · Fluid Width)
    -------------------------------------------------------------------------- */
 .sidebar {
-  width: 390px;
-  min-width: 345px;
-  max-width: 440px;
+  width: clamp(270px, 28vw, 390px);
+  min-width: 255px;
+  max-width: 42%;
   background: #000000;
   border-right: 1px solid var(--nf-border);
   display: flex;
@@ -795,15 +795,18 @@ html, body {
   overflow: hidden;
 }
 
-/* Chat Header */
+/* Chat Header (Fluid & Responsive) */
 .chat-header {
-  height: 78px;
-  padding: 0 24px;
+  min-height: 4.5rem;
+  height: auto;
+  padding: 0.6rem clamp(0.85rem, 2vw, 1.5rem);
   background: #000000;
   border-bottom: 1px solid var(--nf-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   flex-shrink: 0;
   user-select: none;
 }
@@ -811,13 +814,34 @@ html, body {
 .chat-header-profile {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(0.6rem, 1.4vw, 1rem);
+  min-width: 0;
+  flex: 1;
 }
 
-/* Bigger Picture in Header (60px) */
+.btn-mobile-back {
+  display: none;
+  background: #080808;
+  border: 1px solid #2b2b2b;
+  color: #f3f4f6;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-mobile-back:hover {
+  border-color: #ff4d58;
+  color: #ffffff;
+}
+
+/* Bigger Picture in Header (Fluid 48px-60px) */
 .chat-header-avatar {
-  width: 60px;
-  height: 60px;
+  width: clamp(2.85rem, 4.5vw, 3.75rem);
+  height: clamp(2.85rem, 4.5vw, 3.75rem);
   border-radius: var(--radius-full);
   object-fit: cover;
   border: 2px solid #222222;
@@ -825,6 +849,7 @@ html, body {
   box-shadow: 0 4px 14px rgba(0,0,0,0.8);
   cursor: pointer;
   transition: var(--transition-smooth);
+  flex-shrink: 0;
 }
 
 .chat-header-avatar:hover {
@@ -837,15 +862,17 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .chat-header-title {
-  font-size: 18px;
+  font-size: clamp(0.95rem, 1.5vw, 1.125rem);
   font-weight: 800;
   color: #ffffff;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .header-unread-pill {
@@ -860,29 +887,34 @@ html, body {
 }
 
 .chat-header-meta {
-  font-size: 13px;
+  font-size: clamp(0.72rem, 1.1vw, 0.8125rem);
   color: var(--nf-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chat-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.45rem;
+  flex-wrap: wrap;
 }
 
 .btn-header-action {
   background: #000000;
-  border: 1px solid #2a2a2a;
+  border: 1px solid #262626;
   color: #e5e5e5;
-  font-size: 12.5px;
+  font-size: 0.75rem;
   font-weight: 700;
-  padding: 7px 14px;
+  padding: 0.38rem 0.72rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-smooth);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  white-space: nowrap;
 }
 
 .btn-header-action:hover {
@@ -899,61 +931,63 @@ html, body {
   box-shadow: 0 0 12px rgba(229, 9, 20, 0.45);
 }
 
-/* Quick Cooldown Timers Bar (OLED Pure Black) */
+/* Quick Cooldown Timers Bar (Minimized, Sleek & Fluid Single-Row Layout) */
 .quick-timer-bar {
   background: #000000;
   border-bottom: 1px solid var(--nf-border-subtle);
-  padding: 10px 24px;
+  padding: 0.35rem clamp(0.85rem, 2vw, 1.5rem);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.32rem;
   flex-wrap: wrap;
   user-select: none;
   flex-shrink: 0;
 }
 
 .timer-bar-label {
-  font-size: 12.5px;
+  font-size: 0.68rem;
   font-weight: 600;
-  color: var(--nf-text-muted);
-  margin-right: 4px;
+  color: rgba(255, 255, 255, 0.52);
+  margin-right: 0.15rem;
+  white-space: nowrap;
 }
 
 .timer-chip {
-  background: #000000;
-  border: 1px solid #222222;
-  color: #ddd;
-  font-size: 12px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 5px 10px;
-  border-radius: var(--radius-sm);
+  padding: 0.18rem 0.48rem;
+  border-radius: 5px;
   cursor: pointer;
   transition: var(--transition-smooth);
+  white-space: nowrap;
 }
 
 .timer-chip:hover {
   background: var(--nf-dark-red-grad);
   border-color: #ff4d58;
   color: #fff;
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.45);
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.45);
 }
 
 .timer-custom-wrap {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.32rem;
   margin-left: auto;
 }
 
 .timer-custom-input {
-  width: 64px;
+  width: 3.1rem;
   background: #000000;
-  border: 1px solid #222222;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
-  font-size: 12px;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 5px 8px;
-  border-radius: var(--radius-sm);
+  padding: 0.18rem 0.35rem;
+  border-radius: 5px;
   outline: none;
   text-align: center;
 }
@@ -963,18 +997,19 @@ html, body {
   box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
 }
 
-/* Bloody Red Radiant Gradient Start Timer Button */
+/* Bloody Red Radiant Gradient Start Timer Button (Minimized) */
 .btn-start-custom {
   background: var(--nf-blood-grad);
   border: 1px solid rgba(255, 133, 141, 0.55);
-  box-shadow: 0 2px 10px rgba(229, 9, 20, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.38);
   color: #fff;
-  font-size: 11.5px;
+  font-size: 0.68rem;
   font-weight: 800;
-  padding: 5px 12px;
-  border-radius: var(--radius-sm);
+  padding: 0.18rem 0.58rem;
+  border-radius: 5px;
   cursor: pointer;
   transition: var(--transition-smooth);
+  white-space: nowrap;
 }
 
 .btn-start-custom:hover {
@@ -2150,20 +2185,20 @@ html, body {
    7 HIGH-IMPACT ENHANCEMENTS + APP DISTRIBUTION & COMMAND SUITE (PWA READY)
    ========================================================================== */
 
-/* Topbar Quick Actions: Next Ready + App Suite */
+/* Topbar Quick Actions: Next Ready + App Suite (Minimized & Semi-Transparent) */
 .btn-topbar-quick {
-  background: #050505;
-  border: 1px solid #2b2b2b;
-  color: #f3f4f6;
-  font-size: 12px;
-  font-weight: 800;
-  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.25rem 0.62rem;
   border-radius: 999px;
   cursor: pointer;
   transition: var(--transition-smooth);
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   white-space: nowrap;
 }
 
@@ -2176,71 +2211,89 @@ html, body {
 }
 
 .btn-topbar-suite {
-  background: #050505;
-  border: 1px solid rgba(226, 200, 125, 0.55);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
-  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(226, 200, 125, 0.26);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.24rem 0.6rem;
   border-radius: 999px;
   cursor: pointer;
   transition: var(--transition-smooth);
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 5px;
   white-space: nowrap;
-  box-shadow: 0 0 10px rgba(226, 200, 125, 0.16);
+  opacity: 0.62;
 }
 
 .btn-topbar-suite:hover {
+  opacity: 1;
   border-color: #f3dc99;
   background: #12100a;
-  box-shadow: 0 0 16px rgba(226, 200, 125, 0.35);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(226, 200, 125, 0.3);
   transform: translateY(-1px);
 }
 
 .pwa-ready-mini-badge,
 .pwa-ready-pill {
-  background: rgba(16, 185, 129, 0.16);
-  border: 1px solid rgba(52, 211, 153, 0.65);
-  color: #34d399;
-  font-size: 10.5px;
-  font-weight: 800;
-  padding: 2px 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  color: rgba(52, 211, 153, 0.85);
+  font-size: 0.56rem;
+  font-weight: 700;
+  padding: 1px 5px;
   border-radius: 999px;
   letter-spacing: 0.2px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* Sidebar Bottom Command Suite Bar */
+/* Sidebar Bottom Command Suite Bar (Minimized & Semi-Transparent so Focus Stays on Profiles) */
 .sidebar-footer {
-  padding: 10px 12px;
+  padding: 5px 10px;
   background: #000000;
-  border-top: 1px solid #1a1a1a;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
 }
 
 .btn-sidebar-suite {
   width: 100%;
-  background: #050505;
-  border: 1px solid rgba(226, 200, 125, 0.45);
-  color: #f5f5f5;
-  font-size: 12px;
-  font-weight: 800;
-  padding: 9px 12px;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.012);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
+  opacity: 0.5;
   transition: var(--transition-smooth);
 }
 
+.suite-footer-left {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.56);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .btn-sidebar-suite:hover {
-  background: #0e0c07;
-  border-color: #e5c97b;
-  box-shadow: 0 0 14px rgba(226, 200, 125, 0.25);
+  opacity: 0.94;
+  background: #0c0a06;
+  border-color: rgba(226, 200, 125, 0.45);
+  color: #ffffff;
+}
+
+.btn-sidebar-suite:hover .suite-footer-left {
+  color: #ffffff;
 }
 
 /* Enhancement #2: Sticky Header Note Banner (Telegram Pinned Banner) */
@@ -2255,7 +2308,7 @@ html, body {
   background: linear-gradient(90deg, rgba(229, 9, 20, 0.12) 0%, rgba(0, 0, 0, 0.96) 100%);
   border-bottom: 1px solid #291215;
   border-left: 3px solid #ff2e38;
-  padding: 8px 24px;
+  padding: 6px clamp(12px, 2vw, 24px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2271,13 +2324,9 @@ html, body {
   flex: 1;
 }
 
-.sticky-banner-icon {
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
+.sticky-pin-tag,
 .sticky-banner-label {
-  font-size: 11px;
+  font-size: 0.65rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.6px;
@@ -2288,7 +2337,7 @@ html, body {
 }
 
 .sticky-banner-text {
-  font-size: 12.5px;
+  font-size: 0.76rem;
   font-weight: 600;
   color: #f3f4f6;
   white-space: nowrap;
@@ -2303,18 +2352,20 @@ html, body {
   flex-shrink: 0;
 }
 
+.btn-sticky-mini,
 .btn-sticky-edit,
 .btn-sticky-clear {
   background: #050505;
   border: 1px solid #2a2a2a;
   color: #ccc;
-  font-size: 11px;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 5px;
   cursor: pointer;
 }
 
+.btn-sticky-mini:hover,
 .btn-sticky-edit:hover {
   border-color: #ff4d58;
   color: #fff;
@@ -2329,31 +2380,23 @@ html, body {
 .blank-scanner-banner {
   background: linear-gradient(90deg, rgba(226, 200, 125, 0.14) 0%, rgba(0, 0, 0, 0.96) 100%);
   border-bottom: 1px solid rgba(226, 200, 125, 0.45);
-  padding: 10px 24px;
+  padding: 8px clamp(12px, 2vw, 24px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
   flex-shrink: 0;
 }
 
+.blank-scanner-info,
 .blank-scanner-left {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: 0.76rem;
   color: #f5f5f5;
-}
-
-.blank-scanner-badge {
-  background: linear-gradient(135deg, #f3dc99 0%, #c8a858 100%);
-  color: #000000;
-  font-size: 10.5px;
-  font-weight: 900;
-  padding: 2px 8px;
-  border-radius: 999px;
-  letter-spacing: 0.5px;
+  flex-wrap: wrap;
 }
 
 .blank-scanner-actions {
@@ -2363,61 +2406,80 @@ html, body {
   flex-wrap: wrap;
 }
 
+.btn-scanner-action,
 .btn-blank-scan {
-  background: linear-gradient(135deg, #e5cf8e 0%, #c7a955 100%);
-  border: 1px solid #f5e3ad;
-  color: #000000;
-  font-size: 11.5px;
+  background: #0a0a0a;
+  border: 1px solid #383838;
+  color: #f3f4f6;
+  font-size: 0.7rem;
   font-weight: 800;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: var(--transition-smooth);
 }
 
+.btn-scanner-action.primary {
+  background: linear-gradient(135deg, #e5cf8e 0%, #c7a955 100%);
+  border: 1px solid #f5e3ad;
+  color: #000000;
+}
+
+.btn-scanner-action:hover,
 .btn-blank-scan:hover {
   filter: brightness(1.08);
+  border-color: #e5cf8e;
   transform: translateY(-1px);
 }
 
-.btn-blank-scan.secondary {
-  background: #0a0a0a;
-  border: 1px solid #383838;
-  color: #f3f4f6;
-}
-
-.btn-blank-scan.secondary:hover {
-  border-color: #e5cf8e;
-}
-
-/* Enhancement #1: 1-Click Quick-Task Chips Bar Above Input */
+/* Enhancement #1: 1-Click Quick-Task Chips Bar Above Input (Smaller & Semi-Transparent) */
 .quick-templates-bar {
   background: #000000;
-  border-top: 1px solid #161616;
-  padding: 7px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 4px clamp(12px, 2vw, 24px);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   overflow-x: auto;
   flex-shrink: 0;
   user-select: none;
+  opacity: 0.56;
+  transition: opacity 0.18s ease;
+}
+
+.quick-templates-bar:hover {
+  opacity: 0.95;
 }
 
 .templates-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--nf-text-dim);
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.46);
   margin-right: 2px;
   white-space: nowrap;
 }
 
+.templates-chips-scroll {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none;
+}
+
+.templates-chips-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .template-chip {
-  background: #050505;
-  border: 1px solid #222222;
-  color: #e5e5e5;
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.635rem;
+  font-weight: 600;
+  padding: 2px 7px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
@@ -2428,17 +2490,17 @@ html, body {
   background: var(--nf-dark-red-grad);
   border-color: #ff4d58;
   color: #ffffff;
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.45);
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
   transform: translateY(-1px);
 }
 
 .btn-add-template {
   background: transparent;
-  border: 1px dashed #383838;
-  color: #aaaaaa;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.61rem;
+  font-weight: 600;
+  padding: 2px 7px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
@@ -2484,11 +2546,13 @@ html, body {
   cursor: pointer;
 }
 
+.subcheck-row.sub-done .subcheck-text,
 .subcheck-row.checked .subcheck-text {
   text-decoration: line-through;
   color: #6b7280;
 }
 
+.subcheck-row input[type="checkbox"],
 .subcheck-box {
   accent-color: #10b981;
   width: 14px;
@@ -2500,6 +2564,7 @@ html, body {
   flex: 1;
 }
 
+.btn-subcheck-del,
 .subcheck-del {
   background: transparent;
   border: none;
@@ -2509,25 +2574,27 @@ html, body {
   padding: 1px 4px;
 }
 
+.btn-subcheck-del:hover,
 .subcheck-del:hover {
   color: #ff858d;
 }
 
 /* ==========================================================================
-   📲 APP DISTRIBUTION & COMMAND SUITE MODAL (Matches Reference Image 100%)
+   📲 APP DISTRIBUTION & COMMAND SUITE MODAL (Fluid & Responsive CSS Grid)
    ========================================================================== */
 .app-suite-modal {
   background: #020202;
   border: 1px solid #2a2415;
   border-radius: 18px;
-  padding: 26px 28px;
+  padding: clamp(16px, 2.5vw, 28px);
   width: 95%;
   max-width: 980px;
   max-height: 92vh;
+  max-height: 92dvh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
   box-shadow: 0 26px 70px rgba(0, 0, 0, 0.98), 0 0 35px rgba(226, 200, 125, 0.12);
 }
 
@@ -2550,14 +2617,14 @@ html, body {
 }
 
 .app-suite-title {
-  font-size: 22px;
+  font-size: clamp(1.1rem, 2vw, 1.375rem);
   font-weight: 900;
   color: #ffffff;
   letter-spacing: -0.3px;
 }
 
 .app-suite-subtitle {
-  font-size: 13.5px;
+  font-size: 0.82rem;
   color: #9ca3af;
   margin-top: 6px;
 }
@@ -2580,10 +2647,10 @@ html, body {
   color: #ffffff;
 }
 
-/* 3-Column Suite Cards Grid */
+/* Responsive Auto-Fit CSS Grid for Suite Cards */
 .app-suite-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
 }
 
@@ -2591,11 +2658,11 @@ html, body {
   background: #000000;
   border: 1px solid #221f17;
   border-radius: 16px;
-  padding: 20px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -2628,14 +2695,14 @@ html, body {
 }
 
 .suite-card-title {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 800;
   color: #ffffff;
   margin-bottom: 6px;
 }
 
 .suite-card-desc {
-  font-size: 12.5px;
+  font-size: 0.78rem;
   color: #9ca3af;
   line-height: 1.5;
 }
@@ -2651,9 +2718,9 @@ html, body {
   background: linear-gradient(180deg, #dec47c 0%, #c9ab59 100%);
   border: 1px solid #f0dc9e;
   color: #050505;
-  font-size: 13.5px;
+  font-size: 0.84rem;
   font-weight: 800;
-  padding: 12px 16px;
+  padding: 11px 14px;
   border-radius: 12px;
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -2677,9 +2744,9 @@ html, body {
   background: #000000;
   border: 1px solid #222222;
   color: #f3f4f6;
-  font-size: 12.5px;
+  font-size: 0.78rem;
   font-weight: 800;
-  padding: 12px 10px;
+  padding: 11px 10px;
   border-radius: 12px;
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -2698,10 +2765,10 @@ html, body {
   background: #050609;
   border: 1px solid #2b2618;
   border-radius: 16px;
-  padding: 20px 22px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .suite-blank-top {
@@ -2711,22 +2778,22 @@ html, body {
 }
 
 .suite-blank-title {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 800;
   color: #e5c97b;
   margin-bottom: 4px;
 }
 
 .suite-blank-desc {
-  font-size: 12.5px;
+  font-size: 0.78rem;
   color: #9ca3af;
   line-height: 1.45;
 }
 
 .suite-blank-actions {
   display: grid;
-  grid-template-columns: 1.15fr 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
 }
 
 .btn-blank-primary {
@@ -2736,27 +2803,29 @@ html, body {
 /* Mobile QR & iOS Home Screen Modal */
 .qr-modal-box {
   max-width: 470px;
+  width: 94%;
 }
 
 .qr-code-showcase {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   padding: 6px 0;
 }
 
 .qr-frame-box {
   background: #000000;
   border: 2px solid #dec47c;
-  padding: 14px;
+  padding: 12px;
   border-radius: 16px;
   box-shadow: 0 0 25px rgba(222, 196, 124, 0.25);
 }
 
 .qr-code-img {
-  width: 220px;
-  height: 220px;
+  width: min(220px, 60vw);
+  height: auto;
+  aspect-ratio: 1 / 1;
   display: block;
   border-radius: 8px;
 }
@@ -2766,11 +2835,12 @@ html, body {
   border: 1px solid #262626;
   color: #e5c97b;
   font-family: Consolas, monospace;
-  font-size: 11.5px;
+  font-size: 0.72rem;
   padding: 6px 12px;
   border-radius: 999px;
   word-break: break-all;
   text-align: center;
+  max-width: 100%;
 }
 
 .ios-instructions-card {
@@ -2783,7 +2853,7 @@ html, body {
 }
 
 .ios-title {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 800;
   color: #ffffff;
   margin-bottom: 8px;
@@ -2791,7 +2861,7 @@ html, body {
 
 .ios-steps {
   padding-left: 18px;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #d1d5db;
   display: flex;
   flex-direction: column;
@@ -2799,32 +2869,131 @@ html, body {
   line-height: 1.45;
 }
 
-/* Responsive Layout for iPhone / Mobile & Narrow Screens */
-@media (max-width: 900px) {
-  .app-suite-grid {
-    grid-template-columns: 1fr;
+/* ==========================================================================
+   RESPONSIVE WEB DESIGN MEDIA QUERIES (Laptop, Tablet, and Cellphone)
+   ========================================================================== */
+
+/* Compact Laptop & Tablet Landscape (<= 1080px) */
+@media (max-width: 1080px) {
+  .sidebar {
+    width: clamp(250px, 31vw, 320px);
+    min-width: 240px;
   }
-  .suite-blank-actions {
-    grid-template-columns: 1fr;
+  .nf-alarm-pill {
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .note-item-wrap {
+    max-width: 92%;
   }
 }
 
-@media (max-width: 760px) {
-  .workspace {
+/* Tablet Portrait & Cellphone Landscape (<= 768px) */
+@media (max-width: 768px) {
+  .app-topbar {
+    padding: 0.35rem 0.75rem;
+  }
+  .nf-alarm-pill {
+    display: none;
+  }
+  .app-workspace {
     flex-direction: column;
+    position: relative;
   }
   .sidebar {
     width: 100%;
-    height: 38vh;
+    min-width: 100%;
+    max-width: 100%;
+    height: 42%;
     border-right: none;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid #1f1f1f;
   }
   .chat-main {
-    height: 62vh;
+    width: 100%;
+    height: 58%;
   }
-  .topbar-tagline,
-  .btn-topbar-quick {
+  /* When user taps a profile on mobile, focus full-screen chat with "← Profiles" button */
+  body.mobile-chat-open .sidebar {
+    display: none;
+  }
+  body.mobile-chat-open .chat-main {
+    height: 100%;
+  }
+  body.mobile-chat-open .btn-mobile-back {
+    display: inline-flex;
+    align-items: center;
+  }
+  .chat-header {
+    padding: 0.5rem 0.75rem;
+    min-height: 3.6rem;
+  }
+  .chat-header-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .notes-stream {
+    padding: 0.85rem 0.9rem;
+  }
+  .note-item-wrap {
+    max-width: 100%;
+  }
+  .note-bubble {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .note-bubble-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .composer-bar {
+    padding: 0.55rem 0.75rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .composer-input-wrap {
+    min-width: 160px;
+  }
+  .btn-wispr-studio {
     display: none;
   }
 }
+
+/* Cellphone Portrait (iPhone / Android <= 480px) */
+@media (max-width: 480px) {
+  .btn-topbar-quick {
+    display: none;
+  }
+  .pwa-ready-mini-badge {
+    display: none;
+  }
+  .nf-clock-digital {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+  .chat-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .btn-header-action {
+    font-size: 0.68rem;
+    padding: 0.28rem 0.55rem;
+  }
+  .timer-custom-wrap {
+    margin-left: 0;
+  }
+  .mic-label {
+    display: none;
+  }
+  .btn-wispr-mic {
+    padding: 0.5rem 0.7rem;
+  }
+  .btn-composer-send {
+    padding: 0.55rem 0.95rem;
+    font-size: 0.8rem;
+  }
+}
+
 

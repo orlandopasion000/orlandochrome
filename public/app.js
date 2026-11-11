@@ -23,8 +23,8 @@
     ? 'orlandochrome_blank_wispr_v1'
     : 'orlandochrome_wispr_flow_pro_v1';
   const TEMPLATES_KEY = IS_BLANK_EDITION
-    ? 'orlandochrome_blank_templates_v1'
-    : 'orlandochrome_quick_templates_v1';
+    ? 'orlandochrome_blank_templates_v2'
+    : 'orlandochrome_quick_templates_v2';
 
   const LIVE_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/';
   const BLANK_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/?edition=blank';
@@ -41,19 +41,24 @@
   // Default 1-Click Quick-Task Templates (Enhancement #1)
   const DEFAULT_TEMPLATES = IS_BLANK_EDITION
     ? [
-        '📄 Print Document',
-        '🤖 Check AI Quota',
-        '📝 Draft Notes',
-        '🔍 Research Task',
-        '📧 Check Email'
+        'Print',
+        'Test',
+        'Module',
+        'ST',
+        'Exam',
+        'Video',
+        'Check AI Quota'
       ]
     : [
-        '📄 Print',
-        '📊 DepEd LIS/Forms',
-        '📝 Lesson Plan',
-        '📑 Check BOW',
-        '🔍 Scite Search',
-        '🤖 Check AI Quota'
+        'Print',
+        'Lesson Plan',
+        'Check BOW',
+        'Test',
+        'Module',
+        'ST',
+        'Exam',
+        'Video',
+        'Check AI Quota'
       ];
 
   // Schedule from Daily Recharge Alarm (Sir Orlando V. Pasion, Jr.)
@@ -191,7 +196,10 @@
       const raw = localStorage.getItem(TEMPLATES_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length) state.quickTemplates = parsed;
+        if (Array.isArray(parsed) && parsed.length) {
+          // Ensure removed templates ("DepEd LIS/Form", "Scite Search") never reappear
+          state.quickTemplates = parsed.filter(t => !/deped\s*lis|scite\s*search/i.test(t));
+        }
       }
     } catch (e) {}
   }
@@ -267,7 +275,7 @@
     const pending = totalPendingCount();
     const resets = state.profiles.filter(p => p.isReset).length;
     const totalAlerts = pending + resets;
-    const baseName = IS_BLANK_EDITION ? 'OrlandoChrome · Blank Edition' : 'OrlandoChrome · Taskbar Notes';
+    const baseName = IS_BLANK_EDITION ? 'OrlandoChrome · Blank Edition' : 'OrlandoChrome';
     document.title = totalAlerts > 0 ? `(${totalAlerts}) ${baseName}` : baseName;
   }
 
@@ -843,6 +851,9 @@
     $$('.profile-item', list).forEach(item => {
       item.onclick = () => {
         state.activeProfileId = item.dataset.id;
+        if (window.innerWidth <= 768) {
+          document.body.classList.add('mobile-chat-open');
+        }
         renderSidebar();
         renderMainChat();
       };
@@ -880,6 +891,9 @@
       <!-- Header with Bigger Picture (60px), Sticky Note, Unread Bookmark & Rename Action -->
       <header class="chat-header">
         <div class="chat-header-profile">
+          <button type="button" class="btn-mobile-back" id="btnMobileBackToList" title="Back to all profiles">
+            ← Profiles
+          </button>
           <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" title="Click to upload/change photo" alt="${esc(p.name)}">
           <div class="chat-header-info">
             <div class="chat-header-title">
@@ -944,7 +958,7 @@
         </div>
       ` : ''}
 
-      <!-- Quick AI Limit Cooldown Bar -->
+      <!-- Quick AI Limit Cooldown Bar (Minimized & Responsive, 1d and 2d removed) -->
       <div class="quick-timer-bar">
         <span class="timer-bar-label">Start a quick timer:</span>
         <button class="timer-chip" data-min="15" data-label="15m">15m</button>
@@ -955,8 +969,6 @@
         <button class="timer-chip" data-min="180" data-label="3h">3h</button>
         <button class="timer-chip" data-min="300" data-label="5h">5h</button>
         <button class="timer-chip" data-min="720" data-label="12h">12h</button>
-        <button class="timer-chip" data-min="1440" data-label="1d">1d</button>
-        <button class="timer-chip" data-min="2880" data-label="2d">2d</button>
 
         <div class="timer-custom-wrap">
           <input type="number" id="customMinInput" class="timer-custom-input" placeholder="min" min="1" max="10000" value="">
@@ -1157,7 +1169,7 @@
 
       <!-- Enhancement #1: 1-Click Quick-Task Templates Bar -->
       <div class="quick-templates-bar">
-        <span class="templates-label">⚡ Quick Tasks:</span>
+        <span class="templates-label">Quick task:</span>
         <div class="templates-chips-scroll">
           ${state.quickTemplates.map((tpl, idx) => `
             <button type="button" class="template-chip" data-tpl="${esc(tpl)}" data-tidx="${idx}" title="Click to add immediately · Shift+Click to insert in input · Right-click to remove">
@@ -1209,6 +1221,14 @@
     }
 
     // Hook up interactive handlers
+    // 0. Mobile Back to Profiles List button
+    const btnMobileBack = $('#btnMobileBackToList');
+    if (btnMobileBack) {
+      btnMobileBack.onclick = () => {
+        document.body.classList.remove('mobile-chat-open');
+      };
+    }
+
     // 1. Photo upload via clicking avatar
     const avatarImg = $('#headerAvatarImg');
     if (avatarImg) {
