@@ -63,58 +63,87 @@
     }
   }
 
+  // --- Connection Configuration ---
+  const LOCAL_PORT = 48100;
+  const isLocalOrigin = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const API_BASE = isLocalOrigin ? '' : `http://127.0.0.1:${LOCAL_PORT}`;
+  let isConnectedToDesktop = false;
+
+  function updateConnectionStatus(connected) {
+    isConnectedToDesktop = connected;
+    const chip = $('#wsChip');
+    if (!chip) return;
+
+    if (connected) {
+      chip.className = 'chip ok';
+      chip.innerHTML = '🟢 Desktop Service Connected (1-Click Launch Active)';
+      chip.title = 'Local background engine is running with full Windows launch permissions.';
+    } else {
+      chip.className = 'chip warn';
+      chip.innerHTML = isLocalOrigin 
+        ? '🟡 Connecting to Desktop Engine...' 
+        : '⚠️ Cloud Mode (Run start.bat on PC for 1-Click Launch)';
+      chip.title = 'Click to see how to enable 1-click launching via start.bat on your PC.';
+    }
+  }
+
   // --- WebSocket Connection ---
   function connectWS() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const wsUrl = isLocalOrigin
+      ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`
+      : `ws://127.0.0.1:${LOCAL_PORT}/ws`;
     
-    ws = new WebSocket(wsUrl);
+    try {
+      ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => {
-      $('#wsChip').className = 'chip ok';
-      $('#wsChip').innerHTML = '🟢 Live Synced';
-    };
+      ws.onopen = () => {
+        updateConnectionStatus(true);
+      };
 
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'initial_state' || msg.type === 'state_updated') {
-          S = Object.assign(S, msg.state);
-          render();
-        } else if (msg.type === 'profile_ready_alert') {
-          if (window.soundMgr) window.soundMgr.playReadyChime();
-          toast(`🔔 <b>${esc(msg.profile.name)}</b> (Taskbar #${msg.profile.taskbarNo || '?'}) is ready to work!`);
-          render();
-        } else if (msg.type === 'extension_connected') {
-          toast(`⚡ Companion connected from profile <b>${esc(msg.profileDir)}</b>`);
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'initial_state' || msg.type === 'state_updated') {
+            S = Object.assign(S, msg.state);
+            render();
+          } else if (msg.type === 'profile_ready_alert') {
+            if (window.soundMgr) window.soundMgr.playReadyChime();
+            toast(`🔔 <b>${esc(msg.profile.name)}</b> (Taskbar #${msg.profile.taskbarNo || '?'}) is ready to work!`);
+            render();
+          } else if (msg.type === 'extension_connected') {
+            toast(`⚡ Companion connected from profile <b>${esc(msg.profileDir)}</b>`);
+          }
+        } catch (e) {
+          console.warn('WS message error:', e);
         }
-      } catch (e) {
-        console.warn('WS message error:', e);
-      }
-    };
+      };
 
-    ws.onclose = () => {
-      $('#wsChip').className = 'chip warn';
-      $('#wsChip').innerHTML = '🟡 Reconnecting...';
-      setTimeout(connectWS, 3000);
-    };
+      ws.onclose = () => {
+        updateConnectionStatus(false);
+        setTimeout(connectWS, 4000);
+      };
 
-    ws.onerror = () => {
-      ws.close();
-    };
+      ws.onerror = () => {
+        updateConnectionStatus(false);
+        ws.close();
+      };
+    } catch (e) {
+      updateConnectionStatus(false);
+      setTimeout(connectWS, 5000);
+    }
   }
 
   function sendAction(action, data) {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: 'action', action, data }));
     } else {
-      fetch('/api/action', {
+      fetch(`${API_BASE}/api/action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, data })
       }).then(r => r.json()).then(res => {
         fetchState();
-      });
+      }).catch(() => {});
     }
   }
 
@@ -148,14 +177,20 @@
   ];
 
   function fetchState() {
-    fetch('/api/state')
-      .then(r => r.json())
+    fetch(`${API_BASE}/api/state`)
+      .then(r => {
+        const ct = r.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) throw new Error('Not JSON');
+        return r.json();
+      })
       .then(data => {
         S = Object.assign(S, data);
+        updateConnectionStatus(true);
         render();
       })
       .catch(err => {
         console.warn('Fetch state error, using discovered taskbar profiles fallback:', err);
+        updateConnectionStatus(false);
         if (!S.profiles.length) {
           S.profiles = FALLBACK_PROFILES;
           render();
@@ -164,20 +199,60 @@
   }
 
   async function launchOrFocus(profileDir, url = '') {
-    toast(`🚀 Launching / Focusing <b>${esc(profileDir)}</b>...`);
+    const p = S.profiles.find(x => x.profileDir === profileDir);
+    const pName = p ? p.name : profileDir;
+    toast(`🚀 Launching / Focusing <b>${esc(pName)}</b>...`);
+
     try {
-      const res = await fetch('/api/launch', {
+      const res = await fetch(`${API_BASE}/api/launch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profileDir, url })
       });
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error('Local server is not running on port 48100. Start start.bat on your PC.');
+      }
+
       const data = await res.json();
       if (data.ok) {
-        toast(`✅ Profile active on screen!`);
+        toast(`✅ Profile <b>${esc(pName)}</b> is active on your screen!`);
+        return;
+      } else {
+        throw new Error(data.error || 'Could not focus window');
       }
     } catch (e) {
-      toast(`⚠️ Launch error: ${e.message}`);
+      // Copy profile name to clipboard so user can easily search/switch
+      try { await navigator.clipboard.writeText(pName); } catch (_) {}
+      
+      showDesktopBridgeModal(p, profileDir);
     }
+  }
+
+  function showDesktopBridgeModal(p, profileDir) {
+    const pName = p ? p.name : profileDir;
+    const taskbarNo = p && p.taskbarNo ? p.taskbarNo : '?';
+
+    openGenericModal('🖥️ 1-Click Launch: Local Desktop Service', `
+      <div style="background:rgba(255,176,32,.12);border:1px solid var(--warn);padding:12px;border-radius:10px;color:var(--tx);margin-bottom:12px;">
+        <b>Why did this happen?</b><br>
+        Web browsers running on cloud pages (like GitHub Pages) are sandboxed by Windows security and cannot directly launch <code>chrome.exe</code> processes on your PC without your local background bridge.
+      </div>
+      <div style="background:#0e1833;border:1px dashed var(--gold);padding:10px 14px;border-radius:10px;margin-bottom:12px;">
+        <b style="color:#3DDC97;">✓ Profile name copied to your clipboard:</b> "${esc(pName)}"<br>
+        <small class="mu">Quick Taskbar shortcut: Click icon <b>#${taskbarNo}</b> on your Windows taskbar or press <b>Win + ${taskbarNo}</b>.</small>
+      </div>
+      <h3 style="font-size:14px;color:var(--gold2);margin:8px 0 4px;">To enable 1-Click Launching directly on your PC:</h3>
+      <ol style="padding-left:20px;line-height:1.8;margin:4px 0 10px;">
+        <li>On your PC, open this folder:<br><code style="font-size:12px;">C:\\Users\\Orlando\\.gemini\\antigravity\\scratch\\chrome-taskbar-command-center</code></li>
+        <li>Double-click <b><code>start.bat</code></b>.</li>
+        <li>It will launch the Command Center at <b><code>http://127.0.0.1:48100</code></b> where 1-click launch has full native Windows permissions!</li>
+      </ol>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <a href="http://127.0.0.1:48100" target="_blank" class="btn pri" style="text-decoration:none;display:inline-block;padding:8px 14px;border-radius:8px;">Open Local App (http://127.0.0.1:48100)</a>
+      </div>
+    `, () => {}, 'Understood');
   }
 
   // --- Urgency & Advisor Logic ---

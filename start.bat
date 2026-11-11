@@ -22,7 +22,14 @@ if not exist "node_modules\" (
 )
 
 echo [INFO] Starting Taskbar Command Center server...
-start "" "http://127.0.0.1:48100"
+echo [INFO] App URL: http://127.0.0.1:48100
+echo.
+
+if exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
+    start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --app="http://127.0.0.1:48100"
+) else (
+    start "" "http://127.0.0.1:48100"
+)
 node server/server.js
 
 pause
