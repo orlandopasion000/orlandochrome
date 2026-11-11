@@ -3164,27 +3164,24 @@ ${jsRes}
                 </div>
               </div>
 
-              <!-- Module 2: Install to Device & Laptop Taskbar Auto-Sync -->
+              <!-- Module 2: 1-Click Install App to Windows Taskbar (Zero Downloads · Zero Warnings) -->
               <div class="qr-telemetry-card">
                 <div class="qr-telemetry-header">
-                  <span>💻 Device Install &amp; Laptop Taskbar Sync</span>
-                  <span class="qr-telemetry-sub" style="color:#ffd1d6; border-color:rgba(255,77,88,0.35); background:rgba(229,9,20,0.14);">Zero Warnings</span>
+                  <span>💻 Install to Windows Taskbar (No Downloads · Zero Warnings)</span>
+                  <span class="qr-telemetry-sub" style="color:#6ee7b7; border-color:rgba(16,185,129,0.35); background:rgba(16,185,129,0.14);">Native App Ready</span>
                 </div>
                 <button type="button" class="btn-suite-radiant-red" id="btnPwaOneClickInstall">
                   ⚡ 1-Click Install App (Windows · Mac · iOS · Android)
                 </button>
-                <div class="suite-unified-btn-row">
-                  <button type="button" class="btn-suite-dark" id="btnSuiteWinApp" title="Download Official Windows App Shortcut (.url) — Smart App Control Safe">
-                    🖥️ Windows App (.url)
-                  </button>
-                  <button type="button" class="btn-suite-dark" id="btnSuiteTaskbarSync" title="Auto-Scan this laptop's Chrome Taskbar profiles">
-                    🔄 Taskbar Sync (.cmd)
-                  </button>
+                <div id="pwaInstallGuideBox" style="display:none; background:#0a0a0c; border:1px solid #282830; border-radius:8px; padding:10px 12px; font-size:0.75rem; color:#e2e8f0; line-height:1.45; margin-top:6px;">
+                  <div style="font-weight:800; color:#ff6b74; margin-bottom:4px;">📌 How to Pin Without Any Browser in 1 Click:</div>
+                  <div>1. Look at the right side of your Chrome address bar and click the 🖥️ <b>Install OrlandoChrome</b> icon (or click Chrome Menu <b>⋮</b> → <b>Save and share</b> → <b>Install OrlandoChrome</b>).</div>
+                  <div style="margin-top:3px;">2. Click <b>Install</b> — it immediately launches as an independent desktop window with <b>no tabs and no address bar</b>!</div>
+                  <div style="margin-top:3px;">3. Right-click its icon on your Windows taskbar and choose <b>"Pin to taskbar"</b>!</div>
+                </div>
+                <div class="suite-unified-btn-row" style="margin-top:6px;">
                   <button type="button" class="btn-suite-dark" id="btnSuiteSyncLocalState" style="border-color:#34d399; color:#6ee7b7;" title="Select %LOCALAPPDATA%\Google\Chrome\User Data\Local State to immediately sync all taskbar names into this app">
-                    📂 Import Local State
-                  </button>
-                  <button type="button" class="btn-suite-dark" id="btnSuiteStandaloneHtml" title="Download Single-File Offline HTML">
-                    💾 Offline (.html)
+                    📂 Sync Taskbar Profiles (Local State)
                   </button>
                   ${isBlankTarget ? `
                     <button type="button" class="btn-suite-dark" id="btnOpenBlankWebApp" style="border-color:#e5c97b; color:#e5c97b;">
@@ -3364,7 +3361,7 @@ ${jsRes}
         showToast('🖼️ Downloaded Studio QR Poster (.png)!');
       };
 
-      // 1-Click PWA Install
+      // 1-Click PWA Native App Install (Zero File Downloads · Zero Warnings)
       $('#btnPwaOneClickInstall', backdrop).onclick = async () => {
         if (deferredInstallPrompt) {
           deferredInstallPrompt.prompt();
@@ -3375,13 +3372,15 @@ ${jsRes}
             close();
           }
         } else {
-          downloadWindowsDesktopLauncherCmd(isBlankTarget);
-          showToast('💡 On iPhone Safari tap Share → "Add to Home Screen"; on Chrome click Install in the address bar!');
+          // If browser didn't fire deferredInstallPrompt, display instant visual guide instead of downloading files
+          const guideBox = $('#pwaInstallGuideBox', backdrop);
+          if (guideBox) {
+            guideBox.style.display = guideBox.style.display === 'none' ? 'block' : 'none';
+          }
+          showToast('🖥️ Click the Install icon in your Chrome address bar (or Menu ⋮ → Save and share → Install OrlandoChrome)!');
         }
       };
 
-      $('#btnSuiteWinApp', backdrop).onclick = () => downloadWindowsDesktopLauncherCmd(isBlankTarget);
-      $('#btnSuiteTaskbarSync', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd(isBlankTarget);
       const btnSyncLocalState = $('#btnSuiteSyncLocalState', backdrop);
       if (btnSyncLocalState) {
         btnSyncLocalState.onclick = () => {
@@ -3389,7 +3388,6 @@ ${jsRes}
           $('#localStateFileInput').click();
         };
       }
-      $('#btnSuiteStandaloneHtml', backdrop).onclick = () => downloadStandaloneHtml(isBlankTarget);
 
       const btnOpenBlank = $('#btnOpenBlankWebApp', backdrop);
       if (btnOpenBlank) {
