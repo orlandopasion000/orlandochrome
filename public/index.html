@@ -3,36 +3,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chrome Taskbar Command Center</title>
+  <title>Chrome Taskbar Tracker · Pending Tasks &amp; Cooldowns</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23C9A227'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='%2314213D' font-weight='bold'>22</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23ef5b5b'/><text x='50' y='65' font-size='42' text-anchor='middle' fill='%23ffffff' font-weight='bold'>📌</text></svg>">
 </head>
 <body>
   <div class="wrap">
     <!-- Header -->
-    <header class="top" id="hdr">
+    <header class="top">
       <div class="brand">
-        <div class="logo">◎</div>
+        <div class="logo">📌</div>
         <div>
-          <h1>Chrome Taskbar Command Center</h1>
-          <p>Live cooldown waitboard, taskbar switch notes &amp; pending task tracker for your 25 pinned profiles</p>
+          <h1>Chrome Taskbar Tracker</h1>
+          <p>Instant visual tracker of pending tasks &amp; cooldowns across your pinned Chrome profiles</p>
         </div>
       </div>
-      <div class="top-actions">
-        <span class="chip ok" id="wsChip">💾 Auto-Saved</span>
-        <span class="chip ok" id="runningChip">🎯 25 Taskbar Profiles Pinned</span>
-        <button class="btn sm" id="btnRefresh" title="Refresh dashboard status and timers">🔄 Refresh View</button>
+      <div class="top-stats" id="topStats">
+        <!-- Rendered dynamically -->
       </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="tabs" id="tabs"></nav>
+    <!-- Taskbar Visual Strip (Mirrors your Windows Taskbar) -->
+    <section class="taskbar-strip-container">
+      <div class="taskbar-strip-header">
+        <span class="taskbar-label">🪟 Windows Taskbar Mirror (Icons #1 to #25 left-to-right):</span>
+        <span class="taskbar-hint">Red badge = Pending Task · Amber = Cooldown · Green = Ready</span>
+      </div>
+      <div class="taskbar-strip" id="taskbarStrip">
+        <!-- 25 Chrome icons rendered dynamically -->
+      </div>
+    </section>
 
-    <!-- Main View Viewport -->
-    <main id="view"></main>
+    <!-- Filters & Quick Actions -->
+    <section class="filter-bar">
+      <div class="filter-buttons" id="filterBtns">
+        <!-- Filter chips rendered dynamically -->
+      </div>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 Search profile or pending task...">
+      </div>
+    </section>
+
+    <!-- Urgent Pending Tasks Summary (Shows all pending tasks across all Chromes) -->
+    <section id="urgentPendingSection"></section>
+
+    <!-- Main Chrome Profiles List -->
+    <main id="profilesList" class="profiles-container"></main>
   </div>
 
-  <!-- Toast Notifications Container -->
+  <!-- Toast Notification -->
   <div id="toast"></div>
 
   <!-- Scripts -->
