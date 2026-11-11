@@ -2825,15 +2825,78 @@ ${jsRes}
       setFilter($('#tabAll'), 'all');
     };
 
-    // Topbar & Sidebar App Suite and Next Ready Buttons
+    // Topbar App Suite and Next Ready Buttons
     const btnNextReady = $('#btnNextReady');
     if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
 
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
 
-    const btnSidebarSuite = $('#btnSidebarAppSuite');
-    if (btnSidebarSuite) btnSidebarSuite.onclick = () => openAppDistributionSuiteModal();
+    // Adjustable Width Resizer Line Between Profiles (Sidebar) and Messages (Chat Main)
+    const resizer = $('#workspaceResizer');
+    const sidebar = $('#appSidebar');
+    const SIDEBAR_WIDTH_KEY = 'orlandochrome_sidebar_width_v1';
+
+    if (sidebar) {
+      const savedWidth = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY), 10);
+      if (!isNaN(savedWidth) && savedWidth >= 210 && savedWidth <= 900) {
+        document.documentElement.style.setProperty('--sidebar-width', `${savedWidth}px`);
+      }
+    }
+
+    if (resizer && sidebar) {
+      let isDragging = false;
+
+      const onPointerMove = (e) => {
+        if (!isDragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const minW = 210;
+        const maxW = Math.min(860, Math.floor(window.innerWidth * 0.7));
+        const newWidth = Math.max(minW, Math.min(maxW, clientX));
+        document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
+      };
+
+      const onPointerUp = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        resizer.classList.remove('dragging');
+        document.body.classList.remove('is-resizing-pane');
+        const currentW = sidebar.getBoundingClientRect().width;
+        if (currentW >= 210) {
+          try {
+            localStorage.setItem(SIDEBAR_WIDTH_KEY, String(Math.round(currentW)));
+          } catch (err) {}
+        }
+        window.removeEventListener('mousemove', onPointerMove);
+        window.removeEventListener('mouseup', onPointerUp);
+        window.removeEventListener('touchmove', onPointerMove);
+        window.removeEventListener('touchend', onPointerUp);
+      };
+
+      const startDrag = (e) => {
+        if (window.innerWidth <= 768) return;
+        e.preventDefault();
+        isDragging = true;
+        resizer.classList.add('dragging');
+        document.body.classList.add('is-resizing-pane');
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
+        window.addEventListener('touchmove', onPointerMove, { passive: false });
+        window.addEventListener('touchend', onPointerUp);
+      };
+
+      resizer.addEventListener('mousedown', startDrag);
+      resizer.addEventListener('touchstart', startDrag, { passive: false });
+
+      // Double-click resizer line to reset to default width
+      resizer.addEventListener('dblclick', () => {
+        document.documentElement.style.removeProperty('--sidebar-width');
+        try {
+          localStorage.removeItem(SIDEBAR_WIDTH_KEY);
+        } catch (err) {}
+        showToast('↔️ Reset profile list width to default');
+      });
+    }
 
     // Global Photo file uploader (Profile Avatar)
     $('#globalPhotoInput').addEventListener('change', (e) => {

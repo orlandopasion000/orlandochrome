@@ -208,19 +208,97 @@ img, video, audio, canvas, svg {
 }
 
 /* --------------------------------------------------------------------------
-   Left Column: Sidebar (OLED Pure Black · Fluid Width)
+   Left Column: Sidebar (OLED Pure Black · Adjustable Fluid Width)
    -------------------------------------------------------------------------- */
 .sidebar {
-  width: clamp(270px, 28vw, 390px);
-  min-width: 255px;
-  max-width: 42%;
+  width: var(--sidebar-width, clamp(270px, 28vw, 390px));
+  min-width: 210px;
+  max-width: 70vw;
   background: #000000;
-  border-right: 1px solid var(--nf-border);
+  border-right: none;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   height: 100%;
   user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   Draggable Divider Line Between Profiles & Messages (Fist/Grab Hand Cursor)
+   -------------------------------------------------------------------------- */
+.workspace-resizer {
+  width: 10px;
+  margin: 0 -4px;
+  height: 100%;
+  position: relative;
+  z-index: 25;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Hand icon (fist holding it) when hovering or dragging the line */
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+  user-select: none;
+  touch-action: none;
+}
+
+.workspace-resizer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  background: var(--nf-border);
+  transition: width 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Visual Grip Badge showing that the line is movable */
+.resizer-grip {
+  position: relative;
+  z-index: 2;
+  width: 12px;
+  height: 34px;
+  border-radius: 999px;
+  background: #0b0b0b;
+  border: 1px solid #2a2a2a;
+  color: #888888;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.16s ease, transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  pointer-events: none;
+}
+
+.workspace-resizer:hover::before,
+.workspace-resizer.dragging::before {
+  width: 2.5px;
+  background: linear-gradient(180deg, #ffffff 0%, #ff4d58 35%, #e50914 70%, #590004 100%);
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.85), 0 0 3px rgba(255, 255, 255, 0.7);
+}
+
+.workspace-resizer:hover .resizer-grip,
+.workspace-resizer.dragging .resizer-grip {
+  opacity: 1;
+  transform: scale(1);
+  background: var(--nf-blood-grad);
+  border-color: #ffffff;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+body.is-resizing-pane,
+body.is-resizing-pane * {
+  cursor: grabbing !important;
+  cursor: -webkit-grabbing !important;
+  user-select: none !important;
 }
 
 .sidebar-header {
@@ -2876,8 +2954,8 @@ img, video, audio, canvas, svg {
 /* Compact Laptop & Tablet Landscape (<= 1080px) */
 @media (max-width: 1080px) {
   .sidebar {
-    width: clamp(250px, 31vw, 320px);
-    min-width: 240px;
+    width: var(--sidebar-width, clamp(250px, 31vw, 320px));
+    min-width: 210px;
   }
   .nf-alarm-pill {
     max-width: 210px;
@@ -2900,6 +2978,9 @@ img, video, audio, canvas, svg {
   .app-workspace {
     flex-direction: column;
     position: relative;
+  }
+  .workspace-resizer {
+    display: none;
   }
   .sidebar {
     width: 100%;
