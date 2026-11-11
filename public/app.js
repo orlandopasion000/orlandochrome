@@ -1692,6 +1692,7 @@
     const isReset = p.isReset;
     const rem = isTimer ? formatRemaining(p.timerUntil - cur) : '';
     const avatarSrc = getAvatarSrc(p);
+    const statusNote = getActiveStatusNote(p);
     const notes = p.notes || [];
     const canUnread = hasMessages(p);
     const isUnread = !!(p.isUnread && canUnread);
@@ -1701,11 +1702,27 @@
       <!-- Header with Bigger Picture (60px), Prev/Next Paging, Sticky Note, Unread Bookmark & Rename Action -->
       <header class="chat-header" id="chatHeaderBar">
         <div class="chat-header-profile">
-          <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" title="Click to upload/change photo" alt="${esc(p.name)}">
+          <div class="chat-header-avatar-wrap" id="headerAvatarWrap" title="${statusNote ? `💭 24h Note: "${esc(statusNote.text)}" (${formatRemainingNoteTime(statusNote.expiresAt - cur)}) · Tap to edit` : 'Tap avatar to add 24h Messenger Note'}">
+            ${statusNote ? `
+              <div class="header-note-bubble" id="headerNoteBubble" title="Tap to view/edit note">
+                <span class="header-note-text">${esc(statusNote.text)}</span>
+              </div>
+            ` : `
+              <div class="header-note-add-badge" id="headerNoteAddBadge" title="Add 24h Note">
+                <span>💭+</span>
+              </div>
+            `}
+            <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" alt="${esc(p.name)}">
+          </div>
           <div class="chat-header-info">
             <div class="chat-header-title">
               <span>Chrome #${p.chromeNo}: ${esc(p.name)}</span>
               ${isUnread ? `<span class="header-unread-pill">● UNREAD</span>` : ''}
+              ${statusNote ? `
+                <span class="header-note-pill" id="headerNotePill" title="Active 24-Hour Note · Tap to edit">
+                  💭 "${esc(statusNote.text)}" <span class="note-pill-timer">· ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span>
+                </span>
+              ` : ''}
             </div>
             <div class="chat-header-meta">
               ${esc(p.email)} · Taskbar Slot #${p.taskbarSlot}
@@ -2074,13 +2091,18 @@
     const btnNextProf = $('#btnNextProfile', main);
     if (btnNextProf) btnNextProf.onclick = () => stepProfile(1);
 
-    // 1. Photo upload via clicking avatar
-    const avatarImg = $('#headerAvatarImg');
-    if (avatarImg) {
-      avatarImg.onclick = () => {
-        state.uploadTargetId = p.id;
-        $('#globalPhotoInput').click();
-      };
+    // 1. Messenger Note & Photo upload via clicking avatar wrap or note bubble
+    const headerAvatarWrap = $('#headerAvatarWrap');
+    if (headerAvatarWrap) {
+      headerAvatarWrap.onclick = () => promptMessengerNote(p);
+    }
+    const btnMessengerNote = $('#btnMessengerNote');
+    if (btnMessengerNote) {
+      btnMessengerNote.onclick = () => promptMessengerNote(p);
+    }
+    const headerNotePill = $('#headerNotePill');
+    if (headerNotePill) {
+      headerNotePill.onclick = () => promptMessengerNote(p);
     }
 
     // 1b. Toggle Unread from header
