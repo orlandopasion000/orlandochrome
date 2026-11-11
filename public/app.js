@@ -8,8 +8,8 @@
   const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   const now = () => Date.now();
 
-  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v4';
-  const OLD_STORAGE_KEYS = ['chrome_taskbar_netflix_v1', 'chrome_taskbar_messenger_notes_v3'];
+  const STORAGE_KEY = 'chrome_taskbar_messenger_notes_v5';
+  const OLD_STORAGE_KEYS = ['chrome_taskbar_messenger_notes_v4', 'chrome_taskbar_netflix_v1', 'chrome_taskbar_messenger_notes_v3'];
 
   // Schedule from Daily Recharge Alarm (Sir Orlando V. Pasion, Jr.)
   const RECHARGE_SCHEDULE = [
@@ -38,29 +38,30 @@
     [21, 30, "night", "Bedtime"]
   ];
 
-  // The 21 Chrome Profiles in order from Windows Taskband - 100% CLEAN
+  // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", emoji: "🌐", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", emoji: "🎓", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", emoji: "📘", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", emoji: "📊", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "Hero", email: "heroesmeraldaepicalu@gmail.com", emoji: "🧠", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 A Yify", email: "yifyyts7@gmail.com", emoji: "🎯", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 B NASH", email: "revnash0@gmail.com", emoji: "📝", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 C Gwapo", email: "gwapocpogi@gmail.com", emoji: "📊", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", emoji: "📘", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", emoji: "🏫", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", emoji: "⚡", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", emoji: "📘", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", emoji: "🎯", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", emoji: "🧠", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gold Cloud", email: "goldcloudblack@gmail.com", emoji: "📝", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", emoji: "🛠️", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", emoji: "🧮", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", emoji: "🎓", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "pogiorlandopasion", email: "pogiorlandopasion@gmail.com", emoji: "📚", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "watchonlineapple", email: "watchonlineapple@gmail.com", emoji: "🎬", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
-    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "grammarly", email: "grammarlyorlandopasion@gmail.com", emoji: "✍️", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] }
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_13", profileDir: "Profile 40", chromeNo: 11, taskbarSlot: 13, winShortcut: "Slot #13", name: "A5 003 Gmail", email: "orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gmail Gold Cloud", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_23", profileDir: "Profile 58", chromeNo: 21, taskbarSlot: 23, winShortcut: "Slot #23", name: "A7 C grammarlyquillbot001@gmail.com", email: "grammarlyquillbot001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] },
+    { id: "p_tb_24", profileDir: "Profile 59", chromeNo: 22, taskbarSlot: 24, winShortcut: "Slot #24", name: "A7 D netflixpasion", email: "netflixpasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, customAvatar: null, notes: [] }
   ];
 
   // Old sample text to purge
@@ -122,8 +123,9 @@
     if (!loaded || !loaded.length) {
       state.profiles = JSON.parse(JSON.stringify(DEFAULT_PROFILES));
     } else {
+      // Reconcile with ground-truth laptop definitions
       state.profiles = DEFAULT_PROFILES.map(def => {
-        const found = loaded.find(p => p.id === def.id || (p.chromeNo === def.chromeNo && p.profileDir === def.profileDir));
+        const found = loaded.find(p => p.id === def.id || (p.chromeNo === def.chromeNo && p.profileDir === def.profileDir) || (p.profileDir === def.profileDir));
         if (!found) return { ...def };
 
         const cleanedNotes = (found.notes || []).filter(n => {
@@ -133,10 +135,11 @@
 
         return {
           ...def,
-          name: found.name || def.name,
-          taskbarSlot: found.taskbarSlot !== undefined ? found.taskbarSlot : def.taskbarSlot,
-          winShortcut: found.winShortcut || def.winShortcut,
-          email: found.email || def.email,
+          // Always keep the true verified laptop name and email from ground truth
+          name: def.name,
+          email: def.email,
+          taskbarSlot: def.taskbarSlot,
+          winShortcut: def.winShortcut,
           timerUntil: found.timerUntil || null,
           timerDurationMs: found.timerDurationMs || null,
           isReset: !!found.isReset,
