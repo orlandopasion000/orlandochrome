@@ -13,7 +13,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="oc-logo.svg">
   <link rel="apple-touch-icon" href="oc-logo.svg">
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=12">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -34,6 +34,12 @@
       <!-- Jump to Next Pending / Reset Profile (Alt+N) -->
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
         ⚡ Next Ready
+      </button>
+
+      <!-- Launch Desktop App Button (Clickable Icon + Word leading directly to OrlandoChrome Desktop App) -->
+      <button type="button" class="btn-topbar-desktop" id="btnTopbarLaunchApp" title="Launch OrlandoChrome Desktop App (Opens the standalone app directly without any browser)">
+        <span class="desktop-btn-icon">🚀</span>
+        <span class="desktop-btn-label">Launch App</span>
       </button>
 
       <!-- App Distribution, Live QR & Command Suite Trigger (Single Unified Button — No Redundancy) -->
@@ -101,8 +107,8 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=11"></script>
+  <script src="sound.js?v=12"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

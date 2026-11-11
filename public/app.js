@@ -2852,6 +2852,18 @@
   // =========================================================================
   // 📲 APP DISTRIBUTION & COMMAND SUITE (PWA Install, Mobile QR, iOS Guide, Backup, Blank Edition)
   // =========================================================================
+  // Direct Desktop App Launcher (Leads directly to running app without any browser tabs or URL bar)
+  function launchDesktopApp() {
+    if (window.soundMgr) window.soundMgr.playClickSoft();
+    showToast('🚀 Launching OrlandoChrome Desktop App...');
+    try {
+      window.location.href = 'orlandochrome://launch';
+    } catch (e) {}
+    setTimeout(() => {
+      window.open('https://orlandopasion000.github.io/orlandochrome/', 'OrlandoChromeApp', 'popup=yes,width=1280,height=820,menubar=no,toolbar=no,location=no,status=no');
+    }, 280);
+  }
+
   function downloadTextFile(filename, content, mime = 'text/plain;charset=utf-8') {
     const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
@@ -3164,30 +3176,18 @@ ${jsRes}
                 </div>
               </div>
 
-              <!-- Module 2: 1-Click Install App to Windows Taskbar (Zero Downloads · Zero Warnings) -->
-              <div class="qr-telemetry-card">
+              <!-- Module 2: Direct Desktop App Launcher (No Downloads · Leads Directly to Running App) -->
+              <div class="qr-telemetry-card" style="border:1px solid rgba(255, 77, 88, 0.45); background:radial-gradient(circle at 10% 20%, rgba(229, 9, 20, 0.16) 0%, rgba(0, 0, 0, 0.98) 100%);">
                 <div class="qr-telemetry-header">
-                  <span>💻 Install to Windows Taskbar (No Downloads · Zero Warnings)</span>
-                  <span class="qr-telemetry-sub" style="color:#6ee7b7; border-color:rgba(16,185,129,0.35); background:rgba(16,185,129,0.14);">Native App Ready</span>
+                  <span>🖥️ OrlandoChrome Desktop App</span>
+                  <span class="qr-telemetry-sub" style="color:#6ee7b7; border-color:rgba(16,185,129,0.35); background:rgba(16,185,129,0.14);">Desktop App Ready</span>
                 </div>
-                <button type="button" class="btn-suite-radiant-red" id="btnPwaOneClickInstall">
-                  ⚡ 1-Click Install App (Windows · Mac · iOS · Android)
+                <button type="button" class="btn-suite-radiant-red" id="btnLaunchDesktopApp" style="font-size:0.92rem; padding:12px 18px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" title="Tap to launch the OrlandoChrome Desktop App directly">
+                  <span>🚀</span>
+                  <span>Launch OrlandoChrome App</span>
                 </button>
-                <div id="pwaInstallGuideBox" style="display:none; background:#0a0a0c; border:1px solid #282830; border-radius:8px; padding:10px 12px; font-size:0.75rem; color:#e2e8f0; line-height:1.45; margin-top:6px;">
-                  <div style="font-weight:800; color:#ff6b74; margin-bottom:4px;">📌 How to Pin Without Any Browser in 1 Click:</div>
-                  <div>1. Look at the right side of your Chrome address bar and click the 🖥️ <b>Install OrlandoChrome</b> icon (or click Chrome Menu <b>⋮</b> → <b>Save and share</b> → <b>Install OrlandoChrome</b>).</div>
-                  <div style="margin-top:3px;">2. Click <b>Install</b> — it immediately launches as an independent desktop window with <b>no tabs and no address bar</b>!</div>
-                  <div style="margin-top:3px;">3. Right-click its icon on your Windows taskbar and choose <b>"Pin to taskbar"</b>!</div>
-                </div>
-                <div class="suite-unified-btn-row" style="margin-top:6px;">
-                  <button type="button" class="btn-suite-dark" id="btnSuiteSyncLocalState" style="border-color:#34d399; color:#6ee7b7;" title="Select %LOCALAPPDATA%\Google\Chrome\User Data\Local State to immediately sync all taskbar names into this app">
-                    📂 Sync Taskbar Profiles (Local State)
-                  </button>
-                  ${isBlankTarget ? `
-                    <button type="button" class="btn-suite-dark" id="btnOpenBlankWebApp" style="border-color:#e5c97b; color:#e5c97b;">
-                      🚀 Open Blank App
-                    </button>
-                  ` : ''}
+                <div style="font-size:0.72rem; color:#a1a1aa; margin-top:8px; line-height:1.45;">
+                  Tapping this opens your <b>OrlandoChrome Desktop App directly</b> (no browser tabs, no URL bar). While the window is open, right-click its icon on your taskbar and click <b>"Pin to taskbar"</b>.
                 </div>
               </div>
 
@@ -3361,31 +3361,12 @@ ${jsRes}
         showToast('🖼️ Downloaded Studio QR Poster (.png)!');
       };
 
-      // 1-Click PWA Native App Install (Zero File Downloads · Zero Warnings)
-      $('#btnPwaOneClickInstall', backdrop).onclick = async () => {
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt();
-          const choice = await deferredInstallPrompt.userChoice.catch(() => null);
-          deferredInstallPrompt = null;
-          if (choice && choice.outcome === 'accepted') {
-            showToast('✅ OrlandoChrome installed as a native app!');
-            close();
-          }
-        } else {
-          // If browser didn't fire deferredInstallPrompt, display instant visual guide instead of downloading files
-          const guideBox = $('#pwaInstallGuideBox', backdrop);
-          if (guideBox) {
-            guideBox.style.display = guideBox.style.display === 'none' ? 'block' : 'none';
-          }
-          showToast('🖥️ Click the Install icon in your Chrome address bar (or Menu ⋮ → Save and share → Install OrlandoChrome)!');
-        }
-      };
-
-      const btnSyncLocalState = $('#btnSuiteSyncLocalState', backdrop);
-      if (btnSyncLocalState) {
-        btnSyncLocalState.onclick = () => {
+      // Launch Desktop App from modal button
+      const btnLaunchInModal = $('#btnLaunchDesktopApp', backdrop);
+      if (btnLaunchInModal) {
+        btnLaunchInModal.onclick = () => {
           close();
-          $('#localStateFileInput').click();
+          launchDesktopApp();
         };
       }
 
@@ -3963,9 +3944,12 @@ ${jsRes}
       setFilter($('#tabAll'), 'all');
     };
 
-    // Topbar App Suite and Next Ready Buttons
+    // Topbar App Suite, Desktop App Launcher and Next Ready Buttons
     const btnNextReady = $('#btnNextReady');
     if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
+
+    const btnTopbarLaunch = $('#btnTopbarLaunchApp');
+    if (btnTopbarLaunch) btnTopbarLaunch.onclick = () => launchDesktopApp();
 
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
