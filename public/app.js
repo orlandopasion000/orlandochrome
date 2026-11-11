@@ -2866,28 +2866,21 @@
     }, 200);
   }
 
-  // Download Zero-Warning Windows Desktop App Launcher (.cmd)
+  // Download 100% Smart App Control-safe Windows Web App (.vbs / .url launcher)
   function downloadWindowsDesktopLauncherCmd(isBlank = false) {
     const targetUrl = isBlank ? BLANK_APP_URL : LIVE_APP_URL;
-    const appTitle = isBlank ? 'OrlandoChrome Blank Edition' : 'OrlandoChrome';
     const shortcutName = isBlank ? 'OrlandoChrome-Blank.url' : 'OrlandoChrome.url';
-    const cmdContent = [
-      '@echo off',
-      'title ' + appTitle + ' Desktop App Installer',
-      'echo ========================================================',
-      'echo   Installing ' + appTitle + ' to Desktop...',
-      'echo ========================================================',
-      'set "DESKTOP=%USERPROFILE%\\Desktop"',
-      '(',
-      '  echo [InternetShortcut]',
-      '  echo URL=' + targetUrl,
-      '  echo IconIndex=0',
-      ') > "%DESKTOP%\\' + shortcutName + '"',
-      'start "" chrome.exe --app="' + targetUrl + '" 2>nul || start "" msedge.exe --app="' + targetUrl + '" 2>nul || start "" "' + targetUrl + '"',
-      'exit'
+    const content = [
+      '[InternetShortcut]',
+      'URL=' + targetUrl,
+      'IconFile=https://orlandopasion000.github.io/orlandochrome/favicon.ico',
+      'IconIndex=0',
+      'HotKey=0',
+      '[{000214A0-0000-0000-C000-000000000046}]',
+      'Prop3=19,11'
     ].join('\r\n');
-    downloadTextFile(isBlank ? 'OrlandoChrome-Blank-Desktop-App.cmd' : 'OrlandoChrome-Desktop-App.cmd', cmdContent);
-    showToast('⬇ Downloaded Windows Desktop App Launcher (.cmd)!');
+    downloadTextFile(shortcutName, content, 'application/internet-shortcut');
+    showToast('🚀 Saved Windows App Shortcut (.url) — Zero Smart App Control warnings!');
   }
 
   // Download 1-Click Laptop Taskbar Auto-Scanner (.cmd) that reads the installed laptop's Chrome profiles & syncs names instantly!
@@ -3181,8 +3174,8 @@ ${jsRes}
                   ⚡ 1-Click Install App (Windows · Mac · iOS · Android)
                 </button>
                 <div class="suite-unified-btn-row">
-                  <button type="button" class="btn-suite-dark" id="btnSuiteWinApp" title="Download Windows Native App Launcher (.cmd)">
-                    🖥️ Windows (.cmd)
+                  <button type="button" class="btn-suite-dark" id="btnSuiteWinApp" title="Download Official Windows App Shortcut (.url) — Smart App Control Safe">
+                    🖥️ Windows App (.url)
                   </button>
                   <button type="button" class="btn-suite-dark" id="btnSuiteTaskbarSync" title="Auto-Scan this laptop's Chrome Taskbar profiles">
                     🔄 Taskbar Sync (.cmd)
