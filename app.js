@@ -548,19 +548,110 @@
     return true;
   }
 
-  // Generate Live Sync URL with Embedded Pending Notes & Active Timers (?sync=...)
+  // Ultra-compact micro-sync string (< 115 chars) so the QR code ALWAYS has giant, easy-to-scan blocks
+  // while still hydrating active timers & pending notes at 0ms before Cloud Sync finishes!
+  function createMicroSyncString() {
+    const cur = now();
+    const parts = [];
+    for (const p of state.profiles) {
+      const pending = (p.notes || []).filter(n => !n.done);
+      const hasTimer = p.timerUntil && p.timerUntil > cur;
+      if (!pending.length && !hasTimer && !p.isReset) continue;
+      const remMin = hasTimer ? Math.max(1, Math.round((p.timerUntil - cur) / 60000)) : (p.isReset ? -1 : 0);
+      const pinFlag = (p.isPinned && pending.length > 0) ? 1 : 0;
+      const firstTxt = pending.length > 0 ? (pending[0].text || 'Task').replace(/[~|_]/g, ' ').slice(0, 26) : '';
+      parts.push(`${p.chromeNo}~${remMin}~${pinFlag}~${firstTxt}`);
+    }
+    if (!parts.length) return '';
+    return toBase64Url(parts.join('|'));
+  }
+
+  function applyMicroSyncString(b64Str) {
+    if (!b64Str) return false;
+    try {
+      const raw = fromBase64Url(b64Str);
+      if (!raw) return false;
+      const entries = raw.split('|').filter(Boolean);
+      if (!entries.length) return false;
+      const cur = now();
+      const mapByNo = new Map();
+      for (const e of entries) {
+        const [noStr, remStr, pinStr, ...txtParts] = e.split('~');
+        const no = parseInt(noStr, 10);
+        if (!isNaN(no)) {
+          mapByNo.set(no, {
+            remMin: parseInt(remStr, 10) || 0,
+            pinned: pinStr === '1',
+            text: (txtParts.join('~') || '').trim()
+          });
+        }
+      }
+      state.profiles.forEach(p => {
+        const item = mapByNo.get(p.chromeNo);
+        if (!item) return;
+        if (item.remMin > 0) {
+          p.timerUntil = cur + item.remMin * 60000;
+          p.timerDurationMs = item.remMin * 60000;
+          p.isReset = false;
+        } else if (item.remMin === -1) {
+          p.timerUntil = null;
+          p.isReset = true;
+        }
+        if (item.pinned) {
+          p.isPinned = true;
+          p.pinnedAt = p.pinnedAt || cur;
+        }
+        if (item.text) {
+          const exists = (p.notes || []).some(n => !n.done && (n.text || '').startsWith(item.text));
+          if (!exists) {
+            p.notes = p.notes || [];
+            p.notes.push({
+              id: uid(),
+              text: item.text,
+              done: false,
+              createdAt: cur,
+              reactions: [],
+              subItems: []
+            });
+          }
+        }
+      });
+      persistLocalOnly();
+      renderSidebar();
+      renderMainChat();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Generate Live Sync URL with Embedded Pending Notes & Active Timers (?sync=...) for Copy Link / Native Share
   function buildLiveSyncUrl(isBlankTarget = false) {
     if (isBlankTarget) return BLANK_APP_URL;
     const base = LIVE_APP_URL;
     const pkt = createSyncPacket(true);
-    if (!pkt.p || pkt.p.length === 0) return base;
+    if (!pkt.p || pkt.p.length === 0) return `${base}?s=1`;
     const encoded = toBase64Url(JSON.stringify(pkt));
-    // Keep URL under 1800 chars so QR code density remains crisp and fast to scan
-    if (!encoded || encoded.length > 1800) return base;
-    return `${base}?sync=${encoded}`;
+    if (!encoded || encoded.length > 1800) return `${base}?s=1`;
+    return `${base}?s=1&sync=${encoded}`;
   }
 
-  // Update Topbar Cloud Sync Status Pill
+  // Generate Ultra-Scannable Short URL for QR Code (Giant QR Blocks + Instant 0ms Micro-Sync + Live Cloud Sync)
+  function buildFastQrUrl(isBlankTarget = false, embedFullData = false) {
+    if (isBlankTarget) return BLANK_APP_URL;
+    const base = LIVE_APP_URL;
+    if (embedFullData) {
+      return buildLiveSyncUrl(false);
+    }
+    const micro = createMicroSyncString();
+    // Keep QR URL under 145 characters total so QR code stays low-density with huge, instant-scan squares!
+    if (micro && micro.length <= 105) {
+      return `${base}?s=1&m=${micro}`;
+    }
+    return `${base}?s=1`;
+  }
+
+  // Update Topbar Cloud Sync Status Pill inside #btnOpenAppSuite
   function updateTopbarSyncBadge(status) {
     state.cloudStatus = status;
     const dot = $('#topbarSyncDot');
@@ -568,13 +659,13 @@
     if (!dot || !lbl) return;
     dot.className = 'sync-status-dot ' + status;
     if (status === 'syncing') {
-      lbl.textContent = '🔄 Syncing...';
+      lbl.textContent = 'Syncing...';
     } else if (status === 'synced') {
-      lbl.textContent = '📷 QR · Synced';
+      lbl.textContent = 'Synced';
     } else if (status === 'offline') {
-      lbl.textContent = '📷 QR · Local';
+      lbl.textContent = 'Local';
     } else {
-      lbl.textContent = '📷 QR · Sync';
+      lbl.textContent = 'Ready';
     }
   }
 
@@ -658,12 +749,14 @@
       const cloudTs = latestPacket.ts || 0;
       const localTs = state.lastModified || 0;
       const cloudHasActivity = latestPacket.p && latestPacket.p.length > 0;
+      const forceFromQr = Boolean(state.forceCloudPullOnBoot);
 
-      if (showFeedback || cloudTs > localTs || (!localHasActivity && cloudHasActivity)) {
-        if (latestPacket.cid !== CLIENT_ID || showFeedback || !localHasActivity) {
+      if (showFeedback || forceFromQr || cloudTs > localTs || (!localHasActivity && cloudHasActivity)) {
+        state.forceCloudPullOnBoot = false;
+        if (latestPacket.cid !== CLIENT_ID || showFeedback || forceFromQr || !localHasActivity) {
           applySyncPacket(latestPacket, 'Cloud Sync');
-          if (showFeedback) {
-            showToast('☁️ Pulled latest pending notes & timers from Cloud!');
+          if (showFeedback || forceFromQr) {
+            showToast('📲 Synced all Pending Notes & Active Timers from Cloud!');
           }
         }
         updateTopbarSyncBadge('synced');
@@ -720,20 +813,33 @@
     }, 15000);
   }
 
-  // Check if URL has ?sync=... from scanning the Live QR Code
+  // Check if URL has ?sync=... or ?m=... or ?s=1 from scanning the Live QR Code
   function checkUrlSyncPacket() {
+    const hasScanFlag = URL_PARAMS.get('s') === '1';
+    const microB64 = URL_PARAMS.get('m');
     const syncB64 = URL_PARAMS.get('sync');
-    if (!syncB64) return null;
-    try {
-      const jsonStr = fromBase64Url(syncB64);
-      const pkt = JSON.parse(jsonStr);
-      if (pkt && pkt.v === 2 && Array.isArray(pkt.p)) {
-        window.history.replaceState({}, document.title, window.location.pathname + (IS_BLANK_EDITION ? '?edition=blank' : ''));
-        return pkt;
-      }
-    } catch (e) {
-      console.warn('Failed to parse URL sync packet:', e);
+
+    if (hasScanFlag || microB64 || syncB64) {
+      state.forceCloudPullOnBoot = true;
+      window.history.replaceState({}, document.title, window.location.pathname + (IS_BLANK_EDITION ? '?edition=blank' : ''));
     }
+
+    if (syncB64) {
+      try {
+        const jsonStr = fromBase64Url(syncB64);
+        const pkt = JSON.parse(jsonStr);
+        if (pkt && pkt.v === 2 && Array.isArray(pkt.p)) {
+          return { type: 'full', pkt };
+        }
+      } catch (e) {
+        console.warn('Failed to parse URL sync packet:', e);
+      }
+    }
+
+    if (microB64) {
+      return { type: 'micro', microB64 };
+    }
+
     return null;
   }
 
@@ -888,11 +994,15 @@
       } catch (e) {}
     }
 
-    // If opened via QR Code with embedded ?sync=... state, apply it immediately!
-    const urlSyncPkt = checkUrlSyncPacket();
-    if (urlSyncPkt) {
-      applySyncPacket(urlSyncPkt, 'QR Scan');
-      setTimeout(() => showToast('📲 Synced all Pending Notes & Active Timers from QR Code!'), 350);
+    // If opened via QR Code with embedded ?sync=... or ?m=... state, apply it immediately!
+    const urlSyncObj = checkUrlSyncPacket();
+    if (urlSyncObj) {
+      if (urlSyncObj.type === 'full') {
+        applySyncPacket(urlSyncObj.pkt, 'QR Scan');
+      } else if (urlSyncObj.type === 'micro') {
+        applyMicroSyncString(urlSyncObj.microB64);
+      }
+      setTimeout(() => showToast('📲 Synced Pending Notes & Active Timers from QR Code!'), 300);
       return;
     }
 
@@ -2520,16 +2630,16 @@ ${jsRes}
     }
   }
 
-  // QR Theme Palette Definitions for the Holographic QR Studio
+  // High-Contrast Instant-Scan QR Theme Palette Definitions (All Dark-on-Light for 0.1s Camera Lock!)
   const QR_THEMES = {
-    crimson:  { label: '🔴 Crimson Neon', fg: 'ff2e38', bg: '000000', accent: '#ff2e38', glow: 'rgba(229, 9, 20, 0.55)' },
-    gold:     { label: '✨ Royal Gold',   fg: 'f3dc99', bg: '000000', accent: '#e5c97b', glow: 'rgba(226, 200, 125, 0.45)' },
-    emerald:  { label: '🟢 Emerald Glow', fg: '34d399', bg: '000000', accent: '#34d399', glow: 'rgba(16, 185, 129, 0.5)' },
-    contrast: { label: '⚪ Pure Contrast', fg: 'ffffff', bg: '000000', accent: '#ffffff', glow: 'rgba(255, 255, 255, 0.35)' }
+    instant: { label: '⚡ Instant Scan', fg: '000000', bg: 'ffffff', accent: '#ff2e38', glow: 'rgba(229, 9, 20, 0.55)' },
+    crimson: { label: '🔴 Crimson Core', fg: '6b0005', bg: 'fff5f5', accent: '#ff2e38', glow: 'rgba(229, 9, 20, 0.65)' },
+    emerald: { label: '🟢 Emerald Core', fg: '022c22', bg: 'ecfdf5', accent: '#10b981', glow: 'rgba(16, 185, 129, 0.55)' },
+    gold:    { label: '✨ Royal Gold',   fg: '1c1404', bg: 'fef9e7', accent: '#e5c97b', glow: 'rgba(226, 200, 125, 0.5)' }
   };
 
-  // Open Holographic Mobile QR Code & Real-Time Cross-Device Sync Studio
-  function openMobileQrModal() {
+  // Unified Holographic App Distribution, Giant Instant-Scan QR & Cross-Device Live Sync Command Suite
+  function openAppDistributionSuiteModal() {
     // Immediately push current state to cloud if this device has active notes/timers
     if (hasAnyUserActivity(state.profiles)) {
       pushToCloudNow(false);
@@ -2538,50 +2648,62 @@ ${jsRes}
     }
 
     let isBlankTarget = IS_BLANK_EDITION;
-    let activeThemeKey = state.qrTheme || 'crimson';
+    let activeThemeKey = (state.qrTheme && QR_THEMES[state.qrTheme]) ? state.qrTheme : 'instant';
+    let isQrZoomed = false;
 
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
 
     const renderModalContent = () => {
-      const t = QR_THEMES[activeThemeKey] || QR_THEMES.crimson;
-      const shareUrl = buildLiveSyncUrl(isBlankTarget);
-      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&ecc=H&margin=12&color=${t.fg}&bgcolor=${t.bg}&data=${encodeURIComponent(shareUrl)}`;
+      const t = QR_THEMES[activeThemeKey] || QR_THEMES.instant;
+      const fastQrUrl = buildFastQrUrl(isBlankTarget, false);
+      const fullShareUrl = buildLiveSyncUrl(isBlankTarget);
+      const qrSizePx = isQrZoomed ? 420 : 300;
+      // ecc=L + margin=16 + unobscured modules + short URL = Giant, crisp QR blocks that scan in 0.1s!
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=440x440&ecc=L&margin=16&color=${t.fg}&bgcolor=${t.bg}&data=${encodeURIComponent(fastQrUrl)}`;
 
       const pendingTotal = totalPendingCount();
       const timersTotal = totalTimersCount();
       const pinnedTotal = state.profiles.filter(p => p.isPinned && countPending(p) > 0).length;
 
       backdrop.innerHTML = `
-        <div class="qr-studio-modal" style="--qr-accent:${t.accent}; --qr-glow:${t.glow};">
-          <!-- Studio Header -->
+        <div class="qr-studio-modal unified-command-suite" style="--qr-accent:${t.accent}; --qr-glow:${t.glow};">
+          <!-- Unified Holographic Header -->
           <div class="qr-studio-header">
             <div class="qr-studio-title-wrap">
               <div class="qr-studio-title-row">
-                <span class="qr-studio-badge-live">${renderGreenWhiteOrb()}<span>LIVE CLOUD SYNC</span></span>
-                <h3>📲 Holographic QR &amp; Cross-Device Sync Studio</h3>
+                <img src="oc-logo.svg" class="suite-oc-mini-logo" alt="OC">
+                <h3>App Distribution &amp; Live Sync Command Suite</h3>
+                <span class="qr-studio-badge-live">${renderGreenWhiteOrb()}<span>LIVE CLOUD · PWA READY</span></span>
               </div>
               <p class="qr-studio-sub">
-                Scan with your iPhone, iPad, or Android camera — your <strong>Pending Notes</strong> &amp; <strong>Active Cooldown Timers</strong> sync automatically across all devices.
+                Instant-Scan Giant QR, Real-Time Cross-Device Sync (Windows · iPhone/iOS · Android), 1-Click Native Install &amp; Taskbar Scanner.
               </p>
             </div>
-            <button type="button" class="btn-suite-close" id="btnCloseQrModal" title="Close">✕</button>
+            <button type="button" class="btn-banner-clear" id="btnCloseAppSuite" title="Close">✕</button>
           </div>
 
-          <!-- Edition Mode Switcher -->
+          <!-- Workspace Edition Switcher (Replaces Redundant Bottom Blank Card) -->
           <div class="qr-edition-tabs">
             <button type="button" class="qr-edition-tab ${!isBlankTarget ? 'active' : ''}" id="tabQrPersonal">
-              👑 My Synced Profiles (${pendingTotal} Pending · ${timersTotal} Timers)
+              👑 My Synced Workspace (${pendingTotal} Pending · ${timersTotal} Timers)
             </button>
             <button type="button" class="qr-edition-tab ${isBlankTarget ? 'active' : ''}" id="tabQrBlank">
-              🎁 Clean Blank Edition (For Any Laptop/Phone)
+              🎁 Clean Blank Edition (For Any Other Laptop / Phone)
             </button>
           </div>
 
-          <!-- Main 2-Column Studio Body -->
-          <div class="qr-studio-body">
-            <!-- Left: Holographic Laser-Scanned QR Showcase -->
+          <!-- Main 2-Column Holographic Command Deck -->
+          <div class="qr-studio-body ${isQrZoomed ? 'qr-zoomed-layout' : ''}">
+            <!-- Left Column: Giant Unobscured Instant-Scan QR Showcase -->
             <div class="qr-holo-column">
+              <div class="qr-stage-top-bar">
+                <span class="qr-scan-ready-tag">📸 Instant Camera Lock · High Contrast</span>
+                <button type="button" class="btn-qr-zoom-toggle" id="btnToggleQrZoom" title="Toggle Giant 420px QR Size">
+                  ${isQrZoomed ? '🗕 Normal (300px)' : '🔍 Enlarge (420px)'}
+                </button>
+              </div>
+
               <div class="qr-holo-stage" id="qrHoloStage">
                 <span class="qr-corner tl"></span>
                 <span class="qr-corner tr"></span>
@@ -2589,12 +2711,8 @@ ${jsRes}
                 <span class="qr-corner br"></span>
                 <div class="qr-laser-beam"></div>
 
-                <div class="qr-img-wrapper">
-                  <img src="${qrApiUrl}" crossorigin="anonymous" class="qr-code-img-holo" id="qrHoloImg" alt="OrlandoChrome Live Sync QR Code">
-                  <!-- Centered OC Emblem Overlay (Supported by 30% High Error Correction ecc=H) -->
-                  <div class="qr-center-emblem">
-                    <img src="oc-logo.svg" alt="OC">
-                  </div>
+                <div class="qr-img-wrapper" style="width:${qrSizePx}px; height:${qrSizePx}px;">
+                  <img src="${qrApiUrl}" crossorigin="anonymous" class="qr-code-img-holo" id="qrHoloImg" style="width:${qrSizePx}px; height:${qrSizePx}px;" alt="OrlandoChrome Instant Scan QR Code">
                 </div>
               </div>
 
@@ -2606,26 +2724,39 @@ ${jsRes}
                   </button>
                 `).join('')}
               </div>
+
+              <!-- Direct QR Share & Poster Row -->
+              <div class="qr-actions-grid" style="width:100%;">
+                <button type="button" class="btn-composer-send" id="btnQrCopyUrl" style="justify-content:center; padding:8px 10px; font-size:0.74rem;">
+                  📋 Copy Sync Link
+                </button>
+                <button type="button" class="btn-suite-dark" id="btnQrDownloadPng" style="padding:8px 10px; font-size:0.74rem;">
+                  🖼️ Save Poster
+                </button>
+                <button type="button" class="btn-suite-dark" id="btnQrNativeShare" style="padding:8px 10px; font-size:0.74rem;">
+                  📲 Share...
+                </button>
+              </div>
             </div>
 
-            <!-- Right: Live Sync Telemetry, Actions & iOS Guide -->
+            <!-- Right Column: 3 Advanced Command Modules (Zero Redundancy) -->
             <div class="qr-telemetry-column">
-              <!-- Live State Telemetry Card -->
+              <!-- Module 1: Cross-Device Live Cloud Sync Telemetry -->
               <div class="qr-telemetry-card">
                 <div class="qr-telemetry-header">
-                  <span>📡 Embedded &amp; Cloud-Linked Data</span>
-                  <span class="qr-sync-pill-ok">● Real-Time Sync Active</span>
+                  <span>☁️ Cross-Device Live Cloud Sync (Windows · iOS · Android)</span>
+                  <span class="qr-telemetry-sub">● Auto-Sync Active</span>
                 </div>
                 <div class="qr-metrics-grid">
-                  <div class="qr-metric-box">
+                  <div class="qr-metric-box red">
                     <span class="qr-metric-num">${pendingTotal}</span>
                     <span class="qr-metric-lbl">🔴 Pending Notes</span>
                   </div>
-                  <div class="qr-metric-box">
+                  <div class="qr-metric-box amber">
                     <span class="qr-metric-num">${timersTotal}</span>
                     <span class="qr-metric-lbl">⏳ Active Timers</span>
                   </div>
-                  <div class="qr-metric-box">
+                  <div class="qr-metric-box green">
                     <span class="qr-metric-num">${pinnedTotal}</span>
                     <span class="qr-metric-lbl">📌 Pinned Top</span>
                   </div>
@@ -2640,27 +2771,49 @@ ${jsRes}
                 </div>
               </div>
 
-              <!-- iOS / iPhone & Android Installation Steps -->
-              <div class="ios-instructions-card">
-                <div class="ios-title">🍏 iPhone / iOS &amp; Android Instant Setup:</div>
-                <ol class="ios-steps">
-                  <li>Point your phone camera at the QR code to open with <strong>all Pending Notes &amp; Timers already loaded</strong>.</li>
-                  <li>On iPhone Safari, tap <strong>Share (⬆️) → "Add to Home Screen"</strong> for a full-screen OLED app.</li>
-                  <li>Any note or timer you add on your <strong>Laptop</strong> or <strong>iPhone</strong> automatically syncs in real time!</li>
-                </ol>
+              <!-- Module 2: Install to Device & Laptop Taskbar Auto-Sync -->
+              <div class="qr-telemetry-card">
+                <div class="qr-telemetry-header">
+                  <span>💻 Device Install &amp; Laptop Taskbar Sync</span>
+                  <span class="qr-telemetry-sub" style="color:#ffd1d6; border-color:rgba(255,77,88,0.35); background:rgba(229,9,20,0.14);">Zero Warnings</span>
+                </div>
+                <button type="button" class="btn-suite-radiant-red" id="btnPwaOneClickInstall">
+                  ⚡ 1-Click Install App (Windows · Mac · iOS · Android)
+                </button>
+                <div class="suite-unified-btn-row">
+                  <button type="button" class="btn-suite-dark" id="btnSuiteWinApp" title="Download Windows Native App Launcher (.cmd)">
+                    🖥️ Windows (.cmd)
+                  </button>
+                  <button type="button" class="btn-suite-dark" id="btnSuiteTaskbarSync" title="Auto-Scan this laptop's Chrome Taskbar profiles">
+                    🔄 Taskbar Sync (.cmd)
+                  </button>
+                  <button type="button" class="btn-suite-dark" id="btnSuiteStandaloneHtml" title="Download Single-File Offline HTML">
+                    💾 Offline (.html)
+                  </button>
+                  ${isBlankTarget ? `
+                    <button type="button" class="btn-suite-dark" id="btnOpenBlankWebApp" style="border-color:#e5c97b; color:#e5c97b;">
+                      🚀 Open Blank App
+                    </button>
+                  ` : ''}
+                </div>
               </div>
 
-              <!-- Share & Export Action Bar -->
-              <div class="qr-actions-grid">
-                <button type="button" class="btn-composer-send" id="btnQrCopyUrl" style="justify-content:center;">
-                  📋 Copy Live Sync Link
-                </button>
-                <button type="button" class="btn-suite-dark" id="btnQrDownloadPng">
-                  🖼️ Save QR Poster (.png)
-                </button>
-                <button type="button" class="btn-suite-dark" id="btnQrNativeShare">
-                  📲 Share...
-                </button>
+              <!-- Module 3: Workspace Backup & Mobile Home Screen Quick Guide -->
+              <div class="qr-telemetry-card">
+                <div class="qr-telemetry-header">
+                  <span>🛡️ JSON Workspace Backup &amp; iPhone Setup</span>
+                </div>
+                <div class="suite-unified-btn-row" style="grid-template-columns: 1fr 1fr;">
+                  <button type="button" class="btn-suite-dark" id="btnSuiteExportJson">
+                    💾 Export Backup (.json)
+                  </button>
+                  <button type="button" class="btn-suite-dark" id="btnSuiteImportJson">
+                    📁 Restore Backup (.json)
+                  </button>
+                </div>
+                <div class="ios-compact-tip">
+                  🍏 <strong>iPhone / iOS &amp; Android:</strong> Point your camera at the giant QR code to open with all Pending Notes &amp; Timers loaded, then tap <strong>Share (⬆️) → Add to Home Screen</strong>.
+                </div>
               </div>
             </div>
           </div>
@@ -2669,7 +2822,7 @@ ${jsRes}
 
       // Wire up interactive modal handlers
       const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
-      $('#btnCloseQrModal', backdrop).onclick = close;
+      $('#btnCloseAppSuite', backdrop).onclick = close;
       backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
 
       $('#tabQrPersonal', backdrop).onclick = () => {
@@ -2678,6 +2831,11 @@ ${jsRes}
       };
       $('#tabQrBlank', backdrop).onclick = () => {
         isBlankTarget = true;
+        renderModalContent();
+      };
+
+      $('#btnToggleQrZoom', backdrop).onclick = () => {
+        isQrZoomed = !isQrZoomed;
         renderModalContent();
       };
 
@@ -2691,7 +2849,7 @@ ${jsRes}
 
       $('#btnQrForcePush', backdrop).onclick = async () => {
         const btn = $('#btnQrForcePush', backdrop);
-        if (btn) btn.textContent = '🔄 Broadcasting to Cloud...';
+        if (btn) btn.textContent = '🔄 Pushing to Cloud...';
         await pushToCloudNow(true);
         if (window.soundMgr) window.soundMgr.playReadyChime();
         renderModalContent();
@@ -2705,7 +2863,7 @@ ${jsRes}
       };
 
       $('#btnQrCopyUrl', backdrop).onclick = () => {
-        navigator.clipboard.writeText(shareUrl).then(() => {
+        navigator.clipboard.writeText(fullShareUrl).then(() => {
           showToast('🔗 Live Sync Link (with Pending Notes & Timers) copied!');
         });
       };
@@ -2715,10 +2873,10 @@ ${jsRes}
           navigator.share({
             title: 'OrlandoChrome · Live Synced Command Center',
             text: `OrlandoChrome (${pendingTotal} Pending Notes · ${timersTotal} Active Timers)`,
-            url: shareUrl
+            url: fullShareUrl
           }).catch(() => {});
         } else {
-          navigator.clipboard.writeText(shareUrl).then(() => showToast('🔗 Live Sync Link copied!'));
+          navigator.clipboard.writeText(fullShareUrl).then(() => showToast('🔗 Live Sync Link copied!'));
         }
       };
 
@@ -2727,38 +2885,36 @@ ${jsRes}
         const qrImg = $('#qrHoloImg', backdrop);
         if (!qrImg) return;
         const canvas = document.createElement('canvas');
-        canvas.width = 600;
-        canvas.height = 740;
+        canvas.width = 640;
+        canvas.height = 780;
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Border
         ctx.strokeStyle = t.accent;
         ctx.lineWidth = 4;
         ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
 
-        // Header
         ctx.fillStyle = '#ffffff';
         ctx.font = '900 34px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('ORLANDOCHROME', canvas.width / 2, 76);
+        ctx.fillText('ORLANDOCHROME', canvas.width / 2, 74);
 
         ctx.fillStyle = t.accent;
         ctx.font = '700 16px Inter, sans-serif';
-        ctx.fillText(isBlankTarget ? 'CLEAN BLANK EDITION · SCAN TO OPEN' : 'LIVE CLOUD SYNC · iOS · WINDOWS · ANDROID', canvas.width / 2, 108);
+        ctx.fillText(isBlankTarget ? 'CLEAN BLANK EDITION · SCAN TO OPEN' : 'LIVE CLOUD SYNC · iOS · WINDOWS · ANDROID', canvas.width / 2, 104);
 
         try {
-          ctx.drawImage(qrImg, 100, 140, 400, 400);
+          ctx.drawImage(qrImg, 90, 130, 460, 460);
         } catch (err) {}
 
         ctx.fillStyle = '#d1d5db';
         ctx.font = '600 15px Inter, sans-serif';
-        ctx.fillText(`${pendingTotal} Pending Notes · ${timersTotal} Active Timers · Real-Time Sync`, canvas.width / 2, 590);
+        ctx.fillText(`${pendingTotal} Pending Notes · ${timersTotal} Active Timers · Real-Time Sync`, canvas.width / 2, 635);
 
         ctx.fillStyle = '#888888';
         ctx.font = '500 13px Consolas, monospace';
-        ctx.fillText(LIVE_APP_URL, canvas.width / 2, 635);
+        ctx.fillText(LIVE_APP_URL, canvas.width / 2, 675);
 
         const dataUrl = canvas.toDataURL('image/png');
         const a = document.createElement('a');
@@ -2769,156 +2925,45 @@ ${jsRes}
         document.body.removeChild(a);
         showToast('🖼️ Downloaded Branded QR Poster (.png)!');
       };
+
+      // 1-Click PWA Install
+      $('#btnPwaOneClickInstall', backdrop).onclick = async () => {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          const choice = await deferredInstallPrompt.userChoice.catch(() => null);
+          deferredInstallPrompt = null;
+          if (choice && choice.outcome === 'accepted') {
+            showToast('✅ OrlandoChrome installed as a native app!');
+            close();
+          }
+        } else {
+          downloadWindowsDesktopLauncherCmd(isBlankTarget);
+          showToast('💡 On iPhone Safari tap Share → "Add to Home Screen"; on Chrome click Install in the address bar!');
+        }
+      };
+
+      $('#btnSuiteWinApp', backdrop).onclick = () => downloadWindowsDesktopLauncherCmd(isBlankTarget);
+      $('#btnSuiteTaskbarSync', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd();
+      $('#btnSuiteStandaloneHtml', backdrop).onclick = () => downloadStandaloneHtml(isBlankTarget);
+
+      const btnOpenBlank = $('#btnOpenBlankWebApp', backdrop);
+      if (btnOpenBlank) {
+        btnOpenBlank.onclick = () => window.open('?edition=blank', '_blank');
+      }
+
+      $('#btnSuiteExportJson', backdrop).onclick = () => exportFullBackupJson();
+      $('#btnSuiteImportJson', backdrop).onclick = () => {
+        close();
+        $('#backupJsonInput').click();
+      };
     };
 
     renderModalContent();
     document.body.appendChild(backdrop);
   }
 
-  // Open Full "App Distribution & Command Suite" Modal (Matches Uploaded Screenshot Design)
-  function openAppDistributionSuiteModal() {
-    const backdrop = document.createElement('div');
-    backdrop.className = 'rename-dialog-backdrop';
-    backdrop.innerHTML = `
-      <div class="app-suite-modal">
-        <div class="app-suite-header">
-          <div>
-            <div class="app-suite-title-row">
-              <span class="suite-icon-box">📲</span>
-              <h2>App Distribution &amp; Command Suite</h2>
-              <span class="pwa-ready-pill">${renderGreenWhiteOrb()}<span>PWA Ready</span></span>
-            </div>
-            <p class="app-suite-subtitle">
-              Installed, offline-cached, shareable, and verified for Sir Orlando V. Pasion, Jr.
-            </p>
-          </div>
-          <button type="button" class="btn-banner-clear" id="btnCloseAppSuite">✕</button>
-        </div>
-
-        <!-- 3-Column Command Grid -->
-        <div class="app-suite-grid">
-          <!-- Card 1: Install to Device -->
-          <div class="suite-card">
-            <div class="suite-card-top">
-              <span class="suite-card-icon">💻</span>
-              <div>
-                <h3>Install to Device</h3>
-                <p>Install onto your Windows PC, Mac, Android phone, or iPhone with zero security warnings.</p>
-              </div>
-            </div>
-            <button type="button" class="btn-suite-gold" id="btnPwaOneClickInstall">
-              ⚡ 1-Click Install App (Zero Warnings)
-            </button>
-            <div class="suite-sub-btns">
-              <button type="button" class="btn-suite-dark" id="btnSuiteWinApp">⬇ Windows (.cmd)</button>
-              <button type="button" class="btn-suite-dark" id="btnSuiteTaskbarSync">⚡ Taskbar Sync (.cmd)</button>
-            </div>
-          </div>
-
-          <!-- Card 2: Mobile QR & Share -->
-          <div class="suite-card">
-            <div class="suite-card-top">
-              <span class="suite-card-icon">📲</span>
-              <div>
-                <h3>Mobile QR &amp; Share</h3>
-                <p>Instant phone camera scanner to open on iPhone / iOS or Android, or copy the direct web link to share.</p>
-              </div>
-            </div>
-            <div class="suite-spacer"></div>
-            <div class="suite-sub-btns">
-              <button type="button" class="btn-suite-dark" id="btnSuiteOpenQr">📷 Open Phone QR</button>
-              <button type="button" class="btn-suite-dark" id="btnSuiteCopyLink">↗ Copy Link</button>
-            </div>
-          </div>
-
-          <!-- Card 3: Backup & Restore -->
-          <div class="suite-card">
-            <div class="suite-card-top">
-              <span class="suite-card-icon">💾</span>
-              <div>
-                <h3>Backup &amp; Restore</h3>
-                <p>Save a secure JSON backup of your custom profiles, notes &amp; timers to your computer, or restore a saved backup.</p>
-              </div>
-            </div>
-            <div class="suite-spacer"></div>
-            <div class="suite-sub-btns">
-              <button type="button" class="btn-suite-dark" id="btnSuiteExportJson">💾 Export (.json)</button>
-              <button type="button" class="btn-suite-dark" id="btnSuiteImportJson">📁 Import</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bottom Full-Width Card: Clean Blank Edition (For Anyone / Any Installed Laptop) -->
-        <div class="suite-blank-card">
-          <div class="suite-card-top">
-            <span class="suite-card-icon">🎁</span>
-            <div>
-              <h3 class="gold-heading">Clean Blank Edition (For Anyone / Any Installed Laptop)</h3>
-              <p>A 100% clean, personal-data-free app with isolated storage that automatically scans or imports the taskbar Chrome profiles of whatever laptop it is installed on.</p>
-            </div>
-          </div>
-          <div class="suite-blank-btns">
-            <button type="button" class="btn-suite-gold" id="btnOpenBlankWebApp">
-              🚀 Open Blank Web App
-            </button>
-            <button type="button" class="btn-suite-dark" id="btnBlankWinScanner">
-              ⬇ Laptop Auto-Scanner (.cmd)
-            </button>
-            <button type="button" class="btn-suite-dark" id="btnBlankStandaloneHtml">
-              💾 Standalone (.html)
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(backdrop);
-
-    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
-    $('#btnCloseAppSuite', backdrop).onclick = close;
-    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
-
-    // 1-Click PWA Install
-    $('#btnPwaOneClickInstall', backdrop).onclick = async () => {
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        const choice = await deferredInstallPrompt.userChoice.catch(() => null);
-        deferredInstallPrompt = null;
-        if (choice && choice.outcome === 'accepted') {
-          showToast('✅ OrlandoChrome installed as a native app!');
-          close();
-        }
-      } else {
-        // Fallback: download desktop app launcher & show quick tip
-        downloadWindowsDesktopLauncherCmd(IS_BLANK_EDITION);
-        showToast('💡 Tip: On iPhone Safari tap Share → "Add to Home Screen"; on Chrome click the Install icon in the address bar!');
-      }
-    };
-
-    $('#btnSuiteWinApp', backdrop).onclick = () => downloadWindowsDesktopLauncherCmd(IS_BLANK_EDITION);
-    $('#btnSuiteTaskbarSync', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd();
-
-    $('#btnSuiteOpenQr', backdrop).onclick = () => {
-      close();
-      openMobileQrModal();
-    };
-
-    $('#btnSuiteCopyLink', backdrop).onclick = () => {
-      const link = buildLiveSyncUrl(IS_BLANK_EDITION);
-      navigator.clipboard.writeText(link).then(() => showToast('🔗 Live Sync link copied to clipboard!'));
-    };
-
-    $('#btnSuiteExportJson', backdrop).onclick = () => exportFullBackupJson();
-    $('#btnSuiteImportJson', backdrop).onclick = () => {
-      close();
-      $('#backupJsonInput').click();
-    };
-
-    $('#btnOpenBlankWebApp', backdrop).onclick = () => {
-      window.open('?edition=blank', '_blank');
-    };
-    $('#btnBlankWinScanner', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd();
-    $('#btnBlankStandaloneHtml', backdrop).onclick = () => downloadStandaloneHtml(true);
-  }
+  // Alias openMobileQrModal to openAppDistributionSuiteModal so there is zero duplication
+  const openMobileQrModal = openAppDistributionSuiteModal;
 
   // =========================================================================
   // 🎙️ WISPR FLOW PRO ENGINE (Unlimited Dictation, Style Learning, Command Mode, Audio Waveform)
@@ -3480,9 +3525,6 @@ ${jsRes}
 
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
-
-    const btnTopbarQrSync = $('#btnTopbarQrSync');
-    if (btnTopbarQrSync) btnTopbarQrSync.onclick = () => openMobileQrModal();
 
     // Adjustable Width Resizer Line Between Profiles (Sidebar) and Messages (Chat Main)
     const resizer = $('#workspaceResizer');
