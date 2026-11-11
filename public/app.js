@@ -260,7 +260,7 @@
           isReset: !!found.isReset,
           isPinned: !!found.isPinned,
           pinnedAt: found.pinnedAt || null,
-          isUnread: !!found.isUnread,
+          isUnread: !!(found.isUnread && cleanedNotes.length > 0),
           customAvatar: found.customAvatar || null,
           notes: cleanedNotes
         };
@@ -284,6 +284,10 @@
     return state.profiles.find(p => p.id === id) || state.profiles[0];
   }
 
+  function hasMessages(profile) {
+    return Array.isArray(profile.notes) && profile.notes.length > 0;
+  }
+
   function countPending(profile) {
     return (profile.notes || []).filter(n => !n.done).length;
   }
@@ -297,13 +301,27 @@
     return state.profiles.filter(p => (p.timerUntil && p.timerUntil > cur) || p.isReset).length;
   }
 
+  // Format complete date and time: mm/dd/yyyy hh:mm AM/PM
+  function formatNoteDateTime(ts) {
+    const d = new Date(ts || now());
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    return `${mm}/${dd}/${yyyy} ${timeStr}`;
+  }
+
   // Format countdown string
   function formatRemaining(ms) {
     if (ms <= 0) return '00:00';
     const totalSec = Math.floor(ms / 1000);
-    const hrs = Math.floor(totalSec / 3600);
+    const days = Math.floor(totalSec / 86400);
+    const hrs = Math.floor((totalSec % 86400) / 3600);
     const mins = Math.floor((totalSec % 3600) / 60);
     const secs = totalSec % 60;
+    if (days > 0) {
+      return `${days}d ${hrs}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+    }
     if (hrs > 0) {
       return `${hrs}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
     }
@@ -314,8 +332,10 @@
   function formatRemainingShort(ms) {
     if (ms <= 0) return '0m';
     const totalSec = Math.floor(ms / 1000);
-    const hrs = Math.floor(totalSec / 3600);
+    const days = Math.floor(totalSec / 86400);
+    const hrs = Math.floor((totalSec % 86400) / 3600);
     const mins = Math.floor((totalSec % 3600) / 60);
+    if (days > 0) return hrs > 0 ? `${days}d ${hrs}h` : `${days}d`;
     if (hrs > 0) return `${hrs}h ${mins}m`;
     return `${mins}m`;
   }
@@ -510,14 +530,15 @@
     list.innerHTML = filtered.map(p => {
       const isActive = p.id === state.activeProfileId;
       const pendingCount = countPending(p);
+      const canUnread = hasMessages(p);
       const isPinned = !!(p.isPinned && pendingCount > 0);
       const isTimer = p.timerUntil && p.timerUntil > cur;
       const isReset = p.isReset;
-      const isUnread = !!p.isUnread;
+      const isUnread = !!(p.isUnread && canUnread);
       const avatarSrc = getAvatarSrc(p);
 
       const pendingNotes = (p.notes || []).filter(n => !n.done);
-      let snippetHtml = 'No notes yet';
+      let snippetHtml = '';
       let snippetClass = '';
 
       if (pendingNotes.length > 0) {
@@ -543,8 +564,10 @@
         ? `W+${p.winShortcut.replace('Win + ', '')}`
         : `#${p.taskbarSlot}`;
 
+      const hasSubRowContent = Boolean(snippetHtml || pendingCount > 0 || isTimer || isReset);
+
       return `
-        <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" title="Right-click to toggle Unread dot">
+        <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" ${canUnread ? 'title="Right-click to toggle Unread dot"' : ''}>
           <!-- Bigger Picture Avatar (52px) -->
           <div class="profile-avatar-wrap">
             <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
@@ -557,16 +580,18 @@
             <div class="profile-row-header">
               <span class="profile-name">${esc(p.name)}</span>
               <div class="profile-header-right">
-                <button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>
+                ${canUnread ? `<button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>` : ''}
                 <span class="profile-shortcut">${esc(p.winShortcut)}</span>
               </div>
             </div>
-            <div class="profile-row-sub">
-              <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
-              ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
-              ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
-              ${isReset ? `<span class="badge-reset-pill">🟢 Reset</span>` : ''}
-            </div>
+            ${hasSubRowContent ? `
+              <div class="profile-row-sub">
+                <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
+                ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
+                ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
+                ${isReset ? `<span class="badge-reset-pill">🟢 Reset</span>` : ''}
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
@@ -605,7 +630,7 @@
         e.stopPropagation();
         const pid = btn.dataset.unreadId;
         const prof = getProfile(pid);
-        if (!prof) return;
+        if (!prof || !hasMessages(prof)) return;
         prof.isUnread = !prof.isUnread;
         saveState();
         if (window.soundMgr) window.soundMgr.playClick();
@@ -623,9 +648,9 @@
         renderMainChat();
       };
       item.oncontextmenu = (e) => {
-        e.preventDefault();
         const prof = getProfile(item.dataset.id);
-        if (!prof) return;
+        if (!prof || !hasMessages(prof)) return;
+        e.preventDefault();
         prof.isUnread = !prof.isUnread;
         saveState();
         if (window.soundMgr) window.soundMgr.playClick();
@@ -648,6 +673,8 @@
     const rem = isTimer ? formatRemaining(p.timerUntil - cur) : '';
     const avatarSrc = getAvatarSrc(p);
     const notes = p.notes || [];
+    const canUnread = hasMessages(p);
+    const isUnread = !!(p.isUnread && canUnread);
     const w = state.wispr;
 
     main.innerHTML = `
@@ -658,7 +685,7 @@
           <div class="chat-header-info">
             <div class="chat-header-title">
               <span>Chrome #${p.chromeNo}: ${esc(p.name)}</span>
-              ${p.isUnread ? `<span class="header-unread-pill">● UNREAD</span>` : ''}
+              ${isUnread ? `<span class="header-unread-pill">● UNREAD</span>` : ''}
             </div>
             <div class="chat-header-meta">
               ${esc(p.email)} · Taskbar Slot #${p.taskbarSlot}
@@ -667,9 +694,11 @@
         </div>
 
         <div class="chat-header-actions">
-          <button class="btn-header-action ${p.isUnread ? 'unread-active' : ''}" id="btnToggleUnreadHeader" title="Bookmark this profile as Unread (or right-click in sidebar)">
-            ● ${p.isUnread ? 'Unread' : 'Mark Unread'}
-          </button>
+          ${canUnread ? `
+            <button class="btn-header-action ${isUnread ? 'unread-active' : ''}" id="btnToggleUnreadHeader" title="Bookmark this profile as Unread (or right-click in sidebar)">
+              ● ${isUnread ? 'Unread' : 'Mark Unread'}
+            </button>
+          ` : ''}
           <button class="btn-header-action" id="btnRenameProfile">
             ✏️ Rename
           </button>
@@ -679,15 +708,19 @@
       <!-- Quick AI Limit Cooldown Bar -->
       <div class="quick-timer-bar">
         <span class="timer-bar-label">Start a quick timer:</span>
-        <button class="timer-chip" data-min="15">15m</button>
-        <button class="timer-chip" data-min="30">30m</button>
-        <button class="timer-chip" data-min="60">1h</button>
-        <button class="timer-chip" data-min="120">2h</button>
-        <button class="timer-chip" data-min="180">3h</button>
-        <button class="timer-chip" data-min="300">5h</button>
+        <button class="timer-chip" data-min="15" data-label="15m">15m</button>
+        <button class="timer-chip" data-min="30" data-label="30m">30m</button>
+        <button class="timer-chip" data-min="45" data-label="45m">45m</button>
+        <button class="timer-chip" data-min="60" data-label="1h">1h</button>
+        <button class="timer-chip" data-min="120" data-label="2h">2h</button>
+        <button class="timer-chip" data-min="180" data-label="3h">3h</button>
+        <button class="timer-chip" data-min="300" data-label="5h">5h</button>
+        <button class="timer-chip" data-min="720" data-label="12h">12h</button>
+        <button class="timer-chip" data-min="1440" data-label="1d">1d</button>
+        <button class="timer-chip" data-min="2880" data-label="2d">2d</button>
 
         <div class="timer-custom-wrap">
-          <input type="number" id="customMinInput" class="timer-custom-input" placeholder="min" min="1" max="10000" value="45">
+          <input type="number" id="customMinInput" class="timer-custom-input" placeholder="min" min="1" max="10000" value="">
           <button class="btn-start-custom" id="btnStartCustomTimer">Start ⏱️</button>
         </div>
       </div>
@@ -708,17 +741,9 @@
         </div>
       ` : ''}
 
-      <!-- Notes Stream (Supports Drag-and-Drop Screenshots) -->
+      <!-- Notes Stream (Pure OLED Black Blank Space When Empty) -->
       <div class="notes-stream" id="notesStream">
-        ${!notes.length ? `
-          <div class="empty-notes-box">
-            <div class="empty-notes-icon">📝</div>
-            <div class="empty-notes-title">No pending notes for Chrome #${p.chromeNo} (${esc(p.name)})</div>
-            <div class="empty-notes-subtitle">
-              Type a note, press <strong>Ctrl + V</strong> to paste a screenshot, or click <strong>🎙️ Flow Pro</strong> to dictate hands-free.
-            </div>
-          </div>
-        ` : notes.map(n => {
+        ${!notes.length ? '' : notes.map(n => {
           const isEditing = state.editingNoteId === n.id;
           const reactions = Array.isArray(n.reactions) ? n.reactions : [];
 
@@ -789,9 +814,8 @@
               </div>
             </div>
             <div class="note-timestamp">
-              ${new Date(n.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-              · ${n.done ? 'Completed' : 'Pending'}
-              ${n.editedAt ? ' · <span class="note-edited-label">(edited)</span>' : ''}
+              ${formatNoteDateTime(n.createdAt)} · ${n.done ? 'Completed' : 'Pending'}
+              ${n.editedAt ? ` · <span class="note-edited-label">(edited ${formatNoteDateTime(n.editedAt)})</span>` : ''}
             </div>
           </div>
           `;
@@ -948,17 +972,24 @@
     $$('.timer-chip', main).forEach(chip => {
       chip.onclick = () => {
         const mins = parseInt(chip.dataset.min, 10);
-        startCooldown(p, mins);
+        startCooldown(p, mins, chip.dataset.label || `${mins}m`);
       };
     });
 
     // 4. Custom Timer
     const customStart = $('#btnStartCustomTimer');
+    const customInput = $('#customMinInput');
+    const triggerCustomTimer = () => {
+      const mins = parseInt(customInput ? customInput.value : '', 10);
+      if (isNaN(mins) || mins <= 0) return;
+      startCooldown(p, mins, `${mins}m`);
+    };
     if (customStart) {
-      customStart.onclick = () => {
-        const mins = parseInt($('#customMinInput').value, 10);
-        if (isNaN(mins) || mins <= 0) return;
-        startCooldown(p, mins);
+      customStart.onclick = triggerCustomTimer;
+    }
+    if (customInput) {
+      customInput.onkeydown = (e) => {
+        if (e.key === 'Enter') triggerCustomTimer();
       };
     }
 
@@ -1022,6 +1053,9 @@
           if (countPending(p) === 0) {
             p.isPinned = false;
             p.pinnedAt = null;
+          }
+          if (!hasMessages(p)) {
+            p.isUnread = false;
           }
           saveState();
           renderSidebar();
@@ -1264,6 +1298,9 @@
           sourceProfile.isPinned = false;
           sourceProfile.pinnedAt = null;
         }
+        if (!hasMessages(sourceProfile)) {
+          sourceProfile.isUnread = false;
+        }
       }
 
       state.activeProfileId = targetProfile.id;
@@ -1462,11 +1499,15 @@
 
     // 4. "mark unread"
     if (lower === 'mark unread' || lower === 'mark as unread') {
-      activeProf.isUnread = true;
-      saveState();
-      renderSidebar();
-      renderMainChat();
-      showToast(`🗣️ Flow Command: Marked ${activeProf.name} as Unread`);
+      if (hasMessages(activeProf)) {
+        activeProf.isUnread = true;
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        showToast(`🗣️ Flow Command: Marked ${activeProf.name} as Unread`);
+      } else {
+        showToast(`⚠️ Add a message first before marking ${activeProf.name} Unread`);
+      }
       return { consumed: true, text: '' };
     }
 
@@ -1797,7 +1838,7 @@
   }
 
   // Cooldown timer starter
-  function startCooldown(profile, minutes) {
+  function startCooldown(profile, minutes, displayLabel) {
     const durationMs = minutes * 60 * 1000;
     profile.timerUntil = now() + durationMs;
     profile.timerDurationMs = durationMs;
@@ -1805,7 +1846,8 @@
     saveState();
     renderSidebar();
     renderMainChat();
-    showToast(`⏳ Cooldown set: ${minutes}m for ${profile.name}`);
+    const labelStr = displayLabel || `${minutes}m`;
+    showToast(`⏳ Cooldown set: ${labelStr} for ${profile.name}`);
     if (window.soundMgr) window.soundMgr.playClick();
   }
 

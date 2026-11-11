@@ -890,7 +890,7 @@ html, body {
   color: #ddd;
   font-size: 12px;
   font-weight: 700;
-  padding: 5px 12px;
+  padding: 5px 10px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -907,7 +907,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-left: 6px;
+  margin-left: auto;
 }
 
 .timer-custom-input {
