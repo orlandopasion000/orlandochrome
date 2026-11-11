@@ -113,7 +113,7 @@
     { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 Gold Cloud Black", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gmail Gold Cloud", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
@@ -1004,10 +1004,15 @@
           forwardedFrom: n.forwardedFrom || null
         }));
 
+        let resolvedName = (found.name && found.name.trim()) ? found.name : def.name;
+        if (def.taskbarSlot === 17 && (resolvedName === 'A6 Gold Cloud Black' || resolvedName === 'Profile 17' || resolvedName.startsWith('Chrome #15') || resolvedName === 'Slot #17')) {
+          resolvedName = 'A6 scite003 Gmail Gold Cloud';
+        }
+
         return {
           ...def,
           // Respect user-renamed profile name & email while defaulting to ground truth
-          name: (found.name && found.name.trim()) ? found.name : def.name,
+          name: resolvedName,
           email: (found.email && found.email.trim()) ? found.email : def.email,
           taskbarSlot: def.taskbarSlot,
           winShortcut: def.winShortcut,
@@ -1537,6 +1542,9 @@
       } else if (isUnread) {
         snippetHtml = '● Marked as Unread — Check window next';
         snippetClass = 'unread-glow';
+      } else {
+        snippetHtml = `<span class="snippet-msg-text snippet-msg-idle">${esc(p.email || 'Ready · Tap to add notes')}</span>`;
+        snippetClass = 'idle-row';
       }
 
       // Short slot tag e.g. W+3, W+4, #10
@@ -1544,18 +1552,16 @@
         ? `W+${p.winShortcut.replace('Win + ', '')}`
         : `#${p.taskbarSlot}`;
 
-      const hasSubRowContent = Boolean(snippetHtml || pendingCount > 0 || isTimer || isReset);
-
       return `
         <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" style="flex-shrink:0;" ${canUnread ? 'title="Right-click to toggle Unread dot"' : ''}>
-          <!-- Bigger Picture Avatar (52px) -->
+          <!-- Bigger Picture Avatar (56px) -->
           <div class="profile-avatar-wrap">
             <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
             <span class="profile-slot-badge">${esc(slotTag)}</span>
             ${isUnread ? `<span class="avatar-unread-dot" title="Unread Bookmark"></span>` : ''}
           </div>
 
-          <!-- Profile Details -->
+          <!-- Profile Details (Messenger Standard · Full Generous Height) -->
           <div class="profile-text-content">
             <div class="profile-row-header">
               <span class="profile-name">${esc(p.name)}</span>
@@ -1564,14 +1570,12 @@
                 <span class="profile-shortcut">${esc(p.winShortcut)}</span>
               </div>
             </div>
-            ${hasSubRowContent ? `
-              <div class="profile-row-sub">
-                <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
-                ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
-                ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
-                ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
-              </div>
-            ` : ''}
+            <div class="profile-row-sub">
+              <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
+              ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
+              ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
+              ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
+            </div>
           </div>
         </div>
       `;
@@ -1716,11 +1720,8 @@
             <span>Auto-detect and load the Chrome profiles of this laptop in 1 click.</span>
           </div>
           <div class="blank-scanner-actions">
-            <button type="button" class="btn-scanner-action primary" id="btnSelectLocalState" title="Select %LOCALAPPDATA%\\Google\\Chrome\\User Data\\Local State to import all Chrome profiles">
-              📂 Load Chrome "Local State"
-            </button>
-            <button type="button" class="btn-scanner-action" id="btnDownloadTaskbarScanner" title="Download 1-Click Windows Taskbar Scanner (.cmd)">
-              ⚡ 1-Click Taskbar Scanner (.cmd)
+            <button type="button" class="btn-scanner-action primary" id="btnSelectLocalState" title="Select %LOCALAPPDATA%\Google\Chrome\User Data\Local State to import all Chrome profiles">
+              📂 Load Chrome "Local State" (Zero Warnings)
             </button>
           </div>
         </div>
@@ -2852,39 +2853,18 @@
   // =========================================================================
   // 📲 APP DISTRIBUTION & COMMAND SUITE (PWA Install, Mobile QR, iOS Guide, Backup, Blank Edition)
   // =========================================================================
-  // Direct Desktop App Launcher (Opens native OrlandoChrome.exe and brings it to focus on Windows)
-  function launchDesktopApp() {
-    if (window.soundMgr) window.soundMgr.playClickSoft();
-    showToast('🚀 Launching OrlandoChrome Desktop App...');
+  // Open Interactive Installation Guide Modal (OrlandoRecharge Standard)
+  function openInstallGuideModal() {
+    const modal = $('#installGuideModal');
+    if (!modal) return;
+    modal.classList.add('open');
 
-    // 1. Trigger registered Windows URI protocol (launches OrlandoChrome.exe directly)
-    try {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = 'orlandochrome://launch';
-      document.body.appendChild(iframe);
-      setTimeout(() => { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }, 3000);
-    } catch (e) {}
-
-    // 2. Also trigger direct link navigation for protocol handler
-    try {
-      const a = document.createElement('a');
-      a.href = 'orlandochrome://launch';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { if (a.parentNode) a.parentNode.removeChild(a); }, 1000);
-    } catch (e) {}
-
-    // 3. Fallback: Open pure standalone application window (no address bar, no tabs)
-    setTimeout(() => {
-      const appUrl = window.location.href.split('#')[0];
-      const winFeatures = 'popup=yes,menubar=no,toolbar=no,location=no,status=no,personalbar=no,directories=no,resizable=yes,scrollbars=yes,width=1380,height=880,left=100,top=60';
-      const appWin = window.open(appUrl, 'OrlandoChromeDesktopAppWindow', winFeatures);
-      if (appWin) {
-        try { appWin.focus(); } catch (e) {}
-      }
-    }, 220);
+    const close = () => modal.classList.remove('open');
+    const btnClose = $('#closeInstallGuide');
+    if (btnClose) btnClose.onclick = close;
+    const btnDismiss = $('#dismissInstallGuide');
+    if (btnDismiss) btnDismiss.onclick = close;
+    modal.onclick = (e) => { if (e.target === modal) close(); };
   }
 
   function downloadTextFile(filename, content, mime = 'text/plain;charset=utf-8') {
@@ -3199,19 +3179,15 @@ ${jsRes}
                 </div>
               </div>
 
-              <!-- Module 2: Direct Desktop App Launcher (No Downloads · Leads Directly to Running App) -->
-              <div class="qr-telemetry-card" style="border:1px solid rgba(255, 77, 88, 0.45); background:radial-gradient(circle at 10% 20%, rgba(229, 9, 20, 0.16) 0%, rgba(0, 0, 0, 0.98) 100%);">
+              <!-- Module 2: Device Install (OrlandoRecharge 1-Click App Standard) -->
+              <div class="qr-telemetry-card">
                 <div class="qr-telemetry-header">
-                  <span>🖥️ OrlandoChrome Desktop App</span>
-                  <span class="qr-telemetry-sub" style="color:#6ee7b7; border-color:rgba(16,185,129,0.35); background:rgba(16,185,129,0.14);">Desktop App Ready</span>
+                  <span>💻 Device Install</span>
+                  <span class="qr-telemetry-sub" style="color:#ffd1d6; border-color:rgba(255,77,88,0.35); background:rgba(229,9,20,0.14);">Zero Warnings</span>
                 </div>
-                <button type="button" class="btn-suite-radiant-red" id="btnLaunchDesktopApp" style="font-size:0.92rem; padding:12px 18px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" title="Tap to launch the OrlandoChrome Desktop App directly">
-                  <span>🚀</span>
-                  <span>Launch OrlandoChrome App</span>
+                <button type="button" class="btn-suite-radiant-red" id="btn1ClickInstallApp" style="font-size:0.92rem; padding:12px 18px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" title="1-Click Install App to Windows Taskbar">
+                  ⚡ 1-Click Install App
                 </button>
-                <div style="font-size:0.72rem; color:#a1a1aa; margin-top:8px; line-height:1.45;">
-                  Tapping this opens your <b>OrlandoChrome Desktop App directly</b> (no browser tabs, no URL bar). While the window is open, right-click its icon on your taskbar and click <b>"Pin to taskbar"</b>.
-                </div>
               </div>
 
               <!-- Module 3: Workspace Backup & Mobile Home Screen Quick Guide -->
@@ -3384,12 +3360,23 @@ ${jsRes}
         showToast('🖼️ Downloaded Studio QR Poster (.png)!');
       };
 
-      // Launch Desktop App from modal button
-      const btnLaunchInModal = $('#btnLaunchDesktopApp', backdrop);
-      if (btnLaunchInModal) {
-        btnLaunchInModal.onclick = () => {
-          close();
-          launchDesktopApp();
+      // 1-Click Install App Button (OrlandoRecharge Standard)
+      const btn1Click = $('#btn1ClickInstallApp', backdrop);
+      if (btn1Click) {
+        btn1Click.onclick = () => {
+          if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            deferredInstallPrompt.userChoice.then(choice => {
+              if (choice && choice.outcome === 'accepted') {
+                showToast('Installing OrlandoChrome to Windows Taskbar... 🚀');
+                close();
+              }
+              deferredInstallPrompt = null;
+            });
+          } else {
+            close();
+            openInstallGuideModal();
+          }
         };
       }
 
@@ -3967,12 +3954,9 @@ ${jsRes}
       setFilter($('#tabAll'), 'all');
     };
 
-    // Topbar App Suite, Desktop App Launcher and Next Ready Buttons
+    // Topbar App Suite and Next Ready Buttons
     const btnNextReady = $('#btnNextReady');
     if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
-
-    const btnTopbarLaunch = $('#btnTopbarLaunchApp');
-    if (btnTopbarLaunch) btnTopbarLaunch.onclick = () => launchDesktopApp();
 
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
