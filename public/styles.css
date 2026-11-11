@@ -3755,7 +3755,462 @@ body.is-resizing-pane * {
   }
 }
 
-/* Tablet Portrait & Cellphone Landscape (<= 768px) */
+/* ==========================================================================
+   📱 NATIVE iOS MESSENGER / FACEBOOK GESTURE NAVIGATION & PROFILE DOCK
+   ========================================================================== */
+
+/* Always-Visible Mobile Quick-Tap Profile Dock (Hidden on Desktop, Shown on <= 768px) */
+.mobile-profile-dock-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: #040404;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 6px 10px;
+  width: 100%;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mobile-dock-list-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: #0d0d0d;
+  border: 1px solid #2b2b2b;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 5px 9px;
+  border-radius: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 46px;
+  transition: var(--transition-fast);
+}
+
+.mobile-dock-list-btn:active,
+.mobile-dock-list-btn:hover {
+  border-color: #ff4d58;
+  background: rgba(229, 9, 20, 0.16);
+}
+
+.dock-back-chevron {
+  font-size: 1.15rem;
+  line-height: 0.9;
+  font-weight: 900;
+  color: #ff6b74;
+}
+
+.mobile-profile-dock-scroll {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px;
+  flex: 1;
+}
+
+.mobile-profile-dock-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 3px 5px;
+  border-radius: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 52px;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.mobile-dock-item:active {
+  transform: scale(0.93);
+}
+
+.mobile-dock-item.active {
+  background: rgba(229, 9, 20, 0.16);
+  border-color: rgba(255, 77, 88, 0.45);
+}
+
+.mobile-dock-avatar-wrap {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  padding: 2px;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-dock-avatar-wrap.dock-ring-active {
+  background: var(--nf-blood-grad);
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.65);
+}
+
+.mobile-dock-avatar-wrap.dock-ring-green {
+  background: linear-gradient(135deg, #ffffff 0%, #6ee7b7 35%, #10b981 100%);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.mobile-dock-avatar-wrap.dock-ring-amber {
+  background: linear-gradient(135deg, #fde68a 0%, #f59e0b 65%, #b45309 100%);
+}
+
+.mobile-dock-avatar-wrap.dock-ring-red {
+  background: var(--nf-blood-grad);
+}
+
+.mobile-dock-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #000000;
+  display: block;
+}
+
+.mobile-dock-slot {
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000000;
+  border: 1px solid #d97706;
+  color: #fbbf24;
+  font-size: 0.54rem;
+  font-weight: 800;
+  padding: 0 4px;
+  border-radius: 4px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.mobile-dock-badge-pending {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--nf-red-white-pin-grad);
+  color: #ffffff;
+  font-size: 0.58rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 6px rgba(229, 9, 20, 0.7);
+}
+
+.mobile-dock-badge-reset {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #6ee7b7 45%, #10b981 100%);
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.85);
+}
+
+.mobile-dock-badge-timer {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 0.62rem;
+  line-height: 1;
+}
+
+.mobile-dock-badge-unread {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--nf-red-white-pin-grad);
+  border: 1.5px solid #000000;
+}
+
+.mobile-dock-name {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #b3b3b3;
+  max-width: 54px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.15;
+  margin-top: 2px;
+}
+
+.mobile-dock-item.active .mobile-dock-name {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+/* Header Quick Prev / Next Profile Stepper */
+.header-profile-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+.btn-step-profile {
+  background: #0c0c0c;
+  border: 1px solid #262626;
+  color: #e5e5e5;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-step-profile:hover,
+.btn-step-profile:active {
+  border-color: #ff4d58;
+  color: #ffffff;
+  background: rgba(229, 9, 20, 0.2);
+}
+
+.ios-back-chevron {
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 0.9;
+  margin-right: 3px;
+}
+
+/* iOS Left-Edge Interactive Pop Visual Indicator */
+.ios-edge-swipe-indicator {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translate3d(-24px, -50%, 0) scale(0.8);
+  width: 34px;
+  height: 64px;
+  border-radius: 999px;
+  background: rgba(15, 15, 18, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.85);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ios-edge-swipe-indicator.ready {
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #6ee7b7 35%, #10b981 100%);
+  border-color: #ffffff;
+  color: #022c22;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.75);
+}
+
+.ios-edge-chevron {
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Messenger Swipe-to-Reply / Quick Action Indicators on Message Bubbles */
+.note-item-wrap {
+  position: relative;
+}
+
+.note-swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.85);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: #101012;
+  border: 1px solid #2e2e34;
+  color: #e5e7eb;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.note-swipe-indicator.left-ind {
+  left: 6px;
+}
+
+.note-swipe-indicator.right-ind {
+  right: 6px;
+}
+
+.note-swipe-indicator.triggered {
+  background: radial-gradient(circle at 25% 25%, #ffffff 0%, #6ee7b7 32%, #10b981 100%);
+  border-color: #a7f3d0;
+  color: #022c22;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.55);
+}
+
+.note-bubble {
+  position: relative;
+  z-index: 2;
+  will-change: transform;
+}
+
+/* Messenger Swipe-to-Reveal Trays on Sidebar Profile Rows */
+.profile-item-swipe-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-swipe-tray {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.profile-swipe-tray.left-tray {
+  left: 0;
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
+
+.profile-swipe-tray.right-tray {
+  right: 0;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+
+.profile-swipe-tray.triggered.left-tray {
+  background: radial-gradient(circle at 25% 25%, #ffffff 0%, #6ee7b7 35%, #10b981 100%);
+  color: #022c22;
+}
+
+.profile-swipe-tray.triggered.right-tray {
+  background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
+  color: #1c1917;
+}
+
+.profile-item {
+  position: relative;
+  z-index: 2;
+  background: #000000;
+}
+
+/* Floating "Resume Active Chat" Bar at Bottom of Mobile Profile List */
+.mobile-resume-chat-bar {
+  display: none;
+  position: sticky;
+  bottom: 10px;
+  z-index: 15;
+  padding: 8px 12px 4px;
+}
+
+.btn-mobile-resume-chat {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(14, 14, 16, 0.96);
+  border: 1px solid rgba(255, 77, 88, 0.55);
+  color: #ffffff;
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.92), 0 0 16px rgba(229, 9, 20, 0.35);
+}
+
+.resume-chat-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #ff4d58;
+}
+
+.resume-chat-text {
+  flex: 1;
+  text-align: left;
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resume-chat-arrow {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #ff6b74;
+}
+
+/* iOS Sheet Grabber Handle for Swipe-Down-to-Dismiss Modals */
+.ios-sheet-grabber {
+  width: 42px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  margin: 0 auto 10px;
+  flex-shrink: 0;
+}
+
+/* Horizontal Profile Paging Slide Feedback */
+@keyframes pageSlideFromRight {
+  0% { opacity: 0.72; transform: translate3d(22px, 0, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes pageSlideFromLeft {
+  0% { opacity: 0.72; transform: translate3d(-22px, 0, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.chat-main.paging-slide-left .notes-stream,
+.chat-main.paging-slide-left .chat-header {
+  animation: pageSlideFromRight 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.chat-main.paging-slide-right .notes-stream,
+.chat-main.paging-slide-right .chat-header {
+  animation: pageSlideFromLeft 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Tablet Portrait & Cellphone Landscape / iPhone (<= 768px) */
 @media (max-width: 768px) {
   .app-topbar {
     padding: 0.35rem 0.75rem;
@@ -3763,46 +4218,75 @@ body.is-resizing-pane * {
   .nf-alarm-pill {
     display: none;
   }
+  .mobile-profile-dock-bar {
+    display: flex;
+  }
+  .mobile-resume-chat-bar {
+    display: block;
+  }
   .app-workspace {
-    flex-direction: column;
     position: relative;
+    overflow: hidden;
+    display: block;
   }
   .workspace-resizer {
     display: none;
   }
+  /* Layer 1 (Underneath): Full-Screen Profile List with Native iOS Parallax */
   .sidebar {
+    position: absolute;
+    inset: 0;
     width: 100%;
     min-width: 100%;
     max-width: 100%;
-    height: 42%;
+    height: 100%;
     border-right: none;
-    border-bottom: 1px solid #1f1f1f;
+    border-bottom: none;
+    z-index: 10;
+    background: #000000;
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+    will-change: transform, opacity;
   }
+  /* Layer 2 (Top Pushed View): Active Profile Chat with Edge-Swipe Tracking */
   .chat-main {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: 58%;
+    height: 100%;
+    z-index: 25;
+    background: #000000;
+    transform: translate3d(102%, 0, 0);
+    pointer-events: none;
+    box-shadow: -14px 0 38px rgba(0, 0, 0, 0.92);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
   }
-  /* When user taps a profile on mobile, focus full-screen chat with "← Profiles" button */
+  /* When chat is open on mobile: Sidebar sits at -28% underneath for live Edge-Swipe Parallax! */
   body.mobile-chat-open .sidebar {
-    display: none;
+    transform: translate3d(-28%, 0, 0);
+    opacity: 0.65;
+    pointer-events: none;
   }
   body.mobile-chat-open .chat-main {
-    height: 100%;
+    transform: translate3d(0, 0, 0);
+    pointer-events: auto;
   }
-  body.mobile-chat-open .btn-mobile-back {
+  .btn-mobile-back {
     display: inline-flex;
     align-items: center;
   }
   .chat-header {
-    padding: 0.5rem 0.75rem;
-    min-height: 3.6rem;
+    padding: 0.45rem 0.65rem;
+    min-height: 3.3rem;
   }
   .chat-header-avatar {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.35rem;
+    height: 2.35rem;
   }
   .notes-stream {
-    padding: 0.85rem 0.9rem;
+    padding: 0.75rem 0.85rem;
   }
   .note-item-wrap {
     max-width: 100%;
@@ -3818,12 +4302,12 @@ body.is-resizing-pane * {
     flex-wrap: wrap;
   }
   .composer-bar {
-    padding: 0.55rem 0.75rem;
+    padding: 0.5rem 0.65rem;
     gap: 0.4rem;
     flex-wrap: wrap;
   }
   .composer-input-wrap {
-    min-width: 160px;
+    min-width: 150px;
   }
   .btn-wispr-studio {
     display: none;

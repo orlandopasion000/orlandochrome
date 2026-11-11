@@ -1384,6 +1384,132 @@
       `</span>`;
   }
 
+  // Return profiles sorted in canonical order (Pinned with pending messages first, then Taskbar Slot order)
+  function getSortedProfiles(listToSort = state.profiles) {
+    return [...listToSort].sort((a, b) => {
+      const aPin = !!(a.isPinned && countPending(a) > 0);
+      const bPin = !!(b.isPinned && countPending(b) > 0);
+      if (aPin !== bPin) return aPin ? -1 : 1;
+      if (aPin && bPin) return (b.pinnedAt || 0) - (a.pinnedAt || 0);
+      return a.taskbarSlot - b.taskbarSlot;
+    });
+  }
+
+  // Smooth Native iOS Push / Pop Transitions for Mobile (<= 768px)
+  function openMobileChatWithSlide(profileId) {
+    if (profileId) {
+      state.activeProfileId = profileId;
+    }
+    const chatMain = $('#chatMain');
+    const sidebar = $('#appSidebar');
+    if (chatMain) {
+      chatMain.style.transition = '';
+      chatMain.style.transform = '';
+    }
+    if (sidebar) {
+      sidebar.style.transition = '';
+      sidebar.style.transform = '';
+      sidebar.style.opacity = '';
+    }
+    if (window.innerWidth <= 768) {
+      const wasOpen = document.body.classList.contains('mobile-chat-open');
+      document.body.classList.add('mobile-chat-open');
+      if (!wasOpen) {
+        try {
+          window.history.pushState({ mobileChat: true, profileId: state.activeProfileId }, '');
+        } catch (e) {}
+      }
+    }
+    renderSidebar();
+    renderMainChat();
+  }
+
+  function closeMobileChatWithSlide() {
+    const chatMain = $('#chatMain');
+    const sidebar = $('#appSidebar');
+    if (chatMain) {
+      chatMain.style.transition = '';
+      chatMain.style.transform = '';
+    }
+    if (sidebar) {
+      sidebar.style.transition = '';
+      sidebar.style.transform = '';
+      sidebar.style.opacity = '';
+    }
+    document.body.classList.remove('mobile-chat-open');
+    renderSidebar();
+  }
+
+  // Step to Previous (-1) or Next (+1) Chrome Profile (Paging Gesture / Header Tap)
+  function stepProfile(delta) {
+    const sorted = getSortedProfiles();
+    if (!sorted.length) return;
+    const curIdx = sorted.findIndex(p => p.id === state.activeProfileId);
+    const nextIdx = (curIdx + delta + sorted.length) % sorted.length;
+    const nextProf = sorted[nextIdx];
+    state.activeProfileId = nextProf.id;
+    renderSidebar();
+    renderMainChat();
+    const chatMain = $('#chatMain');
+    if (chatMain) {
+      chatMain.classList.remove('paging-slide-left', 'paging-slide-right');
+      void chatMain.offsetWidth;
+      chatMain.classList.add(delta > 0 ? 'paging-slide-left' : 'paging-slide-right');
+      setTimeout(() => {
+        chatMain.classList.remove('paging-slide-left', 'paging-slide-right');
+      }, 260);
+    }
+    if (window.soundMgr) window.soundMgr.playClick();
+    showToast(`${delta > 0 ? '▶' : '◀'} Chrome #${nextProf.chromeNo}: ${nextProf.name}`);
+  }
+
+  // Render Always-Visible Mobile Quick-Tap Profile Switcher Dock (#mobileProfileDock)
+  // Lets iPhone users tap directly between ANY Chrome profile in 1 tap at all times!
+  function renderMobileProfileDockHtml(activeProfile) {
+    const cur = now();
+    const sorted = getSortedProfiles();
+    return `
+      <div class="mobile-profile-dock-bar" id="mobileProfileDockBar">
+        <button type="button" class="mobile-dock-list-btn" id="btnDockAllList" title="View full vertical profile list (or swipe right from left edge)">
+          <span class="dock-back-chevron">‹</span>
+          <span>List</span>
+        </button>
+        <div class="mobile-profile-dock-scroll" id="mobileProfileDockScroll">
+          ${sorted.map(prof => {
+            const isAct = prof.id === activeProfile.id;
+            const pend = countPending(prof);
+            const isPin = !!(prof.isPinned && pend > 0);
+            const isTmr = prof.timerUntil && prof.timerUntil > cur;
+            const isRst = prof.isReset;
+            const isUnr = !!(prof.isUnread && hasMessages(prof));
+            const av = getAvatarSrc(prof);
+            const shortSlot = prof.winShortcut.startsWith('Win + ')
+              ? `W+${prof.winShortcut.replace('Win + ', '')}`
+              : `#${prof.taskbarSlot}`;
+            const shortName = prof.name.replace(/^Gmail\s*/i, '').slice(0, 9);
+            const ringCls = isAct
+              ? 'dock-ring-active'
+              : (isPin || isRst ? 'dock-ring-green' : (isTmr ? 'dock-ring-amber' : (pend > 0 ? 'dock-ring-red' : '')));
+
+            return `
+              <button type="button" class="mobile-dock-item ${isAct ? 'active' : ''}" data-dock-pid="${prof.id}" title="${esc(prof.name)} (${esc(prof.winShortcut)})">
+                <div class="mobile-dock-avatar-wrap ${ringCls}">
+                  <img src="${av}" class="mobile-dock-avatar" alt="${esc(prof.name)}">
+                  <span class="mobile-dock-slot">${esc(shortSlot)}</span>
+                  ${pend > 0 ? `<span class="mobile-dock-badge-pending">${pend}</span>` : ''}
+                  ${(!pend && isRst) ? `<span class="mobile-dock-badge-reset"></span>` : ''}
+                  ${(!pend && !isRst && isTmr) ? `<span class="mobile-dock-badge-timer">⏳</span>` : ''}
+                  ${(!pend && !isRst && !isTmr && isUnr) ? `<span class="mobile-dock-badge-unread"></span>` : ''}
+                </div>
+                <span class="mobile-dock-name">${esc(shortName)}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
   // Render Sidebar Profiles List
   function renderSidebar() {
     const list = $('#profileList');
@@ -1433,6 +1559,8 @@
       return;
     }
 
+    const activeProf = getProfile(state.activeProfileId);
+
     list.innerHTML = filtered.map(p => {
       const isActive = p.id === state.activeProfileId;
       const pendingCount = countPending(p);
@@ -1472,37 +1600,56 @@
         : `#${p.taskbarSlot}`;
 
       const hasSubRowContent = Boolean(snippetHtml || pendingCount > 0 || isTimer || isReset);
+      const rightSwipeLabel = pendingCount > 0 ? (isPinned ? '📌 Unpin' : '📌 Pin Top') : (canUnread ? (isUnread ? '✓ Read' : '● Unread') : '💬 Open');
+      const leftSwipeLabel = (isTimer || isReset) ? '✕ Clear Timer' : '⏳ 45m Timer';
 
       return `
-        <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" ${canUnread ? 'title="Right-click to toggle Unread dot"' : ''}>
-          <!-- Bigger Picture Avatar (52px) -->
-          <div class="profile-avatar-wrap">
-            <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
-            <span class="profile-slot-badge">${esc(slotTag)}</span>
-            ${isUnread ? `<span class="avatar-unread-dot" title="Unread Bookmark"></span>` : ''}
-          </div>
-
-          <!-- Profile Details -->
-          <div class="profile-text-content">
-            <div class="profile-row-header">
-              <span class="profile-name">${esc(p.name)}</span>
-              <div class="profile-header-right">
-                ${canUnread ? `<button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>` : ''}
-                <span class="profile-shortcut">${esc(p.winShortcut)}</span>
-              </div>
+        <div class="profile-item-swipe-container" data-swipe-pid="${p.id}">
+          <div class="profile-swipe-tray left-tray"><span>${rightSwipeLabel}</span></div>
+          <div class="profile-swipe-tray right-tray"><span>${leftSwipeLabel}</span></div>
+          <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" ${canUnread ? 'title="Right-click to toggle Unread dot · Swipe left/right on iPhone for quick actions"' : ''}>
+            <!-- Bigger Picture Avatar (52px) -->
+            <div class="profile-avatar-wrap">
+              <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
+              <span class="profile-slot-badge">${esc(slotTag)}</span>
+              ${isUnread ? `<span class="avatar-unread-dot" title="Unread Bookmark"></span>` : ''}
             </div>
-            ${hasSubRowContent ? `
-              <div class="profile-row-sub">
-                <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
-                ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
-                ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
-                ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
+
+            <!-- Profile Details -->
+            <div class="profile-text-content">
+              <div class="profile-row-header">
+                <span class="profile-name">${esc(p.name)}</span>
+                <div class="profile-header-right">
+                  ${canUnread ? `<button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>` : ''}
+                  <span class="profile-shortcut">${esc(p.winShortcut)}</span>
+                </div>
               </div>
-            ` : ''}
+              ${hasSubRowContent ? `
+                <div class="profile-row-sub">
+                  <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
+                  ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
+                  ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
+                  ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
+                </div>
+              ` : ''}
+            </div>
           </div>
         </div>
       `;
-    }).join('');
+    }).join('') + (activeProf ? `
+      <div class="mobile-resume-chat-bar" id="mobileResumeChatBar">
+        <button type="button" class="btn-mobile-resume-chat" id="btnResumeActiveChat">
+          <img src="${getAvatarSrc(activeProf)}" class="resume-chat-avatar" alt="${esc(activeProf.name)}">
+          <span class="resume-chat-text">Open <strong>Chrome #${activeProf.chromeNo}: ${esc(activeProf.name)}</strong></span>
+          <span class="resume-chat-arrow">›</span>
+        </button>
+      </div>
+    ` : '');
+
+    const btnResume = $('#btnResumeActiveChat', list);
+    if (btnResume) {
+      btnResume.onclick = () => openMobileChatWithSlide(state.activeProfileId);
+    }
 
     // Attach interactive Pin click handlers
     $$('.pin-btn', list).forEach(btn => {
@@ -1518,6 +1665,7 @@
           saveState();
           if (window.soundMgr) window.soundMgr.playClick();
           renderSidebar();
+          renderMainChat();
           showToast(`Returned ${prof.name} to ${prof.winShortcut}`);
         } else {
           prof.isPinned = true;
@@ -1525,6 +1673,7 @@
           saveState();
           if (window.soundMgr) window.soundMgr.playClick();
           renderSidebar();
+          renderMainChat();
           list.scrollTo({ top: 0, behavior: 'smooth' });
           showToast(`Pinned ${prof.name} to top`);
         }
@@ -1550,12 +1699,11 @@
     // Attach item click & right-click (contextmenu) handlers
     $$('.profile-item', list).forEach(item => {
       item.onclick = () => {
-        state.activeProfileId = item.dataset.id;
-        if (window.innerWidth <= 768) {
-          document.body.classList.add('mobile-chat-open');
+        if (item.dataset.justSwiped === '1') {
+          item.dataset.justSwiped = '0';
+          return;
         }
-        renderSidebar();
-        renderMainChat();
+        openMobileChatWithSlide(item.dataset.id);
       };
       item.oncontextmenu = (e) => {
         const prof = getProfile(item.dataset.id);
@@ -1576,6 +1724,12 @@
     const main = $('#chatMain');
     if (!main) return;
 
+    // Preserve mobile profile dock scroll position before re-render
+    const prevDockScroll = $('#mobileProfileDockScroll', main);
+    if (prevDockScroll) {
+      state.mobileDockScrollLeft = prevDockScroll.scrollLeft;
+    }
+
     const p = getProfile(state.activeProfileId);
     const cur = now();
     const isTimer = p.timerUntil && p.timerUntil > cur;
@@ -1588,11 +1742,14 @@
     const w = state.wispr;
 
     main.innerHTML = `
-      <!-- Header with Bigger Picture (60px), Sticky Note, Unread Bookmark & Rename Action -->
-      <header class="chat-header">
+      <!-- Always-Visible Mobile Quick-Tap Profile Dock (1-Tap Profile Switching on iPhone!) -->
+      ${renderMobileProfileDockHtml(p)}
+
+      <!-- Header with Bigger Picture (60px), Prev/Next Paging, Sticky Note, Unread Bookmark & Rename Action -->
+      <header class="chat-header" id="chatHeaderBar">
         <div class="chat-header-profile">
-          <button type="button" class="btn-mobile-back" id="btnMobileBackToList" title="Back to all profiles">
-            ← Profiles
+          <button type="button" class="btn-mobile-back" id="btnMobileBackToList" title="Back to all profiles (or swipe right from left edge)">
+            <span class="ios-back-chevron">‹</span> Profiles
           </button>
           <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" title="Click to upload/change photo" alt="${esc(p.name)}">
           <div class="chat-header-info">
@@ -1603,6 +1760,11 @@
             <div class="chat-header-meta">
               ${esc(p.email)} · Taskbar Slot #${p.taskbarSlot}
             </div>
+          </div>
+          <!-- Quick Prev / Next Profile Stepper Buttons -->
+          <div class="header-profile-stepper" title="Tap or swipe header left/right to switch profiles">
+            <button type="button" class="btn-step-profile" id="btnPrevProfile" title="Previous Chrome Profile">‹</button>
+            <button type="button" class="btn-step-profile" id="btnNextProfile" title="Next Chrome Profile">›</button>
           </div>
         </div>
 
@@ -1701,6 +1863,8 @@
 
           return `
           <div class="note-item-wrap" data-nid="${n.id}">
+            <div class="note-swipe-indicator left-ind"><span>${n.done ? '↩ Reopen' : '✓ Done'}</span></div>
+            <div class="note-swipe-indicator right-ind"><span>↪ Forward</span></div>
             <div class="note-bubble ${n.done ? 'done' : ''} ${isEditing ? 'editing' : ''}">
               <!-- Hover Quick Reaction Bar (Messenger / Discord Style) -->
               <div class="note-reaction-picker" title="Tag message with priority reaction">
@@ -1921,13 +2085,44 @@
     }
 
     // Hook up interactive handlers
-    // 0. Mobile Back to Profiles List button
+    // 0. Mobile Back to Profiles List button & Always-Visible Quick-Tap Profile Dock
     const btnMobileBack = $('#btnMobileBackToList');
     if (btnMobileBack) {
-      btnMobileBack.onclick = () => {
-        document.body.classList.remove('mobile-chat-open');
-      };
+      btnMobileBack.onclick = () => closeMobileChatWithSlide();
     }
+    const btnDockList = $('#btnDockAllList', main);
+    if (btnDockList) {
+      btnDockList.onclick = () => closeMobileChatWithSlide();
+    }
+    const dockScroll = $('#mobileProfileDockScroll', main);
+    if (dockScroll) {
+      if (typeof state.mobileDockScrollLeft === 'number') {
+        dockScroll.scrollLeft = state.mobileDockScrollLeft;
+      }
+      const activeDockBtn = $(`.mobile-dock-item[data-dock-pid="${p.id}"]`, dockScroll);
+      if (activeDockBtn) {
+        requestAnimationFrame(() => {
+          try {
+            activeDockBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+          } catch (e) {}
+        });
+      }
+      $$('.mobile-dock-item', dockScroll).forEach(btn => {
+        btn.onclick = () => {
+          const targetId = btn.dataset.dockPid;
+          if (!targetId) return;
+          state.mobileDockScrollLeft = dockScroll.scrollLeft;
+          openMobileChatWithSlide(targetId);
+          if (window.soundMgr) window.soundMgr.playClick();
+        };
+      });
+    }
+
+    // 0b. Header Prev / Next Profile Paging Buttons
+    const btnPrevProf = $('#btnPrevProfile', main);
+    if (btnPrevProf) btnPrevProf.onclick = () => stepProfile(-1);
+    const btnNextProf = $('#btnNextProfile', main);
+    if (btnNextProf) btnNextProf.onclick = () => stepProfile(1);
 
     // 1. Photo upload via clicking avatar
     const avatarImg = $('#headerAvatarImg');
@@ -2499,16 +2694,101 @@
     showToast(`⚡ Jumped to ${nextProf.name} (${nextProf.winShortcut})`);
   }
 
-  // Full-Screen Lightbox Modal for Pasted/Dropped Screenshots
+  // Native iOS Swipe-Down-to-Dismiss for Full-Screen Photos, Sheets & Modals (Finger-Tracking + Mid-Swipe Cancel)
+  function attachSwipeDownToDismiss(backdrop, sheetEl, onClose) {
+    if (!backdrop || !sheetEl) return;
+    let startY = 0;
+    let startX = 0;
+    let currentDy = 0;
+    let lastY = 0;
+    let lastTime = 0;
+    let velocityY = 0;
+    let dragging = false;
+
+    sheetEl.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      const scrollEl = e.target.closest('.forward-profiles-list, .qr-studio-body');
+      if (scrollEl && scrollEl.scrollTop > 2) return;
+      if (sheetEl.scrollTop > 2) return;
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      lastY = startY;
+      lastTime = performance.now();
+      currentDy = 0;
+      velocityY = 0;
+      dragging = false;
+    }, { passive: true });
+
+    sheetEl.addEventListener('touchmove', (e) => {
+      if (!startY || e.touches.length !== 1) return;
+      const y = e.touches[0].clientY;
+      const x = e.touches[0].clientX;
+      const dy = y - startY;
+      const dx = x - startX;
+
+      if (!dragging) {
+        if (dy > 10 && Math.abs(dy) > Math.abs(dx) * 1.25) {
+          dragging = true;
+          sheetEl.style.transition = 'none';
+        } else if (Math.abs(dx) > 12 || dy < -8) {
+          startY = 0;
+          return;
+        } else {
+          return;
+        }
+      }
+
+      if (e.cancelable) e.preventDefault();
+      const nowT = performance.now();
+      const dt = Math.max(1, nowT - lastTime);
+      velocityY = (y - lastY) / dt;
+      lastY = y;
+      lastTime = nowT;
+
+      currentDy = Math.max(0, dy);
+      const scale = Math.max(0.92, 1 - currentDy * 0.00028);
+      sheetEl.style.transform = `translate3d(0, ${currentDy}px, 0) scale(${scale})`;
+      const alpha = Math.max(0.2, 0.85 - (currentDy / 380) * 0.65);
+      backdrop.style.background = `rgba(0, 0, 0, ${alpha})`;
+    }, { passive: false });
+
+    const finishDrag = () => {
+      if (!dragging) {
+        startY = 0;
+        return;
+      }
+      dragging = false;
+      startY = 0;
+      const shouldDismiss = (currentDy > 90 || (currentDy > 35 && velocityY > 0.45)) && velocityY >= -0.15;
+      sheetEl.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease';
+      if (shouldDismiss) {
+        sheetEl.style.transform = `translate3d(0, ${window.innerHeight}px, 0) scale(0.92)`;
+        sheetEl.style.opacity = '0';
+        setTimeout(() => {
+          if (typeof onClose === 'function') onClose();
+        }, 220);
+      } else {
+        // Stop midway -> cancel and spring smoothly back into place!
+        sheetEl.style.transform = '';
+        backdrop.style.background = '';
+      }
+    };
+
+    sheetEl.addEventListener('touchend', finishDrag, { passive: true });
+    sheetEl.addEventListener('touchcancel', finishDrag, { passive: true });
+  }
+
+  // Full-Screen Lightbox Modal for Pasted/Dropped Screenshots (With iOS Swipe-Down-to-Dismiss)
   function openLightboxModal(imgSrc, caption) {
     if (!imgSrc) return;
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
-      <div class="lightbox-modal">
+      <div class="lightbox-modal" id="lightboxSheet">
+        <div class="ios-sheet-grabber" title="Swipe down to dismiss"></div>
         <img src="${imgSrc}" class="lightbox-img" alt="Full screen screenshot">
         <div class="lightbox-footer">
-          <span class="lightbox-caption">${esc(caption || 'Screenshot')}</span>
+          <span class="lightbox-caption">${esc(caption || 'Screenshot · Swipe down to close')}</span>
           <button type="button" class="btn-composer-send" id="btnCloseLightbox" style="padding:7px 18px;">Close ✕</button>
         </div>
       </div>
@@ -2517,6 +2797,7 @@
     const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
     $('#btnCloseLightbox', backdrop).onclick = close;
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+    attachSwipeDownToDismiss(backdrop, $('#lightboxSheet', backdrop), close);
   }
 
   // 🔄 Forward / Move Task to Another Chrome Profile Modal
@@ -2617,6 +2898,7 @@
     const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
     $('#btnCloseForward', backdrop).onclick = close;
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+    attachSwipeDownToDismiss(backdrop, $('.forward-modal', backdrop), close);
 
     const quickBtn = $('#btnQuickMoveNext', backdrop);
     if (quickBtn && nextAvailable) {
@@ -3021,6 +3303,7 @@ ${jsRes}
       const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
       $('#btnCloseAppSuite', backdrop).onclick = close;
       backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+      attachSwipeDownToDismiss(backdrop, $('.app-suite-modal', backdrop), close);
 
       $('#tabQrPersonal', backdrop).onclick = () => {
         isBlankTarget = false;
@@ -4031,12 +4314,428 @@ ${jsRes}
         renderClockBox();
       }
     });
+
+    // Browser Back Button (popstate) support for Mobile Chat -> Profile List
+    window.addEventListener('popstate', () => {
+      if (window.innerWidth <= 768 && document.body.classList.contains('mobile-chat-open')) {
+        closeMobileChatWithSlide();
+      }
+    });
+  }
+
+  // =========================================================================
+  // 📱 NATIVE iOS MESSENGER / FACEBOOK GESTURE NAVIGATION ENGINE
+  // - Interactive Edge Swipe-Back (Finger-Tracking + Parallax + Mid-Swipe Cancel)
+  // - Right-Edge Swipe-In (Pull Active Chat Back from Profile List)
+  // - Swipe-to-Reply / Quick Action on Message Bubbles
+  // - Swipe-to-Reveal Actions on Sidebar Profile Rows
+  // - Horizontal Paging on Chat Header (Prev/Next Profile) & Filter Tabs
+  // =========================================================================
+  function initGestureNavigation() {
+    const workspace = $('#appWorkspace');
+    const edgeIndicator = $('#iosEdgeSwipeIndicator');
+    if (!workspace) return;
+
+    let mode = null; // 'edge-pop' | 'edge-push' | 'note-swipe' | 'profile-swipe' | 'header-page' | 'filter-page'
+    let startX = 0;
+    let startY = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let velocityX = 0;
+    let currentDx = 0;
+    let activeEl = null;
+    let activeContainer = null;
+
+    workspace.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      lastX = startX;
+      lastTime = performance.now();
+      velocityX = 0;
+      currentDx = 0;
+      mode = null;
+      activeEl = null;
+      activeContainer = null;
+
+      const isMobile = window.innerWidth <= 768;
+      const isChatOpen = document.body.classList.contains('mobile-chat-open');
+      const target = e.target;
+
+      // Ignore touches inside horizontal scroll strips or text inputs/sliders
+      if (target.closest('#mobileProfileDockScroll, .templates-chips-scroll, input, textarea, audio')) {
+        startX = 0;
+        return;
+      }
+
+      // 1. True iOS Left-Edge Interactive Pop Gesture (<= 48px from left edge while chat is open)
+      if (isMobile && isChatOpen && startX <= 48) {
+        mode = 'edge-pop-candidate';
+        return;
+      }
+
+      // 2. Right-Edge Interactive Push Gesture (within 44px of right edge while on Profile List)
+      if (isMobile && !isChatOpen && startX >= window.innerWidth - 44) {
+        mode = 'edge-push-candidate';
+        return;
+      }
+
+      // 3. Message Bubble Swipe Candidate (Messenger Swipe-to-Reply / Quick Action)
+      const noteWrap = target.closest('.note-item-wrap');
+      if (noteWrap && !target.closest('.note-inline-editor, .note-reaction-picker')) {
+        mode = 'note-candidate';
+        activeContainer = noteWrap;
+        activeEl = $('.note-bubble', noteWrap);
+        return;
+      }
+
+      // 4. Sidebar Profile Row Swipe Candidate (Messenger Chat List Swipe Actions)
+      const profSwipeWrap = target.closest('.profile-item-swipe-container');
+      if (profSwipeWrap) {
+        mode = 'profile-candidate';
+        activeContainer = profSwipeWrap;
+        activeEl = $('.profile-item', profSwipeWrap);
+        return;
+      }
+
+      // 5. Chat Header Horizontal Paging (Swipe Left/Right to Switch Profiles, or Swipe Right to Pop)
+      if (target.closest('#chatHeaderBar')) {
+        mode = 'header-candidate';
+        return;
+      }
+
+      // 6. Sidebar Header Filter Paging (All <-> Pending <-> Timers)
+      if (target.closest('.sidebar-header')) {
+        mode = 'filter-candidate';
+        return;
+      }
+
+      // 7. General Chat Area Swipe-Back / Paging (empty space in #notesStream)
+      if (isMobile && isChatOpen && target.closest('#chatMain')) {
+        mode = 'chat-area-candidate';
+      }
+    }, { passive: true });
+
+    workspace.addEventListener('touchmove', (e) => {
+      if (!startX || !mode || e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      const x = touch.clientX;
+      const y = touch.clientY;
+      const dx = x - startX;
+      const dy = y - startY;
+
+      const nowT = performance.now();
+      const dt = Math.max(1, nowT - lastTime);
+      velocityX = (x - lastX) / dt;
+      lastX = x;
+      lastTime = nowT;
+
+      const chatMain = $('#chatMain');
+      const sidebar = $('#appSidebar');
+      const w = Math.max(1, window.innerWidth);
+
+      // Promote candidate to active gesture once horizontal intent is clear
+      if (mode.endsWith('-candidate')) {
+        if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) {
+          // User is scrolling vertically; abort horizontal gesture
+          startX = 0;
+          mode = null;
+          return;
+        }
+        if (Math.abs(dx) < 10) return;
+
+        if (mode === 'edge-pop-candidate' && dx > 8) {
+          mode = 'edge-pop';
+        } else if (mode === 'chat-area-candidate' && dx > 14 && Math.abs(dx) > Math.abs(dy) * 1.45) {
+          mode = 'edge-pop';
+        } else if (mode === 'chat-area-candidate' && dx < -18 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+          mode = 'header-page';
+        } else if (mode === 'edge-push-candidate' && dx < -8) {
+          mode = 'edge-push';
+        } else if (mode === 'note-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
+          mode = 'note-swipe';
+        } else if (mode === 'profile-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
+          mode = 'profile-swipe';
+        } else if (mode === 'header-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
+          mode = 'header-page';
+        } else if (mode === 'filter-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
+          mode = 'filter-page';
+        } else {
+          return;
+        }
+      }
+
+      currentDx = dx;
+
+      // Handle Active Gesture Modes
+      if (mode === 'edge-pop' && chatMain && sidebar) {
+        if (e.cancelable) e.preventDefault();
+        const clampedDx = Math.max(0, dx);
+        const progress = Math.min(1, clampedDx / w);
+        chatMain.style.transition = 'none';
+        chatMain.style.transform = `translate3d(${clampedDx}px, 0, 0)`;
+        sidebar.style.transition = 'none';
+        sidebar.style.transform = `translate3d(${-28 * (1 - progress)}%, 0, 0)`;
+        sidebar.style.opacity = String(0.65 + 0.35 * progress);
+
+        if (edgeIndicator) {
+          const indX = Math.min(36, clampedDx * 0.28);
+          edgeIndicator.style.opacity = String(Math.min(1, progress * 2.5));
+          edgeIndicator.style.transform = `translate3d(${indX}px, -50%, 0) scale(${0.85 + Math.min(0.25, progress * 0.4)})`;
+          edgeIndicator.classList.toggle('ready', progress >= 0.30 || velocityX > 0.42);
+        }
+      } else if (mode === 'edge-push' && chatMain && sidebar) {
+        if (e.cancelable) e.preventDefault();
+        const pullLeft = Math.min(0, dx);
+        const progress = Math.min(1, Math.abs(pullLeft) / w);
+        const tx = Math.max(0, w + pullLeft);
+        chatMain.style.transition = 'none';
+        chatMain.style.transform = `translate3d(${tx}px, 0, 0)`;
+        chatMain.style.pointerEvents = 'auto';
+        sidebar.style.transition = 'none';
+        sidebar.style.transform = `translate3d(${-28 * progress}%, 0, 0)`;
+        sidebar.style.opacity = String(1 - 0.35 * progress);
+      } else if (mode === 'note-swipe' && activeEl && activeContainer) {
+        if (e.cancelable) e.preventDefault();
+        const damped = Math.sign(dx) * Math.min(130, Math.pow(Math.abs(dx), 0.86) * 1.45);
+        activeEl.style.transition = 'none';
+        activeEl.style.transform = `translate3d(${damped}px, 0, 0)`;
+
+        const leftInd = $('.note-swipe-indicator.left-ind', activeContainer);
+        const rightInd = $('.note-swipe-indicator.right-ind', activeContainer);
+        const nid = activeContainer.dataset.nid;
+        const prof = getProfile(state.activeProfileId);
+        const note = (prof.notes || []).find(n => n.id === nid);
+
+        if (dx > 0 && leftInd) {
+          leftInd.style.opacity = String(Math.min(1, dx / 58));
+          leftInd.style.transform = `translateY(-50%) scale(${Math.min(1.08, 0.8 + dx / 180)})`;
+          const span = $('span', leftInd);
+          if (span) {
+            span.textContent = dx > 108 ? '↪ Forward' : (note && note.done ? '↩ Reopen' : '✓ Done');
+          }
+          leftInd.classList.toggle('triggered', dx >= 58);
+          if (rightInd) rightInd.style.opacity = '0';
+        } else if (dx < 0 && rightInd) {
+          const absDx = Math.abs(dx);
+          rightInd.style.opacity = String(Math.min(1, absDx / 58));
+          rightInd.style.transform = `translateY(-50%) scale(${Math.min(1.08, 0.8 + absDx / 180)})`;
+          const span = $('span', rightInd);
+          if (span) {
+            span.textContent = absDx > 108 ? '✏️ Edit' : '↪ Forward';
+          }
+          rightInd.classList.toggle('triggered', absDx >= 58);
+          if (leftInd) leftInd.style.opacity = '0';
+        }
+      } else if (mode === 'profile-swipe' && activeEl && activeContainer) {
+        if (e.cancelable) e.preventDefault();
+        const damped = Math.sign(dx) * Math.min(115, Math.pow(Math.abs(dx), 0.86) * 1.35);
+        activeEl.style.transition = 'none';
+        activeEl.style.transform = `translate3d(${damped}px, 0, 0)`;
+        const leftTray = $('.profile-swipe-tray.left-tray', activeContainer);
+        const rightTray = $('.profile-swipe-tray.right-tray', activeContainer);
+        if (dx > 0 && leftTray) {
+          leftTray.style.opacity = String(Math.min(1, dx / 60));
+          leftTray.classList.toggle('triggered', dx >= 64);
+          if (rightTray) rightTray.style.opacity = '0';
+        } else if (dx < 0 && rightTray) {
+          const absDx = Math.abs(dx);
+          rightTray.style.opacity = String(Math.min(1, absDx / 60));
+          rightTray.classList.toggle('triggered', absDx >= 64);
+          if (leftTray) leftTray.style.opacity = '0';
+        }
+      }
+    }, { passive: false });
+
+    const finishGesture = () => {
+      if (!mode) {
+        startX = 0;
+        return;
+      }
+
+      const chatMain = $('#chatMain');
+      const sidebar = $('#appSidebar');
+      const w = Math.max(1, window.innerWidth);
+
+      if (edgeIndicator) {
+        edgeIndicator.style.opacity = '0';
+        edgeIndicator.style.transform = 'translate3d(-24px, -50%, 0) scale(0.8)';
+        edgeIndicator.classList.remove('ready');
+      }
+
+      if (mode === 'edge-pop' && chatMain && sidebar) {
+        const clampedDx = Math.max(0, currentDx);
+        const shouldPop = (clampedDx > w * 0.30 || (clampedDx > 42 && velocityX > 0.42)) && velocityX >= -0.12;
+        chatMain.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
+        sidebar.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease';
+
+        if (shouldPop) {
+          chatMain.style.transform = 'translate3d(102%, 0, 0)';
+          sidebar.style.transform = 'translate3d(0, 0, 0)';
+          sidebar.style.opacity = '1';
+          if (window.soundMgr) window.soundMgr.playClickSoft();
+          setTimeout(() => {
+            closeMobileChatWithSlide();
+          }, 240);
+        } else {
+          // Stop midway -> cancel and spring smoothly back into place!
+          chatMain.style.transform = 'translate3d(0, 0, 0)';
+          sidebar.style.transform = 'translate3d(-28%, 0, 0)';
+          sidebar.style.opacity = '0.65';
+          setTimeout(() => {
+            if (document.body.classList.contains('mobile-chat-open')) {
+              chatMain.style.transition = '';
+              chatMain.style.transform = '';
+              sidebar.style.transition = '';
+              sidebar.style.transform = '';
+              sidebar.style.opacity = '';
+            }
+          }, 260);
+        }
+      } else if (mode === 'edge-push' && chatMain && sidebar) {
+        const pullLeft = Math.abs(Math.min(0, currentDx));
+        const shouldPush = (pullLeft > w * 0.28 || (pullLeft > 42 && velocityX < -0.42)) && velocityX <= 0.12;
+        chatMain.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
+        sidebar.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease';
+
+        if (shouldPush) {
+          chatMain.style.transform = 'translate3d(0, 0, 0)';
+          sidebar.style.transform = 'translate3d(-28%, 0, 0)';
+          sidebar.style.opacity = '0.65';
+          setTimeout(() => {
+            openMobileChatWithSlide(state.activeProfileId);
+          }, 230);
+        } else {
+          chatMain.style.transform = 'translate3d(102%, 0, 0)';
+          sidebar.style.transform = 'translate3d(0, 0, 0)';
+          sidebar.style.opacity = '1';
+          setTimeout(() => {
+            chatMain.style.transition = '';
+            chatMain.style.transform = '';
+            chatMain.style.pointerEvents = '';
+            sidebar.style.transition = '';
+            sidebar.style.transform = '';
+            sidebar.style.opacity = '';
+          }, 260);
+        }
+      } else if (mode === 'note-swipe' && activeEl && activeContainer) {
+        activeEl.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
+        activeEl.style.transform = '';
+        const leftInd = $('.note-swipe-indicator.left-ind', activeContainer);
+        const rightInd = $('.note-swipe-indicator.right-ind', activeContainer);
+        if (leftInd) { leftInd.style.opacity = '0'; leftInd.classList.remove('triggered'); }
+        if (rightInd) { rightInd.style.opacity = '0'; rightInd.classList.remove('triggered'); }
+
+        const nid = activeContainer.dataset.nid;
+        const prof = getProfile(state.activeProfileId);
+        const note = (prof.notes || []).find(n => n.id === nid);
+        if (note) {
+          if (currentDx >= 108 && velocityX >= -0.15) {
+            openForwardModal(prof, note);
+          } else if (currentDx >= 58 && velocityX >= -0.15) {
+            note.done = !note.done;
+            if (note.done && window.soundMgr) window.soundMgr.playReadyChime();
+            if (countPending(prof) === 0) {
+              prof.isPinned = false;
+              prof.pinnedAt = null;
+            }
+            saveState();
+            renderSidebar();
+            renderMainChat();
+            showToast(note.done ? '✓ Marked note Done' : '↩ Reopened note');
+          } else if (currentDx <= -108 && velocityX <= 0.15) {
+            state.editingNoteId = note.id;
+            renderMainChat();
+          } else if (currentDx <= -58 && velocityX <= 0.15) {
+            openForwardModal(prof, note);
+          }
+        }
+      } else if (mode === 'profile-swipe' && activeEl && activeContainer) {
+        activeEl.style.transition = 'transform 0.26s cubic-bezier(0.22, 1, 0.36, 1)';
+        activeEl.style.transform = '';
+        const leftTray = $('.profile-swipe-tray.left-tray', activeContainer);
+        const rightTray = $('.profile-swipe-tray.right-tray', activeContainer);
+        if (leftTray) { leftTray.style.opacity = '0'; leftTray.classList.remove('triggered'); }
+        if (rightTray) { rightTray.style.opacity = '0'; rightTray.classList.remove('triggered'); }
+
+        const pid = activeContainer.dataset.swipePid;
+        const prof = getProfile(pid);
+        if (prof && Math.abs(currentDx) >= 64) {
+          activeEl.dataset.justSwiped = '1';
+          if (currentDx >= 64 && velocityX >= -0.15) {
+            // Swipe Right on Profile Row -> Toggle Pin (if pending notes) or Toggle Unread
+            if (countPending(prof) > 0) {
+              prof.isPinned = !prof.isPinned;
+              prof.pinnedAt = prof.isPinned ? now() : null;
+              saveState();
+              renderSidebar();
+              renderMainChat();
+              showToast(prof.isPinned ? `📌 Pinned ${prof.name} to top` : `Returned ${prof.name} to ${prof.winShortcut}`);
+            } else if (hasMessages(prof)) {
+              prof.isUnread = !prof.isUnread;
+              saveState();
+              renderSidebar();
+              renderMainChat();
+              showToast(prof.isUnread ? `● Marked ${prof.name} as Unread` : `✓ Marked ${prof.name} as Read`);
+            } else {
+              openMobileChatWithSlide(prof.id);
+            }
+          } else if (currentDx <= -64 && velocityX <= 0.15) {
+            // Swipe Left on Profile Row -> Start 45m Cooldown Timer (or Clear active timer/reset)
+            const cur = now();
+            if ((prof.timerUntil && prof.timerUntil > cur) || prof.isReset) {
+              prof.timerUntil = null;
+              prof.timerDurationMs = null;
+              prof.isReset = false;
+              saveState();
+              renderSidebar();
+              renderMainChat();
+              showToast(`✕ Cleared timer on ${prof.name}`);
+            } else {
+              startCooldown(prof, 45, '45m');
+            }
+          }
+        }
+      } else if (mode === 'header-page') {
+        if (currentDx <= -52 && velocityX <= 0.1) {
+          stepProfile(1);
+        } else if (currentDx >= 52 && velocityX >= -0.1) {
+          stepProfile(-1);
+        }
+      } else if (mode === 'filter-page') {
+        const order = ['all', 'pending', 'timers'];
+        const idx = order.indexOf(state.currentFilter);
+        if (currentDx <= -48 && idx < order.length - 1) {
+          const nextTab = order[idx + 1];
+          const btn = nextTab === 'pending' ? $('#tabPending') : $('#tabTimers');
+          if (btn) btn.click();
+        } else if (currentDx >= 48 && idx > 0) {
+          const prevTab = order[idx - 1];
+          const btn = prevTab === 'all' ? $('#tabAll') : $('#tabPending');
+          if (btn) btn.click();
+        }
+      }
+
+      mode = null;
+      startX = 0;
+      currentDx = 0;
+      activeEl = null;
+      activeContainer = null;
+    };
+
+    workspace.addEventListener('touchend', finishGesture, { passive: true });
+    workspace.addEventListener('touchcancel', finishGesture, { passive: true });
   }
 
   // Initializer
   function init() {
     loadState();
+    if (window.innerWidth <= 768) {
+      document.body.classList.add('mobile-chat-open');
+    }
     initEvents();
+    initGestureNavigation();
     renderSidebar();
     renderMainChat();
     renderClockBox();
