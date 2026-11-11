@@ -113,7 +113,7 @@
     { id: "p_tb_14", profileDir: "Profile 41", chromeNo: 12, taskbarSlot: 14, winShortcut: "Slot #14", name: "A5 004 Gmail", email: "orlandopasion004@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
-    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 scite003 Gmail Gold Cloud", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
+    { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 Gold Cloud Black", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
     { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, notes: [] },
@@ -898,29 +898,45 @@
     }
 
     const urlImported = checkUrlImportedProfiles();
-    if (urlImported && IS_BLANK_EDITION) {
-      state.profiles = urlImported.map((p, idx) => ({
-        id: p.id || `b_slot_${idx + 1}`,
-        profileDir: p.profileDir || `Profile ${idx + 1}`,
-        chromeNo: idx + 1,
-        taskbarSlot: p.taskbarSlot || (idx + 1),
-        winShortcut: p.winShortcut || ((idx + 1) <= 9 ? `Win + ${idx + 1}` : `Slot #${idx + 1}`),
-        name: p.name || `Chrome #${idx + 1}`,
-        email: p.email || '',
-        gaia: p.gaia || '',
-        timerUntil: null,
-        timerDurationMs: null,
-        isReset: false,
-        isPinned: false,
-        pinnedAt: null,
-        isUnread: false,
-        stickyNote: '',
-        customAvatar: p.customAvatar || null,
-        notes: []
-      }));
+    if (urlImported && urlImported.length > 0) {
+      if (IS_BLANK_EDITION) {
+        state.profiles = urlImported.map((p, idx) => ({
+          id: p.id || `b_slot_${idx + 1}`,
+          profileDir: p.profileDir || `Profile ${idx + 1}`,
+          chromeNo: idx + 1,
+          taskbarSlot: p.taskbarSlot || (idx + 1),
+          winShortcut: p.winShortcut || ((idx + 1) <= 9 ? `Win + ${idx + 1}` : `Slot #${idx + 1}`),
+          name: p.name || `Chrome #${idx + 1}`,
+          email: p.email || '',
+          gaia: p.gaia || '',
+          timerUntil: null,
+          timerDurationMs: null,
+          isReset: false,
+          isPinned: false,
+          pinnedAt: null,
+          isUnread: false,
+          stickyNote: '',
+          customAvatar: p.customAvatar || null,
+          notes: []
+        }));
+      } else {
+        // Merge names & emails into personal profiles without losing notes, timers, or avatars!
+        let updatedCount = 0;
+        state.profiles = DEFAULT_PROFILES.map(def => {
+          const matched = urlImported.find(u => (u.profileDir && u.profileDir === def.profileDir) || (u.chromeNo && u.chromeNo === def.chromeNo));
+          const nameToUse = (matched && matched.name) ? matched.name : def.name;
+          const emailToUse = (matched && matched.email) ? matched.email : def.email;
+          if (matched && (nameToUse !== def.name || emailToUse !== def.email)) updatedCount++;
+          return {
+            ...def,
+            name: nameToUse,
+            email: emailToUse
+          };
+        });
+      }
       state.activeProfileId = state.profiles[0].id;
       saveState();
-      setTimeout(() => showToast(`✅ Synced ${state.profiles.length} taskbar Chrome profiles from this laptop!`), 300);
+      setTimeout(() => showToast(`✅ Auto-synced Chrome profiles & taskbar names from this laptop!`), 300);
       return;
     }
 
@@ -990,9 +1006,9 @@
 
         return {
           ...def,
-          // Always keep the true verified laptop name and email from ground truth
-          name: def.name,
-          email: def.email,
+          // Respect user-renamed profile name & email while defaulting to ground truth
+          name: (found.name && found.name.trim()) ? found.name : def.name,
+          email: (found.email && found.email.trim()) ? found.email : def.email,
           taskbarSlot: def.taskbarSlot,
           winShortcut: def.winShortcut,
           timerUntil: found.timerUntil || null,
@@ -2874,8 +2890,9 @@
     showToast('⬇ Downloaded Windows Desktop App Launcher (.cmd)!');
   }
 
-  // Download 1-Click Laptop Taskbar Auto-Scanner (.cmd) that reads the installed laptop's Chrome profiles & opens Blank Edition synced!
-  function downloadLaptopTaskbarScannerCmd() {
+  // Download 1-Click Laptop Taskbar Auto-Scanner (.cmd) that reads the installed laptop's Chrome profiles & syncs names instantly!
+  function downloadLaptopTaskbarScannerCmd(isBlank = false) {
+    const targetUrl = isBlank ? BLANK_APP_URL : LIVE_APP_URL;
     const cmdContent = [
       '@echo off',
       'title OrlandoChrome - Laptop Taskbar Chrome Profile Auto-Scanner',
@@ -2899,7 +2916,7 @@
       '   $outFile = Join-Path $env:USERPROFILE \'Desktop\\my-laptop-chrome-profiles.json\'; ^',
       '   Set-Content -Path $outFile -Value $outJson -Encoding UTF8; ^',
       '   $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($outJson)); ^',
-      '   $url = \'' + BLANK_APP_URL + '&import_b64=\' + $b64; ^',
+      '   $url = \'' + targetUrl + (targetUrl.includes('?') ? '&' : '?') + 'import_b64=\' + $b64; ^',
       '   Start-Process \'chrome.exe\' -ArgumentList (\'--app=\'+$url)"',
       'exit'
     ].join('\r\n');
@@ -3170,6 +3187,9 @@ ${jsRes}
                   <button type="button" class="btn-suite-dark" id="btnSuiteTaskbarSync" title="Auto-Scan this laptop's Chrome Taskbar profiles">
                     🔄 Taskbar Sync (.cmd)
                   </button>
+                  <button type="button" class="btn-suite-dark" id="btnSuiteSyncLocalState" style="border-color:#34d399; color:#6ee7b7;" title="Select %LOCALAPPDATA%\Google\Chrome\User Data\Local State to immediately sync all taskbar names into this app">
+                    📂 Import Local State
+                  </button>
                   <button type="button" class="btn-suite-dark" id="btnSuiteStandaloneHtml" title="Download Single-File Offline HTML">
                     💾 Offline (.html)
                   </button>
@@ -3368,7 +3388,14 @@ ${jsRes}
       };
 
       $('#btnSuiteWinApp', backdrop).onclick = () => downloadWindowsDesktopLauncherCmd(isBlankTarget);
-      $('#btnSuiteTaskbarSync', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd();
+      $('#btnSuiteTaskbarSync', backdrop).onclick = () => downloadLaptopTaskbarScannerCmd(isBlankTarget);
+      const btnSyncLocalState = $('#btnSuiteSyncLocalState', backdrop);
+      if (btnSyncLocalState) {
+        btnSyncLocalState.onclick = () => {
+          close();
+          $('#localStateFileInput').click();
+        };
+      }
       $('#btnSuiteStandaloneHtml', backdrop).onclick = () => downloadStandaloneHtml(isBlankTarget);
 
       const btnOpenBlank = $('#btnOpenBlankWebApp', backdrop);
@@ -4125,6 +4152,28 @@ ${jsRes}
               }));
             } else if (data && data.profile && data.profile.info_cache) {
               const cache = data.profile.info_cache;
+              let updatedCount = 0;
+              // If in Personal Edition (22 real profiles), merge names and emails by matching profileDir!
+              if (!IS_BLANK_EDITION && state.profiles.length > 0) {
+                state.profiles.forEach(p => {
+                  if (p.profileDir && cache[p.profileDir]) {
+                    const info = cache[p.profileDir];
+                    if (info.name && info.name !== p.name) {
+                      p.name = info.name;
+                      updatedCount++;
+                    }
+                    if (info.user_name) p.email = info.user_name;
+                    if (info.gaia_name) p.gaia = info.gaia_name;
+                  }
+                });
+                saveState();
+                renderSidebar();
+                renderMainChat();
+                showToast(`✅ Synced ${updatedCount} profile name(s) from Chrome Local State!`);
+                return;
+              }
+
+              // Otherwise in Blank Edition, build profile list from scratch
               const entries = Object.entries(cache);
               state.profiles = entries.map(([dir, info], idx) => {
                 const slot = idx + 3;
