@@ -1265,7 +1265,7 @@
           <span class="chrome">${chromeDigitsHTML(digitsStr)}</span>
           <span class="nf-clock-ampm">${ampmStr}</span>
         </div>
-        <a href="https://orlandopasion000.github.io/daily-recharge-alarm.html" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge — Synced Live Schedule">
+        <a href="https://orlandopasion000.github.io/orlandorecharge" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge — Synced Live Schedule">
           <img src="recharge-icon.png" class="alarm-pill-logo" alt="OR">
           <span class="alarm-pill-text"><strong class="alarm-pill-countdown">${alarm.diffText}</strong> — ${esc(alarm.title)}</span>
         </a>
