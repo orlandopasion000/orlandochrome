@@ -1529,39 +1529,33 @@
         : `#${p.taskbarSlot}`;
 
       const hasSubRowContent = Boolean(snippetHtml || pendingCount > 0 || isTimer || isReset);
-      const rightSwipeLabel = pendingCount > 0 ? (isPinned ? '📌 Unpin' : '📌 Pin Top') : (canUnread ? (isUnread ? '✓ Read' : '● Unread') : '💬 Open');
-      const leftSwipeLabel = (isTimer || isReset) ? '✕ Clear Timer' : '⏳ 45m Timer';
 
       return `
-        <div class="profile-item-swipe-container" data-swipe-pid="${p.id}">
-          <div class="profile-swipe-tray left-tray"><span>${rightSwipeLabel}</span></div>
-          <div class="profile-swipe-tray right-tray"><span>${leftSwipeLabel}</span></div>
-          <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" ${canUnread ? 'title="Right-click to toggle Unread dot · Swipe left/right on iPhone for quick actions"' : ''}>
-            <!-- Bigger Picture Avatar (52px) -->
-            <div class="profile-avatar-wrap">
-              <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
-              <span class="profile-slot-badge">${esc(slotTag)}</span>
-              ${isUnread ? `<span class="avatar-unread-dot" title="Unread Bookmark"></span>` : ''}
-            </div>
+        <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" style="flex-shrink:0;" ${canUnread ? 'title="Right-click to toggle Unread dot"' : ''}>
+          <!-- Bigger Picture Avatar (52px) -->
+          <div class="profile-avatar-wrap">
+            <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
+            <span class="profile-slot-badge">${esc(slotTag)}</span>
+            ${isUnread ? `<span class="avatar-unread-dot" title="Unread Bookmark"></span>` : ''}
+          </div>
 
-            <!-- Profile Details -->
-            <div class="profile-text-content">
-              <div class="profile-row-header">
-                <span class="profile-name">${esc(p.name)}</span>
-                <div class="profile-header-right">
-                  ${canUnread ? `<button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>` : ''}
-                  <span class="profile-shortcut">${esc(p.winShortcut)}</span>
-                </div>
+          <!-- Profile Details -->
+          <div class="profile-text-content">
+            <div class="profile-row-header">
+              <span class="profile-name">${esc(p.name)}</span>
+              <div class="profile-header-right">
+                ${canUnread ? `<button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>` : ''}
+                <span class="profile-shortcut">${esc(p.winShortcut)}</span>
               </div>
-              ${hasSubRowContent ? `
-                <div class="profile-row-sub">
-                  <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
-                  ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
-                  ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
-                  ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
-                </div>
-              ` : ''}
             </div>
+            ${hasSubRowContent ? `
+              <div class="profile-row-sub">
+                <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
+                ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
+                ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
+                ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
