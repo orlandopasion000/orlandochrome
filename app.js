@@ -2608,21 +2608,79 @@
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
   }
 
-  // Enhancement #6: Jump to Next Profile with Pending Note or Limit Reset
+  // Helper: check if a profile is ready or actionable (Pending Notes, Active Timer [Red], or Expired/Reset Timer [Green])
+  function isActionableProfile(p, cur = now()) {
+    const hasPending = countPending(p) > 0;
+    const hasActiveTimer = Boolean(p.timerUntil && p.timerUntil > cur);
+    const hasExpiredOrReset = Boolean(p.isReset || (p.timerUntil && p.timerUntil <= cur));
+    const isUnread = Boolean(p.isUnread);
+    return hasPending || hasActiveTimer || hasExpiredOrReset || isUnread;
+  }
+
+  // Enhancement #6: Jump to Next Profile with Pending Note or Timer (Active Countdown or Expired/Reset)
   function jumpToNextReadyProfile() {
-    const actionable = state.profiles.filter(p => countPending(p) > 0 || p.isReset || p.isUnread);
+    const cur = now();
+    const actionable = state.profiles.filter(p => isActionableProfile(p, cur));
     if (!actionable.length) {
-      showToast('✨ All 22 profiles are clear — no pending notes or active resets!');
+      showToast('✨ All 22 profiles are clear — no pending notes or active timers!');
       return;
     }
-    const curIdx = actionable.findIndex(p => p.id === state.activeProfileId);
-    const nextProf = actionable[(curIdx + 1) % actionable.length];
+
+    // Find next actionable profile in cyclic order starting from active profile
+    const curFullIdx = state.profiles.findIndex(p => p.id === state.activeProfileId);
+    let nextProf = null;
+    if (curFullIdx !== -1) {
+      for (let i = 1; i <= state.profiles.length; i++) {
+        const candidate = state.profiles[(curFullIdx + i) % state.profiles.length];
+        if (isActionableProfile(candidate, cur)) {
+          nextProf = candidate;
+          break;
+        }
+      }
+    }
+    if (!nextProf) {
+      nextProf = actionable[0];
+    }
+
+    const wasSameProfile = (nextProf.id === state.activeProfileId);
     state.activeProfileId = nextProf.id;
+
+    // Ensure nextProf is visible if currently filtered out by filter tabs
+    const curTab = state.currentFilter;
+    const curMatchesFilter = (curTab === 'all') ||
+      (curTab === 'pending' && (countPending(nextProf) > 0 || nextProf.isUnread)) ||
+      (curTab === 'timers' && ((nextProf.timerUntil && nextProf.timerUntil > cur) || nextProf.isReset));
+
+    if (!curMatchesFilter) {
+      state.currentFilter = 'all';
+      const allTabs = $$('.filter-tab');
+      if (allTabs && allTabs.length) allTabs.forEach(t => t.classList.remove('active'));
+      const tabAll = $('#tabAll');
+      if (tabAll) tabAll.classList.add('active');
+    }
+
     renderSidebar();
     renderMainChat();
-    const activeEl = $(`.profile-item[data-id="${nextProf.id}"]`);
+
+    const activeEl = $(`#profileList .profile-item[data-id="${nextProf.id}"]`);
     if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    showToast(`⚡ Jumped to ${nextProf.name} (${nextProf.winShortcut})`);
+
+    // Informative toast explaining what's on this profile
+    const pCount = countPending(nextProf);
+    const hasActiveTimer = Boolean(nextProf.timerUntil && nextProf.timerUntil > cur);
+    const hasExpiredOrReset = Boolean(nextProf.isReset || (nextProf.timerUntil && nextProf.timerUntil <= cur));
+    const details = [];
+    if (pCount > 0) details.push(`📌 ${pCount} Pending`);
+    if (hasActiveTimer) details.push(`⏳ ${formatRemainingShort(nextProf.timerUntil - cur)} left`);
+    else if (hasExpiredOrReset) details.push(`🟢 Reset Ready`);
+    if (nextProf.isUnread) details.push(`📬 Unread`);
+
+    const detailText = details.length ? ` • ${details.join(' · ')}` : '';
+    if (actionable.length === 1 && wasSameProfile) {
+      showToast(`⚡ Only 1 active profile: ${nextProf.name} (${nextProf.winShortcut})${detailText}`);
+    } else {
+      showToast(`⚡ Jumped to ${nextProf.name} (${nextProf.winShortcut})${detailText}`);
+    }
   }
 
   // Native iOS Swipe-Down-to-Dismiss for Full-Screen Photos, Sheets & Modals (Finger-Tracking + Mid-Swipe Cancel)
