@@ -423,12 +423,25 @@
       }
     }
 
+    let draSync = undefined;
+    if (!forQrCode) {
+      try {
+        draSync = {
+          ct: localStorage.getItem('dra-clock-theme') || 'platinum',
+          off: JSON.parse(localStorage.getItem('dra-off') || '[]'),
+          days: JSON.parse(localStorage.getItem('dra-days') || '[0,1,2,3,4,5,6]'),
+          sched: JSON.parse(localStorage.getItem('dra-schedule') || 'null')
+        };
+      } catch (e) {}
+    }
+
     return {
       v: 2,
       cid: CLIENT_ID,
       ts: state.lastModified || now(),
       ed: IS_BLANK_EDITION ? 'b' : 'p',
       tpl: forQrCode ? undefined : state.quickTemplates,
+      dra: draSync,
       p: activeProfs
     };
   }
@@ -436,6 +449,17 @@
   // Apply Sync Packet from QR Code URL (?sync=...) or Real-Time Cloud Sync
   function applySyncPacket(packet, sourceLabel = 'Cloud Sync') {
     if (!packet || !Array.isArray(packet.p)) return false;
+
+    if (packet.dra) {
+      try {
+        if (packet.dra.ct) localStorage.setItem('dra-clock-theme', packet.dra.ct);
+        if (Array.isArray(packet.dra.off)) localStorage.setItem('dra-off', JSON.stringify(packet.dra.off));
+        if (Array.isArray(packet.dra.days)) localStorage.setItem('dra-days', JSON.stringify(packet.dra.days));
+        if (Array.isArray(packet.dra.sched) && packet.dra.sched.length > 0) {
+          localStorage.setItem('dra-schedule', JSON.stringify(packet.dra.sched));
+        }
+      } catch (e) {}
+    }
 
     const mapByChromeNo = new Map();
     packet.p.forEach(item => {
@@ -1093,56 +1117,175 @@
     return `${mins}m`;
   }
 
-  // Daily Recharge Alarm Schedule Calculator
-  function getNextAlarmInfo() {
-    const d = new Date();
-    const curMinutes = d.getHours() * 60 + d.getMinutes();
+  // =========================================================================
+  // ⌚ ORLANDORECHARGE CLOCK & SCHEDULE ENGINE (Exact Alignment with daily-recharge-alarm.html)
+  // =========================================================================
+  const DRA_CLOCK_THEMES = [
+    'platinum', 'gold', 'royal-sapphire', 'crimson-laser', 'obsidian-noir',
+    'solis-gold', 'rainbow', 'chrome-3d', 'cyber-emerald', 'ice-titanium',
+    'amethyst', 'sunset-rose', 'minimal-white', 'chronometer-din', 'sunset-amber',
+    'midnight-gold', 'green-nature'
+  ];
 
-    for (const item of RECHARGE_SCHEDULE) {
-      const itemMinutes = item[0] * 60 + item[1];
-      if (itemMinutes > curMinutes) {
-        return {
-          diffMin: itemMinutes - curMinutes,
-          title: item[3],
-          type: item[2]
-        };
+  const DRA_THEME_NAMES = {
+    'platinum': 'Platinum Mirror',
+    'gold': 'Champagne Gold',
+    'royal-sapphire': 'Royal Sapphire',
+    'crimson-laser': 'Crimson Laser',
+    'obsidian-noir': 'Obsidian Noir',
+    'solis-gold': 'Solis Gold',
+    'rainbow': 'Prism Spectrum',
+    'chrome-3d': 'Liquid Chrome 3D',
+    'cyber-emerald': 'Cyber Emerald',
+    'ice-titanium': 'Ice Titanium',
+    'amethyst': 'Royal Amethyst',
+    'sunset-rose': 'Sunset Rose',
+    'minimal-white': 'Pure White',
+    'chronometer-din': 'Chronometer Silver',
+    'sunset-amber': 'Sunset Amber',
+    'midnight-gold': 'Midnight Gold Outline',
+    'green-nature': 'Botanical Emerald'
+  };
+
+  function getActiveDraClockTheme() {
+    try {
+      const saved = localStorage.getItem('dra-clock-theme');
+      if (saved && DRA_CLOCK_THEMES.includes(saved)) return saved;
+    } catch (e) {}
+    return 'platinum';
+  }
+
+  function p2(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  function chromeDigitsHTML(str) {
+    return [...str].map(c => c === ':' ? '<span class="c">:</span>' : `<span>${c}</span>`).join('');
+  }
+
+  // Daily Recharge Alarm Schedule Calculator — Aligned 100% with daily-recharge-alarm.html
+  // Reads user's live dra-schedule, dra-off, and dra-days from shared origin localStorage!
+  function getNextAlarmInfo() {
+    const n = new Date();
+    let sched = RECHARGE_SCHEDULE;
+    let offKeys = new Set();
+    let activeDays = new Set([0, 1, 2, 3, 4, 5, 6]);
+
+    try {
+      const rawSched = localStorage.getItem('dra-schedule');
+      if (rawSched) {
+        const parsed = JSON.parse(rawSched);
+        if (Array.isArray(parsed) && parsed.length > 0) sched = parsed;
+      }
+      const rawOff = localStorage.getItem('dra-off');
+      if (rawOff) {
+        const parsedOff = JSON.parse(rawOff);
+        if (Array.isArray(parsedOff)) offKeys = new Set(parsedOff);
+      }
+      const rawDays = localStorage.getItem('dra-days');
+      if (rawDays) {
+        const parsedDays = JSON.parse(rawDays);
+        if (Array.isArray(parsedDays) && parsedDays.length > 0) activeDays = new Set(parsedDays);
+      }
+    } catch (e) {}
+
+    let found = null;
+    for (let dayOffset = 0; dayOffset <= 7 && !found; dayOffset++) {
+      const d = new Date(n);
+      d.setDate(n.getDate() + dayOffset);
+      if (!activeDays.has(d.getDay())) continue;
+
+      for (const item of sched) {
+        const h = Number(item[0]);
+        const m = Number(item[1]);
+        const key = `${p2(h)}:${p2(m)}`;
+        if (offKeys.has(key)) continue;
+
+        const at = new Date(d);
+        at.setHours(h, m, 0, 0);
+        if (at > n) {
+          found = {
+            at,
+            type: item[2] || 'break',
+            title: item[3] || 'Scheduled Recharge'
+          };
+          break;
+        }
       }
     }
-    const minutesUntilTomorrow7am = (24 * 60 - curMinutes) + 7 * 60;
+
+    if (!found) {
+      const fallback = sched[0] || [7, 0, 'start', 'Breakfast & morning prep — ease into the day'];
+      const at = new Date(n);
+      at.setDate(n.getDate() + 1);
+      at.setHours(Number(fallback[0]), Number(fallback[1]), 0, 0);
+      found = {
+        at,
+        type: fallback[2] || 'start',
+        title: fallback[3] || 'Breakfast & morning prep — ease into the day'
+      };
+    }
+
+    // Exact formula from daily-recharge-alarm.html: Math.round((found.at - n) / 1000)
+    const diffSec = Math.max(0, Math.round((found.at - n) / 1000));
+    const h = Math.floor(diffSec / 3600);
+    const m = Math.floor((diffSec % 3600) / 60);
+    const diffText = (h ? `${h}h ` : '') + `${p2(m)}m`;
+
     return {
-      diffMin: minutesUntilTomorrow7am,
-      title: RECHARGE_SCHEDULE[0][3],
-      type: RECHARGE_SCHEDULE[0][2]
+      diffSec,
+      diffText,
+      title: found.title,
+      type: found.type
     };
   }
 
-  // Render Top Nav Clock Box
+  // Render Top Nav Clock Box (OrlandoRecharge Font Style, 17 Colorways, & Official OR Logo)
   function renderClockBox() {
     const box = $('#navClockBox');
     if (!box) return;
-    const d = new Date();
-    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    const n = new Date();
+    const h12 = n.getHours() % 12 || 12;
+    const digitsStr = `${p2(h12)}:${p2(n.getMinutes())}:${p2(n.getSeconds())}`;
+    const ampmStr = n.getHours() >= 12 ? 'PM' : 'AM';
+    const clockTheme = getActiveDraClockTheme();
+    const themeLabel = DRA_THEME_NAMES[clockTheme] || 'Platinum Mirror';
+
     if (IS_BLANK_EDITION) {
-      box.innerHTML = `<div class="nf-clock-digital">${timeStr}</div>`;
-      return;
-    }
-    const alarm = getNextAlarmInfo();
-
-    let diffText = '';
-    if (alarm.diffMin >= 60) {
-      const h = Math.floor(alarm.diffMin / 60);
-      const m = alarm.diffMin % 60;
-      diffText = `${h}h ${m}m`;
+      box.innerHTML = `
+        <div class="nf-clock-digital" id="topClockWidget" data-clock-theme="${esc(clockTheme)}" title="Click to cycle OrlandoRecharge Clock Style (${esc(themeLabel)})">
+          <span class="chrome">${chromeDigitsHTML(digitsStr)}</span>
+          <span class="nf-clock-ampm">${ampmStr}</span>
+        </div>
+      `;
     } else {
-      diffText = `${alarm.diffMin}m`;
+      const alarm = getNextAlarmInfo();
+      box.innerHTML = `
+        <div class="nf-clock-digital" id="topClockWidget" data-clock-theme="${esc(clockTheme)}" title="Click to cycle OrlandoRecharge Clock Style (${esc(themeLabel)})">
+          <span class="chrome">${chromeDigitsHTML(digitsStr)}</span>
+          <span class="nf-clock-ampm">${ampmStr}</span>
+        </div>
+        <a href="https://orlandopasion000.github.io/daily-recharge-alarm.html" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge — Synced Live Schedule">
+          <img src="recharge-icon.png" class="alarm-pill-logo" alt="OR">
+          <span class="alarm-pill-text"><strong class="alarm-pill-countdown">${alarm.diffText}</strong> — ${esc(alarm.title)}</span>
+        </a>
+      `;
     }
 
-    box.innerHTML = `
-      <div class="nf-clock-digital">${timeStr}</div>
-      <a href="https://orlandopasion000.github.io/daily-recharge-alarm.html" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" title="Daily Recharge Alarm Schedule">
-        ⏰ ${diffText} — ${esc(alarm.title)}
-      </a>
-    `;
+    const clockEl = $('#topClockWidget', box);
+    if (clockEl) {
+      clockEl.onclick = () => {
+        const curTheme = getActiveDraClockTheme();
+        const nextIdx = (DRA_CLOCK_THEMES.indexOf(curTheme) + 1) % DRA_CLOCK_THEMES.length;
+        const nextTheme = DRA_CLOCK_THEMES[nextIdx];
+        try {
+          localStorage.setItem('dra-clock-theme', nextTheme);
+        } catch (e) {}
+        renderClockBox();
+        scheduleCloudPush();
+        showToast(`⌚ Clock Style: ${DRA_THEME_NAMES[nextTheme] || nextTheme}`);
+      };
+    }
   }
 
   // Small Green & White Radiant Gradient Orb (Replaces flat 🟢 emoji on Limit Reset)
@@ -3879,6 +4022,13 @@ ${jsRes}
       } else if (e.altKey && (e.key === 'n' || e.key === 'N')) {
         e.preventDefault();
         jumpToNextReadyProfile();
+      }
+    });
+
+    // Live Cross-Tab Storage Sync for OrlandoRecharge (dra-schedule, dra-off, dra-days, dra-clock-theme)
+    window.addEventListener('storage', (e) => {
+      if (e.key && e.key.startsWith('dra-')) {
+        renderClockBox();
       }
     });
   }
