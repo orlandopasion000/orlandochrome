@@ -5767,26 +5767,31 @@ button:hover .modern-icon,
 .btn-topbar-desktop { text-decoration: none !important; }
 
 
-/* ───────── COMPACT LOW-KEY MINIMIZED DOCK & ADVANCED HOLOGRAPHIC QR ───────── */
+/* ───────── COLLAPSIBLE COMMAND DOCK & FLUID ACCORDION DRAWER ───────── */
 .oc-app-dist {
-  padding: 6px 16px 6px !important;
-  border-top: 1px solid rgba(255, 77, 88, 0.2) !important;
-  background: rgba(8, 8, 12, 0.65) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
-  z-index: 20;
-  opacity: 0.72;
+  z-index: 25;
+  border-top: 1px solid rgba(255, 77, 88, 0.22) !important;
+  background: rgba(8, 8, 12, 0.68) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+  transition: padding 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease,
+              opacity 0.3s ease;
+  opacity: 0.8;
 }
 
 .oc-app-dist:hover,
 .oc-app-dist:focus-within {
   opacity: 1 !important;
-  background: rgba(8, 8, 12, 0.94) !important;
-  border-top-color: rgba(255, 77, 88, 0.45) !important;
+  background: rgba(10, 8, 14, 0.96) !important;
+  border-top-color: rgba(255, 77, 88, 0.5) !important;
+  box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.8), 0 0 16px rgba(229, 9, 20, 0.25);
 }
 
 .oc-app-dist::before {
@@ -5798,45 +5803,58 @@ button:hover .modern-icon,
   height: 2px;
   background: linear-gradient(90deg, transparent, #ff4d58 20%, #e50914 50%, #ff1a24 80%, transparent) !important;
   box-shadow: 0 0 12px rgba(229, 9, 20, 0.5) !important;
-  opacity: 0.4;
+  opacity: 0.5;
   transition: opacity 0.3s ease;
 }
 
 .oc-app-dist:hover::before {
-  opacity: 0.9 !important;
+  opacity: 1 !important;
 }
 
-/* Minimized State */
+/* Expanded State */
+.oc-app-dist:not(.minimized) {
+  padding: 8px 18px 10px !important;
+}
+
+/* Minimized State (Compact Low-Key Bar) */
 .oc-app-dist.minimized {
-  padding: 5px 16px 5px !important;
-  border-top-color: rgba(255, 77, 88, 0.18) !important;
+  padding: 5px 18px 5px !important;
+  cursor: pointer;
 }
 
-.oc-app-dist.minimized .dist-body {
-  display: none !important;
+.oc-app-dist.minimized:hover {
+  background: rgba(18, 10, 14, 0.95) !important;
+  border-top-color: rgba(255, 77, 88, 0.6) !important;
 }
 
-.oc-app-dist.minimized .dist-subtitle {
-  display: none !important;
-}
-
-.oc-app-dist.minimized .dist-head {
-  margin-bottom: 0 !important;
-}
-
+/* Omni-Click Header: Entire header bar is a broad interactive hit target */
 .dist-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 6px !important;
+  margin-bottom: 0 !important;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 3px 6px;
+  border-radius: 8px;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.dist-head:hover {
+  background: rgba(255, 77, 88, 0.08);
+}
+
+.dist-head:active {
+  transform: scale(0.998);
 }
 
 .dist-head-left {
   display: flex;
   align-items: center;
-  gap: 8px !important;
+  gap: 10px !important;
 }
 
 .dist-oc-mini {
@@ -5852,6 +5870,12 @@ button:hover .modern-icon,
   flex-shrink: 0 !important;
   overflow: hidden !important;
   padding: 2px !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dist-head:hover .dist-oc-mini {
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.6) !important;
 }
 
 .dist-title {
@@ -5874,26 +5898,102 @@ button:hover .modern-icon,
   letter-spacing: 0.05em !important;
 }
 
+/* Progressive Disclosure Hint when Minimized */
+.dist-collapse-hint {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  display: inline-block;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.oc-app-dist.minimized .dist-collapse-hint {
+  opacity: 0.85;
+  max-width: 240px;
+  margin-left: 4px;
+}
+
+.dist-subtitle {
+  font-size: 0.68rem !important;
+  color: #94a3b8 !important;
+  transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, margin 0.3s ease;
+  max-height: 24px;
+  opacity: 0.85;
+  overflow: hidden;
+}
+
+.oc-app-dist.minimized .dist-subtitle {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Expand / Minimize Toggle Button with Rotating Chevron */
 .dist-toggle-btn {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 77, 88, 0.28) !important;
   color: #cbd5e1 !important;
   font-size: 0.68rem !important;
   font-weight: 700 !important;
-  padding: 2.5px 8px !important;
+  padding: 2.5px 10px !important;
   border-radius: 999px !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
+  gap: 5px;
+  transition: all 0.25s ease;
 }
 
+.dist-head:hover .dist-toggle-btn,
 .dist-toggle-btn:hover {
-  background: rgba(229, 9, 20, 0.22) !important;
-  border-color: rgba(255, 77, 88, 0.6) !important;
+  background: rgba(229, 9, 20, 0.24) !important;
+  border-color: rgba(255, 77, 88, 0.65) !important;
   color: #ffffff !important;
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.3) !important;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.35) !important;
+}
+
+.dist-min-icon {
+  display: inline-block;
+  font-size: 0.72rem;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
+}
+
+.oc-app-dist:not(.minimized) .dist-min-icon {
+  transform: rotate(90deg);
+}
+
+.oc-app-dist.minimized .dist-min-icon {
+  transform: rotate(0deg);
+}
+
+/* ───────── FLUID MORPHING ACCORDION DRAWER ───────── */
+.dist-drawer-wrapper {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s ease,
+              margin 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1;
+  margin-top: 8px;
+}
+
+.dist-body {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.oc-app-dist.minimized .dist-drawer-wrapper {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: 0;
+  pointer-events: none;
 }
 
 /* Compact, Low-Key Cards When Expanded */
@@ -5919,7 +6019,7 @@ button:hover .modern-icon,
 }
 
 .dist-card {
-  background: rgba(10, 10, 14, 0.72) !important;
+  background: rgba(10, 10, 14, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.07) !important;
   border-radius: 10px !important;
   padding: 8px 10px !important;
@@ -5927,9 +6027,20 @@ button:hover .modern-icon,
   flex-direction: column;
   justify-content: space-between;
   gap: 5px !important;
-  transition: all 0.2s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.28s ease,
+              border-color 0.2s ease,
+              background 0.2s ease,
+              box-shadow 0.2s ease;
   min-width: 0;
   overflow: hidden;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.oc-app-dist.minimized .dist-card {
+  transform: translateY(14px);
+  opacity: 0;
 }
 
 .dist-card:hover {
@@ -6004,6 +6115,9 @@ button:hover .modern-icon,
 
 @keyframes qrLaserScan {
   0% { top: 14px; opacity: 0.2; }
+  50% { opacity: 0.85; }
+  100% { top: 216px; opacity: 0.2; }
+}
   50% { opacity: 0.85; }
   100% { top: 216px; opacity: 0.2; }
 }

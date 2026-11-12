@@ -4106,6 +4106,7 @@ ${jsRes}
     }
 
     const distSection = $('#appDistSection');
+    const distHead = $('#distHead');
     const distMinBtn = $('#distMinimizeBtn');
     const distMinIcon = $('#distMinIcon');
     const distMinText = $('#distMinText');
@@ -4117,11 +4118,13 @@ ${jsRes}
           if (distMinIcon) distMinIcon.textContent = '▸';
           if (distMinText) distMinText.textContent = 'Expand';
           distMinBtn.setAttribute('aria-expanded', 'false');
+          distSection.setAttribute('title', 'Click anywhere on this bar to expand App Distribution Suite');
         } else {
           distSection.classList.remove('minimized');
           if (distMinIcon) distMinIcon.textContent = '▾';
           if (distMinText) distMinText.textContent = 'Minimize';
           distMinBtn.setAttribute('aria-expanded', 'true');
+          distSection.removeAttribute('title');
         }
       };
 
@@ -4130,22 +4133,32 @@ ${jsRes}
       const isDefaultMin = savedMin === null ? true : savedMin === '1';
       applyMinState(isDefaultMin);
 
-      distMinBtn.onclick = (e) => {
-        e.stopPropagation();
+      const toggleMin = (e) => {
+        if (e) e.stopPropagation();
+        playSoundClick();
         const willMin = !distSection.classList.contains('minimized');
         applyMinState(willMin);
         try {
           localStorage.setItem(DIST_MIN_KEY, willMin ? '1' : '0');
-        } catch (e) {}
+        } catch (err) {}
       };
 
+      // 1. Explicit minimize/expand button
+      distMinBtn.onclick = toggleMin;
+
+      // 2. Omni-Click Header: Clicking anywhere on the header bar toggles minimize/expand
+      if (distHead) {
+        distHead.onclick = (e) => {
+          if (e.target.closest('#distMinimizeBtn')) return;
+          toggleMin(e);
+        };
+      }
+
+      // 3. When minimized, clicking ANYWHERE on the entire dock bar expands it
       distSection.onclick = (e) => {
-        if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) return;
-        const willMin = !distSection.classList.contains('minimized');
-        applyMinState(willMin);
-        try {
-          localStorage.setItem(DIST_MIN_KEY, willMin ? '1' : '0');
-        } catch (e) {}
+        if (distSection.classList.contains('minimized')) {
+          toggleMin(e);
+        }
       };
     }
 
