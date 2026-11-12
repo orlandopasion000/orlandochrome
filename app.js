@@ -1724,37 +1724,21 @@
     const w = state.wispr;
 
     main.innerHTML = `
-      <!-- Header with Bigger Picture (60px), Prev/Next Paging, Sticky Note, Unread Bookmark & Rename Action -->
+      <!-- Header with Enlarged Profile Picture (Click to Upload Photo), Profile Stepper & Actions -->
       <header class="chat-header" id="chatHeaderBar">
         <div class="chat-header-profile">
-          <div class="chat-header-avatar-wrap" id="headerAvatarWrap" title="${statusNote ? `💭 24h Note: "${esc(statusNote.text)}" (${formatRemainingNoteTime(statusNote.expiresAt - cur)}) · Tap to edit` : 'Tap avatar to add 24h Messenger Note'}">
-            ${statusNote ? `
-              <div class="header-note-bubble" id="headerNoteBubble" title="Tap to view/edit note">
-                <span class="header-note-text">${esc(statusNote.text)}</span>
-              </div>
-            ` : `
-              <div class="header-note-add-badge" id="headerNoteAddBadge" title="Add 24h Note">
-                <span>💭+</span>
-              </div>
-            `}
-            <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" alt="${esc(p.name)}">
-          </div>
-          <div class="chat-header-info">
-            <div class="chat-header-title">
-              <span>Chrome #${p.chromeNo}: ${esc(p.name)}</span>
-              ${isUnread ? `<span class="header-unread-pill">● UNREAD</span>` : ''}
-              ${statusNote ? `
-                <span class="header-note-pill" id="headerNotePill" title="Active 24-Hour Note · Tap to edit">
-                  💭 "${esc(statusNote.text)}" <span class="note-pill-timer">· ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span>
-                </span>
-              ` : ''}
-            </div>
-            <div class="chat-header-meta">
-              ${esc(p.email)} · Taskbar Slot #${p.taskbarSlot}
+          <div class="chat-header-avatar-wrap" id="headerAvatarWrap" role="button" tabindex="0" title="Click to change profile picture manually (Upload photo)">
+            <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" alt="Profile Picture">
+            ${isUnread ? `<span class="header-avatar-unread-dot" title="Unread Dot"></span>` : ''}
+            <div class="header-avatar-upload-badge" title="Click to upload new profile photo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
             </div>
           </div>
           <!-- Quick Prev / Next Profile Stepper Buttons -->
-          <div class="header-profile-stepper" title="Tap or swipe header left/right to switch profiles">
+          <div class="header-profile-stepper" title="Tap to switch profiles (‹ previous / › next)">
             <button type="button" class="btn-step-profile" id="btnPrevProfile" title="Previous Chrome Profile">‹</button>
             <button type="button" class="btn-step-profile" id="btnNextProfile" title="Next Chrome Profile">›</button>
           </div>
@@ -2116,18 +2100,32 @@
     const btnNextProf = $('#btnNextProfile', main);
     if (btnNextProf) btnNextProf.onclick = () => stepProfile(1);
 
-    // 1. Messenger Note & Photo upload via clicking avatar wrap or note bubble
+    // 1. Right Header Avatar: Click to change profile picture manually via file picker
     const headerAvatarWrap = $('#headerAvatarWrap');
     if (headerAvatarWrap) {
-      headerAvatarWrap.onclick = () => promptMessengerNote(p);
+      headerAvatarWrap.onclick = (e) => {
+        e.stopPropagation();
+        if (window.soundMgr) {
+          if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+          else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+        }
+        state.uploadTargetId = p.id;
+        const photoInput = $('#globalPhotoInput');
+        if (photoInput) {
+          photoInput.value = ''; // Reset so same file can be re-selected if desired
+          photoInput.click();
+        }
+      };
+      headerAvatarWrap.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          headerAvatarWrap.click();
+        }
+      };
     }
     const btnMessengerNote = $('#btnMessengerNote');
     if (btnMessengerNote) {
       btnMessengerNote.onclick = () => promptMessengerNote(p);
-    }
-    const headerNotePill = $('#headerNotePill');
-    if (headerNotePill) {
-      headerNotePill.onclick = () => promptMessengerNote(p);
     }
 
     // 1b. Toggle Unread from header
