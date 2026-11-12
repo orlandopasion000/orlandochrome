@@ -5779,19 +5779,10 @@ button:hover .modern-icon,
   -webkit-backdrop-filter: blur(16px) !important;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
   transition: padding 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-              background 0.3s ease,
-              border-color 0.3s ease,
-              box-shadow 0.3s ease,
-              opacity 0.3s ease;
-  opacity: 0.8;
-}
-
-.oc-app-dist:hover,
-.oc-app-dist:focus-within {
-  opacity: 1 !important;
-  background: rgba(10, 8, 14, 0.96) !important;
-  border-top-color: rgba(255, 77, 88, 0.5) !important;
-  box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.8), 0 0 16px rgba(229, 9, 20, 0.25);
+              background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease,
+              box-shadow 0.35s ease,
+              opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .oc-app-dist::before {
@@ -5803,28 +5794,61 @@ button:hover .modern-icon,
   height: 2px;
   background: linear-gradient(90deg, transparent, #ff4d58 20%, #e50914 50%, #ff1a24 80%, transparent) !important;
   box-shadow: 0 0 12px rgba(229, 9, 20, 0.5) !important;
-  opacity: 0.5;
-  transition: opacity 0.3s ease;
-}
-
-.oc-app-dist:hover::before {
-  opacity: 1 !important;
+  transition: opacity 0.35s ease;
 }
 
 /* Expanded State */
 .oc-app-dist:not(.minimized) {
   padding: 8px 18px 10px !important;
+  opacity: 0.96;
 }
 
-/* Minimized State (Compact Low-Key Bar) */
+.oc-app-dist:not(.minimized)::before {
+  opacity: 0.7;
+}
+
+.oc-app-dist:not(.minimized):hover,
+.oc-app-dist:not(.minimized):focus-within {
+  opacity: 1 !important;
+  background: rgba(10, 8, 14, 0.98) !important;
+  border-top-color: rgba(255, 77, 88, 0.5) !important;
+  box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.8), 0 0 16px rgba(229, 9, 20, 0.25);
+}
+
+.oc-app-dist:not(.minimized):hover::before {
+  opacity: 1 !important;
+}
+
+/* ───────── STEALTH GHOST MINIMIZED DOCK (Ultra-Low-Key, Compressed, Invisible) ───────── */
 .oc-app-dist.minimized {
-  padding: 5px 18px 5px !important;
+  padding: 2.5px 16px 2.5px !important;
   cursor: pointer;
+  background: rgba(4, 4, 6, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.04) !important;
+  box-shadow: none !important;
+  opacity: 0.18 !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
 }
 
-.oc-app-dist.minimized:hover {
-  background: rgba(18, 10, 14, 0.95) !important;
+/* Red Neon Top Laser Line: Completely hidden when idle */
+.oc-app-dist.minimized::before {
+  opacity: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Uncloaking & Awakening on Hover: Smooth fluid reveal */
+.oc-app-dist.minimized:hover,
+.oc-app-dist.minimized:focus-within {
+  opacity: 1 !important;
+  background: rgba(12, 8, 14, 0.96) !important;
   border-top-color: rgba(255, 77, 88, 0.6) !important;
+  box-shadow: 0 -6px 26px rgba(0, 0, 0, 0.85), 0 0 16px rgba(229, 9, 20, 0.35) !important;
+}
+
+.oc-app-dist.minimized:hover::before {
+  opacity: 0.95 !important;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.6) !important;
 }
 
 /* Omni-Click Header: Entire header bar is a broad interactive hit target */
@@ -5838,8 +5862,8 @@ button:hover .modern-icon,
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-  padding: 3px 6px;
-  border-radius: 8px;
+  padding: 2px 4px;
+  border-radius: 6px;
   transition: background 0.2s ease, transform 0.15s ease;
 }
 
@@ -5854,30 +5878,45 @@ button:hover .modern-icon,
 .dist-head-left {
   display: flex;
   align-items: center;
-  gap: 10px !important;
+  gap: 8px !important;
 }
 
+/* Mini OC Logo */
 .dist-oc-mini {
-  width: 24px !important;
-  height: 24px !important;
-  border-radius: 6px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 5px !important;
   background: #000000 !important;
-  border: 1px solid rgba(255, 77, 88, 0.5) !important;
+  border: 1px solid rgba(255, 77, 88, 0.4) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-shadow: 0 0 8px rgba(229, 9, 20, 0.35) !important;
+  box-shadow: 0 0 6px rgba(229, 9, 20, 0.25) !important;
   flex-shrink: 0 !important;
   overflow: hidden !important;
-  padding: 2px !important;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  padding: 1.5px !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, width 0.3s ease, height 0.3s ease;
 }
 
-.dist-head:hover .dist-oc-mini {
-  transform: scale(1.08);
-  box-shadow: 0 0 12px rgba(229, 9, 20, 0.6) !important;
+/* Ultra-compact 15px icon when idle/minimized */
+.oc-app-dist.minimized .dist-oc-mini {
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 3.5px !important;
+  border-color: rgba(255, 77, 88, 0.18) !important;
+  box-shadow: none !important;
+  padding: 1px !important;
 }
 
+.oc-app-dist.minimized:hover .dist-oc-mini {
+  width: 20px !important;
+  height: 20px !important;
+  border-color: rgba(255, 77, 88, 0.6) !important;
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.45) !important;
+  transform: scale(1.06);
+}
+
+/* Title text */
 .dist-title {
   font-size: 0.82rem !important;
   font-weight: 750 !important;
@@ -5885,8 +5924,22 @@ button:hover .modern-icon,
   display: flex;
   align-items: center;
   gap: 6px;
+  transition: color 0.25s ease, font-size 0.3s ease;
 }
 
+/* Subdued stealth title when idle/minimized */
+.oc-app-dist.minimized .dist-title {
+  font-size: 0.70rem !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  gap: 5px !important;
+}
+
+.oc-app-dist.minimized:hover .dist-title {
+  color: #f1f5f9 !important;
+}
+
+/* Badge */
 .dist-badge {
   background: rgba(229, 9, 20, 0.16) !important;
   color: #ff858d !important;
@@ -5896,6 +5949,21 @@ button:hover .modern-icon,
   font-weight: 800 !important;
   padding: 1.5px 6px !important;
   letter-spacing: 0.05em !important;
+  transition: opacity 0.25s ease, font-size 0.25s ease;
+}
+
+.oc-app-dist.minimized .dist-badge {
+  font-size: 0.50rem !important;
+  padding: 0.5px 4px !important;
+  opacity: 0.4 !important;
+  background: rgba(229, 9, 20, 0.08) !important;
+  border-color: rgba(255, 77, 88, 0.15) !important;
+}
+
+.oc-app-dist.minimized:hover .dist-badge {
+  opacity: 1 !important;
+  background: rgba(229, 9, 20, 0.18) !important;
+  border-color: rgba(255, 77, 88, 0.4) !important;
 }
 
 /* Progressive Disclosure Hint when Minimized */
@@ -5913,9 +5981,17 @@ button:hover .modern-icon,
 }
 
 .oc-app-dist.minimized .dist-collapse-hint {
-  opacity: 0.85;
-  max-width: 240px;
-  margin-left: 4px;
+  font-size: 0.60rem !important;
+  color: #334155 !important;
+  opacity: 0.65;
+  max-width: 220px;
+  margin-left: 3px;
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+.oc-app-dist.minimized:hover .dist-collapse-hint {
+  color: #94a3b8 !important;
+  opacity: 0.95 !important;
 }
 
 .dist-subtitle {
@@ -5950,6 +6026,22 @@ button:hover .modern-icon,
   transition: all 0.25s ease;
 }
 
+/* Micro stealth pill when idle/minimized */
+.oc-app-dist.minimized .dist-toggle-btn {
+  font-size: 0.60rem !important;
+  padding: 1px 7px !important;
+  color: #475569 !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.oc-app-dist.minimized:hover .dist-toggle-btn {
+  color: #ffffff !important;
+  background: rgba(229, 9, 20, 0.22) !important;
+  border-color: rgba(255, 77, 88, 0.6) !important;
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.35) !important;
+}
+
 .dist-head:hover .dist-toggle-btn,
 .dist-toggle-btn:hover {
   background: rgba(229, 9, 20, 0.24) !important;
@@ -5960,7 +6052,7 @@ button:hover .modern-icon,
 
 .dist-min-icon {
   display: inline-block;
-  font-size: 0.72rem;
+  font-size: 0.70rem;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center;
 }
