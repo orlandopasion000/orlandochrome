@@ -2313,6 +2313,95 @@ body.is-resizing-pane * {
   opacity: 1;
 }
 
+#toast.has-action {
+  pointer-events: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 8px 14px 8px 18px !important;
+  border: 1px solid #ff4d58 !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.95), 0 0 16px rgba(229, 9, 20, 0.5) !important;
+}
+
+.toast-msg {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.toast-action-btn {
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%) !important;
+  border: 1px solid #ff4d58 !important;
+  color: #ffffff !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-full) !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.45) !important;
+  transition: transform 0.15s ease, background 0.15s ease !important;
+  white-space: nowrap !important;
+}
+
+.toast-action-btn:hover {
+  transform: scale(1.05) !important;
+  background: #ff222f !important;
+}
+
+.toast-action-btn:active {
+  transform: scale(0.96) !important;
+}
+
+.btn-header-action.btn-header-undo,
+.btn-header-action.btn-header-redo {
+  font-variant-numeric: tabular-nums;
+  position: relative;
+}
+
+.btn-header-action.btn-header-undo:not(:disabled),
+.btn-header-action.btn-header-redo:not(:disabled) {
+  border-color: rgba(229, 9, 20, 0.45);
+  color: #ffffff;
+}
+
+.btn-header-action.btn-header-undo:not(:disabled):hover,
+.btn-header-action.btn-header-redo:not(:disabled):hover {
+  background: rgba(229, 9, 20, 0.18);
+  border-color: #ff4d58;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.35);
+}
+
+.btn-header-action:disabled,
+.btn-header-action.disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  border-color: #222 !important;
+  color: #666 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+@keyframes noteRestoredGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(229, 9, 20, 0);
+    border-color: rgba(255, 77, 88, 0.9);
+    background: rgba(229, 9, 20, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+    border-color: #ff4d58;
+    background: rgba(229, 9, 20, 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(229, 9, 20, 0);
+  }
+}
+
+.note-restored-highlight {
+  animation: noteRestoredGlow 1.6s ease-out !important;
+}
+
+
 /* Modals: Rename, Forward Task, Lightbox, Dictionary */
 .rename-dialog-backdrop {
   position: fixed;

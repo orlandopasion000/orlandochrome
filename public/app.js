@@ -273,15 +273,241 @@
     return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='30%' cy='25%' r='75%'><stop offset='0%' stop-color='%23ff4d58'/><stop offset='50%' stop-color='%23b8000a'/><stop offset='100%' stop-color='%231a0002'/></radialGradient></defs><rect width='100' height='100' rx='50' fill='url(%23g)'/><text x='50' y='66' font-size='46' font-weight='800' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'>${initial}</text></svg>`;
   }
 
-  // Toast notification
+  // Toast notification (Interactive action toast + regular toast)
   function showToast(msg) {
     const el = $('#toast');
     if (!el) return;
+    clearTimeout(el._timer);
+    clearInterval(el._interval);
+    el.classList.remove('has-action');
     el.textContent = msg;
     el.classList.add('show');
-    clearTimeout(el._timer);
     el._timer = setTimeout(() => el.classList.remove('show'), 2600);
   }
+
+  function showActionToast({ message, actionText = '↺ Undo', onAction, duration = 6500 }) {
+    const el = $('#toast');
+    if (!el) return;
+    clearTimeout(el._timer);
+    clearInterval(el._interval);
+
+    let remaining = Math.round(duration / 1000);
+    el.innerHTML = `
+      <span class="toast-msg">${esc(message)}</span>
+      <button type="button" class="toast-action-btn" id="toastActionBtn">${esc(actionText)} (${remaining}s)</button>
+    `;
+    el.classList.add('show', 'has-action');
+
+    const btn = $('#toastActionBtn', el);
+    if (btn) {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        clearTimeout(el._timer);
+        clearInterval(el._interval);
+        el.classList.remove('show', 'has-action');
+        if (typeof onAction === 'function') onAction();
+      };
+    }
+
+    el._interval = setInterval(() => {
+      remaining -= 1;
+      if (btn && remaining > 0) {
+        btn.textContent = `${actionText} (${remaining}s)`;
+      } else {
+        clearInterval(el._interval);
+      }
+    }, 1000);
+
+    el._timer = setTimeout(() => {
+      clearInterval(el._interval);
+      el.classList.remove('show', 'has-action');
+    }, duration);
+  }
+
+  // Multi-Action Reversible Command History Stack (Undo & Redo Engine)
+  const historyMgr = {
+    undoStack: [],
+    redoStack: [],
+    maxDepth: 50,
+
+    record(action) {
+      if (!action || !action.type) return;
+      this.undoStack.push(action);
+      if (this.undoStack.length > this.maxDepth) this.undoStack.shift();
+      this.redoStack = []; // New user actions invalidate the redo branch
+      this.updateUI();
+    },
+
+    canUndo() {
+      return this.undoStack.length > 0;
+    },
+
+    canRedo() {
+      return this.redoStack.length > 0;
+    },
+
+    undo() {
+      if (!this.canUndo()) {
+        showToast('Nothing to undo');
+        return false;
+      }
+      const action = this.undoStack.pop();
+      this.apply(action, true);
+      this.redoStack.push(action);
+      if (window.soundMgr) {
+        if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+        else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+      }
+      this.updateUI();
+      return true;
+    },
+
+    redo() {
+      if (!this.canRedo()) {
+        showToast('Nothing to redo');
+        return false;
+      }
+      const action = this.redoStack.pop();
+      this.apply(action, false);
+      this.undoStack.push(action);
+      if (window.soundMgr) {
+        if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+        else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+      }
+      this.updateUI();
+      return true;
+    },
+
+    apply(action, isUndo) {
+      const p = getProfile(action.profileId);
+      if (!p) return;
+
+      // Auto-switch active profile to where the action occurred
+      if (state.activeProfileId !== action.profileId) {
+        state.activeProfileId = action.profileId;
+      }
+
+      switch (action.type) {
+        case 'DELETE_NOTE': {
+          if (isUndo) {
+            if (!p.notes) p.notes = [];
+            const insertIdx = (typeof action.index === 'number' && action.index >= 0 && action.index <= p.notes.length)
+              ? action.index
+              : p.notes.length;
+            p.notes.splice(insertIdx, 0, JSON.parse(JSON.stringify(action.note)));
+            showToast(`↺ Restored note: "${(action.note.text || 'Message').slice(0, 24)}"`);
+            setTimeout(() => {
+              const card = $(`#noteCard_${action.note.id}`);
+              if (card) {
+                card.classList.add('note-restored-highlight');
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            }, 80);
+          } else {
+            p.notes = (p.notes || []).filter(n => n.id !== action.note.id);
+            showToast('↻ Redid delete');
+          }
+          break;
+        }
+
+        case 'ADD_NOTE': {
+          if (isUndo) {
+            p.notes = (p.notes || []).filter(n => n.id !== action.note.id);
+            showToast('↺ Undid new note');
+          } else {
+            if (!p.notes) p.notes = [];
+            p.notes.push(JSON.parse(JSON.stringify(action.note)));
+            showToast('↻ Redid note creation');
+            setTimeout(() => {
+              const card = $(`#noteCard_${action.note.id}`);
+              if (card) {
+                card.classList.add('note-restored-highlight');
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            }, 80);
+          }
+          break;
+        }
+
+        case 'EDIT_NOTE': {
+          const note = (p.notes || []).find(n => n.id === action.noteId);
+          if (note) {
+            if (isUndo) {
+              note.text = action.oldText;
+              note.editedAt = action.oldEditedAt;
+              showToast('↺ Reverted note edit');
+            } else {
+              note.text = action.newText;
+              note.editedAt = action.newEditedAt;
+              showToast('↻ Redid note edit');
+            }
+          }
+          break;
+        }
+
+        case 'STATUS_NOTE': {
+          if (isUndo) {
+            p.statusNote = action.oldNote ? JSON.parse(JSON.stringify(action.oldNote)) : null;
+            showToast(p.statusNote ? '↺ Restored status note' : '↺ Reverted status note');
+          } else {
+            p.statusNote = action.newNote ? JSON.parse(JSON.stringify(action.newNote)) : null;
+            showToast(p.statusNote ? '↻ Redid status note' : '↻ Redid clear status note');
+          }
+          break;
+        }
+
+        case 'STICKY_NOTE': {
+          if (isUndo) {
+            p.stickyNote = action.oldSticky || '';
+            showToast(p.stickyNote ? '↺ Restored sticky note' : '↺ Reverted sticky note');
+          } else {
+            p.stickyNote = action.newSticky || '';
+            showToast(p.stickyNote ? '↻ Redid sticky note' : '↻ Redid clear sticky note');
+          }
+          break;
+        }
+      }
+
+      if (countPending(p) === 0) {
+        p.isPinned = false;
+        p.pinnedAt = null;
+      }
+      if (!hasMessages(p)) {
+        p.isUnread = false;
+      }
+
+      saveState();
+      renderSidebar();
+      renderMainChat();
+    },
+
+    updateUI() {
+      const uBtn = $('#btnUndoNote');
+      const rBtn = $('#btnRedoNote');
+      const canU = this.canUndo();
+      const canR = this.canRedo();
+      if (uBtn) {
+        uBtn.disabled = !canU;
+        uBtn.classList.toggle('disabled', !canU);
+        if (canU) {
+          const last = this.undoStack[this.undoStack.length - 1];
+          uBtn.title = `Undo: ${last.type.toLowerCase().replace('_', ' ')} (Ctrl+Z)`;
+        } else {
+          uBtn.title = 'Nothing to undo (Ctrl+Z)';
+        }
+      }
+      if (rBtn) {
+        rBtn.disabled = !canR;
+        rBtn.classList.toggle('disabled', !canR);
+        if (canR) {
+          const next = this.redoStack[this.redoStack.length - 1];
+          rBtn.title = `Redo: ${next.type.toLowerCase().replace('_', ' ')} (Ctrl+Y)`;
+        } else {
+          rBtn.title = 'Nothing to redo (Ctrl+Y)';
+        }
+      }
+    }
+  };
 
   // Enhancement #3: Auto-Linkify URLs inside message text & sticky notes
   function linkifyText(raw) {
@@ -1827,6 +2053,12 @@
         </div>
 
         <div class="chat-header-actions">
+          <button type="button" class="btn-header-action btn-header-undo ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnUndoNote" title="Undo last message action (Ctrl+Z)" ${historyMgr.canUndo() ? '' : 'disabled'}>
+            ↺ Undo
+          </button>
+          <button type="button" class="btn-header-action btn-header-redo ${historyMgr.canRedo() ? '' : 'disabled'}" id="btnRedoNote" title="Redo last message action (Ctrl+Y)" ${historyMgr.canRedo() ? '' : 'disabled'}>
+            ↻ Redo
+          </button>
           ${IS_BLANK_EDITION ? `
             <button class="btn-header-action" id="btnAddSlotBlank" title="Add another taskbar Chrome profile slot">
               ➕ Add Profile
@@ -1920,7 +2152,7 @@
           const subItems = Array.isArray(n.subItems) ? n.subItems : [];
 
           return `
-          <div class="note-item-wrap" data-nid="${n.id}">
+          <div class="note-item-wrap" data-nid="${n.id}" id="noteCard_${n.id}">
             <div class="note-swipe-indicator left-ind"><span>${n.done ? '↩ Reopen' : '✓ Done'}</span></div>
             <div class="note-swipe-indicator right-ind"><span>↪ Forward</span></div>
             <div class="note-bubble ${n.done ? 'done' : ''} ${isEditing ? 'editing' : ''}">
@@ -2279,6 +2511,20 @@
       btnDownloadScanner.onclick = () => downloadLaptopTaskbarScannerCmd();
     }
 
+    // 1e. Undo & Redo Header Controls
+    const btnUndo = $('#btnUndoNote');
+    if (btnUndo) {
+      btnUndo.onclick = () => {
+        historyMgr.undo();
+      };
+    }
+    const btnRedo = $('#btnRedoNote');
+    if (btnRedo) {
+      btnRedo.onclick = () => {
+        historyMgr.redo();
+      };
+    }
+
     // 2. Rename profile
     const renameBtn = $('#btnRenameProfile');
     if (renameBtn) {
@@ -2387,17 +2633,35 @@
           saveState();
           renderMainChat();
         } else if (act === 'delete-note') {
-          p.notes = p.notes.filter(n => n.id !== nid);
-          if (countPending(p) === 0) {
-            p.isPinned = false;
-            p.pinnedAt = null;
+          const noteIdx = (p.notes || []).findIndex(n => n.id === nid);
+          if (noteIdx !== -1) {
+            const deletedNote = JSON.parse(JSON.stringify(p.notes[noteIdx]));
+            historyMgr.record({
+              type: 'DELETE_NOTE',
+              profileId: p.id,
+              note: deletedNote,
+              index: noteIdx
+            });
+            p.notes.splice(noteIdx, 1);
+            if (countPending(p) === 0) {
+              p.isPinned = false;
+              p.pinnedAt = null;
+            }
+            if (!hasMessages(p)) {
+              p.isUnread = false;
+            }
+            saveState();
+            renderSidebar();
+            renderMainChat();
+            showActionToast({
+              message: '🗑️ Deleted note',
+              actionText: '↺ Undo',
+              duration: 6500,
+              onAction: () => {
+                historyMgr.undo();
+              }
+            });
           }
-          if (!hasMessages(p)) {
-            p.isUnread = false;
-          }
-          saveState();
-          renderSidebar();
-          renderMainChat();
         } else if (act === 'start-edit') {
           state.editingNoteId = nid;
           renderMainChat();
@@ -2582,7 +2846,7 @@
         state.pendingReactionTag = null;
       }
 
-      p.notes.push({
+      const newCreatedNote = {
         id: uid(),
         text,
         image: state.pendingAttachment || null,
@@ -2593,6 +2857,12 @@
         editedAt: null,
         forwardedFrom: null,
         done: false
+      };
+      p.notes.push(newCreatedNote);
+      historyMgr.record({
+        type: 'ADD_NOTE',
+        profileId: p.id,
+        note: JSON.parse(JSON.stringify(newCreatedNote))
       });
 
       if (input) input.value = '';
@@ -2638,6 +2908,17 @@
     const trimmed = (newText || '').trim();
     const note = (profile.notes || []).find(n => n.id === noteId);
     if (note && (trimmed || note.image || note.voiceClip)) {
+      if (note.text !== trimmed) {
+        historyMgr.record({
+          type: 'EDIT_NOTE',
+          profileId: profile.id,
+          noteId,
+          oldText: note.text,
+          newText: trimmed,
+          oldEditedAt: note.editedAt,
+          newEditedAt: now()
+        });
+      }
       note.text = trimmed;
       note.editedAt = now();
       saveState();
@@ -2865,6 +3146,15 @@
     const delBtn = $('#btnDeleteNote', backdrop);
     if (delBtn) {
       delBtn.onclick = () => {
+        const oldStatus = profile.statusNote ? JSON.parse(JSON.stringify(profile.statusNote)) : null;
+        if (oldStatus) {
+          historyMgr.record({
+            type: 'STATUS_NOTE',
+            profileId: profile.id,
+            oldNote: oldStatus,
+            newNote: null
+          });
+        }
         profile.statusNote = null;
         saveState();
         if (window.soundMgr) {
@@ -2873,8 +3163,13 @@
         }
         renderSidebar();
         renderMainChat();
-        showToast(`🗑️ Note deleted for ${profile.name}`);
         close();
+        showActionToast({
+          message: `🗑️ Note deleted for ${profile.name}`,
+          actionText: '↺ Undo',
+          duration: 6500,
+          onAction: () => historyMgr.undo()
+        });
       };
     }
   }
@@ -4726,6 +5021,22 @@ ${jsRes}
 
     // Enhancement #6: Global Keyboard Shortcuts (Alt+Space Dictation, Alt+↑/↓ Profile Nav, Alt+N Next Ready)
     document.addEventListener('keydown', (e) => {
+      // Undo & Redo Shortcuts: Ctrl+Z / Cmd+Z and Ctrl+Y / Cmd+Shift+Z
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+          e.preventDefault();
+          historyMgr.undo();
+          return;
+        }
+      } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+          e.preventDefault();
+          historyMgr.redo();
+          return;
+        }
+      }
       if ((e.altKey && e.code === 'Space') || (e.ctrlKey && e.shiftKey && e.code === 'Space')) {
         e.preventDefault();
         toggleWisprDictation();
