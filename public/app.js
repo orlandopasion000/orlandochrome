@@ -8,6 +8,14 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
   const now = () => Date.now();
+  const playSoundClick = () => {
+    try {
+      if (window.soundMgr) {
+        if (typeof window.soundMgr.playClickSoft === "function") window.soundMgr.playClickSoft();
+        else if (typeof window.soundMgr.playClick === "function") window.soundMgr.playClick();
+      }
+    } catch (e) {}
+  };
 
   // Check if running in Clean Blank Edition mode (?edition=blank) for any external laptop
   const URL_PARAMS = new URLSearchParams(window.location.search);
@@ -2548,6 +2556,7 @@
   function promptAddTemplate() {
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
+    backdrop.style.zIndex = '9999';
     backdrop.innerHTML = `
       <div class="rename-dialog">
         <h3>⚡ Add 1-Click Quick-Task Template</h3>
@@ -3364,7 +3373,7 @@ ${jsRes}
 
   // Direct Desktop App Launcher (Standalone window with no browser tabs / URL bar)
   function launchDesktopApp() {
-    if (window.soundMgr) window.soundMgr.playClickSoft();
+    playSoundClick();
     showToast('🚀 Launching OrlandoChrome (Main Version)...');
     const appUrl = 'https://orlandopasion000.github.io/orlandochrome/';
     const winFeatures = 'popup=yes,menubar=no,toolbar=no,location=no,status=no,personalbar=no,directories=no,resizable=yes,scrollbars=yes,width=1380,height=880,left=100,top=60';
@@ -3375,7 +3384,7 @@ ${jsRes}
   }
 
   function openAppDistributionSuiteModal() {
-    if (window.soundMgr) window.soundMgr.playClickSoft();
+    playSoundClick();
     const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
     // Pure black (#000000) modules on pure white (#ffffff) background for 100% instant camera detection!
     const qrRes = generateQrMarkup(shareUrl, '#000000', '#ffffff');
@@ -3395,7 +3404,7 @@ ${jsRes}
         <p style="font-size:0.78rem; color:#94a3b8; margin:0 0 14px; line-height:1.4;">Point your iPhone or Android camera to open and live-sync OrlandoChrome instantly.</p>
         
         <!-- High-Tech HUD Viewfinder with glowing red brackets -->
-        <div class="qr-hud-box" style="position:relative; width:236px; height:236px; margin:0 auto 12px; padding:12px; background:rgba(20, 10, 14, 0.6); border:1px solid rgba(255,77,88,0.25); border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(229,9,20,0.2);">
+        <div class="qr-hud-box" id="qrViewfinderBox" style="position:relative; width:236px; height:236px; margin:0 auto 12px; padding:12px; background:rgba(20, 10, 14, 0.6); border:1px solid rgba(255,77,88,0.25); border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(229,9,20,0.2); cursor:pointer;" title="Click to open app or copy link">
           <div class="qr-hud-corner tl" style="position:absolute; top:6px; left:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-top-left-radius:4px;"></div>
           <div class="qr-hud-corner tr" style="position:absolute; top:6px; right:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-right:2.5px solid #ff4d58; border-top-right-radius:4px;"></div>
           <div class="qr-hud-corner bl" style="position:absolute; bottom:6px; left:6px; width:14px; height:14px; border-bottom:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-bottom-left-radius:4px;"></div>
@@ -3428,6 +3437,14 @@ ${jsRes}
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
     const btnClose = $('#btnCloseQrModal', backdrop);
     if (btnClose) btnClose.onclick = close;
+    const qrViewfinder = $('#qrViewfinderBox', backdrop);
+    if (qrViewfinder) {
+      qrViewfinder.onclick = () => {
+        playSoundClick();
+        copyToClipboard(shareUrl, '📋 App link copied to clipboard!');
+        window.open(shareUrl, '_blank', 'noopener');
+      };
+    }
     const btnDismiss = $('#btnDismissQrModal', backdrop);
     if (btnDismiss) btnDismiss.onclick = close;
     const btnCopy = $('#btnCopyQrLinkModal', backdrop);
@@ -4004,7 +4021,7 @@ ${jsRes}
     const btnLaunchDesktop = $('#btnTopbarLaunchApp');
     if (btnLaunchDesktop) {
       btnLaunchDesktop.onclick = () => {
-        if (window.soundMgr) window.soundMgr.playClickSoft();
+        playSoundClick();
         showToast('🚀 Opening OrlandoChrome (Main Version)...');
       };
     }
@@ -4016,18 +4033,32 @@ ${jsRes}
     const mainAppBtn = $('#openMainAppBtn') || $('#installAppBtn');
     if (mainAppBtn) {
       mainAppBtn.onclick = () => {
-        if (window.soundMgr) window.soundMgr.playClickSoft();
+        playSoundClick();
         showToast('🚀 Opening OrlandoChrome (Main Version)...');
       };
     }
 
     const openQrBtn = $('#openQrBtn');
-    if (openQrBtn) openQrBtn.onclick = () => openAppDistributionSuiteModal();
+    if (openQrBtn) {
+      openQrBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
+        openAppDistributionSuiteModal();
+      };
+    }
+
+    const cardHoloQr = $('#cardHoloQr') || $('.dist-card-holo');
+    if (cardHoloQr) {
+      cardHoloQr.style.cursor = 'pointer';
+      cardHoloQr.onclick = (e) => {
+        if (e && e.target && e.target.closest('#shareAppBtn')) return;
+        openAppDistributionSuiteModal();
+      };
+    }
 
     const shareAppBtn = $('#shareAppBtn');
     if (shareAppBtn) {
       shareAppBtn.onclick = () => {
-        if (window.soundMgr) window.soundMgr.playClickSoft();
+        playSoundClick();
         const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
         copyToClipboard(shareUrl, '📋 App link copied to clipboard!');
         const origText = shareAppBtn.innerHTML;

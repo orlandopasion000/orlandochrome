@@ -6007,3 +6007,18 @@ button:hover .modern-icon,
   50% { opacity: 0.85; }
   100% { top: 216px; opacity: 0.2; }
 }
+
+
+/* Holographic QR Card & Interactive Viewfinder */
+.dist-card-holo {
+  cursor: pointer !important;
+}
+.dist-card-holo:hover {
+  border-color: rgba(255, 77, 88, 0.6) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), 0 0 16px rgba(229, 9, 20, 0.35) !important;
+}
+#qrViewfinderBox:hover .qr-code-interactive-card,
+#qrViewfinderBox:hover .qr-code-svg-holo {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
