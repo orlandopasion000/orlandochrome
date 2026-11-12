@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-pwa-v38';
+const CACHE_NAME = 'orlandochrome-pwa-v39';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=38',
+  './styles.css?v=39',
   './qrcode.min.js',
-  './app.js?v=38',
-  './sound.js?v=38',
+  './app.js?v=39',
+  './sound.js?v=39',
   './oc-logo.svg',
   './icon-192.png',
   './icon-512.png',

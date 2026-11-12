@@ -1426,19 +1426,36 @@
     });
   }
 
-  // Select Profile while ALWAYS keeping the Left Profile List & Right Message Pane Side-by-Side
+  // Select Profile with Messenger-Style Full-Width View Switcher on Mobile (<= 768px)
   function openMobileChatWithSlide(profileId) {
     if (profileId) {
       state.activeProfileId = profileId;
     }
-    document.body.classList.remove('mobile-chat-open');
+    if (window.innerWidth <= 768) {
+      document.body.classList.add('mobile-chat-open');
+      try { localStorage.setItem('orlandochrome_mobile_view', 'chat'); } catch (e) {}
+    }
+    if (window.soundMgr) {
+      if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+      else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+    }
     renderSidebar();
     renderMainChat();
+    setTimeout(() => {
+      const stream = $('#notesStream');
+      if (stream) stream.scrollTop = stream.scrollHeight;
+    }, 50);
   }
 
   function closeMobileChatWithSlide() {
     document.body.classList.remove('mobile-chat-open');
+    try { localStorage.setItem('orlandochrome_mobile_view', 'inbox'); } catch (e) {}
+    if (window.soundMgr) {
+      if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+      else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+    }
     renderSidebar();
+    renderMainChat();
   }
 
   // Step to Previous (-1) or Next (+1) Chrome Profile (Paging Gesture / Header Tap)
@@ -1735,8 +1752,14 @@
     const w = state.wispr;
 
     main.innerHTML = `
-      <!-- Header with Enlarged Profile Picture (Click to Upload Photo), Profile Stepper & Actions -->
+      <!-- Header with Back to Profiles (Mobile), Enlarged Profile Picture, Profile Stepper & Actions -->
       <header class="chat-header" id="chatHeaderBar">
+        <button type="button" class="btn-mobile-back" id="btnMobileBackToList" title="Back to All Profiles">
+          <span class="back-chevron">‹</span>
+          <span class="back-text">Profiles</span>
+          ${(state.profiles.reduce((sum, pr) => sum + countPending(pr), 0)) > 0 ? `<span class="back-pending-badge">${state.profiles.reduce((sum, pr) => sum + countPending(pr), 0)}</span>` : ''}
+        </button>
+
         <div class="chat-header-profile">
           <div class="chat-header-avatar-wrap" id="headerAvatarWrap" role="button" tabindex="0" title="Click to change profile picture manually (Upload photo)">
             <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" alt="Profile Picture">
@@ -1752,6 +1775,10 @@
           <div class="header-profile-stepper" title="Tap to switch profiles (‹ previous / › next)">
             <button type="button" class="btn-step-profile" id="btnPrevProfile" title="Previous Chrome Profile">‹</button>
             <button type="button" class="btn-step-profile" id="btnNextProfile" title="Next Chrome Profile">›</button>
+          </div>
+          <div class="chat-header-mobile-title">
+            <span class="mobile-header-name">${esc(p.name)}</span>
+            <span class="mobile-header-slot">${esc(p.winShortcut || ('W+' + p.taskbarSlot))}</span>
           </div>
         </div>
 
@@ -3084,6 +3111,10 @@
 
     const wasSameProfile = (nextProf.id === state.activeProfileId);
     state.activeProfileId = nextProf.id;
+    if (window.innerWidth <= 768) {
+      document.body.classList.add('mobile-chat-open');
+      try { localStorage.setItem('orlandochrome_mobile_view', 'chat'); } catch (e) {}
+    }
 
     // Ensure nextProf is visible if currently filtered out by filter tabs
     const curTab = state.currentFilter;
@@ -4981,7 +5012,17 @@ ${jsRes}
   // Initializer
   function init() {
     loadState();
-    document.body.classList.remove('mobile-chat-open');
+    if (window.innerWidth <= 768) {
+      let savedView = 'inbox';
+      try { savedView = localStorage.getItem('orlandochrome_mobile_view') || 'inbox'; } catch (e) {}
+      if (savedView === 'chat') {
+        document.body.classList.add('mobile-chat-open');
+      } else {
+        document.body.classList.remove('mobile-chat-open');
+      }
+    } else {
+      document.body.classList.remove('mobile-chat-open');
+    }
     initEvents();
     initGestureNavigation();
     renderSidebar();
