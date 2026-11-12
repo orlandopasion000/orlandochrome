@@ -6,7 +6,10 @@
   "start_url": "https://orlandopasion000.github.io/orlandochrome/",
   "scope": "https://orlandopasion000.github.io/orlandochrome/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "orientation": "any",
   "background_color": "#000000",
   "theme_color": "#000000",
@@ -45,12 +48,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "oc-logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
     }
   ]
 }
