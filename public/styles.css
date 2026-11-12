@@ -384,7 +384,7 @@ img, video, audio, canvas, svg {
   border-radius: 5px;
   object-fit: contain;
   flex-shrink: 0;
-  box-shadow: 0 0 6px rgba(217, 185, 92, 0.45);
+  box-shadow: 0 0 6px rgba(229, 9, 20, 0.55);
 }
 
 .alarm-pill-text {
