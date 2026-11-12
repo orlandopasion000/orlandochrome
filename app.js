@@ -3979,55 +3979,22 @@ ${jsRes}
     if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
 
     const btnLaunchDesktop = $('#btnTopbarLaunchApp');
-    if (btnLaunchDesktop) btnLaunchDesktop.onclick = () => launchDesktopApp();
+    if (btnLaunchDesktop) {
+      btnLaunchDesktop.onclick = () => {
+        if (window.soundMgr) window.soundMgr.playClickSoft();
+        showToast('🚀 Opening OrlandoChrome (Main Version)...');
+      };
+    }
 
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
 
-    // 4-Card Dock & App Distribution controls
-    const installAppBtn = $('#installAppBtn');
-    if (installAppBtn) {
-      installAppBtn.onclick = () => {
+    // 4-Card Dock & App Distribution controls (Open Main Web App · No installation needed)
+    const mainAppBtn = $('#openMainAppBtn') || $('#installAppBtn');
+    if (mainAppBtn) {
+      mainAppBtn.onclick = () => {
         if (window.soundMgr) window.soundMgr.playClickSoft();
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-          showToast('✓ OrlandoChrome is already running in standalone mode!');
-          return;
-        }
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt().then((choice) => {
-            if (choice && choice.outcome === 'accepted') {
-              showToast('🚀 Installing OrlandoChrome App...');
-            }
-            deferredInstallPrompt = null;
-          }).catch(() => {
-            launchDesktopApp();
-            openInstallGuideModal();
-          });
-        } else {
-          launchDesktopApp();
-          openInstallGuideModal();
-        }
-      };
-    }
-
-    const btnLaunchNow = $('#btnLaunchStandaloneNow');
-    if (btnLaunchNow) {
-      btnLaunchNow.onclick = () => {
-        launchDesktopApp();
-        closeInstallGuideModal();
-      };
-    }
-
-    const closeGuideBtn = $('#closeInstallGuide');
-    if (closeGuideBtn) closeGuideBtn.onclick = () => closeInstallGuideModal();
-
-    const dismissGuideBtn = $('#dismissInstallGuide');
-    if (dismissGuideBtn) dismissGuideBtn.onclick = () => closeInstallGuideModal();
-
-    const guideModal = $('#installGuideModal');
-    if (guideModal) {
-      guideModal.onclick = (e) => {
-        if (e.target === guideModal) closeInstallGuideModal();
+        showToast('🚀 Opening OrlandoChrome (Main Version)...');
       };
     }
 

@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/svg+xml" href="oc-logo.svg">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=27">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -38,10 +38,10 @@
       </button>
 
       <!-- Launch Desktop App Button (Clickable Icon + Word leading directly to OrlandoChrome Desktop App) -->
-      <button type="button" class="btn-topbar-desktop" id="btnTopbarLaunchApp" title="Launch OrlandoChrome Desktop App (Opens the standalone app directly without any browser tabs)">
+      <a class="btn-topbar-desktop" id="btnTopbarLaunchApp" href="https://orlandopasion000.github.io/orlandochrome/" target="_blank" rel="noopener" title="Open OrlandoChrome (Main Version)">
         <span class="desktop-btn-icon"><svg class="modern-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>
         <span class="desktop-btn-label">Launch App</span>
-      </button>
+      </a>
 
       <!-- App Distribution, Live QR & Command Suite Trigger -->
       <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution, Live QR Scanner &amp; Cross-Device Cloud Sync Suite">
@@ -126,11 +126,11 @@
             </div>
           </div>
           <div class="dist-btn-stack" id="distMainBtnStack">
-            <button type="button" class="primary dist-btn dist-btn-install" id="installAppBtn" title="1-Click Install OrlandoChrome Desktop & Mobile App">
-                <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                <span>1-Click Install App</span>
-              </button>
-          </div>
+              <a class="primary dist-btn dist-btn-install" id="openMainAppBtn" href="https://orlandopasion000.github.io/orlandochrome/" target="_blank" rel="noopener" title="Open OrlandoChrome (Main Version)">
+                <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                <span>Open Main Web App</span>
+              </a>
+            </div>
         </div>
 
         <!-- Card 2: Mobile QR Code & Link Sharing -->
@@ -204,58 +204,7 @@
     </div>
   </section>
 
-  
-  <!-- Interactive Installation Guide Modal (OrlandoRecharge Standard · Zero Warnings) -->
-  <div class="install-guide-modal-wrap" id="installGuideModal" role="dialog" aria-modal="true" aria-label="Install App Guide">
-    <div class="install-guide-box">
-      <button class="modal-close" id="closeInstallGuide" aria-label="Close modal" style="position:absolute; top:18px; right:18px; background:none; border:none; color:#aaa; font-size:1.2rem; cursor:pointer;">✕</button>
-      <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px;">
-        <img src="oc-logo.svg" alt="OC" style="width:32px; height:32px; border-radius:8px; box-shadow:0 0 12px rgba(229,9,20,0.6);">
-        <h3 style="margin:0; font-size:1.2rem; font-weight:800; color:#fff;">Install OrlandoChrome App</h3>
-      </div>
-      <div style="text-align:center; color:#94a3b8; font-size:0.84rem; margin-bottom:14px;">
-        Run distraction-free in its own dedicated Windows desktop window:
-      </div>
-
-      <div class="install-guide-cards-col">
-        <!-- 1. Standalone Window Launch (Instant 1-Click) -->
-        <div class="install-card-highlight">
-          <div class="install-card-title">⚡ Instant Desktop Window:</div>
-          <div class="install-card-sub">Open OrlandoChrome right now in a clean, tabless window showing on your Windows taskbar:</div>
-          <button type="button" class="primary dist-btn dist-btn-install" id="btnLaunchStandaloneNow" style="margin-top:10px; width:100%; padding:9px 14px; font-size:0.86rem; font-weight:800;">
-            <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            <span>Launch Standalone Window Now</span>
-          </button>
-        </div>
-
-        <!-- 2. Google Chrome -->
-        <div class="install-card-highlight" style="border-color:rgba(255,255,255,0.12); box-shadow:none;">
-          <div class="install-card-title" style="color:#60a5fa;">🌐 Google Chrome:</div>
-          <div class="install-card-sub">Click the <b>Install app (💻)</b> icon in your Chrome address bar.</div>
-          <div class="install-card-step">
-            <span class="install-step-icon">💻</span>
-            <span>Click Chrome menu (⋮) → <b>Save and share</b> → <b>Install OrlandoChrome...</b></span>
-          </div>
-        </div>
-
-        <!-- 3. Microsoft Edge -->
-        <div class="install-card-highlight" style="border-color:rgba(255,255,255,0.12); box-shadow:none;">
-          <div class="install-card-title" style="color:#ff858d;">💻 Microsoft Edge:</div>
-          <div class="install-card-sub">Click the <b>Install app (⊞)</b> icon in the address bar → Click <b>Install</b> → Check <b>"Pin to taskbar"</b>.</div>
-        </div>
-
-        <!-- 4. Mobile iPhone / iPad & Android -->
-        <div class="install-card-highlight" style="border-color:rgba(255,255,255,0.12); box-shadow:none;">
-          <div class="install-card-title" style="color:#5de8a0;">📱 iPhone / iPad &amp; Android:</div>
-          <div class="install-card-sub">On Safari tap <b>Share (↑) → Add to Home Screen</b>. On Android Chrome tap <b>Menu (⋮) → Install app</b>.</div>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;">
-        <button type="button" class="ghost dist-btn" id="dismissInstallGuide" style="width:100%; padding:10px; border-color:rgba(255,77,88,0.4); color:#fff;">Got It</button>
-      </div>
-    </div>
-  </div>
+      
 
   <!-- Hidden Photo Upload Input (Profile Avatar) -->
   <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
@@ -270,8 +219,8 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=26"></script>
+  <script src="sound.js?v=27"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=26"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>
