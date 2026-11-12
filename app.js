@@ -3351,8 +3351,62 @@ ${jsRes}
   }
 
   // App Distribution & Live Sync Command Suite (Removed per user request)
+  // Direct Desktop App Launcher (Standalone window with no browser tabs / URL bar)
+  function launchDesktopApp() {
+    if (window.soundMgr) window.soundMgr.playClickSoft();
+    showToast('🚀 Launching OrlandoChrome Desktop App...');
+    const appUrl = window.location.href.split('#')[0];
+    const winFeatures = 'popup=yes,menubar=no,toolbar=no,location=no,status=no,personalbar=no,directories=no,resizable=yes,scrollbars=yes,width=1380,height=880,left=100,top=60';
+    const appWin = window.open(appUrl, 'OrlandoChromeDesktopAppWindow', winFeatures);
+    if (appWin) {
+      try { appWin.focus(); } catch (e) {}
+    }
+  }
+
   function openAppDistributionSuiteModal() {
-    // Disabled
+    if (window.soundMgr) window.soundMgr.playClickSoft();
+    const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
+    const qrRes = generateQrMarkup(shareUrl, '#ffffff', '#000000');
+    const qrSvg = qrRes.svg || `<img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(shareUrl)}" alt="QR Code" style="width:260px;height:260px;border-radius:12px;">`;
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="qr-studio-modal" style="max-width:440px; text-align:center; padding:24px; background:#0c0c10; border:1px solid rgba(217, 185, 92, 0.4); border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,0.85), 0 0 30px rgba(217,185,92,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.4rem;">📲</span>
+            <span style="font-size:1.05rem; font-weight:800; color:#fff;">Phone QR Scanner</span>
+          </div>
+          <button type="button" class="btn-banner-clear" id="btnCloseQrModal" style="color:#aaa; font-size:1.2rem; cursor:pointer; background:none; border:none;">✕</button>
+        </div>
+        <p style="font-size:0.82rem; color:#999; margin-bottom:18px;">Scan with your iPhone or Android camera to open OrlandoChrome instantly on your phone.</p>
+        <div style="width:260px; height:260px; margin:0 auto 18px; padding:12px; background:#000; border:1px solid rgba(255,255,255,0.12); border-radius:16px; display:flex; align-items:center; justify-content:center;">
+          ${qrSvg}
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="primary dist-btn" id="btnCopyQrLinkModal" style="flex:1;">↗ Copy App Link</button>
+          <button type="button" class="ghost dist-btn" id="btnDismissQrModal" style="flex:1;">Done</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+    const btnClose = $('#btnCloseQrModal', backdrop);
+    if (btnClose) btnClose.onclick = close;
+    const btnDismiss = $('#btnDismissQrModal', backdrop);
+    if (btnDismiss) btnDismiss.onclick = close;
+    const btnCopy = $('#btnCopyQrLinkModal', backdrop);
+    if (btnCopy) {
+      btnCopy.onclick = () => {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showToast('📋 App link copied to clipboard!');
+          close();
+        });
+      };
+    }
   }
 
   const openMobileQrModal = openAppDistributionSuiteModal;

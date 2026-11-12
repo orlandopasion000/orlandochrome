@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>OrlandoChrome</title>
+  <title id="pageTitle">OrlandoChrome (Main Version)</title>
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="OrlandoChrome">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
+  <link rel="manifest" id="manifestLink" href="manifest.json">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/svg+xml" href="oc-logo.svg">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css?v=21">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -33,8 +33,27 @@
 
     <div class="topbar-right">
       <!-- Jump to Next Pending / Reset Profile (Alt+N) -->
-      <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Timer (Alt + N)">
+      <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
         ⚡ Next Ready
+      </button>
+
+      <!-- App Distribution, Live QR & Command Suite Trigger (Single Unified Button — No Redundancy) -->
+      <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution, Live QR Scanner &amp; Cross-Device Cloud Sync Suite">
+        <span>📲 App Suite</span>
+        <span class="pwa-ready-mini-badge"><span class="sync-status-dot synced" id="topbarSyncDot"></span> <span id="topbarSyncLabel">Synced</span></span>
+      </button>
+
+      
+      <!-- Launch Desktop App Button (Clickable Icon + Word leading directly to OrlandoChrome Desktop App) -->
+      <button type="button" class="btn-topbar-desktop" id="btnTopbarLaunchApp" title="Launch OrlandoChrome Desktop App (Opens the standalone app directly without any browser tabs)">
+        <span class="desktop-btn-icon">🚀</span>
+        <span class="desktop-btn-label">Launch App</span>
+      </button>
+
+      <!-- App Distribution, Live QR & Command Suite Trigger -->
+      <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution, Live QR Scanner &amp; Cross-Device Cloud Sync Suite">
+        <span>📲 App Suite</span>
+        <span class="pwa-ready-mini-badge"><span class="sync-status-dot synced" id="topbarSyncDot"></span> <span id="topbarSyncLabel">Synced</span></span>
       </button>
 
       <!-- Live Clock & Daily Recharge Alarm Widget -->
@@ -76,12 +95,93 @@
     <main class="chat-main" id="chatMain">
       <!-- Rendered dynamically -->
     </main>
-
-    <!-- iOS Interactive Edge Swipe-Back Visual Pill -->
-    <div class="ios-edge-swipe-indicator" id="iosEdgeSwipeIndicator" aria-hidden="true">
-      <span class="ios-edge-chevron">‹</span>
-    </div>
   </div>
+
+  <!-- 8. APP DISTRIBUTION & COMMAND SUITE (Install, Share, QR, Backup, Blank Edition) -->
+  <section class="app-dist oc-app-dist" id="appDistSection" aria-labelledby="distTitle">
+    <div class="dist-head">
+      <div class="dist-head-left">
+        <div class="dist-oc-mini">OC</div>
+        <div>
+          <div class="dist-title" id="distTitle">
+            <span>App Distribution &amp; Live Sync Suite</span>
+            <span class="dist-badge">● PWA Ready</span>
+          </div>
+          <div class="dist-subtitle" id="distSubtitle">Installed, offline-cached, zero-warning install &amp; holographic device sync</div>
+        </div>
+      </div>
+      <div class="dist-head-actions">
+        <button type="button" class="dist-toggle-btn" id="distMinimizeBtn" title="Toggle Minimized View" aria-expanded="true">
+          <span id="distMinIcon">▾</span> <span id="distMinText">Minimize</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dist-body" id="distBody">
+      <div class="dist-grid">
+        <!-- Card 1: Main Executive Workspace -->
+        <div class="dist-card" id="distCardMain">
+          <div class="dist-card-top">
+            <div class="dist-icon">⚡</div>
+            <div class="dist-card-meta">
+              <div class="dist-name" id="distCardMainTitle">Main Executive App</div>
+              <div class="dist-desc" id="distCardMainDesc">Complete 22-profile main workspace</div>
+            </div>
+          </div>
+          <div class="dist-btn-stack" id="distMainBtnStack">
+            <button type="button" class="primary dist-btn" id="installAppBtn" title="Install as standalone desktop application">⚡ 1-Click Install App</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Mobile QR Code & Link Sharing -->
+        <div class="dist-card">
+          <div class="dist-card-top">
+            <div class="dist-icon">📲</div>
+            <div class="dist-card-meta">
+              <div class="dist-name">Holographic QR</div>
+              <div class="dist-desc">Instant phone scanner &amp; device sync</div>
+            </div>
+          </div>
+          <div class="dist-btn-stack">
+            <button type="button" class="ghost dist-btn dist-btn-holo" id="openQrBtn">📷 Open Phone QR</button>
+            <button type="button" class="ghost dist-btn" id="shareAppBtn">↗ Share / Copy Link</button>
+          </div>
+        </div>
+
+        <!-- Card 3: Backup & Restore Workspace -->
+        <div class="dist-card">
+          <div class="dist-card-top">
+            <div class="dist-icon">💾</div>
+            <div class="dist-card-meta">
+              <div class="dist-name">Backup &amp; Restore</div>
+              <div class="dist-desc">Encrypted local workspace backup</div>
+            </div>
+          </div>
+          <div class="dist-btn-stack">
+            <div class="dist-btn-row">
+              <button type="button" class="ghost dist-btn" id="exportBackupBtn">💾 Export</button>
+              <button type="button" class="ghost dist-btn" id="importBackupBtn">📁 Import</button>
+            </div>
+            <input type="file" id="importBackupFile" accept=".json,application/json" style="display:none">
+          </div>
+        </div>
+
+        <!-- Card 4: Clean Blank Edition -->
+        <div class="dist-card dist-card-blank" id="distCardBlank">
+          <div class="dist-card-top">
+            <div class="dist-icon dist-icon-gold">🎁</div>
+            <div class="dist-card-meta">
+              <div class="dist-name" id="distCardBlankTitle" style="color:var(--nf-gold, #f59e0b)">Clean Blank Edition</div>
+              <div class="dist-desc" id="distCardBlankDesc">100% blank canvas (0 notes / clean routine)</div>
+            </div>
+          </div>
+          <div class="dist-btn-stack" id="distBlankBtnStack">
+            <a class="primary dist-btn" id="openBlankAppBtn" href="https://orlandopasion000.github.io/orlandochrome/?edition=blank" target="_blank" rel="noopener">🚀 Open Blank Web App</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Hidden Photo Upload Input (Profile Avatar) -->
   <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
@@ -92,47 +192,12 @@
   <!-- Hidden Chrome Local State / Taskbar Scanner File Input (For Blank Edition Laptop Sync) -->
   <input type="file" id="localStateFileInput" style="display:none;">
 
-  <!-- Install App Guide Modal (1-Click Instructions & Browser App Prompts) -->
-  <div class="install-guide-modal-wrap" id="installGuideModal" role="dialog" aria-modal="true" aria-label="Install App Guide">
-    <div class="install-guide-box">
-      <button class="modal-close" id="closeInstallGuide" aria-label="Close modal">✕</button>
-      <div class="modal-title" style="text-align:center;">Install OrlandoChrome App</div>
-      <div class="modal-text" style="margin-bottom:14px; text-align:center; color:var(--nf-text-dim);">Add the app directly to your Windows Taskbar &amp; Apps:</div>
-
-      <div class="install-guide-cards-col">
-        <!-- 1. Direct Edge/Chrome in-browser install -->
-        <div class="install-card-highlight">
-          <div class="install-card-title">💻 Chrome / Edge Address Bar (1-Click Install):</div>
-          <div class="install-card-sub">Look at the <b>top-right of your address bar</b> (beside the star/bookmark icon):</div>
-          <div class="install-card-step">
-            <span class="install-step-icon">⊞</span>
-            <span>Click the <b>Install app</b> icon → Click <b>Install</b></span>
-          </div>
-          <div class="install-card-hint">Or click browser menu (<b>⋮</b>) → <b>Save and share</b> (or <b>Apps</b>) → <b>Install OrlandoChrome</b>.</div>
-        </div>
-
-        <!-- 2. Windows Taskbar Pinning Instructions -->
-        <div class="install-card-dark">
-          <div class="install-card-title-gold">📌 Pin to Taskbar in 1 Click:</div>
-          <div class="install-card-sub">When OrlandoChrome opens in its dedicated standalone window without any browser tabs, right-click its red icon on your Windows taskbar and select:</div>
-          <div class="install-card-step" style="background:#08080a; margin-top:8px;">
-            <span style="font-size:1.1rem;">📌</span>
-            <span style="color:#ffffff; font-weight:700;">"Pin to taskbar"</span>
-          </div>
-        </div>
-      </div>
-      <div class="modal-actions" style="margin-top:18px;">
-        <button type="button" class="btn-suite-radiant-red" id="dismissInstallGuide" style="width:100%; padding:11px; font-weight:800; cursor:pointer;">Got It</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Notification Container -->
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=21"></script>
+  <script src="sound.js"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=21"></script>
+  <script src="app.js"></script>
 </body>
 </html>
