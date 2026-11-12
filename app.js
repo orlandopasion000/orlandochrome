@@ -1606,7 +1606,7 @@
             </div>
             <div class="profile-row-sub">
               <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
-              ${pendingCount > 0 ? `<span class="badge-pending-count">${pendingCount}</span>` : ''}
+              ${pendingCount > 0 ? `<button type="button" class="badge-pending-count" data-pending-id="${p.id}" title="${pendingCount} pending task${pendingCount > 1 ? 's' : ''} · Click to review & check off">${pendingCount}</button>` : ''}
               ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
               ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
             </div>
@@ -1622,6 +1622,16 @@
         const pid = wrap.dataset.pid;
         const prof = getProfile(pid);
         if (prof) promptMessengerNote(prof);
+      };
+    });
+
+    // Attach pending count badge click to open Mini Task Popover
+    $$('.badge-pending-count', list).forEach(badge => {
+      badge.onclick = (e) => {
+        e.stopPropagation();
+        const pid = badge.dataset.pendingId;
+        const prof = getProfile(pid);
+        if (prof) showPendingTasksPopover(prof, badge);
       };
     });
 
@@ -2782,6 +2792,180 @@
     }
   }
 
+  // Mini Pending Tasks Popover: Quick-View & 1-Click Checkoff right from sidebar
+  function showPendingTasksPopover(profile, anchorElement) {
+    const existing = $('#pendingTasksPopoverBackdrop');
+    if (existing) existing.remove();
+
+    if (window.soundMgr) {
+      if (typeof window.soundMgr.playClickSoft === "function") window.soundMgr.playClickSoft();
+      else if (typeof window.soundMgr.playClick === "function") window.soundMgr.playClick();
+    }
+
+    const backdrop = document.createElement('div');
+    backdrop.id = 'pendingTasksPopoverBackdrop';
+    backdrop.className = 'pending-tasks-popover-backdrop';
+
+    const popoverEl = document.createElement('div');
+    popoverEl.className = 'pending-tasks-popover';
+
+    const close = () => {
+      document.removeEventListener('keydown', handleKey);
+      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+    };
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') close();
+    };
+    document.addEventListener('keydown', handleKey);
+
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) close();
+    };
+
+    const renderContent = () => {
+      const pendingNotes = (profile.notes || []).filter(n => !n.done);
+      if (pendingNotes.length === 0) {
+        popoverEl.innerHTML = `
+          <div style="text-align:center; padding:18px 8px;">
+            <div style="font-size:26px; margin-bottom:6px;">🎉</div>
+            <div style="font-size:13px; font-weight:850; color:#34d399;">All Tasks Completed!</div>
+            <div style="font-size:11px; color:#888; margin-top:4px;">No pending items on ${esc(profile.name)}</div>
+          </div>
+        `;
+        setTimeout(() => close(), 800);
+        return;
+      }
+
+      popoverEl.innerHTML = `
+        <div class="popover-header">
+          <div class="popover-title-wrap">
+            <span class="popover-badge-pill">${pendingNotes.length}</span>
+            <div>
+              <div class="popover-profile-name">${esc(profile.name)}</div>
+              <div class="popover-sub-count">${pendingNotes.length} Pending Task${pendingNotes.length > 1 ? 's' : ''}</div>
+            </div>
+          </div>
+          <button type="button" class="btn-close-popover" id="btnClosePopover" title="Close (Esc)">✕</button>
+        </div>
+
+        <div class="popover-tasks-list">
+          ${pendingNotes.map(n => `
+            <div class="popover-task-item" data-task-id="${n.id}">
+              <div class="popover-task-text">${esc(n.text)}</div>
+              <div class="popover-task-actions">
+                <span class="popover-task-time">${formatNoteDateTime(n.createdAt)}</span>
+                <div class="popover-task-btns">
+                  <button type="button" class="btn-popover-done" data-act="done" data-id="${n.id}" title="Mark task as Done">
+                    ✓ Done
+                  </button>
+                  <button type="button" class="btn-popover-view" data-act="view" data-id="${n.id}" title="Jump to note in chat">
+                    👁️ View
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        ${pendingNotes.length > 1 ? `
+          <button type="button" class="btn-popover-all-done" id="btnPopoverAllDone">
+            ✓ Mark All ${pendingNotes.length} Done
+          </button>
+        ` : ''}
+      `;
+
+      // 1. Mark single task as Done
+      $$('.btn-popover-done', popoverEl).forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const noteId = btn.dataset.id;
+          const note = (profile.notes || []).find(x => x.id === noteId);
+          if (note) {
+            note.done = true;
+            note.doneAt = now();
+            if (window.soundMgr) {
+              if (typeof window.soundMgr.playReadyChime === 'function') window.soundMgr.playReadyChime();
+              else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+            }
+            if (countPending(profile) === 0) {
+              profile.isPinned = false;
+              profile.pinnedAt = null;
+            }
+            saveState();
+            renderSidebar();
+            renderMainChat();
+            showToast(`✓ Completed: "${note.text.slice(0, 25)}"`);
+            renderContent();
+          }
+        };
+      });
+
+      // 2. Jump to note in main chat
+      $$('.btn-popover-view', popoverEl).forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const noteId = btn.dataset.id;
+          state.activeProfileId = profile.id;
+          renderSidebar();
+          renderMainChat();
+          close();
+          setTimeout(() => {
+            const card = document.querySelector(`.note-item-wrap[data-nid="${noteId}"]`);
+            if (card) {
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              card.classList.add('note-card-highlight-pulse');
+              setTimeout(() => card.classList.remove('note-card-highlight-pulse'), 2500);
+            }
+          }, 120);
+        };
+      });
+
+      // 3. Mark All Done
+      const btnAllDone = $('#btnPopoverAllDone', popoverEl);
+      if (btnAllDone) {
+        btnAllDone.onclick = (e) => {
+          e.stopPropagation();
+          (profile.notes || []).forEach(n => { n.done = true; n.doneAt = now(); });
+          if (window.soundMgr) {
+            if (typeof window.soundMgr.playReadyChime === 'function') window.soundMgr.playReadyChime();
+            else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+          }
+          profile.isPinned = false;
+          profile.pinnedAt = null;
+          saveState();
+          renderSidebar();
+          renderMainChat();
+          showToast(`✓ Completed all tasks on ${profile.name}`);
+          renderContent();
+        };
+      }
+
+      const btnClose = $('#btnClosePopover', popoverEl);
+      if (btnClose) btnClose.onclick = close;
+    };
+
+    // Calculate position relative to anchor
+    if (anchorElement && anchorElement.getBoundingClientRect) {
+      const rect = anchorElement.getBoundingClientRect();
+      let left = rect.right + 12;
+      let top = Math.max(12, rect.top - 20);
+
+      if (left + 330 > window.innerWidth) {
+        left = Math.max(12, rect.left - 330);
+      }
+      if (top + 360 > window.innerHeight) {
+        top = Math.max(12, window.innerHeight - 370);
+      }
+
+      popoverEl.style.left = `${left}px`;
+      popoverEl.style.top = `${top}px`;
+    }
+
+    backdrop.appendChild(popoverEl);
+    document.body.appendChild(backdrop);
+    renderContent();
+  }
 
   function promptStickyNote(profile) {
     const backdrop = document.createElement('div');
