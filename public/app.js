@@ -3939,15 +3939,6 @@ ${jsRes}
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
 
     // 4-Card Dock & App Distribution controls
-    const installBtn = $('#installAppBtn');
-    if (installBtn) {
-      installBtn.onclick = () => {
-        if (window.soundMgr) window.soundMgr.playClickSoft();
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt().then(choice => {
-            if (choice && choice.outcome === 'accepted') {
-              showToast('?? OrlandoChrome App installed successfully!');
-            }
             deferredInstallPrompt = null;
           }).catch(() => launchDesktopApp());
         } else {
