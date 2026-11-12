@@ -4603,6 +4603,45 @@ body.is-resizing-pane * {
     box-shadow: 0 2px 10px rgba(229, 9, 20, 0.6) !important;
   }
 
+  
+  /* Responsive iOS Typing Mode: Keep upper header & messages visible while keyboard is open */
+  body.mobile-typing-mode .app-topbar {
+    display: none !important;
+  }
+  body.mobile-typing-mode .quick-timer-bar {
+    display: none !important;
+  }
+  body.mobile-typing-mode .quick-templates-bar {
+    display: none !important;
+  }
+  body.mobile-typing-mode .app-dist {
+    display: none !important;
+  }
+  body.mobile-typing-mode .chat-header {
+    padding: 0.35rem 0.65rem !important;
+    gap: 0.4rem !important;
+    min-height: auto !important;
+  }
+  body.mobile-typing-mode .chat-header-avatar {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  body.mobile-typing-mode .chat-header-actions {
+    display: none !important;
+  }
+  body.mobile-typing-mode .header-profile-stepper {
+    display: none !important;
+  }
+  body.mobile-typing-mode .notes-stream {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 0.5rem 0.65rem !important;
+  }
+  body.mobile-typing-mode .composer-bar {
+    padding: 0.45rem 0.6rem !important;
+  }
+
   /* QR Studio & Modal Responsive */
   .qr-studio-body,
   .qr-studio-body.qr-zoomed-layout {

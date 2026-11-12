@@ -1635,6 +1635,12 @@
     // Attach profile avatar & note bubble click to open Messenger Note
     $$('.profile-avatar-wrap', list).forEach(wrap => {
       wrap.onclick = (e) => {
+        if (window.innerWidth <= 768) {
+          // On mobile: 1 tap anywhere opens that profile's chat view!
+          const pid = wrap.dataset.pid;
+          openMobileChatWithSlide(pid);
+          return;
+        }
         e.stopPropagation();
         const pid = wrap.dataset.pid;
         const prof = getProfile(pid);
@@ -1645,6 +1651,12 @@
     // Attach pending count badge click to open Mini Task Popover
     $$('.badge-pending-count', list).forEach(badge => {
       badge.onclick = (e) => {
+        if (window.innerWidth <= 768) {
+          // On mobile: 1 tap anywhere opens that profile's chat view!
+          const pid = badge.dataset.pendingId;
+          openMobileChatWithSlide(pid);
+          return;
+        }
         e.stopPropagation();
         const pid = badge.dataset.pendingId;
         const prof = getProfile(pid);
@@ -1697,15 +1709,47 @@
       };
     });
 
-    // Attach item click & right-click (contextmenu) handlers
+    // Attach item click & fast touch (1-tap on iOS) handlers
     $$('.profile-item', list).forEach(item => {
-      item.onclick = () => {
+      const handleSelect = (e) => {
         if (item.dataset.justSwiped === '1') {
           item.dataset.justSwiped = '0';
           return;
         }
+        if (e && e.target && e.target.closest('.unread-toggle-btn')) return;
         openMobileChatWithSlide(item.dataset.id);
       };
+
+      item.onclick = handleSelect;
+
+      // Fast iOS touch-release detection (bypasses 300ms delay & iOS hover double-tap)
+      let tStartX = 0;
+      let tStartY = 0;
+      let tStartTime = 0;
+
+      item.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          tStartX = e.touches[0].clientX;
+          tStartY = e.touches[0].clientY;
+          tStartTime = Date.now();
+        }
+      }, { passive: true });
+
+      item.addEventListener('touchend', (e) => {
+        if (e.changedTouches.length === 1 && tStartX > 0) {
+          const dx = Math.abs(e.changedTouches[0].clientX - tStartX);
+          const dy = Math.abs(e.changedTouches[0].clientY - tStartY);
+          const dt = Date.now() - tStartTime;
+          tStartX = 0;
+          tStartY = 0;
+          if (dx < 12 && dy < 12 && dt < 450) {
+            if (window.innerWidth <= 768) {
+              if (e.target && e.target.closest('.unread-toggle-btn')) return;
+              openMobileChatWithSlide(item.dataset.id);
+            }
+          }
+        }
+      }, { passive: true });
       item.oncontextmenu = (e) => {
         const prof = getProfile(item.dataset.id);
         if (!prof || !hasMessages(prof)) return;
@@ -2569,6 +2613,22 @@
     if (input) {
       input.onkeydown = (e) => {
         if (e.key === 'Enter') handleAdd();
+      };
+      input.onfocus = () => {
+        if (window.innerWidth <= 768) {
+          document.body.classList.add('mobile-typing-mode');
+          setTimeout(() => {
+            const stream = $('#notesStream');
+            if (stream) stream.scrollTop = stream.scrollHeight;
+          }, 80);
+        }
+      };
+      input.onblur = () => {
+        setTimeout(() => {
+          if (!document.activeElement || document.activeElement.id !== 'composerInput') {
+            document.body.classList.remove('mobile-typing-mode');
+          }
+        }, 150);
       };
     }
   }
@@ -4903,6 +4963,13 @@ ${jsRes}
       if (mode === 'header-page' && chatMain) {
         chatMain.style.transition = 'transform 0.24s cubic-bezier(0.22, 1, 0.36, 1)';
         chatMain.style.transform = '';
+        if (window.innerWidth <= 768 && document.body.classList.contains('mobile-chat-open')) {
+          // In iOS/Mobile inside a message: swiping left OR swiping right goes back to all profiles!
+          if (Math.abs(currentDx) >= 38 || Math.abs(velocityX) >= 0.25) {
+            closeMobileChatWithSlide();
+            return;
+          }
+        }
         if ((currentDx <= -52 || (currentDx <= -28 && velocityX < -0.42)) && velocityX <= 0.1) {
           stepProfile(1);
         } else if ((currentDx >= 52 || (currentDx >= 28 && velocityX > 0.42)) && velocityX >= -0.1) {
@@ -5012,6 +5079,36 @@ ${jsRes}
   // Initializer
   function init() {
     loadState();
+    
+    // Dynamic iOS Virtual Keyboard Viewport Handler
+    if (window.visualViewport) {
+      const handleVP = () => {
+        if (window.innerWidth <= 768) {
+          const vp = window.visualViewport;
+          const workspace = $('#appWorkspace');
+          const keyboardShowing = (window.innerHeight - vp.height) > 80;
+          if (keyboardShowing) {
+            document.body.classList.add('mobile-typing-mode');
+            if (workspace) {
+              workspace.style.height = `${vp.height}px`;
+              workspace.style.maxHeight = `${vp.height}px`;
+            }
+            const stream = $('#notesStream');
+            if (stream) stream.scrollTop = stream.scrollHeight;
+          } else {
+            if (!document.activeElement || document.activeElement.id !== 'composerInput') {
+              document.body.classList.remove('mobile-typing-mode');
+            }
+            if (workspace) {
+              workspace.style.height = '';
+              workspace.style.maxHeight = '';
+            }
+          }
+        }
+      };
+      window.visualViewport.addEventListener('resize', handleVP);
+      window.visualViewport.addEventListener('scroll', handleVP);
+    }
     if (window.innerWidth <= 768) {
       let savedView = 'inbox';
       try { savedView = localStorage.getItem('orlandochrome_mobile_view') || 'inbox'; } catch (e) {}
