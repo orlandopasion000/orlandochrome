@@ -1,17 +1,19 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-pwa-v30';
+const CACHE_NAME = 'orlandochrome-pwa-v31';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=30',
+  './styles.css?v=31',
   './qrcode.min.js',
-  './app.js?v=30',
-  './sound.js?v=30',
+  './app.js?v=31',
+  './sound.js?v=31',
   './oc-logo.svg',
   './icon-192.png',
   './icon-512.png',
   './icon-maskable.png',
   './favicon.ico',
+  './favicon-32.png',
+  './favicon-16.png',
   './manifest.json'
 ];
 

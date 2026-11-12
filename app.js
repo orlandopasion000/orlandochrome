@@ -4138,6 +4138,15 @@ ${jsRes}
           localStorage.setItem(DIST_MIN_KEY, willMin ? '1' : '0');
         } catch (e) {}
       };
+
+      distSection.onclick = (e) => {
+        if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) return;
+        const willMin = !distSection.classList.contains('minimized');
+        applyMinState(willMin);
+        try {
+          localStorage.setItem(DIST_MIN_KEY, willMin ? '1' : '0');
+        } catch (e) {}
+      };
     }
 
     // Adjustable Width Resizer Line Between Profiles (Sidebar) and Messages (Chat Main)
