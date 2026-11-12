@@ -1,0 +1,119 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <!-- Background Gradient: Pure OLED Black -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="50%" stop-color="#000000"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+
+    <!-- Bloody Red & White Radiant Gradient (Front Face) -->
+    <linearGradient id="redPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="18%" stop-color="#FFB8C0"/>
+      <stop offset="48%" stop-color="#FF1A24"/>
+      <stop offset="78%" stop-color="#B8000A"/>
+      <stop offset="100%" stop-color="#4A0003"/>
+    </linearGradient>
+
+    <!-- Dark Bloody Red Radiant Gradient (Overlap / Behind) -->
+    <linearGradient id="redDeep" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF4D58"/>
+      <stop offset="35%" stop-color="#B80710"/>
+      <stop offset="75%" stop-color="#6E0006"/>
+      <stop offset="100%" stop-color="#2B0002"/>
+    </linearGradient>
+
+    <!-- Specular Highlight for Metallic Edge -->
+    <linearGradient id="specular" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.4)"/>
+      <stop offset="50%" stop-color="rgba(255,255,255,0.05)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+
+    <!-- Glow & Shadow Filters -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="cinematicDrop" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.85"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Shadow cast between letters -->
+    <filter id="overlapShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="-4" dy="0" stdDeviation="4" flood-color="#000000" flood-opacity="0.9"/>
+    </filter>
+  </defs>
+
+  <!-- Base Black Squircle Container -->
+  <rect x="4" y="4" width="152" height="152" rx="36" fill="url(#bgGrad)" stroke="#E50914" stroke-opacity="0.4" stroke-width="2.5"/>
+  <rect x="7" y="7" width="146" height="146" rx="33" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.2"/>
+
+  <!-- Ambient Red Core Lighting -->
+  <circle cx="80" cy="80" r="46" fill="#E50914" opacity="0.16" filter="url(#softGlow)"/>
+
+  <!-- Monogram OC: Masterpiece Geometric Interlock -->
+  <g filter="url(#cinematicDrop)">
+    <!-- 1. The "O" Shape (Left Stadium Ring) -->
+    <!-- Outer: x=24..82, y=34..126 (width 58, height 92, rx=29) -->
+    <!-- Inner: x=40..66, y=50..110 (width 26, height 60, rx=13) -->
+    <path d="M 53 34 
+             C 69 34, 82 47, 82 63
+             L 82 97
+             C 82 113, 69 126, 53 126
+             C 37 126, 24 113, 24 97
+             L 24 63
+             C 24 47, 37 34, 53 34 Z
+             M 53 50
+             C 46 50, 40 56, 40 63
+             L 40 97
+             C 40 104, 46 110, 53 110
+             C 60 110, 66 104, 66 97
+             L 66 63
+             C 66 56, 60 50, 53 50 Z"
+          fill="url(#redDeep)"
+          fill-rule="evenodd"/>
+
+    <!-- Left highlight on "O" for curvature depth -->
+    <path d="M 24 63
+             C 24 47, 37 34, 53 34
+             C 57 34, 61 35, 65 37
+             C 52 38, 40 49, 40 63
+             L 40 97
+             C 40 104, 43 110, 48 114
+             C 34 112, 24 103, 24 97 Z"
+          fill="url(#redPrimary)"/>
+
+    <!-- 2. The "C" Shape (Right Interlocking Ring with Aperture & Overlap Shadow) -->
+    <!-- Outer: x=78..136, y=34..126 (width 58, height 92, rx=29) -->
+    <!-- Cutout aperture on right: between y=65 and y=95 -->
+    <g filter="url(#overlapShadow)">
+      <!-- The main "C" body in front -->
+      <path d="M 136 60
+               L 120 60
+               C 118 54, 114 50, 107 50
+               C 100 50, 94 56, 94 63
+               L 94 97
+               C 94 104, 100 110, 107 110
+               C 114 110, 118 106, 120 100
+               L 136 100
+               C 133 115, 122 126, 107 126
+               C 91 126, 78 113, 78 97
+               L 78 63
+               C 78 47, 91 34, 107 34
+               C 122 34, 133 45, 136 60 Z"
+            fill="url(#redPrimary)"/>
+
+      <!-- Top horizontal serif / beak accent for Netflix crispness -->
+      <rect x="119" y="52" width="17" height="8" rx="2" fill="#FF4752" opacity="0.6"/>
+      <rect x="119" y="100" width="17" height="8" rx="2" fill="#80040A" opacity="0.6"/>
+    </g>
+
+    <!-- Subtle specular sheen across top edge -->
+    <path d="M 36 40 C 45 35, 60 35, 75 35 C 90 35, 115 35, 128 45" 
+          stroke="url(#specular)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>
