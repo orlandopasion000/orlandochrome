@@ -991,6 +991,7 @@
       // 1. Sync to localStorage for same-origin tabs (0ms latency)
       localStorage.setItem('orlandochrome_live_pending_count', String(pending));
       localStorage.setItem('orlandochrome_live_total_alerts', String(totalAlerts));
+      localStorage.setItem('orlandochrome_live_total_alerts', String(totalAlerts));
       localStorage.setItem('orlandochrome_last_update_ts', String(now()));
 
       // 2. Broadcast via BroadcastChannel (0ms latency cross-tab)
@@ -2019,7 +2020,7 @@
           <span class="nf-clock-ampm">${ampmStr}</span>
         </div>
         <a href="https://orlandopasion000.github.io/orlandorecharge" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge (Main Version) — Synced Live Schedule">
-          <img src="recharge-icon.png" class="alarm-pill-logo" alt="OrlandoRecharge">
+          <span class="alarm-pill-icon-svg" style="display:inline-flex;align-items:center;margin-right:4px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff2a3c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px rgba(255,42,60,0.85));"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3L2 6"></path><path d="M19 3l3 3"></path></svg></span>
           <span class="alarm-pill-text"><strong class="alarm-pill-countdown">${alarm.diffText}</strong> — ${esc(alarm.title)}</span>
         </a>
       `;
@@ -5929,6 +5930,7 @@ ${jsRes}
 
   // Initializer
   function init() {
+    document.title = IS_BLANK_EDITION ? 'OrlandoChrome (Blank Canvas)' : 'OrlandoChrome (Main Version)'; // Immediate 0ms Title
     loadState();
     
     // Dynamic iOS Virtual Keyboard Viewport Handler
