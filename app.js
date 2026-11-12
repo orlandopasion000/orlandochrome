@@ -972,7 +972,7 @@
     const pending = totalPendingCount();
     const resets = state.profiles.filter(p => p.isReset).length;
     const totalAlerts = pending + resets;
-    const baseName = IS_BLANK_EDITION ? 'OrlandoChrome (Clean Edition)' : 'OrlandoChrome (Main Version)';
+    const baseName = IS_BLANK_EDITION ? 'OrlandoChrome (Blank Canvas)' : 'OrlandoChrome (Main Version)';
     document.title = totalAlerts > 0 ? `(${totalAlerts}) ${baseName}` : baseName;
   }
 

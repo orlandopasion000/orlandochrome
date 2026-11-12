@@ -10,7 +10,7 @@ function createWindow() {
     minWidth: 720,
     minHeight: 560,
     backgroundColor: '#000000',
-    title: 'OrlandoChrome',
+    title: 'OrlandoChrome (Main Version)',
     icon: path.join(__dirname, 'public', 'favicon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
