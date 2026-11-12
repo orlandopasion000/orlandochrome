@@ -1314,7 +1314,7 @@
         } catch (e) {}
         renderClockBox();
         scheduleCloudPush();
-        showToast(`⌚ Clock Style: ${DRA_THEME_NAMES[nextTheme] || nextTheme}`);
+        // clock style toggled silently
       };
     }
   }
