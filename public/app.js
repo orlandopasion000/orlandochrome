@@ -2018,8 +2018,8 @@
           <span class="chrome">${chromeDigitsHTML(digitsStr)}</span>
           <span class="nf-clock-ampm">${ampmStr}</span>
         </div>
-        <a href="https://orlandopasion000.github.io/orlandorecharge" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge — Synced Live Schedule">
-          <img src="oc-logo.svg" class="alarm-pill-logo" alt="OR" onerror="this.onerror=null;this.src='recharge-icon.png'">
+        <a href="https://orlandopasion000.github.io/orlandorecharge" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge (Main Version) — Synced Live Schedule">
+          <img src="recharge-icon.png" class="alarm-pill-logo" alt="OrlandoRecharge">
           <span class="alarm-pill-text"><strong class="alarm-pill-countdown">${alarm.diffText}</strong> — ${esc(alarm.title)}</span>
         </a>
       `;
