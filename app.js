@@ -2523,11 +2523,8 @@
               ➕ Add Profile
             </button>
           ` : ''}
-          <button class="btn-header-action ${statusNote ? 'note-active' : ''}" id="btnMessengerNote" title="Messenger 24-Hour Note (lasts 24 hours)">
-            ${Icons.note(13)} <span>${statusNote ? 'Edit Note' : 'Add Note'}</span>
-          </button>
           <button class="btn-header-action ${p.stickyNote ? 'sticky-active' : ''}" id="btnStickyNote" title="Set a permanent sticky header note for ${esc(p.name)}">
-            ${Icons.important(13)} <span>${p.stickyNote ? 'Edit Sticky' : 'Sticky Note'}</span>
+            ${Icons.important(13)} <span>${p.stickyNote ? 'Sticky' : 'Sticky Note'}</span>
           </button>
           ${canUnread ? `
             <button class="btn-header-action ${isUnread ? 'unread-active' : ''}" id="btnToggleUnreadHeader" title="Bookmark this profile as Unread (or right-click in sidebar)">
@@ -2559,12 +2556,17 @@
       ${p.stickyNote ? `
         <div class="profile-sticky-banner" id="profileStickyBanner">
           <div class="sticky-banner-left">
-            <span class="sticky-pin-tag">📌 STICKY</span>
+            <span class="sticky-pin-tag">
+              ${Icons.important(13)}
+              <span>STICKY</span>
+            </span>
             <span class="sticky-banner-text">${linkifyText(p.stickyNote)}</span>
           </div>
           <div class="sticky-banner-actions">
-            <button type="button" class="btn-sticky-mini" id="btnEditStickyInline" title="Edit sticky note">✏️</button>
-            <button type="button" class="btn-sticky-mini" id="btnClearStickyInline" title="Remove sticky note">✕</button>
+            <button type="button" class="btn-sticky-mini" id="btnEditStickyInline" title="Edit sticky note">
+              ${Icons.edit(12)} <span>Edit</span>
+            </button>
+            <button type="button" class="btn-sticky-mini btn-sticky-clear" id="btnClearStickyInline" title="Remove sticky note">✕</button>
           </div>
         </div>
       ` : ''}

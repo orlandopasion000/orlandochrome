@@ -1181,7 +1181,7 @@ body.is-resizing-pane * {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex-shrink: 0;
   user-select: none;
 }
@@ -1190,8 +1190,8 @@ body.is-resizing-pane * {
   display: flex;
   align-items: center;
   gap: clamp(0.6rem, 1.4vw, 1rem);
-  min-width: 0;
-  flex: 1;
+  min-width: max-content;
+  flex: 0 0 auto;
 }
 
 .btn-mobile-back {
@@ -1269,34 +1269,42 @@ body.is-resizing-pane * {
   text-overflow: ellipsis;
 }
 
+/* Upper Right Header Actions: Compressed firmly to right, smaller, subtle & transparent */
 .chat-header-actions {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-left: auto;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-header-action {
-  background: #000000;
-  border: 1px solid #262626;
+  background: rgba(14, 14, 18, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #e5e5e5;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 0.38rem 0.72rem;
-  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.52rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  opacity: 0.55;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   white-space: nowrap;
+  transform: scale(1);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
-.btn-header-action:hover {
-  background: #111111;
-  border-color: #444444;
-  color: #fff;
-  transform: translateY(-1px);
+.btn-header-action:not(:disabled):not(.disabled):hover {
+  opacity: 1 !important;
+  transform: scale(1.06) translateY(-1px);
+  background: rgba(229, 9, 20, 0.14);
+  border-color: rgba(255, 77, 88, 0.55);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.35);
 }
 
 .btn-header-action.unread-active {
@@ -2358,27 +2366,37 @@ body.is-resizing-pane * {
   position: relative;
 }
 
-.btn-header-action.btn-header-undo:not(:disabled),
-.btn-header-action.btn-header-redo:not(:disabled) {
-  border-color: rgba(229, 9, 20, 0.45);
+.btn-header-action.btn-header-undo:not(:disabled):not(.disabled),
+.btn-header-action.btn-header-redo:not(:disabled):not(.disabled) {
+  opacity: 0.55;
+  cursor: pointer;
+  border-color: rgba(255, 255, 255, 0.14);
   color: #ffffff;
 }
 
-.btn-header-action.btn-header-undo:not(:disabled):hover,
-.btn-header-action.btn-header-redo:not(:disabled):hover {
+.btn-header-action.btn-header-undo:not(:disabled):not(.disabled):hover,
+.btn-header-action.btn-header-redo:not(:disabled):not(.disabled):hover {
+  opacity: 1 !important;
+  transform: scale(1.06) translateY(-1px);
   background: rgba(229, 9, 20, 0.18);
   border-color: #ff4d58;
   box-shadow: 0 0 10px rgba(229, 9, 20, 0.35);
+  color: #ffffff;
 }
 
+.btn-header-action.btn-header-undo:disabled,
+.btn-header-action.btn-header-undo.disabled,
+.btn-header-action.btn-header-redo:disabled,
+.btn-header-action.btn-header-redo.disabled,
 .btn-header-action:disabled,
 .btn-header-action.disabled {
-  opacity: 0.35 !important;
+  opacity: 0.18 !important;
   cursor: not-allowed !important;
-  border-color: #222 !important;
-  color: #666 !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: #555555 !important;
   transform: none !important;
   box-shadow: none !important;
+  pointer-events: none;
 }
 
 @keyframes noteRestoredGlow {
@@ -2788,16 +2806,22 @@ body.is-resizing-pane * {
   flex: 1;
 }
 
-.sticky-pin-tag,
-.sticky-banner-label {
+.sticky-pin-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 0.65rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.6px;
+  flex-shrink: 0;
+}
+
+.sticky-pin-tag > span:last-child,
+.sticky-banner-label {
   background: var(--nf-red-white-grad);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  flex-shrink: 0;
 }
 
 .sticky-banner-text {
@@ -2819,25 +2843,37 @@ body.is-resizing-pane * {
 .btn-sticky-mini,
 .btn-sticky-edit,
 .btn-sticky-clear {
-  background: #050505;
-  border: 1px solid #2a2a2a;
-  color: #ccc;
+  background: rgba(14, 14, 18, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #d1d5db;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 5px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-sticky-mini:hover,
 .btn-sticky-edit:hover {
+  opacity: 1 !important;
+  transform: scale(1.06);
   border-color: #ff4d58;
-  color: #fff;
+  color: #ffffff;
+  background: rgba(229, 9, 20, 0.16);
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
 }
 
 .btn-sticky-clear:hover {
+  opacity: 1 !important;
+  transform: scale(1.06);
   border-color: #ff4d58;
   color: #ff858d;
+  background: rgba(229, 9, 20, 0.16);
 }
 
 /* Clean Blank Edition: Laptop Taskbar Scanner Banner */
@@ -4533,7 +4569,8 @@ body.is-resizing-pane * {
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 6px !important;
+    margin-left: 0 !important;
+    gap: 4px !important;
     overflow-x: auto !important;
     white-space: nowrap !important;
     -webkit-overflow-scrolling: touch !important;
