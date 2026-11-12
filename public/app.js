@@ -967,13 +967,52 @@
     });
   }
 
+    // Live Cross-Tab & Cross-Device Bridge to Main Website (orlandopasion000.github.io)
+  let liveBridgeChannel = null;
+  function initLiveBridge() {
+    try {
+      if (typeof BroadcastChannel !== 'undefined' && !liveBridgeChannel) {
+        liveBridgeChannel = new BroadcastChannel('orlandochrome_live_bridge');
+        liveBridgeChannel.onmessage = (e) => {
+          if (e.data && (e.data.type === 'REQUEST_STATUS' || e.data.type === 'PING')) {
+            broadcastLiveBridgeStatus();
+          }
+        };
+      }
+    } catch (e) {}
+  }
+
+  function broadcastLiveBridgeStatus() {
+    try {
+      const pending = totalPendingCount();
+      const resets = state.profiles ? state.profiles.filter(p => p.isReset).length : 0;
+      const totalAlerts = pending + resets;
+
+      // 1. Sync to localStorage for same-origin tabs (0ms latency)
+      localStorage.setItem('orlandochrome_live_pending_count', String(pending));
+      localStorage.setItem('orlandochrome_live_total_alerts', String(totalAlerts));
+      localStorage.setItem('orlandochrome_last_update_ts', String(now()));
+
+      // 2. Broadcast via BroadcastChannel (0ms latency cross-tab)
+      if (liveBridgeChannel) {
+        liveBridgeChannel.postMessage({
+          type: 'ORLANDOCHROME_PENDING_UPDATE',
+          pending: pending,
+          totalAlerts: totalAlerts,
+          timestamp: now()
+        });
+      }
+    } catch (e) {}
+  }
+
   // Enhancement #5: Update Browser Tab Title with Live Pending / Reset Count
   function updateDocumentTitle() {
     const pending = totalPendingCount();
-    const resets = state.profiles.filter(p => p.isReset).length;
+    const resets = state.profiles ? state.profiles.filter(p => p.isReset).length : 0;
     const totalAlerts = pending + resets;
     const baseName = IS_BLANK_EDITION ? 'OrlandoChrome (Blank Canvas)' : 'OrlandoChrome (Main Version)';
     document.title = totalAlerts > 0 ? `(${totalAlerts}) ${baseName}` : baseName;
+    broadcastLiveBridgeStatus();
   }
 
   // Enhancement #5: Fire Desktop Browser Notification on Timer Reset
@@ -1126,6 +1165,8 @@
       ed: IS_BLANK_EDITION ? 'b' : 'p',
       tpl: forQrCode ? undefined : state.quickTemplates,
       dra: draSync,
+      pendingCount: totalPendingCount(),
+      totalAlerts: totalPendingCount() + (state.profiles ? state.profiles.filter(p => p.isReset).length : 0),
       p: activeProfs
     };
   }
@@ -5938,6 +5979,13 @@ ${jsRes}
     updateTrashBadge();
     renderClockBox();
     initCloudSync();
+    initLiveBridge();
+    broadcastLiveBridgeStatus();
+
+    window.__ocState = state;
+    window.__ocSaveState = saveState;
+    window.__ocUpdateDocumentTitle = updateDocumentTitle;
+    window.__ocBroadcastLiveBridgeStatus = broadcastLiveBridgeStatus;
 
     setInterval(timerTick, 1000);
   }
