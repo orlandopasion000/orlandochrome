@@ -2612,16 +2612,35 @@
   }
 
   // Messenger Standard 24-Hour Note Modal (Tap avatar or note bubble)
-  // Messenger Standard 24-Hour Note Modal (Simplified, User-Friendly & Advanced Task Statuses)
+  // Messenger Standard 24-Hour Note Modal (Solid Black, Radiant Gradient, Advanced Task Statuses)
   function promptMessengerNote(profile) {
     const cur = now();
     const currentNote = getActiveStatusNote(profile);
     const avatarSrc = getAvatarSrc(profile);
 
+    const TASK_PRESETS = [
+      { icon: '📝', label: 'Grading', status: '📝 Grading Exams' },
+      { icon: '🖨️', label: 'Printing', status: '🖨️ Printing Files' },
+      { icon: '📐', label: 'Math Class', status: '📐 Math Class' },
+      { icon: '🧠', label: 'Deep Focus', status: '🧠 Deep Focus' },
+      { icon: '🔬', label: 'Research', status: '🔬 AI Research' },
+      { icon: '📊', label: 'Reports', status: '📊 DepEd Reports' },
+      { icon: '📚', label: 'Lesson Plan', status: '📚 Lesson Plan' },
+      { icon: '📋', label: 'DepEd Forms', status: '📋 DepEd Forms (SF)' },
+      { icon: '💻', label: 'Online Class', status: '💻 Online Class' },
+      { icon: '🧪', label: 'Lab Activity', status: '🧪 Lab Activity' },
+      { icon: '🎯', label: 'Review', status: '🎯 Review Session' },
+      { icon: '⏳', label: 'Cooldown', status: '⏳ Cooldown' },
+      { icon: '⚡', label: 'Ready', status: '⚡ Ready for Work' },
+      { icon: '🚀', label: 'Rush Priority', status: '🚀 Rush Priority' },
+      { icon: '☕', label: 'Coffee Break', status: '☕ Coffee Break' },
+      { icon: '✨', label: 'Clean Slate', status: '✨ Clean Slate' }
+    ];
+
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
-      <div class="rename-dialog messenger-note-dialog" style="max-width:460px; padding:22px; background:#0d0d12; border:1px solid rgba(229, 9, 20, 0.4); border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,0.9), 0 0 25px rgba(229,9,20,0.25);">
+      <div class="rename-dialog messenger-note-dialog">
         <div class="messenger-note-header-simple">
           <div class="note-modal-profile-info">
             <img src="${avatarSrc}" class="note-avatar-mini" alt="${esc(profile.name)}">
@@ -2630,7 +2649,7 @@
               <div class="note-modal-subtitle">${esc(profile.name)} · ${esc(profile.winShortcut)} ${currentNote ? `· ⏳ ${formatRemainingNoteTime(currentNote.expiresAt - cur)}` : ''}</div>
             </div>
           </div>
-          <button type="button" class="btn-subcheck-del" id="btnCloseNoteModal" title="Close" style="font-size:18px; background:none; border:none; color:#aaa; cursor:pointer;">✕</button>
+          <button type="button" class="btn-close-note-modal" id="btnCloseNoteModal" title="Close (Esc)">✕</button>
         </div>
 
         <div class="note-input-container">
@@ -2640,22 +2659,18 @@
           </div>
         </div>
 
-        <!-- Advanced Task Presets & Helpful Icons -->
+        <!-- Advanced Task Presets (Solo Icons Removed) -->
         <div class="note-presets-section">
-          <div class="note-preset-label">⚡ Task Status Presets:</div>
-          <div class="note-preset-chips">
-            <button type="button" class="btn-task-chip" data-status="📝 Grading Exams">📝 Grading</button>
-            <button type="button" class="btn-task-chip" data-status="🖨️ Printing Files">🖨️ Printing</button>
-            <button type="button" class="btn-task-chip" data-status="📐 Math Class">📐 Math Class</button>
-            <button type="button" class="btn-task-chip" data-status="🧠 Deep Focus">🧠 Deep Focus</button>
-            <button type="button" class="btn-task-chip" data-status="🔬 AI Research">🔬 Research</button>
-            <button type="button" class="btn-task-chip" data-status="📊 DepEd Reports">📊 Reports</button>
-            <button type="button" class="btn-task-chip" data-status="⏳ Cooldown Timer">⏳ Cooldown</button>
-            <button type="button" class="btn-task-chip" data-status="⚡ Ready for Work">⚡ Ready</button>
+          <div class="note-preset-label">
+            <span>⚡ TASK STATUS PRESETS:</span>
+            <span class="note-preset-hint">Tap to pick · Press Enter to share</span>
           </div>
-          <div class="note-icon-row">
-            ${['📝', '🖨️', '📐', '🔬', '💻', '📊', '⚡', '⏳', '🎯', '✅', '☕', '✨'].map(em => `
-              <button type="button" class="btn-emoji-chip" data-emoji="${em}">${em}</button>
+          <div class="note-preset-chips">
+            ${TASK_PRESETS.map(tp => `
+              <button type="button" class="btn-task-chip" data-status="${esc(tp.status)}" title="Click to insert • Double-click or Enter to Share">
+                <span class="task-chip-icon">${tp.icon}</span>
+                <span class="task-chip-text">${esc(tp.label)}</span>
+              </button>
             `).join('')}
           </div>
         </div>
@@ -2668,7 +2683,7 @@
           ` : ''}
           <div style="flex:1;"></div>
           <button type="button" class="btn-banner-clear" id="btnCancelNote">Cancel</button>
-          <button type="button" class="btn-composer-send" id="btnSaveNote" style="padding:8px 20px; font-weight:800;">
+          <button type="button" class="btn-composer-send btn-save-note-radiant" id="btnSaveNote">
             ${currentNote ? 'Update Note 💭' : 'Share Note 💭'}
           </button>
         </div>
@@ -2686,27 +2701,6 @@
     };
 
     inp.oninput = updatePreview;
-
-    // Task Preset Chips click: replaces input value
-    $$('.btn-task-chip', backdrop).forEach(btn => {
-      btn.onclick = () => {
-        inp.value = btn.dataset.status.slice(0, 60);
-        updatePreview();
-        inp.focus();
-      };
-    });
-
-    // Advanced task emoji chips click: appends emoji
-    $$('.btn-emoji-chip', backdrop).forEach(btn => {
-      btn.onclick = () => {
-        const emoji = btn.dataset.emoji;
-        if (inp.value.length + emoji.length <= 60) {
-          inp.value += (inp.value.length > 0 && !inp.value.endsWith(' ') ? ' ' : '') + emoji;
-          updatePreview();
-          inp.focus();
-        }
-      };
-    });
 
     const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
@@ -2731,12 +2725,40 @@
         expiresAt: postTime + (24 * 60 * 60 * 1000)
       };
       saveState();
-      if (window.soundMgr) window.soundMgr.playClick();
+      if (window.soundMgr) {
+        if (typeof window.soundMgr.playClickSoft === "function") window.soundMgr.playClickSoft();
+        else if (typeof window.soundMgr.playClick === "function") window.soundMgr.playClick();
+      }
       renderSidebar();
       renderMainChat();
       showToast(`💭 Note shared on ${profile.name} (lasts 24 hours)`);
       close();
     };
+
+    // Keyboard support: Enter key automatically means go (Share a Note)
+    inp.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveNote();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      }
+    };
+
+    // Task Preset Chips click: replaces input value; double-click immediately submits
+    $$('.btn-task-chip', backdrop).forEach(btn => {
+      btn.onclick = () => {
+        inp.value = btn.dataset.status.slice(0, 60);
+        updatePreview();
+        inp.focus();
+      };
+      btn.ondblclick = () => {
+        inp.value = btn.dataset.status.slice(0, 60);
+        updatePreview();
+        saveNote();
+      };
+    });
 
     $('#btnSaveNote', backdrop).onclick = saveNote;
     $('#btnCancelNote', backdrop).onclick = close;
@@ -2747,7 +2769,10 @@
       delBtn.onclick = () => {
         profile.statusNote = null;
         saveState();
-        if (window.soundMgr) window.soundMgr.playClick();
+        if (window.soundMgr) {
+          if (typeof window.soundMgr.playClickSoft === "function") window.soundMgr.playClickSoft();
+          else if (typeof window.soundMgr.playClick === "function") window.soundMgr.playClick();
+        }
         renderSidebar();
         renderMainChat();
         showToast(`🗑️ Note deleted for ${profile.name}`);
