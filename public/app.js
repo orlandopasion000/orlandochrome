@@ -3285,10 +3285,10 @@ ${jsRes}
   };
 
   // Pure Client-Side Zero-Dependency Vector QR Generator (0ms Offline + Instant Render)
-  function generateQrMarkup(text, fgHex, bgHex) {
+  function generateQrMarkup(text, fgHex = '#000000', bgHex = '#ffffff') {
     if (typeof window.qrcode === 'function') {
       try {
-        const qr = window.qrcode(0, 'L');
+        const qr = window.qrcode(0, 'M');
         qr.addData(text);
         qr.make();
         const count = qr.getModuleCount();
@@ -3304,13 +3304,13 @@ ${jsRes}
         }
         const cleanBg = bgHex.startsWith('#') ? bgHex : ('#' + bgHex);
         const cleanFg = fgHex.startsWith('#') ? fgHex : ('#' + fgHex);
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges" class="qr-code-svg-holo" style="width:100%;height:100%;display:block;border-radius:10px;"><rect width="100%" height="100%" fill="${cleanBg}"/><path fill="${cleanFg}" d="${d}"/></svg>`;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges" class="qr-code-svg-holo" style="width:100%;height:100%;display:block;"><rect width="100%" height="100%" fill="${cleanBg}"/><path fill="${cleanFg}" d="${d}"/></svg>`;
         return { svg, count, qrInstance: qr };
       } catch (e) {
         console.warn('Local QR engine error, falling back to API:', e);
       }
     }
-    return { svg: null, count: 29, qrInstance: null };
+    return { svg: null, count: 33, qrInstance: null };
   }
 
   // App Distribution & Live Sync Command Suite (Removed per user request)
@@ -3377,27 +3377,48 @@ ${jsRes}
   function openAppDistributionSuiteModal() {
     if (window.soundMgr) window.soundMgr.playClickSoft();
     const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
-    const qrRes = generateQrMarkup(shareUrl, '#ffffff', '#000000');
-    const qrSvg = qrRes.svg || `<img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(shareUrl)}" alt="QR Code" style="width:260px;height:260px;border-radius:12px;">`;
+    // Pure black (#000000) modules on pure white (#ffffff) background for 100% instant camera detection!
+    const qrRes = generateQrMarkup(shareUrl, '#000000', '#ffffff');
+    const qrSvg = qrRes.svg || `<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data=${encodeURIComponent(shareUrl)}" alt="QR Code" style="width:100%;height:100%;display:block;border-radius:10px;">`;
 
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
-      <div class="qr-studio-modal" style="max-width:440px; text-align:center; padding:24px; background:#0c0c10; border:1px solid rgba(255, 77, 88, 0.45); border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,0.9), 0 0 30px rgba(229,9,20,0.3);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <img src="oc-logo.svg" alt="OC" style="width:28px; height:28px; border-radius:7px; box-shadow:0 0 10px rgba(229,9,20,0.5);">
-            <span style="font-size:1.05rem; font-weight:800; color:#fff;">Holographic QR Scanner</span>
+      <div class="qr-studio-modal" style="max-width:380px; width:100%; text-align:center; padding:20px; background:#0c0c10; border:1px solid rgba(255, 77, 88, 0.45); border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,0.9), 0 0 35px rgba(229,9,20,0.3); animation:modalPopIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img src="oc-logo.svg" alt="OC" style="width:26px; height:26px; border-radius:6px; box-shadow:0 0 10px rgba(229,9,20,0.5);">
+            <span style="font-size:0.98rem; font-weight:800; color:#fff;">Holographic QR Scanner</span>
           </div>
-          <button type="button" class="btn-banner-clear" id="btnCloseQrModal" style="color:#aaa; font-size:1.2rem; cursor:pointer; background:none; border:none;">✕</button>
+          <button type="button" class="btn-banner-clear" id="btnCloseQrModal" style="color:#aaa; font-size:1.2rem; cursor:pointer; background:none; border:none; padding:4px 8px;">✕</button>
         </div>
-        <p style="font-size:0.82rem; color:#94a3b8; margin-bottom:18px;">Scan with your iPhone or Android camera to open OrlandoChrome instantly on your phone.</p>
-        <div style="width:260px; height:260px; margin:0 auto 18px; padding:12px; background:#000; border:1px solid rgba(255,77,88,0.3); border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 16px rgba(229,9,20,0.2);">
-          ${qrSvg}
+        <p style="font-size:0.78rem; color:#94a3b8; margin:0 0 14px; line-height:1.4;">Point your iPhone or Android camera to open and live-sync OrlandoChrome instantly.</p>
+        
+        <!-- High-Tech HUD Viewfinder with glowing red brackets -->
+        <div class="qr-hud-box" style="position:relative; width:236px; height:236px; margin:0 auto 12px; padding:12px; background:rgba(20, 10, 14, 0.6); border:1px solid rgba(255,77,88,0.25); border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(229,9,20,0.2);">
+          <div class="qr-hud-corner tl" style="position:absolute; top:6px; left:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-top-left-radius:4px;"></div>
+          <div class="qr-hud-corner tr" style="position:absolute; top:6px; right:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-right:2.5px solid #ff4d58; border-top-right-radius:4px;"></div>
+          <div class="qr-hud-corner bl" style="position:absolute; bottom:6px; left:6px; width:14px; height:14px; border-bottom:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-bottom-left-radius:4px;"></div>
+          <div class="qr-hud-corner br" style="position:absolute; bottom:6px; right:6px; width:14px; height:14px; border-bottom:2.5px solid #ff4d58; border-right:2.5px solid #ff4d58; border-bottom-right-radius:4px;"></div>
+          <div class="qr-hud-laser"></div>
+          
+          <!-- Pure White Card with pitch-black modules for 100% instant scanner lock -->
+          <div style="width:204px; height:204px; background:#ffffff; border-radius:12px; padding:8px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,0.6);">
+            ${qrSvg}
+          </div>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button type="button" class="primary dist-btn dist-btn-install" id="btnCopyQrLinkModal" style="flex:1;">↗ Copy App Link</button>
-          <button type="button" class="ghost dist-btn" id="btnDismissQrModal" style="flex:1;">Done</button>
+
+        <div style="font-size:0.72rem; color:#cbd5e1; margin-bottom:8px; font-weight:700; letter-spacing:0.04em;">
+          <span style="color:#5de8a0;">●</span> INSTANT CAMERA DETECTION · ZERO WARNINGS
+        </div>
+
+        <div style="font-size:0.72rem; color:#94a3b8; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:5px 8px; margin-bottom:14px; font-family:monospace; word-break:break-all;">
+          ${esc(shareUrl)}
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="primary dist-btn dist-btn-install" id="btnCopyQrLinkModal" style="flex:1; padding:7px 10px; font-size:0.78rem; font-weight:800;">↗ Copy App Link</button>
+          <button type="button" class="ghost dist-btn" id="btnDismissQrModal" style="flex:1; padding:7px 10px; font-size:0.78rem;">Done</button>
         </div>
       </div>
     `;
@@ -3413,7 +3434,9 @@ ${jsRes}
     if (btnCopy) {
       btnCopy.onclick = () => {
         copyToClipboard(shareUrl, '📋 App link copied to clipboard!');
-        close();
+        btnCopy.innerHTML = '✓ Copied to Clipboard!';
+        btnCopy.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        setTimeout(() => close(), 1200);
       };
     }
   }
@@ -4007,6 +4030,16 @@ ${jsRes}
         if (window.soundMgr) window.soundMgr.playClickSoft();
         const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
         copyToClipboard(shareUrl, '📋 App link copied to clipboard!');
+        const origText = shareAppBtn.innerHTML;
+        shareAppBtn.innerHTML = `
+          <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span style="color:#5de8a0;">✓ Link Copied!</span>
+        `;
+        shareAppBtn.style.borderColor = 'rgba(93, 232, 160, 0.6)';
+        setTimeout(() => {
+          shareAppBtn.innerHTML = origText;
+          shareAppBtn.style.borderColor = '';
+        }, 2200);
       };
     }
 
@@ -4045,7 +4078,7 @@ ${jsRes}
     const distMinBtn = $('#distMinimizeBtn');
     const distMinIcon = $('#distMinIcon');
     const distMinText = $('#distMinText');
-    const DIST_MIN_KEY = 'orlandochrome_dist_minimized_v1';
+    const DIST_MIN_KEY = 'orlandochrome_dist_minimized_v2';
     if (distSection && distMinBtn) {
       const applyMinState = (isMin) => {
         if (isMin) {
@@ -4061,9 +4094,10 @@ ${jsRes}
         }
       };
 
-      if (localStorage.getItem(DIST_MIN_KEY) === '1') {
-        applyMinState(true);
-      }
+      // By default, it is MINIMIZED (true) unless user explicitly chose to expand ('0')
+      const savedMin = localStorage.getItem(DIST_MIN_KEY);
+      const isDefaultMin = savedMin === null ? true : savedMin === '1';
+      applyMinState(isDefaultMin);
 
       distMinBtn.onclick = (e) => {
         e.stopPropagation();

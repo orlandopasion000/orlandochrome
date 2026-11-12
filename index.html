@@ -14,7 +14,7 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/svg+xml" href="oc-logo.svg">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="styles.css?v=28">
+  <link rel="stylesheet" href="styles.css?v=29">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -91,7 +91,7 @@
   </div>
 
   <!-- 8. APP DISTRIBUTION & COMMAND SUITE (Install, Share, QR, Backup, Blank Edition) -->
-  <section class="app-dist oc-app-dist" id="appDistSection" aria-labelledby="distTitle">
+  <section class="app-dist oc-app-dist minimized" id="appDistSection" aria-labelledby="distTitle">
     <div class="dist-head">
       <div class="dist-head-left">
         <div class="dist-oc-mini" title="OrlandoChrome">
@@ -106,9 +106,9 @@
         </div>
       </div>
       <div class="dist-head-actions">
-        <button type="button" class="dist-toggle-btn" id="distMinimizeBtn" title="Toggle Minimized View" aria-expanded="true">
-          <span id="distMinIcon">▾</span> <span id="distMinText">Minimize</span>
-        </button>
+        <button type="button" class="dist-toggle-btn" id="distMinimizeBtn" title="Toggle Minimized View" aria-expanded="false">
+            <span id="distMinIcon">▸</span> <span id="distMinText">Expand</span>
+          </button>
       </div>
     </div>
 
@@ -219,8 +219,8 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=28"></script>
+  <script src="sound.js?v=29"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=28"></script>
+  <script src="app.js?v=29"></script>
 </body>
 </html>

@@ -5765,3 +5765,245 @@ button:hover .modern-icon,
 }
 
 .btn-topbar-desktop { text-decoration: none !important; }
+
+
+/* ───────── COMPACT LOW-KEY MINIMIZED DOCK & ADVANCED HOLOGRAPHIC QR ───────── */
+.oc-app-dist {
+  padding: 6px 16px 6px !important;
+  border-top: 1px solid rgba(255, 77, 88, 0.2) !important;
+  background: rgba(8, 8, 12, 0.65) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
+  z-index: 20;
+  opacity: 0.72;
+}
+
+.oc-app-dist:hover,
+.oc-app-dist:focus-within {
+  opacity: 1 !important;
+  background: rgba(8, 8, 12, 0.94) !important;
+  border-top-color: rgba(255, 77, 88, 0.45) !important;
+}
+
+.oc-app-dist::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff4d58 20%, #e50914 50%, #ff1a24 80%, transparent) !important;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.5) !important;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+}
+
+.oc-app-dist:hover::before {
+  opacity: 0.9 !important;
+}
+
+/* Minimized State */
+.oc-app-dist.minimized {
+  padding: 5px 16px 5px !important;
+  border-top-color: rgba(255, 77, 88, 0.18) !important;
+}
+
+.oc-app-dist.minimized .dist-body {
+  display: none !important;
+}
+
+.oc-app-dist.minimized .dist-subtitle {
+  display: none !important;
+}
+
+.oc-app-dist.minimized .dist-head {
+  margin-bottom: 0 !important;
+}
+
+.dist-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px !important;
+}
+
+.dist-head-left {
+  display: flex;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.dist-oc-mini {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+  background: #000000 !important;
+  border: 1px solid rgba(255, 77, 88, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.35) !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  padding: 2px !important;
+}
+
+.dist-title {
+  font-size: 0.82rem !important;
+  font-weight: 750 !important;
+  color: #f1f5f9 !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dist-badge {
+  background: rgba(229, 9, 20, 0.16) !important;
+  color: #ff858d !important;
+  border: 1px solid rgba(255, 77, 88, 0.35) !important;
+  border-radius: 999px !important;
+  font-size: 0.58rem !important;
+  font-weight: 800 !important;
+  padding: 1.5px 6px !important;
+  letter-spacing: 0.05em !important;
+}
+
+.dist-toggle-btn {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 77, 88, 0.28) !important;
+  color: #cbd5e1 !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  padding: 2.5px 8px !important;
+  border-radius: 999px !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.dist-toggle-btn:hover {
+  background: rgba(229, 9, 20, 0.22) !important;
+  border-color: rgba(255, 77, 88, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.3) !important;
+}
+
+/* Compact, Low-Key Cards When Expanded */
+.dist-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px !important;
+  width: 100%;
+}
+
+@media (max-width: 1080px) {
+  .dist-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 580px) {
+  .dist-grid {
+    grid-template-columns: 1fr;
+    gap: 6px !important;
+  }
+}
+
+.dist-card {
+  background: rgba(10, 10, 14, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px !important;
+  transition: all 0.2s ease;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dist-card:hover {
+  border-color: rgba(255, 77, 88, 0.45) !important;
+  background: rgba(15, 12, 18, 0.88) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 10px rgba(229, 9, 20, 0.2) !important;
+}
+
+.dist-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px !important;
+}
+
+.dist-icon {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+  font-size: 1rem;
+}
+
+.dist-name {
+  font-size: 0.75rem !important;
+  font-weight: 750 !important;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dist-desc {
+  font-size: 0.65rem !important;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dist-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px !important;
+  width: 100%;
+}
+
+.dist-btn-row {
+  display: flex;
+  gap: 4px !important;
+  width: 100%;
+}
+
+.dist-btn {
+  padding: 5px 8px !important;
+  font-size: 0.71rem !important;
+  border-radius: 6px !important;
+  gap: 4px !important;
+}
+
+/* HUD Laser Animation in Holographic QR Modal */
+.qr-hud-laser {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff1a24 50%, transparent);
+  box-shadow: 0 0 8px #ff1a24;
+  animation: qrLaserScan 2.4s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes qrLaserScan {
+  0% { top: 14px; opacity: 0.2; }
+  50% { opacity: 0.85; }
+  100% { top: 216px; opacity: 0.2; }
+}
