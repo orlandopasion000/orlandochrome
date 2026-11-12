@@ -3314,13 +3314,61 @@ ${jsRes}
   }
 
   // App Distribution & Live Sync Command Suite (Removed per user request)
+  
+  // Helper: Copy text to clipboard with robust textarea fallback
+  function copyToClipboard(text, successMsg = '📋 App link copied to clipboard!') {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successMsg);
+      }).catch(() => fallbackCopyText(text, successMsg));
+    } else {
+      fallbackCopyText(text, successMsg);
+    }
+  }
+
+  function fallbackCopyText(text, successMsg) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (ok) {
+        showToast(successMsg);
+        return;
+      }
+    } catch (err) {}
+    prompt('Copy link to clipboard:', text);
+  }
+
+  function openInstallGuideModal() {
+    const modal = $('#installGuideModal');
+    if (modal) {
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+    }
+  }
+
+  function closeInstallGuideModal() {
+    const modal = $('#installGuideModal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+    }
+  }
+
   // Direct Desktop App Launcher (Standalone window with no browser tabs / URL bar)
   function launchDesktopApp() {
     if (window.soundMgr) window.soundMgr.playClickSoft();
     showToast('🚀 Launching OrlandoChrome Desktop App...');
-    const appUrl = window.location.href.split('#')[0];
+    const appUrl = 'https://orlandopasion000.github.io/orlandochrome/';
     const winFeatures = 'popup=yes,menubar=no,toolbar=no,location=no,status=no,personalbar=no,directories=no,resizable=yes,scrollbars=yes,width=1380,height=880,left=100,top=60';
-    const appWin = window.open(appUrl, 'OrlandoChromeDesktopAppWindow', winFeatures);
+    const appWin = window.open(appUrl, '_blank', winFeatures);
     if (appWin) {
       try { appWin.focus(); } catch (e) {}
     }
@@ -3335,20 +3383,20 @@ ${jsRes}
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
-      <div class="qr-studio-modal" style="max-width:440px; text-align:center; padding:24px; background:#0c0c10; border:1px solid rgba(217, 185, 92, 0.4); border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,0.85), 0 0 30px rgba(217,185,92,0.2);">
+      <div class="qr-studio-modal" style="max-width:440px; text-align:center; padding:24px; background:#0c0c10; border:1px solid rgba(255, 77, 88, 0.45); border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,0.9), 0 0 30px rgba(229,9,20,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:1.4rem;">📲</span>
-            <span style="font-size:1.05rem; font-weight:800; color:#fff;">Phone QR Scanner</span>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img src="oc-logo.svg" alt="OC" style="width:28px; height:28px; border-radius:7px; box-shadow:0 0 10px rgba(229,9,20,0.5);">
+            <span style="font-size:1.05rem; font-weight:800; color:#fff;">Holographic QR Scanner</span>
           </div>
           <button type="button" class="btn-banner-clear" id="btnCloseQrModal" style="color:#aaa; font-size:1.2rem; cursor:pointer; background:none; border:none;">✕</button>
         </div>
-        <p style="font-size:0.82rem; color:#999; margin-bottom:18px;">Scan with your iPhone or Android camera to open OrlandoChrome instantly on your phone.</p>
-        <div style="width:260px; height:260px; margin:0 auto 18px; padding:12px; background:#000; border:1px solid rgba(255,255,255,0.12); border-radius:16px; display:flex; align-items:center; justify-content:center;">
+        <p style="font-size:0.82rem; color:#94a3b8; margin-bottom:18px;">Scan with your iPhone or Android camera to open OrlandoChrome instantly on your phone.</p>
+        <div style="width:260px; height:260px; margin:0 auto 18px; padding:12px; background:#000; border:1px solid rgba(255,77,88,0.3); border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 16px rgba(229,9,20,0.2);">
           ${qrSvg}
         </div>
         <div style="display:flex; gap:10px;">
-          <button type="button" class="primary dist-btn" id="btnCopyQrLinkModal" style="flex:1;">↗ Copy App Link</button>
+          <button type="button" class="primary dist-btn dist-btn-install" id="btnCopyQrLinkModal" style="flex:1;">↗ Copy App Link</button>
           <button type="button" class="ghost dist-btn" id="btnDismissQrModal" style="flex:1;">Done</button>
         </div>
       </div>
@@ -3364,10 +3412,8 @@ ${jsRes}
     const btnCopy = $('#btnCopyQrLinkModal', backdrop);
     if (btnCopy) {
       btnCopy.onclick = () => {
-        navigator.clipboard.writeText(shareUrl).then(() => {
-          showToast('📋 App link copied to clipboard!');
-          close();
-        });
+        copyToClipboard(shareUrl, '📋 App link copied to clipboard!');
+        close();
       };
     }
   }
@@ -3939,11 +3985,49 @@ ${jsRes}
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
 
     // 4-Card Dock & App Distribution controls
+    const installAppBtn = $('#installAppBtn');
+    if (installAppBtn) {
+      installAppBtn.onclick = () => {
+        if (window.soundMgr) window.soundMgr.playClickSoft();
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+          showToast('✓ OrlandoChrome is already running in standalone mode!');
+          return;
+        }
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt().then((choice) => {
+            if (choice && choice.outcome === 'accepted') {
+              showToast('🚀 Installing OrlandoChrome App...');
+            }
             deferredInstallPrompt = null;
-          }).catch(() => launchDesktopApp());
+          }).catch(() => {
+            launchDesktopApp();
+            openInstallGuideModal();
+          });
         } else {
           launchDesktopApp();
+          openInstallGuideModal();
         }
+      };
+    }
+
+    const btnLaunchNow = $('#btnLaunchStandaloneNow');
+    if (btnLaunchNow) {
+      btnLaunchNow.onclick = () => {
+        launchDesktopApp();
+        closeInstallGuideModal();
+      };
+    }
+
+    const closeGuideBtn = $('#closeInstallGuide');
+    if (closeGuideBtn) closeGuideBtn.onclick = () => closeInstallGuideModal();
+
+    const dismissGuideBtn = $('#dismissInstallGuide');
+    if (dismissGuideBtn) dismissGuideBtn.onclick = () => closeInstallGuideModal();
+
+    const guideModal = $('#installGuideModal');
+    if (guideModal) {
+      guideModal.onclick = (e) => {
+        if (e.target === guideModal) closeInstallGuideModal();
       };
     }
 
@@ -3953,12 +4037,9 @@ ${jsRes}
     const shareAppBtn = $('#shareAppBtn');
     if (shareAppBtn) {
       shareAppBtn.onclick = () => {
+        if (window.soundMgr) window.soundMgr.playClickSoft();
         const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(shareUrl).then(() => {
-            showToast('?? App link copied to clipboard!');
-          });
-        }
+        copyToClipboard(shareUrl, '📋 App link copied to clipboard!');
       };
     }
 
@@ -3981,12 +4062,12 @@ ${jsRes}
               saveState();
               renderSidebar();
               renderMainChat();
-              showToast(`? Restored ${data.profiles.length} profiles from backup!`);
+              showToast(`✓ Restored ${data.profiles.length} profiles from backup!`);
             } else {
-              showToast('?? Invalid backup JSON format.');
+              showToast('⚠️ Invalid backup JSON format.');
             }
           } catch (err) {
-            showToast('? Failed to parse backup JSON.');
+            showToast('⚠️ Failed to parse backup JSON.');
           }
         };
         reader.readAsText(file);
@@ -4002,12 +4083,12 @@ ${jsRes}
       const applyMinState = (isMin) => {
         if (isMin) {
           distSection.classList.add('minimized');
-          if (distMinIcon) distMinIcon.textContent = '?';
+          if (distMinIcon) distMinIcon.textContent = '▸';
           if (distMinText) distMinText.textContent = 'Expand';
           distMinBtn.setAttribute('aria-expanded', 'false');
         } else {
           distSection.classList.remove('minimized');
-          if (distMinIcon) distMinIcon.textContent = '?';
+          if (distMinIcon) distMinIcon.textContent = '▾';
           if (distMinText) distMinText.textContent = 'Minimize';
           distMinBtn.setAttribute('aria-expanded', 'true');
         }
@@ -4017,7 +4098,8 @@ ${jsRes}
         applyMinState(true);
       }
 
-      distMinBtn.onclick = () => {
+      distMinBtn.onclick = (e) => {
+        e.stopPropagation();
         const willMin = !distSection.classList.contains('minimized');
         applyMinState(willMin);
         try {

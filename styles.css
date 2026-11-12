@@ -5532,3 +5532,234 @@ button:hover .modern-icon,
 .dist-btn:hover .modern-icon {
   transform: scale(1.15);
 }
+
+
+/* ───────── RED RADIANT GRADIENT SUITE & DOCK OVERRIDES ───────── */
+.oc-app-dist {
+  padding: 10px 16px 12px;
+  border-top: 1px solid rgba(255, 77, 88, 0.25) !important;
+  background: rgba(8, 8, 10, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+
+.oc-app-dist::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff4d58 20%, #e50914 50%, #ff1a24 80%, transparent) !important;
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.6) !important;
+}
+
+.dist-oc-mini {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9px !important;
+  background: #000000 !important;
+  border: 1.5px solid rgba(255, 77, 88, 0.6) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 14px rgba(229, 9, 20, 0.45) !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  padding: 3px !important;
+}
+
+.dist-oc-logo-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+  filter: drop-shadow(0 0 6px rgba(229, 9, 20, 0.6)) !important;
+}
+
+.dist-badge {
+  background: rgba(229, 9, 20, 0.16) !important;
+  color: #ff858d !important;
+  border: 1px solid rgba(255, 77, 88, 0.35) !important;
+  border-radius: 999px !important;
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  padding: 2px 7px !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+}
+
+.dist-card {
+  background: rgba(10, 10, 14, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dist-card:hover {
+  border-color: rgba(255, 77, 88, 0.5) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 14px rgba(229, 9, 20, 0.25) !important;
+}
+
+.dist-icon-red {
+  background: rgba(229, 9, 20, 0.16) !important;
+  border-color: rgba(255, 77, 88, 0.45) !important;
+  color: #ff4d58 !important;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.3) !important;
+}
+
+.modern-icon-red {
+  stroke: #ff4d58 !important;
+  filter: drop-shadow(0 0 4px rgba(229, 9, 20, 0.6)) !important;
+}
+
+.dist-btn-install,
+.dist-btn.primary {
+  background: linear-gradient(135deg, #ff1a24 0%, #b8000a 60%, #4a0003 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 100, 110, 0.6) !important;
+  box-shadow: 0 0 14px rgba(229, 9, 20, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+  font-weight: 800 !important;
+}
+
+.dist-btn-install:hover,
+.dist-btn.primary:hover {
+  background: linear-gradient(135deg, #ff4d58 0%, #e50914 60%, #6e0006 100%) !important;
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-1px) !important;
+  color: #ffffff !important;
+}
+
+.dist-btn.ghost {
+  background: #0d0d12;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+.dist-btn.ghost:hover {
+  border-color: rgba(255, 77, 88, 0.5) !important;
+  background: #171720 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.2) !important;
+}
+
+.dist-btn-holo {
+  border-color: rgba(255, 77, 88, 0.5) !important;
+  color: #ffffff !important;
+  background: rgba(229, 9, 20, 0.12) !important;
+}
+
+.dist-btn-holo:hover {
+  background: rgba(229, 9, 20, 0.25) !important;
+  border-color: rgba(255, 77, 88, 0.9) !important;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.4) !important;
+}
+
+.dist-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 77, 88, 0.3) !important;
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.dist-toggle-btn:hover {
+  background: rgba(229, 9, 20, 0.2) !important;
+  border-color: rgba(255, 77, 88, 0.6) !important;
+  color: #ffffff !important;
+}
+
+.oc-app-dist.minimized .dist-body {
+  display: none !important;
+}
+
+.oc-app-dist.minimized {
+  padding-bottom: 8px !important;
+}
+
+/* Install Guide Modal Styling */
+.install-guide-modal-wrap {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 16px;
+}
+.install-guide-modal-wrap.active {
+  display: flex !important;
+}
+.install-guide-box {
+  background: #0d0d12;
+  border: 1px solid rgba(255, 77, 88, 0.4);
+  border-radius: 18px;
+  max-width: 500px;
+  width: 100%;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9), 0 0 30px rgba(229, 9, 20, 0.3);
+  animation: modalPopIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.install-guide-cards-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.install-card-highlight {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 77, 88, 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 0 14px rgba(229, 9, 20, 0.15);
+}
+.install-card-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #ff4d58;
+}
+.install-card-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+.install-card-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
