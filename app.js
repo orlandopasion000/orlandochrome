@@ -46,12 +46,234 @@
   const LIVE_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/';
   const BLANK_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/?edition=blank';
 
+  // ============================================================================
+  // FUTURISTIC CYBER SVG ICON SYSTEM (Next-Gen UI Glyphs)
+  // ============================================================================
+  const Icons = {
+    urgent: (size = 15) => `
+      <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;" title="Urgent">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gUrgent" x1="12" y1="22" x2="12" y2="2" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ff002f"/>
+              <stop offset="55%" stop-color="#ff6a00"/>
+              <stop offset="100%" stop-color="#ffe600"/>
+            </linearGradient>
+            <filter id="fUrgent" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#ff3300" flood-opacity="0.85"/>
+            </filter>
+          </defs>
+          <path filter="url(#fUrgent)" fill="url(#gUrgent)" d="M12 2C10.6 4.7 9 7 9 10c0 1.4.5 2.5 1.2 3.4-1.2-.2-2.3-.9-3-1.8-.4 1.1-.6 2.3-.6 3.4 0 4 3.3 7 7.4 7s7.4-3 7.4-7c0-3.6-2.4-6.6-4.9-8.8-.5 1.1-.8 2.4-.8 3.7 0 .9.2 1.8.6 2.6C14.3 8.8 13.1 5.3 12 2z"/>
+          <path d="M12 14c-.8 0-1.5.7-1.5 1.5 0 1.4 1.1 2.5 2.5 2.5s2.5-1.1 2.5-2.5c0-.8-.7-1.5-1.5-1.5-.6 0-1.1.3-1.4.8-.2-.5-.6-.8-1.1-.8z" fill="#ffffff" opacity="0.95"/>
+        </svg>
+      </span>`,
+
+    waiting: (size = 15) => `
+      <span class="oc-icon oc-icon-waiting" style="width:${size}px;height:${size}px;" title="Waiting / Cooldown">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gChrono" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="50%" stop-color="#818cf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+            <filter id="fChrono" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#38bdf8" flood-opacity="0.7"/>
+            </filter>
+          </defs>
+          <path d="M6 3h12M6 21h12" stroke="url(#gChrono)" stroke-width="2.2" stroke-linecap="round"/>
+          <path filter="url(#fChrono)" d="M7 4c0 4.5 3.5 6.5 5 8-1.5 1.5-5 3.5-5 8h10c0-4.5-3.5-6.5-5-8 1.5-1.5 5-3.5 5-8H7z" stroke="url(#gChrono)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.12)"/>
+          <path d="M10 8h4M9.5 17h5" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="1.5" fill="#38bdf8"/>
+        </svg>
+      </span>`,
+
+    important: (size = 15) => `
+      <span class="oc-icon oc-icon-important" style="width:${size}px;height:${size}px;" title="Important / Pinned">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gPin" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ff2a3a"/>
+              <stop offset="100%" stop-color="#b8000a"/>
+            </linearGradient>
+            <filter id="fPin" x="-25%" y="-25%" width="150%" height="150%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#ff2a3a" flood-opacity="0.8"/>
+            </filter>
+          </defs>
+          <circle cx="12" cy="9" r="7" stroke="rgba(255, 42, 58, 0.35)" stroke-width="1.2" stroke-dasharray="2 2"/>
+          <path filter="url(#fPin)" d="M12 2C8.7 2 6 4.7 6 8c0 4.5 5 10 6 11 1-1 6-6.5 6-11 0-3.3-2.7-6-6-6z" fill="url(#gPin)"/>
+          <circle cx="12" cy="8" r="2.4" fill="#ffffff"/>
+          <path d="M12 19v3.5" stroke="#ff4d58" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>`,
+
+    verified: (size = 15) => `
+      <span class="oc-icon oc-icon-verified" style="width:${size}px;height:${size}px;" title="Verified / Done">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gHex" x1="2" y1="12" x2="22" y2="12" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#059669"/>
+              <stop offset="50%" stop-color="#10b981"/>
+              <stop offset="100%" stop-color="#34d399"/>
+            </linearGradient>
+            <filter id="fHex" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.6" flood-color="#10b981" flood-opacity="0.75"/>
+            </filter>
+          </defs>
+          <path filter="url(#fHex)" d="M12 2l7.5 4.3v7.4L12 21l-7.5-7.3V6.3L12 2z" fill="rgba(16, 185, 129, 0.16)" stroke="url(#gHex)" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M8 12l2.8 2.8L16.2 9" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`,
+
+    check: (size = 13) => `
+      <span class="oc-icon oc-icon-check" style="width:${size}px;height:${size}px;" title="Done">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="#10b981" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`,
+
+    copy: (size = 13) => `
+      <span class="oc-icon oc-icon-copy" style="width:${size}px;height:${size}px;" title="Copy to Clipboard">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gCopy" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#818cf8"/>
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="12" height="13" rx="2.5" stroke="url(#gCopy)" stroke-width="1.8" fill="rgba(56, 189, 248, 0.08)"/>
+          <path d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h3" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M11 12h6M11 15h4" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>`,
+
+    checklist: (size = 13) => `
+      <span class="oc-icon oc-icon-checklist" style="width:${size}px;height:${size}px;" title="Add Sub-item">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gList" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+          </defs>
+          <rect x="3" y="4" width="7" height="7" rx="2" stroke="url(#gList)" stroke-width="1.8" fill="rgba(168, 85, 247, 0.15)"/>
+          <path d="M5 7.5l1.2 1.2L8.5 6" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 6.5h8M13 9.5h5M4 16h17M4 20h12" stroke="url(#gList)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>`,
+
+    edit: (size = 13) => `
+      <span class="oc-icon oc-icon-edit" style="width:${size}px;height:${size}px;" title="Edit">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gEdit" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#0284c7"/>
+            </linearGradient>
+          </defs>
+          <path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="url(#gEdit)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.1)"/>
+          <path d="M14 6l4 4" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="4" cy="20" r="1.2" fill="#38bdf8"/>
+        </svg>
+      </span>`,
+
+    delete: (size = 13) => `
+      <span class="oc-icon oc-icon-delete" style="width:${size}px;height:${size}px;" title="Delete">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gDel" x1="12" y1="2" x2="12" y2="22">
+              <stop offset="0%" stop-color="#ff4d58"/>
+              <stop offset="100%" stop-color="#e50914"/>
+            </linearGradient>
+          </defs>
+          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="url(#gDel)" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="url(#gDel)" stroke-width="1.8" stroke-linecap="round" fill="rgba(229, 9, 20, 0.08)"/>
+          <path d="M10 11v6M14 11v6" stroke="#ff4d58" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </span>`,
+
+    forward: (size = 13) => `
+      <span class="oc-icon oc-icon-forward" style="width:${size}px;height:${size}px;" title="Forward">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gFwd" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#00f2fe"/>
+              <stop offset="100%" stop-color="#4facfe"/>
+            </linearGradient>
+          </defs>
+          <path d="M13 5l7 7-7 7M20 12H9a5 5 0 00-5 5v2" stroke="url(#gFwd)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="17" cy="12" r="1.2" fill="#00f2fe"/>
+        </svg>
+      </span>`,
+
+    note: (size = 13) => `
+      <span class="oc-icon oc-icon-note" style="width:${size}px;height:${size}px;" title="Note">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gNote" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#ff4d58"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+          <path d="M20 12c0 4.4-3.6 8-8 8-1.5 0-2.9-.4-4.1-1.1L3 20l1.2-4.4C3.5 14.4 3 13.2 3 12c0-4.4 3.6-8 8-8s9 3.6 9 8z" stroke="url(#gNote)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(229, 9, 20, 0.1)"/>
+          <path d="M8 12h.01M12 12h.01M16 12h.01" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+      </span>`,
+
+    undo: (size = 13) => `
+      <span class="oc-icon oc-icon-undo" style="width:${size}px;height:${size}px;" title="Undo">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 10h10a6 6 0 016 6v1" stroke="#ff4d58" stroke-width="2" stroke-linecap="round"/>
+          <path d="M7 6L3 10l4 4" stroke="#ff4d58" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`,
+
+    redo: (size = 13) => `
+      <span class="oc-icon oc-icon-redo" style="width:${size}px;height:${size}px;" title="Redo">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M21 10H11a6 6 0 00-6 6v1" stroke="#ff4d58" stroke-width="2" stroke-linecap="round"/>
+          <path d="M17 6l4 4-4 4" stroke="#ff4d58" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`,
+
+    trashVault: (size = 14) => `
+      <span class="oc-icon oc-icon-vault" style="width:${size}px;height:${size}px;" title="Recently Deleted Vault">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gVault" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#ff4d58"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <path d="M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" stroke="url(#gVault)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="rgba(255, 77, 88, 0.12)"/>
+          <circle cx="12" cy="14" r="1.5" fill="#f59e0b"/>
+        </svg>
+      </span>`,
+
+    restore: (size = 13) => `
+      <span class="oc-icon oc-icon-restore" style="width:${size}px;height:${size}px;" title="Restore">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M4 12v-2a8 8 0 0114.9-4M20 12v2a8 8 0 01-14.9 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 6v4h4M20 18v-4h-4" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`,
+
+    shake: (size = 32) => `
+      <span class="oc-icon oc-icon-shake" style="width:${size}px;height:${size}px;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="7" y="3" width="10" height="18" rx="2.5" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56, 189, 248, 0.1)"/>
+          <circle cx="12" cy="17.5" r="1" fill="#38bdf8"/>
+          <path d="M3 9c-.7 1-.7 2.5 0 3.5M21 9c.7 1 .7 2.5 0 3.5M1 7c-1 1.5-1 4 0 5.5M23 7c1 1.5 1 4 0 5.5" stroke="#ff4d58" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </span>`
+  };
+
   // Priority & Color Reactions (Messenger / Discord Style)
   const REACTIONS_LIST = [
-    { key: 'urgent',    icon: '🔥', label: 'Urgent',    cls: 'react-urgent' },
-    { key: 'waiting',   icon: '⏳', label: 'Waiting',   cls: 'react-waiting' },
-    { key: 'important', icon: '📌', label: 'Important', cls: 'react-important' },
-    { key: 'verified',  icon: '✅', label: 'Verified',  cls: 'react-verified' }
+    { key: 'urgent',    icon: Icons.urgent(15),    label: 'Urgent',    cls: 'react-urgent' },
+    { key: 'waiting',   icon: Icons.waiting(15),   label: 'Waiting',   cls: 'react-waiting' },
+    { key: 'important', icon: Icons.important(15), label: 'Important', cls: 'react-important' },
+    { key: 'verified',  icon: Icons.verified(15),  label: 'Verified',  cls: 'react-verified' }
   ];
   const REACTIONS_MAP = Object.fromEntries(REACTIONS_LIST.map(r => [r.key, r]));
 
@@ -183,6 +405,8 @@
   // Application State
   const state = {
     profiles: [],
+    trash: [], // Recently Deleted Notes Vault (30-day soft-delete)
+
     activeProfileId: IS_BLANK_EDITION ? "b_slot_1" : "p_tb_4",
     currentFilter: "all",      // "all" | "pending" | "timers"
     searchQuery: "",
@@ -271,6 +495,230 @@
     if (!IS_BLANK_EDITION && profile.profileDir) return `avatars/${encodeURIComponent(profile.profileDir)}.png`;
     const initial = esc(profile.name ? profile.name[0].toUpperCase() : 'C');
     return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='30%' cy='25%' r='75%'><stop offset='0%' stop-color='%23ff4d58'/><stop offset='50%' stop-color='%23b8000a'/><stop offset='100%' stop-color='%231a0002'/></radialGradient></defs><rect width='100' height='100' rx='50' fill='url(%23g)'/><text x='50' y='66' font-size='46' font-weight='800' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'>${initial}</text></svg>`;
+  }
+
+
+  // Suggestion #4: Recently Deleted / Trash Vault
+  function addToTrash(note, profile) {
+    if (!state.trash) state.trash = [];
+    state.trash.unshift({
+      id: uid(),
+      profileId: profile.id,
+      profileName: profile.name,
+      note: JSON.parse(JSON.stringify(note)),
+      deletedAt: now(),
+      expiresAt: now() + 30 * 24 * 60 * 60 * 1000 // 30-day safety vault
+    });
+    // Prune beyond 100 items or older than 30 days
+    const cur = now();
+    state.trash = state.trash.filter(item => item.expiresAt > cur).slice(0, 100);
+    saveState();
+    updateTrashBadge();
+  }
+
+  function restoreFromTrash(trashId) {
+    if (!state.trash) return;
+    const idx = state.trash.findIndex(t => t.id === trashId);
+    if (idx === -1) return;
+    const item = state.trash.splice(idx, 1)[0];
+    const p = getProfile(item.profileId) || getProfile(state.activeProfileId);
+    if (p) {
+      if (!p.notes) p.notes = [];
+      p.notes.push(item.note);
+      saveState();
+      renderSidebar();
+      renderMainChat();
+      showToast(`↺ Restored note to ${p.name}`);
+      setTimeout(() => {
+        const card = $(`#noteCard_${item.note.id}`);
+        if (card) {
+          card.classList.add('note-restored-highlight');
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 80);
+    }
+    updateTrashBadge();
+  }
+
+  function purgeFromTrash(trashId) {
+    if (!state.trash) return;
+    state.trash = state.trash.filter(t => t.id !== trashId);
+    saveState();
+    updateTrashBadge();
+  }
+
+  function clearAllTrash() {
+    state.trash = [];
+    saveState();
+    updateTrashBadge();
+    showToast('🗑️ Cleared Trash Vault');
+  }
+
+  function updateTrashBadge() {
+    const badge = $('#headerTrashCount');
+    const count = (state.trash || []).length;
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+  }
+
+  function openTrashVaultModal() {
+    const existing = $('#trashVaultBackdrop');
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.id = 'trashVaultBackdrop';
+    backdrop.style.zIndex = '9999';
+
+    const renderVault = () => {
+      const items = state.trash || [];
+      backdrop.innerHTML = `
+        <div class="trash-vault-modal">
+          <div class="trash-vault-header">
+            <div class="trash-vault-title-wrap">
+              ${Icons.trashVault(22)}
+              <div>
+                <h3 class="trash-vault-title">Recently Deleted Vault</h3>
+                <div class="trash-vault-subtitle">30-day soft-delete safety vault · Restore messages anytime with 1 click</div>
+              </div>
+            </div>
+            <button type="button" class="btn-banner-clear" id="btnCloseTrashVault" style="font-size:1.2rem; cursor:pointer;">✕</button>
+          </div>
+
+          <div class="trash-vault-list">
+            ${items.length === 0 ? `
+              <div class="trash-vault-empty">
+                ${Icons.trashVault(46)}
+                <h4>Trash Vault is Empty</h4>
+                <p style="font-size:0.8rem; margin:4px 0 0;">Accidentally deleted notes will be safely archived here for 30 days.</p>
+              </div>
+            ` : items.map(item => {
+              const diffMin = Math.max(1, Math.round((now() - item.deletedAt) / 60000));
+              const timeLabel = diffMin < 60 ? `${diffMin}m ago` : `${Math.round(diffMin/60)}h ago`;
+              return `
+                <div class="trash-item-card" data-tid="${item.id}">
+                  <div class="trash-item-left">
+                    <span class="trash-item-profile-badge">${esc(item.profileName)}</span>
+                    <div class="trash-item-text">${esc(item.note.text || (item.note.image ? '[Attached Screenshot]' : '[Voice Note]'))}</div>
+                    <div class="trash-item-meta">Deleted ${timeLabel} · Originally ${formatNoteDateTime(item.note.createdAt)}</div>
+                  </div>
+                  <div class="trash-item-actions">
+                    <button type="button" class="btn-trash-restore" data-restore-tid="${item.id}" title="Restore note back to profile">
+                      ${Icons.restore(13)} <span>Restore</span>
+                    </button>
+                    <button type="button" class="btn-trash-purge" data-purge-tid="${item.id}" title="Delete forever">
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="trash-vault-footer">
+            <span style="font-size:0.75rem; color:#64748b;">${items.length} item${items.length === 1 ? '' : 's'} archived</span>
+            ${items.length > 0 ? `
+              <button type="button" class="btn-trash-purge" id="btnClearAllTrash" style="color:#ff4d58; border-color:rgba(255,77,88,0.3);">
+                Clear All Trash
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+      $('#btnCloseTrashVault', backdrop).onclick = close;
+      const clearBtn = $('#btnClearAllTrash', backdrop);
+      if (clearBtn) {
+        clearBtn.onclick = () => {
+          if (confirm('Permanently delete all items in the Trash Vault?')) {
+            clearAllTrash();
+            renderVault();
+          }
+        };
+      }
+
+      $$('.btn-trash-restore', backdrop).forEach(btn => {
+        btn.onclick = () => {
+          const tid = btn.dataset.restoreTid;
+          restoreFromTrash(tid);
+          renderVault();
+        };
+      });
+
+      $$('.btn-trash-purge', backdrop).forEach(btn => {
+        btn.onclick = () => {
+          const tid = btn.dataset.purgeTid;
+          purgeFromTrash(tid);
+          renderVault();
+        };
+      });
+    };
+
+    document.body.appendChild(backdrop);
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) {
+        if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+      }
+    };
+    renderVault();
+  }
+
+  // Suggestion #5: Native iOS Accelerometer Shake to Undo
+  function initShakeToUndo() {
+    let lastX = null, lastY = null, lastZ = null;
+    let lastShakeTime = 0;
+
+    window.addEventListener('devicemotion', (e) => {
+      const acc = e.accelerationIncludingGravity || e.acceleration;
+      if (!acc) return;
+      const cur = now();
+      if (cur - lastShakeTime < 2200) return; // Debounce 2.2s
+
+      const { x, y, z } = acc;
+      if (lastX !== null && x !== null) {
+        const delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
+        if (delta > 25) { // Sensitivity threshold
+          lastShakeTime = cur;
+          if (historyMgr && historyMgr.canUndo()) {
+            showShakeUndoModal();
+          }
+        }
+      }
+      lastX = x; lastY = y; lastZ = z;
+    }, { passive: true });
+  }
+
+  function showShakeUndoModal() {
+    const existing = $('#shakeUndoModalBackdrop');
+    if (existing) return;
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.id = 'shakeUndoModalBackdrop';
+    backdrop.style.zIndex = '9999';
+    backdrop.innerHTML = `
+      <div class="rename-dialog shake-undo-dialog" style="max-width:320px; text-align:center;">
+        <div style="margin-bottom:10px;">${Icons.shake(36)}</div>
+        <h3 style="margin:0 0 6px;">Shake Detected</h3>
+        <p style="font-size:0.85rem; color:#94a3b8; margin:0 0 16px;">Undo last message action?</p>
+        <div class="rename-actions" style="justify-content:center; gap:10px;">
+          <button type="button" class="btn-banner-clear" id="btnCancelShake">Cancel</button>
+          <button type="button" class="btn-composer-send" id="btnConfirmShake" style="padding:8px 20px;">
+            ${Icons.undo(14)} <span>Undo</span>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    $('#btnCancelShake', backdrop).onclick = close;
+    $('#btnConfirmShake', backdrop).onclick = () => {
+      close();
+      if (historyMgr) historyMgr.undo();
+    };
   }
 
   // Toast notification (Interactive action toast + regular toast)
@@ -508,6 +956,8 @@
       }
     }
   };
+  window.historyMgr = historyMgr;
+  window.Icons = Icons;
 
   // Enhancement #3: Auto-Linkify URLs inside message text & sticky notes
   function linkifyText(raw) {
@@ -1182,6 +1632,10 @@
       }
     }
 
+    try {
+      const savedTrash = localStorage.getItem('orlandochrome_trash');
+      if (savedTrash) state.trash = JSON.parse(savedTrash);
+    } catch (e) {}
     let loaded = null;
     if (raw) {
       try {
@@ -1293,6 +1747,7 @@
   function persistLocalOnly() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.profiles));
+      localStorage.setItem('orlandochrome_trash', JSON.stringify(state.trash || []));
       updateDocumentTitle();
     } catch (e) {
       console.error('Failed to save state:', e);
@@ -2054,10 +2509,14 @@
 
         <div class="chat-header-actions">
           <button type="button" class="btn-header-action btn-header-undo ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnUndoNote" title="Undo last message action (Ctrl+Z)" ${historyMgr.canUndo() ? '' : 'disabled'}>
-            ↺ Undo
+            ${Icons.undo(13)} <span>Undo</span>
           </button>
           <button type="button" class="btn-header-action btn-header-redo ${historyMgr.canRedo() ? '' : 'disabled'}" id="btnRedoNote" title="Redo last message action (Ctrl+Y)" ${historyMgr.canRedo() ? '' : 'disabled'}>
-            ↻ Redo
+            ${Icons.redo(13)} <span>Redo</span>
+          </button>
+          <button type="button" class="btn-header-action btn-header-trash" id="btnOpenTrashVault" title="Recently Deleted Vault (30-day restore)">
+            ${Icons.trashVault(14)} <span>Trash</span>
+            <span class="trash-badge-count" id="headerTrashCount" style="${(state.trash || []).length > 0 ? '' : 'display:none;'}">${(state.trash || []).length}</span>
           </button>
           ${IS_BLANK_EDITION ? `
             <button class="btn-header-action" id="btnAddSlotBlank" title="Add another taskbar Chrome profile slot">
@@ -2065,10 +2524,10 @@
             </button>
           ` : ''}
           <button class="btn-header-action ${statusNote ? 'note-active' : ''}" id="btnMessengerNote" title="Messenger 24-Hour Note (lasts 24 hours)">
-            💭 ${statusNote ? 'Edit Note' : 'Add Note'}
+            ${Icons.note(13)} <span>${statusNote ? 'Edit Note' : 'Add Note'}</span>
           </button>
           <button class="btn-header-action ${p.stickyNote ? 'sticky-active' : ''}" id="btnStickyNote" title="Set a permanent sticky header note for ${esc(p.name)}">
-            📌 ${p.stickyNote ? 'Edit Sticky' : 'Sticky Note'}
+            ${Icons.important(13)} <span>${p.stickyNote ? 'Edit Sticky' : 'Sticky Note'}</span>
           </button>
           ${canUnread ? `
             <button class="btn-header-action ${isUnread ? 'unread-active' : ''}" id="btnToggleUnreadHeader" title="Bookmark this profile as Unread (or right-click in sidebar)">
@@ -2076,7 +2535,7 @@
             </button>
           ` : ''}
           <button class="btn-header-action" id="btnRenameProfile">
-            ✏️ Rename
+            ${Icons.edit(13)} <span>Rename</span>
           </button>
         </div>
       </header>
@@ -2223,15 +2682,15 @@
 
               <div class="note-bubble-actions">
                 ${n.done ? `
-                  <button class="btn-note-reopen" data-action="toggle-done" data-nid="${n.id}">↩ Reopen</button>
+                  <button class="btn-note-reopen" data-action="toggle-done" data-nid="${n.id}">${Icons.undo(13)} <span>Reopen</span></button>
                 ` : `
-                  <button class="btn-note-done" data-action="toggle-done" data-nid="${n.id}">✓ Done</button>
+                  <button class="btn-note-done" data-action="toggle-done" data-nid="${n.id}">${Icons.check(13)} <span>Done</span></button>
                 `}
-                <button class="btn-note-action" data-action="copy-note" data-nid="${n.id}" title="Copy message text to clipboard">📋</button>
-                <button class="btn-note-action" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item to this note">☑️</button>
-                <button class="btn-note-action" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">✏️</button>
-                <button class="btn-note-action btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward or move task to another Chrome profile">↪ Forward</button>
-                <button class="btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">🗑️</button>
+                <button class="btn-note-action" data-action="copy-note" data-nid="${n.id}" title="Copy message text to clipboard">${Icons.copy(13)}</button>
+                <button class="btn-note-action" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item to this note">${Icons.checklist(13)}</button>
+                <button class="btn-note-action" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(13)}</button>
+                <button class="btn-note-action btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward or move task to another Chrome profile">${Icons.forward(13)} <span>Forward</span></button>
+                <button class="btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">${Icons.delete(13)}</button>
               </div>
             </div>
             <div class="note-timestamp">
@@ -2526,6 +2985,9 @@
     }
 
     // 2. Rename profile
+    const btnTrashVault = $('#btnOpenTrashVault');
+    if (btnTrashVault) btnTrashVault.onclick = () => openTrashVaultModal();
+
     const renameBtn = $('#btnRenameProfile');
     if (renameBtn) {
       renameBtn.onclick = () => promptRename(p);
@@ -2636,6 +3098,7 @@
           const noteIdx = (p.notes || []).findIndex(n => n.id === nid);
           if (noteIdx !== -1) {
             const deletedNote = JSON.parse(JSON.stringify(p.notes[noteIdx]));
+            addToTrash(deletedNote, p);
             historyMgr.record({
               type: 'DELETE_NOTE',
               profileId: p.id,
@@ -2652,7 +3115,41 @@
             }
             saveState();
             renderSidebar();
-            renderMainChat();
+
+            // Suggestion #5: Inline Ghost Card morph instead of abrupt vanishing
+            const cardEl = $(`#noteCard_${nid}`);
+            if (cardEl) {
+              cardEl.classList.add('note-ghost-mode');
+              cardEl.innerHTML = `
+                <div class="ghost-card-content">
+                  <div class="ghost-info">
+                    ${Icons.delete(13)}
+                    <span>Note deleted <em>("${esc((deletedNote.text || 'Message').slice(0, 32))}")</em></span>
+                  </div>
+                  <button type="button" class="btn-ghost-undo" data-nid="${nid}">
+                    ${Icons.undo(12)} <span>Tap to Undo</span>
+                  </button>
+                </div>
+              `;
+              const btnGhostUndo = cardEl.querySelector('.btn-ghost-undo');
+              if (btnGhostUndo) {
+                btnGhostUndo.onclick = (e) => {
+                  e.stopPropagation();
+                  historyMgr.undo();
+                };
+              }
+              setTimeout(() => {
+                if (cardEl && cardEl.classList.contains('note-ghost-mode')) {
+                  cardEl.classList.add('ghost-collapsing');
+                  setTimeout(() => {
+                    if (cardEl.parentNode) cardEl.parentNode.removeChild(cardEl);
+                  }, 300);
+                }
+              }, 6000);
+            } else {
+              renderMainChat();
+            }
+
             showActionToast({
               message: '🗑️ Deleted note',
               actionText: '↺ Undo',
@@ -5433,8 +5930,10 @@ ${jsRes}
     }
     initEvents();
     initGestureNavigation();
+    initShakeToUndo();
     renderSidebar();
     renderMainChat();
+    updateTrashBadge();
     renderClockBox();
     initCloudSync();
 
