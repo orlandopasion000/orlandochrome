@@ -1598,10 +1598,11 @@
           <div class="profile-text-content">
             <div class="profile-row-header">
               <span class="profile-name">${esc(p.name)}</span>
-              <div class="profile-header-right">
-                ${canUnread ? `<button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>` : ''}
-                <span class="profile-shortcut">${esc(p.winShortcut)}</span>
-              </div>
+              ${canUnread ? `
+                <div class="profile-header-right">
+                  <button type="button" class="unread-toggle-btn ${isUnread ? 'active' : ''}" data-unread-id="${p.id}" title="${isUnread ? 'Mark as Read' : 'Mark as Unread (Bookmark)'}">●</button>
+                </div>
+              ` : ''}
             </div>
             <div class="profile-row-sub">
               <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
