@@ -1570,8 +1570,17 @@
 
       return `
         <div class="profile-item ${isActive ? 'active' : ''} ${isPinned ? 'is-pinned' : ''} ${isUnread ? 'is-unread' : ''}" data-id="${p.id}" style="flex-shrink:0;" ${canUnread ? 'title="Right-click to toggle Unread dot"' : ''}>
-          <!-- Bigger Picture Avatar (56px) -->
-          <div class="profile-avatar-wrap">
+          <!-- Bigger Picture Avatar (56px) with Messenger Note Thought Cloud on Top Left -->
+          <div class="profile-avatar-wrap" data-pid="${p.id}" title="${statusNote ? `💭 24h Note: &quot;${esc(statusNote.text)}&quot; (${formatRemainingNoteTime(statusNote.expiresAt - cur)}) · Tap to view or edit` : 'Tap to share a 24h Messenger Note'}">
+            ${statusNote ? `
+              <div class="avatar-note-bubble" title="24h Note: ${esc(statusNote.text)}">
+                <span>${esc(statusNote.text)}</span>
+              </div>
+            ` : `
+              <div class="avatar-note-add-prompt" title="Share a Note">
+                <span>💭+</span>
+              </div>
+            `}
             <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
             <span class="profile-slot-badge">${esc(slotTag)}</span>
             ${isUnread ? `<span class="avatar-unread-dot" title="Unread Bookmark"></span>` : ''}
@@ -1686,7 +1695,15 @@
       state.mobileDockScrollLeft = prevDockScroll.scrollLeft;
     }
 
-    const p = getProfile(state.activeProfileId);
+    let p = getProfile(state.activeProfileId);
+    if (!p) {
+      p = state.profiles[0];
+      if (p) state.activeProfileId = p.id;
+    }
+    if (!p) {
+      main.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;">Select a profile to view messages</div>';
+      return;
+    }
     const cur = now();
     const isTimer = p.timerUntil && p.timerUntil > cur;
     const isReset = p.isReset;
@@ -2588,6 +2605,7 @@
   }
 
   // Messenger Standard 24-Hour Note Modal (Tap avatar or note bubble)
+  // Messenger Standard 24-Hour Note Modal (Simplified, User-Friendly & Advanced Task Statuses)
   function promptMessengerNote(profile) {
     const cur = now();
     const currentNote = getActiveStatusNote(profile);
@@ -2596,72 +2614,56 @@
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
-      <div class="rename-dialog messenger-note-dialog">
-        <div class="messenger-note-header">
-          <div class="note-modal-avatar-preview">
-            <div class="note-preview-bubble-wrap">
-              <div class="avatar-note-bubble preview-bubble" id="noteLivePreviewBubble" style="${currentNote ? '' : 'display:none;'}">
-                <span id="notePreviewText">${esc(currentNote ? currentNote.text : '')}</span>
-              </div>
-              <img src="${avatarSrc}" class="note-modal-avatar-img" alt="${esc(profile.name)}">
-            </div>
-            <div class="note-modal-titles">
-              <h3 style="margin:0; font-size:16px; font-weight:800; color:#fff;">💭 Messenger Note</h3>
-              <span style="font-size:12px; color:var(--nf-text-muted);">${esc(profile.name)} · ${esc(profile.winShortcut)}</span>
+      <div class="rename-dialog messenger-note-dialog" style="max-width:460px; padding:22px; background:#0d0d12; border:1px solid rgba(229, 9, 20, 0.4); border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,0.9), 0 0 25px rgba(229,9,20,0.25);">
+        <div class="messenger-note-header-simple">
+          <div class="note-modal-profile-info">
+            <img src="${avatarSrc}" class="note-avatar-mini" alt="${esc(profile.name)}">
+            <div>
+              <div class="note-modal-title">💭 Share a Note</div>
+              <div class="note-modal-subtitle">${esc(profile.name)} · ${esc(profile.winShortcut)} ${currentNote ? `· ⏳ ${formatRemainingNoteTime(currentNote.expiresAt - cur)}` : ''}</div>
             </div>
           </div>
-          <button type="button" class="btn-subcheck-del" id="btnCloseNoteModal" title="Close" style="font-size:18px;">✕</button>
+          <button type="button" class="btn-subcheck-del" id="btnCloseNoteModal" title="Close" style="font-size:18px; background:none; border:none; color:#aaa; cursor:pointer;">✕</button>
         </div>
-
-        ${currentNote ? `
-          <div class="current-note-status-banner">
-            <div class="status-banner-row">
-              <span class="status-banner-title">Active 24h Note:</span>
-              <span class="status-banner-expires">⏳ ${formatRemainingNoteTime(currentNote.expiresAt - cur)}</span>
-            </div>
-            <div class="status-banner-text">"${esc(currentNote.text)}"</div>
-          </div>
-        ` : ''}
 
         <div class="note-input-container">
-          <label for="messengerNoteInput" class="note-input-label">
-            <span>Share a thought... (shown above avatar)</span>
-            <span class="note-char-counter"><span id="noteCharCount">${currentNote ? currentNote.text.length : 0}</span> / 60</span>
-          </label>
-          <input type="text" id="messengerNoteInput" class="rename-input note-composer-input" maxlength="60" value="${esc(currentNote ? currentNote.text : '')}" placeholder="What's on your mind? (e.g. Focused on work 💻)">
+          <div class="note-input-row">
+            <input type="text" id="messengerNoteInput" class="rename-input note-composer-input" maxlength="60" value="${esc(currentNote ? currentNote.text : '')}" placeholder="What's on your mind? (e.g. 📝 Grading Exams)">
+            <span class="note-char-counter"><span id="noteCharCount">${currentNote ? currentNote.text.length : 0}</span>/60</span>
+          </div>
         </div>
 
-        <!-- Quick Emoji Tap Bar -->
-        <div class="note-emoji-bar">
-          <span class="emoji-bar-label">Quick Emojis:</span>
-          <div class="emoji-chips">
-            ${['☕', '📚', '💻', '🚀', '💡', '🔥', '⚡', '🎧', '💤', '🍕', '🎯', '✨'].map(em => `
+        <!-- Advanced Task Presets & Helpful Icons -->
+        <div class="note-presets-section">
+          <div class="note-preset-label">⚡ Task Status Presets:</div>
+          <div class="note-preset-chips">
+            <button type="button" class="btn-task-chip" data-status="📝 Grading Exams">📝 Grading</button>
+            <button type="button" class="btn-task-chip" data-status="🖨️ Printing Files">🖨️ Printing</button>
+            <button type="button" class="btn-task-chip" data-status="📐 Math Class">📐 Math Class</button>
+            <button type="button" class="btn-task-chip" data-status="🧠 Deep Focus">🧠 Deep Focus</button>
+            <button type="button" class="btn-task-chip" data-status="🔬 AI Research">🔬 Research</button>
+            <button type="button" class="btn-task-chip" data-status="📊 DepEd Reports">📊 Reports</button>
+            <button type="button" class="btn-task-chip" data-status="⏳ Cooldown Timer">⏳ Cooldown</button>
+            <button type="button" class="btn-task-chip" data-status="⚡ Ready for Work">⚡ Ready</button>
+          </div>
+          <div class="note-icon-row">
+            ${['📝', '🖨️', '📐', '🔬', '💻', '📊', '⚡', '⏳', '🎯', '✅', '☕', '✨'].map(em => `
               <button type="button" class="btn-emoji-chip" data-emoji="${em}">${em}</button>
             `).join('')}
           </div>
         </div>
 
-        <div class="note-modal-hint">
-          ℹ️ In Messenger standard, your note floats as a thought bubble above your profile picture for <strong>24 hours</strong>, then disappears automatically (or sooner if deleted). Only 1 active note per profile.
-        </div>
-
-        <div class="rename-actions note-dialog-actions">
+        <div class="note-dialog-actions-simple">
           ${currentNote ? `
-            <button type="button" class="btn-banner-clear btn-delete-note" id="btnDeleteNote" style="color:#ef4444; border-color:rgba(239,68,68,0.4);">
-              🗑️ Delete Note
-            </button>
-            <button type="button" class="btn-banner-clear" id="btnSendNoteToChat" title="Copy this thought as a message note into chat">
-              💬 Send to Chat
+            <button type="button" class="btn-delete-note-simple" id="btnDeleteNote" title="Delete current note">
+              🗑️ Delete
             </button>
           ` : ''}
+          <div style="flex:1;"></div>
           <button type="button" class="btn-banner-clear" id="btnCancelNote">Cancel</button>
-          <button type="button" class="btn-composer-send" id="btnSaveNote" style="padding:9px 20px;">
+          <button type="button" class="btn-composer-send" id="btnSaveNote" style="padding:8px 20px; font-weight:800;">
             ${currentNote ? 'Update Note 💭' : 'Share Note 💭'}
           </button>
-        </div>
-
-        <div class="note-modal-footer">
-          <button type="button" class="btn-link-action" id="btnChangeAvatarFromNote">📷 Change Profile Photo</button>
         </div>
       </div>
     `;
@@ -2669,25 +2671,25 @@
     document.body.appendChild(backdrop);
     const inp = $('#messengerNoteInput', backdrop);
     const charCount = $('#noteCharCount', backdrop);
-    const previewBubble = $('#noteLivePreviewBubble', backdrop);
-    const previewText = $('#notePreviewText', backdrop);
     inp.focus();
     inp.select();
 
     const updatePreview = () => {
-      const val = inp.value;
-      charCount.textContent = val.length;
-      if (val.trim()) {
-        previewText.textContent = val;
-        previewBubble.style.display = 'block';
-      } else {
-        previewBubble.style.display = 'none';
-      }
+      charCount.textContent = inp.value.length;
     };
 
     inp.oninput = updatePreview;
 
-    // Quick emoji insertion
+    // Task Preset Chips click: replaces input value
+    $$('.btn-task-chip', backdrop).forEach(btn => {
+      btn.onclick = () => {
+        inp.value = btn.dataset.status.slice(0, 60);
+        updatePreview();
+        inp.focus();
+      };
+    });
+
+    // Advanced task emoji chips click: appends emoji
     $$('.btn-emoji-chip', backdrop).forEach(btn => {
       btn.onclick = () => {
         const emoji = btn.dataset.emoji;
@@ -2700,6 +2702,7 @@
     });
 
     const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
 
     const saveNote = () => {
       const trimmed = inp.value.trim().slice(0, 60);
@@ -2744,49 +2747,9 @@
         close();
       };
     }
-
-    const sendToChatBtn = $('#btnSendNoteToChat', backdrop);
-    if (sendToChatBtn && currentNote) {
-      sendToChatBtn.onclick = () => {
-        profile.notes.push({
-          id: `note_${now()}_${Math.random().toString(36).substr(2, 4)}`,
-          text: `💭 24h Note: ${currentNote.text}`,
-          done: false,
-          createdAt: now(),
-          reactions: [],
-          subItems: []
-        });
-        saveState();
-        if (window.soundMgr) window.soundMgr.playClick();
-        renderSidebar();
-        renderMainChat();
-        showToast(`💬 Note posted to ${profile.name}'s task chat!`);
-        close();
-      };
-    }
-
-    const changePhotoBtn = $('#btnChangeAvatarFromNote', backdrop);
-    if (changePhotoBtn) {
-      changePhotoBtn.onclick = () => {
-        close();
-        state.uploadTargetId = profile.id;
-        const photoInp = $('#globalPhotoInput');
-        if (photoInp) photoInp.click();
-      };
-    }
-
-    inp.onkeydown = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        saveNote();
-      } else if (e.key === 'Escape') {
-        close();
-      }
-    };
-    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
   }
 
-  // Enhancement #2 Modal: Permanent Sticky Note Per Profile
+
   function promptStickyNote(profile) {
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
@@ -3965,12 +3928,112 @@ ${jsRes}
       setFilter($('#tabAll'), 'all');
     };
 
-    // Topbar App Suite and Next Ready Buttons
+    // Topbar App Suite, Next Ready, and Launch Desktop App Buttons
     const btnNextReady = $('#btnNextReady');
     if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
 
+    const btnLaunchDesktop = $('#btnTopbarLaunchApp');
+    if (btnLaunchDesktop) btnLaunchDesktop.onclick = () => launchDesktopApp();
+
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
+
+    // 4-Card Dock & App Distribution controls
+    const installBtn = $('#installAppBtn');
+    if (installBtn) {
+      installBtn.onclick = () => {
+        if (window.soundMgr) window.soundMgr.playClickSoft();
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt().then(choice => {
+            if (choice && choice.outcome === 'accepted') {
+              showToast('?? OrlandoChrome App installed successfully!');
+            }
+            deferredInstallPrompt = null;
+          }).catch(() => launchDesktopApp());
+        } else {
+          launchDesktopApp();
+        }
+      };
+    }
+
+    const openQrBtn = $('#openQrBtn');
+    if (openQrBtn) openQrBtn.onclick = () => openAppDistributionSuiteModal();
+
+    const shareAppBtn = $('#shareAppBtn');
+    if (shareAppBtn) {
+      shareAppBtn.onclick = () => {
+        const shareUrl = IS_BLANK_EDITION ? BLANK_APP_URL : LIVE_APP_URL;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            showToast('?? App link copied to clipboard!');
+          });
+        }
+      };
+    }
+
+    const exportBtn = $('#exportBackupBtn');
+    if (exportBtn) exportBtn.onclick = () => exportFullBackupJson();
+
+    const importBtn = $('#importBackupBtn');
+    const importFileInput = $('#importBackupFile');
+    if (importBtn && importFileInput) {
+      importBtn.onclick = () => importFileInput.click();
+      importFileInput.onchange = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          try {
+            const data = JSON.parse(re.target.result);
+            if (Array.isArray(data.profiles)) {
+              state.profiles = data.profiles;
+              saveState();
+              renderSidebar();
+              renderMainChat();
+              showToast(`? Restored ${data.profiles.length} profiles from backup!`);
+            } else {
+              showToast('?? Invalid backup JSON format.');
+            }
+          } catch (err) {
+            showToast('? Failed to parse backup JSON.');
+          }
+        };
+        reader.readAsText(file);
+      };
+    }
+
+    const distSection = $('#appDistSection');
+    const distMinBtn = $('#distMinimizeBtn');
+    const distMinIcon = $('#distMinIcon');
+    const distMinText = $('#distMinText');
+    const DIST_MIN_KEY = 'orlandochrome_dist_minimized_v1';
+    if (distSection && distMinBtn) {
+      const applyMinState = (isMin) => {
+        if (isMin) {
+          distSection.classList.add('minimized');
+          if (distMinIcon) distMinIcon.textContent = '?';
+          if (distMinText) distMinText.textContent = 'Expand';
+          distMinBtn.setAttribute('aria-expanded', 'false');
+        } else {
+          distSection.classList.remove('minimized');
+          if (distMinIcon) distMinIcon.textContent = '?';
+          if (distMinText) distMinText.textContent = 'Minimize';
+          distMinBtn.setAttribute('aria-expanded', 'true');
+        }
+      };
+
+      if (localStorage.getItem(DIST_MIN_KEY) === '1') {
+        applyMinState(true);
+      }
+
+      distMinBtn.onclick = () => {
+        const willMin = !distSection.classList.contains('minimized');
+        applyMinState(willMin);
+        try {
+          localStorage.setItem(DIST_MIN_KEY, willMin ? '1' : '0');
+        } catch (e) {}
+      };
+    }
 
     // Adjustable Width Resizer Line Between Profiles (Sidebar) and Messages (Chat Main)
     const resizer = $('#workspaceResizer');
