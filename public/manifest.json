@@ -1,7 +1,7 @@
 {
-  "name": "OrlandoChrome · Taskbar Command Center",
-  "short_name": "OrlandoChrome",
-  "description": "OLED Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite — by Sir Orlando V. Pasion, Jr.",
+  "name": "OrlandoChrome (Main Version)",
+  "short_name": "OrlandoChrome (Main Version)",
+  "description": "OrlandoChrome (Main Version) · OLED Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite — by Sir Orlando V. Pasion, Jr.",
   "id": "orlandochrome-master-pwa",
   "start_url": "https://orlandopasion000.github.io/orlandochrome/",
   "scope": "https://orlandopasion000.github.io/orlandochrome/",

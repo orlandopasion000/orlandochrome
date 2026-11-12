@@ -288,7 +288,7 @@
     const pending = totalPendingCount();
     const resets = state.profiles.filter(p => p.isReset).length;
     const totalAlerts = pending + resets;
-    const baseName = IS_BLANK_EDITION ? 'OrlandoChrome · Blank Edition' : 'OrlandoChrome';
+    const baseName = IS_BLANK_EDITION ? 'OrlandoChrome (Clean Edition)' : 'OrlandoChrome (Main Version)';
     document.title = totalAlerts > 0 ? `(${totalAlerts}) ${baseName}` : baseName;
   }
 
@@ -3365,7 +3365,7 @@ ${jsRes}
   // Direct Desktop App Launcher (Standalone window with no browser tabs / URL bar)
   function launchDesktopApp() {
     if (window.soundMgr) window.soundMgr.playClickSoft();
-    showToast('🚀 Launching OrlandoChrome Desktop App...');
+    showToast('🚀 Launching OrlandoChrome (Main Version)...');
     const appUrl = 'https://orlandopasion000.github.io/orlandochrome/';
     const winFeatures = 'popup=yes,menubar=no,toolbar=no,location=no,status=no,personalbar=no,directories=no,resizable=yes,scrollbars=yes,width=1380,height=880,left=100,top=60';
     const appWin = window.open(appUrl, '_blank', winFeatures);
