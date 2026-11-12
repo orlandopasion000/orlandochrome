@@ -68,6 +68,10 @@ class SoundManager {
       osc.stop(now + 0.06);
     } catch (e) {}
   }
+
+  playClickSoft() {
+    this.playClick();
+  }
 }
 
 window.soundMgr = new SoundManager();

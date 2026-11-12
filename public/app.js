@@ -3277,7 +3277,7 @@ ${jsRes}
 
   // High-Contrast Instant-Scan QR Theme Palette Definitions (All Dark-on-Light for 0.05s Camera Lock!)
   const QR_THEMES = {
-    instant:  { label: '⚡ Instant Scan',  fg: '000000', bg: 'ffffff', accent: '#ff2e38', glow: 'rgba(229, 9, 20, 0.55)', ratio: '21:1' },
+    cyan:     { label: '⚡ Cyber Cyan',   fg: '001524', bg: 'ffffff', accent: '#00f2fe', glow: 'rgba(0, 242, 254, 0.55)', ratio: '20.8:1' },
     crimson:  { label: '🔴 Crimson Core',  fg: '3b0003', bg: 'ffffff', accent: '#ff2e38', glow: 'rgba(229, 9, 20, 0.65)', ratio: '19.8:1' },
     emerald:  { label: '🟢 Emerald Core',  fg: '011a13', bg: 'ffffff', accent: '#10b981', glow: 'rgba(16, 185, 129, 0.55)', ratio: '19.5:1' },
     gold:     { label: '✨ Royal Gold',    fg: '140e02', bg: 'ffffff', accent: '#e5c97b', glow: 'rgba(226, 200, 125, 0.5)', ratio: '20.2:1' },
