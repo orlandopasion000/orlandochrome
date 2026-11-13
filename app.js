@@ -696,7 +696,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure87').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure88').catch(() => {});
     });
   }
 
@@ -2244,6 +2244,22 @@ const Icons = {
   }
 
   // Compact timer label for pills
+  
+  // Messenger-style relative time ago: e.g. "3m", "2h", "1d"
+  function formatMessengerTimeAgo(timestamp) {
+    if (!timestamp) return '';
+    const diff = Math.max(0, Date.now() - timestamp);
+    if (diff < 60000) return 'now';
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d`;
+    const weeks = Math.floor(days / 7);
+    return `${weeks}w`;
+  }
+
   function formatRemainingShort(ms) {
     if (ms <= 0) return '0m';
     const totalSec = Math.floor(ms / 1000);
@@ -2706,10 +2722,19 @@ const Icons = {
         const subCount = (firstNote.subItems || []).length;
         const displayMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot attached' : (subCount > 0 ? `☑ Checklist (${subCount} items)` : '🎙️ Voice note'));
         const reactBadges = getSidebarReactionBadgesHtml(pendingNotes);
-        snippetHtml = `${renderPinButton(p)}<span class="snippet-msg-text">${esc(displayMsg)}</span>${reactBadges}`;
+        const timeAgo = formatMessengerTimeAgo(firstNote.createdAt);
+        snippetHtml = `${renderPinButton(p)}<span class="snippet-msg-text">${esc(displayMsg)}</span>${timeAgo ? `<span class="snippet-msg-time">· ${timeAgo}</span>` : ''}${reactBadges}`;
         snippetClass = isPinned ? 'pinned-glow' : 'pending-glow';
+      } else if (allNotes.length > 0) {
+        // Messenger Standard: After reading/completing task, show latest note in transparent/dim style like Messenger
+        const lastNote = allNotes[allNotes.length - 1];
+        const mediaPrefix = lastNote.image ? '📸 ' : (lastNote.voiceClip ? '🎙️ ' : '');
+        const subCount = (lastNote.subItems || []).length;
+        const lastMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount} items)` : '🎙️ Voice note'));
+        const timeAgo = formatMessengerTimeAgo(lastNote.createdAt);
+        snippetHtml = `<span class="snippet-msg-text snippet-msg-read" title="Completed note">${esc(lastMsg)}</span>${timeAgo ? `<span class="snippet-msg-time snippet-msg-time-read">· ${timeAgo}</span>` : ''}`;
+        snippetClass = 'read-row';
       } else if (isReset) {
-        // Small Green & White Radiant Gradient for Limit Reset!
         snippetHtml = `${renderGreenWhiteOrb()}<span class="reset-msg-text">Limit Reset · Ready for work</span>`;
         snippetClass = 'reset-glow';
       } else if (isTimer) {
@@ -2718,17 +2743,6 @@ const Icons = {
       } else if (isUnread) {
         snippetHtml = '● Marked as Unread — Check window next';
         snippetClass = 'unread-glow';
-      } else if (statusNote) {
-        snippetHtml = `<span class="snippet-msg-text snippet-msg-note" title="24h Note: ${esc(statusNote.text)}">${Icons.note(11)} "${esc(statusNote.text)}" <span style="opacity:0.6; font-size:11px;">· ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span></span>`;
-        snippetClass = 'note-row';
-      } else if (allNotes.length > 0) {
-        // Messenger Standard: After reading/completing task, show latest note in transparent/dim style like email
-        const lastNote = allNotes[allNotes.length - 1];
-        const mediaPrefix = lastNote.image ? '📸 ' : (lastNote.voiceClip ? '🎙️ ' : '');
-        const subCount = (lastNote.subItems || []).length;
-        const lastMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount} items)` : '🎙️ Voice note'));
-        snippetHtml = `<span class="snippet-msg-text snippet-msg-read" title="Completed note">${esc(lastMsg)}</span>`;
-        snippetClass = 'read-row';
       } else {
         snippetHtml = `<span class="snippet-msg-text snippet-msg-idle">${esc(p.email || 'Ready · Tap to add notes')}</span>`;
         snippetClass = 'idle-row';

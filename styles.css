@@ -8568,3 +8568,24 @@ html, body,
   cursor: pointer !important;
   margin-left: 6px !important;
 }
+
+
+/* ==========================================================================
+   v88: Messenger-Style Message Snippet with Relative Timestamps
+   ========================================================================== */
+.snippet-msg-time {
+  font-size: 11px !important;
+  color: #64748b !important;
+  margin-left: 4px !important;
+  white-space: nowrap !important;
+  font-weight: 500 !important;
+}
+
+.snippet-msg-time-read {
+  color: #475569 !important;
+}
+
+.profile-snippet.read-row .snippet-msg-read {
+  color: #64748b !important;
+  opacity: 0.8 !important;
+}
