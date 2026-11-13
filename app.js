@@ -3254,7 +3254,7 @@ const Icons = {
 
     main.innerHTML = `
       <!-- Header with Back to Profiles (Mobile), Enlarged Profile Picture, Profile Stepper & Actions -->
-      <header class="chat-header" id="chatHeaderBar">
+      <header class="chat-header ${statusNote ? 'has-status-note' : ''}" id="chatHeaderBar">
         <button type="button" class="btn-mobile-back" id="btnMobileBackToList" title="Back to All Profiles">
           <span class="back-chevron">‹</span>
           <span class="back-text">Profiles</span>
