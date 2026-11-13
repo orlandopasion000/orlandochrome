@@ -9230,3 +9230,240 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
     padding-bottom: max(8px, env(safe-area-inset-bottom, 20px)) !important;
   }
 }
+
+/* ==========================================================================
+   ENTERPRISE DATA RECOVERY VAULT & INTEGRITY BACKUPS (v95)
+   ========================================================================== */
+.btn-topbar-vault {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #a7f3d0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  padding: 6px 11px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  white-space: nowrap;
+}
+.btn-topbar-vault:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.7);
+  box-shadow: 0 3px 12px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
+}
+.btn-topbar-vault .modern-icon {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 600px) {
+  .btn-topbar-vault .vault-btn-text {
+    display: none;
+  }
+  .btn-topbar-vault {
+    padding: 6px 8px;
+  }
+}
+
+/* Vault Dialog Styling */
+.vault-dialog {
+  max-width: 780px !important;
+  width: 95% !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 60%), #0d1117 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85), 0 0 24px rgba(16, 185, 129, 0.2) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+.vault-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.vault-header-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vault-header-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+.vault-header-subtitle {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.vault-dialog-body {
+  padding: 18px 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Metric Grid */
+.vault-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+.vault-metric-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+.vault-metric-label {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.vault-metric-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #10b981;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Recovery Action Box */
+.vault-recovery-box {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(229, 9, 20, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vault-recovery-box-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.vault-recovery-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fcd34d;
+}
+.vault-recovery-desc {
+  font-size: 11.5px;
+  color: #e2e8f0;
+  line-height: 1.45;
+  margin-top: 3px;
+}
+.btn-restore-historical {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  color: #000000;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s;
+}
+.btn-restore-historical:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.6);
+}
+
+/* Checkpoint Table */
+.vault-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.vault-snapshots-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  margin-top: 6px;
+}
+.vault-snapshots-table th {
+  text-align: left;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.vault-snapshots-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+}
+.vault-snapshots-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+.btn-table-restore {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #a7f3d0;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-table-restore:hover {
+  background: rgba(16, 185, 129, 0.3);
+  color: #ffffff;
+}
+
+.vault-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.btn-vault-action {
+  flex: 1;
+  min-width: 140px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn-vault-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+}
