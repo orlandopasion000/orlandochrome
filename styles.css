@@ -8589,3 +8589,88 @@ html, body,
   color: #64748b !important;
   opacity: 0.8 !important;
 }
+
+
+/* ==========================================================================
+   v89: Messenger-Inspired 100% Reliable Feature Suite
+   ========================================================================== */
+
+/* 1. Neon Green In-Focus Active Status Orb (100% Deterministic App Focus) */
+.avatar-active-dot {
+  position: absolute !important;
+  bottom: 0px !important;
+  right: 0px !important;
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 6 !important;
+  pointer-events: none !important;
+}
+
+.active-dot-core {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 9999px !important;
+  background: radial-gradient(circle at 30% 30%, #a7f3d0 0%, #10b981 60%, #059669 100%) !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 0 0 8px #10b981, 0 0 14px rgba(16, 185, 129, 0.7) !important;
+}
+
+.active-dot-ping {
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 9999px !important;
+  background: rgba(16, 185, 129, 0.5) !important;
+  animation: activePing 2s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+}
+
+@keyframes activePing {
+  0% { transform: scale(0.9); opacity: 0.85; }
+  75%, 100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* 2. Messenger-Style Blue Unread Filter Tab Dot */
+.tab-blue-messenger-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 9999px !important;
+  background: #0084ff !important;
+  box-shadow: 0 0 6px #0084ff, 0 0 10px rgba(0, 132, 255, 0.8) !important;
+  display: inline-block !important;
+  margin-right: 4px !important;
+  vertical-align: middle !important;
+}
+
+.tab-cyber-clock-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 3px !important;
+  vertical-align: middle !important;
+}
+
+/* 3. Inline Sidebar Priority Lead Badge */
+.snippet-priority-lead {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-right: 5px !important;
+  vertical-align: middle !important;
+}
+
+.snippet-priority-lead .sidebar-reaction-badges {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.snippet-priority-lead .sidebar-react-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1px !important;
+  transform: scale(0.9) !important;
+}

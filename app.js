@@ -696,7 +696,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure88').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure89').catch(() => {});
     });
   }
 
@@ -2663,7 +2663,8 @@ const Icons = {
       const pendingCount = countPending(p);
       const isTimer = (p.timerUntil && p.timerUntil > cur) || p.isReset;
 
-      if (filter === 'pending' && pendingCount === 0 && !p.isUnread) return false;
+      if (filter === 'unread' && !p.isUnread) return false;
+      if (filter === 'pending' && pendingCount === 0) return false;
       if (filter === 'timers' && !isTimer) return false;
 
       if (!query) return true;
@@ -2687,6 +2688,10 @@ const Icons = {
     $('#countAll').textContent = state.profiles.length;
     $('#countPending').textContent = totalPendingCount();
     $('#countTimers').textContent = totalTimersCount();
+    const countUnread = state.profiles.filter(p => p.isUnread).length;
+    const tabUnreadEl = $('#countUnread');
+    if (tabUnreadEl) tabUnreadEl.textContent = countUnread;
+
     updateDocumentTitle();
 
     if (!filtered.length) {
@@ -2720,17 +2725,21 @@ const Icons = {
         const firstNote = pendingNotes[0];
         const mediaPrefix = firstNote.image ? '📸 ' : (firstNote.voiceClip ? '🎙️ ' : '');
         const subCount = (firstNote.subItems || []).length;
-        const displayMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot attached' : (subCount > 0 ? `☑ Checklist (${subCount} items)` : '🎙️ Voice note'));
+        const baseMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot' : (subCount > 0 ? `☑ Checklist (${subCount})` : '🎙️ Voice note'));
+        const senderPrefix = firstNote.forwardedFrom ? `↪ ${firstNote.forwardedFrom}: ` : 'You: ';
+        const displayMsg = `${senderPrefix}${baseMsg}`;
         const reactBadges = getSidebarReactionBadgesHtml(pendingNotes);
         const timeAgo = formatMessengerTimeAgo(firstNote.createdAt);
-        snippetHtml = `${renderPinButton(p)}<span class="snippet-msg-text">${esc(displayMsg)}</span>${timeAgo ? `<span class="snippet-msg-time">· ${timeAgo}</span>` : ''}${reactBadges}`;
+        snippetHtml = `${renderPinButton(p)}${reactBadges ? `<span class="snippet-priority-lead">${reactBadges}</span>` : ''}<span class="snippet-msg-text">${esc(displayMsg)}</span>${timeAgo ? `<span class="snippet-msg-time">· ${timeAgo}</span>` : ''}`;
         snippetClass = isPinned ? 'pinned-glow' : 'pending-glow';
       } else if (allNotes.length > 0) {
-        // Messenger Standard: After reading/completing task, show latest note in transparent/dim style like Messenger
+        // Messenger Standard: After completing/reading task, show latest message in Messenger read style
         const lastNote = allNotes[allNotes.length - 1];
         const mediaPrefix = lastNote.image ? '📸 ' : (lastNote.voiceClip ? '🎙️ ' : '');
         const subCount = (lastNote.subItems || []).length;
-        const lastMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount} items)` : '🎙️ Voice note'));
+        const baseMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount})` : '🎙️ Voice note'));
+        const senderPrefix = lastNote.forwardedFrom ? `↪ ${lastNote.forwardedFrom}: ` : 'You: ';
+        const lastMsg = `${senderPrefix}${baseMsg}`;
         const timeAgo = formatMessengerTimeAgo(lastNote.createdAt);
         snippetHtml = `<span class="snippet-msg-text snippet-msg-read" title="Completed note">${esc(lastMsg)}</span>${timeAgo ? `<span class="snippet-msg-time snippet-msg-time-read">· ${timeAgo}</span>` : ''}`;
         snippetClass = 'read-row';
@@ -2744,7 +2753,8 @@ const Icons = {
         snippetHtml = '● Marked as Unread — Check window next';
         snippetClass = 'unread-glow';
       } else {
-        snippetHtml = `<span class="snippet-msg-text snippet-msg-idle">${esc(p.email || 'Ready · Tap to add notes')}</span>`;
+        const lastActiveTime = p.lastActiveAt ? `Active ${formatMessengerTimeAgo(p.lastActiveAt)} ago` : (p.email || 'Ready · Tap to add notes');
+        snippetHtml = `<span class="snippet-msg-text snippet-msg-idle">${esc(lastActiveTime)}</span>`;
         snippetClass = 'idle-row';
       }
 
@@ -2768,6 +2778,12 @@ const Icons = {
             `}
             <img src="${avatarSrc}" class="profile-avatar-img" alt="${esc(p.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'><rect width=\\'100\\' height=\\'100\\' fill=\\'%23111\\'/><text x=\\'50\\' y=\\'65\\' font-size=\\'40\\' text-anchor=\\'middle\\' fill=\\'%23fff\\'>${esc(p.name ? p.name[0] : 'C')}</text></svg>'">
             <span class="profile-slot-badge">${esc(slotTag)}</span>
+            ${isActive ? `
+              <span class="avatar-active-dot" title="Active In-Focus Profile">
+                <span class="active-dot-ping"></span>
+                <span class="active-dot-core"></span>
+              </span>
+            ` : ''}
             ${isUnread ? `<span class="avatar-unread-dot" title="Unread Bookmark"></span>` : ''}
           </div>
 
@@ -3740,7 +3756,7 @@ const Icons = {
           }
           return;
         } else if (act === 'toggle-done') {
-          note.done = !note.done;
+          note.done = !note.done; p.lastActiveAt = Date.now();
           triggerHaptic('success');
           if (note.done && window.soundMgr) window.soundMgr.playReadyChime();
           if (countPending(p) === 0) {
@@ -6013,6 +6029,7 @@ ${jsRes}
     };
 
     $('#tabAll').onclick = () => setFilter($('#tabAll'), 'all');
+    const tabUnreadBtn = $('#tabUnread'); if (tabUnreadBtn) tabUnreadBtn.onclick = () => setFilter(tabUnreadBtn, 'unread');
     $('#tabPending').onclick = () => setFilter($('#tabPending'), 'pending');
     $('#tabTimers').onclick = () => setFilter($('#tabTimers'), 'timers');
 
