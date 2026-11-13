@@ -1182,6 +1182,7 @@ body.is-resizing-pane * {
   min-height: 4.5rem;
   height: auto;
   padding: 0.6rem clamp(0.85rem, 2vw, 1.5rem);
+  padding-top: 36px !important;
   background: #000000;
   border-bottom: 1px solid var(--nf-border);
   display: flex;
@@ -5059,6 +5060,7 @@ body.is-resizing-pane * {
   cursor: pointer;
   flex-shrink: 0;
   border-radius: 50%;
+  margin-top: 14px !important;
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -7550,7 +7552,8 @@ button:hover .modern-icon,
 .chat-header-note-bubble,
 #headerNoteBubble {
   position: absolute !important;
-  top: -16px !important;
+  bottom: calc(100% + 8px) !important;
+  top: auto !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   background: rgba(10, 11, 16, 0.78) !important;
@@ -8710,4 +8713,39 @@ html, body,
   justify-content: center !important;
   padding: 1px !important;
   transform: scale(0.9) !important;
+}
+
+/* iPhone Typing Mode: Hide Floating Note Bubble so Top Part is 100% Clear & Legible */
+body.mobile-typing-mode .chat-header-note-bubble,
+body.mobile-typing-mode #headerNoteBubble,
+body.mobile-typing-mode .header-note-bubble {
+  display: none !important;
+}
+body.mobile-typing-mode .chat-header-avatar-wrap {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .chat-header {
+    padding-top: max(38px, env(safe-area-inset-top, 38px)) !important;
+  }
+  .chat-header-note-bubble,
+  #headerNoteBubble,
+  .header-note-bubble {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    max-width: min(320px, calc(100vw - 32px)) !important;
+    bottom: calc(100% + 8px) !important;
+    top: auto !important;
+  }
+  .chat-header-note-bubble::after,
+  #headerNoteBubble::after {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  .chat-header-note-bubble::before,
+  #headerNoteBubble::before {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
 }
