@@ -696,7 +696,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure91').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure92').catch(() => {});
     });
   }
 
@@ -2927,20 +2927,54 @@ const Icons = {
 
       item.onclick = handleSelect;
 
-      // Fast iOS touch-release detection (bypasses 300ms delay & iOS hover double-tap)
+            // Fast iOS touch-release detection + Long-Press Peek Overview
       let tStartX = 0;
       let tStartY = 0;
       let tStartTime = 0;
+      let longPressTimer = null;
+      let didLongPress = false;
+
+      const clearLPTimer = () => {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+      };
 
       item.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           tStartX = e.touches[0].clientX;
           tStartY = e.touches[0].clientY;
           tStartTime = Date.now();
+          didLongPress = false;
+          clearLPTimer();
+          const prof = getProfile(item.dataset.id);
+          if (prof) {
+            longPressTimer = setTimeout(() => {
+              didLongPress = true;
+              clearLPTimer();
+              showProfilePeekOverview(prof);
+            }, 450);
+          }
+        }
+      }, { passive: true });
+
+      item.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && tStartX > 0) {
+          const dx = Math.abs(e.touches[0].clientX - tStartX);
+          const dy = Math.abs(e.touches[0].clientY - tStartY);
+          if (dx > 10 || dy > 10) {
+            clearLPTimer();
+          }
         }
       }, { passive: true });
 
       item.addEventListener('touchend', (e) => {
+        clearLPTimer();
+        if (didLongPress) {
+          didLongPress = false;
+          return;
+        }
         // Guard: never switch views if a note modal is open (avatar was tapped)
         if (document.body.dataset.noteModalOpen === '1') return;
         if (e.changedTouches.length === 1 && tStartX > 0) {
@@ -2957,16 +2991,14 @@ const Icons = {
           }
         }
       }, { passive: true });
+
+      item.addEventListener('touchcancel', clearLPTimer, { passive: true });
+
       item.oncontextmenu = (e) => {
         const prof = getProfile(item.dataset.id);
-        if (!prof || !hasMessages(prof)) return;
+        if (!prof) return;
         e.preventDefault();
-        prof.isUnread = !prof.isUnread;
-        saveState();
-        if (window.soundMgr) window.soundMgr.playClick();
-        renderSidebar();
-        renderMainChat();
-        showToast(prof.isUnread ? `● Marked ${prof.name} as Unread` : `Cleared Unread mark on ${prof.name}`);
+        showProfilePeekOverview(prof);
       };
     });
   }
@@ -2987,6 +3019,177 @@ const Icons = {
       return days[noteDate.getDay()];
     }
     return noteDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: noteDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+  }
+
+  
+  // iOS Haptic Touch / Long-Press Conversation Overview (Peek & Pop)
+  function showProfilePeekOverview(prof) {
+    if (!prof) return;
+    const existing = $('#iosPeekBackdrop');
+    if (existing) existing.remove();
+
+    if (navigator.vibrate) {
+      try { navigator.vibrate([40, 30, 40]); } catch(e) {}
+    }
+    if (window.soundMgr) {
+      if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+      else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+    }
+
+    const avatarSrc = getAvatarSrc(prof);
+    const statusNote = getActiveStatusNote(prof);
+    const cur = now();
+    const isTimer = prof.timerUntil && prof.timerUntil > cur;
+    const rem = isTimer ? formatRemaining(prof.timerUntil - cur) : '';
+    const isActive = (state.activeProfileId === prof.id);
+    const notes = prof.notes || [];
+    const lastNote = notes.length ? notes[notes.length - 1] : null;
+    const hasPending = notes.some(n => !n.done && (n.urgent || n.important || (n.reactions && n.reactions.length)));
+
+    let lastMsgText = '';
+    let lastMsgTime = '';
+    if (lastNote) {
+      lastMsgText = (lastNote.forwardedFrom ? '↪ Forwarded: ' : '') + (lastNote.text || (lastNote.image ? '📷 Attached image' : 'Voice note'));
+      const noteDiff = Math.max(0, cur - (lastNote.createdAt || cur));
+      lastMsgTime = formatMessengerTimeAgo(lastNote.createdAt);
+    }
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'ios-peek-backdrop';
+    backdrop.id = 'iosPeekBackdrop';
+
+    backdrop.innerHTML = `
+      <div class="ios-peek-container" id="iosPeekContainer" role="dialog" aria-modal="true" aria-label="Conversation Overview">
+        <div class="ios-peek-card">
+          <div class="ios-peek-header">
+            <div class="ios-peek-avatar-wrap">
+              <img src="${avatarSrc}" class="ios-peek-avatar" alt="${esc(prof.name)}">
+              ${isActive ? `<span class="avatar-active-dot" title="Active Now"></span>` : ''}
+              ${prof.slotNum ? `<span class="avatar-slot-badge">W+${prof.slotNum}</span>` : ''}
+            </div>
+            <div class="ios-peek-info">
+              <div class="ios-peek-name-row">
+                <h3 class="ios-peek-name">${esc(prof.name)}</h3>
+                ${prof.isUnread ? `<span class="unread-pill-tag">● Unread</span>` : ''}
+              </div>
+              <div class="ios-peek-sub">${esc(prof.email || 'Chrome Profile')}</div>
+              ${statusNote ? `
+                <div class="ios-peek-note-quote" title="24h Note">
+                  <span class="note-quote-icon">💭</span>
+                  <span class="note-quote-text">&ldquo;${esc(statusNote.text)}&rdquo;</span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="ios-peek-body">
+            <div class="ios-peek-body-label">Conversation Preview:</div>
+            <div class="ios-peek-snippet-box">
+              ${lastMsgText ? `
+                <div class="ios-peek-snippet-text">${linkifyText(lastMsgText)}</div>
+                <div class="ios-peek-snippet-meta">
+                  <span>${lastMsgTime ? `· ${lastMsgTime}` : ''}</span>
+                  ${hasPending ? `<span class="ios-peek-pending-tag">🔥 Pending Task</span>` : ''}
+                </div>
+              ` : `
+                <div class="ios-peek-empty-snippet">💬 No messages yet in this conversation</div>
+              `}
+            </div>
+            ${isTimer ? `
+              <div class="ios-peek-timer-tag">
+                ⏱️ Cooldown Active: <strong>${rem} remaining</strong>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="ios-peek-actions">
+          <button type="button" class="ios-peek-btn ${prof.isUnread ? 'action-read' : 'action-unread'}" id="btnPeekToggleUnread">
+            <span class="peek-btn-icon">${prof.isUnread ? '✓' : '●'}</span>
+            <span class="peek-btn-label">${prof.isUnread ? 'Mark as Read' : 'Mark as Unread'}</span>
+          </button>
+
+          <button type="button" class="ios-peek-btn" id="btnPeekOpenChat">
+            <span class="peek-btn-icon">💬</span>
+            <span class="peek-btn-label">Open Conversation</span>
+          </button>
+
+          <button type="button" class="ios-peek-btn" id="btnPeekShareNote">
+            <span class="peek-btn-icon">💭</span>
+            <span class="peek-btn-label">Share a Note...</span>
+          </button>
+
+          <button type="button" class="ios-peek-btn" id="btnPeekCooldown">
+            <span class="peek-btn-icon">⏱️</span>
+            <span class="peek-btn-label">Start 45m Cooldown</span>
+          </button>
+
+          <button type="button" class="ios-peek-btn action-cancel" id="btnPeekCancel">
+            <span class="peek-btn-label">Cancel</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    const closePeek = () => {
+      backdrop.classList.add('closing');
+      setTimeout(() => backdrop.remove(), 160);
+    };
+
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) closePeek();
+    };
+
+    const btnUnread = $('#btnPeekToggleUnread', backdrop);
+    if (btnUnread) {
+      btnUnread.onclick = (e) => {
+        e.stopPropagation();
+        prof.isUnread = !prof.isUnread;
+        saveState();
+        if (window.soundMgr) window.soundMgr.playClick();
+        renderSidebar();
+        renderMainChat();
+        showToast(prof.isUnread ? `● Marked ${prof.name} as Unread` : `✓ Marked ${prof.name} as Read`);
+        closePeek();
+      };
+    }
+
+    const btnOpen = $('#btnPeekOpenChat', backdrop);
+    if (btnOpen) {
+      btnOpen.onclick = (e) => {
+        e.stopPropagation();
+        closePeek();
+        openMobileChatWithSlide(prof.id);
+      };
+    }
+
+    const btnNote = $('#btnPeekShareNote', backdrop);
+    if (btnNote) {
+      btnNote.onclick = (e) => {
+        e.stopPropagation();
+        closePeek();
+        promptMessengerNote(prof);
+      };
+    }
+
+    const btnCool = $('#btnPeekCooldown', backdrop);
+    if (btnCool) {
+      btnCool.onclick = (e) => {
+        e.stopPropagation();
+        closePeek();
+        startCooldown(prof, 45, '45m');
+      };
+    }
+
+    const btnCancel = $('#btnPeekCancel', backdrop);
+    if (btnCancel) {
+      btnCancel.onclick = (e) => {
+        e.stopPropagation();
+        closePeek();
+      };
+    }
   }
 
   function renderMainChat() {
@@ -6971,6 +7174,7 @@ ${jsRes}
     initLiveBridge();
     broadcastLiveBridgeStatus();
 
+    window.__ocShowProfilePeekOverview = showProfilePeekOverview;
     window.__ocState = state;
     window.__ocSaveState = saveState;
     window.__ocRenderMainChat = renderMainChat;
