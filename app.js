@@ -2393,7 +2393,7 @@
     }).join('');
 
     // Attach profile avatar & note bubble click to open Messenger Note (Works on Laptop & iPhone)
-    $('.profile-avatar-wrap', list).forEach(wrap => {
+    $$('.profile-avatar-wrap', list).forEach(wrap => {
       wrap.onclick = (e) => {
         e.stopPropagation();
         const pid = wrap.dataset.pid;
