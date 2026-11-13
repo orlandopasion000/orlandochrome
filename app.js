@@ -1102,23 +1102,27 @@
   // Check if profiles array has any active pending/completed notes, timers, pins, or sticky notes
   function hasAnyUserActivity(profList) {
     if (!Array.isArray(profList)) return false;
+    const curTime = now();
     return profList.some(p =>
       (Array.isArray(p.notes) && p.notes.length > 0) ||
       Boolean(p.timerUntil) ||
       Boolean(p.isReset) ||
       Boolean(p.isPinned) ||
       Boolean(p.isUnread) ||
-      Boolean(p.stickyNote && p.stickyNote.trim())
+      Boolean(p.stickyNote && p.stickyNote.trim()) ||
+      Boolean(p.statusNote && p.statusNote.text && (!p.statusNote.expiresAt || p.statusNote.expiresAt > curTime))
     );
   }
 
   // Build Compact Cross-Device Sync Packet (for Cloud Sync & QR URL)
   function createSyncPacket(forQrCode = false) {
     const activeProfs = [];
+    const curTime = now();
     for (const p of state.profiles) {
       const hasNotes = Array.isArray(p.notes) && p.notes.length > 0;
       const hasTimer = Boolean(p.timerUntil) || Boolean(p.isReset);
-      const hasMeta = Boolean(p.isPinned) || Boolean(p.isUnread) || Boolean(p.stickyNote);
+      const curSn = getActiveStatusNote(p);
+      const hasMeta = Boolean(p.isPinned) || Boolean(p.isUnread) || Boolean(p.stickyNote) || Boolean(curSn);
       const def = !IS_BLANK_EDITION ? DEFAULT_PROFILES.find(d => d.id === p.id) : null;
       const hasCustomName = def ? (p.name !== def.name) : true;
 
@@ -1136,6 +1140,13 @@
         }
         if (p.isUnread) entry.un = 1;
         if (p.stickyNote) entry.st = p.stickyNote;
+        if (curSn && curSn.text) {
+          entry.sn = {
+            t: curSn.text,
+            c: curSn.createdAt || curTime,
+            x: curSn.expiresAt || (curTime + 86400000)
+          };
+        }
         if (hasNotes) {
           entry.nt = p.notes.map(n => {
             const item = {
@@ -1224,6 +1235,11 @@
             voiceClip: oldNote.voiceClip || null
           };
         });
+        const restoredStatusNote = (item && item.sn && item.sn.t && (!item.sn.x || item.sn.x > now())) ? {
+          text: item.sn.t,
+          createdAt: item.sn.c || now(),
+          expiresAt: item.sn.x || (now() + 86400000)
+        } : (existing.statusNote && (!existing.statusNote.expiresAt || existing.statusNote.expiresAt > now()) ? existing.statusNote : null);
         return {
           id: existing.id || `b_slot_${slot}`,
           profileDir: existing.profileDir || `Profile ${slot}`,
@@ -1240,6 +1256,7 @@
           pinnedAt: item.pa || null,
           isUnread: Boolean(item.un && restoredNotes.length > 0),
           stickyNote: item.st || '',
+          statusNote: restoredStatusNote,
           customAvatar: existing.customAvatar || null,
           notes: restoredNotes
         };
@@ -1259,6 +1276,7 @@
             pinnedAt: null,
             isUnread: false,
             stickyNote: '',
+            statusNote: null,
             notes: []
           };
         }
@@ -1277,6 +1295,11 @@
             voiceClip: oldNote.voiceClip || null
           };
         });
+        const restoredStatusNote = (item.sn && item.sn.t && (!item.sn.x || item.sn.x > now())) ? {
+          text: item.sn.t,
+          createdAt: item.sn.c || now(),
+          expiresAt: item.sn.x || (now() + 86400000)
+        } : (existing.statusNote && (!existing.statusNote.expiresAt || existing.statusNote.expiresAt > now()) ? existing.statusNote : null);
         return {
           ...def,
           name: item.nm || def.name,
@@ -1287,6 +1310,7 @@
           pinnedAt: item.pa || null,
           isUnread: Boolean(item.un && restoredNotes.length > 0),
           stickyNote: item.st || '',
+          statusNote: restoredStatusNote,
           customAvatar: existing.customAvatar || null,
           notes: restoredNotes
         };
@@ -2368,15 +2392,9 @@
       `;
     }).join('');
 
-    // Attach profile avatar & note bubble click to open Messenger Note
-    $$('.profile-avatar-wrap', list).forEach(wrap => {
+    // Attach profile avatar & note bubble click to open Messenger Note (Works on Laptop & iPhone)
+    $('.profile-avatar-wrap', list).forEach(wrap => {
       wrap.onclick = (e) => {
-        if (window.innerWidth <= 768) {
-          // On mobile: 1 tap anywhere opens that profile's chat view!
-          const pid = wrap.dataset.pid;
-          openMobileChatWithSlide(pid);
-          return;
-        }
         e.stopPropagation();
         const pid = wrap.dataset.pid;
         const prof = getProfile(pid);
@@ -2452,7 +2470,7 @@
           item.dataset.justSwiped = '0';
           return;
         }
-        if (e && e.target && e.target.closest('.unread-toggle-btn')) return;
+        if (e && e.target && (e.target.closest('.unread-toggle-btn') || e.target.closest('.profile-avatar-wrap') || e.target.closest('.badge-pending-count') || e.target.closest('.pin-btn'))) return;
         openMobileChatWithSlide(item.dataset.id);
       };
 
@@ -2480,7 +2498,7 @@
           tStartY = 0;
           if (dx < 12 && dy < 12 && dt < 450) {
             if (window.innerWidth <= 768) {
-              if (e.target && e.target.closest('.unread-toggle-btn')) return;
+              if (e.target && (e.target.closest('.unread-toggle-btn') || e.target.closest('.profile-avatar-wrap') || e.target.closest('.badge-pending-count') || e.target.closest('.pin-btn'))) return;
               openMobileChatWithSlide(item.dataset.id);
             }
           }
@@ -2541,8 +2559,17 @@
         </button>
 
         <div class="chat-header-profile">
-          <div class="chat-header-avatar-wrap" id="headerAvatarWrap" role="button" tabindex="0" title="Click to change profile picture manually (Upload photo)">
+          <div class="chat-header-avatar-wrap" id="headerAvatarWrap" role="button" tabindex="0" title="${statusNote ? `💭 Active 24h Note: &quot;${esc(statusNote.text)}&quot; · Click to view or edit` : 'Click to share a 24h Note or upload photo'}">
             <img src="${avatarSrc}" class="chat-header-avatar" id="headerAvatarImg" alt="Profile Picture">
+            ${statusNote ? `
+              <div class="chat-header-note-bubble" id="headerNoteBubble" title="24h Note: ${esc(statusNote.text)} · Tap to edit or clear">
+                <span>${esc(statusNote.text)}</span>
+              </div>
+            ` : `
+              <div class="chat-header-note-prompt" id="headerNotePrompt" title="Tap to share a 24h Note">
+                <span>💭+</span>
+              </div>
+            `}
             ${isUnread ? `<span class="header-avatar-unread-dot" title="Unread Dot"></span>` : ''}
             <div class="header-avatar-upload-badge" title="Click to upload new profile photo">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -2563,6 +2590,9 @@
         </div>
 
         <div class="chat-header-actions">
+          <button type="button" class="btn-header-action ${statusNote ? 'status-note-active' : ''}" id="btnShareNoteHeader" title="${statusNote ? `💭 Active 24h Note: &quot;${esc(statusNote.text)}&quot; (${formatRemainingNoteTime(statusNote.expiresAt - cur)}) · Click to edit or clear` : 'Share a 24-hour Messenger Thought Note for this profile'}">
+            <span class="note-header-icon">💭</span> <span>${statusNote ? '24h Note' : 'Share Note'}</span>
+          </button>
           <button type="button" class="btn-header-action btn-header-undo ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnUndoNote" title="Undo last message action (Ctrl+Z)" ${historyMgr.canUndo() ? '' : 'disabled'}>
             ${Icons.undo(13)} <span>Undo</span>
           </button>
@@ -2603,6 +2633,26 @@
             <button type="button" class="btn-scanner-action primary" id="btnSelectLocalState" title="Select %LOCALAPPDATA%\Google\Chrome\User Data\Local State to import all Chrome profiles">
               📂 Load Chrome "Local State" (Zero Warnings)
             </button>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- 24-Hour Thought Note Banner (Always Visible on iPhone & Laptop) -->
+      ${statusNote ? `
+        <div class="profile-status-note-banner" id="profileStatusNoteBanner">
+          <div class="status-note-banner-left">
+            <span class="status-note-thought-tag" title="Messenger 24-Hour Thought Note">
+              <span class="thought-emoji">💭</span>
+              <span>24H NOTE</span>
+            </span>
+            <span class="status-note-banner-text" title="${esc(statusNote.text)}">"${linkifyText(statusNote.text)}"</span>
+            <span class="status-note-remaining">⏳ ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span>
+          </div>
+          <div class="status-note-banner-actions">
+            <button type="button" class="btn-status-mini" id="btnEditStatusNoteInline" title="Edit 24h note">
+              ${Icons.edit(12)} <span>Edit</span>
+            </button>
+            <button type="button" class="btn-status-mini btn-status-clear" id="btnClearStatusNoteInline" title="Clear 24h note">✕</button>
           </div>
         </div>
       ` : ''}
@@ -2934,6 +2984,7 @@
     const headerAvatarWrap = $('#headerAvatarWrap');
     if (headerAvatarWrap) {
       headerAvatarWrap.onclick = (e) => {
+        if (e && e.target && (e.target.closest('#headerNoteBubble') || e.target.closest('#headerNotePrompt'))) return;
         e.stopPropagation();
         if (window.soundMgr) {
           if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
@@ -2953,9 +3004,38 @@
         }
       };
     }
+    const btnShareNote = $('#btnShareNoteHeader');
+    if (btnShareNote) btnShareNote.onclick = () => promptMessengerNote(p);
     const btnMessengerNote = $('#btnMessengerNote');
-    if (btnMessengerNote) {
-      btnMessengerNote.onclick = () => promptMessengerNote(p);
+    if (btnMessengerNote) btnMessengerNote.onclick = () => promptMessengerNote(p);
+
+    const headerNoteBubble = $('#headerNoteBubble');
+    if (headerNoteBubble) headerNoteBubble.onclick = (e) => { e.stopPropagation(); promptMessengerNote(p); };
+
+    const headerNotePrompt = $('#headerNotePrompt');
+    if (headerNotePrompt) headerNotePrompt.onclick = (e) => { e.stopPropagation(); promptMessengerNote(p); };
+
+    const btnEditStatusNote = $('#btnEditStatusNoteInline');
+    if (btnEditStatusNote) btnEditStatusNote.onclick = () => promptMessengerNote(p);
+
+    const btnClearStatusNote = $('#btnClearStatusNoteInline');
+    if (btnClearStatusNote) {
+      btnClearStatusNote.onclick = () => {
+        const oldStatus = p.statusNote ? JSON.parse(JSON.stringify(p.statusNote)) : null;
+        if (oldStatus) {
+          historyMgr.record({
+            type: 'STATUS_NOTE',
+            profileId: p.id,
+            oldNote: oldStatus,
+            newNote: null
+          });
+        }
+        p.statusNote = null;
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        showToast(`🗑️ Cleared 24h note on ${p.name}`);
+      };
     }
 
     // 1b. Toggle Unread from header
