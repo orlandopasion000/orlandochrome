@@ -6854,40 +6854,65 @@ button:hover .modern-icon,
   position: fixed;
   inset: 0;
   z-index: 9990;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .pending-tasks-popover {
   position: fixed;
   z-index: 9995;
-  width: 320px;
-  max-width: calc(100vw - 32px);
-  background: radial-gradient(130% 90% at 50% 0%, rgba(229, 9, 20, 0.25) 0%, #000000 70%) !important;
-  border: 1.5px solid rgba(255, 77, 88, 0.55) !important;
+  width: 330px;
+  max-width: calc(100vw - 24px);
+  background: rgba(14, 14, 20, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
   border-radius: 16px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 9, 20, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-  padding: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.92), 0 0 24px rgba(239, 68, 68, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  padding: 14px 16px !important;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   user-select: none;
   animation: popoverDropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box !important;
 }
 
 @keyframes popoverDropIn {
   from {
-    transform: scale(0.92) translateY(-6px);
+    transform: scale(0.94) translateY(-6px);
+    opacity: 0;
   }
   to {
     transform: scale(1) translateY(0);
+    opacity: 1;
   }
 }
+
+@keyframes popoverSheetUp {
+  from {
+    transform: translateY(100%);
+  }
   to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .pending-tasks-popover {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    max-height: 82vh !important;
+    padding: 12px 16px 28px 16px !important;
+    animation: popoverSheetUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 }
 
@@ -6895,7 +6920,7 @@ button:hover .modern-icon,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 77, 88, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 8px;
 }
 
@@ -6936,10 +6961,10 @@ button:hover .modern-icon,
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #0c0c10;
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #cbd5e1;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -6957,117 +6982,134 @@ button:hover .modern-icon,
 .popover-tasks-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 260px;
+  gap: 6px;
+  max-height: 240px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 77, 88, 0.3) transparent;
 }
 
 .popover-task-item {
-  background: #08080c;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  background: rgba(22, 22, 30, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
 }
 
 .popover-task-item:hover {
-  border-color: rgba(255, 77, 88, 0.4);
-  background: #0f0a0e;
+  background: rgba(30, 30, 42, 0.85) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  transform: translateX(2px) !important;
+}
+
+.popover-task-item.task-completing {
+  transform: translateX(24px) scale(0.96) !important;
+  opacity: 0 !important;
+  background: rgba(16, 185, 129, 0.22) !important;
+  border-color: rgba(52, 211, 153, 0.5) !important;
+}
+
+.btn-popover-checkbox {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: transparent !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  transition: all 0.15s ease !important;
+  padding: 0 !important;
+}
+
+.btn-popover-checkbox:hover {
+  background: rgba(16, 185, 129, 0.25) !important;
+  border-color: #34d399 !important;
+  color: #34d399 !important;
+  transform: scale(1.08) !important;
+}
+
+.popover-task-body {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
 }
 
 .popover-task-text {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1.35;
-  word-break: break-word;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  color: #f1f5f9 !important;
+  line-height: 1.35 !important;
+  word-break: break-word !important;
 }
 
-.popover-task-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+.popover-task-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
 }
 
 .popover-task-time {
-  font-size: 10.5px;
-  color: #71717a;
+  font-size: 0.64rem !important;
+  color: #94a3b8 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
 }
 
-.popover-task-btns {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.popover-task-time svg {
+  color: #38bdf8 !important;
 }
 
-.btn-popover-done {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.45) 100%);
-  border: 1px solid rgba(52, 211, 153, 0.65);
-  color: #a7f3d0;
-  font-size: 11.5px;
-  font-weight: 850;
-  padding: 4px 10px;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.popover-jump-hint {
+  font-size: 0.62rem !important;
+  font-weight: 600 !important;
+  color: #ef4444 !important;
+  opacity: 0.75 !important;
+  transition: opacity 0.15s ease !important;
 }
 
-.btn-popover-done:hover {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-color: #ffffff;
-  color: #ffffff;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
-  transform: translateY(-1px);
-}
-
-.btn-popover-view {
-  background: #141418;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-popover-view:hover {
-  border-color: #ff3344;
-  color: #ffffff;
-  background: rgba(229, 9, 20, 0.2);
+.popover-task-item:hover .popover-jump-hint {
+  opacity: 1 !important;
+  text-decoration: underline !important;
 }
 
 .btn-popover-all-done {
-  width: 100%;
-  background: linear-gradient(135deg, #e50914 0%, #b20710 60%, #800005 100%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 850;
-  padding: 8px 12px;
-  border-radius: 9px;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.35) 100%) !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  color: #fecaca !important;
+  font-weight: 700 !important;
+  font-size: 0.72rem !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin-top: 4px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.15s ease !important;
 }
 
 .btn-popover-all-done:hover {
-  background: linear-gradient(135deg, #ff1a26 0%, #c80812 60%, #940007 100%);
-  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.75);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.35) 0%, rgba(185, 28, 28, 0.5) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important;
 }
 
 /* Pulsing highlight for Jump to Note */

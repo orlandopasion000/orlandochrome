@@ -558,7 +558,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure82').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure83').catch(() => {});
     });
   }
 
@@ -4224,7 +4224,7 @@ const Icons = {
     }
   }
 
-  // Mini Pending Tasks Popover: Quick-View & 1-Click Checkoff right from sidebar
+  // Mini Pending Tasks Popover: Futuristic Frosted HUD, 1-Tap Checkbox & Collision Detection
   function showPendingTasksPopover(profile, anchorElement) {
     const existing = $('#pendingTasksPopoverBackdrop');
     if (existing) existing.remove();
@@ -4255,21 +4255,25 @@ const Icons = {
       if (e.target === backdrop) close();
     };
 
+    const isMobile = window.innerWidth <= 768;
+
     const renderContent = () => {
       const pendingNotes = (profile.notes || []).filter(n => !n.done);
       if (pendingNotes.length === 0) {
         popoverEl.innerHTML = `
-          <div style="text-align:center; padding:18px 8px;">
-            <div style="font-size:26px; margin-bottom:6px;">🎉</div>
-            <div style="font-size:13px; font-weight:850; color:#34d399;">All Tasks Completed!</div>
-            <div style="font-size:11px; color:#888; margin-top:4px;">No pending items on ${esc(profile.name)}</div>
+          ${isMobile ? '<div class="ios-sheet-grabber" title="Swipe down to close"></div>' : ''}
+          <div style="text-align:center; padding:20px 10px;">
+            <div style="font-size:28px; margin-bottom:8px;">✓</div>
+            <div style="font-size:14px; font-weight:800; color:#34d399; letter-spacing:0.3px;">All Tasks Completed!</div>
+            <div style="font-size:11.5px; color:#94a3b8; margin-top:4px;">No pending items on ${esc(profile.name)}</div>
           </div>
         `;
-        setTimeout(() => close(), 800);
+        setTimeout(() => close(), 750);
         return;
       }
 
       popoverEl.innerHTML = `
+        ${isMobile ? '<div class="ios-sheet-grabber" title="Swipe down to close"></div>' : ''}
         <div class="popover-header">
           <div class="popover-title-wrap">
             <span class="popover-badge-pill">${pendingNotes.length}</span>
@@ -4284,16 +4288,14 @@ const Icons = {
         <div class="popover-tasks-list">
           ${pendingNotes.map(n => `
             <div class="popover-task-item" data-task-id="${n.id}">
-              <div class="popover-task-text">${esc(n.text)}</div>
-              <div class="popover-task-actions">
-                <span class="popover-task-time">${formatNoteDateTime(n.createdAt)}</span>
-                <div class="popover-task-btns">
-                  <button type="button" class="btn-popover-done" data-act="done" data-id="${n.id}" title="Mark task as Done">
-                    ✓ Done
-                  </button>
-                  <button type="button" class="btn-popover-view" data-act="view" data-id="${n.id}" title="Jump to note in chat">
-                    👁️ View
-                  </button>
+              <button type="button" class="btn-popover-checkbox" data-act="done" data-id="${n.id}" title="1-Tap Mark Done">
+                <span class="checkbox-box">${Icons.check(11)}</span>
+              </button>
+              <div class="popover-task-body" data-act="view" data-id="${n.id}" title="Click to open and view in chat">
+                <div class="popover-task-text">${esc(n.text)}</div>
+                <div class="popover-task-meta">
+                  <span class="popover-task-time">${Icons.waiting(10)} ${formatNoteDateTime(n.createdAt)}</span>
+                  <span class="popover-jump-hint">View in chat →</span>
                 </div>
               </div>
             </div>
@@ -4302,24 +4304,27 @@ const Icons = {
 
         ${pendingNotes.length > 1 ? `
           <button type="button" class="btn-popover-all-done" id="btnPopoverAllDone">
-            ✓ Mark All ${pendingNotes.length} Done
+            ${Icons.check(13)} <span>Mark All ${pendingNotes.length} Done</span>
           </button>
         ` : ''}
       `;
 
-      // 1. Mark single task as Done
-      $$('.btn-popover-done', popoverEl).forEach(btn => {
+      // 1. 1-Tap Checkbox Mark Done with card-exit animation
+      $$('.btn-popover-checkbox', popoverEl).forEach(btn => {
         btn.onclick = (e) => {
           e.stopPropagation();
           const noteId = btn.dataset.id;
           const note = (profile.notes || []).find(x => x.id === noteId);
           if (note) {
-            note.done = true;
-            note.doneAt = now();
+            const itemEl = popoverEl.querySelector(`.popover-task-item[data-task-id="${noteId}"]`);
+            if (itemEl) itemEl.classList.add('task-completing');
             if (window.soundMgr) {
               if (typeof window.soundMgr.playReadyChime === 'function') window.soundMgr.playReadyChime();
               else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
             }
+            triggerHaptic('success');
+            note.done = true;
+            note.doneAt = now();
             if (countPending(profile) === 0) {
               profile.isPinned = false;
               profile.pinnedAt = null;
@@ -4328,16 +4333,16 @@ const Icons = {
             renderSidebar();
             renderMainChat();
             showToast(`✓ Completed: "${note.text.slice(0, 25)}"`);
-            renderContent();
+            setTimeout(() => renderContent(), 200);
           }
         };
       });
 
-      // 2. Jump to note in main chat
-      $$('.btn-popover-view', popoverEl).forEach(btn => {
-        btn.onclick = (e) => {
+      // 2. Click task body to jump directly to note in main chat
+      $$('.popover-task-body', popoverEl).forEach(body => {
+        body.onclick = (e) => {
           e.stopPropagation();
-          const noteId = btn.dataset.id;
+          const noteId = body.dataset.id;
           state.activeProfileId = profile.id;
           renderSidebar();
           renderMainChat();
@@ -4377,18 +4382,25 @@ const Icons = {
       if (btnClose) btnClose.onclick = close;
     };
 
-    // Calculate position relative to anchor
-    if (anchorElement && anchorElement.getBoundingClientRect) {
+    // Calculate position with Viewport Collision Detection (Desktop) or Sheet (Mobile)
+    if (!isMobile && anchorElement && anchorElement.getBoundingClientRect) {
       const rect = anchorElement.getBoundingClientRect();
+      const popoverWidth = 330;
       let left = rect.right + 12;
-      let top = Math.max(12, rect.top - 20);
 
-      if (left + 330 > window.innerWidth) {
-        left = Math.max(12, rect.left - 330);
+      if (left + popoverWidth > window.innerWidth - 12) {
+        left = Math.max(12, rect.left - popoverWidth - 12);
       }
-      if (top + 360 > window.innerHeight) {
-        top = Math.max(12, window.innerHeight - 370);
+
+      const taskCount = (profile.notes || []).filter(n => !n.done).length;
+      const estimatedHeight = Math.min(380, 115 + Math.min(taskCount * 52, 240));
+
+      let top = rect.top - 10;
+      // Collision detection: never cut off at bottom screen edge!
+      if (top + estimatedHeight > window.innerHeight - 15) {
+        top = Math.max(12, window.innerHeight - estimatedHeight - 15);
       }
+      if (top < 12) top = 12;
 
       popoverEl.style.left = `${left}px`;
       popoverEl.style.top = `${top}px`;
@@ -6593,6 +6605,7 @@ ${jsRes}
     window.__ocSaveState = saveState;
     window.__ocRenderMainChat = renderMainChat;
     window.__ocRenderSidebar = renderSidebar;
+  window.__ocShowPendingPopover = showPendingTasksPopover;
     window.__ocSelectProfile = selectProfile;
     window.__ocSaveState = saveState;
     window.__ocUpdateDocumentTitle = updateDocumentTitle;
