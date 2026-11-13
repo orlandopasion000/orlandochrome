@@ -50,64 +50,58 @@
   // FUTURISTIC CYBER SVG ICON SYSTEM (Next-Gen UI Glyphs)
   // ============================================================================
 const Icons = {
-    urgent: (size = 15) => `
-      <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;" title="Urgent">
+    urgent: (size = 14) => `
+      <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;" title="Urgent (Fire)">
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
-            <linearGradient id="gUrgentCyber" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ff0055"/>
-              <stop offset="50%" stop-color="#ff4400"/>
+            <linearGradient id="gFireCyber" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ff1a53"/>
+              <stop offset="45%" stop-color="#ff6b00"/>
               <stop offset="100%" stop-color="#ffcc00"/>
             </linearGradient>
-            <filter id="fUrgentCyber" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#ff0055" flood-opacity="0.85"/>
+            <filter id="fFireCyber" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#ff3300" flood-opacity="0.85"/>
             </filter>
           </defs>
-          <polygon points="12 1 15.5 8 23 9.5 17.5 15 19 22.5 12 18.5 5 22.5 6.5 15 1 9.5 8.5 8" fill="rgba(255,0,85,0.18)" stroke="url(#gUrgentCyber)" stroke-width="1.6" stroke-linejoin="round" filter="url(#fUrgentCyber)"/>
-          <circle cx="12" cy="11.5" r="2.2" fill="#ffffff"/>
-          <line x1="12" y1="5.5" x2="12" y2="8" stroke="#ffcc00" stroke-width="1.8" stroke-linecap="round"/>
-          <circle cx="12" cy="15.5" r="1.2" fill="#ff0055"/>
+          <path d="M12 2c.8 2.8 2.4 4.4 4.2 5.8 2.2 1.8 3.6 4.2 3.6 7.4 0 4.3-3.5 7.8-7.8 7.8S4.2 19.5 4.2 15.2c0-3.2 1.4-5.6 3.6-7.4 1.2-1 2.2-2.2 2.2-3.8 1 1.4 1.8 2.6 1.8 3.8 0-2.4 1.2-4.2 2.2-5.8z" fill="url(#gFireCyber)" filter="url(#fFireCyber)"/>
+          <path d="M12 11c1.2 1.4 2 2.6 2 4.2 0 2.2-1.8 4-4 4s-4-1.8-4-4c0-1.8 1-3 2-4 .5 1.2 1.2 2 2 2 .4-1.2 1.2-1.8 2-2.2z" fill="#ffffff" opacity="0.95"/>
         </svg>
       </span>`,
 
-    waiting: (size = 15) => `
-      <span class="oc-icon oc-icon-waiting" style="width:${size}px;height:${size}px;" title="Waiting / Cooldown">
+    waiting: (size = 14) => `
+      <span class="oc-icon oc-icon-waiting" style="width:${size}px;height:${size}px;" title="Waiting (White Light Clock)">
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
-            <linearGradient id="gChronoCyber" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="50%" stop-color="#4facfe"/>
-              <stop offset="100%" stop-color="#a855f7"/>
-            </linearGradient>
-            <filter id="fChronoCyber" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#00f2fe" flood-opacity="0.8"/>
+            <filter id="fClockWhite" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#ffffff" flood-opacity="0.9"/>
             </filter>
           </defs>
-          <circle cx="12" cy="12" r="9" stroke="url(#gChronoCyber)" stroke-width="1.6" stroke-dasharray="5 2.5" filter="url(#fChronoCyber)"/>
-          <circle cx="12" cy="12" r="4.5" stroke="rgba(0, 242, 254, 0.45)" stroke-width="1.2"/>
-          <path d="M12 7.5v4.5l3 2" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="9" stroke="#ffffff" stroke-width="1.8" filter="url(#fClockWhite)"/>
+          <circle cx="12" cy="12" r="4.5" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+          <path d="M12 7.2v4.8l3.2 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
-          <path d="M12 1.5v2M12 20.5v2M1.5 12h2M20.5 12h2" stroke="#4facfe" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="12" y1="1.5" x2="12" y2="3.2" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="12" y1="20.8" x2="12" y2="22.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="1.5" y1="12" x2="3.2" y2="12" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="20.8" y1="12" x2="22.5" y2="12" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>`,
 
-    important: (size = 15) => `
-      <span class="oc-icon oc-icon-important" style="width:${size}px;height:${size}px;" title="Important / Pinned">
+    important: (size = 14) => `
+      <span class="oc-icon oc-icon-important" style="width:${size}px;height:${size}px;" title="Important (Neon Green Star)">
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
-            <linearGradient id="gPinCyber" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ff2a55"/>
-              <stop offset="100%" stop-color="#b80018"/>
+            <linearGradient id="gStarNeon" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#a7f3d0"/>
+              <stop offset="50%" stop-color="#10b981"/>
+              <stop offset="100%" stop-color="#059669"/>
             </linearGradient>
-            <filter id="fPinCyber" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#ff2a55" flood-opacity="0.85"/>
+            <filter id="fStarNeon" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#10b981" flood-opacity="0.95"/>
             </filter>
           </defs>
-          <polygon points="12 2 19 8 12 14 5 8" fill="rgba(255,42,85,0.22)" stroke="url(#gPinCyber)" stroke-width="1.6" filter="url(#fPinCyber)"/>
-          <circle cx="12" cy="8" r="2.2" fill="#ffffff"/>
-          <line x1="12" y1="14" x2="12" y2="22" stroke="url(#gPinCyber)" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="12" cy="22" r="1.2" fill="#ff4d58"/>
-          <circle cx="12" cy="8" r="6" stroke="rgba(255,42,85,0.3)" stroke-width="1" stroke-dasharray="2 2"/>
+          <polygon points="12 1.5 15.2 8.2 22.5 9.2 17.2 14.3 18.5 21.5 12 18.1 5.5 21.5 6.8 14.3 1.5 9.2 8.8 8.2" fill="rgba(16,185,129,0.22)" stroke="url(#gStarNeon)" stroke-width="1.8" stroke-linejoin="round" filter="url(#fStarNeon)"/>
+          <circle cx="12" cy="12" r="2.2" fill="#ffffff"/>
         </svg>
       </span>`,
 
@@ -214,12 +208,14 @@ const Icons = {
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gFwdCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="100%" stop-color="#3b82f6"/>
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#2563eb"/>
             </linearGradient>
+            <filter id="fFwdCyber" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#38bdf8" flood-opacity="0.65"/>
+            </filter>
           </defs>
-          <polygon points="13 3 22 12 13 21 13 16 3 16 3 8 13 8" stroke="url(#gFwdCyber)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(0,242,254,0.12)"/>
-          <circle cx="17.5" cy="12" r="1.5" fill="#00f2fe"/>
+          <path d="M4 12h11M11 6l6 6-6 6M17 7l4 5-4 5" stroke="url(#gFwdCyber)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#fFwdCyber)"/>
         </svg>
       </span>`,
 
@@ -558,7 +554,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure83').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure84').catch(() => {});
     });
   }
 
@@ -3035,15 +3031,6 @@ const Icons = {
             <div class="note-swipe-indicator left-ind"><span>${n.done ? '↩ Reopen' : '✓ Done'}</span></div>
             <div class="note-swipe-indicator right-ind"><span>🗑️ Delete</span></div>
             <div class="note-bubble ${n.done ? 'done' : ''} ${isEditing ? 'editing' : ''}">
-              <!-- Hover Quick Reaction Bar (Messenger / Discord Style) -->
-              <div class="note-reaction-picker" title="Tag message with priority reaction">
-                ${REACTIONS_LIST.map(r => `
-                  <button type="button" class="react-pick-btn ${reactions.includes(r.key) ? 'active' : ''}" data-action="toggle-reaction" data-nid="${n.id}" data-rkey="${r.key}" title="${esc(r.label)}">
-                    ${r.icon}
-                  </button>
-                `).join('')}
-              </div>
-
               <div class="note-body-col">
                 ${n.forwardedFrom ? `
                   <div class="note-forwarded-tag">↪ Forwarded from <strong>${esc(n.forwardedFrom)}</strong></div>
@@ -3072,7 +3059,7 @@ const Icons = {
                   <div class="note-text" data-action="dblclick-edit" data-nid="${n.id}" title="Double-click to edit inline">${linkifyText(n.text)}</div>
                 ` : '')}
 
-                <!-- Enhancement #4: Interactive Sub-Checklists Inside Message Bubble -->
+                <!-- Interactive Sub-Checklists Inside Message Bubble -->
                 ${subItems.length > 0 ? `
                   <div class="note-subchecklist">
                     ${subItems.map(sub => `
@@ -3084,33 +3071,32 @@ const Icons = {
                     `).join('')}
                   </div>
                 ` : ''}
-
-                ${reactions.length > 0 ? `
-                  <div class="note-reactions-row">
-                    ${reactions.map(rkey => {
-                      const r = REACTIONS_MAP[rkey];
-                      if (!r) return '';
-                      return `
-                        <button type="button" class="note-reaction-pill ${r.cls}" data-action="toggle-reaction" data-nid="${n.id}" data-rkey="${r.key}" title="Click to remove ${esc(r.label)}">
-                          <span>${r.icon}</span> <span>${esc(r.label)}</span>
-                        </button>
-                      `;
-                    }).join('')}
-                  </div>
-                ` : ''}
               </div>
 
+              <!-- All 10 Actions & Status Reactions Compressed on Far Right -->
               <div class="note-bubble-actions">
-                ${n.done ? `
-                  <button class="btn-note-reopen" data-action="toggle-done" data-nid="${n.id}">${Icons.undo(13)} <span>Reopen</span></button>
-                ` : `
-                  <button class="btn-note-done" data-action="toggle-done" data-nid="${n.id}">${Icons.check(13)} <span>Done</span></button>
-                `}
-                <button class="btn-note-action" data-action="copy-note" data-nid="${n.id}" title="Copy message text to clipboard">${Icons.copy(13)}</button>
-                <button class="btn-note-action" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item to this note">${Icons.checklist(13)}</button>
-                <button class="btn-note-action" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(13)}</button>
-                <button class="btn-note-action btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward or move task to another Chrome profile">${Icons.forward(13)} <span>Forward</span></button>
-                <button class="btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">${Icons.delete(13)}</button>
+                <div class="note-reactions-inline" title="Priority status tags">
+                  ${REACTIONS_LIST.map(r => `
+                    <button type="button" class="react-inline-btn ${reactions.includes(r.key) ? 'active' : ''}" data-action="toggle-reaction" data-nid="${n.id}" data-rkey="${r.key}" title="Toggle ${esc(r.label)}">
+                      ${r.icon}
+                    </button>
+                  `).join('')}
+                </div>
+
+                <span class="note-action-sep"></span>
+
+                <div class="note-tools-inline">
+                  ${n.done ? `
+                    <button type="button" class="btn-note-micro btn-note-reopen" data-action="toggle-done" data-nid="${n.id}" title="Reopen task">${Icons.undo(12)}</button>
+                  ` : `
+                    <button type="button" class="btn-note-micro btn-note-done" data-action="toggle-done" data-nid="${n.id}" title="Mark Done">${Icons.check(12)}</button>
+                  `}
+                  <button type="button" class="btn-note-micro" data-action="copy-note" data-nid="${n.id}" title="Copy note text">${Icons.copy(12)}</button>
+                  <button type="button" class="btn-note-micro" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item">${Icons.checklist(12)}</button>
+                  <button type="button" class="btn-note-micro" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(12)}</button>
+                  <button type="button" class="btn-note-micro btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward task to another profile">${Icons.forward(12)}</button>
+                  <button type="button" class="btn-note-micro btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">${Icons.delete(12)}</button>
+                </div>
               </div>
             </div>
             <div class="note-timestamp">
