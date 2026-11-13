@@ -908,11 +908,11 @@
 
         case 'STATUS_NOTE': {
           if (isUndo) {
-            p.statusNote = action.oldNote ? JSON.parse(JSON.stringify(action.oldNote)) : null;
-            showToast(p.statusNote ? '↺ Restored status note' : '↺ Reverted status note');
+            p.statusNote = action.oldNote ? Object.assign(JSON.parse(JSON.stringify(action.oldNote)), { updatedAt: now() }) : makeClearedStatusNote();
+            showToast(getActiveStatusNote(p) ? '↺ Restored status note' : '↺ Reverted status note');
           } else {
-            p.statusNote = action.newNote ? JSON.parse(JSON.stringify(action.newNote)) : null;
-            showToast(p.statusNote ? '↻ Redid status note' : '↻ Redid clear status note');
+            p.statusNote = action.newNote ? Object.assign(JSON.parse(JSON.stringify(action.newNote)), { updatedAt: now() }) : makeClearedStatusNote();
+            showToast(getActiveStatusNote(p) ? '↻ Redid status note' : '↻ Redid clear status note');
           }
           break;
         }
@@ -1122,7 +1122,8 @@
       const hasNotes = Array.isArray(p.notes) && p.notes.length > 0;
       const hasTimer = Boolean(p.timerUntil) || Boolean(p.isReset);
       const curSn = getActiveStatusNote(p);
-      const hasMeta = Boolean(p.isPinned) || Boolean(p.isUnread) || Boolean(p.stickyNote) || Boolean(curSn);
+      const snRecord = p.statusNote; // active note OR cleared tombstone (still within 24h)
+      const hasMeta = Boolean(p.isPinned) || Boolean(p.isUnread) || Boolean(p.stickyNote) || Boolean(snRecord);
       const def = !IS_BLANK_EDITION ? DEFAULT_PROFILES.find(d => d.id === p.id) : null;
       const hasCustomName = def ? (p.name !== def.name) : true;
 
@@ -1140,7 +1141,14 @@
         }
         if (p.isUnread) entry.un = 1;
         if (p.stickyNote) entry.st = p.stickyNote;
-        if (curSn && curSn.text) {
+        if (snRecord && !forQrCode) {
+          entry.sn = {
+            t: curSn ? curSn.text : '',
+            c: snRecord.createdAt || curTime,
+            u: statusNoteStamp(snRecord) || curTime,
+            x: snRecord.expiresAt || (curTime + 86400000)
+          };
+        } else if (curSn && curSn.text) {
           entry.sn = {
             t: curSn.text,
             c: curSn.createdAt || curTime,
@@ -1235,11 +1243,7 @@
             voiceClip: oldNote.voiceClip || null
           };
         });
-        const restoredStatusNote = (item && item.sn && item.sn.t && (!item.sn.x || item.sn.x > now())) ? {
-          text: item.sn.t,
-          createdAt: item.sn.c || now(),
-          expiresAt: item.sn.x || (now() + 86400000)
-        } : (existing.statusNote && (!existing.statusNote.expiresAt || existing.statusNote.expiresAt > now()) ? existing.statusNote : null);
+        const restoredStatusNote = mergeStatusNotes(existing.statusNote, parseRemoteStatusNote(item && item.sn));
         return {
           id: existing.id || `b_slot_${slot}`,
           profileDir: existing.profileDir || `Profile ${slot}`,
@@ -1276,7 +1280,7 @@
             pinnedAt: null,
             isUnread: false,
             stickyNote: '',
-            statusNote: null,
+            statusNote: mergeStatusNotes(existing.statusNote, null),
             notes: []
           };
         }
@@ -1295,11 +1299,7 @@
             voiceClip: oldNote.voiceClip || null
           };
         });
-        const restoredStatusNote = (item.sn && item.sn.t && (!item.sn.x || item.sn.x > now())) ? {
-          text: item.sn.t,
-          createdAt: item.sn.c || now(),
-          expiresAt: item.sn.x || (now() + 86400000)
-        } : (existing.statusNote && (!existing.statusNote.expiresAt || existing.statusNote.expiresAt > now()) ? existing.statusNote : null);
+        const restoredStatusNote = mergeStatusNotes(existing.statusNote, parseRemoteStatusNote(item.sn));
         return {
           ...def,
           name: item.nm || def.name,
@@ -1549,6 +1549,11 @@
         updateTopbarSyncBadge('synced');
         return true;
       } else if (localTs > cloudTs && localHasActivity) {
+        // Never wipe 24h notes created on another device: merge them in before pushing our state
+        mergeCloudStatusNotesIntoLocal(latestPacket);
+        persistLocalOnly();
+        renderSidebar();
+        renderMainChat();
         await pushToCloudNow(false);
         return true;
       }
@@ -1576,6 +1581,12 @@
             if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
               if ((pkt.ts || 0) >= (state.lastModified || 0)) {
                 applySyncPacket(pkt, 'Live Sync');
+              } else {
+                // Older packet overall, but it may still carry a newer 24h note / clear
+                mergeCloudStatusNotesIntoLocal(pkt);
+                persistLocalOnly();
+                renderSidebar();
+                renderMainChat();
               }
             }
           }
@@ -3064,7 +3075,7 @@
     const btnClearStatusNote = $('#btnClearStatusNoteInline');
     if (btnClearStatusNote) {
       btnClearStatusNote.onclick = () => {
-        const oldStatus = p.statusNote ? JSON.parse(JSON.stringify(p.statusNote)) : null;
+        const oldStatus = getActiveStatusNote(p) ? JSON.parse(JSON.stringify(p.statusNote)) : null;
         if (oldStatus) {
           historyMgr.record({
             type: 'STATUS_NOTE',
@@ -3073,7 +3084,7 @@
             newNote: null
           });
         }
-        p.statusNote = null;
+        p.statusNote = makeClearedStatusNote();
         saveState();
         renderSidebar();
         renderMainChat();
@@ -3649,6 +3660,8 @@
 
 
   // Messenger 24-Hour Notes Helpers
+  // A cleared note is kept as a "tombstone" ({ text: '', cleared: true, updatedAt }) for 24h so the
+  // deletion syncs to other devices instead of being resurrected by a stale device.
   function getActiveStatusNote(profile) {
     if (!profile || !profile.statusNote) return null;
     const cur = now();
@@ -3656,7 +3669,51 @@
       profile.statusNote = null;
       return null;
     }
+    if (profile.statusNote.cleared || !profile.statusNote.text) return null;
     return profile.statusNote;
+  }
+
+  function makeClearedStatusNote() {
+    const t = now();
+    return { text: '', cleared: true, createdAt: t, updatedAt: t, expiresAt: t + 86400000 };
+  }
+
+  function statusNoteStamp(sn) {
+    return sn ? (sn.updatedAt || sn.createdAt || 0) : 0;
+  }
+
+  // Newest change wins (set OR clear). Missing remote = keep local (old clients don't send notes).
+  function mergeStatusNotes(localSn, remoteSn) {
+    const cur = now();
+    const alive = sn => sn && (!sn.expiresAt || sn.expiresAt > cur) ? sn : null;
+    const l = alive(localSn), r = alive(remoteSn);
+    if (!r) return l;
+    if (!l) return r;
+    return statusNoteStamp(r) > statusNoteStamp(l) ? r : l;
+  }
+
+  function parseRemoteStatusNote(sn) {
+    if (!sn) return null;
+    const t = now();
+    const text = sn.t || '';
+    return {
+      text,
+      cleared: !text,
+      createdAt: sn.c || t,
+      updatedAt: sn.u || sn.c || t,
+      expiresAt: sn.x || (t + 86400000)
+    };
+  }
+
+  // Pull newer per-profile notes from a cloud packet into local state (used before pushing local state)
+  function mergeCloudStatusNotesIntoLocal(packet) {
+    if (!packet || !Array.isArray(packet.p)) return;
+    const byNo = new Map();
+    packet.p.forEach(item => { if (item && item.i != null) byNo.set(Number(item.i), item); });
+    for (const p of state.profiles) {
+      const item = byNo.get(Number(p.chromeNo));
+      if (item && item.sn) p.statusNote = mergeStatusNotes(p.statusNote, parseRemoteStatusNote(item.sn));
+    }
   }
 
   function formatRemainingNoteTime(ms) {
@@ -3779,8 +3836,8 @@
     const saveNote = () => {
       const trimmed = inp.value.trim().slice(0, 60);
       if (!trimmed) {
-        if (profile.statusNote) {
-          profile.statusNote = null;
+        if (getActiveStatusNote(profile)) {
+          profile.statusNote = makeClearedStatusNote();
           saveState();
           renderSidebar();
           renderMainChat();
@@ -3838,7 +3895,7 @@
     const delBtn = $('#btnDeleteNote', backdrop);
     if (delBtn) {
       delBtn.onclick = () => {
-        const oldStatus = profile.statusNote ? JSON.parse(JSON.stringify(profile.statusNote)) : null;
+        const oldStatus = getActiveStatusNote(profile) ? JSON.parse(JSON.stringify(profile.statusNote)) : null;
         if (oldStatus) {
           historyMgr.record({
             type: 'STATUS_NOTE',
@@ -3847,7 +3904,7 @@
             newNote: null
           });
         }
-        profile.statusNote = null;
+        profile.statusNote = makeClearedStatusNote();
         saveState();
         if (window.soundMgr) {
           if (typeof window.soundMgr.playClickSoft === "function") window.soundMgr.playClickSoft();

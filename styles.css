@@ -4631,10 +4631,24 @@ body.is-resizing-pane * {
   }
   .note-bubble {
     padding: 0.7rem 0.85rem;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  .note-body-col {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .note-bubble-actions {
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 5px !important;
   }
   .note-text {
     font-size: 0.92rem;
     line-height: 1.45;
+    word-break: normal !important;
+    overflow-wrap: anywhere;
   }
 
   /* Quick Templates Chips Strip (Single Scrollable Row) */
