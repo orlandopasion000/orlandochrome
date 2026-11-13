@@ -2249,6 +2249,22 @@
 
   // Render Sidebar Profiles List
   function renderSidebar() {
+    // Guard: defer re-render while note modal is open to prevent iOS phantom dismissal
+    if (document.body.dataset.noteModalOpen === '1') {
+      if (!renderSidebar._deferred) {
+        renderSidebar._deferred = true;
+        const waitForClose = () => {
+          if (document.body.dataset.noteModalOpen !== '1') {
+            renderSidebar._deferred = false;
+            renderSidebar();
+          } else {
+            setTimeout(waitForClose, 200);
+          }
+        };
+        setTimeout(waitForClose, 200);
+      }
+      return;
+    }
     const list = $('#profileList');
     if (!list) return;
 
@@ -2396,10 +2412,17 @@
     $$('.profile-avatar-wrap', list).forEach(wrap => {
       wrap.onclick = (e) => {
         e.stopPropagation();
+        e.stopImmediatePropagation();
+        e.preventDefault();
         const pid = wrap.dataset.pid;
         const prof = getProfile(pid);
         if (prof) promptMessengerNote(prof);
       };
+      // iOS: intercept touchend at the avatar level so parent .profile-item touchend never fires openMobileChatWithSlide
+      wrap.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }, { passive: false });
     });
 
     // Attach pending count badge click to open Mini Task Popover
@@ -2466,6 +2489,8 @@
     // Attach item click & fast touch (1-tap on iOS) handlers
     $$('.profile-item', list).forEach(item => {
       const handleSelect = (e) => {
+        // Guard: never switch views if a note modal is open
+        if (document.body.dataset.noteModalOpen === '1') return;
         if (item.dataset.justSwiped === '1') {
           item.dataset.justSwiped = '0';
           return;
@@ -2490,6 +2515,8 @@
       }, { passive: true });
 
       item.addEventListener('touchend', (e) => {
+        // Guard: never switch views if a note modal is open (avatar was tapped)
+        if (document.body.dataset.noteModalOpen === '1') return;
         if (e.changedTouches.length === 1 && tStartX > 0) {
           const dx = Math.abs(e.changedTouches[0].clientX - tStartX);
           const dy = Math.abs(e.changedTouches[0].clientY - tStartY);
@@ -2520,6 +2547,22 @@
 
   // Render Right Main Chat & Notes Pane
   function renderMainChat() {
+    // Guard: defer re-render while note modal is open to prevent iOS phantom dismissal
+    if (document.body.dataset.noteModalOpen === '1') {
+      if (!renderMainChat._deferred) {
+        renderMainChat._deferred = true;
+        const waitForClose = () => {
+          if (document.body.dataset.noteModalOpen !== '1') {
+            renderMainChat._deferred = false;
+            renderMainChat();
+          } else {
+            setTimeout(waitForClose, 200);
+          }
+        };
+        setTimeout(waitForClose, 200);
+      }
+      return;
+    }
     const main = $('#chatMain');
     if (!main) return;
 
@@ -3703,11 +3746,20 @@
       </div>
     `;
 
+    // Mark that a note modal is open (prevents renderSidebar/renderMainChat from nuking it)
+    document.body.dataset.noteModalOpen = '1';
     document.body.appendChild(backdrop);
     const inp = $('#messengerNoteInput', backdrop);
     const charCount = $('#noteCharCount', backdrop);
-    inp.focus();
-    inp.select();
+
+    // iOS fix: delay focus so the keyboard opening doesn't trigger phantom click/resize events
+    // that would immediately close the modal
+    setTimeout(() => {
+      if (backdrop.parentNode) {
+        inp.focus();
+        inp.select();
+      }
+    }, 350);
 
     const updatePreview = () => {
       charCount.textContent = inp.value.length;
@@ -3715,8 +3767,14 @@
 
     inp.oninput = updatePreview;
 
-    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
-    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+    const close = () => {
+      delete document.body.dataset.noteModalOpen;
+      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+    };
+    // Guard: ignore backdrop clicks for 400ms after opening to prevent iOS phantom touch events
+    let canDismiss = false;
+    setTimeout(() => { canDismiss = true; }, 400);
+    backdrop.onclick = (e) => { if (canDismiss && e.target === backdrop) close(); };
 
     const saveNote = () => {
       const trimmed = inp.value.trim().slice(0, 60);
