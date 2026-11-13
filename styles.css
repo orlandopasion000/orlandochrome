@@ -1147,6 +1147,13 @@ body.is-resizing-pane * {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.badge-reset-pill:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.8);
 }
 
 .badge-reset-pill .reset-pill-text {
@@ -4450,6 +4457,23 @@ body.is-resizing-pane * {
 }
 
 @media (max-width: 768px) {
+  html, body {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  .app-workspace {
+    flex: 1 1 auto !important;
+    height: calc(100dvh - 54px) !important;
+    min-height: 0 !important;
+  }
+  /* On iPhone / Mobile: Completely hide the bottom App Distribution drawer so profiles and chat fill 100% of the screen */
+  .app-dist,
+  .oc-app-dist,
+  #appDistSection {
+    display: none !important;
+  }
   .app-topbar {
     padding: 0.35rem 0.6rem;
   }
@@ -4620,6 +4644,23 @@ body.is-resizing-pane * {
   .timer-custom-wrap {
     flex-shrink: 0 !important;
     margin-left: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+  .timer-custom-input {
+    width: 3.4rem !important;
+    min-width: 3.4rem !important;
+    height: 28px !important;
+    font-size: 14px !important;
+    padding: 2px 4px !important;
+  }
+  .btn-start-custom {
+    height: 28px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
   }
 
   /* Notes Stream */
@@ -4690,7 +4731,7 @@ body.is-resizing-pane * {
 
   /* FULL-WIDTH MESSENGER COMPOSER DOCK (Bottom) */
   .composer-bar {
-    padding: 0.5rem 0.65rem !important;
+    padding: 0.5rem 0.65rem calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
     gap: 0.4rem !important;
     background: #000000 !important;
     border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -7524,24 +7565,14 @@ button:hover .modern-icon,
 
 @media (max-width: 768px) {
   .chat-header-note-prompt {
-    opacity: 0.9 !important;
-    pointer-events: auto !important;
+    display: none !important;
   }
-  /* Mobile: Make Add Note Prompt permanently visible and tappable on touchscreens */
-  .avatar-note-add-prompt {
-    opacity: 0.88 !important;
-    pointer-events: auto !important;
-    top: -10px !important;
-    left: -4px !important;
-    transform: none !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #000000 !important;
-    font-size: 10px !important;
-    font-weight: 800 !important;
-    padding: 2px 6px !important;
-    border-radius: 10px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
-    z-index: 25 !important;
+  /* On iPhone / Mobile: Never show empty cloud/bubble prompts above avatars */
+  .avatar-note-add-prompt,
+  .desktop-only-note-prompt {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
   body.mobile-typing-mode .profile-status-note-banner {
     display: none !important;

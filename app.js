@@ -2389,7 +2389,7 @@
                 <span>${esc(statusNote.text)}</span>
               </div>
             ` : `
-              <div class="avatar-note-add-prompt" title="Share a Note">
+              <div class="avatar-note-add-prompt desktop-only-note-prompt" title="Share a Note">
                 <span>💭+</span>
               </div>
             `}
@@ -2412,7 +2412,7 @@
               <div class="profile-snippet ${snippetClass}">${snippetHtml}</div>
               ${pendingCount > 0 ? `<button type="button" class="badge-pending-count" data-pending-id="${p.id}" title="${pendingCount} pending task${pendingCount > 1 ? 's' : ''} · Click to review & check off">${pendingCount}</button>` : ''}
               ${isTimer ? `<span class="badge-timer-pill">⏳ ${formatRemainingShort(p.timerUntil - cur)}</span>` : ''}
-              ${isReset ? `<span class="badge-reset-pill">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></span>` : ''}
+              ${isReset ? `<button type="button" class="badge-reset-pill btn-ack-reset" data-reset-id="${p.id}" title="AI Limit Reset ready · Tap to acknowledge">${renderGreenWhiteOrb()}<span class="reset-pill-text">Reset</span></button>` : ''}
             </div>
           </div>
         </div>
@@ -2497,6 +2497,32 @@
       };
     });
 
+    // Attach Reset badge 1-tap acknowledge click handlers
+    $$('.btn-ack-reset', list).forEach(btn => {
+      const ackReset = (e) => {
+        if (e) {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          if (e.cancelable) e.preventDefault();
+        }
+        const pid = btn.dataset.resetId;
+        const prof = getProfile(pid);
+        if (!prof) return;
+        prof.isReset = false;
+        prof.timerUntil = null;
+        saveState();
+        if (window.soundMgr) {
+          if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+          else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+        }
+        renderSidebar();
+        renderMainChat();
+        showToast(`✓ Acknowledged reset for ${prof.name}`);
+      };
+      btn.onclick = ackReset;
+      btn.addEventListener('touchend', ackReset, { passive: false });
+    });
+
     // Attach item click & fast touch (1-tap on iOS) handlers
     $$('.profile-item', list).forEach(item => {
       const handleSelect = (e) => {
@@ -2506,7 +2532,7 @@
           item.dataset.justSwiped = '0';
           return;
         }
-        if (e && e.target && (e.target.closest('.unread-toggle-btn') || e.target.closest('.profile-avatar-wrap') || e.target.closest('.badge-pending-count') || e.target.closest('.pin-btn'))) return;
+        if (e && e.target && (e.target.closest('.unread-toggle-btn') || e.target.closest('.profile-avatar-wrap') || e.target.closest('.badge-pending-count') || e.target.closest('.pin-btn') || e.target.closest('.badge-reset-pill'))) return;
         openMobileChatWithSlide(item.dataset.id);
       };
 
@@ -2536,7 +2562,7 @@
           tStartY = 0;
           if (dx < 12 && dy < 12 && dt < 450) {
             if (window.innerWidth <= 768) {
-              if (e.target && (e.target.closest('.unread-toggle-btn') || e.target.closest('.profile-avatar-wrap') || e.target.closest('.badge-pending-count') || e.target.closest('.pin-btn'))) return;
+              if (e.target && (e.target.closest('.unread-toggle-btn') || e.target.closest('.profile-avatar-wrap') || e.target.closest('.badge-pending-count') || e.target.closest('.pin-btn') || e.target.closest('.badge-reset-pill'))) return;
               openMobileChatWithSlide(item.dataset.id);
             }
           }
@@ -2743,7 +2769,7 @@
         <button class="timer-chip" data-min="720" data-label="12h">12h</button>
 
         <div class="timer-custom-wrap">
-          <input type="number" id="customMinInput" class="timer-custom-input" placeholder="min" min="1" max="10000" value="">
+          <input type="number" id="customMinInput" class="timer-custom-input" placeholder="min" min="1" max="10000" inputmode="numeric" pattern="[0-9]*" value="">
           <button class="btn-start-custom" id="btnStartCustomTimer">Start ⏱️</button>
         </div>
       </div>
@@ -3195,17 +3221,29 @@
     // 4. Custom Timer
     const customStart = $('#btnStartCustomTimer');
     const customInput = $('#customMinInput');
-    const triggerCustomTimer = () => {
-      const mins = parseInt(customInput ? customInput.value : '', 10);
-      if (isNaN(mins) || mins <= 0) return;
+    const triggerCustomTimer = (e) => {
+      if (e) {
+        e.stopPropagation();
+        if (e.cancelable) e.preventDefault();
+      }
+      const rawVal = customInput ? customInput.value.trim() : '';
+      const mins = parseInt(rawVal, 10);
+      if (isNaN(mins) || mins <= 0) {
+        showToast('⏱️ Enter a positive number of minutes (e.g. 1)');
+        if (customInput) customInput.focus();
+        return;
+      }
       startCooldown(p, mins, `${mins}m`);
     };
     if (customStart) {
       customStart.onclick = triggerCustomTimer;
+      customStart.addEventListener('touchend', (e) => {
+        triggerCustomTimer(e);
+      }, { passive: false });
     }
     if (customInput) {
       customInput.onkeydown = (e) => {
-        if (e.key === 'Enter') triggerCustomTimer();
+        if (e.key === 'Enter') triggerCustomTimer(e);
       };
     }
 
@@ -3223,17 +3261,27 @@
       };
     }
 
-    // 6. Dismiss reset
+    // 6. Dismiss / Acknowledge reset
     const resetBtn = $('#btnDismissReset');
     if (resetBtn) {
-      resetBtn.onclick = () => {
+      const handleAck = (e) => {
+        if (e) {
+          e.stopPropagation();
+          if (e.cancelable) e.preventDefault();
+        }
         p.isReset = false;
         p.timerUntil = null;
         saveState();
+        if (window.soundMgr) {
+          if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+          else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+        }
         renderSidebar();
         renderMainChat();
-        showToast(`Acknowledged reset for ${p.name}`);
+        showToast(`✓ Acknowledged reset for ${p.name}`);
       };
+      resetBtn.onclick = handleAck;
+      resetBtn.addEventListener('touchend', handleAck, { passive: false });
     }
 
     // 7. Note actions (Done, Copy, Checklist, Edit, Forward, Reactions, Lightbox, Delete)
@@ -3249,8 +3297,11 @@
         return;
       }
 
-      el.onclick = (e) => {
-        e.stopPropagation();
+      const executeAction = (e) => {
+        if (e) {
+          e.stopPropagation();
+          if (e.cancelable) e.preventDefault();
+        }
         const note = (p.notes || []).find(n => n.id === nid);
         if (!note) return;
 
@@ -3271,7 +3322,6 @@
         } else if (act === 'add-subitem') {
           promptAddChecklistItem(p, note);
         } else if (act === 'toggle-subitem') {
-          e.preventDefault();
           const subid = el.dataset.subid;
           const sub = (note.subItems || []).find(s => s.id === subid);
           if (sub) {
@@ -3280,7 +3330,6 @@
             renderMainChat();
           }
         } else if (act === 'del-subitem') {
-          e.preventDefault();
           const subid = el.dataset.subid;
           note.subItems = (note.subItems || []).filter(s => s.id !== subid);
           saveState();
@@ -3324,8 +3373,8 @@
               `;
               const btnGhostUndo = cardEl.querySelector('.btn-ghost-undo');
               if (btnGhostUndo) {
-                btnGhostUndo.onclick = (e) => {
-                  e.stopPropagation();
+                btnGhostUndo.onclick = (ev) => {
+                  ev.stopPropagation();
                   historyMgr.undo();
                 };
               }
@@ -3376,6 +3425,19 @@
         } else if (act === 'open-lightbox') {
           openLightboxModal(note.image, note.text || p.name);
         }
+      };
+
+      // Fast, responsive 1-tap on touchscreens (avoids iOS 300ms delay & double-tap hover)
+      let touched = false;
+      el.addEventListener('touchend', (e) => {
+        touched = true;
+        executeAction(e);
+        setTimeout(() => { touched = false; }, 400);
+      }, { passive: false });
+
+      el.onclick = (e) => {
+        if (touched) return;
+        executeAction(e);
       };
     });
 
