@@ -734,6 +734,17 @@
     };
   }
 
+  // Recommendation 1: Haptic Touch Feedback (iOS Web Vibration API / navigator.vibrate)
+  function triggerHaptic(type = 'light') {
+    try {
+      if (!('vibrate' in navigator)) return;
+      if (type === 'light') navigator.vibrate(10);
+      else if (type === 'medium') navigator.vibrate(22);
+      else if (type === 'heavy') navigator.vibrate([18, 40, 18]);
+      else if (type === 'success') navigator.vibrate([12, 50, 24]);
+    } catch (e) {}
+  }
+
   // Toast notification (Interactive action toast + regular toast)
   function showToast(msg) {
     const el = $('#toast');
@@ -746,41 +757,34 @@
     el._timer = setTimeout(() => el.classList.remove('show'), 2600);
   }
 
-  function showActionToast({ message, actionText = '↺ Undo', onAction, duration = 6500 }) {
+  function showActionToast({ message, actionText = '↺ Undo', onAction, duration = 2000 }) {
     const el = $('#toast');
     if (!el) return;
     clearTimeout(el._timer);
     clearInterval(el._interval);
 
-    let remaining = Math.round(duration / 1000);
     el.innerHTML = `
       <span class="toast-msg">${esc(message)}</span>
-      <button type="button" class="toast-action-btn" id="toastActionBtn">${esc(actionText)} (${remaining}s)</button>
+      <button type="button" class="toast-action-btn" id="toastActionBtn">${esc(actionText)}</button>
     `;
     el.classList.add('show', 'has-action');
 
     const btn = $('#toastActionBtn', el);
     if (btn) {
-      btn.onclick = (e) => {
-        e.stopPropagation();
+      const handleUndo = (e) => {
+        if (e) {
+          e.stopPropagation();
+          if (e.cancelable) e.preventDefault();
+        }
         clearTimeout(el._timer);
-        clearInterval(el._interval);
         el.classList.remove('show', 'has-action');
         if (typeof onAction === 'function') onAction();
       };
+      btn.onclick = handleUndo;
+      btn.addEventListener('touchend', handleUndo, { passive: false });
     }
 
-    el._interval = setInterval(() => {
-      remaining -= 1;
-      if (btn && remaining > 0) {
-        btn.textContent = `${actionText} (${remaining}s)`;
-      } else {
-        clearInterval(el._interval);
-      }
-    }, 1000);
-
     el._timer = setTimeout(() => {
-      clearInterval(el._interval);
       el.classList.remove('show', 'has-action');
     }, duration);
   }
@@ -1459,13 +1463,19 @@
   let cloudPushTimer = null;
   let cloudEventSource = null;
 
-  function scheduleCloudPush() {
+  function scheduleCloudPush(immediate = false) {
     updateTopbarSyncBadge('syncing');
     clearTimeout(cloudPushTimer);
-    cloudPushTimer = setTimeout(() => {
+    if (immediate) {
       pushToCloudNow(false);
-    }, 280);
+    } else {
+      cloudPushTimer = setTimeout(() => {
+        pushToCloudNow(false);
+      }, 60);
+    }
   }
+
+  let pendingOfflinePush = false;
 
   async function pushToCloudNow(showFeedback = false) {
     try {
@@ -1481,14 +1491,19 @@
         body: JSON.stringify(pkt)
       });
       if (res.ok) {
+        pendingOfflinePush = false;
         state.lastCloudSyncAt = now();
         updateTopbarSyncBadge('synced');
         if (showFeedback) {
           showToast('☁️ Synced all pending notes & timers across Laptop & iPhone!');
         }
         return true;
+      } else {
+        pendingOfflinePush = true;
+        updateTopbarSyncBadge('offline');
       }
     } catch (e) {
+      pendingOfflinePush = true;
       updateTopbarSyncBadge('offline');
     }
     return false;
@@ -1569,46 +1584,82 @@
     // 1. Pull latest state or push local state on startup
     pullFromCloud(true, false);
 
-    // 2. Open Real-Time Server-Sent Events (SSE) stream so Laptop <-> iPhone updates in < 0.5s
-    try {
-      if (cloudEventSource) cloudEventSource.close();
-      cloudEventSource = new EventSource(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/sse`);
-      cloudEventSource.onmessage = (ev) => {
-        try {
-          const env = JSON.parse(ev.data);
-          if (env && env.event === 'message' && env.message) {
-            const pkt = JSON.parse(env.message);
-            if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
-              if ((pkt.ts || 0) >= (state.lastModified || 0)) {
-                applySyncPacket(pkt, 'Live Sync');
-              } else {
-                // Older packet overall, but it may still carry a newer 24h note / clear
-                mergeCloudStatusNotesIntoLocal(pkt);
-                persistLocalOnly();
-                renderSidebar();
-                renderMainChat();
+    // 2. Open Real-Time Server-Sent Events (SSE) stream so Laptop <-> iPhone updates in < 0.2s
+    let sseReconnectTimer = null;
+    const connectSSE = () => {
+      try {
+        if (cloudEventSource) {
+          try { cloudEventSource.close(); } catch (e) {}
+        }
+        cloudEventSource = new EventSource(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/sse`);
+        cloudEventSource.onmessage = (ev) => {
+          try {
+            const env = JSON.parse(ev.data);
+            if (env && env.event === 'message' && env.message) {
+              const pkt = JSON.parse(env.message);
+              if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
+                if ((pkt.ts || 0) >= (state.lastModified || 0)) {
+                  applySyncPacket(pkt, 'Live Sync');
+                } else {
+                  // Older packet overall, but it may still carry a newer 24h note / clear
+                  mergeCloudStatusNotesIntoLocal(pkt);
+                  persistLocalOnly();
+                  renderSidebar();
+                  renderMainChat();
+                }
               }
             }
-          }
-        } catch (err) {}
-      };
-      cloudEventSource.onopen = () => updateTopbarSyncBadge('synced');
-    } catch (e) {}
+          } catch (err) {}
+        };
+        cloudEventSource.onopen = () => {
+          clearTimeout(sseReconnectTimer);
+          updateTopbarSyncBadge('synced');
+        };
+        cloudEventSource.onerror = () => {
+          updateTopbarSyncBadge('offline');
+          try { cloudEventSource.close(); } catch (e) {}
+          clearTimeout(sseReconnectTimer);
+          sseReconnectTimer = setTimeout(connectSSE, 2500);
+        };
+      } catch (e) {
+        clearTimeout(sseReconnectTimer);
+        sseReconnectTimer = setTimeout(connectSSE, 3000);
+      }
+    };
+
+    connectSSE();
 
     // 3. Re-sync immediately when unlocking iPhone / switching back to browser tab
-    window.addEventListener('focus', () => pullFromCloud(false, false));
+    window.addEventListener('focus', () => {
+      connectSSE();
+      pullFromCloud(false, false);
+    });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
+        connectSSE();
         pullFromCloud(false, false);
       }
     });
 
-    // 4. Periodic heartbeat check every 15 seconds
+    // 4. Online/offline window events for aggressive reconnect & offline queue flush
+    window.addEventListener('online', () => {
+      connectSSE();
+      if (pendingOfflinePush) {
+        pushToCloudNow(false);
+      }
+      pullFromCloud(false, false);
+      showToast('🌐 Reconnected · Synced with cloud');
+    });
+    window.addEventListener('offline', () => {
+      updateTopbarSyncBadge('offline');
+    });
+
+    // 5. Periodic heartbeat check every 10 seconds
     setInterval(() => {
       if (document.visibilityState === 'visible') {
         pullFromCloud(false, false);
       }
-    }, 15000);
+    }, 10000);
   }
 
   // Check if URL has ?sync=... or ?m=... or ?s=1 from scanning the Live QR Code
@@ -2062,16 +2113,39 @@
       `;
     } else {
       const alarm = getNextAlarmInfo();
+      const activeTimersCount = totalTimersCount();
       box.innerHTML = `
         <div class="nf-clock-digital" id="topClockWidget" data-clock-theme="${esc(clockTheme)}" title="Click to cycle OrlandoRecharge Clock Style (${esc(themeLabel)})">
           <span class="chrome">${chromeDigitsHTML(digitsStr)}</span>
           <span class="nf-clock-ampm">${ampmStr}</span>
         </div>
+        ${activeTimersCount > 0 ? `
+          <button type="button" class="mobile-timers-summary-pill" id="mobileTimersSummaryPill" title="${activeTimersCount} active cooldown timer${activeTimersCount > 1 ? 's' : ''}">
+            <span class="pill-hourglass">⏳</span>
+            <span class="pill-num">${activeTimersCount}</span>
+          </button>
+        ` : ''}
         <a href="https://orlandopasion000.github.io/orlandorecharge" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge (Main Version) — Synced Live Schedule">
           <span class="alarm-pill-icon-svg" style="display:inline-flex;align-items:center;margin-right:4px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff2a3c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px rgba(255,42,60,0.85));"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3L2 6"></path><path d="M19 3l3 3"></path></svg></span>
           <span class="alarm-pill-text"><strong class="alarm-pill-countdown">${alarm.diffText}</strong> — ${esc(alarm.title)}</span>
         </a>
       `;
+    }
+
+    const timerSummaryPill = $('#mobileTimersSummaryPill', box);
+    if (timerSummaryPill) {
+      const handleTimerPill = (e) => {
+        if (e) {
+          e.stopPropagation();
+          if (e.cancelable) e.preventDefault();
+        }
+        triggerHaptic('light');
+        if (typeof closeMobileChatWithSlide === 'function') closeMobileChatWithSlide();
+        const tabTimers = $('#tabTimers');
+        if (tabTimers) tabTimers.click();
+      };
+      timerSummaryPill.onclick = handleTimerPill;
+      timerSummaryPill.addEventListener('touchend', handleTimerPill, { passive: false });
     }
 
     const clockEl = $('#topClockWidget', box);
@@ -3307,6 +3381,7 @@
 
         if (act === 'toggle-done') {
           note.done = !note.done;
+          triggerHaptic('success');
           if (note.done && window.soundMgr) window.soundMgr.playReadyChime();
           if (countPending(p) === 0) {
             p.isPinned = false;
@@ -3316,12 +3391,15 @@
           renderSidebar();
           renderMainChat();
         } else if (act === 'copy-note') {
+          triggerHaptic('light');
           navigator.clipboard.writeText(note.text || '').then(() => {
             showToast('📋 Copied message to clipboard!');
           }).catch(() => {});
         } else if (act === 'add-subitem') {
+          triggerHaptic('light');
           promptAddChecklistItem(p, note);
         } else if (act === 'toggle-subitem') {
+          triggerHaptic('light');
           const subid = el.dataset.subid;
           const sub = (note.subItems || []).find(s => s.id === subid);
           if (sub) {
@@ -3330,11 +3408,13 @@
             renderMainChat();
           }
         } else if (act === 'del-subitem') {
+          triggerHaptic('medium');
           const subid = el.dataset.subid;
           note.subItems = (note.subItems || []).filter(s => s.id !== subid);
           saveState();
           renderMainChat();
         } else if (act === 'delete-note') {
+          triggerHaptic('medium');
           const noteIdx = (p.notes || []).findIndex(n => n.id === nid);
           if (noteIdx !== -1) {
             const deletedNote = JSON.parse(JSON.stringify(p.notes[noteIdx]));
@@ -3383,9 +3463,9 @@
                   cardEl.classList.add('ghost-collapsing');
                   setTimeout(() => {
                     if (cardEl.parentNode) cardEl.parentNode.removeChild(cardEl);
-                  }, 300);
+                  }, 200);
                 }
-              }, 6000);
+              }, 2000);
             } else {
               renderMainChat();
             }
@@ -3393,7 +3473,7 @@
             showActionToast({
               message: '🗑️ Deleted note',
               actionText: '↺ Undo',
-              duration: 6500,
+              duration: 2000,
               onAction: () => {
                 historyMgr.undo();
               }
@@ -3978,7 +4058,7 @@
         showActionToast({
           message: `🗑️ Note deleted for ${profile.name}`,
           actionText: '↺ Undo',
-          duration: 6500,
+          duration: 2000,
           onAction: () => historyMgr.undo()
         });
       };
@@ -6113,7 +6193,7 @@ ${jsRes}
           rightInd.style.transform = `translateY(-50%) scale(${Math.min(1.08, 0.8 + absDx / 180)})`;
           const span = $('span', rightInd);
           if (span) {
-            span.textContent = absDx > 108 ? '✏️ Edit' : '↪ Forward';
+            span.textContent = absDx > 108 ? '🗑️ Delete' : '↪ Forward';
           }
           rightInd.classList.toggle('triggered', absDx >= 58);
           if (leftInd) leftInd.style.opacity = '0';
@@ -6183,6 +6263,7 @@ ${jsRes}
             openForwardModal(prof, note);
           } else if (currentDx >= 58 && velocityX >= -0.15) {
             note.done = !note.done;
+            triggerHaptic('success');
             if (note.done && window.soundMgr) window.soundMgr.playReadyChime();
             if (countPending(prof) === 0) {
               prof.isPinned = false;
@@ -6193,8 +6274,35 @@ ${jsRes}
             renderMainChat();
             showToast(note.done ? '✓ Marked note Done' : '↩ Reopened note');
           } else if (currentDx <= -108 && velocityX <= 0.15) {
-            state.editingNoteId = note.id;
-            renderMainChat();
+            triggerHaptic('medium');
+            const noteIdx = (prof.notes || []).findIndex(n => n.id === note.id);
+            if (noteIdx !== -1) {
+              const deletedNote = JSON.parse(JSON.stringify(prof.notes[noteIdx]));
+              addToTrash(deletedNote, prof);
+              historyMgr.record({
+                type: 'DELETE_NOTE',
+                profileId: prof.id,
+                note: deletedNote,
+                index: noteIdx
+              });
+              prof.notes.splice(noteIdx, 1);
+              if (countPending(prof) === 0) {
+                prof.isPinned = false;
+                prof.pinnedAt = null;
+              }
+              if (!hasMessages(prof)) {
+                prof.isUnread = false;
+              }
+              saveState();
+              renderSidebar();
+              renderMainChat();
+              showActionToast({
+                message: '🗑️ Deleted note',
+                actionText: '↺ Undo',
+                duration: 2000,
+                onAction: () => historyMgr.undo()
+              });
+            }
           } else if (currentDx <= -58 && velocityX <= 0.15) {
             openForwardModal(prof, note);
           }
