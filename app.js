@@ -558,7 +558,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure80').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure81').catch(() => {});
     });
   }
 
@@ -2892,9 +2892,6 @@ const Icons = {
 
         <div class="chat-header-actions-col">
           <div class="chat-header-actions">
-            <button type="button" class="btn-header-action ${statusNote ? 'status-note-active' : ''}" id="btnShareNoteHeader" title="${statusNote ? `Active 24h Note: &quot;${esc(statusNote.text)}&quot; (${formatRemainingNoteTime(statusNote.expiresAt - cur)}) · Click to edit or clear` : 'Share a 24-hour Thought Note for this profile'}">
-              <span class="note-header-icon">${Icons.note(13)}</span> <span>${statusNote ? '24h Note' : 'Share Note'}</span>
-            </button>
             <button type="button" class="btn-header-action btn-header-undo ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnUndoNote" title="Undo last message action (Ctrl+Z)" ${historyMgr.canUndo() ? '' : 'disabled'}>
               ${Icons.undo(13)} <span>Undo</span>
             </button>
@@ -2925,21 +2922,8 @@ const Icons = {
 
           <!-- 24-Hour Thought Note Banner (Placed DIRECTLY below the Trash, Sticky Note etc buttons on the right side!) -->
           ${statusNote ? `
-            <div class="profile-status-note-banner header-status-note-sub" id="profileStatusNoteBanner">
-              <div class="status-note-banner-left">
-                <span class="status-note-thought-tag" title="24-Hour Thought Note">
-                  <span class="thought-emoji">${Icons.note(10)}</span>
-                  <span>24H NOTE</span>
-                </span>
-                <span class="status-note-banner-text" title="${esc(statusNote.text)}">"${linkifyText(statusNote.text)}"</span>
-                <span class="status-note-remaining">${Icons.waiting(10)} ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span>
-              </div>
-              <div class="status-note-banner-actions">
-                <button type="button" class="btn-status-mini" id="btnEditStatusNoteInline" title="Edit 24h note">
-                  ${Icons.edit(11)} <span>Edit</span>
-                </button>
-                <button type="button" class="btn-status-mini btn-status-clear" id="btnClearStatusNoteInline" title="Clear 24h note">✕</button>
-              </div>
+            <div class="profile-status-note-banner header-status-note-sub" id="profileStatusNoteBanner" role="button" tabindex="0" title="Active 24h Note: &quot;${esc(statusNote.text)}&quot; · Click to view, edit or clear">
+              <span class="status-note-remaining">${Icons.waiting(11)} ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span>
             </div>
           ` : ''}
         </div>
@@ -3321,25 +3305,8 @@ const Icons = {
     const btnEditStatusNote = $('#btnEditStatusNoteInline');
     if (btnEditStatusNote) btnEditStatusNote.onclick = () => promptMessengerNote(p);
 
-    const btnClearStatusNote = $('#btnClearStatusNoteInline');
-    if (btnClearStatusNote) {
-      btnClearStatusNote.onclick = () => {
-        const oldStatus = getActiveStatusNote(p) ? JSON.parse(JSON.stringify(p.statusNote)) : null;
-        if (oldStatus) {
-          historyMgr.record({
-            type: 'STATUS_NOTE',
-            profileId: p.id,
-            oldNote: oldStatus,
-            newNote: null
-          });
-        }
-        p.statusNote = makeClearedStatusNote();
-        saveState();
-        renderSidebar();
-        renderMainChat();
-        showToast(`🗑️ Cleared 24h note on ${p.name}`);
-      };
-    }
+    const profileStatusNoteBanner = $('#profileStatusNoteBanner');
+    if (profileStatusNoteBanner) profileStatusNoteBanner.onclick = () => promptMessengerNote(p);
 
     // 1b. Toggle Unread from header
     const unreadHeaderBtn = $('#btnToggleUnreadHeader');
