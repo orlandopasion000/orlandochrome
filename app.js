@@ -554,7 +554,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure84').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure85').catch(() => {});
     });
   }
 
@@ -3073,9 +3073,10 @@ const Icons = {
                 ` : ''}
               </div>
 
-              <!-- All 10 Actions & Status Reactions Compressed on Far Right -->
-              <div class="note-bubble-actions">
-                <div class="note-reactions-inline" title="Priority status tags">
+              <!-- All 10 Actions & Status Reactions in Exactly Three Rows on Far Right -->
+              <div class="note-bubble-actions" title="Actions &amp; Priority">
+                <!-- Row 1: Priority Status Reactions (4 items) -->
+                <div class="note-actions-row note-actions-row-status" title="Priority status tags">
                   ${REACTIONS_LIST.map(r => `
                     <button type="button" class="react-inline-btn ${reactions.includes(r.key) ? 'active' : ''}" data-action="toggle-reaction" data-nid="${n.id}" data-rkey="${r.key}" title="Toggle ${esc(r.label)}">
                       ${r.icon}
@@ -3083,9 +3084,8 @@ const Icons = {
                   `).join('')}
                 </div>
 
-                <span class="note-action-sep"></span>
-
-                <div class="note-tools-inline">
+                <!-- Row 2: Primary Task Operations (3 items) -->
+                <div class="note-actions-row note-actions-row-primary">
                   ${n.done ? `
                     <button type="button" class="btn-note-micro btn-note-reopen" data-action="toggle-done" data-nid="${n.id}" title="Reopen task">${Icons.undo(12)}</button>
                   ` : `
@@ -3093,6 +3093,10 @@ const Icons = {
                   `}
                   <button type="button" class="btn-note-micro" data-action="copy-note" data-nid="${n.id}" title="Copy note text">${Icons.copy(12)}</button>
                   <button type="button" class="btn-note-micro" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item">${Icons.checklist(12)}</button>
+                </div>
+
+                <!-- Row 3: Management & Utility Actions (3 items) -->
+                <div class="note-actions-row note-actions-row-util">
                   <button type="button" class="btn-note-micro" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(12)}</button>
                   <button type="button" class="btn-note-micro btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward task to another profile">${Icons.forward(12)}</button>
                   <button type="button" class="btn-note-micro btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">${Icons.delete(12)}</button>

@@ -1,5 +1,5 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-pwa-v84';
+const CACHE_NAME = 'orlandochrome-pwa-v85';
 const ASSETS = [
   './',
   './index.html',
