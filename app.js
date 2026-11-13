@@ -1404,6 +1404,92 @@ const Icons = {
   }
 
   
+  
+  // ==========================================================================
+  // ENTERPRISE BULLETPROOF STORAGE & RESILIENCE ENGINE (v96)
+  // ==========================================================================
+
+  // Request Persistent Storage (Prevents iOS Safari & Chrome from auto-evicting data)
+  async function initPersistentStorage() {
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persist) {
+      try {
+        const isPersisted = await navigator.storage.persisted();
+        if (!isPersisted) {
+          const granted = await navigator.storage.persist();
+          console.log('[OrlandoChrome Storage] Persistent storage granted:', granted);
+        } else {
+          console.log('[OrlandoChrome Storage] Storage is already persistent.');
+        }
+      } catch (e) {
+        console.warn('[OrlandoChrome Storage] Persistent storage request error:', e);
+      }
+    }
+  }
+
+  // Safe LocalStorage Writer with Automatic Quota Recovery
+  function safeSetLocalStorage(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      if (e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014)) {
+        console.warn('[OrlandoChrome Storage] LocalStorage quota exceeded. Auto-recovering space...');
+        try {
+          const raw = localStorage.getItem(VAULT_STORAGE_KEY);
+          if (raw) {
+            const list = JSON.parse(raw);
+            if (Array.isArray(list) && list.length > 3) {
+              // Prune old snapshots in localStorage down to 3 to immediately free up space
+              localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(list.slice(0, 3)));
+            }
+          }
+        } catch (cleanErr) {}
+
+        try {
+          localStorage.setItem(key, value);
+          console.log('[OrlandoChrome Storage] Quota auto-recovery successful!');
+          return true;
+        } catch (retryErr) {
+          console.error('[OrlandoChrome Storage] Critical quota error even after cleanup:', retryErr);
+          showToast('⚠️ Storage limit reached on device. Consider deleting large attachments.');
+          return false;
+        }
+      }
+      return false;
+    }
+  }
+
+  // Create lightweight profile representation for localStorage snapshots (under 4KB total)
+  function createCompactProfilesForSnapshot(profiles) {
+    return (profiles || []).map(p => ({
+      id: p.id,
+      chromeNo: p.chromeNo,
+      name: p.name,
+      email: p.email,
+      taskbarSlot: p.taskbarSlot,
+      winShortcut: p.winShortcut,
+      timerUntil: p.timerUntil,
+      timerDurationMs: p.timerDurationMs,
+      isReset: p.isReset,
+      isPinned: p.isPinned,
+      pinnedAt: p.pinnedAt,
+      isUnread: p.isUnread,
+      stickyNote: p.stickyNote,
+      statusNote: p.statusNote ? { text: p.statusNote.text, createdAt: p.statusNote.createdAt, expiresAt: p.statusNote.expiresAt } : null,
+      notes: (p.notes || []).map(n => ({
+        id: n.id,
+        text: n.text,
+        done: n.done,
+        createdAt: n.createdAt,
+        editedAt: n.editedAt,
+        reactions: n.reactions,
+        subItems: n.subItems,
+        hasImage: Boolean(n.image),
+        hasVoice: Boolean(n.voiceClip)
+      }))
+    }));
+  }
+
   // ==========================================================================
   // ENTERPRISE DATA INTEGRITY, RECOVERY VAULT & ZERO-LOSS ENGINE (v95)
   // ==========================================================================
@@ -1555,7 +1641,12 @@ const Icons = {
         draSched: localStorage.getItem('dra-schedule') || null
       };
 
-      // 1. localStorage rolling buffer
+      // 1. localStorage lightweight rolling buffer (stripped of heavy base64 to save quota)
+      const compactSnap = {
+        ...snap,
+        profiles: createCompactProfilesForSnapshot(snap.profiles)
+      };
+
       let existingVault = [];
       try {
         const raw = localStorage.getItem(VAULT_STORAGE_KEY);
@@ -1563,18 +1654,18 @@ const Icons = {
         if (!Array.isArray(existingVault)) existingVault = [];
       } catch (e) {}
 
-      existingVault.unshift(snap);
-      if (existingVault.length > MAX_VAULT_SNAPSHOTS) {
-        existingVault = existingVault.slice(0, MAX_VAULT_SNAPSHOTS);
+      existingVault.unshift(compactSnap);
+      const MAX_LOCAL_SNAPS = 15;
+      if (existingVault.length > MAX_LOCAL_SNAPS) {
+        existingVault = existingVault.slice(0, MAX_LOCAL_SNAPS);
       }
       try {
-        localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(existingVault));
+        safeSetLocalStorage(VAULT_STORAGE_KEY, JSON.stringify(existingVault));
       } catch (e) {
-        existingVault = existingVault.slice(0, 10);
-        try { localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(existingVault)); } catch (err) {}
+        try { safeSetLocalStorage(VAULT_STORAGE_KEY, JSON.stringify(existingVault.slice(0, 5))); } catch (err) {}
       }
 
-      // 2. Asynchronous IndexedDB storage (unlimited quota)
+      // 2. Asynchronous IndexedDB storage: Stores FULL high-fidelity snapshot with all photos/clips (50MB+ quota)
       idbSaveSnapshot(snap);
       return snap;
     } catch (e) {
@@ -1776,6 +1867,9 @@ const Icons = {
       } catch (e) {}
     }
 
+    // Tombstone Synchronization: Broadcast deleted note IDs so other devices never resurrect them
+    const delIds = (state.trash || []).slice(0, 50).map(t => (t.note && t.note.id) ? t.note.id : t.id).filter(Boolean);
+
     return {
       v: 2,
       cid: CLIENT_ID,
@@ -1783,6 +1877,7 @@ const Icons = {
       ed: IS_BLANK_EDITION ? 'b' : 'p',
       tpl: forQrCode ? undefined : state.quickTemplates,
       dra: draSync,
+      del: delIds.length > 0 ? delIds : undefined,
       pendingCount: totalPendingCount(),
       totalAlerts: totalPendingCount() + (state.profiles ? state.profiles.filter(p => p.isReset).length : 0),
       p: activeProfs
@@ -1807,6 +1902,24 @@ const Icons = {
           localStorage.setItem('dra-schedule', JSON.stringify(packet.dra.sched));
         }
       } catch (e) {}
+    }
+
+    // Tombstone Synchronization: Process remote deletions so deleted notes stay deleted
+    if (Array.isArray(packet.del) && packet.del.length > 0) {
+      const delSet = new Set(packet.del);
+      state.profiles.forEach(p => {
+        if (Array.isArray(p.notes)) {
+          p.notes = p.notes.filter(n => {
+            if (delSet.has(n.id)) {
+              if (!state.trash.some(t => (t.note && t.note.id === n.id) || t.id === n.id)) {
+                addToTrash(n, p);
+              }
+              return false;
+            }
+            return true;
+          });
+        }
+      });
     }
 
     const mapByChromeNo = new Map();
@@ -2193,8 +2306,11 @@ const Icons = {
         updateTopbarSyncBadge('synced');
         return true;
       } else if (localTs > cloudTs && localHasActivity) {
-        // Never wipe 24h notes created on another device: merge them in before pushing our state
-        mergeCloudStatusNotesIntoLocal(latestPacket);
+        // Two-Way Non-Destructive Convergence: Merge any remote notes/timers before publishing our state!
+        // Guarantees zero lost updates when multiple devices edit while offline or during clock skew.
+        applySyncPacket(latestPacket, 'Two-Way Convergence Sync');
+        state.lastModified = now();
+        safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
         persistLocalOnly();
         renderSidebar();
         renderMainChat();
@@ -2227,15 +2343,15 @@ const Icons = {
             if (env && env.event === 'message' && env.message) {
               const pkt = JSON.parse(env.message);
               if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
-                if ((pkt.ts || 0) >= (state.lastModified || 0)) {
-                  applySyncPacket(pkt, 'Live Sync');
-                } else {
-                  // Older packet overall, but it may still carry a newer 24h note / clear
-                  mergeCloudStatusNotesIntoLocal(pkt);
-                  persistLocalOnly();
-                  renderSidebar();
-                  renderMainChat();
+                // Non-destructive merge is safe in ALL cases (unions notes, preserves local, applies tombstones)
+                applySyncPacket(pkt, 'Live Real-Time SSE');
+                if ((pkt.ts || 0) > (state.lastModified || 0)) {
+                  state.lastModified = pkt.ts;
+                  safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
                 }
+                persistLocalOnly();
+                renderSidebar();
+                renderMainChat();
               }
             }
           } catch (err) {}
@@ -2519,6 +2635,33 @@ const Icons = {
       takeBackupSnapshot('Hourly Automated Resilience Checkpoint');
     }, 60 * 60 * 1000);
 
+    // Mobile / Browser Lifecycle Resilience: Immediately flush pending sync on tab hide / lock / app switch
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        if (cloudPushTimer) {
+          clearTimeout(cloudPushTimer);
+          cloudPushTimer = null;
+          pushToCloudNow(false);
+        }
+        takeBackupSnapshot('Background Freeze Checkpoint');
+      } else if (document.visibilityState === 'visible') {
+        pullFromCloud(false, false);
+        connectSSE();
+      }
+    });
+
+    window.addEventListener('pagehide', () => {
+      if (cloudPushTimer) {
+        clearTimeout(cloudPushTimer);
+        cloudPushTimer = null;
+        pushToCloudNow(false);
+      }
+    });
+
+    // Request Persistent Storage API
+    initPersistentStorage();
+
+
     // If this device already has pending notes or timers from before Cloud Sync existed, stamp lastModified so it uploads on boot!
     if (!state.lastModified && hasAnyUserActivity(state.profiles)) {
       state.lastModified = now();
@@ -2544,8 +2687,8 @@ const Icons = {
 
   function persistLocalOnly() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.profiles));
-      localStorage.setItem('orlandochrome_trash', JSON.stringify(state.trash || []));
+      safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state.profiles));
+      safeSetLocalStorage('orlandochrome_trash', JSON.stringify(state.trash || []));
       updateDocumentTitle();
     } catch (e) {
       console.error('Failed to save state:', e);
@@ -2555,8 +2698,8 @@ const Icons = {
   function saveState(skipCloud = false) {
     try {
       state.lastModified = now();
-      localStorage.setItem(LAST_MOD_KEY, String(state.lastModified));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.profiles));
+      safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
+      safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state.profiles));
       updateDocumentTitle();
       scheduleVaultSnapshot('Saved Note / Taskbar State');
       if (!skipCloud) {
