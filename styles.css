@@ -5107,57 +5107,70 @@ body.is-resizing-pane * {
   pointer-events: none;
 }
 
+/* Right Header Profile Floating Note: Elegant Black Semi-Transparent (Shows Full Note) */
 .header-note-bubble {
   position: absolute;
-  top: -15px;
+  top: -16px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff;
-  color: #0f0f10;
+  background: rgba(10, 11, 16, 0.78);
+  color: #f8fafc;
   font-family: var(--font-main, 'Inter', -apple-system, sans-serif);
   font-size: 11px;
-  font-weight: 750;
-  padding: 3px 10px;
+  font-weight: 700;
+  line-height: 1.35;
+  padding: 3.5px 12px;
   border-radius: 14px;
-  white-space: nowrap;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.35);
-  z-index: 25;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  width: max-content;
+  max-width: min(340px, 86vw);
+  overflow: visible;
+  text-overflow: clip;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: 35;
   cursor: pointer;
-  transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   animation: messengerNotePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .header-note-bubble:hover {
-  transform: translateX(-50%) scale(1.08);
+  transform: translateX(-50%) translateY(-1px) scale(1.02);
+  background: rgba(16, 18, 26, 0.88);
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), 0 0 12px rgba(255, 255, 255, 0.12);
 }
 
 .header-note-bubble::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -4.5px;
   left: 50%;
   transform: translateX(-50%);
   width: 5px;
   height: 5px;
-  background: #ffffff;
+  background: rgba(12, 14, 20, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .header-note-bubble::before {
   content: '';
   position: absolute;
-  bottom: -8px;
+  bottom: -8.5px;
   left: 50%;
   transform: translateX(-50%);
   width: 3px;
   height: 3px;
-  background: #ffffff;
+  background: rgba(12, 14, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .header-note-add-badge {
@@ -7533,72 +7546,96 @@ button:hover .modern-icon,
   position: relative !important;
 }
 
-.chat-header-note-bubble {
+/* Right Header Profile Floating Note: Shows Full Note in Black Semi-Transparent Frosted Glass */
+.chat-header-note-bubble,
+#headerNoteBubble {
   position: absolute !important;
-  top: -12px !important;
+  top: -16px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  background: #ffffff !important;
-  color: #000000 !important;
+  background: rgba(10, 11, 16, 0.78) !important;
+  color: #f8fafc !important;
   font-family: var(--font-main, 'Inter', -apple-system, sans-serif) !important;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-  padding: 2px 7px !important;
-  border-radius: 12px !important;
-  white-space: nowrap !important;
-  max-width: 110px !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.4) !important;
-  z-index: 25 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  padding: 3.5px 12px !important;
+  border-radius: 14px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  text-align: center !important;
+  width: max-content !important;
+  max-width: min(340px, 86vw) !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 14px rgba(0, 0, 0, 0.6) !important;
+  z-index: 35 !important;
   cursor: pointer !important;
   pointer-events: auto !important;
+  transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
   animation: messengerNotePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-.chat-header-note-bubble:hover {
-  transform: translateX(-50%) scale(1.08) !important;
+.chat-header-note-bubble:hover,
+#headerNoteBubble:hover {
+  transform: translateX(-50%) translateY(-1px) scale(1.02) !important;
+  background: rgba(16, 18, 26, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.32) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), 0 0 12px rgba(255, 255, 255, 0.12) !important;
 }
 
-.chat-header-note-bubble::after {
+.chat-header-note-bubble::after,
+#headerNoteBubble::after {
   content: '' !important;
   position: absolute !important;
-  bottom: -4px !important;
+  bottom: -4.5px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: 4px !important;
-  height: 4px !important;
-  background: #ffffff !important;
+  width: 5px !important;
+  height: 5px !important;
+  background: rgba(12, 14, 20, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   border-radius: 50% !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
 }
 
-.chat-header-note-bubble::before {
+.chat-header-note-bubble::before,
+#headerNoteBubble::before {
   content: '' !important;
   position: absolute !important;
-  bottom: -7px !important;
+  bottom: -8.5px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: 2.5px !important;
-  height: 2.5px !important;
-  background: #ffffff !important;
+  width: 3px !important;
+  height: 3px !important;
+  background: rgba(12, 14, 20, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
   border-radius: 50% !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
 }
 
-.chat-header-note-prompt {
+.chat-header-note-prompt,
+#headerNotePrompt {
   position: absolute !important;
   top: -8px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  background: rgba(255, 255, 255, 0.92) !important;
-  color: #000000 !important;
+  background: rgba(14, 16, 22, 0.82) !important;
+  color: #f1f5f9 !important;
   font-size: 9px !important;
   font-weight: 800 !important;
   padding: 1.5px 6px !important;
   border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
   z-index: 20 !important;
   cursor: pointer !important;
-  transition: opacity 0.15s ease !important;
+  transition: opacity 0.15s ease, background 0.15s ease !important;
 }
 
 @media (min-width: 769px) {
