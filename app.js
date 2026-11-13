@@ -558,7 +558,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure81').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure82').catch(() => {});
     });
   }
 
@@ -2804,6 +2804,23 @@ const Icons = {
   }
 
   // Render Right Main Chat & Notes Pane
+  // Smart Date Grouping Helper (Today, Yesterday, Earlier)
+  function getDateGroupKey(timestamp) {
+    if (!timestamp) return 'Earlier';
+    const noteDate = new Date(timestamp);
+    const now = new Date();
+    const noteDay = new Date(noteDate.getFullYear(), noteDate.getMonth(), noteDate.getDate()).getTime();
+    const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const diffDays = Math.round((todayDay - noteDay) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays > 1 && diffDays < 7) {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return days[noteDate.getDay()];
+    }
+    return noteDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: noteDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+  }
+
   function renderMainChat() {
     // Guard: defer re-render while note modal is open to prevent iOS phantom dismissal
     if (document.body.dataset.noteModalOpen === '1') {
@@ -2999,15 +3016,24 @@ const Icons = {
 
       <!-- Notes Stream (Pure OLED Black Blank Space When Empty) -->
       <div class="notes-stream" id="notesStream">
-        ${!notes.length ? '' : notes.map(n => {
+        ${!notes.length ? '' : notes.map((n, nIdx) => {
           const isEditing = state.editingNoteId === n.id;
+          const prevNote = nIdx > 0 ? notes[nIdx - 1] : null;
+          const prevDateKey = prevNote ? getDateGroupKey(prevNote.createdAt) : null;
+          const currentDateKey = getDateGroupKey(n.createdAt);
+          const showDivider = currentDateKey !== prevDateKey;
           const reactions = Array.isArray(n.reactions) ? n.reactions : [];
           const subItems = Array.isArray(n.subItems) ? n.subItems : [];
 
           return `
+          ${showDivider ? `
+            <div class="chat-date-divider" data-date="${esc(currentDateKey)}">
+              <span class="chat-date-pill">${esc(currentDateKey)}</span>
+            </div>
+          ` : ''}
           <div class="note-item-wrap" data-nid="${n.id}" id="noteCard_${n.id}">
             <div class="note-swipe-indicator left-ind"><span>${n.done ? '↩ Reopen' : '✓ Done'}</span></div>
-            <div class="note-swipe-indicator right-ind"><span>↪ Forward</span></div>
+            <div class="note-swipe-indicator right-ind"><span>🗑️ Delete</span></div>
             <div class="note-bubble ${n.done ? 'done' : ''} ${isEditing ? 'editing' : ''}">
               <!-- Hover Quick Reaction Bar (Messenger / Discord Style) -->
               <div class="note-reaction-picker" title="Tag message with priority reaction">
@@ -3173,6 +3199,23 @@ const Icons = {
           </div>
         </div>
       ` : ''}
+
+      <!-- Mobile Thumb-Zone Quick Action Bar (iPhone 1-Hand Reachability) -->
+      <div class="mobile-thumb-actions" id="mobileThumbActions">
+        <button type="button" class="btn-thumb-action ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnThumbUndo" title="Undo last action" ${historyMgr.canUndo() ? '' : 'disabled'}>
+          ${Icons.undo(12)} <span>Undo</span>
+        </button>
+        <button type="button" class="btn-thumb-action" id="btnThumbTrash" title="Recently Deleted Vault (30-day restore)">
+          ${Icons.trashVault(13)} <span>Trash</span>
+          ${(state.trash || []).length > 0 ? `<span class="thumb-badge">${(state.trash || []).length}</span>` : ''}
+        </button>
+        <button type="button" class="btn-thumb-action ${p.stickyNote ? 'active' : ''}" id="btnThumbSticky" title="Sticky note for ${esc(p.name)}">
+          ${Icons.important(12)} <span>${p.stickyNote ? 'Sticky' : '+ Sticky'}</span>
+        </button>
+        <button type="button" class="btn-thumb-action" id="btnThumbShareNote" title="24-Hour Note for ${esc(p.name)}">
+          ${Icons.note(12)} <span>24h Note</span>
+        </button>
+      </div>
 
       <!-- Enhancement #1: 1-Click Quick-Task Templates Bar -->
       <div class="quick-templates-bar">
@@ -6389,7 +6432,7 @@ ${jsRes}
             renderSidebar();
             renderMainChat();
             showToast(note.done ? '✓ Marked note Done' : '↩ Reopened note');
-          } else if (currentDx <= -108 && velocityX <= 0.15) {
+          } else if (currentDx <= -58 && velocityX <= 0.15) {
             triggerHaptic('medium');
             const noteIdx = (prof.notes || []).findIndex(n => n.id === note.id);
             if (noteIdx !== -1) {
@@ -6414,13 +6457,11 @@ ${jsRes}
               renderMainChat();
               showActionToast({
                 message: '🗑️ Deleted note',
-                actionText: '↺ Undo',
+                actionText: '↩ Undo',
                 duration: 2000,
                 onAction: () => historyMgr.undo()
               });
             }
-          } else if (currentDx <= -58 && velocityX <= 0.15) {
-            openForwardModal(prof, note);
           }
         }
       } else if (mode === 'profile-swipe' && activeEl && activeContainer) {
