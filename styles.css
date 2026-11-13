@@ -8365,3 +8365,206 @@ html, body,
     transform: scale(1) translateY(0);
   }
 }
+
+
+/* ==========================================================================
+   v87: 13 Futuristic Share a Note Presets & Add/Remove Template System
+   ========================================================================== */
+.note-preset-header-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-bottom: 8px !important;
+}
+
+.preset-label-title {
+  font-weight: 700 !important;
+  color: #ff3344 !important;
+  letter-spacing: 0.05em !important;
+  font-size: 0.72rem !important;
+}
+
+.preset-manage-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.btn-manage-presets,
+.btn-add-preset-quick {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 3px 8px !important;
+  border-radius: 9999px !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #cbd5e1 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-manage-presets:hover,
+.btn-add-preset-quick:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+  transform: scale(1.04) !important;
+}
+
+.btn-manage-presets.active {
+  background: rgba(229, 9, 20, 0.2) !important;
+  border-color: rgba(229, 9, 20, 0.5) !important;
+  color: #ff8a93 !important;
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.3) !important;
+}
+
+.add-preset-drawer {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 8px !important;
+  background: rgba(18, 18, 26, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 8px !important;
+  margin-bottom: 10px !important;
+  animation: fadeIn 0.15s ease !important;
+}
+
+.input-new-preset {
+  flex: 1 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 6px !important;
+  padding: 5px 8px !important;
+  font-size: 12px !important;
+  color: #ffffff !important;
+  outline: none !important;
+}
+
+.input-new-preset:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3) !important;
+}
+
+.btn-save-new-preset {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 5px 10px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: transform 0.12s ease, background 0.12s ease !important;
+}
+
+.btn-save-new-preset:hover {
+  background: #1d4ed8 !important;
+  transform: scale(1.04) !important;
+}
+
+.btn-cancel-new-preset {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  padding: 5px !important;
+  cursor: pointer !important;
+}
+
+.btn-cancel-new-preset:hover {
+  color: #ffffff !important;
+}
+
+/* Futuristic Preset Chips */
+.note-preset-chips {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  max-height: 190px !important;
+  overflow-y: auto !important;
+  padding-right: 4px !important;
+}
+
+.btn-task-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 10px !important;
+  background: rgba(14, 18, 28, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: #f1f5f9 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+  user-select: none !important;
+}
+
+.btn-task-chip:hover {
+  background: rgba(22, 28, 44, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.task-chip-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.task-chip-icon svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+/* Delete badge on chip when in manage mode */
+.btn-chip-delete {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 9999px !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  margin-left: 2px !important;
+  transition: transform 0.12s ease, background 0.12s ease !important;
+}
+
+.btn-chip-delete:hover {
+  transform: scale(1.2) !important;
+  background: #dc2626 !important;
+}
+
+.btn-task-chip.manage-active {
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+.empty-tpl-hint {
+  width: 100% !important;
+  padding: 12px !important;
+  text-align: center !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+}
+
+.btn-reset-tpl-inline {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #38bdf8 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+  margin-left: 6px !important;
+}

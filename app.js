@@ -49,7 +49,149 @@
   // ============================================================================
   // FUTURISTIC CYBER SVG ICON SYSTEM (Next-Gen UI Glyphs)
   // ============================================================================
+
+  const DEFAULT_SHARE_NOTE_TEMPLATES = [
+    { id: 't_dll', label: 'DLL Generating', icon: 'dll', status: 'DLL Generating' },
+    { id: 't_ecr', label: 'ECR', icon: 'ecr', status: 'ECR' },
+    { id: 't_cr', label: 'Class Record', icon: 'class_record', status: 'Class Record' },
+    { id: 't_diss', label: 'Dissertation', icon: 'dissertation', status: 'Dissertation' },
+    { id: 't_st1', label: 'ST1', icon: 'st1', status: 'ST1' },
+    { id: 't_st2', label: 'ST2', icon: 'st2', status: 'ST2' },
+    { id: 't_exam', label: 'Exam', icon: 'exam', status: 'Exam' },
+    { id: 't_tos', label: 'TOS', icon: 'tos', status: 'TOS' },
+    { id: 't_print', label: 'Printing', icon: 'printing', status: 'Printing' },
+    { id: 't_math', label: 'Math Class', icon: 'math', status: 'Math Class' },
+    { id: 't_rev', label: 'Review', icon: 'review', status: 'Review' },
+    { id: 't_rush', label: 'Rush Priority', icon: 'rush', status: 'Rush Priority' },
+    { id: 't_keys', label: 'Answer Keys', icon: 'keys', status: 'Answer Keys' }
+  ];
+
 const Icons = {
+    // 13 NEXT-GEN FUTURISTIC CYBER TEMPLATE ICONS FOR SHARE A NOTE
+    renderTemplateIcon: (type, size = 15) => {
+      const s = size;
+      switch (type) {
+        case 'dll': // DLL Generating: Quantum neural AI generative synapse
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="DLL Generating">
+            <svg viewBox="0 0 24 24" fill="none">
+              <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="#38bdf8" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="3.5" fill="#0284c7"/>
+              <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
+              <line x1="12" y1="2" x2="12" y2="8.5" stroke="#38bdf8" stroke-width="1.5"/>
+              <line x1="3" y1="7" x2="8.5" y2="10" stroke="#38bdf8" stroke-width="1.5"/>
+              <line x1="21" y1="7" x2="15.5" y2="10" stroke="#38bdf8" stroke-width="1.5"/>
+            </svg>
+          </span>`;
+        case 'ecr': // ECR: Encrypted holographic cyber datapad ledger
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Electronic Class Record">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="18" height="18" rx="4" stroke="#c084fc" stroke-width="1.8"/>
+              <path d="M7 8h10M7 12h7M7 16h10" stroke="#e9d5ff" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="18" cy="12" r="2" fill="#a855f7"/>
+            </svg>
+          </span>`;
+        case 'class_record': // Class Record: Biometric class ledger with emerald check-nodes
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Class Record">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3.5" y="3.5" width="17" height="17" rx="3" stroke="#10b981" stroke-width="1.8"/>
+              <path d="M7 8h4M7 12h4M7 16h4" stroke="#6ee7b7" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M14 8l1.5 1.5 3-3M14 12l1.5 1.5 3-3M14 16l1.5 1.5 3-3" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>`;
+        case 'dissertation': // Dissertation: Quantum scholar tome with golden amber plasma seal
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Dissertation">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5z" stroke="#f59e0b" stroke-width="1.8"/>
+              <path d="M8 7h8M8 11h8M8 15h5" stroke="#fde68a" stroke-width="1.5" stroke-linecap="round"/>
+              <polygon points="16 15 17.5 18 19 15 17.5 12" fill="#d97706"/>
+            </svg>
+          </span>`;
+        case 'st1': // ST1: Supersonic delta vector in crimson laser with quantum 1
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Summative Test 1">
+            <svg viewBox="0 0 24 24" fill="none">
+              <polygon points="12 2 21 8 21 16 12 22 3 16 3 8" stroke="#fb7185" stroke-width="1.8"/>
+              <path d="M10.5 10l2-2v8" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>`;
+        case 'st2': // ST2: Hypersonic dual-warp chevrons in neon magenta with quantum 2
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Summative Test 2">
+            <svg viewBox="0 0 24 24" fill="none">
+              <polygon points="12 2 21 8 21 16 12 22 3 16 3 8" stroke="#f472b6" stroke-width="1.8"/>
+              <path d="M9.5 9.5a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2.5 2.5-4 4.5h4.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>`;
+        case 'exam': // Exam: High-energy cyber laser scanning reticle
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Exam">
+            <svg viewBox="0 0 24 24" fill="none">
+              <polygon points="12 2 22 12 12 22 2 12" stroke="#ef4444" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="4" stroke="#ffffff" stroke-width="1.5"/>
+              <circle cx="12" cy="12" r="1.5" fill="#ef4444"/>
+              <line x1="12" y1="2" x2="12" y2="6" stroke="#ef4444" stroke-width="1.5"/>
+              <line x1="12" y1="18" x2="12" y2="22" stroke="#ef4444" stroke-width="1.5"/>
+              <line x1="2" y1="12" x2="6" y2="12" stroke="#ef4444" stroke-width="1.5"/>
+              <line x1="18" y1="12" x2="22" y2="12" stroke="#ef4444" stroke-width="1.5"/>
+            </svg>
+          </span>`;
+        case 'tos': // TOS: Table of Specifications 3D holographic matrix
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Table of Specifications">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke="#06b6d4" stroke-width="1.8"/>
+              <line x1="3" y1="9" x2="21" y2="9" stroke="#22d3ee" stroke-width="1.5"/>
+              <line x1="3" y1="15" x2="21" y2="15" stroke="#22d3ee" stroke-width="1.5"/>
+              <line x1="9" y1="3" x2="9" y2="21" stroke="#22d3ee" stroke-width="1.5"/>
+              <line x1="15" y1="3" x2="15" y2="21" stroke="#22d3ee" stroke-width="1.5"/>
+            </svg>
+          </span>`;
+        case 'printing': // Printing: High-velocity photon laser emitter beam
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Printing">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M6 8V3h12v5" stroke="#a855f7" stroke-width="1.8"/>
+              <rect x="4" y="8" width="16" height="9" rx="2" stroke="#c084fc" stroke-width="1.8"/>
+              <path d="M7 14v7h10v-7" stroke="#e9d5ff" stroke-width="1.8"/>
+              <line x1="8" y1="18" x2="16" y2="18" stroke="#8b5cf6" stroke-width="1.5"/>
+              <circle cx="16.5" cy="11.5" r="1" fill="#22c55e"/>
+            </svg>
+          </span>`;
+        case 'math': // Math Class: Quantum sigma summation + delta calculus wave
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Math Class">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M17 5H7l5 7-5 7h10" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19 12h-3" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>`;
+        case 'review': // Review: Orbital telemetry radar scanner reticle
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Review">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#14b8a6" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="4" stroke="#5eead4" stroke-width="1.4"/>
+              <line x1="12" y1="12" x2="18" y2="6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
+            </svg>
+          </span>`;
+        case 'rush': // Rush Priority: Hypersonic plasma warp thruster flame
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Rush Priority">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#ff4d00" stroke="#ff0055" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </span>`;
+        case 'keys': // Answer Keys: Master quantum biometric decryption key
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Answer Keys">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="8" cy="12" r="5" stroke="#eab308" stroke-width="1.8"/>
+              <circle cx="8" cy="12" r="2" fill="#facc15"/>
+              <path d="M13 12h8M17 12v3M20 12v2" stroke="#eab308" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>`;
+        default:
+          return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Template">
+            <svg viewBox="0 0 24 24" fill="none">
+              <polygon points="12 2 22 12 12 22 2 12" stroke="#38bdf8" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="2" fill="#ffffff"/>
+            </svg>
+          </span>`;
+      }
+    },
+
     urgent: (size = 14) => `
       <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;" title="Urgent (Fire)">
         <svg viewBox="0 0 24 24" fill="none">
@@ -554,7 +696,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure86').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure87').catch(() => {});
     });
   }
 
@@ -4077,24 +4219,29 @@ const Icons = {
     const currentNote = getActiveStatusNote(profile);
     const avatarSrc = getAvatarSrc(profile);
 
-    const TASK_PRESETS = [
-      { icon: '📝', label: 'Grading', status: '📝 Grading Exams' },
-      { icon: '🖨️', label: 'Printing', status: '🖨️ Printing Files' },
-      { icon: '📐', label: 'Math Class', status: '📐 Math Class' },
-      { icon: '🧠', label: 'Deep Focus', status: '🧠 Deep Focus' },
-      { icon: '🔬', label: 'Research', status: '🔬 AI Research' },
-      { icon: '📊', label: 'Reports', status: '📊 DepEd Reports' },
-      { icon: '📚', label: 'Lesson Plan', status: '📚 Lesson Plan' },
-      { icon: '📋', label: 'DepEd Forms', status: '📋 DepEd Forms (SF)' },
-      { icon: '💻', label: 'Online Class', status: '💻 Online Class' },
-      { icon: '🧪', label: 'Lab Activity', status: '🧪 Lab Activity' },
-      { icon: '🎯', label: 'Review', status: '🎯 Review Session' },
-      { icon: '⏳', label: 'Cooldown', status: '⏳ Cooldown' },
-      { icon: '⚡', label: 'Ready', status: '⚡ Ready for Work' },
-      { icon: '🚀', label: 'Rush Priority', status: '🚀 Rush Priority' },
-      { icon: '☕', label: 'Coffee Break', status: '☕ Coffee Break' },
-      { icon: '✨', label: 'Clean Slate', status: '✨ Clean Slate' }
-    ];
+    if (!Array.isArray(state.shareNoteTemplates) || !state.shareNoteTemplates.length) {
+      state.shareNoteTemplates = JSON.parse(JSON.stringify(DEFAULT_SHARE_NOTE_TEMPLATES));
+      state.shareNoteTemplatesVersion = 3;
+      saveState();
+    }
+
+    let isManageMode = false;
+
+    const renderChipsHtml = () => {
+      const list = state.shareNoteTemplates || [];
+      if (!list.length) {
+        return `<div class="empty-tpl-hint">No templates yet. <button type="button" class="btn-reset-tpl-inline" id="btnResetTemplatesInline">↺ Restore 13 Defaults</button></div>`;
+      }
+      return list.map(tp => `
+        <button type="button" class="btn-task-chip ${isManageMode ? 'manage-active' : ''}" data-tid="${tp.id}" data-status="${esc(tp.status)}" title="${isManageMode ? 'Click ✕ to delete or click to use' : 'Click to insert · Double-click to share'}">
+          <span class="task-chip-icon">${Icons.renderTemplateIcon(tp.icon, 15)}</span>
+          <span class="task-chip-text">${esc(tp.label)}</span>
+          ${isManageMode ? `
+            <span class="btn-chip-delete" data-del-tid="${tp.id}" title="Remove '${esc(tp.label)}'">✕</span>
+          ` : ''}
+        </button>
+      `).join('');
+    };
 
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
@@ -4113,24 +4260,38 @@ const Icons = {
 
         <div class="note-input-container">
           <div class="note-input-row">
-            <input type="text" id="messengerNoteInput" class="rename-input note-composer-input" maxlength="60" value="${esc(currentNote ? currentNote.text : '')}" placeholder="What's on your mind? (e.g. 📝 Grading Exams)">
+            <input type="text" id="messengerNoteInput" class="rename-input note-composer-input" maxlength="60" value="${esc(currentNote ? currentNote.text : '')}" placeholder="What's on your mind? (e.g. DLL Generating)">
             <span class="note-char-counter"><span id="noteCharCount">${currentNote ? currentNote.text.length : 0}</span>/60</span>
           </div>
         </div>
 
-        <!-- Advanced Task Presets (Solo Icons Removed) -->
+        <!-- 13 Next-Gen Futuristic Task Status Presets + Add/Remove Manager -->
         <div class="note-presets-section">
-          <div class="note-preset-label">
-            <span>⚡ TASK STATUS PRESETS:</span>
-            <span class="note-preset-hint">Tap to pick · Press Enter to share</span>
-          </div>
-          <div class="note-preset-chips">
-            ${TASK_PRESETS.map(tp => `
-              <button type="button" class="btn-task-chip" data-status="${esc(tp.status)}" title="Click to insert • Double-click or Enter to Share">
-                <span class="task-chip-icon">${tp.icon}</span>
-                <span class="task-chip-text">${esc(tp.label)}</span>
+          <div class="note-preset-header-row">
+            <div class="note-preset-label">
+              <span class="preset-label-title">⚡ TASK STATUS PRESETS:</span>
+              <span class="note-preset-hint">Tap to pick · Press Enter to share</span>
+            </div>
+            <div class="preset-manage-actions">
+              <button type="button" class="btn-manage-presets" id="btnToggleManageTemplates" title="Toggle Manage Mode to delete templates">
+                ⚙️ <span id="manageBtnLabel">Manage</span>
               </button>
-            `).join('')}
+              <button type="button" class="btn-add-preset-quick" id="btnOpenAddTemplate" title="Add a new custom template">
+                + Add
+              </button>
+            </div>
+          </div>
+
+          <!-- Inline Add Template Drawer -->
+          <div class="add-preset-drawer" id="addTemplateDrawer" style="display:none;">
+            <input type="text" class="input-new-preset" id="inputNewTemplateName" placeholder="New template name (e.g. Science Quiz)" maxlength="32">
+            <button type="button" class="btn-save-new-preset" id="btnSaveNewTemplate">+ Add</button>
+            <button type="button" class="btn-cancel-new-preset" id="btnCancelNewTemplate">✕</button>
+          </div>
+
+          <!-- Preset Chips Container -->
+          <div class="note-preset-chips" id="notePresetChipsContainer">
+            ${renderChipsHtml()}
           </div>
         </div>
 
@@ -4149,11 +4310,144 @@ const Icons = {
       </div>
     `;
 
-    // Mark that a note modal is open (prevents renderSidebar/renderMainChat from nuking it)
+    // Mark that a note modal is open
     document.body.dataset.noteModalOpen = '1';
     document.body.appendChild(backdrop);
     const inp = $('#messengerNoteInput', backdrop);
     const charCount = $('#noteCharCount', backdrop);
+
+    const updateChipsDisplay = () => {
+      const container = $('#notePresetChipsContainer', backdrop);
+      if (container) {
+        container.innerHTML = renderChipsHtml();
+        attachChipEvents();
+      }
+    };
+
+    const attachChipEvents = () => {
+      const container = $('#notePresetChipsContainer', backdrop);
+      if (!container) return;
+
+      // Handle template click to insert text
+      $$('.btn-task-chip', container).forEach(chip => {
+        chip.onclick = (e) => {
+          // If clicked the delete X button, do delete instead
+          const delBtn = e.target.closest('[data-del-tid]');
+          if (delBtn) {
+            e.stopPropagation();
+            const tid = delBtn.dataset.delTid;
+            state.shareNoteTemplates = (state.shareNoteTemplates || []).filter(t => t.id !== tid);
+            saveState();
+            updateChipsDisplay();
+            showToast('🗑️ Removed template');
+            return;
+          }
+          const statusText = chip.dataset.status;
+          if (statusText) {
+            inp.value = statusText;
+            updatePreview();
+            inp.focus();
+            triggerHaptic('light');
+          }
+        };
+
+        chip.ondblclick = (e) => {
+          if (e.target.closest('[data-del-tid]')) return;
+          const statusText = chip.dataset.status;
+          if (statusText) {
+            inp.value = statusText;
+            updatePreview();
+            saveAndClose();
+          }
+        };
+      });
+
+      // Restore defaults button
+      const resetBtn = $('#btnResetTemplatesInline', container);
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          state.shareNoteTemplates = JSON.parse(JSON.stringify(DEFAULT_SHARE_NOTE_TEMPLATES));
+          state.shareNoteTemplatesVersion = 3;
+          saveState();
+          updateChipsDisplay();
+          showToast('↺ Restored 13 default futuristic templates');
+        };
+      }
+    };
+
+    // Toggle Manage Mode
+    const btnManage = $('#btnToggleManageTemplates', backdrop);
+    const manageLabel = $('#manageBtnLabel', backdrop);
+    if (btnManage) {
+      btnManage.onclick = () => {
+        isManageMode = !isManageMode;
+        btnManage.classList.toggle('active', isManageMode);
+        if (manageLabel) manageLabel.textContent = isManageMode ? 'Done' : 'Manage';
+        updateChipsDisplay();
+      };
+    }
+
+    // Toggle Add Template Drawer
+    const btnOpenAdd = $('#btnOpenAddTemplate', backdrop);
+    const addDrawer = $('#addTemplateDrawer', backdrop);
+    const inputNewName = $('#inputNewTemplateName', backdrop);
+    const btnSaveNew = $('#btnSaveNewTemplate', backdrop);
+    const btnCancelNew = $('#btnCancelNewTemplate', backdrop);
+
+    if (btnOpenAdd && addDrawer) {
+      btnOpenAdd.onclick = () => {
+        addDrawer.style.display = addDrawer.style.display === 'none' ? 'flex' : 'none';
+        if (addDrawer.style.display !== 'none' && inputNewName) {
+          inputNewName.value = '';
+          inputNewName.focus();
+        }
+      };
+    }
+
+    if (btnCancelNew && addDrawer) {
+      btnCancelNew.onclick = () => {
+        addDrawer.style.display = 'none';
+      };
+    }
+
+    const handleCreateTemplate = () => {
+      const name = inputNewName ? inputNewName.value.trim() : '';
+      if (!name) {
+        showToast('⚠️ Please enter a template name');
+        return;
+      }
+      const newTpl = {
+        id: 't_' + uid(),
+        label: name,
+        icon: 'dll', // default sleek cyber diamond icon
+        status: name
+      };
+      state.shareNoteTemplates = state.shareNoteTemplates || [];
+      state.shareNoteTemplates.push(newTpl);
+      saveState();
+      inputNewName.value = '';
+      if (addDrawer) addDrawer.style.display = 'none';
+      updateChipsDisplay();
+      showToast(`✨ Added template: "${name}"`);
+      // Auto-insert into input
+      inp.value = name;
+      updatePreview();
+    };
+
+    if (btnSaveNew) btnSaveNew.onclick = handleCreateTemplate;
+    if (inputNewName) {
+      inputNewName.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleCreateTemplate();
+        } else if (e.key === 'Escape') {
+          if (addDrawer) addDrawer.style.display = 'none';
+        }
+      };
+    }
+
+    attachChipEvents();
+
 
     // iOS fix: delay focus so the keyboard opening doesn't trigger phantom click/resize events
     // that would immediately close the modal
@@ -6651,6 +6945,7 @@ ${jsRes}
     window.__ocRenderMainChat = renderMainChat;
     window.__ocRenderSidebar = renderSidebar;
   window.__ocShowPendingPopover = showPendingTasksPopover;
+  window.__ocPromptMessengerNote = promptMessengerNote;
     window.__ocSelectProfile = selectProfile;
     window.__ocSaveState = saveState;
     window.__ocUpdateDocumentTitle = updateDocumentTitle;
