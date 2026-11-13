@@ -554,7 +554,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure85').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure86').catch(() => {});
     });
   }
 
@@ -2818,6 +2818,20 @@ const Icons = {
   }
 
   function renderMainChat() {
+    // Auto-dismiss More action menus when clicking outside
+    if (!window.orlandoMoreOutsideClickListener) {
+      window.orlandoMoreOutsideClickListener = true;
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.note-action-cluster-wrap')) {
+          $$('.note-bubble.actions-expanded').forEach(b => {
+            b.classList.remove('actions-expanded');
+            const mText = b.querySelector('.btn-note-more .more-text');
+            if (mText) mText.textContent = 'More';
+          });
+        }
+      });
+    }
+
     // Guard: defer re-render while note modal is open to prevent iOS phantom dismissal
     if (document.body.dataset.noteModalOpen === '1') {
       if (!renderMainChat._deferred) {
@@ -3073,33 +3087,51 @@ const Icons = {
                 ` : ''}
               </div>
 
-              <!-- All 10 Actions & Status Reactions in Exactly Three Rows on Far Right -->
-              <div class="note-bubble-actions" title="Actions &amp; Priority">
-                <!-- Row 1: Priority Status Reactions (4 items) -->
-                <div class="note-actions-row note-actions-row-status" title="Priority status tags">
-                  ${REACTIONS_LIST.map(r => `
-                    <button type="button" class="react-inline-btn ${reactions.includes(r.key) ? 'active' : ''}" data-action="toggle-reaction" data-nid="${n.id}" data-rkey="${r.key}" title="Toggle ${esc(r.label)}">
-                      ${r.icon}
-                    </button>
-                  `).join('')}
-                </div>
+              <!-- Actions & Status: Hidden behind 50% Transparent "More" Button -->
+              <div class="note-action-cluster-wrap">
+                ${reactions.length > 0 ? `
+                  <div class="note-active-tags-pill" title="Active priorities: ${reactions.join(', ')}">
+                    ${reactions.map(rKey => {
+                      const rObj = REACTIONS_LIST.find(x => x.key === rKey);
+                      return rObj ? `<span class="active-tag-mini">${rObj.icon}</span>` : '';
+                    }).join('')}
+                  </div>
+                ` : ''}
 
-                <!-- Row 2: Primary Task Operations (3 items) -->
-                <div class="note-actions-row note-actions-row-primary">
-                  ${n.done ? `
-                    <button type="button" class="btn-note-micro btn-note-reopen" data-action="toggle-done" data-nid="${n.id}" title="Reopen task">${Icons.undo(12)}</button>
-                  ` : `
-                    <button type="button" class="btn-note-micro btn-note-done" data-action="toggle-done" data-nid="${n.id}" title="Mark Done">${Icons.check(12)}</button>
-                  `}
-                  <button type="button" class="btn-note-micro" data-action="copy-note" data-nid="${n.id}" title="Copy note text">${Icons.copy(12)}</button>
-                  <button type="button" class="btn-note-micro" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item">${Icons.checklist(12)}</button>
-                </div>
+                <!-- 50% Transparent "More" Trigger Button -->
+                <button type="button" class="btn-note-more" data-action="toggle-more" data-nid="${n.id}" title="Click to reveal 10 actions &amp; status tools">
+                  <span class="more-dot-icon">•••</span>
+                  <span class="more-text">More</span>
+                </button>
 
-                <!-- Row 3: Management & Utility Actions (3 items) -->
-                <div class="note-actions-row note-actions-row-util">
-                  <button type="button" class="btn-note-micro" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(12)}</button>
-                  <button type="button" class="btn-note-micro btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward task to another profile">${Icons.forward(12)}</button>
-                  <button type="button" class="btn-note-micro btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">${Icons.delete(12)}</button>
+                <!-- Expanded 3-Row Tool Matrix (Reveals when "More" is clicked) -->
+                <div class="note-bubble-actions" title="Actions &amp; Priority">
+                  <!-- Row 1: Priority Status Reactions (4 items) -->
+                  <div class="note-actions-row note-actions-row-status" title="Priority status tags">
+                    ${REACTIONS_LIST.map(r => `
+                      <button type="button" class="react-inline-btn ${reactions.includes(r.key) ? 'active' : ''}" data-action="toggle-reaction" data-nid="${n.id}" data-rkey="${r.key}" title="Toggle ${esc(r.label)}">
+                        ${r.icon}
+                      </button>
+                    `).join('')}
+                  </div>
+
+                  <!-- Row 2: Primary Task Operations (3 items) -->
+                  <div class="note-actions-row note-actions-row-primary">
+                    ${n.done ? `
+                      <button type="button" class="btn-note-micro btn-note-reopen" data-action="toggle-done" data-nid="${n.id}" title="Reopen task">${Icons.undo(12)}</button>
+                    ` : `
+                      <button type="button" class="btn-note-micro btn-note-done" data-action="toggle-done" data-nid="${n.id}" title="Mark Done">${Icons.check(12)}</button>
+                    `}
+                    <button type="button" class="btn-note-micro" data-action="copy-note" data-nid="${n.id}" title="Copy note text">${Icons.copy(12)}</button>
+                    <button type="button" class="btn-note-micro" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item">${Icons.checklist(12)}</button>
+                  </div>
+
+                  <!-- Row 3: Management & Utility Actions (3 items) -->
+                  <div class="note-actions-row note-actions-row-util">
+                    <button type="button" class="btn-note-micro" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(12)}</button>
+                    <button type="button" class="btn-note-micro btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward task to another profile">${Icons.forward(12)}</button>
+                    <button type="button" class="btn-note-micro btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">${Icons.delete(12)}</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3528,7 +3560,30 @@ const Icons = {
         const note = (p.notes || []).find(n => n.id === nid);
         if (!note) return;
 
-        if (act === 'toggle-done') {
+        if (act === 'toggle-more') {
+          const bubble = el.closest('.note-bubble');
+          if (bubble) {
+            const isExpanded = bubble.classList.contains('actions-expanded');
+            // Close all other open note action menus first
+            $$('.note-bubble.actions-expanded', main).forEach(b => {
+              if (b !== bubble) {
+                b.classList.remove('actions-expanded');
+                const mBtn = b.querySelector('.btn-note-more .more-text');
+                if (mBtn) mBtn.textContent = 'More';
+              }
+            });
+            if (isExpanded) {
+              bubble.classList.remove('actions-expanded');
+              const mText = el.querySelector('.more-text');
+              if (mText) mText.textContent = 'More';
+            } else {
+              bubble.classList.add('actions-expanded');
+              const mText = el.querySelector('.more-text');
+              if (mText) mText.textContent = 'Close ✕';
+            }
+          }
+          return;
+        } else if (act === 'toggle-done') {
           note.done = !note.done;
           triggerHaptic('success');
           if (note.done && window.soundMgr) window.soundMgr.playReadyChime();

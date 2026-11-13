@@ -8270,3 +8270,98 @@ html, body,
   color: #f87171 !important;
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.4) !important;
 }
+
+
+/* ==========================================================================
+   v86: 50% Transparent "More" Button & On-Demand 3-Row Tool Drawer
+   ========================================================================== */
+.note-action-cluster-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+}
+
+/* Active tags preview when collapsed (e.g. Urgent flame, Verified shield) */
+.note-active-tags-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2px 6px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 9999px !important;
+}
+
+.active-tag-mini {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform: scale(0.9) !important;
+}
+
+/* 50% Transparent "More" Trigger Button */
+.btn-note-more {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  padding: 4px 10px !important;
+  border-radius: 9999px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  color: #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  opacity: 0.50 !important; /* Exactly 50% transparent resting state */
+  cursor: pointer !important;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.more-dot-icon {
+  font-size: 11px !important;
+  letter-spacing: 1px !important;
+  opacity: 0.8 !important;
+}
+
+.btn-note-more:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.15) !important;
+  transform: scale(1.04) !important;
+}
+
+/* Collapsed by Default: 3-Row Matrix is completely hidden */
+.note-bubble:not(.actions-expanded) .note-bubble-actions {
+  display: none !important;
+}
+
+/* Expanded State: 3-Row Matrix is revealed when "More" is clicked */
+.note-bubble.actions-expanded .btn-note-more {
+  opacity: 0.95 !important;
+  background: rgba(229, 9, 20, 0.18) !important;
+  border-color: rgba(229, 9, 20, 0.45) !important;
+  color: #ff9da4 !important;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.3) !important;
+}
+
+.note-bubble.actions-expanded .note-bubble-actions {
+  display: flex !important;
+  animation: moreDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes moreDrawerFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
