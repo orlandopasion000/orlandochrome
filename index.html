@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title id="pageTitle">OrlandoChrome (Main Version)</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure79">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure79">
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure79">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure79">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure80">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure80">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure80">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure80">
 
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,9 +15,9 @@
   <meta name="apple-mobile-web-app-title" content="OrlandoChrome (Main Version)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
-  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure79">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure79">
-  <link rel="stylesheet" href="styles.css?v=pure79">
+  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure80">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure80">
+  <link rel="stylesheet" href="styles.css?v=pure80">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -37,18 +37,18 @@
     <div class="topbar-right">
       <!-- Jump to Next Pending / Reset Profile (Alt+N) -->
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
-        <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span>Next Ready</span>
+        <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next Ready</span>
       </button>
 
       <!-- Open Main Web App Window / PWA Button -->
       <button type="button" class="btn-topbar-desktop" id="btnTopbarLaunchApp" title="Open OrlandoChrome (Main Web App)">
-        <span class="desktop-btn-icon" id="topbarLaunchIcon"><svg class="modern-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>
+        <span class="desktop-btn-icon" id="topbarLaunchIcon"><svg class="modern-icon" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="rgba(255,100,110,0.9)" stroke-width="1.8" fill="rgba(229,9,20,0.18)" stroke-linejoin="round"/><polyline points="7 12 12 7 17 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="7" x2="12" y2="17" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg></span>
         <span class="desktop-btn-label" id="topbarLaunchLabel">Open Main Web App</span>
       </button>
 
       <!-- App Distribution, Live QR & Command Suite Trigger -->
       <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution, Live QR Scanner &amp; Cross-Device Cloud Sync Suite">
-        <span><svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> App Suite</span>
+        <span><svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none"><polygon points="12 2 22 7.5 22 16.5 12 22 2 16.5 2 7.5" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56,189,248,0.15)" stroke-linejoin="round"/><line x1="12" y1="22" x2="12" y2="12" stroke="#38bdf8" stroke-width="1.6"/><line x1="22" y1="7.5" x2="12" y2="12" stroke="#38bdf8" stroke-width="1.6"/><line x1="2" y1="7.5" x2="12" y2="12" stroke="#38bdf8" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="#ffffff"/></svg> App Suite</span>
         <span class="pwa-ready-mini-badge"><span class="sync-status-dot synced" id="topbarSyncDot"></span> <span id="topbarSyncLabel">Synced</span></span>
       </button>
 
@@ -65,14 +65,14 @@
     <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header">
         <div class="search-box-wrap">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.5)"/></svg></span>
           <input type="text" id="profileSearch" class="search-input" placeholder="Search profiles or notes... (Alt+↑/↓)">
         </div>
 
         <div class="filter-tabs-row">
           <button class="filter-tab active" data-filter="all" id="tabAll">All (<span id="countAll">22</span>)</button>
           <button class="filter-tab" data-filter="pending" id="tabPending"><span class="tab-red-radiant-dot"></span> Pending (<span id="countPending">0</span>)</button>
-          <button class="filter-tab" data-filter="timers" id="tabTimers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; margin-right:4px;"><path d="M6 3h12M6 21h12" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><path d="M7 4c0 4.5 3.5 6.5 5 8-1.5 1.5-5 3.5-5 8h10c0-4.5-3.5-6.5-5-8 1.5-1.5 5-3.5 5-8H7z" stroke="#38bdf8" stroke-width="1.8" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.15)"/><circle cx="12" cy="12" r="1.5" fill="#f59e0b"/></svg>Timers (<span id="countTimers">0</span>)</button>
+          <button class="filter-tab" data-filter="timers" id="tabTimers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="9" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="4 2"/><circle cx="12" cy="12" r="4.5" stroke="rgba(56,189,248,0.4)" stroke-width="1.2"/><path d="M12 7.5v4.5l3 2" stroke="#00f2fe" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="1.5" fill="#f59e0b"/></svg>Timers (<span id="countTimers">0</span>)</button>
         </div>
       </div>
 
@@ -223,8 +223,8 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=pure79"></script>
+  <script src="sound.js?v=pure80"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure79"></script>
+  <script src="app.js?v=pure80"></script>
 </body>
 </html>

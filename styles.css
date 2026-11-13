@@ -7624,3 +7624,173 @@ html, body,
 .notes-stream {
   background-color: #000000 !important;
 }
+
+
+/* ==========================================================================
+   Header Right Actions Column & Sub-Note Pill (Futuristic & Transparent)
+   ========================================================================== */
+.chat-header-actions-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 4px !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+  max-width: 68% !important;
+}
+
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+/* 24-Hour Note Sub-Pill directly below Trash, Sticky Note etc: matching transparency & smaller */
+.profile-status-note-banner.header-status-note-sub {
+  background: rgba(14, 14, 18, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 6px !important;
+  padding: 2px 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  opacity: 0.62 !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+  box-shadow: none !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.profile-status-note-banner.header-status-note-sub:hover {
+  opacity: 1 !important;
+  background: rgba(22, 22, 28, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  transform: translateY(-1px);
+}
+
+.header-status-note-sub .status-note-banner-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+.header-status-note-sub .status-note-thought-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  padding: 1px 5px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #94a3b8 !important;
+  border-radius: 4px !important;
+  font-size: 8.5px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: none !important;
+  flex-shrink: 0 !important;
+}
+
+.header-status-note-sub .status-note-banner-text {
+  font-size: 0.68rem !important;
+  font-weight: 500 !important;
+  color: #e2e8f0 !important;
+  max-width: 220px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.header-status-note-sub .status-note-remaining {
+  font-size: 0.62rem !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  font-weight: 500 !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.header-status-note-sub .status-note-banner-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-shrink: 0 !important;
+}
+
+.header-status-note-sub .btn-status-mini {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+  font-size: 9.5px !important;
+  font-weight: 600 !important;
+  padding: 1px 6px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  transition: all 0.15s ease !important;
+}
+
+.header-status-note-sub .btn-status-mini:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+/* Left Sidebar Avatar Note Bubble: Sleek Frosted Glass (No More Bright White) */
+.avatar-note-bubble {
+  background: rgba(18, 18, 24, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #e2e8f0 !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7) !important;
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  border-radius: 999px !important;
+}
+
+.avatar-note-bubble::after {
+  background: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.avatar-note-bubble::before {
+  background: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.avatar-note-bubble:hover {
+  transform: scale(1.08) !important;
+  background: rgba(28, 28, 36, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85) !important;
+}
+
+@media (max-width: 768px) {
+  .chat-header {
+    flex-wrap: wrap !important;
+  }
+  .chat-header-actions-col {
+    max-width: 100% !important;
+    width: 100% !important;
+    flex-basis: 100% !important;
+    align-items: stretch !important;
+    margin-left: 0 !important;
+  }
+  .profile-status-note-banner.header-status-note-sub {
+    width: 100% !important;
+    justify-content: space-between !important;
+    margin-top: 3px !important;
+    box-sizing: border-box !important;
+  }
+}
