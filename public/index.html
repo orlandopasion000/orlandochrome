@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title id="pageTitle">OrlandoChrome (Main Version)</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure5">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure5">
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure5">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure5">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure72">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure72">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure72">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure72">
 
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,9 +15,9 @@
   <meta name="apple-mobile-web-app-title" content="OrlandoChrome (Main Version)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
-  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure5">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure5">
-  <link rel="stylesheet" href="styles.css?v=pure5">
+  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure72">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure72">
+  <link rel="stylesheet" href="styles.css?v=pure72">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -40,11 +40,11 @@
         <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span>Next Ready</span>
       </button>
 
-      <!-- Launch Desktop App Button (Clickable Icon + Word leading directly to OrlandoChrome Desktop App) -->
-      <a class="btn-topbar-desktop" id="btnTopbarLaunchApp" href="https://orlandopasion000.github.io/orlandochrome/" target="_blank" rel="noopener" title="Open OrlandoChrome (Main Version)">
-        <span class="desktop-btn-icon"><svg class="modern-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>
-        <span class="desktop-btn-label">Launch App</span>
-      </a>
+      <!-- Open Main Web App Window / PWA Button -->
+      <button type="button" class="btn-topbar-desktop" id="btnTopbarLaunchApp" title="Open OrlandoChrome (Main Web App)">
+        <span class="desktop-btn-icon" id="topbarLaunchIcon"><svg class="modern-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>
+        <span class="desktop-btn-label" id="topbarLaunchLabel">Open Main Web App</span>
+      </button>
 
       <!-- App Distribution, Live QR & Command Suite Trigger -->
       <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution, Live QR Scanner &amp; Cross-Device Cloud Sync Suite">
@@ -223,8 +223,8 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=pure5"></script>
+  <script src="sound.js?v=pure72"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure5"></script>
+  <script src="app.js?v=pure72"></script>
 </body>
 </html>

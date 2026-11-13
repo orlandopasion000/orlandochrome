@@ -393,12 +393,25 @@
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
+    if (typeof updateLaunchButtonState === 'function') {
+      updateLaunchButtonState();
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    if (typeof updateLaunchButtonState === 'function') {
+      updateLaunchButtonState();
+    }
+    if (typeof showToast === 'function') {
+      showToast('🎉 OrlandoChrome (Main Version) installed as PWA!');
+    }
   });
 
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure72').catch(() => {});
     });
   }
 
@@ -5149,17 +5162,87 @@ ${jsRes}
       setFilter($('#tabAll'), 'all');
     };
 
+    function isStandaloneMode() {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+        window.navigator.standalone === true ||
+        window.name === 'OrlandoChromeStandaloneWindow' ||
+        window.location.search.includes('standalone=true')
+      );
+    }
+
+    function updateLaunchButtonState() {
+      const btn = $('#btnTopbarLaunchApp');
+      if (!btn) return;
+      const label = $('#topbarLaunchLabel') || btn.querySelector('.desktop-btn-label');
+      const icon = $('#topbarLaunchIcon') || btn.querySelector('.desktop-btn-icon');
+      if (!label) return;
+
+      if (isStandaloneMode()) {
+        btn.classList.add('btn-app-active');
+        btn.title = 'OrlandoChrome (Main Web App) is Active';
+        label.textContent = 'App Active';
+        if (icon) {
+          icon.innerHTML = '<svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#5de8a0"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        }
+      } else {
+        btn.classList.remove('btn-app-active');
+        btn.title = 'Open OrlandoChrome (Main Web App)';
+        label.textContent = 'Open Main Web App';
+        if (icon) {
+          icon.innerHTML = '<svg class="modern-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
+        }
+      }
+    }
+
+    async function handleLaunchStandaloneApp() {
+      playSoundClick();
+
+      if (isStandaloneMode()) {
+        showToast('✨ OrlandoChrome is already running as Main Web App!');
+        return;
+      }
+
+      // If PWA installation prompt is ready, offer native PWA installation
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        try {
+          const choice = await deferredInstallPrompt.userChoice;
+          if (choice && choice.outcome === 'accepted') {
+            deferredInstallPrompt = null;
+            updateLaunchButtonState();
+            showToast('🎉 OrlandoChrome PWA Installed! Launching...');
+            return;
+          }
+        } catch (err) {}
+      }
+
+      // Launch in dedicated Standalone Chromium App Window (No address bar, no tabs)
+      const targetUrl = 'https://orlandopasion000.github.io/orlandochrome/?standalone=true';
+      const windowFeatures = 'popup=yes,menubar=no,toolbar=no,location=no,status=no,personalbar=no,scrollbars=yes,resizable=yes,width=1180,height=820,left=120,top=80';
+      const appWin = window.open(targetUrl, 'OrlandoChromeStandaloneWindow', windowFeatures);
+
+      if (appWin) {
+        showToast('🚀 Opening OrlandoChrome (Main Web App)...');
+        try { appWin.focus(); } catch (err) {}
+      } else {
+        window.location.href = targetUrl;
+      }
+    }
+
     // Topbar App Suite, Next Ready, and Launch Desktop App Buttons
     const btnNextReady = $('#btnNextReady');
     if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
 
     const btnLaunchDesktop = $('#btnTopbarLaunchApp');
     if (btnLaunchDesktop) {
-      btnLaunchDesktop.onclick = () => {
-        playSoundClick();
-        showToast('🚀 Opening OrlandoChrome (Main Version)...');
+      btnLaunchDesktop.onclick = (e) => {
+        if (e) e.preventDefault();
+        handleLaunchStandaloneApp();
       };
     }
+    updateLaunchButtonState();
 
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
@@ -5167,9 +5250,9 @@ ${jsRes}
     // 4-Card Dock & App Distribution controls (Open Main Web App · No installation needed)
     const mainAppBtn = $('#openMainAppBtn') || $('#installAppBtn');
     if (mainAppBtn) {
-      mainAppBtn.onclick = () => {
-        playSoundClick();
-        showToast('🚀 Opening OrlandoChrome (Main Version)...');
+      mainAppBtn.onclick = (e) => {
+        if (e) e.preventDefault();
+        handleLaunchStandaloneApp();
       };
     }
 
