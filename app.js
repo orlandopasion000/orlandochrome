@@ -8852,6 +8852,19 @@ ${jsRes}
     workspace.addEventListener('touchcancel', finishGesture, { passive: true });
   }
 
+  function selectProfile(id) {
+    if (!id) return;
+    const found = getProfile(id);
+    if (!found) return;
+    state.activeProfileId = found.id;
+    if (window.innerWidth <= 768) {
+      document.body.classList.add('mobile-chat-open');
+      try { localStorage.setItem('orlandochrome_mobile_view', 'chat'); } catch (e) {}
+    }
+    renderSidebar();
+    renderMainChat();
+  }
+
   // Initializer
   function init() {
     document.title = IS_BLANK_EDITION ? 'OrlandoChrome (Blank Canvas)' : 'OrlandoChrome (Main Version)'; // Immediate 0ms Title
