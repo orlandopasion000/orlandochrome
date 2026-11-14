@@ -4830,6 +4830,14 @@ const Icons = {
                   </div>
                 ` : ''}
 
+                <!-- Direct 1-Click Quick Trash Button (Zero Popover Friction) -->
+                <button type="button" class="btn-quick-trash" data-action="delete-note" data-nid="${n.id}" title="Quick Delete (Move to Trash)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+
                 <!-- 50% Transparent "More" Trigger Button -->
                 <button type="button" class="btn-note-more" data-action="toggle-more" data-nid="${n.id}" title="Click to reveal 10 actions &amp; status tools">
                   <span class="more-dot-icon">•••</span>
@@ -7179,6 +7187,35 @@ ${jsRes}
       return { consumed: true, text: '' };
     }
 
+    if (lower === 'delete last note' || lower === 'trash last note' || lower === 'delete note' || lower === 'remove note') {
+      const notes = activeProf.notes || [];
+      if (notes.length > 0) {
+        const lastIdx = notes.length - 1;
+        const deletedNote = JSON.parse(JSON.stringify(notes[lastIdx]));
+        addToTrash(deletedNote, activeProf);
+        historyMgr.record({
+          type: 'DELETE_NOTE',
+          profileId: activeProf.id,
+          note: deletedNote,
+          index: lastIdx
+        });
+        notes.splice(lastIdx, 1);
+        if (countPending(activeProf) === 0) {
+          activeProf.isPinned = false;
+          activeProf.pinnedAt = null;
+        }
+        if (!hasMessages(activeProf)) {
+          activeProf.isUnread = false;
+        }
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        if (window.soundMgr) window.soundMgr.playClick();
+        showToast('🗣️ Voice Command: Moved last note to Trash (Ctrl+Z to Undo)');
+        return { consumed: true, text: '' };
+      }
+    }
+
     if (lower.includes('pin profile') || lower.includes('pin to top')) {
       activeProf.isPinned = true;
       activeProf.pinnedAt = now();
@@ -8647,6 +8684,38 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
 
     // Enhancement #6: Global Keyboard Shortcuts (Alt+Space Dictation, Alt+↑/↓ Profile Nav, Alt+N Next Ready)
     document.addEventListener('keydown', (e) => {
+      // Keyboard Hover Delete: Press Delete key while mouse hovers over a note card
+      if (e.key === 'Delete') {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+          const hoveredCard = document.querySelector('.note-item-wrap:hover');
+          if (hoveredCard && hoveredCard.dataset.nid) {
+            e.preventDefault();
+            const nid = hoveredCard.dataset.nid;
+            const p = getProfile(state.activeProfileId);
+            if (p && p.notes) {
+              const noteIdx = p.notes.findIndex(n => n.id === nid);
+              if (noteIdx !== -1) {
+                const deletedNote = JSON.parse(JSON.stringify(p.notes[noteIdx]));
+                addToTrash(deletedNote, p);
+                historyMgr.record({
+                  type: 'DELETE_NOTE',
+                  profileId: p.id,
+                  note: deletedNote,
+                  index: noteIdx
+                });
+                p.notes.splice(noteIdx, 1);
+                saveState();
+                renderSidebar();
+                renderMainChat();
+                if (window.soundMgr) window.soundMgr.playClick();
+                showToast('🗑️ Deleted note (Press Ctrl+Z to undo)');
+              }
+            }
+          }
+        }
+      }
+
       // Undo & Redo Shortcuts: Ctrl+Z / Cmd+Z and Ctrl+Y / Cmd+Shift+Z
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
         const tag = (document.activeElement && document.activeElement.tagName) || '';
