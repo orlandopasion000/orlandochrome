@@ -11248,79 +11248,189 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 .note-timestamp .note-timestamp-edit-icon {
-  opacity: 0;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.68;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 4px;
+  vertical-align: middle;
 }
 .note-item-wrap:hover .note-timestamp .note-timestamp-edit-icon,
 .note-timestamp:hover .note-timestamp-edit-icon {
   opacity: 1;
-  transform: scale(1.1);
+  transform: scale(1.22);
+  filter: drop-shadow(0 0 6px #00f2fe);
 }
 .note-custom-date-badge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-size: 9.5px;
   font-weight: 750;
   color: #38bdf8;
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  padding: 1px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.01em;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.18) 0%, rgba(99, 102, 241, 0.14) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.38);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  padding: 1.5px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+.note-custom-date-badge:hover {
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
+  color: #e0f2fe;
+}
+.note-timestamp-edit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.65;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 2px;
+}
+.note-timestamp:hover .note-timestamp-edit-icon {
+  opacity: 1;
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 6px #00f2fe);
 }
 
-/* Edit Date Modal */
+/* Futuristic Translucent & Gradient Edit Date Modal (Glassmorphism Standard) */
+#editDateModalBackdrop.rename-dialog-backdrop {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: radial-gradient(circle at 50% 35%, rgba(18, 28, 58, 0.72) 0%, rgba(4, 7, 18, 0.88) 100%);
+  z-index: 10000;
+}
+
 .edit-date-modal {
-  background: #0d0d12;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 18px;
+  position: relative;
+  background: linear-gradient(145deg, rgba(16, 24, 48, 0.78) 0%, rgba(9, 13, 27, 0.86) 50%, rgba(25, 16, 42, 0.82) 100%);
+  backdrop-filter: blur(32px) saturate(210%);
+  -webkit-backdrop-filter: blur(32px) saturate(210%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 22px;
   width: 92%;
-  max-width: 440px;
-  padding: 22px;
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.85), 0 0 20px rgba(229, 9, 20, 0.15);
+  max-width: 460px;
+  padding: 24px 26px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.78),
+              0 0 35px rgba(56, 189, 248, 0.18),
+              inset 0 1px 0 rgba(255, 255, 255, 0.22),
+              inset 0 0 25px rgba(56, 189, 248, 0.05);
   color: #ffffff;
-  animation: modalScaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   gap: 16px;
   user-select: none;
+  overflow: hidden;
+}
+
+.edit-date-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, transparent 0%, #00f2fe 25%, #818cf8 50%, #c084fc 75%, transparent 100%);
+  box-shadow: 0 0 14px #00f2fe;
+}
+
+.edit-date-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.edit-date-modal-badge-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(129, 140, 248, 0.16) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+.edit-date-modal-title {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(90deg, #ffffff 0%, #7dd3fc 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.edit-date-modal-subtitle {
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin-top: 2px;
+  letter-spacing: 0.01em;
+}
+.btn-edit-date-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+}
+.btn-edit-date-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ff8080;
+  transform: rotate(90deg);
 }
 
 .edit-date-note-preview {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(56, 189, 248, 0.03) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 16px;
 }
 .date-preview-label {
   font-size: 10.5px;
-  font-weight: 700;
-  color: #888899;
+  font-weight: 750;
+  color: #7dd3fc;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   margin-bottom: 4px;
 }
 .date-preview-text {
   font-size: 13.5px;
   font-weight: 600;
-  color: #ffffff;
+  color: #f1f5f9;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
 }
 .date-preview-current {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-size: 11.5px;
-  color: #a0a0b0;
+  color: #cbd5e1;
   flex-wrap: wrap;
 }
 .preview-badge-clock {
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 6px #00f2fe);
 }
 
 /* 1-Tap Quick Chips */
@@ -11330,9 +11440,14 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   gap: 8px;
 }
 .date-chips-title {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 750;
-  color: #e2e8f0;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .date-chips-row {
   display: flex;
@@ -11340,27 +11455,35 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   gap: 7px;
 }
 .date-chip-btn {
-  background: rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #e2e8f0;
   font-size: 12px;
   font-weight: 650;
   padding: 6px 12px;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 .date-chip-btn:hover {
-  background: rgba(229, 9, 20, 0.22);
-  border-color: rgba(255, 77, 88, 0.5);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(129, 140, 248, 0.20) 100%);
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
   color: #ffffff;
   transform: translateY(-1px);
 }
 .date-chip-btn:active,
 .date-chip-btn.chip-selected {
-  background: #e50914;
-  border-color: #ff4d58;
+  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  border-color: #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.55);
   color: #ffffff;
   transform: scale(0.96);
 }
@@ -11372,27 +11495,36 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   gap: 6px;
 }
 .date-input-label {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 750;
   color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .edit-date-native-input {
   width: 100%;
-  background: #050508;
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  background: rgba(8, 12, 24, 0.65);
+  border: 1.5px solid rgba(56, 189, 248, 0.26);
+  border-radius: 12px;
   padding: 10px 14px;
   font-size: 14.5px;
   font-family: inherit;
   font-weight: 600;
   color: #ffffff;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
   box-sizing: border-box;
+  color-scheme: dark;
 }
 .edit-date-native-input:focus {
-  border-color: #ff4d58;
-  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.25);
+  border-color: #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 /* Footer Actions */
@@ -11401,55 +11533,62 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 .btn-date-modal-reset {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #38bdf8;
   font-size: 12px;
   font-weight: 650;
-  padding: 7px 12px;
-  border-radius: 8px;
+  padding: 8px 13px;
+  border-radius: 9px;
   cursor: pointer;
   transition: all 0.15s ease;
+  backdrop-filter: blur(8px);
 }
 .btn-date-modal-reset:hover {
-  color: #f1f5f9;
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(14, 165, 233, 0.18);
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  color: #e0f2fe;
 }
 .btn-date-modal-cancel {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: #cbd5e1;
   font-size: 13px;
   font-weight: 700;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: 9px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .btn-date-modal-cancel:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
   color: #ffffff;
 }
 .btn-date-modal-save {
-  background: linear-gradient(135deg, #e50914 0%, #b80710 100%);
-  border: 1px solid rgba(255, 77, 88, 0.6);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 50%, #9333ea 100%);
+  border: 1px solid rgba(168, 85, 247, 0.5);
   color: #ffffff;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 750;
   padding: 8px 18px;
-  border-radius: 8px;
+  border-radius: 9px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.4);
-  transition: all 0.15s ease;
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.45), 0 0 16px rgba(14, 165, 233, 0.35);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-date-modal-save:hover {
-  background: linear-gradient(135deg, #ff1a25 0%, #d10813 100%);
-  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.6);
   transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(79, 70, 229, 0.6), 0 0 22px rgba(14, 165, 233, 0.5);
 }
 .btn-date-modal-save:active {
   transform: scale(0.97);

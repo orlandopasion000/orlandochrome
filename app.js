@@ -314,6 +314,128 @@ const Icons = {
         </svg>
       </span>`,
 
+    calendar: (size = 14) => `
+      <span class="oc-icon oc-icon-calendar" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Calendar">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gCalCyber" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#00f2fe"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#818cf8"/>
+            </linearGradient>
+            <linearGradient id="gCalFill" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="rgba(0, 242, 254, 0.18)"/>
+              <stop offset="100%" stop-color="rgba(129, 140, 248, 0.08)"/>
+            </linearGradient>
+          </defs>
+          <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="url(#gCalCyber)" stroke-width="1.8" fill="url(#gCalFill)"/>
+          <line x1="7.5" y1="1.8" x2="7.5" y2="5" stroke="#00f2fe" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16.5" y1="1.8" x2="16.5" y2="5" stroke="#818cf8" stroke-width="2" stroke-linecap="round"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="url(#gCalCyber)" stroke-width="1.4"/>
+          <circle cx="7.5" cy="12.5" r="1.3" fill="#38bdf8"/>
+          <circle cx="12" cy="12.5" r="1.3" fill="#818cf8"/>
+          <circle cx="16.5" cy="12.5" r="1.3" fill="#c084fc"/>
+          <circle cx="7.5" cy="16.5" r="1.3" fill="#818cf8"/>
+          <circle cx="12" cy="16.5" r="2" fill="#00f2fe"/>
+          <circle cx="12" cy="16.5" r="3.2" stroke="#00f2fe" stroke-width="0.8" stroke-dasharray="2 1"/>
+          <circle cx="16.5" cy="16.5" r="1.3" fill="#38bdf8"/>
+        </svg>
+      </span>`,
+
+    laserStylus: (size = 13) => `
+      <span class="oc-icon oc-icon-laser-stylus" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Edit Date & Time">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gStylusLaser" x1="2" y1="22" x2="22" y2="2">
+              <stop offset="0%" stop-color="#00f2fe"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#c084fc"/>
+            </linearGradient>
+          </defs>
+          <path d="M17 2.5l4.5 4.5-12 12-5.5 1.5 1.5-5.5L17 2.5z" stroke="url(#gStylusLaser)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.15)"/>
+          <line x1="14" y1="5.5" x2="18.5" y2="10" stroke="#00f2fe" stroke-width="1.4"/>
+          <line x1="8" y1="11.5" x2="12.5" y2="16" stroke="#c084fc" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="4.5" cy="19.5" r="1.6" fill="#00f2fe"/>
+          <circle cx="4.5" cy="19.5" r="3" stroke="#00f2fe" stroke-width="0.7" opacity="0.6"/>
+        </svg>
+      </span>`,
+
+    chronos: (size = 14) => `
+      <span class="oc-icon oc-icon-chronos" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Chronos">
+        <svg viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="gChronos" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#00f2fe"/>
+              <stop offset="100%" stop-color="#818cf8"/>
+            </linearGradient>
+          </defs>
+          <circle cx="12" cy="12" r="9" stroke="url(#gChronos)" stroke-width="1.8" stroke-dasharray="4 2"/>
+          <circle cx="12" cy="12" r="4.5" stroke="#38bdf8" stroke-width="1.4"/>
+          <circle cx="12" cy="12" r="1.6" fill="#00f2fe"/>
+          <line x1="12" y1="12" x2="12" y2="6" stroke="#00f2fe" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="12" y1="12" x2="15.5" y2="14" stroke="#818cf8" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="18.5" cy="7.5" r="1.5" fill="#c084fc"/>
+        </svg>
+      </span>`,
+
+    sparkNow: (size = 13) => `
+      <span class="oc-icon" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2" fill="rgba(0,242,254,0.2)" stroke="#00f2fe" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </span>`,
+
+    warpBack: (size = 13) => `
+      <span class="oc-icon" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M11 6l-6 6 6 6M19 6l-6 6 6 6" stroke="#818cf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="4.5" cy="12" r="1.5" fill="#38bdf8"/>
+        </svg>
+      </span>`,
+
+    dualShift: (size = 13) => `
+      <span class="oc-icon" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="8" stroke="#a855f7" stroke-width="1.8" stroke-dasharray="5 3"/>
+          <path d="M12 7v5l3 3" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="6" cy="6" r="1.6" fill="#f472b6"/>
+        </svg>
+      </span>`,
+
+    orbitalCycle: (size = 13) => `
+      <span class="oc-icon" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3a9 9 0 1 0 8.5 6" stroke="#f472b6" stroke-width="1.8" stroke-linecap="round"/>
+          <polyline points="21 3 20.5 9 15 8.5" stroke="#f472b6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="2.2" fill="#ec4899"/>
+        </svg>
+      </span>`,
+
+    warpForward: (size = 13) => `
+      <span class="oc-icon" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M5 6l6 6-6 6M13 6l6 6-6 6" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="19.5" cy="12" r="1.5" fill="#10b981"/>
+        </svg>
+      </span>`,
+
+    timeRestore: (size = 13) => `
+      <span class="oc-icon" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 12a9 9 0 1 0 2.6-6.4L3 8" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="3 3 3 8 8 8" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="2" fill="#00f2fe"/>
+        </svg>
+      </span>`,
+
+    quantumCheck: (size = 14) => `
+      <span class="oc-icon" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none">
+          <polygon points="12 2 20 6 20 18 12 22 4 18 4 6" stroke="#ffffff" stroke-width="1.6" fill="rgba(255,255,255,0.15)"/>
+          <polyline points="8 12 11 15 16 9" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`,
+
     edit: (size = 13) => `
       <span class="oc-icon oc-icon-edit" style="width:${size}px;height:${size}px;" title="Edit">
         <svg viewBox="0 0 24 24" fill="none">
@@ -4771,43 +4893,57 @@ const Icons = {
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
       <div class="edit-date-modal">
-        <div class="forward-modal-header">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:22px;">📅</span>
+        <div class="edit-date-modal-header">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="edit-date-modal-badge-icon">
+              ${Icons.calendar(24)}
+            </div>
             <div>
-              <h3 style="margin:0; font-size:16px; font-weight:800; color:#fff;">Change Date &amp; Time</h3>
-              <div style="font-size:11.5px; color:#888;">Adjust message timestamp &amp; chronological position</div>
+              <h3 class="edit-date-modal-title">Change Date &amp; Time</h3>
+              <div class="edit-date-modal-subtitle">Temporal calibration &amp; chronological auto-alignment</div>
             </div>
           </div>
-          <button type="button" class="btn-banner-clear" id="btnCloseEditDate">✕</button>
+          <button type="button" class="btn-edit-date-close" id="btnCloseEditDate" title="Close">✕</button>
         </div>
 
         <!-- Note Preview Card -->
         <div class="edit-date-note-preview">
-          <div class="date-preview-label">Selected Note:</div>
+          <div class="date-preview-label">Selected Message:</div>
           <div class="date-preview-text">&ldquo;${esc(noteSnippet)}&rdquo;</div>
           <div class="date-preview-current">
-            <span class="preview-badge-clock">⏱</span>
+            <span class="preview-badge-clock">${Icons.chronos(14)}</span>
             <span>Current: <strong>${formattedCurrent}</strong> (${dateGroup})</span>
-            ${note.isCustomDate ? '<span class="note-custom-date-badge">🗓️ Edited Date</span>' : ''}
+            ${note.isCustomDate ? `<span class="note-custom-date-badge">${Icons.calendar(11)} <span>Edited Date</span></span>` : ''}
           </div>
         </div>
 
         <!-- 1-Tap Smart Reschedule Chips (Things 3 & Todoist Standard) -->
         <div class="date-chips-section">
-          <div class="date-chips-title">⚡ 1-Tap Quick Reschedule:</div>
+          <div class="date-chips-title">${Icons.sparkNow(13)} <span>1-Tap Quick Reschedule</span></div>
           <div class="date-chips-row">
-            <button type="button" class="date-chip-btn" data-chip="now" title="Set to current moment">⚡ Now / Today</button>
-            <button type="button" class="date-chip-btn" data-chip="yesterday" title="Set to 24 hours ago">⏪ Yesterday</button>
-            <button type="button" class="date-chip-btn" data-chip="2days" title="Set to 2 days ago">⏳ 2 Days Ago</button>
-            <button type="button" class="date-chip-btn" data-chip="1week" title="Set to 1 week ago">⏳ 1 Week Ago</button>
-            <button type="button" class="date-chip-btn" data-chip="tomorrow" title="Set to 24 hours in future">⏩ Tomorrow</button>
+            <button type="button" class="date-chip-btn" data-chip="now" title="Set to current moment">
+              ${Icons.sparkNow(13)} <span>Now / Today</span>
+            </button>
+            <button type="button" class="date-chip-btn" data-chip="yesterday" title="Set to 24 hours ago">
+              ${Icons.warpBack(13)} <span>Yesterday</span>
+            </button>
+            <button type="button" class="date-chip-btn" data-chip="2days" title="Set to 2 days ago">
+              ${Icons.dualShift(13)} <span>2 Days Ago</span>
+            </button>
+            <button type="button" class="date-chip-btn" data-chip="1week" title="Set to 1 week ago">
+              ${Icons.orbitalCycle(13)} <span>1 Week Ago</span>
+            </button>
+            <button type="button" class="date-chip-btn" data-chip="tomorrow" title="Set to 24 hours in future">
+              ${Icons.warpForward(13)} <span>Tomorrow</span>
+            </button>
           </div>
         </div>
 
         <!-- Exact Date-Time Picker Input -->
         <div class="date-input-section">
-          <label for="editDateTimeInput" class="date-input-label">Or pick custom date &amp; exact time:</label>
+          <label for="editDateTimeInput" class="date-input-label">
+            ${Icons.calendar(13)} <span>Or calibrate custom date &amp; exact time:</span>
+          </label>
           <input type="datetime-local" class="edit-date-native-input" id="editDateTimeInput" value="${formatDateTimeLocal(curTimestamp)}">
         </div>
 
@@ -4815,12 +4951,14 @@ const Icons = {
         <div class="edit-date-footer">
           ${note.isCustomDate ? `
             <button type="button" class="btn-date-modal-reset" id="btnResetOriginalDate" title="Revert back to original creation time">
-              ↺ Reset Original
+              ${Icons.timeRestore(13)} <span>Reset Original</span>
             </button>
           ` : '<div></div>'}
           <div style="display:flex; align-items:center; gap:8px;">
             <button type="button" class="btn-date-modal-cancel" id="btnCancelEditDate">Cancel</button>
-            <button type="button" class="btn-date-modal-save" id="btnSaveEditDate">Save Date ✓</button>
+            <button type="button" class="btn-date-modal-save" id="btnSaveEditDate">
+              ${Icons.quantumCheck(14)} <span>Save Date</span>
+            </button>
           </div>
         </div>
       </div>
@@ -4876,6 +5014,7 @@ const Icons = {
       }
       note.createdAt = newTs;
       note.isCustomDate = true;
+      state.activeProfileId = profile.id;
 
       // Chronological sort: earliest on top, latest on bottom
       profile.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
@@ -4888,7 +5027,7 @@ const Icons = {
 
       triggerHaptic('success');
       if (window.soundMgr) window.soundMgr.playClick();
-      showToast(`📅 Updated date to ${formatNoteDateTime(newTs)}`);
+      showToast(`✨ Calibrated timestamp to ${formatNoteDateTime(newTs)}`);
     };
 
     // Reset Original Date Handler
@@ -4909,6 +5048,7 @@ const Icons = {
 
         note.createdAt = origTs;
         note.isCustomDate = false;
+        state.activeProfileId = profile.id;
 
         profile.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
         saveState();
@@ -5294,7 +5434,7 @@ const Icons = {
                   <!-- Row 3: Management & Utility Actions -->
                   <div class="note-actions-row note-actions-row-util">
                     <button type="button" class="btn-note-micro" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(12)}</button>
-                    <button type="button" class="btn-note-micro" data-action="edit-date" data-nid="${n.id}" title="Change Date & Time">📅</button>
+                    <button type="button" class="btn-note-micro" data-action="edit-date" data-nid="${n.id}" title="Change Date & Time">${Icons.calendar(12)}</button>
                     <button type="button" class="btn-note-micro btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward task to another profile">${Icons.forward(12)}</button>
                   </div>
                 </div>
@@ -5302,8 +5442,8 @@ const Icons = {
             </div>
             <div class="note-timestamp" data-action="edit-date" data-nid="${n.id}" role="button" tabindex="0" title="Click to change or edit date/time (Apple Notes style)">
               <span class="note-time-text">${formatNoteDateTime(n.createdAt)} · ${n.done ? 'Completed' : 'Pending'}</span>
-              ${n.isCustomDate ? `<span class="note-custom-date-badge" title="Customized date (originally created ${formatNoteDateTime(n.originalCreatedAt || n.createdAt)})">🗓️ Edited Date</span>` : (n.editedAt ? `<span class="note-edited-label">(edited ${formatNoteDateTime(n.editedAt)})</span>` : '')}
-              <span class="note-timestamp-edit-icon" title="Edit Date">✏️</span>
+              ${n.isCustomDate ? `<span class="note-custom-date-badge" title="Customized date (originally created ${formatNoteDateTime(n.originalCreatedAt || n.createdAt)})">${Icons.calendar(11)} <span>Edited Date</span></span>` : (n.editedAt ? `<span class="note-edited-label">(edited ${formatNoteDateTime(n.editedAt)})</span>` : '')}
+              <span class="note-timestamp-edit-icon" title="Edit Date & Time">${Icons.laserStylus(12)}</span>
             </div>
           </div>
           `;
