@@ -4986,42 +4986,186 @@ body.is-resizing-pane * {
   }
 
   
-  /* Responsive iOS Typing Mode: Keep upper header & messages visible while keyboard is open */
-  body.mobile-typing-mode .app-topbar {
+  /* ==========================================================================
+     FB MESSENGER FROZEN TOP HEADER STANDARD FOR IPHONE & MOBILE
+     Profile picture, name, status, and navigation stay 100% FROZEN at top while typing
+     ========================================================================== */
+  body.mobile-chat-open .chat-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 500 !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding-top: max(10px, env(safe-area-inset-top, 44px)) !important;
+    padding-bottom: 8px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    background: rgba(0, 0, 0, 0.98) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .chat-header-profile {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .chat-header-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.8) !important;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4) !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+  }
+
+  .chat-header-mobile-title {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+  }
+
+  .mobile-header-name {
+    font-size: 14.5px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.2px !important;
+  }
+
+  .mobile-header-slot {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #10b981 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin-top: 1px !important;
+  }
+  .mobile-header-slot::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+  }
+
+  .btn-mobile-back {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    padding: 6px 11px !important;
+    border-radius: 18px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Responsive iOS Typing Mode: Keep upper header & profile frozen visible while keyboard is open */
+  body.mobile-typing-mode .app-topbar,
+  body.mobile-typing-mode .quick-timer-bar,
+  body.mobile-typing-mode .quick-templates-bar,
+  body.mobile-typing-mode .app-dist,
+  body.mobile-typing-mode .chat-header-actions,
+  body.mobile-typing-mode .chat-header-note-bubble,
+  body.mobile-typing-mode #headerNoteBubble,
+  body.mobile-typing-mode .header-note-bubble {
     display: none !important;
   }
-  body.mobile-typing-mode .quick-timer-bar {
-    display: none !important;
-  }
-  body.mobile-typing-mode .quick-templates-bar {
-    display: none !important;
-  }
-  body.mobile-typing-mode .app-dist {
-    display: none !important;
-  }
+
   body.mobile-typing-mode .chat-header {
-    padding: 0.35rem 0.65rem !important;
-    gap: 0.4rem !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 500 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding-top: max(10px, env(safe-area-inset-top, 44px)) !important;
+    padding-bottom: 7px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
     min-height: auto !important;
+    background: rgba(0, 0, 0, 0.98) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
   }
+
+  body.mobile-typing-mode .chat-header-profile {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
   body.mobile-typing-mode .chat-header-avatar {
-    width: 32px !important;
-    height: 32px !important;
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0 !important;
   }
-  body.mobile-typing-mode .chat-header-actions {
-    display: none !important;
+
+  body.mobile-typing-mode .mobile-header-name {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
+
   body.mobile-typing-mode .header-profile-stepper {
-    display: none !important;
+    display: inline-flex !important;
+    gap: 3px !important;
   }
+
+  body.mobile-typing-mode .header-profile-stepper .btn-step-profile {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 13px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+  }
+
   body.mobile-typing-mode .notes-stream {
     flex: 1 1 auto !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
     padding: 0.5rem 0.65rem !important;
   }
+
   body.mobile-typing-mode .composer-bar {
     padding: 0.45rem 0.6rem !important;
+    padding-bottom: 6px !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 400 !important;
   }
 
   /* QR Studio & Modal Responsive */
@@ -9377,15 +9521,21 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
     overflow: hidden !important;
   }
 
-  /* 3. Chat Header & Note Bubble Safe-Area Geometry */
+  /* 3. Chat Header & Note Bubble Safe-Area Geometry (Frozen Sticky Header Standard) */
   .chat-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 500 !important;
     padding-top: max(10px, env(safe-area-inset-top, 44px)) !important;
-    padding-bottom: 6px !important;
+    padding-bottom: 7px !important;
     padding-left: 10px !important;
     padding-right: 10px !important;
-    background: #000000 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(0, 0, 0, 0.98) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
     flex-shrink: 0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.75) !important;
   }
   .chat-header.has-status-note {
     padding-top: max(50px, calc(env(safe-area-inset-top, 44px) + 26px)) !important;

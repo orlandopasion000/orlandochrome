@@ -4121,6 +4121,7 @@ const Icons = {
 
   function closeMobileChatWithSlide() {
     document.body.classList.remove('mobile-chat-open');
+    document.body.classList.remove('mobile-typing-mode');
     try { localStorage.setItem('orlandochrome_mobile_view', 'inbox'); } catch (e) {}
     if (window.soundMgr) {
       if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
