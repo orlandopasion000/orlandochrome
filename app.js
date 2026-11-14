@@ -4833,6 +4833,9 @@ const Icons = {
             <button class="btn-header-action" id="btnRenameProfile">
               ${Icons.edit(13)} <span>Rename</span>
             </button>
+            <button type="button" class="btn-header-action" id="btnHeaderVoiceCommands" title="Voice Commands Manual & Hands-Free Instructions (Alt + V)">
+              <span style="font-size:12px;">🎙️</span> <span>Voice</span>
+            </button>
             ${notes.length > 0 ? `
               <button type="button" class="btn-header-action btn-header-select ${state.selectMode ? 'select-active' : ''}" id="btnToggleSelectMode" title="Multi-select messages to bulk clean or delete">
                 <span style="font-size:12px;">☑️</span> <span>${state.selectMode ? 'Done' : 'Select'}</span>
@@ -5408,6 +5411,10 @@ const Icons = {
     }
 
     // 1f. Multi-Select Bulk Clean Mode Controls
+    const btnHeaderVoice = $('#btnHeaderVoiceCommands', main);
+    if (btnHeaderVoice) {
+      btnHeaderVoice.onclick = () => openVoiceCommandsCheatSheetModal();
+    }
     const btnSelectMode = $('#btnToggleSelectMode', main);
     if (btnSelectMode) {
       btnSelectMode.onclick = () => {
@@ -7455,139 +7462,192 @@ ${jsRes}
   }
 
   function openVoiceCommandsCheatSheetModal() {
+    const existing = document.getElementById('voiceCommandsModalBackdrop');
+    if (existing) existing.remove();
+
     const backdrop = document.createElement('div');
+    backdrop.id = 'voiceCommandsModalBackdrop';
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
       <div class="voice-cheat-modal">
         <div class="forward-modal-header">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:20px;">⚡</span>
+            <span style="font-size:22px;">🎙️</span>
             <div>
-              <h3 style="margin:0; font-size:16px; font-weight:800; color:#fff;">Top 10 Voice Command Superpowers</h3>
-              <div style="font-size:11.5px; color:#888;">Hands-Free Voice Control Suite for OrlandoChrome Wispr Flow Pro</div>
+              <h3 style="margin:0; font-size:16px; font-weight:800; color:#fff;">Voice Commands & Instructions Manual</h3>
+              <div style="font-size:11.5px; color:#888;">Wispr Flow Pro · 10 Superpowers · Hands-Free Automation for OrlandoChrome</div>
             </div>
           </div>
           <button type="button" class="btn-banner-clear" id="btnCloseVoiceCheat">✕</button>
         </div>
 
-        <div class="voice-cheat-body">
+        <!-- Instructions Banner: Quick Start & Mobile Guide -->
+        <div class="voice-instructions-banner">
+          <div class="voice-instructions-title">
+            <span>⚡ Quick-Start Instructions & Hands-Free Operation</span>
+          </div>
+          <div class="voice-instructions-steps">
+            <div class="voice-instruction-step">
+              <strong>1. Activate Mic</strong><br>
+              Click 🎙️ Mic in composer or press <code>Alt + Space</code> (PC). On iPhone, tap Mic and choose <strong>"Allow"</strong> for Safari microphone.
+            </div>
+            <div class="voice-instruction-step">
+              <strong>2. Command Mode</strong><br>
+              Ensure <code>Command Mode: ON</code> is active (green). Spoken commands execute automatically instead of being transcribed.
+            </div>
+            <div class="voice-instruction-step">
+              <strong>3. Visual & Audio</strong><br>
+              Every executed command flashes a glowing <span style="color:#34d399;font-weight:700;">⚡ Executed</span> badge and plays a confirmation chime.
+            </div>
+            <div class="voice-instruction-step">
+              <strong>4. Safety & Undo</strong><br>
+              All actions (deleting notes, bulk cleaning, etc.) can be undone instantly by saying <code>"undo that"</code> or clicking ↺ Undo.
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="voice-cheat-filters" id="voiceFilterTabs">
+          <button type="button" class="voice-filter-pill active" data-filter="all">All (10)</button>
+          <button type="button" class="voice-filter-pill" data-filter="timer">⏱️ Timers</button>
+          <button type="button" class="voice-filter-pill" data-filter="switch">🎯 Profiles</button>
+          <button type="button" class="voice-filter-pill" data-filter="tag">🏷️ Reactions</button>
+          <button type="button" class="voice-filter-pill" data-filter="sharenote">💭 24h Status</button>
+          <button type="button" class="voice-filter-pill" data-filter="sticky">📌 Sticky Note</button>
+          <button type="button" class="voice-filter-pill" data-filter="template">📋 Templates</button>
+          <button type="button" class="voice-filter-pill" data-filter="forward">🔄 Forward</button>
+          <button type="button" class="voice-filter-pill" data-filter="bulk">☑️ Bulk Clean</button>
+          <button type="button" class="voice-filter-pill" data-filter="undo">↩️ Undo / Trash</button>
+          <button type="button" class="voice-filter-pill" data-filter="format">✨ Formatting</button>
+        </div>
+
+        <div class="voice-cheat-body" id="voiceCheatList">
           <!-- 1. Timers -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="timer">
             <div class="voice-cheat-title">
               <span>⏱️ Flexible Cooldown Timers & Alarms</span>
               <span class="voice-cheat-num">#1</span>
             </div>
-            <div class="voice-cheat-desc">Start or clear cooldown countdowns on the active profile hands-free with natural phrasing.</div>
+            <div class="voice-cheat-desc">Start or clear cooldown countdowns on the active profile hands-free with natural phrasing. Supports minutes, hours, or days.</div>
             <div class="voice-cheat-phrases">
               <span class="voice-cheat-phrase-pill">"start timer 30 minutes"</span>
               <span class="voice-cheat-phrase-pill">"timer 15 mins"</span>
               <span class="voice-cheat-phrase-pill">"cooldown 1 hour"</span>
               <span class="voice-cheat-phrase-pill">"cancel timer"</span>
+              <span class="voice-cheat-phrase-pill">"clear cooldown"</span>
               <button type="button" class="voice-cheat-try-btn" data-try="start timer 30 minutes">Test "timer 30m"</button>
             </div>
           </div>
 
           <!-- 2. Profile Switching -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="switch">
             <div class="voice-cheat-title">
               <span>🎯 Instant Profile Navigation & Slot Switching</span>
               <span class="voice-cheat-num">#2</span>
             </div>
-            <div class="voice-cheat-desc">Navigate directly to any profile by name keyword, slot index, or sequential next/previous.</div>
+            <div class="voice-cheat-desc">Navigate directly to any profile by name keyword, slot index (1 to 22), or sequential next/previous hands-free.</div>
             <div class="voice-cheat-phrases">
               <span class="voice-cheat-phrase-pill">"switch to deped"</span>
               <span class="voice-cheat-phrase-pill">"go to gmail"</span>
+              <span class="voice-cheat-phrase-pill">"open hero"</span>
               <span class="voice-cheat-phrase-pill">"switch to slot 3"</span>
               <span class="voice-cheat-phrase-pill">"next profile"</span>
+              <span class="voice-cheat-phrase-pill">"previous profile"</span>
               <button type="button" class="voice-cheat-try-btn" data-try="next profile">Test "next profile"</button>
             </div>
           </div>
 
           <!-- 3. Reactions & Status -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="tag">
             <div class="voice-cheat-title">
               <span>🏷️ Priority & Status Reaction Voice Suite</span>
               <span class="voice-cheat-num">#3</span>
             </div>
-            <div class="voice-cheat-desc">Attach reactions, star notes, mark tasks complete, pin profiles, or set unread status.</div>
+            <div class="voice-cheat-desc">Attach reactions (urgent, waiting, verified), star notes, mark tasks completed, pin profiles, or set unread status.</div>
             <div class="voice-cheat-phrases">
               <span class="voice-cheat-phrase-pill">"mark urgent"</span>
               <span class="voice-cheat-phrase-pill">"mark waiting"</span>
               <span class="voice-cheat-phrase-pill">"mark verified"</span>
               <span class="voice-cheat-phrase-pill">"star note"</span>
               <span class="voice-cheat-phrase-pill">"mark done"</span>
+              <span class="voice-cheat-phrase-pill">"mark unread"</span>
+              <span class="voice-cheat-phrase-pill">"pin profile"</span>
               <button type="button" class="voice-cheat-try-btn" data-try="mark urgent">Test "mark urgent"</button>
             </div>
           </div>
 
           <!-- 4. 24h Share A Note -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="sharenote">
             <div class="voice-cheat-title">
               <span>💭 Dictate Directly to 24h Share-A-Note</span>
               <span class="voice-cheat-num">#4</span>
             </div>
-            <div class="voice-cheat-desc">Post a 24-hour expiring status thought bubble immediately on the avatar without opening modals.</div>
+            <div class="voice-cheat-desc">Post a 24-hour expiring status thought bubble immediately on the avatar without opening modals or tapping popups.</div>
             <div class="voice-cheat-phrases">
-              <span class="voice-cheat-phrase-pill">"share note [your message]"</span>
+              <span class="voice-cheat-phrase-pill">"share note [your thought]"</span>
               <span class="voice-cheat-phrase-pill">"status note Out for lunch"</span>
+              <span class="voice-cheat-phrase-pill">"my thought is [text]"</span>
               <span class="voice-cheat-phrase-pill">"clear share note"</span>
-              <button type="button" class="voice-cheat-try-btn" data-try="share note Voice status active">Test "share note"</button>
+              <button type="button" class="voice-cheat-try-btn" data-try="share note Voice command active">Test "share note"</button>
             </div>
           </div>
 
           <!-- 5. Sticky Note -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="sticky">
             <div class="voice-cheat-title">
               <span>📌 Instant Header Sticky Note Dictation</span>
               <span class="voice-cheat-num">#5</span>
             </div>
-            <div class="voice-cheat-desc">Pins a persistent golden note banner to the top of the chat window for reference.</div>
+            <div class="voice-cheat-desc">Pins a persistent golden note banner to the top of the chat window for reference. Stays active across resets.</div>
             <div class="voice-cheat-phrases">
               <span class="voice-cheat-phrase-pill">"sticky note [message]"</span>
               <span class="voice-cheat-phrase-pill">"pin note Dedicated to SF2"</span>
+              <span class="voice-cheat-phrase-pill">"header note [text]"</span>
               <span class="voice-cheat-phrase-pill">"clear sticky note"</span>
-              <button type="button" class="voice-cheat-try-btn" data-try="sticky note Priority DepEd SF2 validation">Test "sticky note"</button>
+              <button type="button" class="voice-cheat-try-btn" data-try="sticky note Priority SF2 validation">Test "sticky note"</button>
             </div>
           </div>
 
           <!-- 6. Quick Task Templates -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="template">
             <div class="voice-cheat-title">
               <span>📋 Voice-Triggered Quick Task Templates</span>
               <span class="voice-cheat-num">#6</span>
             </div>
-            <div class="voice-cheat-desc">Applies any bracketed template tag directly into the composer input hands-free.</div>
+            <div class="voice-cheat-desc">Applies any bracketed template tag directly into the composer input hands-free so you can continue dictating.</div>
             <div class="voice-cheat-phrases">
               <span class="voice-cheat-phrase-pill">"template lesson plan"</span>
               <span class="voice-cheat-phrase-pill">"template test"</span>
               <span class="voice-cheat-phrase-pill">"template module"</span>
               <span class="voice-cheat-phrase-pill">"template print"</span>
+              <span class="voice-cheat-phrase-pill">"template exam"</span>
               <button type="button" class="voice-cheat-try-btn" data-try="template test">Test "template test"</button>
             </div>
           </div>
 
           <!-- 7. Forwarding -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="forward">
             <div class="voice-cheat-title">
               <span>🔄 Cross-Profile Task Forwarding & Duplication</span>
               <span class="voice-cheat-num">#7</span>
             </div>
-            <div class="voice-cheat-desc">Send the active note directly to another profile or open the visual forward picker.</div>
+            <div class="voice-cheat-desc">Send the active note directly to another profile or open the visual forward picker without leaving your workflow.</div>
             <div class="voice-cheat-phrases">
               <span class="voice-cheat-phrase-pill">"forward to deped"</span>
               <span class="voice-cheat-phrase-pill">"forward note to gmail"</span>
+              <span class="voice-cheat-phrase-pill">"copy note to hero"</span>
               <span class="voice-cheat-phrase-pill">"forward task"</span>
               <button type="button" class="voice-cheat-try-btn" data-try="forward task">Test "forward task"</button>
             </div>
           </div>
 
           <!-- 8. Multi-Select & Bulk Clean -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="bulk">
             <div class="voice-cheat-title">
               <span>☑️ Voice Multi-Select & Bulk Clean Suite</span>
               <span class="voice-cheat-num">#8</span>
             </div>
-            <div class="voice-cheat-desc">Operate the bulk deletion mode hands-free to select and trash clutter in seconds.</div>
+            <div class="voice-cheat-desc">Operate the bulk deletion mode hands-free to select and trash clutter in seconds with instant 1-click Undo.</div>
             <div class="voice-cheat-phrases">
               <span class="voice-cheat-phrase-pill">"select notes"</span>
               <span class="voice-cheat-phrase-pill">"select all"</span>
@@ -7598,7 +7658,7 @@ ${jsRes}
           </div>
 
           <!-- 9. Undo & Redo -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="undo">
             <div class="voice-cheat-title">
               <span>↩️ Voice Undo, Redo & Instant Note Trash</span>
               <span class="voice-cheat-num">#9</span>
@@ -7608,24 +7668,46 @@ ${jsRes}
               <span class="voice-cheat-phrase-pill">"undo that"</span>
               <span class="voice-cheat-phrase-pill">"redo that"</span>
               <span class="voice-cheat-phrase-pill">"delete last note"</span>
-              <span class="voice-cheat-phrase-pill">"scratch that"</span>
+              <span class="voice-cheat-phrase-pill">"scratch that" (clears composer)</span>
               <button type="button" class="voice-cheat-try-btn" data-try="undo that">Test "undo that"</button>
             </div>
           </div>
 
           <!-- 10. Intelligent Dictation & Formatting -->
-          <div class="voice-cheat-card">
+          <div class="voice-cheat-card" data-cat="format">
             <div class="voice-cheat-title">
               <span>✨ Smart Conversational Formatting & Direct Send</span>
               <span class="voice-cheat-num">#10</span>
             </div>
             <div class="voice-cheat-desc">Natural punctuation, bullet points, line breaks, and direct hands-free note dispatch.</div>
             <div class="voice-cheat-phrases">
-              <span class="voice-cheat-phrase-pill">"bullet point"</span>
+              <span class="voice-cheat-phrase-pill">"bullet point" (•)</span>
               <span class="voice-cheat-phrase-pill">"new line"</span>
               <span class="voice-cheat-phrase-pill">"new paragraph"</span>
+              <span class="voice-cheat-phrase-pill">"numbered list"</span>
               <span class="voice-cheat-phrase-pill">"send note"</span>
               <button type="button" class="voice-cheat-try-btn" data-try="send note">Test "send note"</button>
+            </div>
+          </div>
+
+          <!-- Dictation Punctuation Cheat Table -->
+          <div class="voice-cheat-card" data-cat="format" style="background:#0a0a0a; border-color:#2a2a2a;">
+            <div class="voice-cheat-title">
+              <span>📝 Complete Spoken Punctuation Guide</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px; font-size:11.5px; margin-top:4px;">
+              <div>Say <code>"bullet point"</code> → <strong>• </strong></div>
+              <div>Say <code>"new line"</code> → <strong>↵ Line Break</strong></div>
+              <div>Say <code>"new paragraph"</code> → <strong>↵↵ Paragraph</strong></div>
+              <div>Say <code>"numbered list"</code> → <strong>1. </strong></div>
+              <div>Say <code>"comma"</code> → <strong>,</strong></div>
+              <div>Say <code>"period"</code> → <strong>.</strong></div>
+              <div>Say <code>"question mark"</code> → <strong>?</strong></div>
+              <div>Say <code>"exclamation mark"</code> → <strong>!</strong></div>
+              <div>Say <code>"colon"</code> → <strong>:</strong></div>
+              <div>Say <code>"semicolon"</code> → <strong>;</strong></div>
+              <div>Say <code>"dash / hyphen"</code> → <strong> - </strong></div>
+              <div>Say <code>"hashtag"</code> → <strong> #</strong></div>
             </div>
           </div>
         </div>
@@ -7635,6 +7717,23 @@ ${jsRes}
     const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
     $('#btnCloseVoiceCheat', backdrop).onclick = close;
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+
+    // Category filter tab clicks
+    $$('.voice-filter-pill', backdrop).forEach(pill => {
+      pill.onclick = () => {
+        $$('.voice-filter-pill', backdrop).forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const filter = pill.dataset.filter;
+        const cards = $$('.voice-cheat-card', backdrop);
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.cat === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      };
+    });
 
     $$('.voice-cheat-try-btn', backdrop).forEach(btn => {
       btn.onclick = () => {
@@ -8939,6 +9038,17 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     const btnNextReady = $('#btnNextReady');
     if (btnNextReady) btnNextReady.onclick = () => jumpToNextReadyProfile();
 
+    const btnTopbarVoice = $('#btnTopbarVoiceManual');
+    if (btnTopbarVoice) btnTopbarVoice.onclick = () => openVoiceCommandsCheatSheetModal();
+
+    const btnSystemVoice = $('#btnSystemVoiceManual');
+    if (btnSystemVoice) {
+      btnSystemVoice.onclick = () => {
+        if (typeof closeMenu === 'function') closeMenu();
+        openVoiceCommandsCheatSheetModal();
+      };
+    }
+
     const btnLaunchDesktop = $('#btnTopbarLaunchApp');
     if (btnLaunchDesktop) {
       btnLaunchDesktop.onclick = (e) => {
@@ -9433,6 +9543,9 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       } else if (e.altKey && (e.key === 'n' || e.key === 'N')) {
         e.preventDefault();
         jumpToNextReadyProfile();
+      } else if (e.altKey && (e.key === 'v' || e.key === 'V')) {
+        e.preventDefault();
+        openVoiceCommandsCheatSheetModal();
       }
     });
 

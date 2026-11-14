@@ -40,6 +40,11 @@
         <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next Ready</span>
       </button>
 
+      <!-- Voice Commands & Instructions Manual Button (Always Visible) -->
+      <button type="button" class="btn-topbar-quick btn-topbar-voice-btn" id="btnTopbarVoiceManual" title="Voice Commands Manual & Hands-Free Instructions (Alt + V)">
+        <span style="font-size:12px;">🎙️</span> <span>Voice Commands</span>
+      </button>
+
       <!-- Compressed Single "System" Command Button & Floating Futuristic Dropdown -->
       <div class="system-menu-wrapper" id="systemMenuWrapper">
         <button type="button" class="btn-topbar-system" id="btnSystemMenu" aria-haspopup="true" aria-expanded="false" title="System Menu (Recovery, Centennial Recovery, Open main web app, Holographic QR)">
@@ -109,6 +114,20 @@
                 <span class="system-trash-badge" id="systemTrashCount" style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(251,146,60,0.18);color:#fb923c;font-weight:700;">0 items</span>
               </div>
               <div class="menu-item-desc">30-day soft-delete safety vault</div>
+            </div>
+          </button>
+
+          <!-- 6. Voice Commands Manual & Hands-Free Instructions -->
+          <button type="button" class="system-menu-item" id="btnSystemVoiceManual" role="menuitem" title="Voice Commands: 10 Superpowers & Hands-Free Instructions Manual">
+            <div class="menu-item-icon" style="background:rgba(255,82,99,0.15);border:1px solid rgba(255,82,99,0.3);">
+              <span style="font-size:14px;">🎙️</span>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Voice Commands</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(255,82,99,0.18);color:#ff8591;font-weight:700;">10 Active</span>
+              </div>
+              <div class="menu-item-desc">10 Superpowers & hands-free instructions</div>
             </div>
           </button>
           </div>
