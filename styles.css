@@ -10057,3 +10057,34 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   color: #71717a !important;
   line-height: 1.2 !important;
 }
+
+/* ==========================================================================
+   ANTIGRAVITY DIRECT FILE ATTACHMENT BUTTON (PAPERCLIP)
+   ========================================================================== */
+.btn-antigravity-clip {
+  background: transparent !important;
+  border: none !important;
+  color: #9ca3af !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.btn-antigravity-clip:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: scale(1.06) !important;
+}
+
+.btn-antigravity-clip:active {
+  transform: scale(0.95) !important;
+}

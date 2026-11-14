@@ -4972,76 +4972,12 @@ const Icons = {
 
       <!-- Composer Bar (Bottom) - Antigravity Style -->
       <div class="composer-bar">
-        <!-- Antigravity + Add Content Button & Floating Menu -->
-        <div class="antigravity-add-menu-wrap" id="agyAddMenuWrap">
-          <button type="button" class="btn-antigravity-add" id="btnAntigravityAdd" title="Add Content (+)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
-
-          <div class="antigravity-add-menu" id="agyAddMenu" style="display:none;" role="menu">
-            <div class="add-menu-header">Add Content</div>
-            
-            <button type="button" class="add-menu-item" id="addMenuItemFile" role="menuitem" title="Attach screenshot, photo or image">
-              <svg class="add-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-              </svg>
-              <div class="add-menu-label">
-                <span class="add-menu-title">File</span>
-                <span class="add-menu-desc">Screenshot, photo, image</span>
-              </div>
-            </button>
-
-            <button type="button" class="add-menu-item" id="addMenuItemFolder" role="menuitem" title="Import notes or JSON file">
-              <svg class="add-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <div class="add-menu-label">
-                <span class="add-menu-title">Folder</span>
-                <span class="add-menu-desc">Import notes from file</span>
-              </div>
-            </button>
-
-            <button type="button" class="add-menu-item" id="addMenuItemMention" role="menuitem" title="Mention or reference a Chrome profile">
-              <svg class="add-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"></circle>
-                <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
-              </svg>
-              <div class="add-menu-label">
-                <span class="add-menu-title">Mention</span>
-                <span class="add-menu-desc">Tag Chrome profile (@)</span>
-              </div>
-            </button>
-
-            <button type="button" class="add-menu-item" id="addMenuItemArtifact" role="menuitem" title="Insert structured checklist template">
-              <svg class="add-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="3" x2="9" y2="21"></line>
-                <path d="M14 9l3 3-3 3"></path>
-              </svg>
-              <div class="add-menu-label">
-                <span class="add-menu-title">Artifact</span>
-                <span class="add-menu-desc">Checklist or task template</span>
-              </div>
-            </button>
-
-            <button type="button" class="add-menu-item" id="addMenuItemBrowser" role="menuitem" title="Attach Chrome web link">
-              <svg class="add-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <circle cx="12" cy="12" r="4"></circle>
-                <line x1="21.17" y1="8" x2="12" y2="8"></line>
-                <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
-                <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
-              </svg>
-              <div class="add-menu-label">
-                <span class="add-menu-title">Browser</span>
-                <span class="add-menu-desc">Attach Chrome web link</span>
-              </div>
-            </button>
-          </div>
-        </div>
+        <!-- Antigravity Direct File Attachment Button -->
+        <button type="button" class="btn-antigravity-clip" id="btnAttachFileDirect" title="Attach image or file (Ctrl+V)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+          </svg>
+        </button>
 
         <div class="composer-input-wrap">
           <span class="composer-icon">💬</span>
@@ -5562,154 +5498,13 @@ const Icons = {
       btnManageTpl.onclick = () => promptAddTemplate();
     }
 
-    // 8. Antigravity + Add Content Menu & Actions
-    const btnAgyAdd = $('#btnAntigravityAdd');
-    const agyMenu = $('#agyAddMenu');
-
-    if (btnAgyAdd && agyMenu) {
-      btnAgyAdd.onclick = (e) => {
+    // 8. Antigravity Direct File Attachment Button
+    const btnDirectClip = $('#btnAttachFileDirect');
+    if (btnDirectClip) {
+      btnDirectClip.onclick = (e) => {
         if (e) e.stopPropagation();
-        const isOpen = agyMenu.style.display === 'flex';
-        agyMenu.style.display = isOpen ? 'none' : 'flex';
-        btnAgyAdd.classList.toggle('active', !isOpen);
-      };
-
-      // Close menu when clicking outside
-      const closeAgyMenu = (e) => {
-        if (agyMenu && !agyMenu.contains(e.target) && e.target !== btnAgyAdd) {
-          agyMenu.style.display = 'none';
-          btnAgyAdd.classList.remove('active');
-        }
-      };
-      document.addEventListener('click', closeAgyMenu);
-
-      // Item 1: File (Attach image/screenshot)
-      const itemFile = $('#addMenuItemFile');
-      if (itemFile) {
-        itemFile.onclick = (e) => {
-          if (e) e.stopPropagation();
-          agyMenu.style.display = 'none';
-          btnAgyAdd.classList.remove('active');
-          const fileInp = $('#noteImageInput');
-          if (fileInp) fileInp.click();
-        };
-      }
-
-      // Item 2: Folder (Import notes from JSON or text file)
-      const itemFolder = $('#addMenuItemFolder');
-      if (itemFolder) {
-        itemFolder.onclick = (e) => {
-          if (e) e.stopPropagation();
-          agyMenu.style.display = 'none';
-          btnAgyAdd.classList.remove('active');
-          const importInp = $('#importNotesFileInput');
-          if (importInp) importInp.click();
-        };
-      }
-
-      // Item 3: Mention (@ Tag Chrome profile)
-      const itemMention = $('#addMenuItemMention');
-      if (itemMention) {
-        itemMention.onclick = (e) => {
-          if (e) e.stopPropagation();
-          agyMenu.style.display = 'none';
-          btnAgyAdd.classList.remove('active');
-          const composerInp = $('#composerInput');
-          if (composerInp) {
-            const curVal = composerInp.value.trim();
-            composerInp.value = curVal ? curVal + ' @' : '@';
-            composerInp.focus();
-          }
-        };
-      }
-
-      // Item 4: Artifact (Insert structured task checklist)
-      const itemArtifact = $('#addMenuItemArtifact');
-      if (itemArtifact) {
-        itemArtifact.onclick = (e) => {
-          if (e) e.stopPropagation();
-          agyMenu.style.display = 'none';
-          btnAgyAdd.classList.remove('active');
-          const composerInp = $('#composerInput');
-          if (composerInp) {
-            const curVal = composerInp.value.trim();
-            const template = '[ ] Priority Task: ';
-            composerInp.value = curVal ? curVal + ' ' + template : template;
-            composerInp.focus();
-          }
-        };
-      }
-
-      // Item 5: Browser (Attach Chrome web link)
-      const itemBrowser = $('#addMenuItemBrowser');
-      if (itemBrowser) {
-        itemBrowser.onclick = (e) => {
-          if (e) e.stopPropagation();
-          agyMenu.style.display = 'none';
-          btnAgyAdd.classList.remove('active');
-          const url = prompt('Enter Chrome Tab or Web URL to attach:', 'https://');
-          if (url && url.trim() && url !== 'https://') {
-            const cleanUrl = url.trim();
-            const title = cleanUrl.replace(/^https?:\/\//, '').split('/')[0];
-            const linkMd = `[${title}](${cleanUrl})`;
-            const composerInp = $('#composerInput');
-            if (composerInp) {
-              const curVal = composerInp.value.trim();
-              composerInp.value = curVal ? curVal + ' ' + linkMd : linkMd;
-              composerInp.focus();
-            }
-          }
-        };
-      }
-    }
-
-    // Handle Folder Import File Selection
-    const importNotesInp = $('#importNotesFileInput');
-    if (importNotesInp) {
-      importNotesInp.onchange = async (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        try {
-          const text = await file.text();
-          let importedNotes = [];
-          try {
-            const parsed = JSON.parse(text);
-            if (Array.isArray(parsed)) {
-              importedNotes = parsed;
-            } else if (parsed && Array.isArray(parsed.notes)) {
-              importedNotes = parsed.notes;
-            }
-          } catch (jsonErr) {
-            // Text or markdown: split by line
-            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-            importedNotes = lines.map(line => ({ text: line.replace(/^[-*•\[\]\s]+/, ''), done: false }));
-          }
-
-          if (importedNotes.length > 0) {
-            if (!p.notes) p.notes = [];
-            importedNotes.forEach(item => {
-              if (item && (item.text || item.t)) {
-                p.notes.push({
-                  id: item.id || uid(),
-                  text: item.text || item.t,
-                  done: Boolean(item.done || item.d),
-                  createdAt: item.createdAt || item.c || now(),
-                  reactions: [],
-                  subItems: []
-                });
-              }
-            });
-            saveState(false);
-            renderSidebar();
-            renderMainChat();
-            showToast(`📁 Successfully imported ${importedNotes.length} notes into ${p.name}!`);
-          } else {
-            showToast('⚠️ No valid notes found in file.');
-          }
-        } catch (err) {
-          showToast('❌ Failed to read file: ' + err.message);
-        }
-        importNotesInp.value = '';
+        const fileInp = $('#noteImageInput');
+        if (fileInp) fileInp.click();
       };
     }
     const btnRemImg = $('#btnRemoveScreenshot');
