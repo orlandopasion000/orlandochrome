@@ -7715,6 +7715,21 @@ ${jsRes}
                 <input type="file" id="vaultImportFileInput" accept=".json,application/json" style="display:none">
               </div>
             </div>
+            <!-- Maintenance & Clean Slate Reset (Double-Lock Guarded) -->
+            <div class="vault-danger-box">
+              <div class="vault-danger-header">
+                <div class="vault-danger-title-wrap">
+                  <svg class="modern-icon" viewBox="0 0 24 24" style="width:16px;height:16px;color:#f87171;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  <div>
+                    <div class="vault-danger-title">Maintenance & Clean Slate Reset</div>
+                    <div class="vault-danger-desc">Clears all 22 profiles' active notifications, notes, timers, and empties trash. Automatically archives a pre-reset rollback checkpoint into this vault.</div>
+                  </div>
+                </div>
+                <button type="button" class="btn-vault-start-fresh" id="btnVaultOpenStartFresh">
+                  <span>Start Fresh...</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- TAB 2: Priorities & Acceptance Criteria -->
@@ -7847,7 +7862,14 @@ ${jsRes}
       };
     }
 
-    const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
+    
+    const startFreshVaultBtn = backdrop.querySelector('#btnVaultOpenStartFresh');
+    if (startFreshVaultBtn) {
+      startFreshVaultBtn.onclick = () => {
+        openCleanSlateChallengeModal();
+      };
+    }
+const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     if (manualBtn) {
       manualBtn.onclick = () => {
         takeBackupSnapshot('User Manual Checkpoint');
@@ -8074,12 +8096,7 @@ ${jsRes}
         openCentennialModal();
       };
     }
-        const btnSystemStartFresh = $('#btnSystemStartFresh');
-    if (btnSystemStartFresh) {
-      btnSystemStartFresh.onclick = () => {
-        startFreshCleanSlate(true);
-      };
-    }
+        // Start Fresh moved to Recovery Vault with Two-Step Double Lock
     const btnSystemTrash = $('#btnSystemTrash');
     if (btnSystemTrash) {
       btnSystemTrash.onclick = (e) => {
@@ -8903,6 +8920,113 @@ ${jsRes}
 
     workspace.addEventListener('touchend', finishGesture, { passive: true });
     workspace.addEventListener('touchcancel', finishGesture, { passive: true });
+  }
+
+    // Two-Step Security Gate Challenge Modal for Clean Slate Reset
+  function openCleanSlateChallengeModal() {
+    if (typeof playSoundClick === 'function') playSoundClick();
+    const existing = $('#cleanSlateBackdrop');
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.id = 'cleanSlateBackdrop';
+    backdrop.style.zIndex = '10005';
+
+    backdrop.innerHTML = `
+      <div class="rename-dialog clean-slate-modal" role="dialog" aria-modal="true" aria-labelledby="cleanSlateTitle">
+        <div class="clean-slate-header">
+          <div class="clean-slate-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" style="width:22px;height:22px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div style="flex:1;">
+            <h3 class="clean-slate-title" id="cleanSlateTitle">Confirm Clean Slate Reset</h3>
+            <div class="clean-slate-subtitle">Two-Step Security Gate · Zero Unintended Loss</div>
+          </div>
+          <button type="button" class="btn-banner-clear" id="btnCloseCleanSlate" style="font-size:1.2rem; cursor:pointer;" title="Close (Esc)">✕</button>
+        </div>
+
+        <div class="clean-slate-body">
+          <p class="clean-slate-p">This will reset <strong>all 22 Chrome profiles</strong> to a completely clean slate: <strong>0 notifications</strong>, <strong>0 pending tasks</strong>, <strong>0 active timers</strong>, and <strong>empty the trash</strong>.</p>
+          
+          <div class="clean-slate-shield-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <div style="font-size:12px;color:#a7f3d0;line-height:1.4;">
+              <strong>Automatic Safety Guarantee:</strong> A full recovery archive (<code>Pre-Fresh Slate Recovery Archive</code>) will be saved in your Recovery Vault before anything is wiped, so you can rollback at any time.
+            </div>
+          </div>
+
+          <div class="clean-slate-challenge-wrap">
+            <div class="clean-slate-label">
+              <span>To confirm, please type <strong>RESET</strong> below:</span>
+              <button type="button" class="chip-quick-fill" id="btnQuickFillReset" title="Quick-fill RESET to eliminate typing friction">Fill "RESET"</button>
+            </div>
+            <input type="text" id="txtResetChallenge" class="clean-slate-input" placeholder="Type RESET" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="clean-slate-footer">
+          <button type="button" class="btn-banner-clear" id="btnCancelCleanSlate">Cancel</button>
+          <button type="button" class="btn-clean-slate-confirm disabled" id="btnConfirmCleanSlate" disabled>
+            <span>Execute Clean Slate</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    const btnClose = backdrop.querySelector('#btnCloseCleanSlate');
+    const btnCancel = backdrop.querySelector('#btnCancelCleanSlate');
+    if (btnClose) btnClose.onclick = close;
+    if (btnCancel) btnCancel.onclick = close;
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+
+    const inp = backdrop.querySelector('#txtResetChallenge');
+    const confirmBtn = backdrop.querySelector('#btnConfirmCleanSlate');
+    const quickFillBtn = backdrop.querySelector('#btnQuickFillReset');
+
+    const checkValidity = () => {
+      const val = (inp.value || '').trim().toUpperCase();
+      const isValid = (val === 'RESET');
+      confirmBtn.disabled = !isValid;
+      confirmBtn.classList.toggle('disabled', !isValid);
+      confirmBtn.classList.toggle('active-ready', isValid);
+    };
+
+    if (inp) {
+      inp.oninput = checkValidity;
+      inp.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          if (!confirmBtn.disabled) confirmBtn.click();
+        } else if (e.key === 'Escape') {
+          close();
+        }
+      };
+      setTimeout(() => inp.focus(), 80);
+    }
+
+    if (quickFillBtn && inp) {
+      quickFillBtn.onclick = () => {
+        inp.value = 'RESET';
+        checkValidity();
+        inp.focus();
+      };
+    }
+
+    if (confirmBtn) {
+      confirmBtn.onclick = () => {
+        close();
+        // Also close recovery vault modal if open
+        const vaultBd = $('#vaultBackdrop');
+        if (vaultBd) vaultBd.remove();
+        const renameBds = $('.rename-dialog-backdrop');
+        renameBds.forEach(b => { if (b.id !== 'toast') b.remove(); });
+
+        startFreshCleanSlate(false);
+      };
+    }
   }
 
   // Start Fresh Clean Slate (Zero Notifications, Zero Pendings, Zero Timers, Empty Trash)
