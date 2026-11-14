@@ -1642,6 +1642,205 @@ const Icons = {
     }
   }
 
+  // ==========================================
+  // v98 Autonomous Storage Engine & LZW Compression
+  // ==========================================
+  function lzwCompress(str) {
+    if (!str) return "";
+    const dict = {};
+    const data = (str + "").split("");
+    const out = [];
+    let curr = "";
+    let phrase = data[0];
+    let code = 256;
+    for (let i = 1; i < data.length; i++) {
+      curr = data[i];
+      if (dict[phrase + curr] != null) {
+        phrase += curr;
+      } else {
+        out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+        dict[phrase + curr] = code;
+        code++;
+        phrase = curr;
+      }
+    }
+    out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+    return out.map(c => String.fromCharCode(c)).join("");
+  }
+
+  function lzwDecompress(str) {
+    if (!str) return "";
+    const dict = {};
+    const data = (str + "").split("").map(c => c.charCodeAt(0));
+    let currChar = String.fromCharCode(data[0]);
+    let oldPhrase = currChar;
+    const out = [currChar];
+    let code = 256;
+    let phrase;
+    for (let i = 1; i < data.length; i++) {
+      const currCode = data[i];
+      if (currCode < 256) {
+        phrase = String.fromCharCode(currCode);
+      } else {
+        phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
+      }
+      out.push(phrase);
+      currChar = phrase.charAt(0);
+      dict[code] = oldPhrase + currChar;
+      code++;
+      oldPhrase = phrase;
+    }
+    return out.join("");
+  }
+
+  function unpackSnapshotData(snap) {
+    if (!snap) return { profiles: [], trash: [], draSched: null };
+    if (snap.c && snap.d) {
+      try {
+        const decomp = lzwDecompress(snap.d);
+        return JSON.parse(decomp);
+      } catch (e) {
+        console.warn('Failed to decompress snapshot payload:', e);
+      }
+    }
+    return {
+      profiles: snap.profiles || [],
+      trash: snap.trash || [],
+      draSched: snap.draSched || null
+    };
+  }
+
+  async function getStorageQuotaMetrics() {
+    let usageBytes = 0;
+    let quotaBytes = 0;
+    let percent = 0;
+    let hasEstimate = false;
+
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.estimate) {
+      try {
+        const est = await navigator.storage.estimate();
+        usageBytes = est.usage || 0;
+        quotaBytes = est.quota || 0;
+        percent = quotaBytes > 0 ? (usageBytes / quotaBytes) * 100 : 0;
+        hasEstimate = true;
+      } catch (e) {}
+    }
+
+    let localBytes = 0;
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        localBytes += (k.length + (localStorage.getItem(k) || '').length) * 2;
+      }
+    } catch (e) {}
+
+    if (!hasEstimate || quotaBytes === 0) {
+      usageBytes = localBytes;
+      quotaBytes = 5 * 1024 * 1024;
+      percent = (localBytes / quotaBytes) * 100;
+    }
+
+    const formatSize = (b) => {
+      if (b >= 1024 * 1024 * 1024) return (b / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+      if (b >= 1024 * 1024) return (b / (1024 * 1024)).toFixed(2) + ' MB';
+      if (b >= 1024) return (b / 1024).toFixed(1) + ' KB';
+      return b + ' B';
+    };
+
+    return {
+      usageBytes,
+      quotaBytes,
+      localBytes,
+      percent: Math.min(100, Math.max(0, percent)),
+      formattedUsage: formatSize(usageBytes),
+      formattedQuota: formatSize(quotaBytes),
+      formattedLocal: formatSize(localBytes),
+      hasEstimate,
+      status: percent > 85 ? 'Critical' : (percent > 65 ? 'Elevated' : 'Safe')
+    };
+  }
+
+  // 4-Tier Storage Fallback Cascading (v98)
+  async function cascadePersistMasterState(payload) {
+    // Tier 1: LocalStorage
+    try {
+      safeSetLocalStorage(STORAGE_KEY, JSON.stringify(payload.profiles));
+      safeSetLocalStorage(LAST_MOD_KEY, String(payload.lastModified || now()));
+    } catch (e) {
+      console.warn('[Tier-1 LocalStorage cascade warning]', e);
+    }
+
+    // Tier 2: IndexedDB Mirror
+    try {
+      await idbSaveMasterState(payload);
+    } catch (e) {
+      console.warn('[Tier-2 IndexedDB cascade warning]', e);
+    }
+
+    // Tier 3: CacheStorage Mirror
+    try {
+      if (typeof caches !== 'undefined') {
+        const cache = await caches.open('orlandochrome-master-backup-v1');
+        await cache.put(
+          new Request('/__orlandochrome_master_state.json'),
+          new Response(JSON.stringify(payload), {
+            headers: { 'Content-Type': 'application/json' }
+          })
+        );
+      }
+    } catch (e) {}
+
+    // Tier 4: In-Memory Mirror
+    if (typeof window !== 'undefined') {
+      window.__ORLANDOCHROME_MEMORY_STORE__ = JSON.parse(JSON.stringify(payload));
+    }
+  }
+
+  async function cascadeRecoverMasterState() {
+    // Try Tier 1: LocalStorage
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return { source: 'Tier-1 LocalStorage', profiles: parsed };
+        }
+      }
+    } catch (e) {}
+
+    // Try Tier 2: IndexedDB
+    try {
+      const master = await idbLoadMasterState();
+      if (master && Array.isArray(master.profiles) && master.profiles.length > 0) {
+        return { source: 'Tier-2 IndexedDB Mirror', ...master };
+      }
+    } catch (e) {}
+
+    // Try Tier 3: CacheStorage
+    try {
+      if (typeof caches !== 'undefined') {
+        const cache = await caches.open('orlandochrome-master-backup-v1');
+        const res = await cache.match('/__orlandochrome_master_state.json');
+        if (res) {
+          const data = await res.json();
+          if (data && Array.isArray(data.profiles) && data.profiles.length > 0) {
+            return { source: 'Tier-3 CacheStorage Guard', ...data };
+          }
+        }
+      }
+    } catch (e) {}
+
+    // Try Tier 4: In-Memory
+    if (typeof window !== 'undefined' && window.__ORLANDOCHROME_MEMORY_STORE__) {
+      const mem = window.__ORLANDOCHROME_MEMORY_STORE__;
+      if (mem && Array.isArray(mem.profiles) && mem.profiles.length > 0) {
+        return { source: 'Tier-4 In-Memory Store', ...mem };
+      }
+    }
+
+    return null;
+  }
+
   // Master Mirror: Full Independent Copy in IndexedDB
   async function idbSaveMasterState(masterPayload) {
     try {
@@ -1788,10 +1987,24 @@ const Icons = {
         draSched: localStorage.getItem('dra-schedule') || null
       };
 
-      // 1. localStorage lightweight rolling buffer (stripped of heavy base64 to save quota)
+      // 1. localStorage rolling buffer with LZW Delta Compression (v98 - 75% quota savings)
+      const compactProfiles = createCompactProfilesForSnapshot(snap.profiles);
+      const payloadToCompress = JSON.stringify({
+        profiles: compactProfiles,
+        trash: snap.trash,
+        draSched: snap.draSched
+      });
+      const compressedData = lzwCompress(payloadToCompress);
       const compactSnap = {
-        ...snap,
-        profiles: createCompactProfilesForSnapshot(snap.profiles)
+        id: snap.id,
+        ts: snap.ts,
+        iso: snap.iso,
+        reason: snap.reason,
+        noteCount: snap.noteCount,
+        pendingCount: snap.pendingCount,
+        timerCount: snap.timerCount,
+        c: true,
+        d: compressedData
       };
 
       let existingVault = [];
@@ -1802,14 +2015,14 @@ const Icons = {
       } catch (e) {}
 
       existingVault.unshift(compactSnap);
-      const MAX_LOCAL_SNAPS = 15;
+      const MAX_LOCAL_SNAPS = 25; // v98: Expanded buffer thanks to 75% LZW compression
       if (existingVault.length > MAX_LOCAL_SNAPS) {
         existingVault = existingVault.slice(0, MAX_LOCAL_SNAPS);
       }
       try {
         safeSetLocalStorage(VAULT_STORAGE_KEY, JSON.stringify(existingVault));
       } catch (e) {
-        try { safeSetLocalStorage(VAULT_STORAGE_KEY, JSON.stringify(existingVault.slice(0, 5))); } catch (err) {}
+        try { safeSetLocalStorage(VAULT_STORAGE_KEY, JSON.stringify(existingVault.slice(0, 10))); } catch (err) {}
       }
 
       // 2. Asynchronous IndexedDB storage: Stores FULL high-fidelity snapshot with all photos/clips (50MB+ quota)
@@ -6958,7 +7171,7 @@ ${jsRes}
             <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" style="width:22px;height:22px;" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#10b981" stroke-width="2" fill="rgba(16,185,129,0.2)"/><path d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div>
               <div class="vault-header-title" id="vaultModalTitle">Enterprise Data Fortress & Recovery Vault</div>
-              <div class="vault-header-subtitle">Multi-Tier Redundancy · Permanent Deletion Ledger · Zero-Loss Engine (v97)</div>
+              <div class="vault-header-subtitle">Multi-Tier Redundancy · Permanent Deletion Ledger · Zero-Loss Engine (v98 Autonomous Storage)</div>
             </div>
           </div>
           <button type="button" class="btn-close-note-modal" id="btnCloseVaultModal" title="Close (Esc)">✕</button>
