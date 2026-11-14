@@ -614,13 +614,13 @@ const Icons = {
 
   // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State (Clean Slate)
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Nov 14", createdAt: 1794666567638, updatedAt: 1794666567638, expiresAt: 1794752967638 }, notes: [{ id: "11e9pgdaw7", text: "10pm", done: false, createdAt: 1794666584167, reactions: [], subItems: [] }] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Nov 14", createdAt: 1794666579277, updatedAt: 1794666579277, expiresAt: 1794752979277 }, notes: [{ id: "a35gns8ekq", text: "11pm", done: false, createdAt: 1794666588938, reactions: [], subItems: [] }] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: 1794709804995, timerDurationMs: 43200000, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] }] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "w1qmo8xbbv", text: "Nov 14", done: false, createdAt: 1794666631387, reactions: [], subItems: [] }] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: 1794709835385, timerDurationMs: 43200000, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "Nov 14 10:30PM", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "kgfv0p4733", text: "YIFY has sticky notes. Look above", done: false, createdAt: 1794666672543, reactions: [], subItems: [] }] },
     { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
@@ -1675,32 +1675,44 @@ const Icons = {
 
   const RECOVERED_HISTORICAL_RECORDS = {
     1: {
-      sn: { text: "Put grammarly inside Chrome", createdAt: 1731519266000, updatedAt: 1731519266000, expiresAt: 1731605666000 },
+      sn: { text: "Nov 14", createdAt: 1794666567638, updatedAt: 1794666567638, expiresAt: 1794752967638 },
       notes: [
-        { id: "rec_p1_1", text: "Grade 10 Periodical Exam validation", done: false, createdAt: 1731519716000, reactions: [], subItems: [] }
+        { id: "11e9pgdaw7", text: "10pm", done: false, createdAt: 1794666584167, reactions: [], subItems: [] }
       ]
     },
     2: {
-      sn: { text: "Grade 10 Second Periodical Examination Papers checked now OK", createdAt: 1731523511000, updatedAt: 1731523511000, expiresAt: 1731609911000 },
+      sn: { text: "Nov 14", createdAt: 1794666579277, updatedAt: 1794666579277, expiresAt: 1794752979277 },
       notes: [
+        { id: "a35gns8ekq", text: "11pm", done: false, createdAt: 1794666588938, reactions: [], subItems: [] },
         { id: "rec_p2_1", text: "Grade 10 Periodical Papers Checked", done: false, createdAt: 1731527761000, reactions: [], subItems: [] },
-        { id: "rec_p2_2", text: "DepEd Form SF2 Quarterly Report verified and ready for print.", done: false, createdAt: 1731520845000, reactions: [], subItems: [] },
-        { id: "rec_p2_3", text: "Grade 10 Second Periodical Examination Papers checked", done: true, createdAt: 1731519045000, reactions: [], subItems: [] },
-        { id: "rec_p2_4", text: "DepEd SF2 Quarterly Report", done: false, createdAt: 1731517016000, reactions: [], subItems: [] },
-        { id: "rec_p2_5", text: "Please review the science test scores and verify with DepEd form 2", done: false, createdAt: 1731522285000, reactions: [], subItems: [] }
+        { id: "rec_p2_2", text: "DepEd Form SF2 Quarterly Report verified and ready for print.", done: false, createdAt: 1731520845000, reactions: [], subItems: [] }
       ]
     },
     3: {
+      timerUntil: 1794709804995,
+      timerDurationMs: 43200000,
       notes: [
-        { id: "rec_p3_1", text: "Lesson Plan for Newton Section checked", done: true, createdAt: 1731513416000, reactions: [], subItems: [] },
-        { id: "rec_p3_2", text: "Grade 8 Video Term 1", done: false, createdAt: 1731521760000, reactions: [], subItems: [] },
-        { id: "rec_p3_3", text: "Sometimes, when", done: false, createdAt: 1731540708000, reactions: [], subItems: [] },
-        { id: "rec_p3_4", text: "Djdjffjgkxs", done: false, createdAt: 1731524158000, reactions: [], subItems: [] }
+        { id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] },
+        { id: "rec_p3_1", text: "Lesson Plan for Newton Section checked", done: true, createdAt: 1731513416000, reactions: [], subItems: [] }
       ]
     },
     4: {
       notes: [
-        { id: "rec_p4_1", text: "Grade 10 Video Term 1", done: false, createdAt: 1731521775000, reactions: [], subItems: [] }
+        { id: "w1qmo8xbbv", text: "Nov 14", done: false, createdAt: 1794666631387, reactions: [], subItems: [] }
+      ]
+    },
+    5: {
+      timerUntil: 1794709835385,
+      timerDurationMs: 43200000,
+      notes: []
+    },
+    6: {
+      stickyNote: "Nov 14 10:30PM",
+      notes: []
+    },
+    7: {
+      notes: [
+        { id: "kgfv0p4733", text: "YIFY has sticky notes. Look above", done: false, createdAt: 1794666672543, reactions: [], subItems: [] }
       ]
     },
     16: {
@@ -2650,7 +2662,7 @@ const Icons = {
     }
   }
 
-  // Restore All Recovered Historical Data (Nov 13, 2026 Cloud Records)
+  // Restore All Recovered Historical Data (Nov 14 Verified Cloud Records)
   function restoreRecoveredHistoricalData(showFeedback = true) {
     let restoredNotesCount = 0;
     let restoredStatusCount = 0;
@@ -2661,35 +2673,43 @@ const Icons = {
       const rec = RECOVERED_HISTORICAL_RECORDS[p.chromeNo];
       if (!rec) return;
 
-      // 1. Restore Status Note if missing or default
-      if (rec.sn) {
-        const curSn = getActiveStatusNote(p);
-        if (!curSn || !curSn.text || curSn.text === 'Welcome to OrlandoChrome') {
-          p.statusNote = {
-            text: rec.sn.text,
-            createdAt: rec.sn.createdAt || now(),
-            updatedAt: rec.sn.updatedAt || now(),
-            expiresAt: now() + 24 * 60 * 60 * 1000
-          };
-          restoredStatusCount++;
-        }
+      // 1. Restore Status Note (Share a note)
+      if (rec.sn && rec.sn.text) {
+        p.statusNote = {
+          text: rec.sn.text,
+          createdAt: rec.sn.createdAt || now(),
+          updatedAt: rec.sn.updatedAt || now(),
+          expiresAt: now() + 24 * 60 * 60 * 1000
+        };
+        restoredStatusCount++;
       }
 
-      // 2. Restore Notes non-destructively (Respecting permanent deletions)
+      // 2. Restore Sticky Note if defined
+      if (rec.stickyNote) {
+        p.stickyNote = rec.stickyNote;
+      }
+
+      // 3. Restore Timers if defined
+      if (rec.timerUntil) {
+        p.timerUntil = rec.timerUntil;
+        p.timerDurationMs = rec.timerDurationMs || 43200000;
+      }
+
+      // 4. Restore Notes non-destructively (Respecting reactions and sub-items)
       if (Array.isArray(rec.notes)) {
         p.notes = Array.isArray(p.notes) ? p.notes : [];
         rec.notes.forEach(rn => {
           if (isPermanentlyDeleted(rn.id, rn.text)) return; // Strictly ignore intentionally purged items!
           const normText = (rn.text || '').trim().toLowerCase();
-          const exists = p.notes.some(en => (en.text || '').trim().toLowerCase() === normText);
+          const exists = p.notes.some(en => (en.text || '').trim().toLowerCase() === normText || en.id === rn.id);
           if (!exists) {
             p.notes.push({
               id: rn.id || uid(),
               text: rn.text,
               done: Boolean(rn.done),
               createdAt: rn.createdAt || now(),
-              reactions: [],
-              subItems: []
+              reactions: Array.isArray(rn.reactions) ? [...rn.reactions] : [],
+              subItems: Array.isArray(rn.subItems) ? [...rn.subItems] : []
             });
             restoredNotesCount++;
           }
@@ -2697,7 +2717,7 @@ const Icons = {
       }
     });
 
-    // 3. Restore DRA 23-Block Schedule if missing
+    // 5. Restore DRA 23-Block Schedule if missing
     try {
       const curSched = localStorage.getItem('dra-schedule');
       if (!curSched || curSched === 'null' || curSched === '[]') {
@@ -2708,6 +2728,9 @@ const Icons = {
     saveState(false);
     renderSidebar();
     renderMainChat();
+
+    // Broadcast the restored truth to Cloud Sync immediately so iPhone & Laptop are synchronized
+    pushToCloudNow(false);
 
     if (showFeedback) {
       showToast(`⚡ Restored ${restoredNotesCount} notes & ${restoredStatusCount} 24h notes from Cloud Vault!`);
@@ -2840,29 +2863,10 @@ const Icons = {
       } catch (e) {}
     }
 
-    // Clean Slate Synchronization: Remote broadcast of complete reset
+    // SECURITY PROTOCOL: Remote network broadcasts must NEVER silently delete or wipe user memory!
     if (packet.isCleanSlate) {
-      const freshSlateAt = parseInt(localStorage.getItem('orlandochrome_fresh_slate_at') || '0', 10);
-      if (packet.ts >= freshSlateAt) {
-        state.profiles.forEach(p => {
-          p.timerUntil = null;
-          p.timerDurationMs = null;
-          p.isReset = false;
-          p.isUnread = false;
-          p.stickyNote = '';
-          p.statusNote = null;
-          p.notes = [];
-        });
-        state.trash = [];
-        try { localStorage.removeItem('orlandochrome_trash'); } catch (e) {}
-        safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state.profiles));
-        safeSetLocalStorage('orlandochrome_trash', JSON.stringify([]));
-        renderSidebar();
-        renderMainChat();
-        updateTrashBadge();
-        renderClockBox();
-        return;
-      }
+      console.warn('[OrlandoChrome Protection Guard] Rejected remote clean slate broadcast to preserve local user memory.');
+      return false;
     }
 
     // Tombstone Synchronization: Process remote deletions so deleted notes stay deleted
@@ -3501,10 +3505,11 @@ const Icons = {
     }
 
     // Auto-Heal: If localStorage is empty or corrupted, query secondary IndexedDB Master Mirror!
+    // SECURITY PROTOCOL: Only auto-heal if the mirror actually contains active user notes/timers (never restore empty wipes)
     if (!loaded || !loaded.length) {
       try {
         idbLoadMasterState().then(master => {
-          if (master && Array.isArray(master.profiles) && master.profiles.length > 0) {
+          if (master && Array.isArray(master.profiles) && hasAnyUserActivity(master.profiles)) {
             console.log('[OrlandoChrome Resilience] Auto-healing from IndexedDB Master Mirror...');
             state.profiles = master.profiles;
             if (Array.isArray(master.trash)) state.trash = master.trash;
@@ -3661,13 +3666,6 @@ const Icons = {
     }
 
     persistLocalOnly();
-
-    // Auto-trigger fresh slate requested by user (v101)
-    const FRESH_KEY_V101 = 'orlandochrome_fresh_v101_applied';
-    if (!localStorage.getItem(FRESH_KEY_V101)) {
-      startFreshCleanSlate(false);
-      safeSetLocalStorage(FRESH_KEY_V101, 'true');
-    }
   }
 
   function persistLocalOnly() {
@@ -7957,9 +7955,9 @@ ${jsRes}
             <div class="vault-recovery-box">
               <div class="vault-recovery-box-top">
                 <div>
-                  <div class="vault-recovery-title">⚡ Recovered Historical Data (Nov 13 Cloud Records)</div>
+                  <div class="vault-recovery-title">⚡ Recovered Verified Data (Nov 14 Cloud Master Records)</div>
                   <div class="vault-recovery-desc">
-                    Re-hydrates all 30 recovered notes, 24h status notes (DepEd SF2, Grade 10 validation, Grammarly), and the full 23-block Daily Recharge routine. Items present in the Permanent Deletion Ledger are strictly skipped.
+                    Restores your verified notes ("10pm", "11pm", "Nov 14 2026", reactions, sticky notes, 12h timers, and 24h status notes) across Laptop &amp; iPhone. Protected against accidental deletion.
                   </div>
                 </div>
                 <button type="button" class="btn-restore-historical" id="btnRestoreHistoricalVault">
@@ -9414,23 +9412,8 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       });
     } catch (e) {}
 
-    // 6. Broadcast clean slate packet to cloud sync
-    try {
-      if (!isTestEnvironment()) {
-        const cleanPacket = {
-          v: 2,
-          cid: CLIENT_ID,
-          ts: freshTs,
-          isCleanSlate: true,
-          p: []
-        };
-        fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(cleanPacket)
-        }).catch(() => {});
-      }
-    } catch (e) {}
+    // 6. Clean slate is strictly a local maintenance action with pre-reset snapshot; never broadcast destructive wipes
+    // (Preserves other devices and prevents cross-device memory loss)
 
     renderSidebar();
     renderMainChat();
