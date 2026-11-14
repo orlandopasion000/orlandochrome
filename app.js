@@ -5059,11 +5059,10 @@ const Icons = {
                     <button type="button" class="btn-note-micro" data-action="add-subitem" data-nid="${n.id}" title="Add checkable sub-item">${Icons.checklist(12)}</button>
                   </div>
 
-                  <!-- Row 3: Management & Utility Actions (3 items) -->
+                  <!-- Row 3: Management & Utility Actions -->
                   <div class="note-actions-row note-actions-row-util">
                     <button type="button" class="btn-note-micro" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(12)}</button>
                     <button type="button" class="btn-note-micro btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward task to another profile">${Icons.forward(12)}</button>
-                    <button type="button" class="btn-note-micro btn-note-delete" data-action="delete-note" data-nid="${n.id}" title="Delete note">${Icons.delete(12)}</button>
                   </div>
                 </div>
               </div>
