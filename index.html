@@ -35,32 +35,70 @@
     </div>
 
     <div class="topbar-right">
-      <!-- Data Recovery Vault & Integrity Backups -->
-      <button type="button" class="btn-topbar-vault" id="btnOpenVault" title="Open Data Recovery Vault & Integrity Backups (Zero-Loss Architecture)">
-        <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#10b981" stroke-width="1.8" fill="rgba(16,185,129,0.18)"/><path d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="vault-btn-text">Recovery Vault</span>
-      </button>
-      <!-- Centennial Diamond v100 Master Badge -->
-      <button type="button" class="btn-topbar-centennial" id="btnOpenCentennial" title="Centennial Diamond v100 Storage Integrity & Forensic Console">
-        <span class="centennial-diamond-icon">ðŸ’Ž</span>
-        <span class="centennial-badge-text">v100 Centennial</span>
-      </button>
-      <!-- Jump to Next Pending / Reset Profile (Alt+N) -->
+      <!-- Jump to Next Ready Profile (Alt+N) -->
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
         <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next Ready</span>
       </button>
 
-      <!-- Open Main Web App Window / PWA Button -->
-      <button type="button" class="btn-topbar-desktop" id="btnTopbarLaunchApp" title="Open OrlandoChrome (Main Web App)">
-        <span class="desktop-btn-icon" id="topbarLaunchIcon"><svg class="modern-icon" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="rgba(255,100,110,0.9)" stroke-width="1.8" fill="rgba(229,9,20,0.18)" stroke-linejoin="round"/><polyline points="7 12 12 7 17 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="7" x2="12" y2="17" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg></span>
-        <span class="desktop-btn-label" id="topbarLaunchLabel">Open Main Web App</span>
-      </button>
+      <!-- Compressed Single "System" Command Button & Floating Futuristic Dropdown -->
+      <div class="system-menu-wrapper" id="systemMenuWrapper">
+        <button type="button" class="btn-topbar-system" id="btnSystemMenu" aria-haspopup="true" aria-expanded="false" title="System Menu (Recovery, Centennial Recovery, Open main web app, Holographic QR)">
+          <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;"><circle cx="12" cy="12" r="3" stroke="#38bdf8" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#38bdf8" stroke-width="1.8"/></svg>
+          <span class="system-btn-text">System</span>
+          <span class="sync-status-dot synced" id="topbarSyncDot" title="Cloud Synchronized"></span>
+          <svg class="system-caret" viewBox="0 0 24 24" width="9" height="9" fill="none"><path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </button>
 
-      <!-- App Distribution, Live QR & Command Suite Trigger -->
-      <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution, Live QR Scanner &amp; Cross-Device Cloud Sync Suite">
-        <span><svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none"><polygon points="12 2 22 7.5 22 16.5 12 22 2 16.5 2 7.5" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56,189,248,0.15)" stroke-linejoin="round"/><line x1="12" y1="22" x2="12" y2="12" stroke="#38bdf8" stroke-width="1.6"/><line x1="22" y1="7.5" x2="12" y2="12" stroke="#38bdf8" stroke-width="1.6"/><line x1="2" y1="7.5" x2="12" y2="12" stroke="#38bdf8" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="#ffffff"/></svg> App Suite</span>
-        <span class="pwa-ready-mini-badge"><span class="sync-status-dot synced" id="topbarSyncDot"></span> <span id="topbarSyncLabel">Synced</span></span>
-      </button>
+        <!-- Floating Dropdown Menu -->
+        <div class="system-dropdown-menu" id="systemDropdownMenu" role="menu" aria-label="System Menu">
+          <!-- 1. Recovery (renamed from Recovery Vault) -->
+          <button type="button" class="system-menu-item" id="btnOpenVault" role="menuitem" title="Recovery: Enterprise Data Recovery Vault & Rollback Checkpoints">
+            <div class="menu-item-icon menu-icon-emerald">
+              <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#10b981" stroke-width="1.8" fill="rgba(16,185,129,0.2)"/><path d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title">Recovery</div>
+              <div class="menu-item-desc">Multi-tier vault & rollback checkpoints</div>
+            </div>
+          </button>
+
+          <!-- 2. Centennial Recovery (renamed from v100 Centennial) -->
+          <button type="button" class="system-menu-item" id="btnOpenCentennial" role="menuitem" title="Centennial Recovery: Merkle Cryptographic Integrity & Forensic Console">
+            <div class="menu-item-icon menu-icon-cyan">
+              <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 8.5 17 21 7 21 3 8.5 12 2" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56,189,248,0.2)"/><polyline points="3 8.5 12 12.5 21 8.5" stroke="#38bdf8" stroke-width="1.8"/><line x1="12" y1="12.5" x2="12" y2="21" stroke="#38bdf8" stroke-width="1.8"/><line x1="12" y1="2" x2="12" y2="12.5" stroke="#38bdf8" stroke-width="1.8"/></svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title">Centennial Recovery</div>
+              <div class="menu-item-desc">Merkle cryptographic integrity & self-heal</div>
+            </div>
+          </button>
+
+          <!-- 3. Open main web app -->
+          <button type="button" class="system-menu-item" id="btnTopbarLaunchApp" role="menuitem" title="Open main web app: Standalone Window">
+            <div class="menu-item-icon menu-icon-red">
+              <span class="desktop-btn-icon" id="topbarLaunchIcon"><svg class="modern-icon" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="#ff4d58" stroke-width="1.8" fill="rgba(229,9,20,0.2)" stroke-linejoin="round"/><polyline points="7 12 12 7 17 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="7" x2="12" y2="17" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title" id="topbarLaunchLabel">Open main web app</div>
+              <div class="menu-item-desc">Launch standalone desktop window</div>
+            </div>
+          </button>
+
+          <!-- 4. Holographic QR (renamed from App Suite) -->
+          <button type="button" class="system-menu-item" id="btnOpenAppSuite" role="menuitem" title="Holographic QR: Live Phone Scanner & Cross-Device Cloud Sync Suite">
+            <div class="menu-item-icon menu-icon-blue">
+              <svg class="modern-icon modern-icon-blue" viewBox="0 0 24 24" fill="none"><polygon points="12 2 22 7.5 22 16.5 12 22 2 16.5 2 7.5" stroke="#60a5fa" stroke-width="1.8" fill="rgba(96,165,250,0.2)" stroke-linejoin="round"/><line x1="12" y1="22" x2="12" y2="12" stroke="#60a5fa" stroke-width="1.6"/><line x1="22" y1="7.5" x2="12" y2="12" stroke="#60a5fa" stroke-width="1.6"/><line x1="2" y1="7.5" x2="12" y2="12" stroke="#60a5fa" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="#ffffff"/></svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Holographic QR</span>
+                <span class="pwa-ready-mini-badge" style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(16,185,129,0.15);color:#34d399;font-weight:700;"><span id="topbarSyncLabel">Synced</span></span>
+              </div>
+              <div class="menu-item-desc">Live phone scanner & cloud sync bridge</div>
+            </div>
+          </button>
+        </div>
+      </div>
 
       <!-- Live Clock & Daily Recharge Alarm Widget -->
       <div class="nav-clock-box" id="navClockBox">

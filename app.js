@@ -7866,6 +7866,61 @@ ${jsRes}
   }
 
   // Event Listeners Setup
+  // Futuristic System Menu Controller (Compressed Clean Front View)
+  function initSystemMenu() {
+    const btn = $('#btnSystemMenu');
+    const menu = $('#systemDropdownMenu');
+    if (!btn || !menu) return;
+
+    const openMenu = () => {
+      menu.classList.add('show');
+      btn.setAttribute('aria-expanded', 'true');
+      btn.classList.add('active');
+    };
+
+    const closeMenu = () => {
+      menu.classList.remove('show');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.classList.remove('active');
+    };
+
+    const toggleMenu = (e) => {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      if (window.soundMgr) {
+        if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+        else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+      }
+      if (menu.classList.contains('show')) closeMenu();
+      else openMenu();
+    };
+
+    btn.onclick = toggleMenu;
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('show')) {
+        closeMenu();
+      }
+    });
+
+    // Close dropdown smoothly when an item is selected
+    $('.system-menu-item', menu).forEach(item => {
+      item.addEventListener('click', () => {
+        closeMenu();
+      });
+    });
+  }
+
   function initEvents() {
     // Search input
     $('#profileSearch').oninput = (e) => {
@@ -7961,6 +8016,8 @@ ${jsRes}
         window.location.href = targetUrl;
       }
     }
+
+    initSystemMenu();
 
     // Data Recovery Vault & Integrity Buttons
     const vaultBtnTopbar = $('#btnOpenVault');
