@@ -10315,3 +10315,238 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   transform: scale(1.04) !important;
   box-shadow: 0 0 26px rgba(239, 68, 68, 1) !important;
 }
+
+/* ==========================================================================
+   ENTERPRISE RECOVERY VAULT & IPHONE RESPONSIVENESS FIXES
+   ========================================================================== */
+.vault-dialog {
+  max-width: 780px !important;
+  width: 95% !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 60%), #0d1117 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9), 0 0 24px rgba(16, 185, 129, 0.25) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.vault-dialog-header {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 20px !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  position: relative !important;
+}
+
+/* Fix tabs vertical clipping - strict height & flex-shrink: 0 */
+.vault-nav-tabs {
+  flex-shrink: 0 !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+}
+
+.vault-nav-tabs::-webkit-scrollbar {
+  display: none !important;
+}
+
+.vault-tab-btn {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 0 12px !important;
+  height: 44px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+  line-height: normal !important;
+  box-sizing: border-box !important;
+}
+
+.vault-tab-btn:hover {
+  color: #f1f5f9 !important;
+}
+
+.vault-tab-btn.active {
+  color: #10b981 !important;
+  border-bottom-color: #10b981 !important;
+}
+
+.vault-dialog-body {
+  padding: 18px 20px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+/* Responsive Table Horizontal Scrolling */
+.vault-table-scroll {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+}
+
+.vault-snapshots-table,
+.priorities-table {
+  min-width: 520px !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 11.5px !important;
+}
+
+/* Mobile & iPhone Specialized Responsive Overrides */
+@media (max-width: 600px) {
+  .vault-dialog {
+    width: 96% !important;
+    max-height: 92vh !important;
+    border-radius: 14px !important;
+  }
+
+  .vault-dialog-header {
+    padding: 12px 14px !important;
+    gap: 8px !important;
+  }
+
+  .vault-header-title {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+  }
+
+  .vault-header-subtitle {
+    font-size: 10px !important;
+    padding-right: 30px !important;
+    line-height: 1.35 !important;
+  }
+
+  .vault-nav-tabs {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 10px !important;
+    gap: 4px !important;
+  }
+
+  .vault-tab-btn {
+    height: 40px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+  }
+
+  .vault-dialog-body {
+    padding: 14px 12px !important;
+    gap: 14px !important;
+  }
+
+  /* Metric cards: 2x2 grid */
+  .vault-metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .vault-metric-card {
+    padding: 8px 10px !important;
+  }
+
+  .vault-metric-label {
+    font-size: 9px !important;
+  }
+
+  .vault-metric-value {
+    font-size: 12.5px !important;
+  }
+
+  /* Recovered historical card: stack vertically */
+  .vault-recovery-box-top {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .vault-recovery-title {
+    font-size: 12.5px !important;
+  }
+
+  .vault-recovery-desc {
+    font-size: 11px !important;
+  }
+
+  .btn-restore-historical {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 10px 14px !important;
+    font-size: 12px !important;
+  }
+
+  /* Danger clean slate box on iPhone */
+  .vault-danger-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .btn-vault-start-fresh {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .vault-section-title {
+    font-size: 11px !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .vault-actions-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .btn-vault-action {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Mobile Toast: Float above bottom composer bar */
+  #toast {
+    bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Mobile Header Avatar Upload Badge: Subtle corner placement */
+  .header-avatar-upload-badge {
+    width: 18px !important;
+    height: 18px !important;
+    bottom: -2px !important;
+    right: -2px !important;
+  }
+
+  .header-avatar-upload-badge svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+}

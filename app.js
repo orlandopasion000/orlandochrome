@@ -2172,7 +2172,7 @@ const Icons = {
                   </tr>
                 `).join('')}
               </tbody>
-            </table>
+            </table></div>
           </div>
         </div>
       </div>
@@ -2373,9 +2373,23 @@ const Icons = {
     return state.profiles.reduce((sum, p) => sum + (Array.isArray(p.notes) ? p.notes.length : 0), 0);
   }
 
+  let _lastSnapshotTs = 0;
+  let _lastSnapshotSig = '';
+
   function takeBackupSnapshot(reason = 'Automatic Checkpoint') {
     try {
       const nowTs = now();
+      const nNotes = totalNotesCount();
+      const nPend = totalPendingCount();
+      const nTimers = totalTimersCount();
+      const currentSig = `${nNotes}_${nPend}_${nTimers}`;
+      // Deduplication: prevent rapid-fire duplicate checkpoints (mobile visibilitychange/freeze spam)
+      const isAuto = reason.includes('Freeze') || reason.includes('Startup') || reason.includes('Hourly') || reason.includes('Automatic');
+      if (isAuto && _lastSnapshotSig === currentSig && (nowTs - _lastSnapshotTs < 45000)) {
+        return null;
+      }
+      _lastSnapshotTs = nowTs;
+      _lastSnapshotSig = currentSig;
       const snap = {
         id: 'snap_' + nowTs + '_' + Math.random().toString(36).slice(2, 6),
         ts: nowTs,
@@ -4944,10 +4958,6 @@ const Icons = {
       <div class="mobile-thumb-actions" id="mobileThumbActions">
         <button type="button" class="btn-thumb-action ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnThumbUndo" title="Undo last action" ${historyMgr.canUndo() ? '' : 'disabled'}>
           ${Icons.undo(12)} <span>Undo</span>
-        </button>
-        <button type="button" class="btn-thumb-action" id="btnThumbTrash" title="Recently Deleted Vault (30-day restore)">
-          ${Icons.trashVault(13)} <span>Trash</span>
-          ${(state.trash || []).length > 0 ? `<span class="thumb-badge">${(state.trash || []).length}</span>` : ''}
         </button>
         <button type="button" class="btn-thumb-action ${p.stickyNote ? 'active' : ''}" id="btnThumbSticky" title="Sticky note for ${esc(p.name)}">
           ${Icons.important(12)} <span>${p.stickyNote ? 'Sticky' : '+ Sticky'}</span>
@@ -7589,6 +7599,21 @@ ${jsRes}
     let snapshots = [];
     try { snapshots = JSON.parse(vaultRaw); } catch (e) {}
     if (!Array.isArray(snapshots)) snapshots = [];
+    // Clean up duplicate spam snapshots for clean display
+    const dedupedSnapshots = snapshots.filter((snap, idx, arr) => {
+      if (idx === 0) return true;
+      const prev = arr[idx - 1];
+      const isPrevAuto = (prev.reason || '').includes('Freeze') || (prev.reason || '').includes('Startup') || (prev.reason || '').includes('Hourly');
+      const isCurAuto = (snap.reason || '').includes('Freeze') || (snap.reason || '').includes('Startup') || (snap.reason || '').includes('Hourly');
+      if (isPrevAuto && isCurAuto && Math.abs(prev.ts - snap.ts) < 45000 && prev.noteCount === snap.noteCount) {
+        return false;
+      }
+      return true;
+    });
+    if (dedupedSnapshots.length !== snapshots.length) {
+      snapshots = dedupedSnapshots;
+      try { safeSetLocalStorage(VAULT_STORAGE_KEY, JSON.stringify(snapshots)); } catch(e) {}
+    }
 
     const permDeletions = loadPermanentDeletions();
 
@@ -7670,13 +7695,13 @@ ${jsRes}
 
             <div>
               <div class="vault-section-title">
-                <span>Rolling Rollback Snapshots (${snapshots.length}/15 Local · IndexedDB Unlimited)</span>
+                <span>Rolling Rollback Snapshots (${snapshots.length}/25 Local · IndexedDB Unlimited)</span>
                 <button type="button" class="btn-table-restore" id="btnCreateManualSnapshot" style="padding:4px 9px;">+ Take Checkpoint Now</button>
               </div>
               ${snapshots.length === 0 ? `
                 <div style="font-size:12px;color:#94a3b8;padding:12px 0;">No snapshots recorded yet. Click '+ Take Checkpoint Now' to create one.</div>
               ` : `
-                <table class="vault-snapshots-table">
+                <div class="vault-table-scroll"><table class="vault-snapshots-table">
                   <thead>
                     <tr>
                       <th>Time</th>
@@ -7697,7 +7722,7 @@ ${jsRes}
                       </tr>
                     `).join('')}
                   </tbody>
-                </table>
+                </table></div>
               `}
             </div>
 
@@ -7735,7 +7760,7 @@ ${jsRes}
           <!-- TAB 2: Priorities & Acceptance Criteria -->
           <div class="vault-tab-pane" id="pane_tabPriorities">
             <div class="vault-section-title">Backup & Recovery Priorities Matrix</div>
-            <table class="priorities-table">
+            <div class="vault-table-scroll"><table class="priorities-table">
               <thead>
                 <tr>
                   <th>Priority Tier</th>
