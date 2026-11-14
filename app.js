@@ -1298,6 +1298,24 @@ const Icons = {
       }
 
       switch (action.type) {
+        case 'EDIT_NOTE_DATE': {
+          const note = (p.notes || []).find(n => n.id === action.noteId);
+          if (note) {
+            if (isUndo) {
+              note.createdAt = action.prevCreatedAt;
+              note.isCustomDate = action.prevIsCustomDate;
+              note.originalCreatedAt = action.prevOriginalCreatedAt;
+              showToast('↺ Undid date change');
+            } else {
+              note.createdAt = action.newCreatedAt;
+              note.isCustomDate = true;
+              note.originalCreatedAt = action.newOriginalCreatedAt;
+              showToast('↻ Redid date change');
+            }
+            p.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+          }
+          break;
+        }
         case 'DELETE_NOTE': {
           if (isUndo) {
             if (!p.notes) p.notes = [];
@@ -4724,6 +4742,198 @@ const Icons = {
     }
   }
 
+  
+  // Format timestamp for datetime-local input (YYYY-MM-DDTHH:mm)
+  function formatDateTimeLocal(timestamp) {
+    const d = new Date(timestamp || Date.now());
+    const pad = (n) => String(n).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const MM = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mm = pad(d.getMinutes());
+    return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+  }
+
+  // Feature: Change/Edit Note Date & Time Modal (Apple Notes & Notion Standard)
+  function openEditDateModal(profile, note) {
+    if (!profile || !note) return;
+    const existing = document.getElementById('editDateModalBackdrop');
+    if (existing) existing.remove();
+
+    const curTimestamp = note.createdAt || Date.now();
+    const formattedCurrent = formatNoteDateTime(curTimestamp);
+    const dateGroup = getDateGroupKey(curTimestamp);
+    const noteSnippet = (note.text || (note.image ? '📸 Photo' : (note.voiceClip ? '🎙️ Voice note' : 'Message'))).slice(0, 50);
+
+    const backdrop = document.createElement('div');
+    backdrop.id = 'editDateModalBackdrop';
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="edit-date-modal">
+        <div class="forward-modal-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">📅</span>
+            <div>
+              <h3 style="margin:0; font-size:16px; font-weight:800; color:#fff;">Change Date &amp; Time</h3>
+              <div style="font-size:11.5px; color:#888;">Adjust message timestamp &amp; chronological position</div>
+            </div>
+          </div>
+          <button type="button" class="btn-banner-clear" id="btnCloseEditDate">✕</button>
+        </div>
+
+        <!-- Note Preview Card -->
+        <div class="edit-date-note-preview">
+          <div class="date-preview-label">Selected Note:</div>
+          <div class="date-preview-text">&ldquo;${esc(noteSnippet)}&rdquo;</div>
+          <div class="date-preview-current">
+            <span class="preview-badge-clock">⏱</span>
+            <span>Current: <strong>${formattedCurrent}</strong> (${dateGroup})</span>
+            ${note.isCustomDate ? '<span class="note-custom-date-badge">🗓️ Edited Date</span>' : ''}
+          </div>
+        </div>
+
+        <!-- 1-Tap Smart Reschedule Chips (Things 3 & Todoist Standard) -->
+        <div class="date-chips-section">
+          <div class="date-chips-title">⚡ 1-Tap Quick Reschedule:</div>
+          <div class="date-chips-row">
+            <button type="button" class="date-chip-btn" data-chip="now" title="Set to current moment">⚡ Now / Today</button>
+            <button type="button" class="date-chip-btn" data-chip="yesterday" title="Set to 24 hours ago">⏪ Yesterday</button>
+            <button type="button" class="date-chip-btn" data-chip="2days" title="Set to 2 days ago">⏳ 2 Days Ago</button>
+            <button type="button" class="date-chip-btn" data-chip="1week" title="Set to 1 week ago">⏳ 1 Week Ago</button>
+            <button type="button" class="date-chip-btn" data-chip="tomorrow" title="Set to 24 hours in future">⏩ Tomorrow</button>
+          </div>
+        </div>
+
+        <!-- Exact Date-Time Picker Input -->
+        <div class="date-input-section">
+          <label for="editDateTimeInput" class="date-input-label">Or pick custom date &amp; exact time:</label>
+          <input type="datetime-local" class="edit-date-native-input" id="editDateTimeInput" value="${formatDateTimeLocal(curTimestamp)}">
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="edit-date-footer">
+          ${note.isCustomDate ? `
+            <button type="button" class="btn-date-modal-reset" id="btnResetOriginalDate" title="Revert back to original creation time">
+              ↺ Reset Original
+            </button>
+          ` : '<div></div>'}
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-date-modal-cancel" id="btnCancelEditDate">Cancel</button>
+            <button type="button" class="btn-date-modal-save" id="btnSaveEditDate">Save Date ✓</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    const dateInput = backdrop.querySelector('#editDateTimeInput');
+
+    // 1-Tap Quick Chips Handler
+    backdrop.querySelectorAll('.date-chip-btn').forEach(btn => {
+      btn.onclick = () => {
+        const type = btn.dataset.chip;
+        const nowTs = Date.now();
+        let targetTs = nowTs;
+        if (type === 'now') targetTs = nowTs;
+        else if (type === 'yesterday') targetTs = nowTs - 86400000;
+        else if (type === '2days') targetTs = nowTs - 2 * 86400000;
+        else if (type === '1week') targetTs = nowTs - 7 * 86400000;
+        else if (type === 'tomorrow') targetTs = nowTs + 86400000;
+        if (dateInput) dateInput.value = formatDateTimeLocal(targetTs);
+        triggerHaptic('light');
+        btn.classList.add('chip-selected');
+        setTimeout(() => btn.classList.remove('chip-selected'), 300);
+      };
+    });
+
+    // Save Date Handler
+    const handleSave = () => {
+      if (!dateInput || !dateInput.value) {
+        showToast('⚠️ Please select a valid date and time');
+        return;
+      }
+      const newTs = new Date(dateInput.value).getTime();
+      if (isNaN(newTs)) {
+        showToast('⚠️ Invalid date selection');
+        return;
+      }
+
+      historyMgr.record({
+        type: 'EDIT_NOTE_DATE',
+        profileId: profile.id,
+        noteId: note.id,
+        prevCreatedAt: note.createdAt,
+        newCreatedAt: newTs,
+        prevIsCustomDate: !!note.isCustomDate,
+        prevOriginalCreatedAt: note.originalCreatedAt || note.createdAt,
+        newOriginalCreatedAt: note.originalCreatedAt || note.createdAt
+      });
+
+      if (!note.originalCreatedAt) {
+        note.originalCreatedAt = note.createdAt;
+      }
+      note.createdAt = newTs;
+      note.isCustomDate = true;
+
+      // Chronological sort: earliest on top, latest on bottom
+      profile.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      profile.lastActiveAt = Date.now();
+
+      saveState();
+      renderSidebar();
+      renderMainChat();
+      backdrop.remove();
+
+      triggerHaptic('success');
+      if (window.soundMgr) window.soundMgr.playClick();
+      showToast(`📅 Updated date to ${formatNoteDateTime(newTs)}`);
+    };
+
+    // Reset Original Date Handler
+    const resetBtn = backdrop.querySelector('#btnResetOriginalDate');
+    if (resetBtn && note.originalCreatedAt) {
+      resetBtn.onclick = () => {
+        const origTs = note.originalCreatedAt;
+        historyMgr.record({
+          type: 'EDIT_NOTE_DATE',
+          profileId: profile.id,
+          noteId: note.id,
+          prevCreatedAt: note.createdAt,
+          newCreatedAt: origTs,
+          prevIsCustomDate: true,
+          prevOriginalCreatedAt: origTs,
+          newOriginalCreatedAt: origTs
+        });
+
+        note.createdAt = origTs;
+        note.isCustomDate = false;
+
+        profile.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        backdrop.remove();
+
+        showToast('↺ Reverted note to original creation date');
+      };
+    }
+
+    const saveBtn = backdrop.querySelector('#btnSaveEditDate');
+    if (saveBtn) saveBtn.onclick = handleSave;
+
+    const closeBtn = backdrop.querySelector('#btnCloseEditDate');
+    if (closeBtn) closeBtn.onclick = () => backdrop.remove();
+
+    const cancelBtn = backdrop.querySelector('#btnCancelEditDate');
+    if (cancelBtn) cancelBtn.onclick = () => backdrop.remove();
+
+    backdrop.onclick = (e) => {
+      if (e.target === backdrop) backdrop.remove();
+    };
+  }
+
   function renderMainChat() {
     // Auto-dismiss More action menus when clicking outside
     if (!window.orlandoMoreOutsideClickListener) {
@@ -5084,14 +5294,16 @@ const Icons = {
                   <!-- Row 3: Management & Utility Actions -->
                   <div class="note-actions-row note-actions-row-util">
                     <button type="button" class="btn-note-micro" data-action="start-edit" data-nid="${n.id}" title="Edit message inline">${Icons.edit(12)}</button>
+                    <button type="button" class="btn-note-micro" data-action="edit-date" data-nid="${n.id}" title="Change Date & Time">📅</button>
                     <button type="button" class="btn-note-micro btn-note-forward" data-action="forward-note" data-nid="${n.id}" title="Forward task to another profile">${Icons.forward(12)}</button>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="note-timestamp">
-              ${formatNoteDateTime(n.createdAt)} · ${n.done ? 'Completed' : 'Pending'}
-              ${n.editedAt ? ` · <span class="note-edited-label">(edited ${formatNoteDateTime(n.editedAt)})</span>` : ''}
+            <div class="note-timestamp" data-action="edit-date" data-nid="${n.id}" role="button" tabindex="0" title="Click to change or edit date/time (Apple Notes style)">
+              <span class="note-time-text">${formatNoteDateTime(n.createdAt)} · ${n.done ? 'Completed' : 'Pending'}</span>
+              ${n.isCustomDate ? `<span class="note-custom-date-badge" title="Customized date (originally created ${formatNoteDateTime(n.originalCreatedAt || n.createdAt)})">🗓️ Edited Date</span>` : (n.editedAt ? `<span class="note-edited-label">(edited ${formatNoteDateTime(n.editedAt)})</span>` : '')}
+              <span class="note-timestamp-edit-icon" title="Edit Date">✏️</span>
             </div>
           </div>
           `;
@@ -5636,6 +5848,9 @@ const Icons = {
           renderMainChat();
         } else if (act === 'delete-note') {
           executeDeleteNote(nid, { cardEl: $(`#noteCard_${nid}`) });
+        } else if (act === 'edit-date') {
+          triggerHaptic('light');
+          openEditDateModal(p, note);
         } else if (act === 'start-edit') {
           state.editingNoteId = nid;
           renderMainChat();
@@ -8168,6 +8383,52 @@ ${jsRes}
       flashVoiceCommandFeedback('Note Sent 🚀');
       showToast('🗣️ Voice Command: Sent note!');
       return { consumed: true, text: '' };
+    }
+
+        // --- SUPERPOWER 11: Voice Date Adjustments & Rescheduling ---
+    if (/^(?:change date|edit date|set date)\s*(?:to\s*)?yesterday$/i.test(lower) || lower === 'backdate to yesterday' || lower === 'backdate yesterday') {
+      const notes = activeProf.notes || [];
+      if (notes.length > 0) {
+        const lastNote = notes[notes.length - 1];
+        const newTs = Date.now() - 86400000;
+        if (!lastNote.originalCreatedAt) lastNote.originalCreatedAt = lastNote.createdAt;
+        lastNote.createdAt = newTs;
+        lastNote.isCustomDate = true;
+        activeProf.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        flashVoiceCommandFeedback('Date: Yesterday');
+        showToast(`🗣️ Voice Command: Backdated last note to Yesterday (${formatNoteDateTime(newTs)})`);
+        return { consumed: true, text: '' };
+      }
+    }
+    if (/^(?:change date|edit date|set date)\s*(?:to\s*)?today$/i.test(lower) || lower === 'set date to now') {
+      const notes = activeProf.notes || [];
+      if (notes.length > 0) {
+        const lastNote = notes[notes.length - 1];
+        const newTs = Date.now();
+        if (!lastNote.originalCreatedAt) lastNote.originalCreatedAt = lastNote.createdAt;
+        lastNote.createdAt = newTs;
+        lastNote.isCustomDate = true;
+        activeProf.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        flashVoiceCommandFeedback('Date: Today');
+        showToast(`🗣️ Voice Command: Updated last note to Today (${formatNoteDateTime(newTs)})`);
+        return { consumed: true, text: '' };
+      }
+    }
+    if (lower === 'change date' || lower === 'edit date' || lower === 'change time' || lower === 'reschedule note') {
+      const notes = activeProf.notes || [];
+      if (notes.length > 0) {
+        const lastNote = notes[notes.length - 1];
+        openEditDateModal(activeProf, lastNote);
+        flashVoiceCommandFeedback('Opened Date Editor');
+        showToast('🗣️ Voice Command: Opened Date & Time Editor');
+        return { consumed: true, text: '' };
+      }
     }
 
     return { consumed: false, text: transcriptChunk };
