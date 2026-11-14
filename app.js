@@ -6901,7 +6901,7 @@ ${jsRes}
   function generateQrMarkup(text, fgHex = '#000000', bgHex = '#ffffff') {
     if (typeof window.qrcode === 'function') {
       try {
-        const qr = window.qrcode(0, 'M');
+        const qr = window.qrcode(0, 'Q');
         qr.addData(text);
         qr.make();
         const count = qr.getModuleCount();
@@ -7008,15 +7008,15 @@ ${jsRes}
         <p style="font-size:0.78rem; color:#94a3b8; margin:0 0 14px; line-height:1.4;">Point your iPhone or Android camera to open and live-sync OrlandoChrome instantly.</p>
         
         <!-- High-Tech HUD Viewfinder with glowing red brackets -->
-        <div class="qr-hud-box" id="qrViewfinderBox" style="position:relative; width:236px; height:236px; margin:0 auto 12px; padding:12px; background:rgba(20, 10, 14, 0.6); border:1px solid rgba(255,77,88,0.25); border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(229,9,20,0.2); cursor:pointer;" title="Click to open app or copy link">
+        <div class="qr-hud-box" id="qrViewfinderBox" style="position:relative; width:240px; height:240px; margin:0 auto 14px; padding:12px; background:rgba(20, 10, 14, 0.6); border:1px solid rgba(255,77,88,0.3); border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(229,9,20,0.2); cursor:pointer;" title="Click to open app or copy link">
           <div class="qr-hud-corner tl" style="position:absolute; top:6px; left:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-top-left-radius:4px;"></div>
           <div class="qr-hud-corner tr" style="position:absolute; top:6px; right:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-right:2.5px solid #ff4d58; border-top-right-radius:4px;"></div>
           <div class="qr-hud-corner bl" style="position:absolute; bottom:6px; left:6px; width:14px; height:14px; border-bottom:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-bottom-left-radius:4px;"></div>
           <div class="qr-hud-corner br" style="position:absolute; bottom:6px; right:6px; width:14px; height:14px; border-bottom:2.5px solid #ff4d58; border-right:2.5px solid #ff4d58; border-bottom-right-radius:4px;"></div>
-          <div class="qr-hud-laser"></div>
+          <!-- QR Viewfinder HUD Corners (Laser removed for 100% optical camera scannability) -->
           
           <!-- Pure White Card with pitch-black modules for 100% instant scanner lock -->
-          <div style="width:204px; height:204px; background:#ffffff; border-radius:12px; padding:8px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,0.6);">
+          <div style="width:216px; height:216px; background:#ffffff; border-radius:14px; padding:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 28px rgba(0,0,0,0.85); box-sizing:border-box;">
             ${qrSvg}
           </div>
         </div>
@@ -7657,28 +7657,27 @@ ${jsRes}
         </div>
 
         <div class="vault-dialog-body">
-          <!-- Live Integrity Metrics (Always Visible) -->
-          <div class="vault-metrics-grid">
-            <div class="vault-metric-card">
-              <div class="vault-metric-label">Operational Storage</div>
-              <div class="vault-metric-value">🟢 ${usedKb} KB (Safe)</div>
-            </div>
-            <div class="vault-metric-card">
-              <div class="vault-metric-label">Secondary Store</div>
-              <div class="vault-metric-value">🟢 IndexedDB Mirror</div>
-            </div>
-            <div class="vault-metric-card">
-              <div class="vault-metric-label">Protected Notes</div>
-              <div class="vault-metric-value">${totalNotesCount()} Active</div>
-            </div>
-            <div class="vault-metric-card">
-              <div class="vault-metric-label">Guarded Purges</div>
-              <div class="vault-metric-value" style="color:#fcd34d;">${permDeletions.length} Purged IDs</div>
-            </div>
-          </div>
-
           <!-- TAB 1: Checkpoints & Rollback -->
           <div class="vault-tab-pane active" id="pane_tabSnapshots">
+            <!-- Storage & Integrity Metrics -->
+            <div class="vault-metrics-grid">
+              <div class="vault-metric-card">
+                <div class="vault-metric-label">Operational Storage</div>
+                <div class="vault-metric-value">🟢 ${usedKb} KB (Safe)</div>
+              </div>
+              <div class="vault-metric-card">
+                <div class="vault-metric-label">Secondary Store</div>
+                <div class="vault-metric-value">🟢 IndexedDB Mirror</div>
+              </div>
+              <div class="vault-metric-card">
+                <div class="vault-metric-label">Protected Notes</div>
+                <div class="vault-metric-value">${totalNotesCount()} Active</div>
+              </div>
+              <div class="vault-metric-card">
+                <div class="vault-metric-label">Guarded Purges</div>
+                <div class="vault-metric-value" style="color:#fcd34d;">${permDeletions.length} Purged IDs</div>
+              </div>
+            </div>
             <div class="vault-recovery-box">
               <div class="vault-recovery-box-top">
                 <div>
@@ -7795,7 +7794,7 @@ ${jsRes}
                   <td>Memory cache / Session State</td>
                 </tr>
               </tbody>
-            </table>
+            </table></div>
 
             <div class="vault-section-title" style="margin-top:10px;">Formal Acceptance Criteria (Verified)</div>
             <div class="criteria-card">
@@ -7810,7 +7809,15 @@ ${jsRes}
 
           <!-- TAB 3: Version History -->
           <div class="vault-tab-pane" id="pane_tabHistory">
-            <div class="vault-section-title">
+            <div class="vault-info-banner" style="display:flex; gap:10px; align-items:flex-start; padding:12px; background:rgba(59, 130, 246, 0.08); border:1px solid rgba(59, 130, 246, 0.25); border-radius:10px;">
+              <span style="font-size:22px; flex-shrink:0;">📜</span>
+              <div>
+                <div style="font-size:12.5px; font-weight:700; color:#93c5fd; margin-bottom:3px;">Audit Trail & Version History</div>
+                <div style="font-size:11px; color:#cbd5e1; line-height:1.4;">
+                  Logs note creations, edits, status updates, and deletions across all 22 profiles. Provides a transparent chronological audit trail.
+                </div>
+              </div>
+            </div><div class="vault-section-title">
               <span>Point-in-Time Version History (${versionHistory.length} Recent Events)</span>
             </div>
             ${versionHistory.length === 0 ? `
@@ -7832,7 +7839,15 @@ ${jsRes}
 
           <!-- TAB 4: Permanent Deletion Ledger -->
           <div class="vault-tab-pane" id="pane_tabLedger">
-            <div class="vault-section-title">
+            <div class="vault-info-banner" style="display:flex; gap:10px; align-items:flex-start; padding:12px; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:10px;">
+              <span style="font-size:22px; flex-shrink:0;">🗑️</span>
+              <div>
+                <div style="font-size:12.5px; font-weight:700; color:#fca5a5; margin-bottom:3px;">Permanent Deletion Ledger (Anti-Resurrection)</div>
+                <div style="font-size:11px; color:#cbd5e1; line-height:1.4;">
+                  Cryptographic tombstone registry of permanently purged notes. Items listed here are strictly blocked from ever being restored by backups, cloud syncs, or boot reconciliations.
+                </div>
+              </div>
+            </div><div class="vault-section-title">
               <span>Permanent Deletion Ledger (${permDeletions.length} Guarded Records)</span>
             </div>
             <div style="font-size:11.5px; color:#cbd5e1; line-height:1.45; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px;">
