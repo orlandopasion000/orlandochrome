@@ -5981,15 +5981,43 @@ const Icons = {
       input.onkeydown = (e) => {
         if (e.key === 'Enter') handleAdd();
       };
-      input.onfocus = () => {
+      const activateMobileTyping = () => {
         if (window.innerWidth <= 768) {
           document.body.classList.add('mobile-typing-mode');
+          if (window.visualViewport) {
+            const vh = Math.round(window.visualViewport.height);
+            document.documentElement.style.setProperty('--mobile-app-height', vh + 'px');
+            const ws = $('#appWorkspace');
+            const cm = $('#chatMain');
+            if (ws) {
+              ws.style.setProperty('height', vh + 'px', 'important');
+              ws.style.setProperty('max-height', vh + 'px', 'important');
+              ws.style.setProperty('top', '0px', 'important');
+            }
+            if (cm) {
+              cm.style.setProperty('height', vh + 'px', 'important');
+              cm.style.setProperty('max-height', vh + 'px', 'important');
+            }
+          }
+          window.scrollTo(0, 0);
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
           setTimeout(() => {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
             const stream = $('#notesStream');
             if (stream) stream.scrollTop = stream.scrollHeight;
-          }, 80);
+          }, 50);
+          setTimeout(() => {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+          }, 250);
         }
       };
+      input.onfocus = activateMobileTyping;
+      input.addEventListener('pointerdown', activateMobileTyping, { passive: true });
       input.onblur = () => {
         setTimeout(() => {
           if (!document.activeElement || document.activeElement.id !== 'composerInput') {
@@ -10100,13 +10128,24 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         if (window.innerWidth <= 768) {
           const vp = window.visualViewport;
           const workspace = $('#appWorkspace');
-          const keyboardShowing = (window.innerHeight - vp.height) > 80;
+          const chatMain = $('#chatMain');
+          const vh = Math.round(vp.height);
+          const keyboardShowing = (window.innerHeight - vh) > 60;
+          document.documentElement.style.setProperty('--mobile-app-height', vh + 'px');
           if (keyboardShowing) {
             document.body.classList.add('mobile-typing-mode');
             if (workspace) {
-              workspace.style.height = `${vp.height}px`;
-              workspace.style.maxHeight = `${vp.height}px`;
+              workspace.style.setProperty('height', vh + 'px', 'important');
+              workspace.style.setProperty('max-height', vh + 'px', 'important');
+              workspace.style.setProperty('top', '0px', 'important');
             }
+            if (chatMain) {
+              chatMain.style.setProperty('height', vh + 'px', 'important');
+              chatMain.style.setProperty('max-height', vh + 'px', 'important');
+            }
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
             const stream = $('#notesStream');
             if (stream) stream.scrollTop = stream.scrollHeight;
           } else {
@@ -10114,8 +10153,13 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
               document.body.classList.remove('mobile-typing-mode');
             }
             if (workspace) {
-              workspace.style.height = '';
-              workspace.style.maxHeight = '';
+              workspace.style.removeProperty('height');
+              workspace.style.removeProperty('max-height');
+              workspace.style.removeProperty('top');
+            }
+            if (chatMain) {
+              chatMain.style.removeProperty('height');
+              chatMain.style.removeProperty('max-height');
             }
           }
         }
@@ -10123,6 +10167,15 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       window.visualViewport.addEventListener('resize', handleVP);
       window.visualViewport.addEventListener('scroll', handleVP);
     }
+    window.addEventListener('scroll', () => {
+      if (window.innerWidth <= 768 && document.body.classList.contains('mobile-chat-open')) {
+        if (window.scrollY !== 0 || document.body.scrollTop !== 0 || document.documentElement.scrollTop !== 0) {
+          window.scrollTo(0, 0);
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+        }
+      }
+    }, { passive: true });
     if (window.innerWidth <= 768) {
       let savedView = 'inbox';
       try { savedView = localStorage.getItem('orlandochrome_mobile_view') || 'inbox'; } catch (e) {}

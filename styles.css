@@ -5082,11 +5082,17 @@ body.is-resizing-pane * {
   body.mobile-typing-mode .app-topbar,
   body.mobile-typing-mode .quick-timer-bar,
   body.mobile-typing-mode .quick-templates-bar,
+  body.mobile-typing-mode .mobile-thumb-actions,
+  body.mobile-typing-mode .profile-status-note-banner,
+  body.mobile-typing-mode .profile-sticky-banner,
+  body.mobile-typing-mode .timer-active-banner,
+  body.mobile-typing-mode .timer-reset-banner,
   body.mobile-typing-mode .app-dist,
   body.mobile-typing-mode .chat-header-actions,
   body.mobile-typing-mode .chat-header-note-bubble,
   body.mobile-typing-mode #headerNoteBubble,
-  body.mobile-typing-mode .header-note-bubble {
+  body.mobile-typing-mode .header-note-bubble,
+  body.mobile-typing-mode .chat-header-note-prompt {
     display: none !important;
   }
 
@@ -9509,8 +9515,26 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   body.mobile-chat-open .app-topbar {
     display: none !important;
   }
+  :root {
+    --mobile-app-height: 100dvh;
+  }
   body.mobile-chat-open .app-workspace {
-    height: 100dvh !important;
+    height: var(--mobile-app-height, 100dvh) !important;
+    max-height: var(--mobile-app-height, 100dvh) !important;
+    min-height: 0 !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  body.mobile-chat-open.mobile-typing-mode .app-workspace {
+    height: var(--mobile-app-height, 100dvh) !important;
+    max-height: var(--mobile-app-height, 100dvh) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    z-index: 10 !important;
   }
   body.mobile-chat-open .chat-main {
     display: flex !important;
