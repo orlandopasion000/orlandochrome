@@ -9838,7 +9838,9 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
 }
 @media (max-width: 480px) {
   .system-dropdown-menu {
-    right: -4px;
+    right: 0;
     width: 250px;
+    max-width: calc(100vw - 20px);
+    box-sizing: border-box;
   }
 }
