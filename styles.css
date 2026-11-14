@@ -10570,3 +10570,10 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   border-color: rgba(239, 68, 68, 0.5);
   color: #fca5a5;
 }
+
+/* Chat Drag-and-Drop Visual Indicator */
+#mainChat.chat-dragover {
+  outline: 2px dashed #ff2e38 !important;
+  outline-offset: -4px !important;
+  background: rgba(229, 9, 20, 0.04) !important;
+}

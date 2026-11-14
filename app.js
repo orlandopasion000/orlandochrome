@@ -5462,35 +5462,48 @@ const Icons = {
       };
     });
 
-    // 7b. Quick-Task Template Chips
+    // 7b. Quick-Task Template Chips (Seamless typing & dictation symbiosis)
     $$('.template-chip', main).forEach(chip => {
       chip.onclick = (e) => {
         const tplText = chip.dataset.tpl;
         if (!tplText) return;
         const inp = $('#composerInput');
-        if (e.shiftKey && inp) {
-          inp.value = inp.value ? `${inp.value.trim()} ${tplText}` : tplText;
-          inp.focus();
+
+        // Shift+Click: Instant direct add as standalone note
+        if (e.shiftKey) {
+          if (!p.notes) p.notes = [];
+          p.notes.push({
+            id: uid(),
+            text: tplText,
+            image: null,
+            voiceClip: null,
+            reactions: [],
+            subItems: [],
+            createdAt: now(),
+            editedAt: null,
+            forwardedFrom: null,
+            done: false
+          });
+          saveState();
+          if (window.soundMgr) window.soundMgr.playClick();
+          renderSidebar();
+          renderMainChat();
+          showToast(`⚡ Added "${tplText}" to ${p.name}`);
           return;
         }
-        if (!p.notes) p.notes = [];
-        p.notes.push({
-          id: uid(),
-          text: tplText,
-          image: null,
-          voiceClip: null,
-          reactions: [],
-          subItems: [],
-          createdAt: now(),
-          editedAt: null,
-          forwardedFrom: null,
-          done: false
-        });
-        saveState();
-        if (window.soundMgr) window.soundMgr.playClick();
-        renderSidebar();
-        renderMainChat();
-        showToast(`⚡ Added "${tplText}" to ${p.name}`);
+
+        // Standard 1-Tap: Insert prefix into typing/dictating input with cursor ready
+        if (inp) {
+          const curVal = inp.value.trim();
+          if (!curVal) {
+            inp.value = `[${tplText}] `;
+          } else if (!curVal.includes(`[${tplText}]`)) {
+            inp.value = `${curVal} [${tplText}] `;
+          }
+          inp.focus();
+          inp.selectionStart = inp.selectionEnd = inp.value.length;
+          showToast(`⚡ Inserted [${tplText}] — type or click mic to speak!`);
+        }
       };
       chip.oncontextmenu = (e) => {
         e.preventDefault();
@@ -5665,6 +5678,12 @@ const Icons = {
       // Scroll to bottom
       const stream = $('#notesStream');
       if (stream) stream.scrollTop = stream.scrollHeight;
+
+      // Auto-refocus composer input on desktop for frictionless continuous typing
+      if (window.innerWidth > 768) {
+        const nextInp = $('#composerInput');
+        if (nextInp) nextInp.focus();
+      }
     };
 
     if (sendBtn) sendBtn.onclick = handleAdd;
@@ -7100,12 +7119,20 @@ ${jsRes}
     }
 
     text = text
-      .replace(/\bperiod\b/gi, '.')
+      .replace(/\b(period|full stop)\b/gi, '.')
       .replace(/\bcomma\b/gi, ',')
       .replace(/\bquestion mark\b/gi, '?')
-      .replace(/\bexclamation mark\b/gi, '!')
+      .replace(/\b(exclamation mark|exclamation point)\b/gi, '!')
       .replace(/\bcolon\b/gi, ':')
-      .replace(/\bnew line\b/gi, ' — ');
+      .replace(/\bsemicolon\b/gi, ';')
+      .replace(/\b(open quote|quote)\b/gi, '"')
+      .replace(/\bclose quote\b/gi, '"')
+      .replace(/\bopen parenthesis\b/gi, '(')
+      .replace(/\bclose parenthesis\b/gi, ')')
+      .replace(/\b(new line|newline|next line)\b/gi, '\n');
+
+    // Auto-capitalize sentence beginnings after ., ?, !, or newline
+    text = text.replace(/(^|[.!?\n]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
 
     const style = state.wispr.style;
     if (style === 'raw') {
@@ -8556,6 +8583,43 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       });
     }
 
+    // Drag and Drop file attachment support on Chat
+    document.addEventListener('dragover', (e) => {
+      if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
+        e.preventDefault();
+        const mainEl = $('#mainChat');
+        if (mainEl) mainEl.classList.add('chat-dragover');
+      }
+    });
+
+    document.addEventListener('dragleave', (e) => {
+      const mainEl = $('#mainChat');
+      if (mainEl && (!e.relatedTarget || e.relatedTarget === document.documentElement)) {
+        mainEl.classList.remove('chat-dragover');
+      }
+    });
+
+    document.addEventListener('drop', async (e) => {
+      const mainEl = $('#mainChat');
+      if (mainEl) mainEl.classList.remove('chat-dragover');
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (!files || !files.length) return;
+      const file = files[0];
+      if (file.type && file.type.startsWith('image/')) {
+        e.preventDefault();
+        const dataUrl = await compressImage(file);
+        state.pendingAttachment = dataUrl;
+        const prevText = ($('#composerInput') && $('#composerInput').value) || '';
+        renderMainChat();
+        const inp = $('#composerInput');
+        if (inp) {
+          inp.value = prevText;
+          inp.focus();
+        }
+        showToast('Screenshot attached via drag & drop! Press Enter to send.');
+      }
+    });
+
     // Global Ctrl+V Paste Screenshot Handler
     document.addEventListener('paste', async (e) => {
       const items = e.clipboardData && e.clipboardData.items;
@@ -8574,7 +8638,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
               inp.value = prevText;
               inp.focus();
             }
-            showToast('📸 Screenshot pasted from clipboard! Press Enter to add.');
+            showToast('Screenshot pasted from clipboard! Press Enter to send.');
           }
           break;
         }
