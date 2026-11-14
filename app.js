@@ -7914,7 +7914,7 @@ ${jsRes}
     });
 
     // Close dropdown smoothly when an item is selected
-    $('.system-menu-item', menu).forEach(item => {
+    $$('.system-menu-item', menu).forEach(item => {
       item.addEventListener('click', () => {
         closeMenu();
       });
