@@ -10551,3 +10551,22 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
     height: 10px !important;
   }
 }
+
+/* Wispr Flow Pro Close/Hide Button */
+.btn-hide-wispr {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #94a3b8;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+.btn-hide-wispr:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+}

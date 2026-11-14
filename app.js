@@ -4882,7 +4882,7 @@ const Icons = {
           ${state.pendingAttachment ? `
             <div class="attach-thumb-box">
               <img src="${state.pendingAttachment}" class="attach-thumb-img" alt="Preview">
-              <span class="attach-thumb-label">📸 Screenshot ready to send</span>
+              <span class="attach-thumb-label">Screenshot ready to send</span>
               <button type="button" class="btn-remove-attach" id="btnRemoveScreenshot" title="Remove screenshot">✕</button>
             </div>
           ` : ''}
@@ -4903,7 +4903,7 @@ const Icons = {
             <div class="wispr-brand-cluster">
               <span class="wispr-pro-badge">🎙️ WISPR FLOW PRO</span>
               <span class="wispr-status-pill" id="wisprStatusPill">
-                ${w.isListening ? '🔴 LIVE DICTATION · UNLIMITED WORDS' : '⚡ READY · ALT+SPACE OR CLICK MIC'}
+                ${w.isListening ? '🔴 LIVE DICTATION · UNLIMITED WORDS' : '⚡ READY · CLICK MIC TO SPEAK'}
               </span>
             </div>
 
@@ -4917,6 +4917,7 @@ const Icons = {
               <span>·</span>
               <span id="wisprDurationLabel">Unlimited Flow</span>
             </div>
+            <button type="button" class="btn-hide-wispr" id="btnHideWisprPanel" title="Hide Wispr Flow Pro dashboard (Esc)">✕ Hide</button>
           </div>
 
           <div class="wispr-controls-row">
@@ -4994,7 +4995,7 @@ const Icons = {
           <input type="text" id="composerInput" class="composer-input" placeholder="Type a note for ${esc(p.name)}... (Ctrl+V to paste or mic to speak)">
         </div>
 
-        <button type="button" class="btn-antigravity-mic ${w.isListening ? 'listening' : ''}" id="btnWisprMic" title="${w.isListening ? 'Stop Recording' : 'Voice Dictation (Alt + Space)'}">
+        <button type="button" class="btn-antigravity-mic ${w.isListening ? 'listening' : ''}" id="btnWisprMic" title="${w.isListening ? 'Stop Recording' : 'Voice Dictation · Click to Speak'}">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -5560,6 +5561,18 @@ const Icons = {
     const btnMic = $('#btnWisprMic');
     if (btnMic) {
       btnMic.onclick = () => toggleWisprDictation();
+    }
+    const btnHideWispr = $('#btnHideWisprPanel');
+    if (btnHideWispr) {
+      btnHideWispr.onclick = () => {
+        state.wispr.panelOpen = false;
+        if (state.wispr.isListening) {
+          toggleWisprDictation();
+        }
+        saveWisprPrefs();
+        renderMainChat();
+        showToast('🙈 Wispr Flow Pro hidden');
+      };
     }
     const btnFlowBar = $('#btnToggleFlowBar');
     if (btnFlowBar) {
@@ -8406,7 +8419,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         const dataUrl = await compressImage(file);
         state.pendingAttachment = dataUrl;
         renderMainChat();
-        showToast('📸 Screenshot ready — press Enter or Add ✓ to send!');
+        showToast('Screenshot ready — press Enter or Add ✓ to send!');
         e.target.value = '';
       });
     }
