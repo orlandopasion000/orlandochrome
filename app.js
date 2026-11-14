@@ -319,26 +319,14 @@ const Icons = {
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gCalCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="0%" stop-color="#38bdf8"/>
               <stop offset="100%" stop-color="#818cf8"/>
             </linearGradient>
-            <linearGradient id="gCalFill" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="rgba(0, 242, 254, 0.18)"/>
-              <stop offset="100%" stop-color="rgba(129, 140, 248, 0.08)"/>
-            </linearGradient>
           </defs>
-          <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="url(#gCalCyber)" stroke-width="1.8" fill="url(#gCalFill)"/>
-          <line x1="7.5" y1="1.8" x2="7.5" y2="5" stroke="#00f2fe" stroke-width="2" stroke-linecap="round"/>
-          <line x1="16.5" y1="1.8" x2="16.5" y2="5" stroke="#818cf8" stroke-width="2" stroke-linecap="round"/>
+          <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="url(#gCalCyber)" stroke-width="1.8" fill="rgba(56, 189, 248, 0.08)"/>
           <line x1="3" y1="9" x2="21" y2="9" stroke="url(#gCalCyber)" stroke-width="1.4"/>
-          <circle cx="7.5" cy="12.5" r="1.3" fill="#38bdf8"/>
-          <circle cx="12" cy="12.5" r="1.3" fill="#818cf8"/>
-          <circle cx="16.5" cy="12.5" r="1.3" fill="#c084fc"/>
-          <circle cx="7.5" cy="16.5" r="1.3" fill="#818cf8"/>
-          <circle cx="12" cy="16.5" r="2" fill="#00f2fe"/>
-          <circle cx="12" cy="16.5" r="3.2" stroke="#00f2fe" stroke-width="0.8" stroke-dasharray="2 1"/>
-          <circle cx="16.5" cy="16.5" r="1.3" fill="#38bdf8"/>
+          <line x1="8" y1="2" x2="8" y2="5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="2" x2="16" y2="5" stroke="#818cf8" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </span>`,
 
@@ -4894,14 +4882,9 @@ const Icons = {
     backdrop.innerHTML = `
       <div class="edit-date-modal">
         <div class="edit-date-modal-header">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div class="edit-date-modal-badge-icon">
-              ${Icons.calendar(24)}
-            </div>
-            <div>
-              <h3 class="edit-date-modal-title">Change Date &amp; Time</h3>
-              <div class="edit-date-modal-subtitle">Temporal calibration &amp; chronological auto-alignment</div>
-            </div>
+          <div>
+            <h3 class="edit-date-modal-title">Change Date &amp; Time</h3>
+            <div class="edit-date-modal-subtitle">Temporal calibration &amp; chronological auto-alignment</div>
           </div>
           <button type="button" class="btn-edit-date-close" id="btnCloseEditDate" title="Close">✕</button>
         </div>
@@ -4942,7 +4925,7 @@ const Icons = {
         <!-- Exact Date-Time Picker Input -->
         <div class="date-input-section">
           <label for="editDateTimeInput" class="date-input-label">
-            ${Icons.calendar(13)} <span>Or calibrate custom date &amp; exact time:</span>
+            <span>Or calibrate custom date &amp; exact time:</span>
           </label>
           <input type="datetime-local" class="edit-date-native-input" id="editDateTimeInput" value="${formatDateTimeLocal(curTimestamp)}">
         </div>
