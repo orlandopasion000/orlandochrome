@@ -5145,10 +5145,26 @@ const Icons = {
             </div>
           </div>
 
-          <div class="wispr-live-preview" id="wisprLivePreview">
-            ${w.interimText
-              ? `<span class="wispr-interim-stream">🗣️ "${esc(w.interimText)}"</span>`
-              : `<span class="wispr-cmd-hint">💡 Voice Commands: Say <em>"send note"</em>, <em>"mark urgent"</em>, <em>"pin profile"</em>, <em>"start timer 30 minutes"</em>, <em>"forward task"</em>, or <em>"scratch that"</em>.</span>`}
+          <div class="wispr-voice-cmd-bar" id="wisprVoiceCmdBar">
+            <div class="wispr-live-preview" id="wisprLivePreview">
+              ${w.interimText
+                ? `<span class="wispr-interim-stream">🗣️ "${esc(w.interimText)}"</span>`
+                : `<span class="wispr-cmd-hint">💡 Voice Commands: Say <em>"send note"</em>, <em>"timer 30m"</em>, <em>"go to deped"</em>, <em>"share note ..."</em>, <em>"mark urgent"</em>, <em>"template test"</em>...</span>`}
+            </div>
+            <div class="wispr-cmd-chips-row">
+              <span class="wispr-cmd-badge">⚡ 10 Voice Commands:</span>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="timer" title="Say 'start timer 30 mins' or 'cancel timer'">⏱️ Timers</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="switch" title="Say 'go to deped', 'switch to slot 3', or 'next profile'">🎯 Profiles</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="tag" title="Say 'mark urgent', 'mark waiting', 'star note'">🏷️ Reactions</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="sharenote" title="Say 'share note [text]' or 'status note [text]'">💭 24h Status</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="sticky" title="Say 'sticky note [text]' or 'clear sticky note'">📌 Sticky Note</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="template" title="Say 'template lesson plan', 'template test'">📋 Templates</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="forward" title="Say 'forward to deped' or 'forward task'">🔄 Forward</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="bulk" title="Say 'select notes', 'select all', 'trash selected'">☑️ Bulk Clean</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="undo" title="Say 'undo that', 'redo that', 'delete last note'">↩️ Undo / Trash</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="format" title="Say 'new line', 'bullet point', 'new paragraph'">✨ Formatting</button>
+              <button type="button" class="wispr-cmd-cheat-btn" id="btnOpenVoiceCheatSheet" title="View all 10 Voice Command Superpowers">📖 Cheat Sheet</button>
+            </div>
           </div>
         </div>
       ` : ''}
@@ -5855,6 +5871,28 @@ const Icons = {
     if (btnDict) {
       btnDict.onclick = () => openWisprDictionaryModal();
     }
+    const btnVoiceCheat = $('#btnOpenVoiceCheatSheet');
+    if (btnVoiceCheat) {
+      btnVoiceCheat.onclick = () => openVoiceCommandsCheatSheetModal();
+    }
+    $$('.wispr-cmd-chip').forEach(chip => {
+      chip.onclick = () => {
+        const vcmd = chip.dataset.vcmd;
+        const hintsMap = {
+          timer: '⏱️ Say: "start timer 30 minutes", "cooldown 1 hour", or "cancel timer"',
+          switch: '🎯 Say: "switch to deped", "go to gmail", "slot 3", or "next profile"',
+          tag: '🏷️ Say: "mark urgent", "mark waiting", "star note", or "mark done"',
+          sharenote: '💭 Say: "share note [your thought]" or "clear share note"',
+          sticky: '📌 Say: "sticky note [your message]" or "clear sticky note"',
+          template: '📋 Say: "template lesson plan", "template test", or "template print"',
+          forward: '🔄 Say: "forward to deped" or "forward task"',
+          bulk: '☑️ Say: "select notes", "select all", "trash selected", or "cancel select"',
+          undo: '↩️ Say: "undo that", "redo that", "delete last note", or "scratch that"',
+          format: '✨ Say: "bullet point", "new line", "new paragraph", or "send note"'
+        };
+        showToast(hintsMap[vcmd] || 'Say any of the 10 voice commands hands-free!');
+      };
+    });
 
     // 10. Add note
     const input = $('#composerInput');
@@ -7343,6 +7381,11 @@ ${jsRes}
     }
 
     text = text
+      .replace(/\b(bullet point|bullet)\b/gi, '\n• ')
+      .replace(/\b(new paragraph|next paragraph)\b/gi, '\n\n')
+      .replace(/\b(numbered list|number one)\b/gi, '\n1. ')
+      .replace(/\b(dash|hyphen)\b/gi, ' - ')
+      .replace(/\bhashtag\b/gi, ' #')
       .replace(/\b(period|full stop)\b/gi, '.')
       .replace(/\bcomma\b/gi, ',')
       .replace(/\bquestion mark\b/gi, '?')
@@ -7391,61 +7434,349 @@ ${jsRes}
     return text;
   }
 
+  let voiceCmdFeedbackTimer = null;
+  function flashVoiceCommandFeedback(cmdLabel) {
+    const previewEl = $('#wisprLivePreview');
+    if (previewEl) {
+      previewEl.innerHTML = `<span class="wispr-cmd-executed">⚡ Executed: <strong>${esc(cmdLabel)}</strong></span>`;
+      if (voiceCmdFeedbackTimer) clearTimeout(voiceCmdFeedbackTimer);
+      voiceCmdFeedbackTimer = setTimeout(() => {
+        if (previewEl && !state.wispr.interimText) {
+          previewEl.innerHTML = `<span class="wispr-cmd-hint">💡 Voice Commands: Say <em>"send note"</em>, <em>"timer 30m"</em>, <em>"go to deped"</em>, <em>"share note ..."</em>, <em>"mark urgent"</em>, <em>"template test"</em>...</span>`;
+        }
+      }, 2500);
+    }
+    if (window.soundMgr) {
+      try {
+        if (typeof window.soundMgr.playReadyChime === 'function') window.soundMgr.playReadyChime();
+        else if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+      } catch (e) {}
+    }
+  }
+
+  function openVoiceCommandsCheatSheetModal() {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rename-dialog-backdrop';
+    backdrop.innerHTML = `
+      <div class="voice-cheat-modal">
+        <div class="forward-modal-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:20px;">⚡</span>
+            <div>
+              <h3 style="margin:0; font-size:16px; font-weight:800; color:#fff;">Top 10 Voice Command Superpowers</h3>
+              <div style="font-size:11.5px; color:#888;">Hands-Free Voice Control Suite for OrlandoChrome Wispr Flow Pro</div>
+            </div>
+          </div>
+          <button type="button" class="btn-banner-clear" id="btnCloseVoiceCheat">✕</button>
+        </div>
+
+        <div class="voice-cheat-body">
+          <!-- 1. Timers -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>⏱️ Flexible Cooldown Timers & Alarms</span>
+              <span class="voice-cheat-num">#1</span>
+            </div>
+            <div class="voice-cheat-desc">Start or clear cooldown countdowns on the active profile hands-free with natural phrasing.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"start timer 30 minutes"</span>
+              <span class="voice-cheat-phrase-pill">"timer 15 mins"</span>
+              <span class="voice-cheat-phrase-pill">"cooldown 1 hour"</span>
+              <span class="voice-cheat-phrase-pill">"cancel timer"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="start timer 30 minutes">Test "timer 30m"</button>
+            </div>
+          </div>
+
+          <!-- 2. Profile Switching -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>🎯 Instant Profile Navigation & Slot Switching</span>
+              <span class="voice-cheat-num">#2</span>
+            </div>
+            <div class="voice-cheat-desc">Navigate directly to any profile by name keyword, slot index, or sequential next/previous.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"switch to deped"</span>
+              <span class="voice-cheat-phrase-pill">"go to gmail"</span>
+              <span class="voice-cheat-phrase-pill">"switch to slot 3"</span>
+              <span class="voice-cheat-phrase-pill">"next profile"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="next profile">Test "next profile"</button>
+            </div>
+          </div>
+
+          <!-- 3. Reactions & Status -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>🏷️ Priority & Status Reaction Voice Suite</span>
+              <span class="voice-cheat-num">#3</span>
+            </div>
+            <div class="voice-cheat-desc">Attach reactions, star notes, mark tasks complete, pin profiles, or set unread status.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"mark urgent"</span>
+              <span class="voice-cheat-phrase-pill">"mark waiting"</span>
+              <span class="voice-cheat-phrase-pill">"mark verified"</span>
+              <span class="voice-cheat-phrase-pill">"star note"</span>
+              <span class="voice-cheat-phrase-pill">"mark done"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="mark urgent">Test "mark urgent"</button>
+            </div>
+          </div>
+
+          <!-- 4. 24h Share A Note -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>💭 Dictate Directly to 24h Share-A-Note</span>
+              <span class="voice-cheat-num">#4</span>
+            </div>
+            <div class="voice-cheat-desc">Post a 24-hour expiring status thought bubble immediately on the avatar without opening modals.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"share note [your message]"</span>
+              <span class="voice-cheat-phrase-pill">"status note Out for lunch"</span>
+              <span class="voice-cheat-phrase-pill">"clear share note"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="share note Voice status active">Test "share note"</button>
+            </div>
+          </div>
+
+          <!-- 5. Sticky Note -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>📌 Instant Header Sticky Note Dictation</span>
+              <span class="voice-cheat-num">#5</span>
+            </div>
+            <div class="voice-cheat-desc">Pins a persistent golden note banner to the top of the chat window for reference.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"sticky note [message]"</span>
+              <span class="voice-cheat-phrase-pill">"pin note Dedicated to SF2"</span>
+              <span class="voice-cheat-phrase-pill">"clear sticky note"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="sticky note Priority DepEd SF2 validation">Test "sticky note"</button>
+            </div>
+          </div>
+
+          <!-- 6. Quick Task Templates -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>📋 Voice-Triggered Quick Task Templates</span>
+              <span class="voice-cheat-num">#6</span>
+            </div>
+            <div class="voice-cheat-desc">Applies any bracketed template tag directly into the composer input hands-free.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"template lesson plan"</span>
+              <span class="voice-cheat-phrase-pill">"template test"</span>
+              <span class="voice-cheat-phrase-pill">"template module"</span>
+              <span class="voice-cheat-phrase-pill">"template print"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="template test">Test "template test"</button>
+            </div>
+          </div>
+
+          <!-- 7. Forwarding -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>🔄 Cross-Profile Task Forwarding & Duplication</span>
+              <span class="voice-cheat-num">#7</span>
+            </div>
+            <div class="voice-cheat-desc">Send the active note directly to another profile or open the visual forward picker.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"forward to deped"</span>
+              <span class="voice-cheat-phrase-pill">"forward note to gmail"</span>
+              <span class="voice-cheat-phrase-pill">"forward task"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="forward task">Test "forward task"</button>
+            </div>
+          </div>
+
+          <!-- 8. Multi-Select & Bulk Clean -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>☑️ Voice Multi-Select & Bulk Clean Suite</span>
+              <span class="voice-cheat-num">#8</span>
+            </div>
+            <div class="voice-cheat-desc">Operate the bulk deletion mode hands-free to select and trash clutter in seconds.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"select notes"</span>
+              <span class="voice-cheat-phrase-pill">"select all"</span>
+              <span class="voice-cheat-phrase-pill">"trash selected"</span>
+              <span class="voice-cheat-phrase-pill">"cancel select"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="select notes">Test "select notes"</button>
+            </div>
+          </div>
+
+          <!-- 9. Undo & Redo -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>↩️ Voice Undo, Redo & Instant Note Trash</span>
+              <span class="voice-cheat-num">#9</span>
+            </div>
+            <div class="voice-cheat-desc">Full voice integration with the rollback stack, trash recovery, and text clearing.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"undo that"</span>
+              <span class="voice-cheat-phrase-pill">"redo that"</span>
+              <span class="voice-cheat-phrase-pill">"delete last note"</span>
+              <span class="voice-cheat-phrase-pill">"scratch that"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="undo that">Test "undo that"</button>
+            </div>
+          </div>
+
+          <!-- 10. Intelligent Dictation & Formatting -->
+          <div class="voice-cheat-card">
+            <div class="voice-cheat-title">
+              <span>✨ Smart Conversational Formatting & Direct Send</span>
+              <span class="voice-cheat-num">#10</span>
+            </div>
+            <div class="voice-cheat-desc">Natural punctuation, bullet points, line breaks, and direct hands-free note dispatch.</div>
+            <div class="voice-cheat-phrases">
+              <span class="voice-cheat-phrase-pill">"bullet point"</span>
+              <span class="voice-cheat-phrase-pill">"new line"</span>
+              <span class="voice-cheat-phrase-pill">"new paragraph"</span>
+              <span class="voice-cheat-phrase-pill">"send note"</span>
+              <button type="button" class="voice-cheat-try-btn" data-try="send note">Test "send note"</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+    $('#btnCloseVoiceCheat', backdrop).onclick = close;
+    backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+
+    $$('.voice-cheat-try-btn', backdrop).forEach(btn => {
+      btn.onclick = () => {
+        const cmd = btn.dataset.try;
+        if (cmd) {
+          close();
+          checkAndExecuteVoiceCommand(cmd);
+        }
+      };
+    });
+
+    document.body.appendChild(backdrop);
+  }
+
   function checkAndExecuteVoiceCommand(transcriptChunk) {
     if (!state.wispr.commandMode) return { consumed: false, text: transcriptChunk };
     const lower = transcriptChunk.trim().toLowerCase().replace(/[.!?]+$/, '');
     const activeProf = getProfile(state.activeProfileId);
+    if (!activeProf) return { consumed: false, text: transcriptChunk };
 
-    if (lower === 'scratch that' || lower === 'clear text' || lower === 'delete all') {
-      const inp = $('#composerInput');
-      if (inp) inp.value = '';
-      showToast('🗣️ Flow Command: Cleared text');
-      return { consumed: true, text: '' };
-    }
-
-    if (lower === 'delete last note' || lower === 'trash last note' || lower === 'delete note' || lower === 'remove note') {
-      const notes = activeProf.notes || [];
-      if (notes.length > 0) {
-        const lastId = notes[notes.length - 1].id;
-        executeDeleteNote(lastId);
-        showToast('🗣️ Voice Command: Moved last note to Trash (Ctrl+Z to Undo)');
+    // --- SUPERPOWER 1: Natural Flexible Cooldown Timers & Alarms ---
+    const timerMatch = lower.match(/(?:start\s+|set\s+|begin\s+)?(?:timer|cooldown)\s+(\d+)\s*(minute|minutes|min|mins|hour|hours|hr|hrs|second|seconds|sec|secs|day|days)/i);
+    if (timerMatch) {
+      const val = parseInt(timerMatch[1], 10);
+      const unit = timerMatch[2].toLowerCase();
+      const mins = unit.startsWith('d') ? val * 1440 : (unit.startsWith('h') ? val * 60 : (unit.startsWith('s') ? Math.max(1, Math.round(val / 60)) : val));
+      if (mins > 0) {
+        startCooldown(activeProf, mins);
+        flashVoiceCommandFeedback(`${mins}m Timer Started`);
+        showToast(`🗣️ Voice Command: Started ${mins}m timer for ${activeProf.name}`);
         return { consumed: true, text: '' };
       }
     }
+    if (/^(?:cancel|clear|stop|remove)\s+(?:timer|cooldown)$/i.test(lower)) {
+      clearCooldown(activeProf);
+      flashVoiceCommandFeedback('Timer Cancelled');
+      showToast(`🗣️ Voice Command: Cancelled cooldown for ${activeProf.name}`);
+      return { consumed: true, text: '' };
+    }
 
-    if (lower.includes('pin profile') || lower.includes('pin to top')) {
+    // --- SUPERPOWER 2: Instant Hands-Free Profile Navigation ---
+    if (lower === 'next profile' || lower === 'next slot') {
+      const curIdx = state.profiles.findIndex(p => p.id === state.activeProfileId);
+      const nextProf = state.profiles[(curIdx + 1) % state.profiles.length];
+      selectProfile(nextProf.id);
+      flashVoiceCommandFeedback(`Switched to ${nextProf.name}`);
+      showToast(`🗣️ Voice Command: Switched to ${nextProf.name}`);
+      return { consumed: true, text: '' };
+    }
+    if (lower === 'previous profile' || lower === 'prev profile' || lower === 'previous slot') {
+      const curIdx = state.profiles.findIndex(p => p.id === state.activeProfileId);
+      const prevProf = state.profiles[(curIdx - 1 + state.profiles.length) % state.profiles.length];
+      selectProfile(prevProf.id);
+      flashVoiceCommandFeedback(`Switched to ${prevProf.name}`);
+      showToast(`🗣️ Voice Command: Switched to ${prevProf.name}`);
+      return { consumed: true, text: '' };
+    }
+    const slotMatch = lower.match(/^(?:switch to|go to|open|jump to)?\s*(?:slot|profile slot|profile)\s*(\d+)$/i);
+    if (slotMatch) {
+      const slotNum = parseInt(slotMatch[1], 10);
+      const target = state.profiles.find(p => p.taskbarSlot === slotNum) || state.profiles[slotNum - 1];
+      if (target) {
+        selectProfile(target.id);
+        flashVoiceCommandFeedback(`Switched to ${target.name}`);
+        showToast(`🗣️ Voice Command: Switched to Slot ${slotNum} (${target.name})`);
+        return { consumed: true, text: '' };
+      }
+    }
+    const navMatch = lower.match(/^(?:switch to|go to|open|jump to)\s+(.+)$/i);
+    if (navMatch) {
+      const query = navMatch[1].trim().toLowerCase();
+      if (!['select mode', 'bulk mode', 'next profile', 'previous profile', 'next slot', 'previous slot', 'forward'].includes(query)) {
+        const target = state.profiles.find(p => {
+          const pName = p.name.toLowerCase();
+          const pKey = (p.winShortcut || '').toLowerCase();
+          return pName.includes(query) || pKey === query;
+        });
+        if (target && target.id !== state.activeProfileId) {
+          selectProfile(target.id);
+          flashVoiceCommandFeedback(`Switched to ${target.name}`);
+          showToast(`🗣️ Voice Command: Switched to ${target.name}`);
+          return { consumed: true, text: '' };
+        }
+      }
+    }
+
+    // --- SUPERPOWER 3: Priority & Status Reaction Voice Suite ---
+    if (lower === 'pin profile' || lower === 'pin to top') {
       activeProf.isPinned = true;
       activeProf.pinnedAt = now();
       saveState();
       renderSidebar();
-      showToast(`🗣️ Flow Command: Pinned ${activeProf.name} to top`);
+      flashVoiceCommandFeedback(`Pinned ${activeProf.name}`);
+      showToast(`🗣️ Voice Command: Pinned ${activeProf.name} to top`);
       return { consumed: true, text: '' };
     }
-
-    if (lower.includes('unpin profile')) {
+    if (lower === 'unpin profile') {
       activeProf.isPinned = false;
       activeProf.pinnedAt = null;
       saveState();
       renderSidebar();
-      showToast(`🗣️ Flow Command: Unpinned ${activeProf.name}`);
+      flashVoiceCommandFeedback(`Unpinned ${activeProf.name}`);
+      showToast(`🗣️ Voice Command: Unpinned ${activeProf.name}`);
       return { consumed: true, text: '' };
     }
-
     if (lower === 'mark unread' || lower === 'mark as unread') {
       if (hasMessages(activeProf)) {
         activeProf.isUnread = true;
         saveState();
         renderSidebar();
         renderMainChat();
-        showToast(`🗣️ Flow Command: Marked ${activeProf.name} as Unread`);
+        flashVoiceCommandFeedback('Marked Unread');
+        showToast(`🗣️ Voice Command: Marked ${activeProf.name} as Unread`);
       } else {
         showToast(`⚠️ Add a message first before marking ${activeProf.name} Unread`);
       }
       return { consumed: true, text: '' };
     }
-
+    if (lower === 'mark read' || lower === 'mark as read') {
+      activeProf.isUnread = false;
+      saveState();
+      renderSidebar();
+      renderMainChat();
+      flashVoiceCommandFeedback('Marked Read');
+      showToast(`🗣️ Voice Command: Marked ${activeProf.name} as Read`);
+      return { consumed: true, text: '' };
+    }
+    if (lower === 'mark done' || lower === 'task completed' || lower === 'complete note' || lower === 'finish note') {
+      const pending = (activeProf.notes || []).filter(n => !n.done);
+      if (pending.length > 0) {
+        const latest = pending[pending.length - 1];
+        latest.done = true;
+        saveState();
+        renderSidebar();
+        renderMainChat();
+        flashVoiceCommandFeedback('Task Completed ✓');
+        showToast(`🗣️ Voice Command: Marked note completed!`);
+        return { consumed: true, text: '' };
+      }
+    }
     for (const r of REACTIONS_LIST) {
-      if (lower === `mark ${r.key}` || lower === `tag ${r.key}`) {
+      if (lower === `mark ${r.key}` || lower === `tag ${r.key}` || lower === `set ${r.key}` || (r.key === 'urgent' && lower === 'high priority') || (r.key === 'star' && (lower === 'star note' || lower === 'star this' || lower === 'favorite'))) {
         const pending = (activeProf.notes || []).filter(n => !n.done);
         if (pending.length > 0) {
           const latest = pending[pending.length - 1];
@@ -7454,37 +7785,210 @@ ${jsRes}
           saveState();
           renderSidebar();
           renderMainChat();
-          showToast(`🗣️ Flow Command: Tagged ${r.icon} ${r.label}`);
+          flashVoiceCommandFeedback(`Tagged ${r.icon} ${r.label}`);
+          showToast(`🗣️ Voice Command: Tagged ${r.icon} ${r.label}`);
         } else {
           state.pendingReactionTag = r.key;
-          showToast(`🗣️ Flow Command: Queued ${r.icon} ${r.label} for your note`);
+          flashVoiceCommandFeedback(`Queued ${r.icon} ${r.label}`);
+          showToast(`🗣️ Voice Command: Queued ${r.icon} ${r.label} for your next note`);
         }
         return { consumed: true, text: '' };
       }
     }
 
-    const timerMatch = lower.match(/start timer (\d+)\s*(minute|minutes|min|mins|hour|hours|hr|hrs|day|days)/);
-    if (timerMatch) {
-      const val = parseInt(timerMatch[1], 10);
-      const unit = timerMatch[2];
-      const mins = unit.startsWith('d') ? val * 1440 : (unit.startsWith('h') ? val * 60 : val);
-      if (mins > 0) {
-        startCooldown(activeProf, mins);
-        showToast(`🗣️ Flow Command: Started ${mins}m timer`);
+    // --- SUPERPOWER 4: Dictate Directly to 24h Share-A-Note ---
+    const shareMatch = lower.match(/^(?:share note|status note|share a note|my thought is|thought note)\s+(.+)$/i);
+    if (shareMatch) {
+      const statusText = shareMatch[1].trim().slice(0, 60);
+      const postTime = now();
+      activeProf.statusNote = {
+        text: statusText,
+        createdAt: postTime,
+        expiresAt: postTime + (24 * 60 * 60 * 1000)
+      };
+      saveState();
+      renderSidebar();
+      renderMainChat();
+      flashVoiceCommandFeedback(`24h Note: "${statusText}"`);
+      showToast(`🗣️ Voice Command: Shared 24h note on ${activeProf.name}`);
+      return { consumed: true, text: '' };
+    }
+    if (/^(?:clear note|clear status note|remove share note|clear thought|remove 24h note)$/i.test(lower)) {
+      activeProf.statusNote = makeClearedStatusNote();
+      saveState();
+      renderSidebar();
+      renderMainChat();
+      flashVoiceCommandFeedback('24h Note Cleared');
+      showToast(`🗣️ Voice Command: Cleared 24h note for ${activeProf.name}`);
+      return { consumed: true, text: '' };
+    }
+
+    // --- SUPERPOWER 5: Instant Header Sticky Note Dictation ---
+    const stickyMatch = lower.match(/^(?:sticky note|pin note|header note|set sticky)\s+(.+)$/i);
+    if (stickyMatch) {
+      const stickyText = stickyMatch[1].trim();
+      activeProf.stickyNote = stickyText;
+      saveState();
+      renderMainChat();
+      flashVoiceCommandFeedback('Sticky Note Saved 📌');
+      showToast(`🗣️ Voice Command: Pinned Sticky Note for ${activeProf.name}`);
+      return { consumed: true, text: '' };
+    }
+    if (/^(?:clear sticky note|clear sticky|remove sticky note|remove sticky)$/i.test(lower)) {
+      activeProf.stickyNote = '';
+      saveState();
+      renderMainChat();
+      flashVoiceCommandFeedback('Sticky Cleared');
+      showToast(`🗣️ Voice Command: Cleared Sticky Note for ${activeProf.name}`);
+      return { consumed: true, text: '' };
+    }
+
+    // --- SUPERPOWER 6: Voice-Triggered Quick Task Templates ---
+    const tplMatch = lower.match(/^(?:template|quick task)\s+(.+)$/i);
+    if (tplMatch) {
+      const reqTpl = tplMatch[1].trim().toLowerCase();
+      const matched = (state.quickTemplates || []).find(t => t.toLowerCase() === reqTpl || t.toLowerCase().includes(reqTpl));
+      if (matched) {
+        const inp = $('#composerInput');
+        if (inp) {
+          const tag = `[${matched}] `;
+          inp.value = inp.value ? `${inp.value.trim()} ${tag}` : tag;
+          inp.focus();
+        }
+        flashVoiceCommandFeedback(`Template: [${matched}]`);
+        showToast(`🗣️ Voice Command: Applied [${matched}] template`);
         return { consumed: true, text: '' };
       }
     }
 
-    if (lower === 'forward task' || lower === 'move to next profile') {
+    // --- SUPERPOWER 7: Cross-Profile Forwarding & Duplication ---
+    const fwdToMatch = lower.match(/^(?:forward note to|forward task to|forward to|copy note to|send note to)\s+(.+)$/i);
+    if (fwdToMatch) {
+      const targetQuery = fwdToMatch[1].trim().toLowerCase();
+      const target = state.profiles.find(p => p.id !== activeProf.id && (p.name.toLowerCase().includes(targetQuery) || (p.winShortcut || '').toLowerCase() === targetQuery));
+      if (target) {
+        const pending = (activeProf.notes || []).filter(n => !n.done);
+        if (pending.length > 0) {
+          const srcNote = pending[pending.length - 1];
+          if (!target.notes) target.notes = [];
+          target.notes.push({
+            id: uid(),
+            text: srcNote.text,
+            createdAt: now(),
+            done: false,
+            reactions: Array.isArray(srcNote.reactions) ? [...srcNote.reactions] : []
+          });
+          target.isUnread = true;
+          saveState();
+          renderSidebar();
+          flashVoiceCommandFeedback(`Forwarded to ${target.name}`);
+          showToast(`🗣️ Voice Command: Forwarded note to ${target.name}!`);
+          return { consumed: true, text: '' };
+        } else {
+          showToast(`⚠️ No active notes to forward from ${activeProf.name}`);
+          return { consumed: true, text: '' };
+        }
+      }
+    }
+    if (lower === 'forward task' || lower === 'forward note' || lower === 'open forward' || lower === 'move to next profile') {
       const pending = (activeProf.notes || []).filter(n => !n.done);
       if (pending.length > 0) {
         openForwardModal(activeProf, pending[pending.length - 1]);
-        showToast('🗣️ Flow Command: Opened Forward Task modal');
+        flashVoiceCommandFeedback('Forward Modal Opened');
+        showToast('🗣️ Voice Command: Opened Forward Task modal');
         return { consumed: true, text: '' };
       }
     }
 
-    const sendSuffixMatch = transcriptChunk.match(/^(.*?)\b(send note|submit note|add task)\s*[.!?]*$/i);
+    // --- SUPERPOWER 8: Voice Multi-Select & Bulk Clean ---
+    if (lower === 'select notes' || lower === 'enter select mode' || lower === 'multi select' || lower === 'bulk mode') {
+      state.selectMode = true;
+      state.selectedNoteIds = [];
+      renderMainChat();
+      flashVoiceCommandFeedback('Multi-Select ON');
+      showToast('🗣️ Voice Command: Multi-Select Mode ON');
+      return { consumed: true, text: '' };
+    }
+    if (lower === 'select all' || lower === 'choose all notes' || lower === 'select all notes') {
+      state.selectMode = true;
+      state.selectedNoteIds = (activeProf.notes || []).map(n => n.id);
+      renderMainChat();
+      flashVoiceCommandFeedback(`Selected ${state.selectedNoteIds.length} Notes`);
+      showToast(`🗣️ Voice Command: Selected all ${state.selectedNoteIds.length} notes`);
+      return { consumed: true, text: '' };
+    }
+    if (lower === 'trash selected' || lower === 'delete selected' || lower === 'bulk delete') {
+      if (state.selectedNoteIds && state.selectedNoteIds.length > 0) {
+        const count = state.selectedNoteIds.length;
+        executeBulkDeleteNotes(state.selectedNoteIds);
+        flashVoiceCommandFeedback(`Trashed ${count} Notes`);
+        return { consumed: true, text: '' };
+      } else {
+        showToast('⚠️ No notes currently selected to delete');
+        return { consumed: true, text: '' };
+      }
+    }
+    if (lower === 'cancel select' || lower === 'exit select mode' || lower === 'done selecting' || lower === 'cancel selection') {
+      state.selectMode = false;
+      state.selectedNoteIds = [];
+      renderMainChat();
+      flashVoiceCommandFeedback('Exited Select Mode');
+      showToast('🗣️ Voice Command: Exited multi-select mode');
+      return { consumed: true, text: '' };
+    }
+
+    // --- SUPERPOWER 9: Voice Undo, Redo, Scratch & Trash ---
+    if (lower === 'undo' || lower === 'undo that' || lower === 'undo last action') {
+      if (historyMgr.canUndo()) {
+        historyMgr.undo();
+        flashVoiceCommandFeedback('Action Undone ↺');
+        return { consumed: true, text: '' };
+      } else {
+        showToast('⚠️ Nothing to undo');
+        return { consumed: true, text: '' };
+      }
+    }
+    if (lower === 'redo' || lower === 'redo that' || lower === 'redo last action') {
+      if (historyMgr.canRedo()) {
+        historyMgr.redo();
+        flashVoiceCommandFeedback('Action Redone ↻');
+        return { consumed: true, text: '' };
+      } else {
+        showToast('⚠️ Nothing to redo');
+        return { consumed: true, text: '' };
+      }
+    }
+    if (lower === 'scratch that' || lower === 'clear text' || lower === 'delete all') {
+      const inp = $('#composerInput');
+      if (inp) inp.value = '';
+      flashVoiceCommandFeedback('Cleared Text');
+      showToast('🗣️ Voice Command: Cleared composer text');
+      return { consumed: true, text: '' };
+    }
+    if (lower === 'delete last note' || lower === 'trash last note' || lower === 'delete note' || lower === 'remove note') {
+      const notes = activeProf.notes || [];
+      if (notes.length > 0) {
+        const lastId = notes[notes.length - 1].id;
+        executeDeleteNote(lastId);
+        flashVoiceCommandFeedback('Deleted Last Note');
+        return { consumed: true, text: '' };
+      } else {
+        showToast(`⚠️ No notes to delete in ${activeProf.name}`);
+        return { consumed: true, text: '' };
+      }
+    }
+
+    // --- SUPERPOWER 10: Direct Send Note & Suffix Senders ---
+    if (lower === 'send note' || lower === 'submit note' || lower === 'add task') {
+      const sendBtn = $('#btnSendNote');
+      if (sendBtn) {
+        sendBtn.click();
+        flashVoiceCommandFeedback('Note Sent 🚀');
+        showToast('🗣️ Voice Command: Sent note!');
+      }
+      return { consumed: true, text: '' };
+    }
+    const sendSuffixMatch = transcriptChunk.match(/^(.*?)\b(?:send note|submit note|add task)\s*[.!?]*$/i);
     if (sendSuffixMatch) {
       const prefixText = sendSuffixMatch[1].trim();
       const inp = $('#composerInput');
@@ -7496,7 +8000,8 @@ ${jsRes}
         const sendBtn = $('#btnSendNote');
         if (sendBtn) sendBtn.click();
       }, 60);
-      showToast('🗣️ Flow Command: Sent note!');
+      flashVoiceCommandFeedback('Note Sent 🚀');
+      showToast('🗣️ Voice Command: Sent note!');
       return { consumed: true, text: '' };
     }
 
@@ -9507,6 +10012,9 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     window.__ocSaveState = saveState;
     window.__ocUpdateDocumentTitle = updateDocumentTitle;
     window.__ocBroadcastLiveBridgeStatus = broadcastLiveBridgeStatus;
+    window.checkAndExecuteVoiceCommand = checkAndExecuteVoiceCommand;
+    window.__ocCheckVoiceCmd = checkAndExecuteVoiceCommand;
+    window.openVoiceCommandsCheatSheetModal = openVoiceCommandsCheatSheetModal;
 
     setInterval(timerTick, 1000);
   }
