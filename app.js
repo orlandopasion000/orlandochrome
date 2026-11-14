@@ -708,6 +708,8 @@ const Icons = {
     activeProfileId: IS_BLANK_EDITION ? "b_slot_1" : "p_tb_4",
     currentFilter: "all",      // "all" | "pending" | "timers"
     searchQuery: "",
+    selectMode: false,         // Multi-Select Bulk Clean Mode
+    selectedNoteIds: [],       // Array of note IDs currently selected in multi-select mode
     uploadTargetId: null,
     editingNoteId: null,       // Currently inline-editing note ID
     pendingAttachment: null,   // Base64 compressed image awaiting send
@@ -880,6 +882,143 @@ const Icons = {
       systemBadge.textContent = `${count} item${count === 1 ? '' : 's'}`;
       systemBadge.style.display = count > 0 ? 'inline-block' : 'none';
     }
+  }
+
+  // Unified Single-Note Deletion Architecture (Used by Quick Trash, Hover Key, Swipe & Voice)
+  function executeDeleteNote(nid, options = {}) {
+    const p = getProfile(state.activeProfileId);
+    if (!p || !p.notes) return false;
+    const noteIdx = p.notes.findIndex(n => n.id === nid);
+    if (noteIdx === -1) return false;
+
+    triggerHaptic('medium');
+    const deletedNote = JSON.parse(JSON.stringify(p.notes[noteIdx]));
+    addToTrash(deletedNote, p);
+    historyMgr.record({
+      type: 'DELETE_NOTE',
+      profileId: p.id,
+      note: deletedNote,
+      index: noteIdx
+    });
+    p.notes.splice(noteIdx, 1);
+    if (countPending(p) === 0) {
+      p.isPinned = false;
+      p.pinnedAt = null;
+    }
+    if (!hasMessages(p)) {
+      p.isUnread = false;
+    }
+    saveState();
+    renderSidebar();
+
+    const cardEl = options.cardEl || $(`#noteCard_${nid}`);
+    if (cardEl && !options.skipGhost) {
+      cardEl.classList.add('note-ghost-mode');
+      cardEl.innerHTML = `
+        <div class="ghost-card-content">
+          <div class="ghost-info">
+            ${Icons.delete(13)}
+            <span>Note deleted <em>("${esc((deletedNote.text || 'Message').slice(0, 32))}")</em></span>
+          </div>
+          <button type="button" class="btn-ghost-undo" data-nid="${nid}">
+            ${Icons.undo(12)} <span>Tap to Undo</span>
+          </button>
+        </div>
+      `;
+      const btnGhostUndo = cardEl.querySelector('.btn-ghost-undo');
+      if (btnGhostUndo) {
+        btnGhostUndo.onclick = (ev) => {
+          ev.stopPropagation();
+          historyMgr.undo();
+        };
+      }
+      setTimeout(() => {
+        if (cardEl && cardEl.classList.contains('note-ghost-mode')) {
+          cardEl.classList.add('ghost-collapsing');
+          setTimeout(() => {
+            if (cardEl.parentNode) cardEl.parentNode.removeChild(cardEl);
+          }, 200);
+        }
+      }, 2000);
+    } else {
+      renderMainChat();
+    }
+
+    if (window.soundMgr) {
+      if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
+      else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+    }
+
+    showActionToast({
+      message: '🗑️ Deleted note',
+      actionText: '↺ Undo',
+      duration: 2500,
+      onAction: () => {
+        historyMgr.undo();
+      }
+    });
+    return true;
+  }
+
+  // Unified Multi-Select Bulk Deletion Architecture
+  function executeBulkDeleteNotes(noteIds) {
+    const p = getProfile(state.activeProfileId);
+    if (!p || !p.notes || !noteIds || !noteIds.length) return false;
+
+    const idsSet = new Set(noteIds);
+    const itemsToDelete = [];
+
+    p.notes.forEach((n, idx) => {
+      if (idsSet.has(n.id)) {
+        itemsToDelete.push({
+          note: JSON.parse(JSON.stringify(n)),
+          index: idx
+        });
+      }
+    });
+
+    if (!itemsToDelete.length) return false;
+
+    triggerHaptic('heavy');
+    itemsToDelete.forEach(item => {
+      addToTrash(item.note, p);
+    });
+
+    historyMgr.record({
+      type: 'BATCH_DELETE_NOTES',
+      profileId: p.id,
+      items: itemsToDelete
+    });
+
+    p.notes = p.notes.filter(n => !idsSet.has(n.id));
+    if (countPending(p) === 0) {
+      p.isPinned = false;
+      p.pinnedAt = null;
+    }
+    if (!hasMessages(p)) {
+      p.isUnread = false;
+    }
+
+    state.selectMode = false;
+    state.selectedNoteIds = [];
+
+    saveState();
+    renderSidebar();
+    renderMainChat();
+
+    if (window.soundMgr) {
+      if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
+    }
+
+    showActionToast({
+      message: `🗑️ Moved ${itemsToDelete.length} note${itemsToDelete.length > 1 ? 's' : ''} to Trash`,
+      actionText: '↺ Undo',
+      duration: 3500,
+      onAction: () => {
+        historyMgr.undo();
+      }
+    });
+    return true;
   }
 
   function openTrashVaultModal() {
@@ -1177,6 +1316,25 @@ const Icons = {
           } else {
             p.notes = (p.notes || []).filter(n => n.id !== action.note.id);
             showToast('↻ Redid delete');
+          }
+          break;
+        }
+
+        case 'BATCH_DELETE_NOTES': {
+          if (isUndo) {
+            if (!p.notes) p.notes = [];
+            const sortedItems = [...(action.items || [])].sort((a, b) => (a.index || 0) - (b.index || 0));
+            sortedItems.forEach(item => {
+              const idx = (typeof item.index === 'number' && item.index >= 0 && item.index <= p.notes.length)
+                ? item.index
+                : p.notes.length;
+              p.notes.splice(idx, 0, JSON.parse(JSON.stringify(item.note)));
+            });
+            showToast(`↺ Restored ${action.items.length} notes`);
+          } else {
+            const idsToRemove = new Set((action.items || []).map(i => i.note.id));
+            p.notes = (p.notes || []).filter(n => !idsToRemove.has(n.id));
+            showToast(`↻ Redid batch delete (${action.items.length} notes)`);
           }
           break;
         }
@@ -4677,6 +4835,11 @@ const Icons = {
             <button class="btn-header-action" id="btnRenameProfile">
               ${Icons.edit(13)} <span>Rename</span>
             </button>
+            ${notes.length > 0 ? `
+              <button type="button" class="btn-header-action btn-header-select ${state.selectMode ? 'select-active' : ''}" id="btnToggleSelectMode" title="Multi-select messages to bulk clean or delete">
+                <span style="font-size:12px;">☑️</span> <span>${state.selectMode ? 'Done' : 'Select'}</span>
+              </button>
+            ` : ''}
           </div>
 
           <!-- 24-Hour Thought Note Banner (Placed DIRECTLY below the Trash, Sticky Note etc buttons on the right side!) -->
@@ -4756,10 +4919,33 @@ const Icons = {
         </div>
       ` : ''}
 
+      <!-- Bulk Selection Action Bar (Feature #5 Multi-Select Clean) -->
+      ${state.selectMode && notes.length > 0 ? `
+        <div class="bulk-select-bar">
+          <div class="bulk-select-left">
+            <span class="bulk-select-badge">${(state.selectedNoteIds || []).length} selected</span>
+            <button type="button" class="btn-bulk-text" id="btnBulkSelectAll">
+              ${(state.selectedNoteIds || []).length === notes.length ? 'Deselect All' : 'Select All'}
+            </button>
+          </div>
+          <div class="bulk-select-right">
+            <button type="button" class="btn-bulk-delete" id="btnBulkDelete" ${(state.selectedNoteIds || []).length > 0 ? '' : 'disabled'}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Trash (${(state.selectedNoteIds || []).length})</span>
+            </button>
+            <button type="button" class="btn-bulk-close" id="btnBulkCancel" title="Exit select mode">✕ Done</button>
+          </div>
+        </div>
+      ` : ''}
+
       <!-- Notes Stream (Pure OLED Black Blank Space When Empty) -->
       <div class="notes-stream" id="notesStream">
         ${!notes.length ? '' : notes.map((n, nIdx) => {
           const isEditing = state.editingNoteId === n.id;
+          const isSelected = (state.selectedNoteIds || []).includes(n.id);
           const prevNote = nIdx > 0 ? notes[nIdx - 1] : null;
           const prevDateKey = prevNote ? getDateGroupKey(prevNote.createdAt) : null;
           const currentDateKey = getDateGroupKey(n.createdAt);
@@ -4773,10 +4959,17 @@ const Icons = {
               <span class="chat-date-pill">${esc(currentDateKey)}</span>
             </div>
           ` : ''}
-          <div class="note-item-wrap" data-nid="${n.id}" id="noteCard_${n.id}">
+          <div class="note-item-wrap ${state.selectMode ? 'in-select-mode' : ''} ${isSelected ? 'selected' : ''}" data-nid="${n.id}" id="noteCard_${n.id}">
             <div class="note-swipe-indicator left-ind"><span>${n.done ? '↩ Reopen' : '✓ Done'}</span></div>
-            <div class="note-swipe-indicator right-ind"><span>Delete</span></div>
+            <div class="note-swipe-indicator right-ind"><span>🗑️ Delete</span></div>
             <div class="note-bubble ${n.done ? 'done' : ''} ${isEditing ? 'editing' : ''}">
+              ${state.selectMode ? `
+                <div class="note-select-col" data-action="toggle-select-note" data-nid="${n.id}">
+                  <div class="note-check-circle">
+                    ${isSelected ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''}
+                  </div>
+                </div>
+              ` : ''}
               <div class="note-body-col">
                 ${n.forwardedFrom ? `
                   <div class="note-forwarded-tag">↪ Forwarded from <strong>${esc(n.forwardedFrom)}</strong></div>
@@ -5201,6 +5394,44 @@ const Icons = {
       };
     }
 
+    // 1f. Multi-Select Bulk Clean Mode Controls
+    const btnSelectMode = $('#btnToggleSelectMode', main);
+    if (btnSelectMode) {
+      btnSelectMode.onclick = () => {
+        state.selectMode = !state.selectMode;
+        if (!state.selectMode) state.selectedNoteIds = [];
+        renderMainChat();
+      };
+    }
+
+    const btnBulkSelectAll = $('#btnBulkSelectAll', main);
+    if (btnBulkSelectAll) {
+      btnBulkSelectAll.onclick = () => {
+        if ((state.selectedNoteIds || []).length === notes.length) {
+          state.selectedNoteIds = [];
+        } else {
+          state.selectedNoteIds = notes.map(n => n.id);
+        }
+        renderMainChat();
+      };
+    }
+
+    const btnBulkDelete = $('#btnBulkDelete', main);
+    if (btnBulkDelete) {
+      btnBulkDelete.onclick = () => {
+        executeBulkDeleteNotes(state.selectedNoteIds);
+      };
+    }
+
+    const btnBulkCancel = $('#btnBulkCancel', main);
+    if (btnBulkCancel) {
+      btnBulkCancel.onclick = () => {
+        state.selectMode = false;
+        state.selectedNoteIds = [];
+        renderMainChat();
+      };
+    }
+
     // 2. Rename profile
     const btnTrashVault = $('#btnOpenTrashVault');
     if (btnTrashVault) btnTrashVault.onclick = () => openTrashVaultModal();
@@ -5363,71 +5594,7 @@ const Icons = {
           saveState();
           renderMainChat();
         } else if (act === 'delete-note') {
-          triggerHaptic('medium');
-          const noteIdx = (p.notes || []).findIndex(n => n.id === nid);
-          if (noteIdx !== -1) {
-            const deletedNote = JSON.parse(JSON.stringify(p.notes[noteIdx]));
-            addToTrash(deletedNote, p);
-            historyMgr.record({
-              type: 'DELETE_NOTE',
-              profileId: p.id,
-              note: deletedNote,
-              index: noteIdx
-            });
-            p.notes.splice(noteIdx, 1);
-            if (countPending(p) === 0) {
-              p.isPinned = false;
-              p.pinnedAt = null;
-            }
-            if (!hasMessages(p)) {
-              p.isUnread = false;
-            }
-            saveState();
-            renderSidebar();
-
-            // Suggestion #5: Inline Ghost Card morph instead of abrupt vanishing
-            const cardEl = $(`#noteCard_${nid}`);
-            if (cardEl) {
-              cardEl.classList.add('note-ghost-mode');
-              cardEl.innerHTML = `
-                <div class="ghost-card-content">
-                  <div class="ghost-info">
-                    ${Icons.delete(13)}
-                    <span>Note deleted <em>("${esc((deletedNote.text || 'Message').slice(0, 32))}")</em></span>
-                  </div>
-                  <button type="button" class="btn-ghost-undo" data-nid="${nid}">
-                    ${Icons.undo(12)} <span>Tap to Undo</span>
-                  </button>
-                </div>
-              `;
-              const btnGhostUndo = cardEl.querySelector('.btn-ghost-undo');
-              if (btnGhostUndo) {
-                btnGhostUndo.onclick = (ev) => {
-                  ev.stopPropagation();
-                  historyMgr.undo();
-                };
-              }
-              setTimeout(() => {
-                if (cardEl && cardEl.classList.contains('note-ghost-mode')) {
-                  cardEl.classList.add('ghost-collapsing');
-                  setTimeout(() => {
-                    if (cardEl.parentNode) cardEl.parentNode.removeChild(cardEl);
-                  }, 200);
-                }
-              }, 2000);
-            } else {
-              renderMainChat();
-            }
-
-            showActionToast({
-              message: '🗑️ Deleted note',
-              actionText: '↺ Undo',
-              duration: 2000,
-              onAction: () => {
-                historyMgr.undo();
-              }
-            });
-          }
+          executeDeleteNote(nid, { cardEl: $(`#noteCard_${nid}`) });
         } else if (act === 'start-edit') {
           state.editingNoteId = nid;
           renderMainChat();
@@ -5469,6 +5636,58 @@ const Icons = {
         executeAction(e);
       };
     });
+
+    // 7a. Multi-Select Interactions & Long-Press Detection on Note Cards
+    if (state.selectMode) {
+      $$('.note-item-wrap', main).forEach(wrap => {
+        wrap.onclick = (e) => {
+          if (e.target.closest('button, a, input, textarea, .note-bubble-actions, .note-media-img')) return;
+          e.stopPropagation();
+          const nid = wrap.dataset.nid;
+          if (!nid) return;
+          if (!Array.isArray(state.selectedNoteIds)) state.selectedNoteIds = [];
+          if (state.selectedNoteIds.includes(nid)) {
+            state.selectedNoteIds = state.selectedNoteIds.filter(id => id !== nid);
+          } else {
+            state.selectedNoteIds.push(nid);
+          }
+          triggerHaptic('light');
+          renderMainChat();
+        };
+      });
+    } else {
+      // Long-press detection to enter multi-select mode smoothly
+      $$('.note-item-wrap', main).forEach(wrap => {
+        const nid = wrap.dataset.nid;
+        let pressTimer = null;
+        let startX = 0;
+        let startY = 0;
+        wrap.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          pressTimer = setTimeout(() => {
+            triggerHaptic('medium');
+            state.selectMode = true;
+            state.selectedNoteIds = [nid];
+            renderMainChat();
+          }, 500);
+        }, { passive: true });
+        wrap.addEventListener('touchmove', (e) => {
+          if (pressTimer && e.touches.length === 1) {
+            const dx = Math.abs(e.touches[0].clientX - startX);
+            const dy = Math.abs(e.touches[0].clientY - startY);
+            if (dx > 10 || dy > 10) clearTimeout(pressTimer);
+          }
+        }, { passive: true });
+        wrap.addEventListener('touchend', () => {
+          if (pressTimer) clearTimeout(pressTimer);
+        }, { passive: true });
+        wrap.addEventListener('touchcancel', () => {
+          if (pressTimer) clearTimeout(pressTimer);
+        }, { passive: true });
+      });
+    }
 
     // 7b. Quick-Task Template Chips (Seamless typing & dictation symbiosis)
     $$('.template-chip', main).forEach(chip => {
@@ -7190,27 +7409,8 @@ ${jsRes}
     if (lower === 'delete last note' || lower === 'trash last note' || lower === 'delete note' || lower === 'remove note') {
       const notes = activeProf.notes || [];
       if (notes.length > 0) {
-        const lastIdx = notes.length - 1;
-        const deletedNote = JSON.parse(JSON.stringify(notes[lastIdx]));
-        addToTrash(deletedNote, activeProf);
-        historyMgr.record({
-          type: 'DELETE_NOTE',
-          profileId: activeProf.id,
-          note: deletedNote,
-          index: lastIdx
-        });
-        notes.splice(lastIdx, 1);
-        if (countPending(activeProf) === 0) {
-          activeProf.isPinned = false;
-          activeProf.pinnedAt = null;
-        }
-        if (!hasMessages(activeProf)) {
-          activeProf.isUnread = false;
-        }
-        saveState();
-        renderSidebar();
-        renderMainChat();
-        if (window.soundMgr) window.soundMgr.playClick();
+        const lastId = notes[notes.length - 1].id;
+        executeDeleteNote(lastId);
         showToast('🗣️ Voice Command: Moved last note to Trash (Ctrl+Z to Undo)');
         return { consumed: true, text: '' };
       }
@@ -8691,27 +8891,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
           const hoveredCard = document.querySelector('.note-item-wrap:hover');
           if (hoveredCard && hoveredCard.dataset.nid) {
             e.preventDefault();
-            const nid = hoveredCard.dataset.nid;
-            const p = getProfile(state.activeProfileId);
-            if (p && p.notes) {
-              const noteIdx = p.notes.findIndex(n => n.id === nid);
-              if (noteIdx !== -1) {
-                const deletedNote = JSON.parse(JSON.stringify(p.notes[noteIdx]));
-                addToTrash(deletedNote, p);
-                historyMgr.record({
-                  type: 'DELETE_NOTE',
-                  profileId: p.id,
-                  note: deletedNote,
-                  index: noteIdx
-                });
-                p.notes.splice(noteIdx, 1);
-                saveState();
-                renderSidebar();
-                renderMainChat();
-                if (window.soundMgr) window.soundMgr.playClick();
-                showToast('🗑️ Deleted note (Press Ctrl+Z to undo)');
-              }
-            }
+            executeDeleteNote(hoveredCard.dataset.nid, { cardEl: hoveredCard });
           }
         }
       }
@@ -8923,11 +9103,11 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
           if (rightInd) rightInd.style.opacity = '0';
         } else if (dx < 0 && rightInd) {
           const absDx = Math.abs(dx);
-          rightInd.style.opacity = String(Math.min(1, absDx / 58));
+          rightInd.style.opacity = String(Math.min(1, absDx / 50));
           rightInd.style.transform = `translateY(-50%) scale(${Math.min(1.08, 0.8 + absDx / 180)})`;
           const span = $('span', rightInd);
           if (span) {
-            span.textContent = absDx > 108 ? '🗑️ Delete' : '↪ Forward';
+            span.textContent = '🗑️ Delete';
           }
           rightInd.classList.toggle('triggered', absDx >= 58);
           if (leftInd) leftInd.style.opacity = '0';
@@ -9008,35 +9188,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
             renderMainChat();
             showToast(note.done ? '✓ Marked note Done' : '↩ Reopened note');
           } else if (currentDx <= -58 && velocityX <= 0.15) {
-            triggerHaptic('medium');
-            const noteIdx = (prof.notes || []).findIndex(n => n.id === note.id);
-            if (noteIdx !== -1) {
-              const deletedNote = JSON.parse(JSON.stringify(prof.notes[noteIdx]));
-              addToTrash(deletedNote, prof);
-              historyMgr.record({
-                type: 'DELETE_NOTE',
-                profileId: prof.id,
-                note: deletedNote,
-                index: noteIdx
-              });
-              prof.notes.splice(noteIdx, 1);
-              if (countPending(prof) === 0) {
-                prof.isPinned = false;
-                prof.pinnedAt = null;
-              }
-              if (!hasMessages(prof)) {
-                prof.isUnread = false;
-              }
-              saveState();
-              renderSidebar();
-              renderMainChat();
-              showActionToast({
-                message: '🗑️ Deleted note',
-                actionText: '↩ Undo',
-                duration: 2000,
-                onAction: () => historyMgr.undo()
-              });
-            }
+            executeDeleteNote(note.id, { source: 'swipe', cardEl: activeContainer });
           }
         }
       } else if (mode === 'profile-swipe' && activeEl && activeContainer) {
