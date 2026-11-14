@@ -4647,10 +4647,6 @@ const Icons = {
             <button type="button" class="btn-header-action btn-header-redo ${historyMgr.canRedo() ? '' : 'disabled'}" id="btnRedoNote" title="Redo last message action (Ctrl+Y)" ${historyMgr.canRedo() ? '' : 'disabled'}>
               ${Icons.redo(13)} <span>Redo</span>
             </button>
-            <button type="button" class="btn-header-action btn-header-trash" id="btnOpenTrashVault" title="Recently Deleted Vault (30-day restore)">
-              ${Icons.trashVault(14)} <span>Trash</span>
-              <span class="trash-badge-count" id="headerTrashCount" style="${(state.trash || []).length > 0 ? '' : 'display:none;'}">${(state.trash || []).length}</span>
-            </button>
             ${IS_BLANK_EDITION ? `
               <button class="btn-header-action" id="btnAddSlotBlank" title="Add another taskbar Chrome profile slot">
                 ➕ Add Profile
@@ -4765,7 +4761,7 @@ const Icons = {
           ` : ''}
           <div class="note-item-wrap" data-nid="${n.id}" id="noteCard_${n.id}">
             <div class="note-swipe-indicator left-ind"><span>${n.done ? '↩ Reopen' : '✓ Done'}</span></div>
-            <div class="note-swipe-indicator right-ind"><span>🗑️ Delete</span></div>
+            <div class="note-swipe-indicator right-ind"><span>Delete</span></div>
             <div class="note-bubble ${n.done ? 'done' : ''} ${isEditing ? 'editing' : ''}">
               <div class="note-body-col">
                 ${n.forwardedFrom ? `
@@ -4974,7 +4970,7 @@ const Icons = {
         <button type="button" class="btn-add-template" id="btnManageTemplates" title="Add a custom 1-click quick task template">+ Template</button>
       </div>
 
-      <!-- Composer Bar (Bottom) -->
+      <!-- Composer Bar (Bottom) - Antigravity Style -->
       <div class="composer-bar">
         <button type="button" class="btn-composer-tool" id="btnAttachImage" title="Upload or attach screenshot (or press Ctrl+V)">
           📷
@@ -4982,19 +4978,24 @@ const Icons = {
 
         <div class="composer-input-wrap">
           <span class="composer-icon">💬</span>
-          <input type="text" id="composerInput" class="composer-input" placeholder="Type, paste screenshot (Ctrl+V), or dictate for ${esc(p.name)}...">
+          <input type="text" id="composerInput" class="composer-input" placeholder="Type a note for ${esc(p.name)}... (Ctrl+V to paste or mic to speak)">
         </div>
 
-        <button type="button" class="btn-wispr-mic ${w.isListening ? 'listening' : ''}" id="btnWisprMic" title="Start/Stop Wispr Flow Pro Voice Dictation (Alt + Space)">
-          <span class="mic-icon">${w.isListening ? '⏹️' : '🎙️'}</span>
-          <span class="mic-label">${w.isListening ? 'Listening...' : 'Dictate'}</span>
+        <button type="button" class="btn-antigravity-mic ${w.isListening ? 'listening' : ''}" id="btnWisprMic" title="${w.isListening ? 'Stop Recording' : 'Voice Dictation (Alt + Space)'}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
         </button>
 
-        <button type="button" class="btn-wispr-studio ${w.panelOpen ? 'active' : ''}" id="btnToggleFlowBar" title="Toggle Wispr Flow Pro Studio &amp; Voice Commands">
-          ✨ Flow Pro
+        <button type="button" class="btn-antigravity-send" id="btnSendNote" title="Send note to ${esc(p.name)} (Enter)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </button>
-
-        <button class="btn-composer-send" id="btnSendNote">Add ✓</button>
       </div>
     `;
 
@@ -5826,7 +5827,6 @@ const Icons = {
       }
       return list.map(tp => `
         <button type="button" class="btn-task-chip ${isManageMode ? 'manage-active' : ''}" data-tid="${tp.id}" data-status="${esc(tp.status)}" title="${isManageMode ? 'Click ✕ to delete or click to use' : 'Click to insert · Double-click to share'}">
-          <span class="task-chip-icon">${Icons.renderTemplateIcon(tp.icon, 15)}</span>
           <span class="task-chip-text">${esc(tp.label)}</span>
           ${isManageMode ? `
             <span class="btn-chip-delete" data-del-tid="${tp.id}" title="Remove '${esc(tp.label)}'">✕</span>
@@ -5843,7 +5843,7 @@ const Icons = {
           <div class="note-modal-profile-info">
             <img src="${avatarSrc}" class="note-avatar-mini" alt="${esc(profile.name)}">
             <div>
-              <div class="note-modal-title">💭 Share a Note</div>
+              <div class="note-modal-title">Share a Note</div>
               <div class="note-modal-subtitle">${esc(profile.name)} · ${esc(profile.winShortcut)} ${currentNote ? `· ⏳ ${formatRemainingNoteTime(currentNote.expiresAt - cur)}` : ''}</div>
             </div>
           </div>
@@ -5861,12 +5861,12 @@ const Icons = {
         <div class="note-presets-section">
           <div class="note-preset-header-row">
             <div class="note-preset-label">
-              <span class="preset-label-title">⚡ TASK STATUS PRESETS:</span>
+              <span class="preset-label-title">TASK STATUS PRESETS:</span>
               <span class="note-preset-hint">Tap to pick · Press Enter to share</span>
             </div>
             <div class="preset-manage-actions">
               <button type="button" class="btn-manage-presets" id="btnToggleManageTemplates" title="Toggle Manage Mode to delete templates">
-                ⚙️ <span id="manageBtnLabel">Manage</span>
+                <span id="manageBtnLabel">Manage</span>
               </button>
               <button type="button" class="btn-add-preset-quick" id="btnOpenAddTemplate" title="Add a new custom template">
                 + Add
@@ -5896,7 +5896,7 @@ const Icons = {
           <div style="flex:1;"></div>
           <button type="button" class="btn-banner-clear" id="btnCancelNote">Cancel</button>
           <button type="button" class="btn-composer-send btn-save-note-radiant" id="btnSaveNote">
-            ${currentNote ? 'Update Note 💭' : 'Share Note 💭'}
+            ${currentNote ? 'Update Note' : 'Share Note'}
           </button>
         </div>
       </div>
