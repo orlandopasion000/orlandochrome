@@ -612,12 +612,12 @@ const Icons = {
     [21, 30, "night", "Bedtime"]
   ];
 
-  // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State
+  // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State (Clean Slate)
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Put grammarly inside Chrome", createdAt: 1731519266000, updatedAt: 1731519266000, expiresAt: 1731605666000 }, notes: [{ id: "rec_p1_1", text: "Grade 10 Periodical Exam validation", done: false, createdAt: 1731519716000, reactions: [], subItems: [] }] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Grade 10 Second Periodical Examination Papers checked now OK", createdAt: 1731523511000, updatedAt: 1731523511000, expiresAt: 1731609911000 }, notes: [{ id: "rec_p2_1", text: "Grade 10 Periodical Papers Checked", done: false, createdAt: 1731527761000, reactions: [], subItems: [] }, { id: "rec_p2_2", text: "DepEd Form SF2 Quarterly Report verified and ready for print.", done: false, createdAt: 1731520845000, reactions: [], subItems: [] }, { id: "rec_p2_3", text: "Grade 10 Second Periodical Examination Papers checked", done: true, createdAt: 1731519045000, reactions: [], subItems: [] }, { id: "rec_p2_4", text: "DepEd SF2 Quarterly Report", done: false, createdAt: 1731517016000, reactions: [], subItems: [] }, { id: "rec_p2_5", text: "Please review the science test scores and verify with DepEd form 2", done: false, createdAt: 1731522285000, reactions: [], subItems: [] }] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "rec_p3_1", text: "Lesson Plan for Newton Section checked", done: true, createdAt: 1731513416000, reactions: [], subItems: [] }, { id: "rec_p3_2", text: "Grade 8 Video Term 1", done: false, createdAt: 1731521760000, reactions: [], subItems: [] }, { id: "rec_p3_3", text: "Sometimes, when", done: false, createdAt: 1731540708000, reactions: [], subItems: [] }, { id: "rec_p3_4", text: "Djdjffjgkxs", done: false, createdAt: 1731524158000, reactions: [], subItems: [] }] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "rec_p4_1", text: "Grade 10 Video Term 1", done: false, createdAt: 1731521775000, reactions: [], subItems: [] }] },
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
@@ -629,8 +629,8 @@ const Icons = {
     { id: "p_tb_15", profileDir: "Profile 52", chromeNo: 13, taskbarSlot: 15, winShortcut: "Slot #15", name: "A5 005 Gmail", email: "orlandopasion005@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_16", profileDir: "Profile 53", chromeNo: 14, taskbarSlot: 16, winShortcut: "Slot #16", name: "A5 006 Gmail", email: "orlandopasion006@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_17", profileDir: "Profile 49", chromeNo: 15, taskbarSlot: 17, winShortcut: "Slot #17", name: "A6 Gold Cloud Black", email: "goldcloudblack@gmail.com", gaia: "Gold Cloud Black", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Competency Main Topic Grade 8 Term 2", createdAt: 1731522438000, updatedAt: 1731522438000, expiresAt: 1731608838000 }, notes: [{ id: "rec_p16_1", text: "Main Topic Grade 10", done: false, createdAt: 1731521830000, reactions: [], subItems: [] }] },
-    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Competency Main Topic Grade 10 Term 1", createdAt: 1731522427000, updatedAt: 1731522427000, expiresAt: 1731608827000 }, notes: [{ id: "rec_p17_1", text: "Main Topic Grade 8", done: false, createdAt: 1731521840000, reactions: [], subItems: [] }] },
+    { id: "p_tb_18", profileDir: "Profile 45", chromeNo: 16, taskbarSlot: 18, winShortcut: "Slot #18", name: "A6 scite001 Gmail", email: "scite.orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_19", profileDir: "Profile 46", chromeNo: 17, taskbarSlot: 19, winShortcut: "Slot #19", name: "A6 scite002 Gmail", email: "scite.orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_20", profileDir: "Profile 44", chromeNo: 18, taskbarSlot: 20, winShortcut: "Slot #20", name: "A6 scite003 Gmail", email: "scite.orlandopasion003@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_21", profileDir: "Profile 56", chromeNo: 19, taskbarSlot: 21, winShortcut: "Slot #21", name: "A7 A pogiorlandopasion@gmail.com", email: "pogiorlandopasion@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_22", profileDir: "Profile 57", chromeNo: 20, taskbarSlot: 22, winShortcut: "Slot #22", name: "A7 B watchonlineapple", email: "watchonlineapple@gmail.com", gaia: "Watch Online", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
@@ -2668,6 +2668,31 @@ const Icons = {
       } catch (e) {}
     }
 
+    // Clean Slate Synchronization: Remote broadcast of complete reset
+    if (packet.isCleanSlate) {
+      const freshSlateAt = parseInt(localStorage.getItem('orlandochrome_fresh_slate_at') || '0', 10);
+      if (packet.ts >= freshSlateAt) {
+        state.profiles.forEach(p => {
+          p.timerUntil = null;
+          p.timerDurationMs = null;
+          p.isReset = false;
+          p.isUnread = false;
+          p.stickyNote = '';
+          p.statusNote = null;
+          p.notes = [];
+        });
+        state.trash = [];
+        try { localStorage.removeItem('orlandochrome_trash'); } catch (e) {}
+        safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state.profiles));
+        safeSetLocalStorage('orlandochrome_trash', JSON.stringify([]));
+        renderSidebar();
+        renderMainChat();
+        updateTrashBadge();
+        renderClockBox();
+        return;
+      }
+    }
+
     // Tombstone Synchronization: Process remote deletions so deleted notes stay deleted
     if (Array.isArray(packet.del) && packet.del.length > 0) {
       const delSet = new Set(packet.del);
@@ -3060,7 +3085,8 @@ const Icons = {
       const cloudHasActivity = latestPacket.p && latestPacket.p.length > 0;
       const forceFromQr = Boolean(state.forceCloudPullOnBoot);
 
-      if (showFeedback || forceFromQr || cloudTs > localTs || (!localHasActivity && cloudHasActivity)) {
+      const freshSlateAt = parseInt(localStorage.getItem('orlandochrome_fresh_slate_at') || '0', 10);
+      if (showFeedback || forceFromQr || (cloudTs > localTs && cloudTs > freshSlateAt) || (!localHasActivity && cloudHasActivity && cloudTs > freshSlateAt)) {
         state.forceCloudPullOnBoot = false;
         if (latestPacket.cid !== CLIENT_ID || showFeedback || forceFromQr || !localHasActivity) {
           applySyncPacket(latestPacket, 'Cloud Sync');
@@ -3222,6 +3248,8 @@ const Icons = {
   // Load state and clean sample notes
   function loadState() {
     loadWisprPrefs();
+    
+
     loadTemplates();
 
     const savedLastMod = parseInt(localStorage.getItem(LAST_MOD_KEY), 10);
@@ -3403,14 +3431,7 @@ const Icons = {
 
     state.profiles.sort((a, b) => a.taskbarSlot - b.taskbarSlot);
 
-    // Auto-restore recovered cloud data on initial boot of v95
-    try {
-      const alreadyRestored = localStorage.getItem('orlandochrome_recovered_auto_restored_v1');
-      if (!alreadyRestored) {
-        restoreRecoveredHistoricalData(false);
-        localStorage.setItem('orlandochrome_recovered_auto_restored_v1', 'true');
-      }
-    } catch (e) {}
+    // Historical cloud data safely preserved in RECOVERED_HISTORICAL_RECORDS & Recovery Vault (on-demand restore only)
 
     // Take startup checkpoint snapshot
     takeBackupSnapshot('App Startup Checkpoint');
@@ -3468,6 +3489,13 @@ const Icons = {
     }
 
     persistLocalOnly();
+
+    // Auto-trigger fresh slate requested by user (v101)
+    const FRESH_KEY_V101 = 'orlandochrome_fresh_v101_applied';
+    if (!localStorage.getItem(FRESH_KEY_V101)) {
+      startFreshCleanSlate(false);
+      safeSetLocalStorage(FRESH_KEY_V101, 'true');
+    }
   }
 
   function persistLocalOnly() {
@@ -8039,6 +8067,12 @@ ${jsRes}
         openCentennialModal();
       };
     }
+        const btnSystemStartFresh = $('#btnSystemStartFresh');
+    if (btnSystemStartFresh) {
+      btnSystemStartFresh.onclick = () => {
+        startFreshCleanSlate(true);
+      };
+    }
     const btnSystemTrash = $('#btnSystemTrash');
     if (btnSystemTrash) {
       btnSystemTrash.onclick = (e) => {
@@ -8862,6 +8896,84 @@ ${jsRes}
 
     workspace.addEventListener('touchend', finishGesture, { passive: true });
     workspace.addEventListener('touchcancel', finishGesture, { passive: true });
+  }
+
+  // Start Fresh Clean Slate (Zero Notifications, Zero Pendings, Zero Timers, Empty Trash)
+  function startFreshCleanSlate(promptConfirm = false) {
+    if (promptConfirm) {
+      if (!confirm('Start fresh? This will clear all notifications, pending tasks, timers, 24h notes, and empty the trash. A safety checkpoint will be saved in the Recovery Vault.')) {
+        return;
+      }
+    }
+    if (typeof playSoundClick === 'function') playSoundClick();
+
+    // 1. Take safety snapshot in Recovery Vault so everything is recoverable
+    takeBackupSnapshot('Pre-Fresh Slate Recovery Archive');
+
+    // 2. Clear all profiles: notifications, pendings, timers, status notes, sticky notes
+    state.profiles.forEach(p => {
+      p.timerUntil = null;
+      p.timerDurationMs = null;
+      p.isReset = false;
+      p.isUnread = false;
+      p.stickyNote = '';
+      p.statusNote = null;
+      p.notes = [];
+    });
+
+    // 3. Empty the trash completely
+    state.trash = [];
+    try { localStorage.removeItem('orlandochrome_trash'); } catch (e) {}
+
+    // 4. Mark clean slate timestamp to ignore older cloud sync packets
+    const freshTs = now();
+    state.lastModified = freshTs;
+    try {
+      localStorage.setItem('orlandochrome_fresh_slate_at', String(freshTs));
+      localStorage.setItem(LAST_MOD_KEY, String(freshTs));
+      localStorage.setItem('orlandochrome_fresh_v101_applied', 'true');
+      localStorage.setItem('orlandochrome_recovered_auto_restored_v1', 'true');
+    } catch (e) {}
+
+    // 5. Save local storage & IndexedDB Master Mirror immediately
+    try {
+      safeSetLocalStorage(STORAGE_KEY, JSON.stringify(state.profiles));
+      safeSetLocalStorage('orlandochrome_trash', JSON.stringify([]));
+      idbSaveMasterState({
+        profiles: JSON.parse(JSON.stringify(state.profiles || [])),
+        trash: [],
+        draSched: localStorage.getItem('dra-schedule')
+      });
+    } catch (e) {}
+
+    // 6. Broadcast clean slate packet to cloud sync
+    try {
+      if (!isTestEnvironment()) {
+        const cleanPacket = {
+          v: 2,
+          cid: CLIENT_ID,
+          ts: freshTs,
+          isCleanSlate: true,
+          p: []
+        };
+        fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(cleanPacket)
+        }).catch(() => {});
+      }
+    } catch (e) {}
+
+    renderSidebar();
+    renderMainChat();
+    updateTrashBadge();
+    renderClockBox();
+
+    // Close Trash Vault modal if currently open
+    const trashBackdrop = $('#trashVaultBackdrop');
+    if (trashBackdrop) trashBackdrop.remove();
+
+    showToast('✨ Clean slate active: 0 notifications, 0 pendings, 0 timers, empty trash.');
   }
 
   function selectProfile(id) {

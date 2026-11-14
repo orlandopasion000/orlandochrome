@@ -9813,6 +9813,10 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   background: rgba(96, 165, 250, 0.12);
   border: 1px solid rgba(96, 165, 250, 0.35);
 }
+.menu-icon-purple {
+  background: rgba(192, 132, 252, 0.12);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+}
 .menu-icon-orange {
   background: rgba(251, 146, 60, 0.12);
   border: 1px solid rgba(251, 146, 60, 0.35);
