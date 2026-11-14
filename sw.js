@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-pwa-v97';
+const CACHE_NAME = 'orlandochrome-pwa-v100';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=pure79',
+  './styles.css?v=pure100',
   './qrcode.min.js',
-  './app.js?v=pure79',
-  './sound.js?v=pure79',
+  './app.js?v=pure100',
+  './sound.js?v=pure100',
   './oc-logo.png',
   './oc-logo.svg',
   './icon-192.png',
@@ -16,7 +16,7 @@ const ASSETS = [
   './favicon-32.png',
   './favicon-16.png',
   './manifest.json',
-  './manifest.json?v=pure79'
+  './manifest.json?v=pure100'
 ];
 
 self.addEventListener('install', (event) => {
@@ -48,7 +48,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-/* OrlandoChrome v99 Service Worker Background Storage Guard */
+/* OrlandoChrome v100 Centennial Service Worker Background Storage Guard */
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'STORE_MASTER_BACKUP') {
     event.waitUntil(
@@ -58,7 +58,8 @@ self.addEventListener('message', (event) => {
           new Response(JSON.stringify(event.data.payload), {
             headers: {
               'Content-Type': 'application/json',
-              'X-Backup-Timestamp': String(Date.now())
+              'X-Backup-Timestamp': String(Date.now()),
+              'X-Centennial-Version': 'v100'
             }
           })
         );
