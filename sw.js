@@ -47,3 +47,22 @@ self.addEventListener('fetch', (event) => {
       .catch(() => caches.match(event.request))
   );
 });
+
+/* OrlandoChrome v99 Service Worker Background Storage Guard */
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'STORE_MASTER_BACKUP') {
+    event.waitUntil(
+      caches.open('orlandochrome-master-backup-v1').then((cache) => {
+        return cache.put(
+          new Request('/__orlandochrome_master_state.json'),
+          new Response(JSON.stringify(event.data.payload), {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Backup-Timestamp': String(Date.now())
+            }
+          })
+        );
+      }).catch(() => {})
+    );
+  }
+});

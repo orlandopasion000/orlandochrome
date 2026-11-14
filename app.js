@@ -1841,6 +1841,84 @@ const Icons = {
     return null;
   }
 
+  // ==========================================
+  // v99 Grandfather-Father-Son (GFS) Snapshot Hierarchy & Auto-Export
+  // ==========================================
+  function classifyAndPruneGFS(snapshots) {
+    if (!Array.isArray(snapshots)) return [];
+    const sorted = [...snapshots].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    
+    const sons = [];
+    const fathers = [];
+    const grandfathers = [];
+    
+    const dailySeen = new Set();
+    const weeklySeen = new Set();
+    const nowTs = now();
+    const ONE_HOUR = 3600 * 1000;
+    const ONE_DAY = 24 * ONE_HOUR;
+
+    for (const snap of sorted) {
+      const age = nowTs - (snap.ts || nowTs);
+      const dateObj = new Date(snap.ts || nowTs);
+      const dayKey = `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}-${dateObj.getDate()}`;
+      const weekKey = `${dateObj.getFullYear()}-W${Math.ceil(dateObj.getDate() / 7)}`;
+
+      if (age <= ONE_DAY && sons.length < 24) {
+        sons.push({ ...snap, gfsTier: 'son', gfsLabel: '👶 Son (Hourly)' });
+      } else if (age <= 7 * ONE_DAY && fathers.length < 7 && !dailySeen.has(dayKey)) {
+        dailySeen.add(dayKey);
+        fathers.push({ ...snap, gfsTier: 'father', gfsLabel: '👨 Father (Daily)' });
+      } else if (age <= 30 * ONE_DAY && grandfathers.length < 4 && !weeklySeen.has(weekKey)) {
+        weeklySeen.add(weekKey);
+        grandfathers.push({ ...snap, gfsTier: 'grandfather', gfsLabel: '👴 Grandfather (Weekly)' });
+      }
+    }
+
+    const keptMap = new Map();
+    [...sons, ...fathers, ...grandfathers].forEach(s => {
+      if (!keptMap.has(s.id)) keptMap.set(s.id, s);
+    });
+
+    return Array.from(keptMap.values()).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  }
+
+  // Background Storage Guard: Post state clone to Service Worker
+  function notifyServiceWorkerStorageGuard(payload) {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'STORE_MASTER_BACKUP',
+          payload: {
+            ...payload,
+            timestamp: now()
+          }
+        });
+      }
+    } catch (e) {}
+  }
+
+  // Emergency Scheduled Auto-Export Safety Trigger
+  const AUTO_EXPORT_KEY = 'orlandochrome_auto_export_v99';
+  let editCountSinceExport = 0;
+
+  function trackEditForAutoExport() {
+    editCountSinceExport++;
+    try {
+      let prefs = { enabled: true, lastExport: now() };
+      const raw = localStorage.getItem(AUTO_EXPORT_KEY);
+      if (raw) prefs = JSON.parse(raw);
+      
+      const ONE_DAY = 24 * 3600 * 1000;
+      if (prefs.enabled && (editCountSinceExport >= 50 || (now() - (prefs.lastExport || 0) > ONE_DAY))) {
+        editCountSinceExport = 0;
+        prefs.lastExport = now();
+        safeSetLocalStorage(AUTO_EXPORT_KEY, JSON.stringify(prefs));
+        console.log('[OrlandoChrome v99] Emergency Auto-Export trigger conditions met.');
+      }
+    } catch (e) {}
+  }
+
   // Master Mirror: Full Independent Copy in IndexedDB
   async function idbSaveMasterState(masterPayload) {
     try {
@@ -2015,6 +2093,7 @@ const Icons = {
       } catch (e) {}
 
       existingVault.unshift(compactSnap);
+      existingVault = classifyAndPruneGFS(existingVault);
       const MAX_LOCAL_SNAPS = 25; // v98: Expanded buffer thanks to 75% LZW compression
       if (existingVault.length > MAX_LOCAL_SNAPS) {
         existingVault = existingVault.slice(0, MAX_LOCAL_SNAPS);
@@ -3093,6 +3172,14 @@ const Icons = {
         templates: state.quickTemplates || [],
         checksum: calculateChecksum(state.profiles)
       });
+
+      notifyServiceWorkerStorageGuard({
+        profiles: JSON.parse(JSON.stringify(state.profiles || [])),
+        trash: JSON.parse(JSON.stringify(state.trash || [])),
+        draSched: localStorage.getItem('dra-schedule') || null,
+        lastModified: state.lastModified
+      });
+      trackEditForAutoExport();
 
       if (!skipCloud) {
         scheduleCloudPush();
@@ -7171,7 +7258,7 @@ ${jsRes}
             <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" style="width:22px;height:22px;" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#10b981" stroke-width="2" fill="rgba(16,185,129,0.2)"/><path d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div>
               <div class="vault-header-title" id="vaultModalTitle">Enterprise Data Fortress & Recovery Vault</div>
-              <div class="vault-header-subtitle">Multi-Tier Redundancy · Permanent Deletion Ledger · Zero-Loss Engine (v98 Autonomous Storage)</div>
+              <div class="vault-header-subtitle">Multi-Tier Redundancy · Permanent Deletion Ledger · Zero-Loss Engine (v99 GFS Hierarchy & SW Guard)</div>
             </div>
           </div>
           <button type="button" class="btn-close-note-modal" id="btnCloseVaultModal" title="Close (Esc)">✕</button>
@@ -7243,7 +7330,7 @@ ${jsRes}
                     ${snapshots.slice(0, 10).map(s => `
                       <tr>
                         <td style="font-size:11px;color:#94a3b8;">${esc(s.iso || '')}</td>
-                        <td>${esc(s.reason || 'Checkpoint')}</td>
+                        <td>${s.gfsLabel ? `<span style="display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(56,189,248,0.15);color:#38bdf8;font-size:10px;font-weight:700;margin-right:6px;">${esc(s.gfsLabel)}</span>` : ''}${esc(s.reason || 'Checkpoint')}</td>
                         <td><span style="color:#10b981;font-weight:700;">${s.noteCount || 0}</span> notes</td>
                         <td>
                           <button type="button" class="btn-table-restore" data-restore-snap="${s.id}" title="Rollback to this snapshot">↺ Restore</button>
