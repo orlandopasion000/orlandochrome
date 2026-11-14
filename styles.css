@@ -11043,3 +11043,8 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
   border-color: #ff5263;
   color: #ffffff;
 }
+
+.notes-stream-spacer {
+  flex: 1 1 auto;
+  min-height: 0;
+}

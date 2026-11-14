@@ -1683,17 +1683,17 @@ const Icons = {
     2: {
       sn: { text: "Nov 14", createdAt: 1794666579277, updatedAt: 1794666579277, expiresAt: 1794752979277 },
       notes: [
-        { id: "a35gns8ekq", text: "11pm", done: false, createdAt: 1794666588938, reactions: [], subItems: [] },
+        { id: "rec_p2_2", text: "DepEd Form SF2 Quarterly Report verified and ready for print.", done: false, createdAt: 1731520845000, reactions: [], subItems: [] },
         { id: "rec_p2_1", text: "Grade 10 Periodical Papers Checked", done: false, createdAt: 1731527761000, reactions: [], subItems: [] },
-        { id: "rec_p2_2", text: "DepEd Form SF2 Quarterly Report verified and ready for print.", done: false, createdAt: 1731520845000, reactions: [], subItems: [] }
+        { id: "a35gns8ekq", text: "11pm", done: false, createdAt: 1794666588938, reactions: [], subItems: [] }
       ]
     },
     3: {
       timerUntil: 1794709804995,
       timerDurationMs: 43200000,
       notes: [
-        { id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] },
-        { id: "rec_p3_1", text: "Lesson Plan for Newton Section checked", done: true, createdAt: 1731513416000, reactions: [], subItems: [] }
+        { id: "rec_p3_1", text: "Lesson Plan for Newton Section checked", done: true, createdAt: 1731513416000, reactions: [], subItems: [] },
+        { id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] }
       ]
     },
     4: {
@@ -2714,6 +2714,8 @@ const Icons = {
             restoredNotesCount++;
           }
         });
+        // Messenger Architecture: strictly chronological order (earliest at top, latest at bottom)
+        p.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
       }
     });
 
@@ -3608,6 +3610,13 @@ const Icons = {
 
     state.profiles.sort((a, b) => a.taskbarSlot - b.taskbarSlot);
 
+    // Messenger Architecture: ensure all profile notes are strictly chronological (earliest at top, latest at bottom)
+    state.profiles.forEach(p => {
+      if (Array.isArray(p.notes)) {
+        p.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      }
+    });
+
     // Historical cloud data safely preserved in RECOVERED_HISTORICAL_RECORDS & Recovery Vault (on-demand restore only)
 
     // Take startup checkpoint snapshot
@@ -4119,6 +4128,10 @@ const Icons = {
     }
     renderSidebar();
     renderMainChat();
+    setTimeout(() => {
+      const stream = $('#notesStream');
+      if (stream) stream.scrollTop = stream.scrollHeight;
+    }, 40);
   }
 
   // Step to Previous (-1) or Next (+1) Chrome Profile (Paging Gesture / Header Tap)
@@ -4239,7 +4252,8 @@ const Icons = {
       let snippetClass = '';
 
       if (pendingNotes.length > 0) {
-        const firstNote = pendingNotes[0];
+        // FB Messenger: Show the latest message in the snippet preview
+        const firstNote = pendingNotes[pendingNotes.length - 1];
         const mediaPrefix = firstNote.image ? '📸 ' : (firstNote.voiceClip ? '🎙️ ' : '');
         const subCount = (firstNote.subItems || []).length;
         const baseMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot' : (subCount > 0 ? `☑ Checklist (${subCount})` : '🎙️ Voice note'));
@@ -4764,6 +4778,11 @@ const Icons = {
     const rem = isTimer ? formatRemaining(p.timerUntil - cur) : '';
     const avatarSrc = getAvatarSrc(p);
     const statusNote = getActiveStatusNote(p);
+    // Messenger Architecture: strictly chronological order
+    // Earliest/oldest messages are at the TOP, latest/newest message is at the BOTTOM
+    if (Array.isArray(p.notes)) {
+      p.notes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    }
     const notes = p.notes || [];
     const canUnread = hasMessages(p);
     const isUnread = !!(p.isUnread && canUnread);
@@ -4942,8 +4961,9 @@ const Icons = {
         </div>
       ` : ''}
 
-      <!-- Notes Stream (Pure OLED Black Blank Space When Empty) -->
+      <!-- Notes Stream (FB Messenger Style: Chronological, Earliest on Top, Latest on Bottom) -->
       <div class="notes-stream" id="notesStream">
+        <div class="notes-stream-spacer"></div>
         ${!notes.length ? '' : notes.map((n, nIdx) => {
           const isEditing = state.editingNoteId === n.id;
           const isSelected = (state.selectedNoteIds || []).includes(n.id);
@@ -5977,6 +5997,16 @@ const Icons = {
         }, 150);
       };
     }
+
+    // FB Messenger Standard: Automatically scroll to bottom so the latest message is always in view right above the composer
+    const stream = $('#notesStream');
+    if (stream) {
+      stream.scrollTop = stream.scrollHeight;
+    }
+    requestAnimationFrame(() => {
+      const s = $('#notesStream');
+      if (s) s.scrollTop = s.scrollHeight;
+    });
   }
 
   // Save inline edited message
