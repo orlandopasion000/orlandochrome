@@ -6016,8 +6016,15 @@ const Icons = {
           }, 250);
         }
       };
+      const composerWrap = $('.composer-input-wrap', main);
+      if (composerWrap && input) {
+        composerWrap.onclick = () => {
+          if (document.activeElement !== input) {
+            input.focus();
+          }
+        };
+      }
       input.onfocus = activateMobileTyping;
-      input.addEventListener('pointerdown', activateMobileTyping, { passive: true });
       input.onblur = () => {
         setTimeout(() => {
           if (!document.activeElement || document.activeElement.id !== 'composerInput') {
