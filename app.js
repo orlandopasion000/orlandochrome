@@ -875,6 +875,11 @@ const Icons = {
       badge.textContent = count;
       badge.style.display = count > 0 ? 'inline-block' : 'none';
     }
+    const systemBadge = $('#systemTrashCount');
+    if (systemBadge) {
+      systemBadge.textContent = `${count} item${count === 1 ? '' : 's'}`;
+      systemBadge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
   }
 
   function openTrashVaultModal() {
@@ -8032,6 +8037,13 @@ ${jsRes}
       centennialBtnTopbar.onclick = (e) => {
         if (e) e.stopPropagation();
         openCentennialModal();
+      };
+    }
+    const btnSystemTrash = $('#btnSystemTrash');
+    if (btnSystemTrash) {
+      btnSystemTrash.onclick = (e) => {
+        if (e) e.stopPropagation();
+        openTrashVaultModal();
       };
     }
     const vaultBtnDrawer = $('#openVaultBtnDrawer');
