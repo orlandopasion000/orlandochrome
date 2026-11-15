@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure112').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure113').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -3670,67 +3670,17 @@ const Icons = {
     }
   }
 
+  // ============================================================================
+  // GOOGLE CLOUD FIRESTORE DIRECT REST ENGINE (Singapore asia-southeast1)
+  // Direct HTTPS REST · Zero Heavy SDK · Zero WebChannel Errors · 100% Clean Console
+  // ============================================================================
+  const FIRESTORE_BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/orlandochrome_sync`;
+
   let pendingOfflinePush = false;
-
-  function initFirebaseFirestore() {
-    try {
-      if (typeof firebase === 'undefined') {
-        setTimeout(initFirebaseFirestore, 250);
-        return;
-      }
-      if (!firebase.apps || !firebase.apps.length) {
-        firebase.initializeApp(FIREBASE_CONFIG);
-      }
-      firestoreDb = firebase.firestore();
-
-      const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
-      const docRef = firestoreDb.collection('orlandochrome_sync').doc(docId);
-
-      if (firestoreUnsub) {
-        try { firestoreUnsub(); } catch (e) {}
-      }
-
-      firestoreUnsub = docRef.onSnapshot((doc) => {
-        try {
-          if (!doc || !doc.exists) return;
-          const data = doc.data();
-          if (!data) return;
-          let pkt = null;
-          if (data.payload) {
-            try { pkt = JSON.parse(data.payload); } catch (pe) {}
-          } else if (data.v === 2 && Array.isArray(data.p)) {
-            pkt = data;
-          }
-
-          if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
-            applySyncPacket(pkt, 'Google Firebase Realtime');
-            if ((pkt.ts || 0) > (state.lastModified || 0)) {
-              state.lastModified = pkt.ts;
-              safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
-            }
-            persistLocalOnly();
-            renderSidebar();
-            renderMainChat();
-            updateTopbarSyncBadge('synced');
-          }
-        } catch (err) {
-          console.warn('Firestore onSnapshot notice:', err);
-        }
-      }, (err) => {
-        console.warn('Firestore onSnapshot notice:', err);
-        updateTopbarSyncBadge('offline');
-      });
-
-      console.log('⚡ Firebase Firestore Real-Time Sync Initialized (Singapore)');
-      pullFromCloud(true, false);
-    } catch (e) {
-      console.warn('initFirebaseFirestore error:', e);
-    }
-  }
+  let isCloudSyncing = false;
 
   async function pushToCloudNow(showFeedback = false) {
     if (isTestEnvironment()) {
-      console.log('[OrlandoChrome Test Isolation] Cloud push skipped in test runner.');
       updateTopbarSyncBadge('synced');
       return true;
     }
@@ -3741,33 +3691,36 @@ const Icons = {
         localStorage.setItem(LAST_MOD_KEY, String(state.lastModified));
       }
       const pkt = createSyncPacket(false);
+      const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
+      const targetUrl = `${FIRESTORE_BASE_URL}/${docId}?key=${FIREBASE_CONFIG.apiKey}`;
 
-      if (firestoreDb) {
-        try {
-          const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
-          // Wrap in a clean envelope with stringified JSON payload
-          // Eliminates Firestore "nested arrays are not supported" error completely!
-          const envelope = {
-            v: 2,
-            ts: pkt.ts || now(),
-            cid: pkt.cid || CLIENT_ID,
-            payload: JSON.stringify(pkt)
-          };
-          await firestoreDb.collection('orlandochrome_sync').doc(docId).set(envelope);
-          pendingOfflinePush = false;
-          state.lastCloudSyncAt = now();
-          updateTopbarSyncBadge('synced');
-          if (showFeedback) {
-            showToast('⚡ Instantly synced across Laptop & iPhone via Google Cloud Firestore!');
-          }
-          return true;
-        } catch (fsErr) {
-          console.warn('Firestore push notice:', fsErr);
+      const body = {
+        fields: {
+          v: { integerValue: "2" },
+          ts: { integerValue: String(pkt.ts || now()) },
+          cid: { stringValue: pkt.cid || CLIENT_ID },
+          payload: { stringValue: JSON.stringify(pkt) }
         }
-      }
+      };
 
-      pendingOfflinePush = true;
-      updateTopbarSyncBadge('offline');
+      const res = await fetch(targetUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        pendingOfflinePush = false;
+        state.lastCloudSyncAt = now();
+        updateTopbarSyncBadge('synced');
+        if (showFeedback) {
+          showToast('⚡ Instantly synced across Laptop & iPhone via Google Cloud!');
+        }
+        return true;
+      } else {
+        pendingOfflinePush = true;
+        updateTopbarSyncBadge('offline');
+      }
     } catch (e) {
       pendingOfflinePush = true;
       updateTopbarSyncBadge('offline');
@@ -3776,36 +3729,34 @@ const Icons = {
   }
 
   async function pullFromCloud(isInitialBootstrap = false, showFeedback = false) {
+    if (isCloudSyncing) return false;
+    isCloudSyncing = true;
     try {
-      let latestPacket = null;
+      const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
+      const targetUrl = `${FIRESTORE_BASE_URL}/${docId}?key=${FIREBASE_CONFIG.apiKey}`;
 
-      // Check Google Cloud Firestore (Singapore asia-southeast1)
-      if (firestoreDb) {
+      const res = await fetch(targetUrl, { cache: 'no-store' });
+      if (!res.ok) {
+        isCloudSyncing = false;
+        return false;
+      }
+      const doc = await res.json();
+      let latestPacket = null;
+      if (doc && doc.fields && doc.fields.payload && doc.fields.payload.stringValue) {
         try {
-          const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
-          const snap = await firestoreDb.collection('orlandochrome_sync').doc(docId).get();
-          if (snap.exists) {
-            const raw = snap.data();
-            if (raw && raw.payload) {
-              try { latestPacket = JSON.parse(raw.payload); } catch (e) {}
-            } else if (raw && raw.v === 2 && Array.isArray(raw.p)) {
-              latestPacket = raw;
-            }
-          }
-        } catch (fsErr) {
-          console.warn('Firestore pull notice:', fsErr);
-        }
+          latestPacket = JSON.parse(doc.fields.payload.stringValue);
+        } catch (pe) {}
       }
 
       const localHasActivity = hasAnyUserActivity(state.profiles);
 
-      // If Cloud is empty OR older than our local state, push our local state to Cloud so iPhone/other devices get it!
       if (!latestPacket) {
         if (localHasActivity) {
           await pushToCloudNow(false);
         } else {
           updateTopbarSyncBadge('synced');
         }
+        isCloudSyncing = false;
         return false;
       }
 
@@ -3818,12 +3769,13 @@ const Icons = {
       if (showFeedback || forceFromQr || (cloudTs > localTs && cloudTs > freshSlateAt) || (!localHasActivity && cloudHasActivity && cloudTs > freshSlateAt)) {
         state.forceCloudPullOnBoot = false;
         if (latestPacket.cid !== CLIENT_ID || showFeedback || forceFromQr || !localHasActivity) {
-          applySyncPacket(latestPacket, 'Cloud Sync');
+          applySyncPacket(latestPacket, 'Google Cloud Sync');
           if (showFeedback || forceFromQr) {
             showToast('📲 Synced all Pending Notes & Active Timers from Cloud!');
           }
         }
         updateTopbarSyncBadge('synced');
+        isCloudSyncing = false;
         return true;
       } else if (localTs > cloudTs && localHasActivity) {
         applySyncPacket(latestPacket, 'Two-Way Convergence Sync');
@@ -3833,21 +3785,23 @@ const Icons = {
         renderSidebar();
         renderMainChat();
         await pushToCloudNow(false);
+        isCloudSyncing = false;
         return true;
       }
 
       updateTopbarSyncBadge('synced');
     } catch (e) {
-      updateTopbarSyncBadge('offline');
+      // Quiet network fallback
+    } finally {
+      isCloudSyncing = false;
     }
     return false;
   }
 
   function initCloudSync() {
-    // 0. Initialize Google Cloud Firestore (Singapore) Realtime Engine
-    initFirebaseFirestore();
+    console.log('⚡ Google Cloud Direct REST Sync Active (Singapore · Zero-Dependency)');
 
-    // 1. Pull latest state or push local state on startup
+    // 1. Pull latest state on startup
     pullFromCloud(true, false);
 
     // 2. Re-sync immediately when unlocking iPhone / switching back to browser tab
@@ -3872,15 +3826,15 @@ const Icons = {
       updateTopbarSyncBadge('offline');
     });
 
-    // 5. High-Frequency Live Heartbeat: Pull from cloud every 12 seconds to guarantee 100% lockstep parity across Laptop & iPhone
+    // 4. Live Fast Heartbeat: Pull from cloud every 4 seconds when tab is active for instant cross-device parity
     let lastPullTimestamp = Date.now();
     setInterval(() => {
       const nowTs = Date.now();
-      if (document.visibilityState === 'visible' && (nowTs - lastPullTimestamp >= 12000)) {
+      if (document.visibilityState === 'visible' && (nowTs - lastPullTimestamp >= 4000)) {
         lastPullTimestamp = nowTs;
         pullFromCloud(false, false);
       }
-    }, 6000);
+    }, 2000);
   }
 
   // Check if URL has ?sync=... or ?m=... or ?s=1 from scanning the Live QR Code
