@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure116').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure117').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -3275,11 +3275,15 @@ const Icons = {
 
     // Tombstone Synchronization: Broadcast deleted note IDs so other devices never resurrect them
     const delIds = (state.trash || []).slice(0, 50).map(t => (t.note && t.note.id) ? t.note.id : t.id).filter(Boolean);
+    const freshSlateAt = parseInt(localStorage.getItem('orlandochrome_fresh_slate_at') || '0', 10);
+    const isCleanSlate = Boolean(state.lastModified && state.lastModified === freshSlateAt);
 
     return {
       v: 2,
       cid: CLIENT_ID,
       ts: state.lastModified || now(),
+      isCleanSlate: isCleanSlate ? true : undefined,
+      freshSlateAt: isCleanSlate ? freshSlateAt : undefined,
       ed: IS_BLANK_EDITION ? 'b' : 'p',
       tpl: forQrCode ? undefined : state.quickTemplates,
       dra: draSync,
@@ -11126,7 +11130,8 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     };
 
     if (inp) {
-      inp.oninput = checkValidity;
+      ['input', 'keyup', 'change'].forEach(evt => inp.addEventListener(evt, checkValidity));
+      inp.addEventListener('paste', () => setTimeout(checkValidity, 10));
       inp.onkeydown = (e) => {
         if (e.key === 'Enter') {
           if (!confirmBtn.disabled) confirmBtn.click();
@@ -11146,21 +11151,23 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     }
 
     if (confirmBtn) {
-      confirmBtn.onclick = () => {
-        close();
-        // Also close recovery vault modal if open
-        const vaultBd = $('#vaultBackdrop');
-        if (vaultBd) vaultBd.remove();
-        const renameBds = $('.rename-dialog-backdrop');
-        renameBds.forEach(b => { if (b.id !== 'toast') b.remove(); });
+      confirmBtn.onclick = async () => {
+        try {
+          close();
+          const vaultBd = $('#vaultBackdrop');
+          if (vaultBd) vaultBd.remove();
+          $$('.rename-dialog-backdrop').forEach(b => { if (b.id !== 'toast') b.remove(); });
+        } catch (e) {
+          console.warn('Cleanup error during clean slate close:', e);
+        }
 
-        startFreshCleanSlate(false);
+        await startFreshCleanSlate(false);
       };
     }
   }
 
   // Start Fresh Clean Slate (Zero Notifications, Zero Pendings, Zero Timers, Empty Trash)
-  function startFreshCleanSlate(promptConfirm = false) {
+  async function startFreshCleanSlate(promptConfirm = false) {
     if (promptConfirm) {
       if (!confirm('Start fresh? This will clear all notifications, pending tasks, timers, 24h notes, and empty the trash. A safety checkpoint will be saved in the Recovery Vault.')) {
         return;
@@ -11207,8 +11214,12 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       });
     } catch (e) {}
 
-    // 6. Clean slate is strictly a local maintenance action with pre-reset snapshot; never broadcast destructive wipes
-    // (Preserves other devices and prevents cross-device memory loss)
+    // 6. Broadcast Clean Slate to Google Cloud Firestore immediately so all devices stay synchronized
+    try {
+      await pushToCloudNow(false);
+    } catch (e) {
+      console.warn('Cloud clean slate broadcast error:', e);
+    }
 
     renderSidebar();
     renderMainChat();
