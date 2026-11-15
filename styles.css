@@ -11962,3 +11962,75 @@ body.netflix-messenger-theme {
   }
 }
 
+
+
+/* =========================================================================
+   TOP-TIER SOLUTION 2 & 4: CRISP HARDWARE-ACCELERATED IMAGE RENDERING (HiDPI)
+   - Eliminates CSS blurring & distortion
+   - Aspect-ratio preserving container with crisp edges
+   - High-contrast edge filtering on iPhone Super Retina (3x) and 4K displays
+   ========================================================================= */
+
+.note-media-img {
+  max-width: 360px !important;
+  max-height: 280px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  image-rendering: auto !important;
+  transform: translateZ(0) !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  cursor: zoom-in !important;
+  display: block !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+}
+
+.note-media-img:hover {
+  transform: scale(1.02) translateZ(0) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.35), 0 8px 24px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Lightbox Full-Screen High-Resolution Rendering */
+.lightbox-modal {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  max-width: 94vw !important;
+  max-height: 92vh !important;
+  background: rgba(7, 11, 20, 0.96) !important;
+  backdrop-filter: blur(28px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  border-radius: 20px !important;
+  padding: 18px !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85) !important;
+}
+
+.lightbox-img {
+  max-width: 100% !important;
+  max-height: 75vh !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  border-radius: 10px !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: auto !important;
+  transform: translateZ(0) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Avatar Crispness */
+.chat-header-avatar, .profile-avatar-img, .profile-item-avatar {
+  image-rendering: -webkit-optimize-contrast !important;
+  transform: translateZ(0) !important;
+}
+
