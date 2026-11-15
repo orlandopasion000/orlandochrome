@@ -43,6 +43,19 @@
     ? (URL_PARAMS.get('room') || localStorage.getItem('orlandochrome_blank_room_v1') || 'orlandochrome_blank_sync_v1')
     : 'orlandochrome_universal_sync_v4';
 
+  // Google Firebase Real-Time Cloud Engine (Asia-Southeast1 Singapore)
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCi8aUZiN1GnRXECM0Nc34UKMYQyTvzj9Y",
+    authDomain: "orlandochrome-b6228.firebaseapp.com",
+    projectId: "orlandochrome-b6228",
+    storageBucket: "orlandochrome-b6228.firebasestorage.app",
+    messagingSenderId: "775835530889",
+    appId: "1:775835530889:web:0ff6cb27e5be63d7c7f858"
+  };
+
+  let firestoreDb = null;
+  let firestoreUnsub = null;
+
   const LIVE_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/';
   const BLANK_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/?edition=blank';
 
@@ -823,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure110').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure111').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -3659,6 +3672,51 @@ const Icons = {
 
   let pendingOfflinePush = false;
 
+  function initFirebaseFirestore() {
+    try {
+      if (typeof firebase === 'undefined') {
+        setTimeout(initFirebaseFirestore, 250);
+        return;
+      }
+      if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      firestoreDb = firebase.firestore();
+
+      const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
+      const docRef = firestoreDb.collection('orlandochrome_sync').doc(docId);
+
+      if (firestoreUnsub) {
+        try { firestoreUnsub(); } catch (e) {}
+      }
+
+      firestoreUnsub = docRef.onSnapshot((doc) => {
+        try {
+          if (!doc || !doc.exists) return;
+          const pkt = doc.data();
+          if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
+            applySyncPacket(pkt, 'Google Firebase Realtime');
+            if ((pkt.ts || 0) > (state.lastModified || 0)) {
+              state.lastModified = pkt.ts;
+              safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
+            }
+            persistLocalOnly();
+            renderSidebar();
+            renderMainChat();
+            updateTopbarSyncBadge('synced');
+          }
+        } catch (err) {
+          console.warn('Firestore onSnapshot error:', err);
+        }
+      }, (err) => {
+        console.warn('Firestore onSnapshot notice:', err);
+      });
+      console.log('⚡ Firebase Firestore Real-Time Sync Initialized (Singapore)');
+    } catch (e) {
+      console.warn('initFirebaseFirestore error:', e);
+    }
+  }
+
   async function pushToCloudNow(showFeedback = false) {
     if (isTestEnvironment()) {
       console.log('[OrlandoChrome Test Isolation] Cloud push skipped in test runner.');
@@ -3672,32 +3730,48 @@ const Icons = {
         localStorage.setItem(LAST_MOD_KEY, String(state.lastModified));
       }
       const pkt = createSyncPacket(false);
-      const jsonStr = JSON.stringify(pkt);
 
-      // NTFY Attachment Architecture for Payloads > 4KB (Images, Rich Media, Multi-Note Bundles):
-      // ntfy.sh rejects plain messages over 4,096 bytes with HTTP 400 Bad Request.
-      // Appending '?filename=sync_packet.json' switches ntfy.sh into File Attachment Mode (supporting up to 15MB).
-      // ntfy stores the JSON in attachment.url, which parseNtfyEnvelope() downloads seamlessly on all devices!
-      const isLarge = jsonStr.length > 3800;
-      const targetUrl = isLarge
-        ? `https://ntfy.sh/${CLOUD_SYNC_TOPIC}?filename=sync_packet.json`
-        : `https://ntfy.sh/${CLOUD_SYNC_TOPIC}`;
-
-      let res = await fetch(targetUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: jsonStr
-      });
-      if (res.ok) {
-        pendingOfflinePush = false;
-        state.lastCloudSyncAt = now();
-        updateTopbarSyncBadge('synced');
-        if (showFeedback) {
-          showToast('☁️ Synced all pending notes & timers across Laptop & iPhone!');
+      let firestorePushed = false;
+      // 1. Primary Real-Time Carrier: Google Cloud Firestore (Singapore asia-southeast1)
+      if (firestoreDb) {
+        try {
+          const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
+          const cleanPkt = JSON.parse(JSON.stringify(pkt));
+          await firestoreDb.collection('orlandochrome_sync').doc(docId).set(cleanPkt);
+          firestorePushed = true;
+          pendingOfflinePush = false;
+          state.lastCloudSyncAt = now();
+          updateTopbarSyncBadge('synced');
+          if (showFeedback) {
+            showToast('⚡ Instantly synced across Laptop & iPhone via Google Cloud Firestore!');
+          }
+        } catch (fsErr) {
+          console.warn('Firestore push warning, attempting fallback:', fsErr);
         }
-        return true;
-      } else {
-        if (isLarge) {
+      }
+
+      // 2. Secondary fallback carrier (ntfy.sh)
+      try {
+        const jsonStr = JSON.stringify(pkt);
+        const isLarge = jsonStr.length > 3800;
+        const targetUrl = isLarge
+          ? `https://ntfy.sh/${CLOUD_SYNC_TOPIC}?filename=sync_packet.json`
+          : `https://ntfy.sh/${CLOUD_SYNC_TOPIC}`;
+
+        let res = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: jsonStr
+        });
+        if (res.ok) {
+          pendingOfflinePush = false;
+          state.lastCloudSyncAt = now();
+          updateTopbarSyncBadge('synced');
+          if (showFeedback && !firestorePushed) {
+            showToast('☁️ Synced all pending notes & timers across Laptop & iPhone!');
+          }
+          return true;
+        } else if (isLarge) {
           try {
             res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}?filename=sync_packet.json`, {
               method: 'PUT',
@@ -3712,9 +3786,17 @@ const Icons = {
             }
           } catch (fbErr) {}
         }
-        pendingOfflinePush = true;
-        updateTopbarSyncBadge('offline');
+      } catch (ntfyErr) {
+        if (firestorePushed) {
+          return true;
+        }
       }
+
+      if (firestorePushed) {
+        return true;
+      }
+      pendingOfflinePush = true;
+      updateTopbarSyncBadge('offline');
     } catch (e) {
       pendingOfflinePush = true;
       updateTopbarSyncBadge('offline');
@@ -3729,10 +3811,15 @@ const Icons = {
     try {
       // 1. If payload was > 4KB, ntfy.sh automatically stores the JSON in attachment.url
       if (env.attachment && env.attachment.url) {
-        const res = await fetch(env.attachment.url, { cache: 'no-store' });
-        if (res.ok) {
-          const text = await res.text();
-          return JSON.parse(text);
+        try {
+          const res = await fetch(env.attachment.url, { cache: 'no-store' });
+          if (res.ok) {
+            const text = await res.text();
+            return JSON.parse(text);
+          }
+        } catch (fetchErr) {
+          // Quietly ignore expired temporary attachments without console red errors
+          return null;
         }
       }
       // 2. Direct message payload (< 4KB)
@@ -3740,36 +3827,54 @@ const Icons = {
         return JSON.parse(env.message);
       }
     } catch (e) {
-      console.warn('parseNtfyEnvelope warning:', e);
+      // Quiet warning
     }
     return null;
   }
 
   async function pullFromCloud(isInitialBootstrap = false, showFeedback = false) {
     try {
-      const res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/json?poll=1&since=all`, {
-        cache: 'no-store'
-      });
-      if (!res.ok) {
-        updateTopbarSyncBadge('offline');
-        return false;
-      }
-      const text = await res.text();
-      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       let latestPacket = null;
 
-      // Scan recent messages (last 50 entries) using universal payload resolver to find highest timestamp
-      const scanWindow = lines.slice(-50);
-      for (const line of scanWindow) {
+      // 1. Check Google Cloud Firestore First (Permanent, fastest, zero-expiration)
+      if (firestoreDb) {
         try {
-          const env = JSON.parse(line);
-          const pkt = await parseNtfyEnvelope(env);
-          if (pkt && pkt.v === 2 && Array.isArray(pkt.p)) {
-            if (!latestPacket || (pkt.ts || 0) >= (latestPacket.ts || 0)) {
-              latestPacket = pkt;
+          const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
+          const snap = await firestoreDb.collection('orlandochrome_sync').doc(docId).get();
+          if (snap.exists) {
+            const fsPkt = snap.data();
+            if (fsPkt && fsPkt.v === 2 && Array.isArray(fsPkt.p)) {
+              latestPacket = fsPkt;
             }
           }
-        } catch (err) {}
+        } catch (fsErr) {
+          console.warn('Firestore initial pull warning:', fsErr);
+        }
+      }
+
+      // 2. If no Firestore packet yet, poll secondary ntfy carrier
+      if (!latestPacket) {
+        try {
+          const res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/json?poll=1&since=all`, {
+            cache: 'no-store'
+          });
+          if (res.ok) {
+            const text = await res.text();
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            const scanWindow = lines.slice(-50);
+            for (const line of scanWindow) {
+              try {
+                const env = JSON.parse(line);
+                const pkt = await parseNtfyEnvelope(env);
+                if (pkt && pkt.v === 2 && Array.isArray(pkt.p)) {
+                  if (!latestPacket || (pkt.ts || 0) >= (latestPacket.ts || 0)) {
+                    latestPacket = pkt;
+                  }
+                }
+              } catch (err) {}
+            }
+          }
+        } catch (ntfyErr) {}
       }
 
       const localHasActivity = hasAnyUserActivity(state.profiles);
@@ -3821,6 +3926,9 @@ const Icons = {
   }
 
   function initCloudSync() {
+    // 0. Initialize Google Cloud Firestore (Singapore) Realtime Engine
+    initFirebaseFirestore();
+
     // 1. Pull latest state or push local state on startup
     pullFromCloud(true, false);
 

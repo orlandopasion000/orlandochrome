@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-pwa-v110';
+const CACHE_NAME = 'orlandochrome-pwa-v111';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=pure110',
+  './styles.css?v=pure111',
   './qrcode.min.js',
-  './app.js?v=pure110',
-  './sound.js?v=pure110',
+  './app.js?v=pure111',
+  './sound.js?v=pure111',
   './oc-logo.png',
   './oc-logo.svg',
   './icon-192.png',
@@ -16,7 +16,7 @@ const ASSETS = [
   './favicon-32.png',
   './favicon-16.png',
   './manifest.json',
-  './manifest.json?v=pure110'
+  './manifest.json?v=pure111'
 ];
 
 self.addEventListener('install', (event) => {
@@ -37,6 +37,8 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  // Always bypass live cloud sync streams (Google Firebase Firestore & ntfy)
+  if (event.request.url.includes('firestore.googleapis.com') || event.request.url.includes('ntfy.sh')) return;
   event.respondWith(
     fetch(event.request)
       .then((res) => {
