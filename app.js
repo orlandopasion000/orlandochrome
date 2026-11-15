@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure111').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure112').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -3693,7 +3693,15 @@ const Icons = {
       firestoreUnsub = docRef.onSnapshot((doc) => {
         try {
           if (!doc || !doc.exists) return;
-          const pkt = doc.data();
+          const data = doc.data();
+          if (!data) return;
+          let pkt = null;
+          if (data.payload) {
+            try { pkt = JSON.parse(data.payload); } catch (pe) {}
+          } else if (data.v === 2 && Array.isArray(data.p)) {
+            pkt = data;
+          }
+
           if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
             applySyncPacket(pkt, 'Google Firebase Realtime');
             if ((pkt.ts || 0) > (state.lastModified || 0)) {
@@ -3706,12 +3714,15 @@ const Icons = {
             updateTopbarSyncBadge('synced');
           }
         } catch (err) {
-          console.warn('Firestore onSnapshot error:', err);
+          console.warn('Firestore onSnapshot notice:', err);
         }
       }, (err) => {
         console.warn('Firestore onSnapshot notice:', err);
+        updateTopbarSyncBadge('offline');
       });
+
       console.log('⚡ Firebase Firestore Real-Time Sync Initialized (Singapore)');
+      pullFromCloud(true, false);
     } catch (e) {
       console.warn('initFirebaseFirestore error:', e);
     }
@@ -3731,70 +3742,30 @@ const Icons = {
       }
       const pkt = createSyncPacket(false);
 
-      let firestorePushed = false;
-      // 1. Primary Real-Time Carrier: Google Cloud Firestore (Singapore asia-southeast1)
       if (firestoreDb) {
         try {
           const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
-          const cleanPkt = JSON.parse(JSON.stringify(pkt));
-          await firestoreDb.collection('orlandochrome_sync').doc(docId).set(cleanPkt);
-          firestorePushed = true;
+          // Wrap in a clean envelope with stringified JSON payload
+          // Eliminates Firestore "nested arrays are not supported" error completely!
+          const envelope = {
+            v: 2,
+            ts: pkt.ts || now(),
+            cid: pkt.cid || CLIENT_ID,
+            payload: JSON.stringify(pkt)
+          };
+          await firestoreDb.collection('orlandochrome_sync').doc(docId).set(envelope);
           pendingOfflinePush = false;
           state.lastCloudSyncAt = now();
           updateTopbarSyncBadge('synced');
           if (showFeedback) {
             showToast('⚡ Instantly synced across Laptop & iPhone via Google Cloud Firestore!');
           }
+          return true;
         } catch (fsErr) {
-          console.warn('Firestore push warning, attempting fallback:', fsErr);
+          console.warn('Firestore push notice:', fsErr);
         }
       }
 
-      // 2. Secondary fallback carrier (ntfy.sh)
-      try {
-        const jsonStr = JSON.stringify(pkt);
-        const isLarge = jsonStr.length > 3800;
-        const targetUrl = isLarge
-          ? `https://ntfy.sh/${CLOUD_SYNC_TOPIC}?filename=sync_packet.json`
-          : `https://ntfy.sh/${CLOUD_SYNC_TOPIC}`;
-
-        let res = await fetch(targetUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: jsonStr
-        });
-        if (res.ok) {
-          pendingOfflinePush = false;
-          state.lastCloudSyncAt = now();
-          updateTopbarSyncBadge('synced');
-          if (showFeedback && !firestorePushed) {
-            showToast('☁️ Synced all pending notes & timers across Laptop & iPhone!');
-          }
-          return true;
-        } else if (isLarge) {
-          try {
-            res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}?filename=sync_packet.json`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json;charset=utf-8' },
-              body: jsonStr
-            });
-            if (res.ok) {
-              pendingOfflinePush = false;
-              state.lastCloudSyncAt = now();
-              updateTopbarSyncBadge('synced');
-              return true;
-            }
-          } catch (fbErr) {}
-        }
-      } catch (ntfyErr) {
-        if (firestorePushed) {
-          return true;
-        }
-      }
-
-      if (firestorePushed) {
-        return true;
-      }
       pendingOfflinePush = true;
       updateTopbarSyncBadge('offline');
     } catch (e) {
@@ -3804,77 +3775,26 @@ const Icons = {
     return false;
   }
 
-  // Universal ntfy.sh Payload Resolver: Handles inline JSON (< 4KB) AND file attachments (> 4KB)
-  // Ensures Laptop <-> iPhone sync NEVER fails or drops updates regardless of payload size!
-  async function parseNtfyEnvelope(env) {
-    if (!env) return null;
-    try {
-      // 1. If payload was > 4KB, ntfy.sh automatically stores the JSON in attachment.url
-      if (env.attachment && env.attachment.url) {
-        try {
-          const res = await fetch(env.attachment.url, { cache: 'no-store' });
-          if (res.ok) {
-            const text = await res.text();
-            return JSON.parse(text);
-          }
-        } catch (fetchErr) {
-          // Quietly ignore expired temporary attachments without console red errors
-          return null;
-        }
-      }
-      // 2. Direct message payload (< 4KB)
-      if (env.message && typeof env.message === 'string' && env.message.startsWith('{')) {
-        return JSON.parse(env.message);
-      }
-    } catch (e) {
-      // Quiet warning
-    }
-    return null;
-  }
-
   async function pullFromCloud(isInitialBootstrap = false, showFeedback = false) {
     try {
       let latestPacket = null;
 
-      // 1. Check Google Cloud Firestore First (Permanent, fastest, zero-expiration)
+      // Check Google Cloud Firestore (Singapore asia-southeast1)
       if (firestoreDb) {
         try {
           const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
           const snap = await firestoreDb.collection('orlandochrome_sync').doc(docId).get();
           if (snap.exists) {
-            const fsPkt = snap.data();
-            if (fsPkt && fsPkt.v === 2 && Array.isArray(fsPkt.p)) {
-              latestPacket = fsPkt;
+            const raw = snap.data();
+            if (raw && raw.payload) {
+              try { latestPacket = JSON.parse(raw.payload); } catch (e) {}
+            } else if (raw && raw.v === 2 && Array.isArray(raw.p)) {
+              latestPacket = raw;
             }
           }
         } catch (fsErr) {
-          console.warn('Firestore initial pull warning:', fsErr);
+          console.warn('Firestore pull notice:', fsErr);
         }
-      }
-
-      // 2. If no Firestore packet yet, poll secondary ntfy carrier
-      if (!latestPacket) {
-        try {
-          const res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/json?poll=1&since=all`, {
-            cache: 'no-store'
-          });
-          if (res.ok) {
-            const text = await res.text();
-            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-            const scanWindow = lines.slice(-50);
-            for (const line of scanWindow) {
-              try {
-                const env = JSON.parse(line);
-                const pkt = await parseNtfyEnvelope(env);
-                if (pkt && pkt.v === 2 && Array.isArray(pkt.p)) {
-                  if (!latestPacket || (pkt.ts || 0) >= (latestPacket.ts || 0)) {
-                    latestPacket = pkt;
-                  }
-                }
-              } catch (err) {}
-            }
-          }
-        } catch (ntfyErr) {}
       }
 
       const localHasActivity = hasAnyUserActivity(state.profiles);
@@ -3906,8 +3826,6 @@ const Icons = {
         updateTopbarSyncBadge('synced');
         return true;
       } else if (localTs > cloudTs && localHasActivity) {
-        // Two-Way Non-Destructive Convergence: Merge any remote notes/timers before publishing our state!
-        // Guarantees zero lost updates when multiple devices edit while offline or during clock skew.
         applySyncPacket(latestPacket, 'Two-Way Convergence Sync');
         state.lastModified = now();
         safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
@@ -3932,69 +3850,23 @@ const Icons = {
     // 1. Pull latest state or push local state on startup
     pullFromCloud(true, false);
 
-    // 2. Open Real-Time Server-Sent Events (SSE) stream so Laptop <-> iPhone updates in < 0.2s
-    let sseReconnectTimer = null;
-    const connectSSE = () => {
-      try {
-        if (cloudEventSource) {
-          try { cloudEventSource.close(); } catch (e) {}
-        }
-        cloudEventSource = new EventSource(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/sse`);
-        cloudEventSource.onmessage = async (ev) => {
-          try {
-            const env = JSON.parse(ev.data);
-            const pkt = await parseNtfyEnvelope(env);
-            if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
-              // Non-destructive merge is safe in ALL cases (unions notes, preserves local, applies tombstones)
-              applySyncPacket(pkt, 'Live Real-Time SSE');
-              if ((pkt.ts || 0) > (state.lastModified || 0)) {
-                state.lastModified = pkt.ts;
-                safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
-              }
-              persistLocalOnly();
-              renderSidebar();
-              renderMainChat();
-            }
-          } catch (err) {}
-        };
-        cloudEventSource.onopen = () => {
-          clearTimeout(sseReconnectTimer);
-          updateTopbarSyncBadge('synced');
-        };
-        cloudEventSource.onerror = () => {
-          updateTopbarSyncBadge('offline');
-          try { cloudEventSource.close(); } catch (e) {}
-          clearTimeout(sseReconnectTimer);
-          sseReconnectTimer = setTimeout(connectSSE, 2500);
-        };
-      } catch (e) {
-        clearTimeout(sseReconnectTimer);
-        sseReconnectTimer = setTimeout(connectSSE, 3000);
-      }
-    };
-
-    connectSSE();
-
-    // 3. Re-sync immediately when unlocking iPhone / switching back to browser tab
+    // 2. Re-sync immediately when unlocking iPhone / switching back to browser tab
     window.addEventListener('focus', () => {
-      connectSSE();
       pullFromCloud(false, false);
     });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        connectSSE();
         pullFromCloud(false, false);
       }
     });
 
-    // 4. Online/offline window events for aggressive reconnect & offline queue flush
+    // 3. Online/offline window events for aggressive reconnect & offline queue flush
     window.addEventListener('online', () => {
-      connectSSE();
       if (pendingOfflinePush) {
         pushToCloudNow(false);
       }
       pullFromCloud(false, false);
-      showToast('🌐 Reconnected · Synced with cloud');
+      showToast('🌐 Reconnected · Synced with Google Cloud');
     });
     window.addEventListener('offline', () => {
       updateTopbarSyncBadge('offline');
