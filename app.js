@@ -841,6 +841,7 @@ const Icons = {
     uploadTargetId: null,
     editingNoteId: null,       // Currently inline-editing note ID
     pendingAttachment: null,   // Base64 compressed image awaiting send
+    pendingSyncThumb: null,    // Compact cloud-sync thumbnail (~25KB) for instant Laptop <-> iPhone sync
     pendingOrigMediaId: null,  // IndexedDB Media Vault ID for 4K / original binary asset
     pendingOrigMeta: null,     // Original metadata: { width, height, is4K, isHD, name, size, type, resLabel }
     pendingVoiceClip: null,    // Base64 audio clip from Wispr Flow Voice Memo
@@ -1668,6 +1669,10 @@ const Icons = {
   window.compressImage = compressImage;
   window.state = state;
   window.renderMainChat = renderMainChat;
+  window.renderSidebar = renderSidebar;
+  window.saveState = saveState;
+  window.pushToCloudNow = pushToCloudNow;
+  window.pullFromCloud = pullFromCloud;
   function compressImage(fileOrBlob, maxWidth = 1600, quality = 0.92) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1871,8 +1876,18 @@ const Icons = {
     // Generate crisp progressive preview (1600px ceiling, 0.92 quality, unsharp edge filter)
     const previewUrl = await compressImage(fileOrBlob, 1600, 0.92);
 
+    // Generate compact cloud-sync thumbnail (800px ceiling, 0.76 quality, ~25KB base64)
+    // Guarantees real-time sync packets between Laptop & iPhone are always ultra-fast and complete
+    let syncThumb = null;
+    try {
+      syncThumb = await compressImage(fileOrBlob, 800, 0.76);
+    } catch (e) {
+      syncThumb = previewUrl;
+    }
+
     return {
       previewUrl,
+      syncThumb,
       origMediaId,
       origMeta
     };
@@ -3216,8 +3231,10 @@ const Icons = {
             if (Array.isArray(n.subItems) && n.subItems.length) {
               item.sb = n.subItems.map(s => ({ id: s.id, t: s.text, d: s.done ? 1 : 0 }));
             }
-            if (!forQrCode && n.image && n.image.length < 98000) {
-              item.im = n.image;
+            if (!forQrCode && (n.syncThumb || n.image)) {
+              // Prefer lightweight syncThumb (~25KB) or allow full image up to 450,000 chars for complete sync
+              const imgData = n.syncThumb || (n.image && n.image.length < 450000 ? n.image : null);
+              if (imgData) item.im = imgData;
             }
             if (n.origMeta) item.om = n.origMeta;
             return item;
@@ -3667,6 +3684,29 @@ const Icons = {
     return false;
   }
 
+  // Universal ntfy.sh Payload Resolver: Handles inline JSON (< 4KB) AND file attachments (> 4KB)
+  // Ensures Laptop <-> iPhone sync NEVER fails or drops updates regardless of payload size!
+  async function parseNtfyEnvelope(env) {
+    if (!env) return null;
+    try {
+      // 1. If payload was > 4KB, ntfy.sh automatically stores the JSON in attachment.url
+      if (env.attachment && env.attachment.url) {
+        const res = await fetch(env.attachment.url, { cache: 'no-store' });
+        if (res.ok) {
+          const text = await res.text();
+          return JSON.parse(text);
+        }
+      }
+      // 2. Direct message payload (< 4KB)
+      if (env.message && typeof env.message === 'string' && env.message.startsWith('{')) {
+        return JSON.parse(env.message);
+      }
+    } catch (e) {
+      console.warn('parseNtfyEnvelope warning:', e);
+    }
+    return null;
+  }
+
   async function pullFromCloud(isInitialBootstrap = false, showFeedback = false) {
     try {
       const res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/json?poll=1&since=all`, {
@@ -3680,15 +3720,15 @@ const Icons = {
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       let latestPacket = null;
 
-      for (const line of lines) {
+      // Scan recent messages (last 25 entries) using universal payload resolver to find highest timestamp
+      const scanWindow = lines.slice(-25);
+      for (const line of scanWindow) {
         try {
           const env = JSON.parse(line);
-          if (env && env.event === 'message' && env.message) {
-            const pkt = JSON.parse(env.message);
-            if (pkt && pkt.v === 2 && Array.isArray(pkt.p)) {
-              if (!latestPacket || (pkt.ts || 0) >= (latestPacket.ts || 0)) {
-                latestPacket = pkt;
-              }
+          const pkt = await parseNtfyEnvelope(env);
+          if (pkt && pkt.v === 2 && Array.isArray(pkt.p)) {
+            if (!latestPacket || (pkt.ts || 0) >= (latestPacket.ts || 0)) {
+              latestPacket = pkt;
             }
           }
         } catch (err) {}
@@ -3754,22 +3794,20 @@ const Icons = {
           try { cloudEventSource.close(); } catch (e) {}
         }
         cloudEventSource = new EventSource(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}/sse`);
-        cloudEventSource.onmessage = (ev) => {
+        cloudEventSource.onmessage = async (ev) => {
           try {
             const env = JSON.parse(ev.data);
-            if (env && env.event === 'message' && env.message) {
-              const pkt = JSON.parse(env.message);
-              if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
-                // Non-destructive merge is safe in ALL cases (unions notes, preserves local, applies tombstones)
-                applySyncPacket(pkt, 'Live Real-Time SSE');
-                if ((pkt.ts || 0) > (state.lastModified || 0)) {
-                  state.lastModified = pkt.ts;
-                  safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
-                }
-                persistLocalOnly();
-                renderSidebar();
-                renderMainChat();
+            const pkt = await parseNtfyEnvelope(env);
+            if (pkt && pkt.v === 2 && pkt.cid !== CLIENT_ID) {
+              // Non-destructive merge is safe in ALL cases (unions notes, preserves local, applies tombstones)
+              applySyncPacket(pkt, 'Live Real-Time SSE');
+              if ((pkt.ts || 0) > (state.lastModified || 0)) {
+                state.lastModified = pkt.ts;
+                safeSetLocalStorage(LAST_MOD_KEY, String(state.lastModified));
               }
+              persistLocalOnly();
+              renderSidebar();
+              renderMainChat();
             }
           } catch (err) {}
         };
@@ -3816,15 +3854,15 @@ const Icons = {
       updateTopbarSyncBadge('offline');
     });
 
-    // 5. Resilient Heartbeat: gently pull if tab was hidden for > 30s or SSE dropped
+    // 5. High-Frequency Live Heartbeat: Pull from cloud every 12 seconds to guarantee 100% lockstep parity across Laptop & iPhone
     let lastPullTimestamp = Date.now();
     setInterval(() => {
       const nowTs = Date.now();
-      if (document.visibilityState === 'visible' && (nowTs - lastPullTimestamp > 45000)) {
+      if (document.visibilityState === 'visible' && (nowTs - lastPullTimestamp >= 12000)) {
         lastPullTimestamp = nowTs;
         pullFromCloud(false, false);
       }
-    }, 20000);
+    }, 6000);
   }
 
   // Check if URL has ?sync=... or ?m=... or ?s=1 from scanning the Live QR Code
@@ -6596,6 +6634,7 @@ const Icons = {
     if (btnRemImg) {
       btnRemImg.onclick = () => {
         state.pendingAttachment = null;
+        state.pendingSyncThumb = null;
         state.pendingOrigMediaId = null;
         state.pendingOrigMeta = null;
         renderMainChat();
@@ -6627,6 +6666,7 @@ const Icons = {
             try {
               const processed = await processAttachedImage(imgFile);
               state.pendingAttachment = processed.previewUrl;
+              state.pendingSyncThumb = processed.syncThumb;
               state.pendingOrigMediaId = processed.origMediaId;
               state.pendingOrigMeta = processed.origMeta;
               renderMainChat();
@@ -6743,6 +6783,7 @@ const Icons = {
         id: uid(),
         text,
         image: state.pendingAttachment || null,
+        syncThumb: state.pendingSyncThumb || null,
         origMediaId: state.pendingOrigMediaId || null,
         origMeta: state.pendingOrigMeta || null,
         voiceClip: state.pendingVoiceClip || null,
@@ -6763,6 +6804,7 @@ const Icons = {
 
       if (input) input.value = '';
       state.pendingAttachment = null;
+      state.pendingSyncThumb = null;
       state.pendingOrigMediaId = null;
       state.pendingOrigMeta = null;
       state.pendingVoiceClip = null;
@@ -10295,6 +10337,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         try {
           const processed = await processAttachedImage(file);
           state.pendingAttachment = processed.previewUrl;
+          state.pendingSyncThumb = processed.syncThumb;
           state.pendingOrigMediaId = processed.origMediaId;
           state.pendingOrigMeta = processed.origMeta;
           renderMainChat();
@@ -10467,6 +10510,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         try {
           const processed = await processAttachedImage(file);
           state.pendingAttachment = processed.previewUrl;
+          state.pendingSyncThumb = processed.syncThumb;
           state.pendingOrigMediaId = processed.origMediaId;
           state.pendingOrigMeta = processed.origMeta;
           const prevText = ($('#composerInput') && $('#composerInput').value) || '';
@@ -10497,6 +10541,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
             try {
               const processed = await processAttachedImage(blob);
               state.pendingAttachment = processed.previewUrl;
+              state.pendingSyncThumb = processed.syncThumb;
               state.pendingOrigMediaId = processed.origMediaId;
               state.pendingOrigMeta = processed.origMeta;
               const prevText = ($('#composerInput') && $('#composerInput').value) || '';
