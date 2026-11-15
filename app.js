@@ -823,7 +823,11 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure92').catch(() => {});
+      navigator.serviceWorker.register('sw.js?v=pure108').then(reg => {
+        if (reg) {
+          reg.update().catch(() => {});
+        }
+      }).catch(() => {});
     });
   }
 

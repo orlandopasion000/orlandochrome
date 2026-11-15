@@ -16,7 +16,7 @@ const ASSETS = [
   './favicon-32.png',
   './favicon-16.png',
   './manifest.json',
-  './manifest.json?v=pure106'
+  './manifest.json?v=pure108'
 ];
 
 self.addEventListener('install', (event) => {
