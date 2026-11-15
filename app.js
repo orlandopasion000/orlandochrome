@@ -823,7 +823,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure109').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure110').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -3236,8 +3236,8 @@ const Icons = {
               item.sb = n.subItems.map(s => ({ id: s.id, t: s.text, d: s.done ? 1 : 0 }));
             }
             if (!forQrCode && (n.syncThumb || n.image)) {
-              // Prefer lightweight syncThumb (~25KB) or allow full image up to 450,000 chars for complete sync
-              const imgData = n.syncThumb || (n.image && n.image.length < 450000 ? n.image : null);
+              // Prefer lightweight syncThumb (~25KB) or allow full image up to 2,000,000 chars for complete sync
+              const imgData = n.syncThumb || (n.image && n.image.length < 2000000 ? n.image : null);
               if (imgData) item.im = imgData;
             }
             if (n.origMeta) item.om = n.origMeta;
@@ -3672,10 +3672,21 @@ const Icons = {
         localStorage.setItem(LAST_MOD_KEY, String(state.lastModified));
       }
       const pkt = createSyncPacket(false);
-      const res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}`, {
+      const jsonStr = JSON.stringify(pkt);
+
+      // NTFY Attachment Architecture for Payloads > 4KB (Images, Rich Media, Multi-Note Bundles):
+      // ntfy.sh rejects plain messages over 4,096 bytes with HTTP 400 Bad Request.
+      // Appending '?filename=sync_packet.json' switches ntfy.sh into File Attachment Mode (supporting up to 15MB).
+      // ntfy stores the JSON in attachment.url, which parseNtfyEnvelope() downloads seamlessly on all devices!
+      const isLarge = jsonStr.length > 3800;
+      const targetUrl = isLarge
+        ? `https://ntfy.sh/${CLOUD_SYNC_TOPIC}?filename=sync_packet.json`
+        : `https://ntfy.sh/${CLOUD_SYNC_TOPIC}`;
+
+      let res = await fetch(targetUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(pkt)
+        body: jsonStr
       });
       if (res.ok) {
         pendingOfflinePush = false;
@@ -3686,6 +3697,21 @@ const Icons = {
         }
         return true;
       } else {
+        if (isLarge) {
+          try {
+            res = await fetch(`https://ntfy.sh/${CLOUD_SYNC_TOPIC}?filename=sync_packet.json`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json;charset=utf-8' },
+              body: jsonStr
+            });
+            if (res.ok) {
+              pendingOfflinePush = false;
+              state.lastCloudSyncAt = now();
+              updateTopbarSyncBadge('synced');
+              return true;
+            }
+          } catch (fbErr) {}
+        }
         pendingOfflinePush = true;
         updateTopbarSyncBadge('offline');
       }
@@ -3732,8 +3758,8 @@ const Icons = {
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       let latestPacket = null;
 
-      // Scan recent messages (last 25 entries) using universal payload resolver to find highest timestamp
-      const scanWindow = lines.slice(-25);
+      // Scan recent messages (last 50 entries) using universal payload resolver to find highest timestamp
+      const scanWindow = lines.slice(-50);
       for (const line of scanWindow) {
         try {
           const env = JSON.parse(line);
