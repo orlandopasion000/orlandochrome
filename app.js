@@ -754,13 +754,13 @@ const Icons = {
 
   // The 22 Real Chrome Profiles in exact physical order from Windows Taskband & Local State (Clean Slate)
   const DEFAULT_PROFILES = [
-    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Nov 14", createdAt: 1794666567638, updatedAt: 1794666567638, expiresAt: 1794752967638 }, notes: [{ id: "11e9pgdaw7", text: "10pm", done: false, createdAt: 1794666584167, reactions: [], subItems: [] }] },
-    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Nov 14", createdAt: 1794666579277, updatedAt: 1794666579277, expiresAt: 1794752979277 }, notes: [{ id: "a35gns8ekq", text: "11pm", done: false, createdAt: 1794666588938, reactions: [], subItems: [] }] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] }] },
-    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "w1qmo8xbbv", text: "Nov 14", done: false, createdAt: 1794666631387, reactions: [], subItems: [] }] },
+    { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "Nov 14 10:30PM", customAvatar: null, statusNote: null, notes: [] },
-    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "kgfv0p4733", text: "YIFY has sticky notes. Look above", done: false, createdAt: 1794666672543, reactions: [], subItems: [] }] },
+    { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_11", profileDir: "Profile 9", chromeNo: 9, taskbarSlot: 11, winShortcut: "Slot #11", name: "A5 001 Gmail", email: "orlandopasion001@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_12", profileDir: "Profile 39", chromeNo: 10, taskbarSlot: 12, winShortcut: "Slot #12", name: "A5 002 Gmail", email: "orlandopasion002@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure118').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure119').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -4112,16 +4112,9 @@ const Icons = {
           resolvedName = 'A6 Gold Cloud Black';
         }
 
-        // Non-destructive reconciliation: merge def.notes if not already present
+        // Clean user notes: strictly respect user state (never re-inject defaults if wiped)
         const mergedNotesOnBoot = [...cleanedNotes];
-        (def.notes || []).forEach(dn => {
-          const normText = (dn.text || '').trim().toLowerCase();
-          if (!mergedNotesOnBoot.some(mn => (mn.text || '').trim().toLowerCase() === normText)) {
-            mergedNotesOnBoot.push(dn);
-          }
-        });
-
-        const mergedStatusNoteOnBoot = found.statusNote || def.statusNote || null;
+        const mergedStatusNoteOnBoot = found.statusNote || null;
 
         return {
           ...def,
@@ -4135,8 +4128,8 @@ const Icons = {
           isReset: !!found.isReset,
           isPinned: !!found.isPinned,
           pinnedAt: found.pinnedAt || null,
-          isUnread: !!((found.isUnread || def.isUnread) && mergedNotesOnBoot.length > 0),
-          stickyNote: found.stickyNote || def.stickyNote || '',
+          isUnread: !!(found.isUnread && mergedNotesOnBoot.length > 0),
+          stickyNote: found.stickyNote || '',
           customAvatar: found.customAvatar || null,
           statusNote: mergedStatusNoteOnBoot,
           notes: mergedNotesOnBoot
