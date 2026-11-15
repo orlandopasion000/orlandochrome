@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure113').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure114').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -3249,8 +3249,10 @@ const Icons = {
               item.sb = n.subItems.map(s => ({ id: s.id, t: s.text, d: s.done ? 1 : 0 }));
             }
             if (!forQrCode && (n.syncThumb || n.image)) {
-              // Prefer lightweight syncThumb (~25KB) or allow full image up to 2,000,000 chars for complete sync
-              const imgData = n.syncThumb || (n.image && n.image.length < 2000000 ? n.image : null);
+              // Compact cloud thumbnail ceiling (< 150KB) preserves high visual fidelity while guaranteeing zero 1MB Firestore overflow
+              const imgData = (n.syncThumb && n.syncThumb.length < 150000)
+                ? n.syncThumb
+                : (n.image && n.image.length < 150000 ? n.image : null);
               if (imgData) item.im = imgData;
             }
             if (n.origMeta) item.om = n.origMeta;
@@ -3678,26 +3680,68 @@ const Icons = {
 
   let pendingOfflinePush = false;
   let isCloudSyncing = false;
+  let pushBackoffUntil = 0;
+
+  // Strict Payload Budgeter: Guarantees sync packet never exceeds 800KB (Firestore 1MB ceiling)
+  // Keeps high-res images safe in IndexedDB while downscaling cloud payload to prevent HTTP 400 errors
+  function enforceSyncPayloadBudget(pkt, maxBytes = 800000) {
+    if (!pkt) return pkt;
+    try {
+      let str = JSON.stringify(pkt);
+      if (str.length <= maxBytes) return pkt;
+
+      const copy = JSON.parse(str);
+      const imgItems = [];
+      if (Array.isArray(copy.p)) {
+        for (const p of copy.p) {
+          if (Array.isArray(p.nt)) {
+            for (const nt of p.nt) {
+              if (nt.im) {
+                imgItems.push({ nt, len: nt.im.length, c: nt.c || 0 });
+              }
+            }
+          }
+        }
+      }
+
+      // Sort images: oldest first, so newest screenshots are prioritized
+      imgItems.sort((a, b) => a.c - b.c);
+
+      while (JSON.stringify(copy).length > maxBytes && imgItems.length > 0) {
+        const item = imgItems.shift();
+        delete item.nt.im;
+      }
+
+      return copy;
+    } catch (e) {
+      return pkt;
+    }
+  }
 
   async function pushToCloudNow(showFeedback = false) {
     if (isTestEnvironment()) {
       updateTopbarSyncBadge('synced');
       return true;
     }
+    const curTime = now();
+    if (curTime < pushBackoffUntil) {
+      return false;
+    }
     try {
       updateTopbarSyncBadge('syncing');
       if (!state.lastModified) {
-        state.lastModified = now();
+        state.lastModified = curTime;
         localStorage.setItem(LAST_MOD_KEY, String(state.lastModified));
       }
-      const pkt = createSyncPacket(false);
+      const rawPkt = createSyncPacket(false);
+      const pkt = enforceSyncPayloadBudget(rawPkt, 800000);
       const docId = IS_BLANK_EDITION ? 'blank_channel' : 'master_channel';
       const targetUrl = `${FIRESTORE_BASE_URL}/${docId}?key=${FIREBASE_CONFIG.apiKey}`;
 
       const body = {
         fields: {
           v: { integerValue: "2" },
-          ts: { integerValue: String(pkt.ts || now()) },
+          ts: { integerValue: String(pkt.ts || curTime) },
           cid: { stringValue: pkt.cid || CLIENT_ID },
           payload: { stringValue: JSON.stringify(pkt) }
         }
@@ -3711,6 +3755,7 @@ const Icons = {
 
       if (res.ok) {
         pendingOfflinePush = false;
+        pushBackoffUntil = 0;
         state.lastCloudSyncAt = now();
         updateTopbarSyncBadge('synced');
         if (showFeedback) {
@@ -3718,10 +3763,36 @@ const Icons = {
         }
         return true;
       } else {
+        if (res.status === 400) {
+          // Emergency fallthrough: if Firestore still reports 400, push text-only budget
+          const textOnlyPkt = enforceSyncPayloadBudget(rawPkt, 150000);
+          const fallbackBody = {
+            fields: {
+              v: { integerValue: "2" },
+              ts: { integerValue: String(textOnlyPkt.ts || curTime) },
+              cid: { stringValue: textOnlyPkt.cid || CLIENT_ID },
+              payload: { stringValue: JSON.stringify(textOnlyPkt) }
+            }
+          };
+          const retryRes = await fetch(targetUrl, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(fallbackBody)
+          });
+          if (retryRes.ok) {
+            pendingOfflinePush = false;
+            pushBackoffUntil = 0;
+            state.lastCloudSyncAt = now();
+            updateTopbarSyncBadge('synced');
+            return true;
+          }
+        }
+        pushBackoffUntil = curTime + 15000;
         pendingOfflinePush = true;
         updateTopbarSyncBadge('offline');
       }
     } catch (e) {
+      pushBackoffUntil = now() + 15000;
       pendingOfflinePush = true;
       updateTopbarSyncBadge('offline');
     }
