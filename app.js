@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure119').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure120').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -2113,61 +2113,8 @@ const Icons = {
   // ENTERPRISE DATA INTEGRITY, RECOVERY VAULT & ZERO-LOSS ENGINE (v95)
   // ==========================================================================
 
-  const RECOVERED_HISTORICAL_RECORDS = {
-    1: {
-      sn: { text: "Nov 14", createdAt: 1794666567638, updatedAt: 1794666567638, expiresAt: 1794752967638 },
-      notes: [
-        { id: "11e9pgdaw7", text: "10pm", done: false, createdAt: 1794666584167, reactions: [], subItems: [] }
-      ]
-    },
-    2: {
-      sn: { text: "Nov 14", createdAt: 1794666579277, updatedAt: 1794666579277, expiresAt: 1794752979277 },
-      notes: [
-        { id: "rec_p2_2", text: "DepEd Form SF2 Quarterly Report verified and ready for print.", done: false, createdAt: 1731520845000, reactions: [], subItems: [] },
-        { id: "rec_p2_1", text: "Grade 10 Periodical Papers Checked", done: false, createdAt: 1731527761000, reactions: [], subItems: [] },
-        { id: "a35gns8ekq", text: "11pm", done: false, createdAt: 1794666588938, reactions: [], subItems: [] }
-      ]
-    },
-    3: {
-      timerUntil: 1794709804995,
-      timerDurationMs: 43200000,
-      notes: [
-        { id: "rec_p3_1", text: "Lesson Plan for Newton Section checked", done: true, createdAt: 1731513416000, reactions: [], subItems: [] },
-        { id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] }
-      ]
-    },
-    4: {
-      notes: [
-        { id: "w1qmo8xbbv", text: "Nov 14", done: false, createdAt: 1794666631387, reactions: [], subItems: [] }
-      ]
-    },
-    5: {
-      timerUntil: 1794709835385,
-      timerDurationMs: 43200000,
-      notes: []
-    },
-    6: {
-      stickyNote: "Nov 14 10:30PM",
-      notes: []
-    },
-    7: {
-      notes: [
-        { id: "kgfv0p4733", text: "YIFY has sticky notes. Look above", done: false, createdAt: 1794666672543, reactions: [], subItems: [] }
-      ]
-    },
-    16: {
-      sn: { text: "Competency Main Topic Grade 8 Term 2", createdAt: 1731522438000, updatedAt: 1731522438000, expiresAt: 1731608838000 },
-      notes: [
-        { id: "rec_p16_1", text: "Main Topic Grade 10", done: false, createdAt: 1731521830000, reactions: [], subItems: [] }
-      ]
-    },
-    17: {
-      sn: { text: "Competency Main Topic Grade 10 Term 1", createdAt: 1731522427000, updatedAt: 1731522427000, expiresAt: 1731608827000 },
-      notes: [
-        { id: "rec_p17_1", text: "Main Topic Grade 8", done: false, createdAt: 1731521840000, reactions: [], subItems: [] }
-      ]
-    }
-  };
+  // Historical records repository: Clean Slate (Zero hardcoded ghost notes)
+  const RECOVERED_HISTORICAL_RECORDS = {};
 
   const RECOVERED_DRA_SCHEDULE = [
     [7, 0, "work", "Arrive — read, learn, develop"],
@@ -3102,8 +3049,12 @@ const Icons = {
     }
   }
 
-  // Restore All Recovered Historical Data (Nov 14 Verified Cloud Records)
+  // Restore All Recovered Historical Data (On-Demand)
   function restoreRecoveredHistoricalData(showFeedback = true) {
+    if (Object.keys(RECOVERED_HISTORICAL_RECORDS).length === 0) {
+      if (showFeedback) showToast('ℹ️ Workspace is a clean slate — 0 historical records.');
+      return { notes: 0, statusNotes: 0 };
+    }
     let restoredNotesCount = 0;
     let restoredStatusCount = 0;
 
@@ -9637,12 +9588,13 @@ ${jsRes}
                 <div class="vault-metric-value" style="color:#fcd34d;">${permDeletions.length} Purged IDs</div>
               </div>
             </div>
+            ${Object.keys(RECOVERED_HISTORICAL_RECORDS).length > 0 ? `
             <div class="vault-recovery-box">
               <div class="vault-recovery-box-top">
                 <div>
-                  <div class="vault-recovery-title">⚡ Recovered Verified Data (Nov 14 Cloud Master Records)</div>
+                  <div class="vault-recovery-title">⚡ Recovered Verified Data</div>
                   <div class="vault-recovery-desc">
-                    Restores your verified notes ("10pm", "11pm", "Nov 14 2026", reactions, sticky notes, 12h timers, and 24h status notes) across Laptop &amp; iPhone. Protected against accidental deletion.
+                    Restores verified historical records across Laptop &amp; iPhone. Protected against accidental deletion.
                   </div>
                 </div>
                 <button type="button" class="btn-restore-historical" id="btnRestoreHistoricalVault">
@@ -9650,6 +9602,7 @@ ${jsRes}
                 </button>
               </div>
             </div>
+            ` : ''}
 
             <div>
               <div class="vault-section-title">
