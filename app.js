@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure114').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure115').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -1893,11 +1893,11 @@ const Icons = {
     // Generate crisp progressive preview (1600px ceiling, 0.92 quality, unsharp edge filter)
     const previewUrl = await compressImage(fileOrBlob, 1600, 0.92);
 
-    // Generate compact cloud-sync thumbnail (800px ceiling, 0.76 quality, ~25KB base64)
+    // Generate compact cloud-sync thumbnail (550px ceiling, 0.65 quality, ~25KB-35KB base64)
     // Guarantees real-time sync packets between Laptop & iPhone are always ultra-fast and complete
     let syncThumb = null;
     try {
-      syncThumb = await compressImage(fileOrBlob, 800, 0.76);
+      syncThumb = await compressImage(fileOrBlob, 550, 0.65);
     } catch (e) {
       syncThumb = previewUrl;
     }
@@ -3249,10 +3249,8 @@ const Icons = {
               item.sb = n.subItems.map(s => ({ id: s.id, t: s.text, d: s.done ? 1 : 0 }));
             }
             if (!forQrCode && (n.syncThumb || n.image)) {
-              // Compact cloud thumbnail ceiling (< 150KB) preserves high visual fidelity while guaranteeing zero 1MB Firestore overflow
-              const imgData = (n.syncThumb && n.syncThumb.length < 150000)
-                ? n.syncThumb
-                : (n.image && n.image.length < 150000 ? n.image : null);
+              // Always send the cloud thumbnail (prefer lightweight syncThumb, fallback to compressed preview)
+              const imgData = n.syncThumb || n.image;
               if (imgData) item.im = imgData;
             }
             if (n.origMeta) item.om = n.origMeta;
@@ -3682,9 +3680,9 @@ const Icons = {
   let isCloudSyncing = false;
   let pushBackoffUntil = 0;
 
-  // Strict Payload Budgeter: Guarantees sync packet never exceeds 800KB (Firestore 1MB ceiling)
+  // Strict Payload Budgeter: Guarantees sync packet never exceeds 850KB (Firestore 1MB ceiling)
   // Keeps high-res images safe in IndexedDB while downscaling cloud payload to prevent HTTP 400 errors
-  function enforceSyncPayloadBudget(pkt, maxBytes = 800000) {
+  function enforceSyncPayloadBudget(pkt, maxBytes = 850000) {
     if (!pkt) return pkt;
     try {
       let str = JSON.stringify(pkt);
@@ -3704,12 +3702,14 @@ const Icons = {
         }
       }
 
-      // Sort images: oldest first, so newest screenshots are prioritized
+      // Sort images: oldest first, so newest screenshots are strictly protected
       imgItems.sort((a, b) => a.c - b.c);
 
-      while (JSON.stringify(copy).length > maxBytes && imgItems.length > 0) {
+      // Never trim the newest image note!
+      while (JSON.stringify(copy).length > maxBytes && imgItems.length > 1) {
         const item = imgItems.shift();
         delete item.nt.im;
+        if (!item.nt.t) item.nt.t = '📸 [Photo]';
       }
 
       return copy;
@@ -4789,7 +4789,7 @@ const Icons = {
         const firstNote = pendingNotes[pendingNotes.length - 1];
         const mediaPrefix = firstNote.image ? '📸 ' : (firstNote.voiceClip ? '🎙️ ' : '');
         const subCount = (firstNote.subItems || []).length;
-        const baseMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot' : (subCount > 0 ? `☑ Checklist (${subCount})` : '🎙️ Voice note'));
+        const baseMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot' : (subCount > 0 ? `☑ Checklist (${subCount})` : (firstNote.voiceClip ? '🎙️ Voice note' : '📸 Photo')));
         const senderPrefix = firstNote.forwardedFrom ? `↪ ${firstNote.forwardedFrom}: ` : 'You: ';
         const displayMsg = `${senderPrefix}${baseMsg}`;
         const reactBadges = getSidebarReactionBadgesHtml(pendingNotes);
@@ -4801,7 +4801,7 @@ const Icons = {
         const lastNote = allNotes[allNotes.length - 1];
         const mediaPrefix = lastNote.image ? '📸 ' : (lastNote.voiceClip ? '🎙️ ' : '');
         const subCount = (lastNote.subItems || []).length;
-        const baseMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount})` : '🎙️ Voice note'));
+        const baseMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount})` : (lastNote.voiceClip ? '🎙️ Voice note' : '📸 Photo')));
         const senderPrefix = lastNote.forwardedFrom ? `↪ ${lastNote.forwardedFrom}: ` : 'You: ';
         const lastMsg = `${senderPrefix}${baseMsg}`;
         const timeAgo = formatMessengerTimeAgo(lastNote.createdAt);
