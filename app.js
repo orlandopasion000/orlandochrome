@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure115').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure116').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -1207,7 +1207,7 @@ const Icons = {
                 <div class="trash-item-card" data-tid="${item.id}">
                   <div class="trash-item-left">
                     <span class="trash-item-profile-badge">${esc(item.profileName)}</span>
-                    <div class="trash-item-text">${esc(item.note.text || (item.note.image ? '[Attached Screenshot]' : '[Voice Note]'))}</div>
+                    <div class="trash-item-text">${esc(item.note.text || (item.note.image ? '[Attached Photo]' : (item.note.voiceClip ? '[Voice Message]' : '[Attachment]')))}</div>
                     <div class="trash-item-meta">Deleted ${timeLabel} · Originally ${formatNoteDateTime(item.note.createdAt)}</div>
                   </div>
                   <div class="trash-item-actions">
@@ -3702,7 +3702,7 @@ const Icons = {
         }
       }
 
-      // Sort images: oldest first, so newest screenshots are strictly protected
+      // Sort images: oldest first, so newest photos are strictly protected
       imgItems.sort((a, b) => a.c - b.c);
 
       // Never trim the newest image note!
@@ -4249,7 +4249,7 @@ const Icons = {
       }
     } catch (e) {
       console.error('Failed to save state:', e);
-      showToast('⚠️ Storage nearly full — consider deleting old large screenshots.');
+      showToast('⚠️ Storage nearly full — consider deleting old large photos.');
     }
   }
 
@@ -4303,6 +4303,40 @@ const Icons = {
 
   // Compact timer label for pills
   
+  // Messenger-Style Message Snippet Formatter (Faithful to Facebook Messenger standard)
+  function formatMessengerSnippet(note) {
+    if (!note) return '';
+    const sender = note.forwardedFrom ? note.forwardedFrom : null;
+    let text = (note.text || '').trim();
+    const isSyntheticPhotoText = (text === '📸 [Photo]' || text === '[Photo]' || text === '[Screenshot]' || text === '📸 Screenshot');
+    if (isSyntheticPhotoText) {
+      text = '';
+    }
+    const hasImage = Boolean(note.image || note.syncThumb || isSyntheticPhotoText);
+    const hasVoice = Boolean(note.voiceClip);
+    const subCount = (note.subItems || []).length;
+
+    if (text) {
+      const prefix = sender ? `${sender}: ` : 'You: ';
+      const mediaTag = hasImage ? '📷 ' : (hasVoice ? '🎙️ ' : '');
+      return `${prefix}${mediaTag}${text}`;
+    }
+
+    if (hasImage) {
+      return sender ? `${sender} sent a photo.` : 'You sent a photo.';
+    }
+
+    if (hasVoice) {
+      return sender ? `${sender} sent a voice message.` : 'You sent a voice message.';
+    }
+
+    if (subCount > 0) {
+      return sender ? `${sender} sent a checklist (${subCount}).` : `You created a checklist (${subCount}).`;
+    }
+
+    return sender ? `${sender} sent an attachment.` : 'You sent an attachment.';
+  }
+
   // Messenger-style relative time ago: e.g. "3m", "2h", "1d"
   function formatMessengerTimeAgo(timestamp) {
     if (!timestamp) return '';
@@ -4786,24 +4820,16 @@ const Icons = {
 
       if (pendingNotes.length > 0) {
         // FB Messenger: Show the latest message in the snippet preview
-        const firstNote = pendingNotes[pendingNotes.length - 1];
-        const mediaPrefix = firstNote.image ? '📸 ' : (firstNote.voiceClip ? '🎙️ ' : '');
-        const subCount = (firstNote.subItems || []).length;
-        const baseMsg = firstNote.text ? `${mediaPrefix}${firstNote.text}` : (firstNote.image ? '📸 Screenshot' : (subCount > 0 ? `☑ Checklist (${subCount})` : (firstNote.voiceClip ? '🎙️ Voice note' : '📸 Photo')));
-        const senderPrefix = firstNote.forwardedFrom ? `↪ ${firstNote.forwardedFrom}: ` : 'You: ';
-        const displayMsg = `${senderPrefix}${baseMsg}`;
+        const latestNote = pendingNotes[pendingNotes.length - 1];
+        const displayMsg = formatMessengerSnippet(latestNote);
         const reactBadges = getSidebarReactionBadgesHtml(pendingNotes);
-        const timeAgo = formatMessengerTimeAgo(firstNote.createdAt);
+        const timeAgo = formatMessengerTimeAgo(latestNote.createdAt);
         snippetHtml = `${renderPinButton(p)}${reactBadges ? `<span class="snippet-priority-lead">${reactBadges}</span>` : ''}<span class="snippet-msg-text">${esc(displayMsg)}</span>${timeAgo ? `<span class="snippet-msg-time">· ${timeAgo}</span>` : ''}`;
         snippetClass = isPinned ? 'pinned-glow' : 'pending-glow';
       } else if (allNotes.length > 0) {
         // Messenger Standard: After completing/reading task, show latest message in Messenger read style
         const lastNote = allNotes[allNotes.length - 1];
-        const mediaPrefix = lastNote.image ? '📸 ' : (lastNote.voiceClip ? '🎙️ ' : '');
-        const subCount = (lastNote.subItems || []).length;
-        const baseMsg = lastNote.text ? `${mediaPrefix}${lastNote.text}` : (lastNote.image ? '📸 Photo' : (subCount > 0 ? `☑ Checklist (${subCount})` : (lastNote.voiceClip ? '🎙️ Voice note' : '📸 Photo')));
-        const senderPrefix = lastNote.forwardedFrom ? `↪ ${lastNote.forwardedFrom}: ` : 'You: ';
-        const lastMsg = `${senderPrefix}${baseMsg}`;
+        const lastMsg = formatMessengerSnippet(lastNote);
         const timeAgo = formatMessengerTimeAgo(lastNote.createdAt);
         snippetHtml = `<span class="snippet-msg-text snippet-msg-read" title="Completed note">${esc(lastMsg)}</span>${timeAgo ? `<span class="snippet-msg-time snippet-msg-time-read">· ${timeAgo}</span>` : ''}`;
         snippetClass = 'read-row';
@@ -5167,8 +5193,7 @@ const Icons = {
     let lastMsgText = '';
     let lastMsgTime = '';
     if (lastNote) {
-      lastMsgText = (lastNote.forwardedFrom ? '↪ Forwarded: ' : '') + (lastNote.text || (lastNote.image ? '📷 Attached image' : 'Voice note'));
-      const noteDiff = Math.max(0, cur - (lastNote.createdAt || cur));
+      lastMsgText = formatMessengerSnippet(lastNote);
       lastMsgTime = formatMessengerTimeAgo(lastNote.createdAt);
     }
 
@@ -5933,7 +5958,7 @@ const Icons = {
         }).join('')}
       </div>
 
-      <!-- Pending Screenshot / Voice Clip Attachment Preview Strip -->
+      <!-- Pending Photo / Voice Clip Attachment Preview Strip -->
       ${(state.pendingAttachment || state.pendingVoiceClip) ? `
         <div class="attachment-preview-bar" id="attachmentPreviewBar">
           ${state.pendingAttachment ? `
@@ -5946,11 +5971,11 @@ const Icons = {
                   ` : (state.pendingOrigMeta && state.pendingOrigMeta.isHD ? `
                     <span class="note-media-res-badge badge-hd" style="position:static; padding:2px 6px; font-size:10px;">HD</span>
                   ` : '')}
-                  <span class="attach-thumb-label">${(state.pendingOrigMeta && state.pendingOrigMeta.name) || 'Image ready to send'}</span>
+                  <span class="attach-thumb-label">${(state.pendingOrigMeta && state.pendingOrigMeta.name) || 'Photo ready to send'}</span>
                 </div>
                 ${state.pendingOrigMeta ? `<span class="attach-thumb-sub">${state.pendingOrigMeta.width} × ${state.pendingOrigMeta.height} px</span>` : ''}
               </div>
-              <button type="button" class="btn-remove-attach" id="btnRemoveScreenshot" title="Remove screenshot">✕</button>
+              <button type="button" class="btn-remove-attach" id="btnRemoveScreenshot" title="Remove photo">✕</button>
             </div>
           ` : ''}
           ${state.pendingVoiceClip ? `
@@ -6696,7 +6721,7 @@ const Icons = {
       };
     }
 
-    // Drag and drop screenshots onto notesStream
+    // Drag and drop photos onto notesStream
     const streamEl = $('#notesStream');
     if (streamEl) {
       streamEl.ondragover = (e) => {
@@ -7871,7 +7896,7 @@ const Icons = {
     sheetEl.addEventListener('touchcancel', finishDrag, { passive: true });
   }
 
-  // Full-Screen Lightbox Modal for Pasted/Dropped Screenshots (With iOS Swipe-Down-to-Dismiss & 1-Tap 4K Download)
+  // Full-Screen Lightbox Modal for Pasted/Dropped Photos (With iOS Swipe-Down-to-Dismiss & 1-Tap 4K Download)
   function openLightboxModal(imgSrc, caption, note = null) {
     if (!imgSrc) return;
     const backdrop = document.createElement('div');
@@ -7995,7 +8020,7 @@ const Icons = {
         </div>
 
         <div class="forward-task-preview">
-          "${esc(note.text || (note.image ? '[Screenshot]' : '[Voice Note]'))}"
+          "${esc(note.text || (note.image ? '[Photo]' : (note.voiceClip ? '[Voice Message]' : '[Attachment]')))}"
         </div>
 
         ${nextAvailable ? `
@@ -10376,7 +10401,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       e.target.value = '';
     });
 
-    // Note Screenshot / Image file uploader
+    // Note Photo / Image file uploader
     const noteImgInput = $('#noteImageInput');
     if (noteImgInput) {
       noteImgInput.addEventListener('change', async (e) => {
@@ -10577,7 +10602,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       }
     });
 
-    // Global Ctrl+V Paste Screenshot Handler
+    // Global Ctrl+V Paste Photo Handler
     document.addEventListener('paste', async (e) => {
       const items = e.clipboardData && e.clipboardData.items;
       if (!items) return;
@@ -10600,7 +10625,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
                 inp.focus();
               }
               const badge = processed.origMeta.is4K ? '4K Ultra HD ' : (processed.origMeta.isHD ? 'HD ' : '');
-              showToast(`📸 ${badge}Image pasted from clipboard! Press Enter to send.`);
+              showToast(`📸 ${badge}Photo pasted! Press Enter to send.`);
             } catch (err) {
               console.error(err);
               showToast('⚠️ Could not attach pasted image.');
