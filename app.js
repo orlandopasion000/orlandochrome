@@ -41,7 +41,7 @@
   const CLIENT_ID = uid();
   const CLOUD_SYNC_TOPIC = IS_BLANK_EDITION
     ? (URL_PARAMS.get('room') || localStorage.getItem('orlandochrome_blank_room_v1') || 'orlandochrome_blank_sync_v1')
-    : 'orlandochrome_live_sync_pasion1994_v2';
+    : 'orlandochrome_universal_sync_v4';
 
   const LIVE_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/';
   const BLANK_APP_URL = 'https://orlandopasion000.github.io/orlandochrome/?edition=blank';
@@ -327,6 +327,23 @@ const Icons = {
           <line x1="3" y1="9" x2="21" y2="9" stroke="url(#gCalCyber)" stroke-width="1.4"/>
           <line x1="8" y1="2" x2="8" y2="5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
           <line x1="16" y1="2" x2="16" y2="5" stroke="#818cf8" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>`,
+
+    timer: (size = 13) => `
+      <span class="oc-icon oc-icon-timer" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Timer">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="13" r="8" stroke="#38bdf8" stroke-width="2"/>
+          <path d="M12 9v4l2.5 2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10 2h4M12 2v3" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>`,
+
+    settings: (size = 13) => `
+      <span class="oc-icon oc-icon-settings" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Settings / Tools">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3.2" stroke="#c084fc" stroke-width="1.8"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#818cf8" stroke-width="1.6" stroke-linejoin="round"/>
         </svg>
       </span>`,
 
@@ -818,7 +835,8 @@ const Icons = {
     activeProfileId: IS_BLANK_EDITION ? "b_slot_1" : "p_tb_4",
     currentFilter: "all",      // "all" | "pending" | "timers"
     searchQuery: "",
-    selectMode: false,         // Multi-Select Bulk Clean Mode
+    selectMode: false,
+    commandDrawer: null,       // null | "timer" | "tools"         // Multi-Select Bulk Clean Mode
     selectedNoteIds: [],       // Array of note IDs currently selected in multi-select mode
     uploadTargetId: null,
     editingNoteId: null,       // Currently inline-editing note ID
@@ -2928,6 +2946,8 @@ const Icons = {
               c: n.createdAt || now()
             };
             if (n.done) item.d = 1;
+            if (n.isCustomDate) item.icd = 1;
+            if (n.originalCreatedAt) item.oc = n.originalCreatedAt;
             if (n.editedAt) item.e = n.editedAt;
             if (n.forwardedFrom) item.fw = n.forwardedFrom;
             if (Array.isArray(n.reactions) && n.reactions.length) item.rk = n.reactions;
@@ -2993,10 +3013,30 @@ const Icons = {
       } catch (e) {}
     }
 
-    // SECURITY PROTOCOL: Remote network broadcasts must NEVER silently delete or wipe user memory!
-    if (packet.isCleanSlate) {
-      console.warn('[OrlandoChrome Protection Guard] Rejected remote clean slate broadcast to preserve local user memory.');
-      return false;
+    // Cross-Device Start Fresh Sync: When user triggers Start Fresh, both Laptop & iPhone synchronize to clean slate
+    if (packet.isCleanSlate && packet.freshSlateAt) {
+      takeBackupSnapshot('Pre-Remote Clean Slate Archive');
+      state.profiles.forEach(p => {
+        p.timerUntil = null;
+        p.timerDurationMs = null;
+        p.isReset = false;
+        p.isUnread = false;
+        p.stickyNote = '';
+        p.statusNote = null;
+        p.notes = [];
+      });
+      state.trash = [];
+      try { localStorage.removeItem('orlandochrome_trash'); } catch (e) {}
+      state.lastModified = packet.freshSlateAt;
+      try {
+        localStorage.setItem('orlandochrome_fresh_slate_at', String(packet.freshSlateAt));
+        localStorage.setItem(LAST_MOD_KEY, String(packet.freshSlateAt));
+      } catch (e) {}
+      persistLocalOnly();
+      renderSidebar();
+      renderMainChat();
+      showToast('✨ Synchronized Clean Slate from another device!');
+      return true;
     }
 
     // Tombstone Synchronization: Process remote deletions so deleted notes stay deleted
@@ -3093,6 +3133,9 @@ const Icons = {
               ...oldNote,
               text: (rn.t !== undefined ? rn.t : oldNote.text) || '',
               done: rn.d !== undefined ? Boolean(rn.d) : oldNote.done,
+              createdAt: rn.c !== undefined ? rn.c : oldNote.createdAt,
+              isCustomDate: rn.icd !== undefined ? Boolean(rn.icd) : oldNote.isCustomDate,
+              originalCreatedAt: rn.oc || oldNote.originalCreatedAt || rn.c,
               editedAt: rn.e || oldNote.editedAt || null,
               forwardedFrom: rn.fw || oldNote.forwardedFrom || null,
               reactions: Array.isArray(rn.rk) ? rn.rk : (oldNote.reactions || []),
@@ -3106,6 +3149,8 @@ const Icons = {
               text: rn.t || '',
               done: Boolean(rn.d),
               createdAt: rn.c || now(),
+              isCustomDate: Boolean(rn.icd),
+              originalCreatedAt: rn.oc || rn.c || now(),
               editedAt: rn.e || null,
               forwardedFrom: rn.fw || null,
               reactions: Array.isArray(rn.rk) ? rn.rk : [],
@@ -3116,17 +3161,23 @@ const Icons = {
           }
         });
 
-        // 2. PRESERVE existing local notes not mentioned in remote packet (unless in trash)
+        // 2. Preserve unmentioned local notes ONLY if they were created AFTER the remote packet's timestamp (offline draft)
+        // If they were created BEFORE the remote packet, they were deleted on the remote device!
+        const packetTs = packet.ts || 0;
         existingNotes.forEach(ln => {
           if (!processedIds.has(ln.id)) {
-            const isTrashed = state.trash && state.trash.some(tr => tr.id === ln.id);
-            if (!isTrashed) {
-              mergedNotes.push(ln);
+            const isTrashed = state.trash && state.trash.some(tr => (tr.note && tr.note.id === ln.id) || tr.id === ln.id);
+            const isDelTombstone = Array.isArray(packet.del) && packet.del.includes(ln.id);
+            if (!isTrashed && !isDelTombstone) {
+              // Only keep if created locally after the remote snapshot
+              if ((ln.createdAt || 0) > packetTs) {
+                mergedNotes.push(ln);
+              }
             }
           }
         });
 
-        mergedNotes.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        mergedNotes.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
         const restoredStatusNote = mergeStatusNotes(existing.statusNote, parseRemoteStatusNote(item.sn));
 
@@ -3496,12 +3547,15 @@ const Icons = {
       updateTopbarSyncBadge('offline');
     });
 
-    // 5. Periodic heartbeat check every 10 seconds
+    // 5. Resilient Heartbeat: gently pull if tab was hidden for > 30s or SSE dropped
+    let lastPullTimestamp = Date.now();
     setInterval(() => {
-      if (document.visibilityState === 'visible') {
+      const nowTs = Date.now();
+      if (document.visibilityState === 'visible' && (nowTs - lastPullTimestamp > 45000)) {
+        lastPullTimestamp = nowTs;
         pullFromCloud(false, false);
       }
-    }, 10000);
+    }, 20000);
   }
 
   // Check if URL has ?sync=... or ?m=... or ?s=1 from scanning the Live QR Code
@@ -4364,7 +4418,7 @@ const Icons = {
 
     const activeProf = getProfile(state.activeProfileId);
 
-    list.innerHTML = filtered.map(p => {
+    const renderProfileItem = (p) => {
       const isActive = p.id === state.activeProfileId;
       const pendingCount = countPending(p);
       const canUnread = hasMessages(p);
@@ -4466,7 +4520,59 @@ const Icons = {
           </div>
         </div>
       `;
-    }).join('');
+    };
+
+    if (!query && filter === 'all') {
+      const pinnedList = [];
+      const timerList = [];
+      const workspaceList = [];
+
+      filtered.forEach(p => {
+        const pendingCount = countPending(p);
+        const isPinned = !!(p.isPinned && pendingCount > 0);
+        const isTimer = (p.timerUntil && p.timerUntil > cur) || p.isReset;
+
+        if (isPinned) {
+          pinnedList.push(p);
+        } else if (isTimer) {
+          timerList.push(p);
+        } else {
+          workspaceList.push(p);
+        }
+      });
+
+      let sectionsHtml = '';
+      if (pinnedList.length > 0) {
+        sectionsHtml += `
+          <div class="sidebar-section-header">
+            <span class="section-title">📌 PINNED</span>
+            <span class="section-count">${pinnedList.length}</span>
+          </div>
+          ${pinnedList.map(renderProfileItem).join('')}
+        `;
+      }
+      if (timerList.length > 0) {
+        sectionsHtml += `
+          <div class="sidebar-section-header">
+            <span class="section-title">⏱️ ACTIVE TIMERS</span>
+            <span class="section-count">${timerList.length}</span>
+          </div>
+          ${timerList.map(renderProfileItem).join('')}
+        `;
+      }
+      if (workspaceList.length > 0) {
+        sectionsHtml += `
+          <div class="sidebar-section-header">
+            <span class="section-title">💬 WORKSPACES</span>
+            <span class="section-count">${workspaceList.length}</span>
+          </div>
+          ${workspaceList.map(renderProfileItem).join('')}
+        `;
+      }
+      list.innerHTML = sectionsHtml || filtered.map(renderProfileItem).join('');
+    } else {
+      list.innerHTML = filtered.map(renderProfileItem).join('');
+    }
 
     // Attach profile avatar & note bubble click to open Messenger Note (Works on Laptop & iPhone)
     $$('.profile-avatar-wrap', list).forEach(wrap => {
@@ -5163,40 +5269,21 @@ const Icons = {
         </div>
 
         <div class="chat-header-actions-col">
-          <div class="chat-header-actions">
-            <button type="button" class="btn-header-action btn-header-undo ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnUndoNote" title="Undo last message action (Ctrl+Z)" ${historyMgr.canUndo() ? '' : 'disabled'}>
-              ${Icons.undo(13)} <span>Undo</span>
+          <!-- Suggestion 1: Smart Dynamic Command Capsule (Apple & Linear Standard) -->
+          <div class="command-capsule">
+            <button type="button" class="capsule-pill ${isTimer ? 'timer-running' : ''} ${state.commandDrawer === 'timer' ? 'active' : ''}" id="btnCapsuleTimer" title="Quick Timer Presets">
+              ${Icons.timer(13)}
+              <span class="capsule-pill-text">${isTimer ? rem + ' left' : 'Timer'}</span>
+              <span class="capsule-arrow">${state.commandDrawer === 'timer' ? '▴' : '▾'}</span>
             </button>
-            <button type="button" class="btn-header-action btn-header-redo ${historyMgr.canRedo() ? '' : 'disabled'}" id="btnRedoNote" title="Redo last message action (Ctrl+Y)" ${historyMgr.canRedo() ? '' : 'disabled'}>
-              ${Icons.redo(13)} <span>Redo</span>
+            <button type="button" class="capsule-pill ${state.commandDrawer === 'tools' ? 'active' : ''}" id="btnCapsuleTools" title="Profile Actions &amp; Tools">
+              ${Icons.settings(13)}
+              <span class="capsule-pill-text">Tools</span>
+              <span class="capsule-arrow">${state.commandDrawer === 'tools' ? '▴' : '▾'}</span>
             </button>
-            ${IS_BLANK_EDITION ? `
-              <button class="btn-header-action" id="btnAddSlotBlank" title="Add another taskbar Chrome profile slot">
-                ➕ Add Profile
-              </button>
-            ` : ''}
-            <button class="btn-header-action ${p.stickyNote ? 'sticky-active' : ''}" id="btnStickyNote" title="Set a permanent sticky header note for ${esc(p.name)}">
-              ${Icons.important(13)} <span>${p.stickyNote ? 'Sticky' : 'Sticky Note'}</span>
-            </button>
-            ${canUnread ? `
-              <button class="btn-header-action ${isUnread ? 'unread-active' : ''}" id="btnToggleUnreadHeader" title="Bookmark this profile as Unread (or right-click in sidebar)">
-                ${Icons.unread(12)} <span>${isUnread ? 'Unread' : 'Mark Unread'}</span>
-              </button>
-            ` : ''}
-            <button class="btn-header-action" id="btnRenameProfile">
-              ${Icons.edit(13)} <span>Rename</span>
-            </button>
-            <button type="button" class="btn-header-action" id="btnHeaderVoiceCommands" title="Voice Commands Manual & Hands-Free Instructions (Alt + V)">
-              <span style="font-size:12px;">🎙️</span> <span>Voice</span>
-            </button>
-            ${notes.length > 0 ? `
-              <button type="button" class="btn-header-action btn-header-select ${state.selectMode ? 'select-active' : ''}" id="btnToggleSelectMode" title="Multi-select messages to bulk clean or delete">
-                <span style="font-size:12px;">☑️</span> <span>${state.selectMode ? 'Done' : 'Select'}</span>
-              </button>
-            ` : ''}
           </div>
 
-          <!-- 24-Hour Thought Note Banner (Placed DIRECTLY below the Trash, Sticky Note etc buttons on the right side!) -->
+          <!-- 24-Hour Thought Note Banner (Placed on the right side) -->
           ${statusNote ? `
             <div class="profile-status-note-banner header-status-note-sub" id="profileStatusNoteBanner" role="button" tabindex="0" title="Active 24h Note: &quot;${esc(statusNote.text)}&quot; · Click to view, edit or clear">
               <span class="status-note-remaining">${Icons.waiting(11)} ${formatRemainingNoteTime(statusNote.expiresAt - cur)}</span>
@@ -5204,6 +5291,71 @@ const Icons = {
           ` : ''}
         </div>
       </header>
+
+      <!-- Suggestion 1: Collapsible Translucent Frosted Glass Drawers -->
+      ${state.commandDrawer === 'timer' ? `
+        <div class="command-capsule-drawer" id="capsuleTimerDrawer">
+          <div class="drawer-header-row">
+            <span class="drawer-title">${Icons.timer(13)} Quick Cooldown Timer</span>
+            <button type="button" class="btn-drawer-close" id="btnCloseDrawer" title="Close Drawer">✕</button>
+          </div>
+          <div class="quick-timer-bar in-drawer">
+            <button class="timer-chip" data-min="15" data-label="15m">15m</button>
+            <button class="timer-chip" data-min="30" data-label="30m">30m</button>
+            <button class="timer-chip" data-min="45" data-label="45m">45m</button>
+            <button class="timer-chip" data-min="60" data-label="1h">1h</button>
+            <button class="timer-chip" data-min="120" data-label="2h">2h</button>
+            <button class="timer-chip" data-min="180" data-label="3h">3h</button>
+            <button class="timer-chip" data-min="300" data-label="5h">5h</button>
+            <button class="timer-chip" data-min="720" data-label="12h">12h</button>
+            <div class="timer-custom-wrap">
+              <input type="number" id="customMinInput" class="timer-custom-input" placeholder="min" min="1" max="10000" inputmode="numeric" pattern="[0-9]*" value="">
+              <button class="btn-start-custom" id="btnStartCustomTimer">Start <span style="display:inline-flex; vertical-align:middle; margin-left:3px;">${Icons.timer(12)}</span></button>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${state.commandDrawer === 'tools' ? `
+        <div class="command-capsule-drawer" id="capsuleToolsDrawer">
+          <div class="drawer-header-row">
+            <span class="drawer-title">${Icons.settings(13)} Profile Tools &amp; Actions</span>
+            <button type="button" class="btn-drawer-close" id="btnCloseDrawer" title="Close Drawer">✕</button>
+          </div>
+          <div class="chat-header-actions in-drawer">
+            <button type="button" class="btn-header-action btn-header-undo ${historyMgr.canUndo() ? '' : 'disabled'}" id="btnUndoNote" title="Undo (Ctrl+Z)" ${historyMgr.canUndo() ? '' : 'disabled'}>
+              ${Icons.undo(13)} <span>Undo</span>
+            </button>
+            <button type="button" class="btn-header-action btn-header-redo ${historyMgr.canRedo() ? '' : 'disabled'}" id="btnRedoNote" title="Redo (Ctrl+Y)" ${historyMgr.canRedo() ? '' : 'disabled'}>
+              ${Icons.redo(13)} <span>Redo</span>
+            </button>
+            ${IS_BLANK_EDITION ? `
+              <button class="btn-header-action" id="btnAddSlotBlank" title="Add another taskbar Chrome profile slot">
+                ➕ Add Profile
+              </button>
+            ` : ''}
+            <button class="btn-header-action ${p.stickyNote ? 'sticky-active' : ''}" id="btnStickyNote" title="Set a permanent sticky header note">
+              ${Icons.important(13)} <span>${p.stickyNote ? 'Sticky' : 'Sticky Note'}</span>
+            </button>
+            ${canUnread ? `
+              <button class="btn-header-action ${isUnread ? 'unread-active' : ''}" id="btnToggleUnreadHeader" title="Bookmark this profile as Unread">
+                ${Icons.unread(12)} <span>${isUnread ? 'Unread' : 'Mark Unread'}</span>
+              </button>
+            ` : ''}
+            <button class="btn-header-action" id="btnRenameProfile">
+              ${Icons.edit(13)} <span>Rename</span>
+            </button>
+            <button type="button" class="btn-header-action" id="btnHeaderVoiceCommands" title="Voice Commands Manual (Alt + V)">
+              <span style="font-size:12px;">🎙️</span> <span>Voice</span>
+            </button>
+            ${notes.length > 0 ? `
+              <button type="button" class="btn-header-action btn-header-select ${state.selectMode ? 'select-active' : ''}" id="btnToggleSelectMode" title="Multi-select messages">
+                <span style="font-size:12px;">☑️</span> <span>${state.selectMode ? 'Done' : 'Select'}</span>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Clean Blank Edition Laptop Taskbar Auto-Discovery Banner -->
       ${IS_BLANK_EDITION ? `
@@ -5238,24 +5390,6 @@ const Icons = {
           </div>
         </div>
       ` : ''}
-
-      <!-- Quick AI Limit Cooldown Bar (Minimized & Responsive, 1d and 2d removed) -->
-      <div class="quick-timer-bar">
-        <span class="timer-bar-label">Start a quick timer:</span>
-        <button class="timer-chip" data-min="15" data-label="15m">15m</button>
-        <button class="timer-chip" data-min="30" data-label="30m">30m</button>
-        <button class="timer-chip" data-min="45" data-label="45m">45m</button>
-        <button class="timer-chip" data-min="60" data-label="1h">1h</button>
-        <button class="timer-chip" data-min="120" data-label="2h">2h</button>
-        <button class="timer-chip" data-min="180" data-label="3h">3h</button>
-        <button class="timer-chip" data-min="300" data-label="5h">5h</button>
-        <button class="timer-chip" data-min="720" data-label="12h">12h</button>
-
-        <div class="timer-custom-wrap">
-          <input type="number" id="customMinInput" class="timer-custom-input" placeholder="min" min="1" max="10000" inputmode="numeric" pattern="[0-9]*" value="">
-          <button class="btn-start-custom" id="btnStartCustomTimer">Start <span style="display:inline-flex; vertical-align:middle; margin-left:3px;">${Icons.timer(12)}</span></button>
-        </div>
-      </div>
 
       <!-- Active Timer Countdown Banner -->
       ${isTimer ? `
@@ -5604,6 +5738,32 @@ const Icons = {
 
     // Hook up interactive handlers
     // 0. Mobile Back to Profiles List button & Always-Visible Quick-Tap Profile Dock
+    // Command Capsule Drawer Toggles (Suggestion 1)
+    const capTimer = $('#btnCapsuleTimer', main);
+    if (capTimer) {
+      capTimer.onclick = () => {
+        triggerHaptic('light');
+        state.commandDrawer = (state.commandDrawer === 'timer' ? null : 'timer');
+        renderMainChat();
+      };
+    }
+    const capTools = $('#btnCapsuleTools', main);
+    if (capTools) {
+      capTools.onclick = () => {
+        triggerHaptic('light');
+        state.commandDrawer = (state.commandDrawer === 'tools' ? null : 'tools');
+        renderMainChat();
+      };
+    }
+    const closeDrawer = $('#btnCloseDrawer', main);
+    if (closeDrawer) {
+      closeDrawer.onclick = () => {
+        triggerHaptic('light');
+        state.commandDrawer = null;
+        renderMainChat();
+      };
+    }
+
     const btnMobileBack = $('#btnMobileBackToList');
     if (btnMobileBack) {
       btnMobileBack.onclick = () => closeMobileChatWithSlide();
@@ -6322,6 +6482,10 @@ const Icons = {
       const activateMobileTyping = () => {
         if (window.innerWidth <= 768) {
           document.body.classList.add('mobile-typing-mode');
+          // Smooth focus without layout jump
+          if (input && document.activeElement !== input) {
+            input.focus();
+          }
           if (window.visualViewport) {
             const vh = Math.round(window.visualViewport.height);
             document.documentElement.style.setProperty('--mobile-app-height', vh + 'px');
@@ -9372,6 +9536,26 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     $('#tabTimers').onclick = () => setFilter($('#tabTimers'), 'timers');
 
     // Logo click resets filters
+    // Topbar Instant Real-Time Sync Now Button (Laptop <-> iPhone)
+    const btnSyncNow = $('#btnTopbarSyncNow');
+    if (btnSyncNow) {
+      btnSyncNow.onclick = async () => {
+        triggerHaptic('medium');
+        btnSyncNow.classList.add('syncing-spin');
+        const lbl = $('#topbarSyncQuickLabel');
+        if (lbl) lbl.textContent = 'Syncing...';
+        showToast('🔄 Synchronizing with Cloud...');
+        await pullFromCloud(false, false);
+        await pushToCloudNow(false);
+        setTimeout(() => {
+          btnSyncNow.classList.remove('syncing-spin');
+          if (lbl) lbl.textContent = 'Synced';
+          triggerHaptic('success');
+          showToast('☁️ Synced! Laptop and iPhone are 100% up to date.');
+        }, 600);
+      };
+    }
+
     $('#logoBtn').onclick = () => {
       state.searchQuery = '';
       $('#profileSearch').value = '';
@@ -10079,7 +10263,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       }
 
       // 3. Chat Header or Chat Area Horizontal Paging (Swipe Left/Right to Switch Profiles with Finger-Tracking & Cancel)
-      if (target.closest('#chatHeaderBar') || target.closest('#chatMain')) {
+      if (target.closest('#chatHeaderBar')) {
         mode = 'header-candidate';
         return;
       }
@@ -10215,8 +10399,8 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         chatMain.style.transition = 'transform 0.24s cubic-bezier(0.22, 1, 0.36, 1)';
         chatMain.style.transform = '';
         if (window.innerWidth <= 768 && document.body.classList.contains('mobile-chat-open')) {
-          // In iOS/Mobile inside a message: swiping left OR swiping right goes back to all profiles!
-          if (Math.abs(currentDx) >= 38 || Math.abs(velocityX) >= 0.25) {
+          // Native iOS standard edge swipe: Only swiping from the left screen edge (startX <= 36) to right (currentDx >= 70) goes back
+          if (startX <= 40 && currentDx >= 68 && Math.abs(currentDx) > Math.abs(dy || 0) * 1.4) {
             closeMobileChatWithSlide();
             return;
           }

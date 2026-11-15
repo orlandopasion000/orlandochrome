@@ -11582,3 +11582,383 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
 .btn-date-modal-save:active {
   transform: scale(0.97);
 }
+
+
+/* =========================================================================
+   TOP-TIER SUGGESTIONS 1-5: CLEAN, LUXURY & HIGHLY ORGANIZED SUITE
+   ========================================================================= */
+
+/* Topbar Sync Button & Spin Animation */
+.btn-topbar-sync {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.16) 0%, rgba(99, 102, 241, 0.12) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px !important;
+  border-radius: 20px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-topbar-sync:hover {
+  background: rgba(56, 189, 248, 0.28) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.4) !important;
+}
+.btn-topbar-sync.syncing-spin svg {
+  animation: spinSync 0.8s linear infinite;
+}
+@keyframes spinSync {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Suggestion 1: Smart Collapsible "Command Capsule" Header */
+.command-capsule-wrap {
+  display: flex;
+  align-items: center;
+}
+.command-capsule {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 24px;
+  padding: 3px 5px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  gap: 4px;
+}
+.capsule-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 750;
+  padding: 5px 12px;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.capsule-pill:hover {
+  background: rgba(56, 189, 248, 0.16);
+  color: #ffffff;
+}
+.capsule-pill.active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(99, 102, 241, 0.2) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+.capsule-pill.timer-running {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+.capsule-arrow {
+  font-size: 9px;
+  opacity: 0.7;
+}
+
+/* Collapsible Frosted Glass Drawers */
+.command-capsule-drawer {
+  background: linear-gradient(145deg, rgba(12, 18, 36, 0.90) 0%, rgba(8, 11, 24, 0.96) 100%);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 12px 18px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
+  animation: slideDownDrawer 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@keyframes slideDownDrawer {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.drawer-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.drawer-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #7dd3fc;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-drawer-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #94a3b8;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+}
+.btn-drawer-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ff8080;
+}
+.quick-timer-bar.in-drawer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+.chat-header-actions.in-drawer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 0;
+}
+
+/* Suggestion 2: Floating Contextual Action Mini-Dock for Notes */
+.note-action-cluster-wrap {
+  position: relative;
+}
+.note-bubble-actions {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  z-index: 120;
+  background: linear-gradient(145deg, rgba(14, 20, 42, 0.94) 0%, rgba(8, 12, 26, 0.98) 100%);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.2);
+  border-radius: 14px;
+  padding: 8px 10px;
+  min-width: 220px;
+  animation: modalScaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.note-bubble.actions-expanded .note-bubble-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Suggestion 3: Single-Row Swipeable Quick-Task Carousel with Gradient Fade */
+.quick-templates-bar {
+  background: rgba(6, 9, 18, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-top: 1px solid rgba(56, 189, 248, 0.14) !important;
+  padding: 6px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+  user-select: none !important;
+}
+.templates-chips-scroll {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  overflow-x: auto !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  mask-image: linear-gradient(to right, black 88%, transparent 100%) !important;
+  -webkit-mask-image: linear-gradient(to right, black 88%, transparent 100%) !important;
+}
+.template-chip {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  font-size: 11px !important;
+  font-weight: 650 !important;
+  padding: 4px 10px !important;
+  border-radius: 16px !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+}
+.template-chip:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(99, 102, 241, 0.18) 100%) !important;
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Suggestion 4: Unified Deep Obsidian Base */
+body.netflix-messenger-theme {
+  background: #070b14 !important;
+}
+.app-container, .main-layout {
+  background: #070b14 !important;
+}
+.chat-main {
+  background: radial-gradient(circle at 50% 15%, rgba(14, 22, 46, 0.25) 0%, rgba(7, 11, 20, 0.95) 75%) !important;
+}
+
+/* Suggestion 5: Sectioned Sidebar with Foldable Groups */
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 4px 14px;
+  user-select: none;
+}
+.sidebar-section-header .section-title {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.8px;
+  color: #7dd3fc;
+  text-transform: uppercase;
+}
+.sidebar-section-header .section-count {
+  font-size: 9.5px;
+  font-weight: 750;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+
+/* Pixel-Perfect Brand Logo & Title Alignment (Fix: LOGO IS NOT ALIGNED) */
+.topbar-left {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+.brand-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+  gap: 10px !important;
+  line-height: 1 !important;
+  cursor: pointer;
+}
+.oc-logo-img {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 7px !important;
+  object-fit: contain !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.brand-text-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.brand-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+  font-size: 1.15rem !important;
+  letter-spacing: 1.5px !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+/* iPhone Messenger-Standard Frozen Header & Instant 2-Tap Input (No Layout Jumps) */
+@media (max-width: 768px) {
+  html, body {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  body.mobile-chat-open .chat-main {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  /* FROZEN HEADER: Profile picture, name, slot and capsule buttons NEVER leave the screen */
+  body.mobile-chat-open .chat-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    background: rgba(7, 11, 20, 0.96) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.22) !important;
+    padding-top: max(8px, env(safe-area-inset-top, 40px)) !important;
+    padding-bottom: 8px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  body.mobile-typing-mode .chat-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  body.mobile-typing-mode .chat-header-profile {
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  body.mobile-typing-mode .chat-header-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.mobile-typing-mode .chat-header-mobile-title {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+  }
+
+  /* Messages scroll strictly within its container beneath the frozen header */
+  .notes-stream {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    min-height: 0 !important;
+  }
+
+  /* Stable Composer: Zero jump between tap 1 and tap 2 */
+  .composer-bar {
+    flex-shrink: 0 !important;
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 12px)) !important;
+    transition: none !important;
+  }
+}
+
