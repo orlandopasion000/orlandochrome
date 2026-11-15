@@ -10262,7 +10262,16 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         return;
       }
 
-      // 3. Chat Header or Chat Area Horizontal Paging (Swipe Left/Right to Switch Profiles with Finger-Tracking & Cancel)
+      // 3. Inside Conversation on Mobile (iPhone): Swipe Left or Right to go Back to Profiles List
+      if (isMobile && isChatOpen) {
+        // Any horizontal swipe inside conversation (header, stream margins, composer bar, or empty space) goes back to profiles
+        if (target.closest('#chatHeaderBar, #chatMain, #notesStream, .composer-bar, .app-workspace')) {
+          mode = 'chat-back-candidate';
+          return;
+        }
+      }
+
+      // 4. Desktop Chat Header Horizontal Paging (Swipe Left/Right to Switch Profiles)
       if (target.closest('#chatHeaderBar')) {
         mode = 'header-candidate';
         return;
@@ -10300,7 +10309,9 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         }
         if (Math.abs(dx) < 10) return;
 
-        if (mode === 'note-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
+        if (mode === 'chat-back-candidate' && Math.abs(dx) > Math.abs(dy) * 1.25) {
+          mode = 'chat-back-swipe';
+        } else if (mode === 'note-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
           mode = 'note-swipe';
         } else if (mode === 'profile-candidate' && Math.abs(dx) > Math.abs(dy) * 1.35) {
           mode = 'profile-swipe';
@@ -10316,7 +10327,20 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       currentDx = dx;
 
       // Handle Active Gesture Modes
-      if (mode === 'header-page' && chatMain) {
+      if (mode === 'chat-back-swipe' && chatMain) {
+        if (e.cancelable) e.preventDefault();
+        const damped = Math.sign(dx) * Math.min(80, Math.pow(Math.abs(dx), 0.82) * 1.2);
+        chatMain.style.transition = 'none';
+        chatMain.style.transform = `translate3d(${damped}px, 0, 0)`;
+        if (edgeIndicator) {
+          const absDx = Math.abs(dx);
+          edgeIndicator.style.opacity = String(Math.min(1, absDx / 45));
+          edgeIndicator.style.transform = `translate3d(12px, -50%, 0) scale(${0.85 + Math.min(0.22, absDx / 200)})`;
+          const chev = $('.ios-edge-chevron', edgeIndicator);
+          if (chev) chev.textContent = dx > 0 ? '‹ Profiles' : 'Profiles ›';
+          edgeIndicator.classList.toggle('ready', absDx >= 42);
+        }
+      } else if (mode === 'header-page' && chatMain) {
         if (e.cancelable) e.preventDefault();
         const damped = Math.sign(dx) * Math.min(72, Math.pow(Math.abs(dx), 0.82) * 1.15);
         chatMain.style.transition = 'none';
@@ -10395,7 +10419,17 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         edgeIndicator.classList.remove('ready');
       }
 
-      if (mode === 'header-page' && chatMain) {
+      if (mode === 'chat-back-swipe' && chatMain) {
+        chatMain.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+        chatMain.style.transform = '';
+        if (Math.abs(currentDx) >= 42 || Math.abs(velocityX) >= 0.26) {
+          triggerHaptic('light');
+          closeMobileChatWithSlide();
+          mode = null;
+          startX = 0;
+          return;
+        }
+      } else if (mode === 'header-page' && chatMain) {
         chatMain.style.transition = 'transform 0.24s cubic-bezier(0.22, 1, 0.36, 1)';
         chatMain.style.transform = '';
         if (window.innerWidth <= 768 && document.body.classList.contains('mobile-chat-open')) {
