@@ -836,7 +836,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure117').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure118').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -10564,20 +10564,20 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     document.addEventListener('dragover', (e) => {
       if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
         e.preventDefault();
-        const mainEl = $('#mainChat');
+        const mainEl = $('#chatMain');
         if (mainEl) mainEl.classList.add('chat-dragover');
       }
     });
 
     document.addEventListener('dragleave', (e) => {
-      const mainEl = $('#mainChat');
+      const mainEl = $('#chatMain');
       if (mainEl && (!e.relatedTarget || e.relatedTarget === document.documentElement)) {
         mainEl.classList.remove('chat-dragover');
       }
     });
 
     document.addEventListener('drop', async (e) => {
-      const mainEl = $('#mainChat');
+      const mainEl = $('#chatMain');
       if (mainEl) mainEl.classList.remove('chat-dragover');
       const files = e.dataTransfer && e.dataTransfer.files;
       if (!files || !files.length) return;
