@@ -841,6 +841,8 @@ const Icons = {
     uploadTargetId: null,
     editingNoteId: null,       // Currently inline-editing note ID
     pendingAttachment: null,   // Base64 compressed image awaiting send
+    pendingOrigMediaId: null,  // IndexedDB Media Vault ID for 4K / original binary asset
+    pendingOrigMeta: null,     // Original metadata: { width, height, is4K, isHD, name, size, type, resLabel }
     pendingVoiceClip: null,    // Base64 audio clip from Wispr Flow Voice Memo
     pendingReactionTag: null,  // Reaction queued by voice command
     quickTemplates: [...DEFAULT_TEMPLATES],
@@ -1664,6 +1666,8 @@ const Icons = {
   // 2. High-Q Adaptive WebP / JPEG (0.92 quality)
   // 3. Post-Downscale Edge-Sharpening Filter (restores micro-contrast on text & photos)
   window.compressImage = compressImage;
+  window.state = state;
+  window.renderMainChat = renderMainChat;
   function compressImage(fileOrBlob, maxWidth = 1600, quality = 0.92) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1761,6 +1765,190 @@ const Icons = {
       reader.readAsDataURL(fileOrBlob);
     });
   }
+
+  // =========================================================================
+  // TOP-TIER 4K ULTRA-HD MEDIA VAULT & MESSENGER 1-TAP DOWNLOAD ENGINE
+  // 1. IndexedDB Media Vault: Lossless binary blob persistence (preserves full 4K/8K uncompressed)
+  // 2. 4K/UHD Smart Detector & Identity Preserver
+  // 3. Messenger-Style Glassmorphic 1-Tap Download Engine
+  // =========================================================================
+
+  const MediaVault = {
+    dbPromise: null,
+    init() {
+      if (this.dbPromise) return this.dbPromise;
+      this.dbPromise = new Promise((resolve) => {
+        if (!window.indexedDB) {
+          resolve(null);
+          return;
+        }
+        const req = indexedDB.open('OrlandoChrome_MediaVault', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('original_media')) {
+            db.createObjectStore('original_media', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = () => resolve(null);
+      });
+      return this.dbPromise;
+    },
+    async store(id, blob, meta = {}) {
+      try {
+        const db = await this.init();
+        if (!db) return false;
+        return new Promise((resolve) => {
+          const tx = db.transaction('original_media', 'readwrite');
+          const store = tx.objectStore('original_media');
+          store.put({ id, blob, meta, timestamp: Date.now() });
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        });
+      } catch (e) {
+        return false;
+      }
+    },
+    async get(id) {
+      try {
+        const db = await this.init();
+        if (!db) return null;
+        return new Promise((resolve) => {
+          const tx = db.transaction('original_media', 'readonly');
+          const store = tx.objectStore('original_media');
+          const req = store.get(id);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+  };
+  window.MediaVault = MediaVault;
+
+  async function processAttachedImage(fileOrBlob) {
+    const origName = fileOrBlob.name || `OrlandoChrome_${Date.now()}.png`;
+    const origType = fileOrBlob.type || 'image/jpeg';
+    const origSize = fileOrBlob.size || 0;
+
+    // Read raw data URL to extract natural pixel dimensions
+    const rawDataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(fileOrBlob);
+    });
+
+    const dims = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
+      img.onerror = () => resolve({ width: 0, height: 0 });
+      img.src = rawDataUrl;
+    });
+
+    const origW = dims.width || 1920;
+    const origH = dims.height || 1080;
+    const is4K = Boolean(origW >= 3840 || origH >= 2160 || (origW * origH) >= 8000000);
+    const isHD = Boolean(!is4K && (origW >= 1920 || origH >= 1080));
+    const resLabel = is4K ? '4K UHD' : (isHD ? 'HD' : `${origW}×${origH}`);
+
+    const origMeta = {
+      name: origName,
+      width: origW,
+      height: origH,
+      size: origSize,
+      type: origType,
+      is4K,
+      isHD,
+      resLabel
+    };
+
+    // Store untouched original binary in IndexedDB Media Vault
+    const origMediaId = 'omv_' + uid();
+    await MediaVault.store(origMediaId, fileOrBlob, origMeta);
+
+    // Generate crisp progressive preview (1600px ceiling, 0.92 quality, unsharp edge filter)
+    const previewUrl = await compressImage(fileOrBlob, 1600, 0.92);
+
+    return {
+      previewUrl,
+      origMediaId,
+      origMeta
+    };
+  }
+  window.processAttachedImage = processAttachedImage;
+
+  async function downloadOriginalImage(note) {
+    if (!note) return;
+    let blob = null;
+    let filename = (note.origMeta && note.origMeta.name) || `OrlandoChrome_${(note.origMeta && note.origMeta.is4K) ? '4K_' : ''}${Date.now()}.png`;
+
+    // 1. Try to retrieve untouched original from Media Vault
+    if (note.origMediaId) {
+      try {
+        const record = await MediaVault.get(note.origMediaId);
+        if (record && record.blob) {
+          blob = record.blob;
+          if (record.meta && record.meta.name) filename = record.meta.name;
+        }
+      } catch (err) {
+        console.warn('MediaVault lookup failed, fallback to preview image:', err);
+      }
+    }
+
+    // 2. Fallback to image data URL if not in local vault
+    if (!blob) {
+      const dataUrl = note.origImage || note.image;
+      if (dataUrl) {
+        try {
+          const res = await fetch(dataUrl);
+          blob = await res.blob();
+        } catch (e) {
+          try {
+            const parts = dataUrl.split(',');
+            const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/png';
+            const byteStr = atob(parts[1]);
+            const ab = new ArrayBuffer(byteStr.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteStr.length; i++) {
+              ia[i] = byteStr.charCodeAt(i);
+            }
+            blob = new Blob([ab], { type: mime });
+          } catch (err2) {}
+        }
+      }
+    }
+
+    if (!blob) {
+      showToast('⚠️ Could not locate image file for download.');
+      return;
+    }
+
+    // Ensure valid filename extension
+    if (!filename.includes('.')) {
+      const ext = blob.type.includes('jpeg') || blob.type.includes('jpg') ? 'jpg' : (blob.type.includes('webp') ? 'webp' : 'png');
+      filename += `.${ext}`;
+    }
+
+    // Instant direct download via temporary anchor
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    }, 2000);
+
+    const resTag = (note.origMeta && note.origMeta.is4K) ? '4K Ultra HD' : ((note.origMeta && note.origMeta.isHD) ? 'HD' : 'Original');
+    showToast(`📥 Downloading ${resTag} file: ${filename}`);
+    if (window.soundMgr) window.soundMgr.playClick();
+  }
+  window.downloadOriginalImage = downloadOriginalImage;
 
   // UTF-8 Safe Base64URL Helpers for QR Code & Cloud Sync
   function toBase64Url(str) {
@@ -3031,6 +3219,7 @@ const Icons = {
             if (!forQrCode && n.image && n.image.length < 98000) {
               item.im = n.image;
             }
+            if (n.origMeta) item.om = n.origMeta;
             return item;
           });
         }
@@ -3152,6 +3341,8 @@ const Icons = {
             reactions: Array.isArray(n.rk) ? n.rk : [],
             subItems: Array.isArray(n.sb) ? n.sb.map(s => ({ id: s.id || uid(), text: s.t, done: Boolean(s.d) })) : [],
             image: n.im || oldNote.image || null,
+            origMeta: n.om || oldNote.origMeta || null,
+            origMediaId: oldNote.origMediaId || null,
             voiceClip: oldNote.voiceClip || null
           };
         });
@@ -3215,6 +3406,8 @@ const Icons = {
               reactions: Array.isArray(rn.rk) ? rn.rk : (oldNote.reactions || []),
               subItems: Array.isArray(rn.sb) ? rn.sb.map(s => ({ id: s.id || uid(), text: s.t, done: Boolean(s.d) })) : (oldNote.subItems || []),
               image: rn.im || oldNote.image || null,
+              origMeta: rn.om || oldNote.origMeta || null,
+              origMediaId: oldNote.origMediaId || null,
               voiceClip: oldNote.voiceClip || null
             });
           } else {
@@ -3230,6 +3423,8 @@ const Icons = {
               reactions: Array.isArray(rn.rk) ? rn.rk : [],
               subItems: Array.isArray(rn.sb) ? rn.sb.map(s => ({ id: s.id || uid(), text: s.t, done: Boolean(s.d) })) : [],
               image: rn.im || null,
+              origMeta: rn.om || null,
+              origMediaId: null,
               voiceClip: null
             });
           }
@@ -5540,7 +5735,21 @@ const Icons = {
 
                 ${n.image ? `
                   <div class="note-media-wrap">
-                    <img src="${n.image}" class="note-media-img" data-action="open-lightbox" data-nid="${n.id}" alt="Attached screenshot" title="Click to view full screen">
+                    <div class="note-media-container" data-nid="${n.id}">
+                      <img src="${n.image}" class="note-media-img" data-action="open-lightbox" data-nid="${n.id}" alt="Attached image" title="Click to view full screen">
+                      ${n.origMeta && (n.origMeta.is4K || n.origMeta.isHD) ? `
+                        <div class="note-media-res-badge ${n.origMeta.is4K ? 'badge-4k' : 'badge-hd'}" title="${n.origMeta.width} × ${n.origMeta.height} px · ${n.origMeta.is4K ? '4K Ultra HD' : 'High Definition'}">
+                          ${n.origMeta.is4K ? '4K' : 'HD'}
+                        </div>
+                      ` : ''}
+                      <button type="button" class="btn-messenger-download" data-action="download-original-image" data-nid="${n.id}" title="Download original ${n.origMeta && n.origMeta.is4K ? '4K ' : ''}image" aria-label="Download original image">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 3v12"/>
+                          <path d="m7 11 5 5 5-5"/>
+                          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 ` : ''}
 
@@ -5647,7 +5856,17 @@ const Icons = {
           ${state.pendingAttachment ? `
             <div class="attach-thumb-box">
               <img src="${state.pendingAttachment}" class="attach-thumb-img" alt="Preview">
-              <span class="attach-thumb-label">Screenshot ready to send</span>
+              <div class="attach-thumb-meta">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  ${state.pendingOrigMeta && state.pendingOrigMeta.is4K ? `
+                    <span class="note-media-res-badge badge-4k" style="position:static; padding:2px 6px; font-size:10px;">4K UHD</span>
+                  ` : (state.pendingOrigMeta && state.pendingOrigMeta.isHD ? `
+                    <span class="note-media-res-badge badge-hd" style="position:static; padding:2px 6px; font-size:10px;">HD</span>
+                  ` : '')}
+                  <span class="attach-thumb-label">${(state.pendingOrigMeta && state.pendingOrigMeta.name) || 'Image ready to send'}</span>
+                </div>
+                ${state.pendingOrigMeta ? `<span class="attach-thumb-sub">${state.pendingOrigMeta.width} × ${state.pendingOrigMeta.height} px</span>` : ''}
+              </div>
               <button type="button" class="btn-remove-attach" id="btnRemoveScreenshot" title="Remove screenshot">✕</button>
             </div>
           ` : ''}
@@ -6232,7 +6451,9 @@ const Icons = {
         } else if (act === 'forward-note') {
           openForwardModal(p, note);
         } else if (act === 'open-lightbox') {
-          openLightboxModal(note.image, note.text || p.name);
+          openLightboxModal(note.image, note.text || p.name, note);
+        } else if (act === 'download-original-image') {
+          downloadOriginalImage(note);
         }
       };
 
@@ -6375,6 +6596,8 @@ const Icons = {
     if (btnRemImg) {
       btnRemImg.onclick = () => {
         state.pendingAttachment = null;
+        state.pendingOrigMediaId = null;
+        state.pendingOrigMeta = null;
         renderMainChat();
       };
     }
@@ -6401,10 +6624,18 @@ const Icons = {
         if (files && files.length > 0) {
           const imgFile = Array.from(files).find(f => f.type.startsWith('image/'));
           if (imgFile) {
-            const dataUrl = await compressImage(imgFile);
-            state.pendingAttachment = dataUrl;
-            renderMainChat();
-            showToast('📸 Screenshot attached — press Enter or Add ✓ to post!');
+            try {
+              const processed = await processAttachedImage(imgFile);
+              state.pendingAttachment = processed.previewUrl;
+              state.pendingOrigMediaId = processed.origMediaId;
+              state.pendingOrigMeta = processed.origMeta;
+              renderMainChat();
+              const badge = processed.origMeta.is4K ? '4K Ultra HD ' : (processed.origMeta.isHD ? 'HD ' : '');
+              showToast(`📸 ${badge}Image attached — press Enter or Add ✓ to post!`);
+            } catch (err) {
+              console.error(err);
+              showToast('⚠️ Could not attach image.');
+            }
           }
         }
       };
@@ -6512,6 +6743,8 @@ const Icons = {
         id: uid(),
         text,
         image: state.pendingAttachment || null,
+        origMediaId: state.pendingOrigMediaId || null,
+        origMeta: state.pendingOrigMeta || null,
         voiceClip: state.pendingVoiceClip || null,
         reactions: initialReactions,
         subItems: [],
@@ -6530,6 +6763,8 @@ const Icons = {
 
       if (input) input.value = '';
       state.pendingAttachment = null;
+      state.pendingOrigMediaId = null;
+      state.pendingOrigMeta = null;
       state.pendingVoiceClip = null;
       saveState();
       renderSidebar();
@@ -7546,24 +7781,70 @@ const Icons = {
     sheetEl.addEventListener('touchcancel', finishDrag, { passive: true });
   }
 
-  // Full-Screen Lightbox Modal for Pasted/Dropped Screenshots (With iOS Swipe-Down-to-Dismiss)
-  function openLightboxModal(imgSrc, caption) {
+  // Full-Screen Lightbox Modal for Pasted/Dropped Screenshots (With iOS Swipe-Down-to-Dismiss & 1-Tap 4K Download)
+  function openLightboxModal(imgSrc, caption, note = null) {
     if (!imgSrc) return;
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
+    const is4K = Boolean(note && note.origMeta && note.origMeta.is4K);
+    const isHD = Boolean(note && note.origMeta && note.origMeta.isHD);
+    const dims = note && note.origMeta ? `${note.origMeta.width} × ${note.origMeta.height} px` : '';
+
     backdrop.innerHTML = `
       <div class="lightbox-modal" id="lightboxSheet">
         <div class="ios-sheet-grabber" title="Swipe down to dismiss"></div>
-        <img src="${imgSrc}" class="lightbox-img" alt="Full screen screenshot">
+        <div class="lightbox-top-bar">
+          <div class="lightbox-meta-badge-wrap">
+            ${is4K ? `
+              <span class="note-media-res-badge badge-4k" style="position:static;">4K Ultra HD</span>
+            ` : (isHD ? `
+              <span class="note-media-res-badge badge-hd" style="position:static;">HD</span>
+            ` : '')}
+            <span class="lightbox-meta-res">${dims}</span>
+          </div>
+          <div class="lightbox-actions-cluster">
+            <button type="button" class="btn-messenger-download btn-lightbox-download" id="btnLightboxDownload" title="Download original ${is4K ? '4K ' : ''}file" aria-label="Download original file">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12"/>
+                <path d="m7 11 5 5 5-5"/>
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+              </svg>
+            </button>
+            <button type="button" class="btn-lightbox-close" id="btnCloseLightbox" title="Close" aria-label="Close">✕</button>
+          </div>
+        </div>
+        <div class="lightbox-img-viewport">
+          <img src="${imgSrc}" class="lightbox-img" id="lightboxMainImg" alt="Full screen image">
+        </div>
         <div class="lightbox-footer">
-          <span class="lightbox-caption">${esc(caption || 'Screenshot · Swipe down to close')}</span>
-          <button type="button" class="btn-composer-send" id="btnCloseLightbox" style="padding:7px 18px;">Close ✕</button>
+          <span class="lightbox-caption">${esc(caption || 'Tap close or swipe down')}</span>
         </div>
       </div>
     `;
     document.body.appendChild(backdrop);
+
+    // If original high-res blob exists in MediaVault, upgrade lightbox image src seamlessly
+    if (note && note.origMediaId) {
+      MediaVault.get(note.origMediaId).then(rec => {
+        if (rec && rec.blob) {
+          const mainImg = $('#lightboxMainImg', backdrop);
+          if (mainImg) {
+            const blobUrl = URL.createObjectURL(rec.blob);
+            mainImg.src = blobUrl;
+          }
+        }
+      }).catch(() => {});
+    }
+
     const close = () => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
     $('#btnCloseLightbox', backdrop).onclick = close;
+    const dlBtn = $('#btnLightboxDownload', backdrop);
+    if (dlBtn) {
+      dlBtn.onclick = (e) => {
+        e.stopPropagation();
+        downloadOriginalImage(note || { image: imgSrc });
+      };
+    }
     backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
     attachSwipeDownToDismiss(backdrop, $('#lightboxSheet', backdrop), close);
   }
@@ -10011,10 +10292,18 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       noteImgInput.addEventListener('change', async (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
-        const dataUrl = await compressImage(file);
-        state.pendingAttachment = dataUrl;
-        renderMainChat();
-        showToast('Screenshot ready — press Enter or Add ✓ to send!');
+        try {
+          const processed = await processAttachedImage(file);
+          state.pendingAttachment = processed.previewUrl;
+          state.pendingOrigMediaId = processed.origMediaId;
+          state.pendingOrigMeta = processed.origMeta;
+          renderMainChat();
+          const badge = processed.origMeta.is4K ? '4K Ultra HD ' : (processed.origMeta.isHD ? 'HD ' : '');
+          showToast(`📸 ${badge}Image ready — press Enter or Add ✓ to send!`);
+        } catch (err) {
+          console.error(err);
+          showToast('⚠️ Failed to load image.');
+        }
         e.target.value = '';
       });
     }
@@ -10175,16 +10464,24 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       const file = files[0];
       if (file.type && file.type.startsWith('image/')) {
         e.preventDefault();
-        const dataUrl = await compressImage(file);
-        state.pendingAttachment = dataUrl;
-        const prevText = ($('#composerInput') && $('#composerInput').value) || '';
-        renderMainChat();
-        const inp = $('#composerInput');
-        if (inp) {
-          inp.value = prevText;
-          inp.focus();
+        try {
+          const processed = await processAttachedImage(file);
+          state.pendingAttachment = processed.previewUrl;
+          state.pendingOrigMediaId = processed.origMediaId;
+          state.pendingOrigMeta = processed.origMeta;
+          const prevText = ($('#composerInput') && $('#composerInput').value) || '';
+          renderMainChat();
+          const inp = $('#composerInput');
+          if (inp) {
+            inp.value = prevText;
+            inp.focus();
+          }
+          const badge = processed.origMeta.is4K ? '4K Ultra HD ' : (processed.origMeta.isHD ? 'HD ' : '');
+          showToast(`📸 ${badge}Image attached via drag & drop! Press Enter to send.`);
+        } catch (err) {
+          console.error(err);
+          showToast('⚠️ Could not attach image.');
         }
-        showToast('Screenshot attached via drag & drop! Press Enter to send.');
       }
     });
 
@@ -10197,16 +10494,24 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
           e.preventDefault();
           const blob = item.getAsFile();
           if (blob) {
-            const dataUrl = await compressImage(blob);
-            state.pendingAttachment = dataUrl;
-            const prevText = ($('#composerInput') && $('#composerInput').value) || '';
-            renderMainChat();
-            const inp = $('#composerInput');
-            if (inp) {
-              inp.value = prevText;
-              inp.focus();
+            try {
+              const processed = await processAttachedImage(blob);
+              state.pendingAttachment = processed.previewUrl;
+              state.pendingOrigMediaId = processed.origMediaId;
+              state.pendingOrigMeta = processed.origMeta;
+              const prevText = ($('#composerInput') && $('#composerInput').value) || '';
+              renderMainChat();
+              const inp = $('#composerInput');
+              if (inp) {
+                inp.value = prevText;
+                inp.focus();
+              }
+              const badge = processed.origMeta.is4K ? '4K Ultra HD ' : (processed.origMeta.isHD ? 'HD ' : '');
+              showToast(`📸 ${badge}Image pasted from clipboard! Press Enter to send.`);
+            } catch (err) {
+              console.error(err);
+              showToast('⚠️ Could not attach pasted image.');
             }
-            showToast('Screenshot pasted from clipboard! Press Enter to send.');
           }
           break;
         }

@@ -12034,3 +12034,185 @@ body.netflix-messenger-theme {
   transform: translateZ(0) !important;
 }
 
+/* =========================================================================
+   TOP-TIER 4K MEDIA VAULT & MESSENGER 1-TAP DOWNLOAD BUTTON
+   ========================================================================= */
+
+.note-media-wrap {
+  margin-bottom: 4px;
+  position: relative;
+  display: block;
+}
+
+.note-media-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Circular Glassmorphism Download Button (Messenger & Telegram Standard) */
+.btn-messenger-download {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(10, 14, 22, 0.72) !important;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  z-index: 6;
+  padding: 0;
+  outline: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-messenger-download:hover {
+  transform: scale(1.12);
+  background: rgba(15, 23, 42, 0.94) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.5), 0 6px 20px rgba(0, 0, 0, 0.85);
+}
+
+.btn-messenger-download:active {
+  transform: scale(0.92);
+}
+
+.btn-messenger-download svg {
+  display: block;
+  pointer-events: none;
+}
+
+/* Futuristic 4K UHD & HD Resolution Badges */
+.note-media-res-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-radius: 6px;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  z-index: 6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+}
+
+.badge-4k {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(168, 85, 247, 0.9)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5), 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.badge-hd {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.9), rgba(59, 130, 246, 0.9)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* Lightbox Top Bar & Actions */
+.lightbox-top-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  margin-bottom: 12px !important;
+  padding: 0 4px !important;
+}
+
+.lightbox-meta-badge-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.lightbox-meta-res {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #94a3b8 !important;
+  letter-spacing: 0.3px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace !important;
+}
+
+.lightbox-actions-cluster {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.btn-lightbox-download {
+  position: static !important;
+  margin: 0 !important;
+}
+
+.btn-lightbox-close {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+.btn-lightbox-close:hover {
+  background: rgba(239, 68, 68, 0.85) !important;
+  border-color: #ef4444 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5) !important;
+}
+
+.btn-lightbox-close:active {
+  transform: scale(0.92) !important;
+}
+
+.lightbox-img-viewport {
+  position: relative !important;
+  max-width: 100% !important;
+  max-height: 72vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  border-radius: 12px !important;
+}
+
+/* Attachment preview metadata */
+.attach-thumb-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.attach-thumb-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+
