@@ -1663,6 +1663,7 @@ const Icons = {
   // 1. Multi-Step Progressive Downsampling (eliminates bilinear blur)
   // 2. High-Q Adaptive WebP / JPEG (0.92 quality)
   // 3. Post-Downscale Edge-Sharpening Filter (restores micro-contrast on text & photos)
+  window.compressImage = compressImage;
   function compressImage(fileOrBlob, maxWidth = 1600, quality = 0.92) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
