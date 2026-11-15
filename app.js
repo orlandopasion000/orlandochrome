@@ -743,9 +743,9 @@ const Icons = {
   const DEFAULT_PROFILES = [
     { id: "p_tb_3", profileDir: "Default", chromeNo: 1, taskbarSlot: 3, winShortcut: "Win + 3", name: "A0 1994", email: "orlandopasion1994@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Nov 14", createdAt: 1794666567638, updatedAt: 1794666567638, expiresAt: 1794752967638 }, notes: [{ id: "11e9pgdaw7", text: "10pm", done: false, createdAt: 1794666584167, reactions: [], subItems: [] }] },
     { id: "p_tb_4", profileDir: "Profile 16", chromeNo: 2, taskbarSlot: 4, winShortcut: "Win + 4", name: "A1 001 DepEd", email: "orlando.pasion001@deped.gov.ph", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: { text: "Nov 14", createdAt: 1794666579277, updatedAt: 1794666579277, expiresAt: 1794752979277 }, notes: [{ id: "a35gns8ekq", text: "11pm", done: false, createdAt: 1794666588938, reactions: [], subItems: [] }] },
-    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: 1794709804995, timerDurationMs: 43200000, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] }] },
+    { id: "p_tb_5", profileDir: "Profile 1", chromeNo: 3, taskbarSlot: 5, winShortcut: "Win + 5", name: "A2 000", email: "orlandopasion000@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "ym9tc4core", text: "Nov  14 2026", done: false, createdAt: 1794666602138, reactions: ["urgent", "waiting", "verified"], subItems: [] }] },
     { id: "p_tb_6", profileDir: "Profile 2", chromeNo: 4, taskbarSlot: 6, winShortcut: "Win + 6", name: "A3 0817", email: "orlandopasion0817@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "w1qmo8xbbv", text: "Nov 14", done: false, createdAt: 1794666631387, reactions: [], subItems: [] }] },
-    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: 1794709835385, timerDurationMs: 43200000, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
+    { id: "p_tb_7", profileDir: "Profile 24", chromeNo: 5, taskbarSlot: 7, winShortcut: "Win + 7", name: "A4 A Hero", email: "heroesmeraldaepicalu@gmail.com", gaia: "Orlando Pasion", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_8", profileDir: "Profile 22", chromeNo: 6, taskbarSlot: 8, winShortcut: "Win + 8", name: "A4 B Yify", email: "yifyyts7@gmail.com", gaia: "Yify Yify", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "Nov 14 10:30PM", customAvatar: null, statusNote: null, notes: [] },
     { id: "p_tb_9", profileDir: "Profile 20", chromeNo: 7, taskbarSlot: 9, winShortcut: "Win + 9", name: "A4 C NASH", email: "revnash0@gmail.com", gaia: "Nash Rev", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [{ id: "kgfv0p4733", text: "YIFY has sticky notes. Look above", done: false, createdAt: 1794666672543, reactions: [], subItems: [] }] },
     { id: "p_tb_10", profileDir: "Profile 48", chromeNo: 8, taskbarSlot: 10, winShortcut: "Slot #10", name: "A4 D Gwapo", email: "gwapocpogi@gmail.com", gaia: "Gwapo Pogi", timerUntil: null, timerDurationMs: null, isReset: false, isPinned: false, pinnedAt: null, isUnread: false, stickyNote: "", customAvatar: null, statusNote: null, notes: [] },
@@ -823,7 +823,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure108').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=pure109').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -3191,14 +3191,14 @@ const Icons = {
       const def = !IS_BLANK_EDITION ? DEFAULT_PROFILES.find(d => d.id === p.id) : null;
       const hasCustomName = def ? (p.name !== def.name) : true;
 
-      if (hasNotes || hasTimer || hasMeta || hasCustomName || IS_BLANK_EDITION) {
+      if (hasNotes || hasTimer || hasMeta || hasCustomName || IS_BLANK_EDITION || !forQrCode) {
         if (forQrCode && !hasNotes && !hasTimer && !hasMeta && !IS_BLANK_EDITION) continue;
         const entry = { i: p.chromeNo };
         if (IS_BLANK_EDITION || hasCustomName) entry.nm = p.name;
         if (IS_BLANK_EDITION && p.email) entry.em = p.email;
-        if (p.timerUntil) entry.tu = p.timerUntil;
+        entry.tu = p.timerUntil || null;
         if (p.timerDurationMs) entry.td = p.timerDurationMs;
-        if (p.isReset) entry.rs = 1;
+        entry.rs = p.isReset ? 1 : 0;
         if (p.isPinned) {
           entry.pn = 1;
           if (p.pinnedAt) entry.pa = p.pinnedAt;
@@ -3473,9 +3473,17 @@ const Icons = {
 
         let timerUntil = existing.timerUntil;
         let timerDurationMs = existing.timerDurationMs;
-        if (item.tu !== undefined) {
-          timerUntil = item.tu;
-          timerDurationMs = item.td || null;
+        let isReset = existing.isReset;
+
+        const isRemoteNewer = (packet.ts || 0) >= (state.lastModified || 0);
+        if (isRemoteNewer && sourceLabel !== 'Two-Way Convergence Sync') {
+          if (item.tu !== undefined) {
+            timerUntil = item.tu || null;
+            timerDurationMs = item.td || null;
+          }
+          if (item.rs !== undefined) {
+            isReset = (item.rs === 1 || item.rs === true);
+          }
         }
 
         return {
@@ -3484,7 +3492,7 @@ const Icons = {
           email: item.em || existing.email,
           timerUntil: timerUntil,
           timerDurationMs: timerDurationMs,
-          isReset: item.rs !== undefined ? Boolean(item.rs) : existing.isReset,
+          isReset: isReset,
           isPinned: item.pn !== undefined ? Boolean(item.pn) : existing.isPinned,
           pinnedAt: item.pa !== undefined ? item.pa : existing.pinnedAt,
           isUnread: Boolean((item.un || existing.isUnread) && mergedNotes.length > 0),
@@ -4976,7 +4984,9 @@ const Icons = {
         if (!prof) return;
         prof.isReset = false;
         prof.timerUntil = null;
+        prof.timerDurationMs = null;
         saveState();
+        scheduleCloudPush(true);
         if (window.soundMgr) {
           if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
           else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
@@ -6357,6 +6367,7 @@ const Icons = {
         p.timerDurationMs = null;
         p.isReset = false;
         saveState();
+        scheduleCloudPush(true);
         renderSidebar();
         renderMainChat();
         showToast(`Cleared cooldown timer for ${p.name}`);
@@ -6373,7 +6384,9 @@ const Icons = {
         }
         p.isReset = false;
         p.timerUntil = null;
+        p.timerDurationMs = null;
         saveState();
+        scheduleCloudPush(true);
         if (window.soundMgr) {
           if (typeof window.soundMgr.playClickSoft === 'function') window.soundMgr.playClickSoft();
           else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
@@ -10949,6 +10962,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
               prof.timerDurationMs = null;
               prof.isReset = false;
               saveState();
+              scheduleCloudPush(true);
               renderSidebar();
               renderMainChat();
               showToast(`✕ Cleared timer on ${prof.name}`);
