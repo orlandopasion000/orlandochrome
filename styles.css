@@ -13848,10 +13848,22 @@ body.universe-game-active .qgame-victory-actions * {
   cursor: default;
 }
 
-body.universe-game-active main {
+/* ───────── SOLUTION 1: PURE FULLSCREEN CURTAIN (ZERO TEXT BLEED) ───────── */
+body.universe-game-active .app-topbar,
+body.universe-game-active .app-workspace,
+body.universe-game-active #appWorkspace,
+body.universe-game-active #appSidebar,
+body.universe-game-active .sidebar,
+body.universe-game-active .sidebar-header,
+body.universe-game-active .profile-list,
+body.universe-game-active .standalone-subapp-dock,
+body.universe-game-active .workspace-resizer,
+body.universe-game-active main,
+body.universe-game-active #chatMain {
   opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none !important;
-  transition: opacity 1.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: opacity 0.3s ease, visibility 0.3s ease !important;
 }
 
 body.universe-game-active .modal-wrap:not(#qGameVictoryModal) {
@@ -13860,27 +13872,21 @@ body.universe-game-active .modal-wrap:not(#qGameVictoryModal) {
   pointer-events: none !important;
 }
 
-/* Existing particles remain 100% visible, fully illuminated and razor sharp */
-body.universe-game-active .antigravity-fx-canvas,
-body.universe-game-active .antigravity-front-canvas {
-  opacity: 1 !important;
-  display: block !important;
-  pointer-events: none !important;
-}
-
+/* Solid pure black stage curtain for quantum game overlay */
 .quantum-game-overlay {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 85;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 1.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.35s cubic-bezier(0.4, 0, 0.2, 1);
-  background: transparent !important;
+  background: #000000 !important;
+  background-color: #000000 !important;
   user-select: none;
-  will-change: opacity;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: opacity, visibility;
 }
 
 body:not(.universe-game-active) .quantum-game-overlay,
@@ -13889,10 +13895,11 @@ body:not(.universe-game-active) .quantum-game-overlay * {
 }
 
 body.universe-game-active .quantum-game-overlay {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  background: transparent !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  background: #000000 !important;
+  background-color: #000000 !important;
 }
 
 .quantum-game-canvas {

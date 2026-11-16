@@ -2005,6 +2005,15 @@
   };
   window.openChromeGame = openGame;
 
+    // Dedicated Escape Key Listener for Quantum Universe Game Suite (Pure Curtain Return)
+  window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      if (window.quantumGame && typeof window.quantumGame.isActive === 'function' && window.quantumGame.isActive()) {
+        e.preventDefault();
+        window.quantumGame.exit();
+      }
+    }
+  });
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initEvents);
   } else {
