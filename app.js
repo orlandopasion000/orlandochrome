@@ -10076,13 +10076,6 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         openTrashVaultModal();
       };
     }
-    const vaultBtnDrawer = $('#openVaultBtnDrawer');
-    if (vaultBtnDrawer) {
-      vaultBtnDrawer.onclick = (e) => {
-        if (e) e.stopPropagation();
-        openVaultModal();
-      };
-    }
     const syncBadgeDot = $('#topbarSyncDot');
     const syncBadgeLbl = $('#topbarSyncLabel');
     if (syncBadgeDot) syncBadgeDot.onclick = () => openVaultModal();
@@ -10114,23 +10107,6 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
 
     const btnOpenSuite = $('#btnOpenAppSuite');
     if (btnOpenSuite) btnOpenSuite.onclick = () => openAppDistributionSuiteModal();
-
-    // 4-Card Dock & App Distribution controls (Open Main Web App · No installation needed)
-    const mainAppBtn = $('#openMainAppBtn') || $('#installAppBtn');
-    if (mainAppBtn) {
-      mainAppBtn.onclick = (e) => {
-        if (e) e.preventDefault();
-        handleLaunchStandaloneApp();
-      };
-    }
-
-    const openQrBtn = $('#openQrBtn');
-    if (openQrBtn) {
-      openQrBtn.onclick = (e) => {
-        if (e) e.stopPropagation();
-        openAppDistributionSuiteModal();
-      };
-    }
 
     const cardHoloQr = $('#cardHoloQr') || $('.dist-card-holo');
     if (cardHoloQr) {

@@ -214,49 +214,7 @@
     <div class="dist-drawer-wrapper" id="distDrawerWrapper">
       <div class="dist-body" id="distBody">
       <div class="dist-grid">
-        <!-- Card 1: Main Executive Workspace -->
-        <div class="dist-card" id="distCardMain">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-red">
-              <svg class="modern-icon modern-icon-red" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name" id="distCardMainTitle">OrlandoChrome (Main Version)</div>
-              <div class="dist-desc" id="distCardMainDesc">Complete 22-profile main workspace</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack" id="distMainBtnStack">
-              <a class="primary dist-btn dist-btn-install" id="openMainAppBtn" href="https://orlandopasion000.github.io/orlandochrome/" target="_blank" rel="noopener" title="Open OrlandoChrome (Main Version)">
-                <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                <span>Open Main Web App</span>
-              </a>
-            </div>
-        </div>
-
-        <!-- Card 2: Mobile QR Code & Link Sharing -->
-        <div class="dist-card dist-card-holo" id="cardHoloQr" style="cursor: pointer;" title="Open Holographic QR Scanner">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-red">
-              <svg class="modern-icon modern-icon-red" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name">Holographic QR</div>
-              <div class="dist-desc">Instant phone scanner &amp; device sync</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack">
-            <button type="button" class="ghost dist-btn dist-btn-holo" id="openQrBtn">
-              <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" style="width:14px;height:14px"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-              <span>Open Phone QR</span>
-            </button>
-            <button type="button" class="ghost dist-btn" id="shareAppBtn">
-              <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-              <span>Share / Copy Link</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Card 3: Backup & Restore Workspace -->
+        <!-- Card: Backup & Restore Workspace -->
         <div class="dist-card">
           <div class="dist-card-top">
             <div class="dist-icon dist-icon-red">
@@ -278,7 +236,6 @@
                 <span>Import</span>
               </button>
             </div>
-            <button type="button" class="primary dist-btn dist-btn-vault" id="openVaultBtnDrawer" style="margin-top:8px;width:100%;" title="Open Multi-Tier Data Recovery Vault & Rollback Checkpoints"><svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg> <span>⚡ Data Recovery Vault</span></button>
             <input type="file" id="importBackupFile" accept=".json,application/json" style="display:none">
           </div>
         </div>
