@@ -9981,23 +9981,23 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     $('#tabTimers').onclick = () => setFilter($('#tabTimers'), 'timers');
 
     // Logo click resets filters
-    // Topbar Instant Real-Time Sync Now Button (Laptop <-> iPhone)
+    // Real-Time Cloud Sync (Topbar & System Dropdown)
+    const triggerSyncAction = async () => {
+      triggerHaptic('medium');
+      showToast('🔄 Synchronizing with Cloud...');
+      await pullFromCloud(false, false);
+      await pushToCloudNow(false);
+      triggerHaptic('success');
+      showToast('☁️ Synced! Laptop and iPhone are 100% up to date.');
+    };
     const btnSyncNow = $('#btnTopbarSyncNow');
-    if (btnSyncNow) {
-      btnSyncNow.onclick = async () => {
-        triggerHaptic('medium');
-        btnSyncNow.classList.add('syncing-spin');
-        const lbl = $('#topbarSyncQuickLabel');
-        if (lbl) lbl.textContent = 'Syncing...';
-        showToast('🔄 Synchronizing with Cloud...');
-        await pullFromCloud(false, false);
-        await pushToCloudNow(false);
-        setTimeout(() => {
-          btnSyncNow.classList.remove('syncing-spin');
-          if (lbl) lbl.textContent = 'Synced';
-          triggerHaptic('success');
-          showToast('☁️ Synced! Laptop and iPhone are 100% up to date.');
-        }, 600);
+    if (btnSyncNow) btnSyncNow.onclick = triggerSyncAction;
+    const btnDropdownSync = $('#btnDropdownSyncNow');
+    if (btnDropdownSync) {
+      btnDropdownSync.onclick = () => {
+        const menu = $('#systemDropdownMenu');
+        if (menu) menu.classList.remove('active');
+        triggerSyncAction();
       };
     }
 
@@ -10116,6 +10116,14 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
 
     const btnTopbarVoice = $('#btnTopbarVoiceManual');
     if (btnTopbarVoice) btnTopbarVoice.onclick = () => openVoiceCommandsCheatSheetModal();
+    const btnDropdownVoice = $('#btnDropdownVoiceGuide');
+    if (btnDropdownVoice) {
+      btnDropdownVoice.onclick = () => {
+        const menu = $('#systemDropdownMenu');
+        if (menu) menu.classList.remove('active');
+        openVoiceCommandsCheatSheetModal();
+      };
+    }
 
     const btnSystemVoice = $('#btnSystemVoiceManual');
     if (btnSystemVoice) {
@@ -11396,7 +11404,10 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
 
     // C. SEARCH: Quick Actions & System Tools
     const actions = [
-      { id: 'act-game', title: 'Chrome Synapse: Quantum Taskbar Blitz (Play Arcade Game)', desc: 'Math Overdrive, Reflex Blitz & Memory Matrix · Teacher & Student hit! (Alt + G)', badge: 'PLAY 🎮', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open(); } },
+      { id: 'act-math', title: 'Math Overdrive: Eight-Level Difficulty System', desc: 'Academically structured arithmetic progression (20 Qs · 10 Mistakes Max)', badge: 'MATH 🧮', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('math'); } },
+      { id: 'act-reflex', title: 'Reflex Blitz: Quantum Realm, Helix & Meteor Catcher', desc: 'Extra Big Tier 3 particles · Catcher transmutations (10 Lives)', badge: 'REFLEX ⚡', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('reflex'); } },
+      { id: 'act-memory', title: 'Memory Matrix: 16-Box Quantum Array', desc: 'Fullscreen 4x4 array · Musical harmonic sequence (1 Mistake Game Over)', badge: 'MATRIX 🧠', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('memory'); } },
+      { id: 'act-fullscreen', title: 'Toggle True Fullscreen Arena Mode', desc: 'Expand Chrome and Arena to fill all display space', badge: 'SCREEN ⛶', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.toggleFullscreen(); } },
       { id: 'act-sync', title: 'Cloud Sync Now (Laptop ↔ iPhone)', desc: 'Real-time bidirectional Firebase Firestore sync stream', badge: 'Action', action: () => { const b = $('#btnTopbarSyncNow'); if (b) b.click(); } },
       { id: 'act-launch', title: 'Open Main Web App (Desktop Window)', desc: 'Borderless 1180×820 dedicated Chromium standalone window', badge: 'Desktop', action: () => { handleLaunchStandaloneApp(); } },
       { id: 'act-voice', title: 'Voice Commands Manual (Wispr Flow)', desc: '10 superpowers, auto-punctuation & voice dictation', badge: 'Wispr', action: () => { openVoiceCommandsCheatSheetModal(); } },

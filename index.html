@@ -38,35 +38,49 @@
       </div>
     </div>
 
-    <div class="topbar-right">
-      <!-- Jump to Next Ready Profile (Alt+N) -->
-            <!-- Real-Time Cross-Device Sync Pill (Desktop & iPhone) -->
-      <button type="button" class="btn-topbar-quick btn-topbar-sync" id="btnTopbarSyncNow" title="Tap to sync instantly between Laptop & iPhone">
+        <div class="topbar-right">
+      <!-- 1. Designated Game Button: Math Overdrive -->
+      <button type="button" class="btn-topbar-game-dest btn-game-math" id="btnLaunchMathGame" title="Math Overdrive: Eight-Level Difficulty System (20 Qs Â· 10 Strikes)">
         <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 7h16M4 17h16M9 4v6M15 14v6" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
         </svg>
-        <span id="topbarSyncQuickLabel">Sync</span>
+        <span>Math</span>
       </button>
 
-      <!-- Surprise Arcade Game Launcher: Chrome Synapse -->
-      <button type="button" class="btn-topbar-quick btn-topbar-game" id="btnTopbarGameLaunch" title="Chrome Synapse: Quantum Arcade Arena (Math, Reflex & Memory Challenge) · Alt + G">
-        <span class="arcade-controller-icon">🎮</span>
-        <span class="topbar-game-label">Play</span>
-        <span class="game-live-dot" title="Arcade Ready"></span>
+      <!-- 2. Designated Game Button: Reflex Blitz -->
+      <button type="button" class="btn-topbar-game-dest btn-game-reflex" id="btnLaunchReflexGame" title="Reflex Blitz: Quantum Realm, Helix & Meteor Catcher (10 Lives)">
+        <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reflex</span>
+      </button>
+
+      <!-- 3. Designated Game Button: Memory Matrix -->
+      <button type="button" class="btn-topbar-game-dest btn-game-memory" id="btnLaunchMemoryGame" title="Memory Matrix: 16-Box Fullscreen Array (1 Mistake Game Over)">
+        <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
+        </svg>
+        <span>Matrix</span>
+      </button>
+
+      <!-- 4. Fullscreen Toggle Button -->
+      <button type="button" class="btn-topbar-quick btn-topbar-fullscreen" id="btnTopbarFullscreen" title="Toggle Fullscreen Arena Mode">
+        <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
+          <path d="M15 3h6v6M9 21H3v-6M21 9l-7 7M3 15l7-7M21 3l-7 7M3 21l7-7" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Full</span>
       </button>
 
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
-        <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next Ready</span>
-      </button>
-
-      <!-- Voice Commands & Instructions Manual Button (Always Visible) -->
-      <button type="button" class="btn-topbar-quick btn-topbar-voice-btn" id="btnTopbarVoiceManual" title="Voice Commands Manual & Hands-Free Instructions (Alt + V)">
-        <span style="font-size:12px;">🎙️</span> <span>Voice Commands</span>
+        <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next</span>
       </button>
 
       <!-- Compressed Single "System" Command Button & Floating Futuristic Dropdown -->
       <div class="system-menu-wrapper" id="systemMenuWrapper">
-        <button type="button" class="btn-topbar-system" id="btnSystemMenu" aria-haspopup="true" aria-expanded="false" title="System Menu (Recovery, Centennial Recovery, Open main web app, Holographic QR)">
+        <button type="button" class="btn-topbar-system" id="btnSystemMenu" aria-haspopup="true" aria-expanded="false" title="System Menu (Sync, Voice Commands, Recovery, Centennial, Standalone App)">
           <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;"><circle cx="12" cy="12" r="3" stroke="#38bdf8" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#38bdf8" stroke-width="1.8"/></svg>
           <span class="system-btn-text">System</span>
           <span class="sync-status-dot synced" id="topbarSyncDot" title="Cloud Synchronized"></span>
@@ -75,6 +89,38 @@
 
         <!-- Floating Dropdown Menu -->
         <div class="system-dropdown-menu" id="systemDropdownMenu" role="menu" aria-label="System Menu">
+          <!-- 1. Real-Time Cross-Device Cloud Sync -->
+          <button type="button" class="system-menu-item" id="btnDropdownSyncNow" role="menuitem" title="Tap to sync instantly between Laptop & iPhone">
+            <div class="menu-item-icon" style="background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.4);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Cloud Sync Now</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(56,189,248,0.22);color:#38bdf8;font-weight:700;">REALTIME</span>
+              </div>
+              <div class="menu-item-desc">Bidirectional Firestore sync stream between Laptop &amp; iPhone</div>
+            </div>
+          </button>
+
+          <!-- 2. Voice Commands Manual (Wispr Flow) -->
+          <button type="button" class="system-menu-item" id="btnDropdownVoiceGuide" role="menuitem" title="Wispr Voice Commands Manual & Speech Dictation">
+            <div class="menu-item-icon" style="background:rgba(244,63,94,0.18);border:1px solid rgba(244,63,94,0.4);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="#f43f5e" stroke-width="2"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Voice Commands</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(244,63,94,0.22);color:#f43f5e;font-weight:700;">WISPR</span>
+              </div>
+              <div class="menu-item-desc">10 superpowers, auto-punctuation &amp; hands-free control</div>
+            </div>
+          </button>
           <!-- 1. Recovery (renamed from Recovery Vault) -->
           <!-- Arcade Arena Lounge -->
           <button type="button" class="system-menu-item" id="btnSystemGame" role="menuitem" title="Chrome Synapse: Quantum Arcade Arena">
@@ -339,95 +385,146 @@
   </div>
 
 
-  <!-- CHROME SYNAPSE: QUANTUM ARCADE ARENA MODAL -->
+    <!-- CHROME SYNAPSE: QUANTUM ARCADE ARENA (TRUE FULLSCREEN v2.0) -->
   <div class="game-modal-overlay" id="chromeGameModal" style="display:none;" role="dialog" aria-modal="true" aria-label="Chrome Synapse Arcade Arena">
     <div class="game-container-card">
-      <!-- Top Game Bar -->
+      <!-- Fullscreen Game Header -->
       <div class="game-topbar">
         <div class="game-brand">
-          <span class="game-brand-icon">🎮</span>
+          <div class="game-cyber-glyph">
+            <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
+              <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5" stroke="#a855f7" stroke-width="2" fill="rgba(168,85,247,0.2)"/>
+              <circle cx="12" cy="12" r="3.5" fill="#38bdf8"/>
+            </svg>
+          </div>
           <div class="game-brand-text">
-            <span class="game-title">CHROME SYNAPSE</span>
-            <span class="game-sub">Quantum Taskbar Blitz · Math &amp; Reflex Arena</span>
+            <span class="game-title" id="cgGameTitle">CHROME SYNAPSE</span>
+            <span class="game-sub" id="cgGameSub">Quantum Arcade Arena</span>
           </div>
         </div>
+
+        <!-- Live Score Cluster -->
         <div class="game-stats-cluster">
           <div class="game-stat-pill score-pill">
             <span class="g-stat-label">SCORE</span>
-            <span class="g-stat-val" id="gScoreDisplay">0</span>
+            <span class="g-stat-val" id="cgScoreVal">0</span>
           </div>
           <div class="game-stat-pill combo-pill">
             <span class="g-stat-label">COMBO</span>
-            <span class="g-stat-val" id="gComboDisplay">1x</span>
+            <span class="g-stat-val" id="cgComboVal">1x</span>
           </div>
           <div class="game-stat-pill best-pill">
             <span class="g-stat-label">BEST</span>
-            <span class="g-stat-val" id="gBestDisplay">0</span>
+            <span class="g-stat-val" id="cgBestVal">0</span>
           </div>
         </div>
+
+        <!-- Controls -->
         <div class="game-controls-actions">
-          <button type="button" class="game-btn-icon" id="btnGameMute" title="Toggle Sound">🔊</button>
-          <button type="button" class="game-btn-close" id="btnGameClose" title="Exit Game (Esc)">✕</button>
+          <button type="button" class="game-btn-icon" id="cgFullscreenBtn" title="Toggle Fullscreen">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <path d="M15 3h6v6M9 21H3v-6M21 9l-7 7M3 15l7-7M21 3l-7 7M3 21l7-7" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button type="button" class="game-btn-icon" id="cgMuteBtn" title="Toggle Audio">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="#94a3b8" stroke-width="2" fill="rgba(148,163,184,0.2)"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button type="button" class="game-btn-close" id="cgCloseBtn" title="Exit Game (Esc)">
+            <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+              <path d="M18 6L6 18M6 6l12 12" stroke="#f1f5f9" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
       </div>
 
-      <!-- Mode Selector Tabs -->
-      <div class="game-mode-bar" id="gameModeBar">
-        <button type="button" class="g-mode-btn active" data-mode="math">
-          <span class="m-icon">🧮</span>
-          <span class="m-title">Math Overdrive</span>
-          <span class="m-tag">Teacher &amp; Student Hit!</span>
-        </button>
-        <button type="button" class="g-mode-btn" data-mode="reflex">
-          <span class="m-icon">⚡</span>
-          <span class="m-title">Reflex Blitz</span>
-          <span class="m-tag">Speed &amp; Avoidance</span>
-        </button>
-        <button type="button" class="g-mode-btn" data-mode="memory">
-          <span class="m-icon">🧠</span>
-          <span class="m-title">Memory Matrix</span>
-          <span class="m-tag">Musical Recall</span>
-        </button>
-      </div>
-
-      <!-- Active Game Arena (Canvas + Interactive Overlays) -->
+      <!-- Main Stage Container -->
       <div class="game-arena-stage" id="gameArenaStage">
-        <canvas id="synapseCanvas"></canvas>
         
-        <!-- Interactive Question & Options HUD for Math Mode -->
-        <div class="math-hud-overlay" id="mathHudOverlay" style="display:none;">
-          <div class="math-timer-bar-wrap">
-            <div class="math-timer-bar" id="mathTimerBar"></div>
+        <!-- VIEW 1: Math Overdrive (Eight-Level System) -->
+        <div class="math-view-container" id="cgViewMath" style="display:none;">
+          <!-- 8-Level Selector Bar -->
+          <div class="math-levels-bar">
+            <button type="button" class="math-level-tab active" data-level="1">L1: Very Easy</button>
+            <button type="button" class="math-level-tab" data-level="2">L2: Easy</button>
+            <button type="button" class="math-level-tab" data-level="3">L3: Mod. Easy</button>
+            <button type="button" class="math-level-tab" data-level="4">L4: Moderate</button>
+            <button type="button" class="math-level-tab" data-level="5">L5: Mod. Diff</button>
+            <button type="button" class="math-level-tab" data-level="6">L6: Difficult</button>
+            <button type="button" class="math-level-tab" data-level="7">L7: Very Diff</button>
+            <button type="button" class="math-level-tab" data-level="8">L8: Master</button>
           </div>
-          <div class="math-question-box">
-            <span class="math-question-label">SOLVE QUANTUM SYNAPSE:</span>
-            <span class="math-equation-text" id="mathEquationText">12 × 12 = ?</span>
-          </div>
-          <div class="math-options-grid" id="mathOptionsGrid"></div>
-        </div>
 
-        <!-- Memory Matrix Grid HUD for Memory Mode -->
-        <div class="memory-hud-overlay" id="memoryHudOverlay" style="display:none;">
-          <div class="memory-round-indicator" id="memoryRoundIndicator">ROUND 1 · WATCH SEQUENCE</div>
-          <div class="memory-grid-pads" id="memoryGridPads"></div>
-        </div>
-
-        <!-- Start Screen / Game Over Screen Overlay -->
-        <div class="game-screen-overlay" id="gameScreenOverlay">
-          <div class="screen-card">
-            <div class="screen-icon" id="screenIcon">⚡</div>
-            <h2 class="screen-title" id="screenTitle">READY TO ENGAGE?</h2>
-            <p class="screen-desc" id="screenDesc">Select a mode and challenge your mental math speed, reflexes, or memory matrix!</p>
-            <div class="screen-actions">
-              <button type="button" class="screen-btn-primary" id="btnGameStart">ENGAGE SYNAPSE</button>
+          <!-- Question Progress & 10 Energy Shields Indicator -->
+          <div class="math-hud-meta">
+            <div class="math-progress-chip" id="mathProgressLabel">QUESTION 1 / 20</div>
+            <div class="shields-cluster">
+              <span class="shields-label">SHIELDS (10 STRIKES):</span>
+              <div class="shields-cells" id="mathShields"></div>
             </div>
-            <div class="screen-hint" id="screenHint">Tip: Press [1], [2], [3], [4] or Click to answer · Arrow keys or Drag to steer · Alt+G anytime</div>
+          </div>
+
+          <!-- Countdown Laser Bar -->
+          <div class="math-laser-track">
+            <div class="math-laser-fill" id="mathTimeBar"></div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="math-equation-card">
+            <span class="math-eq-caption">SOLVE QUANTUM SYNAPSE:</span>
+            <div class="math-eq-display" id="mathEquation">4 + 3 = ?</div>
+          </div>
+
+          <!-- 4-Choice Options Grid -->
+          <div class="math-options-array">
+            <button type="button" class="math-opt-btn" data-key="1"><span class="opt-key">1</span><span class="opt-val">7</span></button>
+            <button type="button" class="math-opt-btn" data-key="2"><span class="opt-key">2</span><span class="opt-val">6</span></button>
+            <button type="button" class="math-opt-btn" data-key="3"><span class="opt-key">3</span><span class="opt-val">8</span></button>
+            <button type="button" class="math-opt-btn" data-key="4"><span class="opt-key">4</span><span class="opt-val">9</span></button>
           </div>
         </div>
+
+        <!-- VIEW 2: Reflex Blitz (Quantum Catcher Canvas) -->
+        <div class="reflex-view-container" id="cgViewReflex" style="display:none;">
+          <div class="reflex-hud-banner">
+            <div class="transmute-badge" id="transmuteIndicator">ACTIVE CORE: QUANTUM REALM</div>
+            <div class="shields-cluster">
+              <span class="shields-label">LIVES (10 SHIELDS):</span>
+              <div class="shields-cells" id="reflexShields"></div>
+            </div>
+          </div>
+          <canvas id="cgCanvasReflex"></canvas>
+        </div>
+
+        <!-- VIEW 3: Memory Matrix (16-Box 4x4 Fullscreen Array) -->
+        <div class="memory-view-container" id="cgViewMemory" style="display:none;">
+          <div class="memory-round-banner" id="memoryRoundLabel">ROUND 1 Â· WATCH MATRIX SEQUENCE</div>
+          <div class="memory-grid-16" id="memoryGrid"></div>
+        </div>
+
+        <!-- Overlay: Ready / Game Over / Victory -->
+        <div class="game-screen-overlay" id="cgScreenOverlay" style="display:none;">
+          <div class="screen-card">
+            <div class="screen-glyph">
+              <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
+                <circle cx="12" cy="12" r="10" stroke="#a855f7" stroke-width="2"/>
+                <path d="M12 6v6l4 2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h2 class="screen-title" id="cgScreenTitle">SIMULATION READY</h2>
+            <p class="screen-desc" id="cgScreenDesc">Challenge your computational speed, reflexes, or cognitive pattern recall.</p>
+            <div class="screen-actions">
+              <button type="button" class="screen-btn-primary" id="cgBtnStartAction">ENGAGE</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <script src="game.js?v=pure125"></script>
+  <script src="game.js?v=arena200"></script>
 </body>
 </html>
