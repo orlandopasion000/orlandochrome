@@ -9976,11 +9976,15 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       };
     }
 
-    $('#logoBtn').onclick = () => {
-      state.searchQuery = '';
-      $('#profileSearch').value = '';
-      setFilter($('#tabAll'), 'all');
-    };
+        const logoBtn = $('#logoBtn');
+    if (logoBtn) {
+      logoBtn.style.cursor = 'pointer';
+      logoBtn.title = 'Sir Orlando V. Pasion, Jr. — Main Web Portal (orlandopasion000.github.io)';
+      logoBtn.onclick = (e) => {
+        if (e) e.preventDefault();
+        window.location.href = 'https://orlandopasion000.github.io/';
+      };
+    }
 
     function isStandaloneMode() {
       return (
@@ -11194,6 +11198,391 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     renderMainChat();
   }
 
+
+  // =========================================================================
+  // 2. SPOTLIGHT COMMAND PALETTE & SUITE CONTROLLER (Genius Modern Software Secret)
+  // =========================================================================
+  let cmdSelectedIndex = 0;
+  let filteredCmdItems = [];
+
+  function buildCommandItems() {
+    const items = [];
+
+    // A. Executive Suite Sub-Apps
+    items.push({
+      id: 'suite-hub',
+      cat: 'Executive Suite Sub-Apps',
+      icon: '🏛️',
+      title: 'Sir Orlando V. Pasion, Jr. — Main Web Portal',
+      desc: 'Official portfolio, mock test reviewers & digital library',
+      badge: 'Hub',
+      action: () => { window.location.href = 'https://orlandopasion000.github.io/'; }
+    });
+    items.push({
+      id: 'suite-recharge',
+      cat: 'Executive Suite Sub-Apps',
+      icon: '⚡',
+      title: 'OrlandoRecharge (Main Version)',
+      desc: 'Complete 23-block main schedule alarm cockpit & horology',
+      badge: 'PWA',
+      action: () => {
+        const w = window.open('https://orlandopasion000.github.io/orlandorecharge/?standalone=true', 'OrlandoRechargeMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1280,height=850,left=100,top=60');
+        if (w) try { w.focus(); } catch(e) {}
+      }
+    });
+    items.push({
+      id: 'suite-timer',
+      cat: 'Executive Suite Sub-Apps',
+      icon: '⏳',
+      title: 'OrlandoTimer (Quantum Focus Horizon)',
+      desc: 'Atmospheric focus timer, soundscapes & quantum horology',
+      badge: 'PWA',
+      action: () => {
+        const w = window.open('https://orlandopasion000.github.io/orlandotimer/?standalone=true', 'OrlandoTimerMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1180,height=820,left=140,top=100');
+        if (w) try { w.focus(); } catch(e) {}
+      }
+    });
+    items.push({
+      id: 'suite-vault',
+      cat: 'Executive Suite Sub-Apps',
+      icon: '🔐',
+      title: 'OrlandoVault (Secure Digital Locker)',
+      desc: 'Encrypted passwords, credential safe & security health',
+      badge: 'Vault',
+      action: () => {
+        const w = window.open('https://orlandopasion000.github.io/orlandovault/?standalone=true', 'OrlandoVaultMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1180,height=820,left=160,top=120');
+        if (w) try { w.focus(); } catch(e) {}
+      }
+    });
+
+    // B. Quick Actions
+    items.push({
+      id: 'act-sync',
+      cat: 'Quick Actions',
+      icon: '🔄',
+      title: 'Cloud Sync Now (Laptop ↔ iPhone)',
+      desc: 'Real-time bidirectional Firebase Firestore sync stream',
+      badge: 'Action',
+      action: () => {
+        const btn = $('#btnTopbarSyncNow');
+        if (btn) btn.click();
+      }
+    });
+    items.push({
+      id: 'act-launch',
+      cat: 'Quick Actions',
+      icon: '🚀',
+      title: 'Open Main Web App (Desktop Window)',
+      desc: 'Borderless 1180×820 dedicated Chromium standalone window',
+      badge: 'Desktop',
+      action: () => { handleLaunchStandaloneApp(); }
+    });
+    items.push({
+      id: 'act-voice',
+      cat: 'Quick Actions',
+      icon: '🎙️',
+      title: 'Voice Commands Manual (Wispr Flow)',
+      desc: '10 superpowers, auto-punctuation & voice dictation',
+      badge: 'Wispr',
+      action: () => { openVoiceCommandsCheatSheetModal(); }
+    });
+    items.push({
+      id: 'act-vault',
+      cat: 'Quick Actions',
+      icon: '🛡️',
+      title: 'Recovery Vault & Rollback Checkpoints',
+      desc: 'Multi-tier encrypted data safety vault & history rollback',
+      badge: 'Vault',
+      action: () => { const b = $('#btnOpenVault'); if (b) b.click(); }
+    });
+    items.push({
+      id: 'act-centennial',
+      cat: 'Quick Actions',
+      icon: '💎',
+      title: 'Centennial Recovery (Merkle Cryptographic Self-Heal)',
+      desc: 'Sha256 Merkle tree verification & audit console',
+      badge: 'Crypto',
+      action: () => { const b = $('#btnOpenCentennial'); if (b) b.click(); }
+    });
+    items.push({
+      id: 'act-backup',
+      cat: 'Quick Actions',
+      icon: '💾',
+      title: 'Backup & Restore Workspace JSON',
+      desc: 'Export encrypted backup or restore profile state',
+      badge: 'JSON',
+      action: () => { const b = $('#btnSystemBackup'); if (b) b.click(); }
+    });
+    items.push({
+      id: 'act-blank',
+      cat: 'Quick Actions',
+      icon: '🎨',
+      title: 'OrlandoChrome (Blank Canvas)',
+      desc: 'Pristine zero-note workspace · Auto-scan laptop',
+      badge: 'Canvas',
+      action: () => { window.location.href = BLANK_APP_URL; }
+    });
+
+    // C. Chrome Profiles & Workspaces (all 22)
+    if (Array.isArray(state.profiles)) {
+      state.profiles.forEach(p => {
+        const hasTimer = p.timerActive && p.timerRemaining > 0;
+        const pendingCount = (p.notes || []).filter(n => !n.done).length;
+        const desc = hasTimer 
+          ? `⏱️ Active Cooldown: ${formatRemaining(p.timerRemaining)} · ${pendingCount} pending notes`
+          : `${(p.notes || []).length} notes · ${pendingCount} pending · ${p.email || 'Workspace'}`;
+        
+        items.push({
+          id: `prof-${p.id}`,
+          cat: 'Chrome Profiles & Workspaces (22)',
+          icon: p.avatar ? `<img src="${p.avatar}" class="cmd-item-avatar" alt="${p.name}">` : '🌐',
+          title: p.name,
+          desc: desc,
+          badge: hasTimer ? `⏱️ ${formatRemaining(p.timerRemaining)}` : `W+${p.id}`,
+          action: () => {
+            selectProfile(p);
+            if (window.innerWidth <= 768 && typeof openMobileChatWithSlide === 'function') {
+              openMobileChatWithSlide();
+            }
+          }
+        });
+      });
+    }
+
+    return items;
+  }
+
+  function openCommandPalette(initialQuery = '') {
+    const cmdModal = $('#cmdPaletteModal');
+    const cmdInput = $('#cmdPaletteInput');
+    if (!cmdModal || !cmdInput) return;
+    triggerHaptic('light');
+    if (window.soundMgr) window.soundMgr.playClick();
+    cmdModal.style.display = 'flex';
+    cmdInput.value = initialQuery;
+    cmdSelectedIndex = 0;
+    filterAndRenderCommands(initialQuery);
+    setTimeout(() => cmdInput.focus(), 50);
+  }
+
+  function closeCommandPalette() {
+    const cmdModal = $('#cmdPaletteModal');
+    if (!cmdModal) return;
+    cmdModal.style.display = 'none';
+    const spotlightTrigger = $('#spotlightCommandTrigger');
+    if (spotlightTrigger) spotlightTrigger.focus();
+  }
+
+  function filterAndRenderCommands(query) {
+    const q = (query || '').toLowerCase().trim();
+    const allItems = buildCommandItems();
+    
+    if (!q) {
+      filteredCmdItems = allItems;
+    } else {
+      filteredCmdItems = allItems.filter(item => {
+        return item.title.toLowerCase().includes(q) ||
+               item.desc.toLowerCase().includes(q) ||
+               item.cat.toLowerCase().includes(q) ||
+               (item.badge && item.badge.toLowerCase().includes(q));
+      });
+    }
+
+    renderCommandList();
+  }
+
+  function renderCommandList() {
+    const cmdResults = $('#cmdPaletteResults');
+    if (!cmdResults) return;
+    if (filteredCmdItems.length === 0) {
+      cmdResults.innerHTML = `
+        <div class="cmd-palette-empty">
+          <div style="font-size:24px;margin-bottom:8px;">🔍</div>
+          <div>No matching profiles, commands, or sub-apps found.</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">Try searching "deped", "timer", "sync", or "recharge"</div>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    let currentCat = '';
+
+    filteredCmdItems.forEach((item, idx) => {
+      if (item.cat !== currentCat) {
+        currentCat = item.cat;
+        html += `<div class="cmd-palette-category">${currentCat}</div>`;
+      }
+
+      const isSelected = idx === cmdSelectedIndex;
+      const iconHtml = item.icon.startsWith('<img') 
+        ? item.icon 
+        : `<span class="cmd-item-icon">${item.icon}</span>`;
+
+      html += `
+        <div class="cmd-palette-item ${isSelected ? 'selected' : ''}" data-index="${idx}" role="option" aria-selected="${isSelected}">
+          <div class="cmd-item-left">
+            ${iconHtml}
+            <div class="cmd-item-title-desc">
+              <span class="cmd-item-title">${item.title}</span>
+              <span class="cmd-item-desc">${item.desc}</span>
+            </div>
+          </div>
+          ${item.badge ? `<span class="cmd-item-badge">${item.badge}</span>` : ''}
+        </div>
+      `;
+    });
+
+    cmdResults.innerHTML = html;
+
+    cmdResults.querySelectorAll('.cmd-palette-item').forEach(el => {
+      el.onclick = () => {
+        const idx = parseInt(el.getAttribute('data-index'), 10);
+        executeCommandItem(idx);
+      };
+    });
+
+    const selectedEl = cmdResults.querySelector('.cmd-palette-item.selected');
+    if (selectedEl) {
+      selectedEl.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function executeCommandItem(idx) {
+    const item = filteredCmdItems[idx];
+    if (!item) return;
+    triggerHaptic('success');
+    if (window.soundMgr) window.soundMgr.playClick();
+    closeCommandPalette();
+    if (typeof item.action === 'function') {
+      item.action();
+    }
+  }
+
+  function initSpotlightEvents() {
+    const spotlightTrigger = $('#spotlightCommandTrigger');
+    const cmdBackdrop = $('#cmdPaletteBackdrop');
+    const cmdCloseBtn = $('#btnCloseCmdPalette');
+    const cmdInput = $('#cmdPaletteInput');
+    const cmdModal = $('#cmdPaletteModal');
+
+    if (spotlightTrigger) {
+      spotlightTrigger.onclick = () => openCommandPalette();
+      spotlightTrigger.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openCommandPalette();
+        }
+      };
+    }
+
+    if (cmdBackdrop) cmdBackdrop.onclick = closeCommandPalette;
+    if (cmdCloseBtn) cmdCloseBtn.onclick = closeCommandPalette;
+
+    if (cmdInput) {
+      cmdInput.oninput = (e) => {
+        cmdSelectedIndex = 0;
+        filterAndRenderCommands(e.target.value);
+      };
+
+      cmdInput.onkeydown = (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeCommandPalette();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (filteredCmdItems.length > 0) {
+            cmdSelectedIndex = (cmdSelectedIndex + 1) % filteredCmdItems.length;
+            renderCommandList();
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (filteredCmdItems.length > 0) {
+            cmdSelectedIndex = (cmdSelectedIndex - 1 + filteredCmdItems.length) % filteredCmdItems.length;
+            renderCommandList();
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          executeCommandItem(cmdSelectedIndex);
+        }
+      };
+    }
+
+    // Global Key Listener for Ctrl+K, ⌘K, or /
+    window.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      const isInput = activeEl && ['INPUT', 'TEXTAREA'].includes(activeEl.tagName) && activeEl.id !== 'cmdPaletteInput';
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (cmdModal && cmdModal.style.display === 'flex') {
+          closeCommandPalette();
+        } else {
+          openCommandPalette();
+        }
+      } else if (e.key === '/' && !isInput && !(e.ctrlKey || e.metaKey || e.altKey)) {
+        e.preventDefault();
+        openCommandPalette();
+      }
+    });
+
+    window.openCommandPalette = openCommandPalette;
+    window.closeCommandPalette = closeCommandPalette;
+  }
+
+  // =========================================================================
+  // 3. ZERO-LATENCY SPECULATIVE PRE-FETCHING ENGINE (3-Tier Multi-Device)
+  // =========================================================================
+  const prefetchedUrls = new Set();
+  function prefetchUrl(url) {
+    if (!url || prefetchedUrls.has(url) || url.startsWith('#') || url.startsWith('javascript:')) return;
+    prefetchedUrls.add(url);
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url;
+    link.as = 'document';
+    document.head.appendChild(link);
+  }
+
+  function initSpeculativeEngine() {
+    // Tier 1: Desktop Mouse Hover (>65ms)
+    let hoverTimer = null;
+    document.addEventListener('mouseover', (e) => {
+      const a = e.target.closest('a');
+      if (a && a.href && a.origin === window.location.origin) {
+        hoverTimer = setTimeout(() => prefetchUrl(a.href), 65);
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      if (hoverTimer) clearTimeout(hoverTimer);
+    });
+
+    // Tier 2: Mobile Touch Speculation (touchstart microsecond trigger)
+    document.addEventListener('touchstart', (e) => {
+      const a = e.target.closest('a');
+      if (a && a.href && a.origin === window.location.origin) {
+        prefetchUrl(a.href);
+      }
+    }, { passive: true });
+
+    // Tier 3: Idle Background Warmup
+    function warmupSuiteFleet() {
+      const fleet = [
+        'https://orlandopasion000.github.io/',
+        'https://orlandopasion000.github.io/orlandorecharge/',
+        'https://orlandopasion000.github.io/orlandotimer/',
+        'https://orlandopasion000.github.io/orlandovault/'
+      ];
+      fleet.forEach((u, idx) => {
+        setTimeout(() => prefetchUrl(u), 600 + idx * 250);
+      });
+    }
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(warmupSuiteFleet);
+    } else {
+      setTimeout(warmupSuiteFleet, 1500);
+    }
+  }
+
   // Initializer
   function init() {
     document.title = IS_BLANK_EDITION ? 'OrlandoChrome (Blank Canvas)' : 'OrlandoChrome (Main Version)'; // Immediate 0ms Title
@@ -11272,6 +11661,8 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     updateTrashBadge();
     renderClockBox();
     initCloudSync();
+    initSpotlightEvents();
+    initSpeculativeEngine();
     initLiveBridge();
     broadcastLiveBridgeStatus();
 

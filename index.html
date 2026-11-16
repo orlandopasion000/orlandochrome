@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title id="pageTitle">OrlandoChrome (Main Version)</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure121">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure121">
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure121">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure121">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure123">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure123">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure123">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure123">
 
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,13 +15,13 @@
   <meta name="apple-mobile-web-app-title" content="OrlandoChrome (Main Version)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
-  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure121">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure121">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png?v=pure121">
-  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure121">
-  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure121">
-  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure121">
-  <link rel="stylesheet" href="styles.css?v=pure122">
+  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure123">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure123">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png?v=pure123">
+  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure123">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure123">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure123">
+  <link rel="stylesheet" href="styles.css?v=pure123">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -179,9 +179,11 @@
     <!-- Left Column: Search, Filters, and Chrome Profiles -->
     <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header">
-        <div class="search-box-wrap">
+        <div class="search-box-wrap spotlight-trigger-wrap" id="spotlightCommandTrigger" role="button" tabindex="0" title="Launch Spotlight Command Palette (Ctrl + K / ⌘K)">
           <span class="search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.5)"/></svg></span>
-          <input type="text" id="profileSearch" class="search-input" placeholder="Search profiles or notes... (Alt+↑/↓)">
+          <span class="spotlight-capsule-text">Search profiles, notes...</span>
+          <kbd class="spotlight-capsule-kbd">Ctrl K</kbd>
+          <input type="text" id="profileSearch" class="search-input" placeholder="Search profiles or notes... (Alt+↑/↓)" style="display:none;" autocomplete="off">
         </div>
 
         <div class="filter-tabs-row">
@@ -196,6 +198,35 @@
       <div class="profile-list" id="profileList">
         <!-- Rendered dynamically -->
       </div>
+      <!-- Executive Standalone Sub-App Suite Dock -->
+      <nav class="standalone-subapp-dock" id="sidebarDock" aria-label="Executive Standalone Sub-App Suite">
+        <div class="dock-header-label">
+          <span class="dock-title">EXECUTIVE SUITE</span>
+          <span class="dock-live-pulse" title="Suite Cloud Ready"></span>
+        </div>
+        <div class="dock-pills-row">
+          <a href="https://orlandopasion000.github.io/" class="dock-pill-btn" title="Main Portfolio & Digital Library">
+            <span class="dock-pill-icon">🏛️</span>
+            <span class="dock-pill-text">Hub</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandochrome/" class="dock-pill-btn active" title="OrlandoChrome · 22-Profile Command Center">
+            <span class="dock-pill-icon">🌐</span>
+            <span class="dock-pill-text">Chrome</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandorecharge/" class="dock-pill-btn" title="OrlandoRecharge · 23-Block Alarm Cockpit">
+            <span class="dock-pill-icon">⚡</span>
+            <span class="dock-pill-text">Recharge</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandotimer/" class="dock-pill-btn" title="OrlandoTimer · Quantum Focus Horizon">
+            <span class="dock-pill-icon">⏳</span>
+            <span class="dock-pill-text">Timer</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandovault/" class="dock-pill-btn" title="OrlandoVault · Secure Digital Locker">
+            <span class="dock-pill-icon">🔐</span>
+            <span class="dock-pill-text">Vault</span>
+          </a>
+        </div>
+      </nav>
     </aside>
 
     <!-- Draggable Width Resizer Line Between Profiles & Messages -->
@@ -225,9 +256,9 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=pure121"></script>
+  <script src="sound.js?v=pure123"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure121"></script>
+  <script src="app.js?v=pure123"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -254,5 +285,31 @@
       </div>
     </div>
   </div>
+
+  <!-- SPOTLIGHT COMMAND PALETTE MODAL -->
+  <div class="cmd-palette-modal" id="cmdPaletteModal" role="dialog" aria-modal="true" aria-label="Spotlight Command Palette" style="display:none;">
+    <div class="cmd-palette-backdrop" id="cmdPaletteBackdrop"></div>
+    <div class="cmd-palette-box">
+      <div class="cmd-palette-header">
+        <span class="cmd-palette-search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="2"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.4)"/></svg>
+        </span>
+        <input type="text" id="cmdPaletteInput" class="cmd-palette-input" placeholder="Search 22 profiles, notes, timers, actions, or sub-apps..." autocomplete="off" spellcheck="false">
+        <span class="cmd-palette-esc-badge" id="btnCloseCmdPalette">ESC</span>
+      </div>
+      <div class="cmd-palette-results" id="cmdPaletteResults" role="listbox">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="cmd-palette-footer">
+        <div class="cmd-palette-tip">
+          <span><kbd class="cmd-k">↑</kbd><kbd class="cmd-k">↓</kbd> Navigate</span>
+          <span><kbd class="cmd-k">↵</kbd> Select</span>
+          <span><kbd class="cmd-k">Esc</kbd> Close</span>
+        </div>
+        <div class="cmd-palette-brand">ORLANDOCHROME SPOTLIGHT</div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
