@@ -82,12 +82,13 @@ img, video, audio, canvas, svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.35rem clamp(0.75rem, 2vw, 1.5rem);
+  padding: max(8px, env(safe-area-inset-top)) max(clamp(0.75rem, 2vw, 1.5rem), env(safe-area-inset-right)) 8px max(clamp(0.75rem, 2vw, 1.5rem), env(safe-area-inset-left));
   gap: 0.75rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   user-select: none;
   flex-shrink: 0;
-  z-index: 10;
+  z-index: 100;
+  box-sizing: border-box;
 }
 
 .topbar-left {
@@ -150,7 +151,8 @@ img, video, audio, canvas, svg {
   display: flex;
   align-items: center;
   gap: clamp(0.4rem, 1vw, 0.75rem);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-clock-box {
@@ -12232,5 +12234,64 @@ body.netflix-messenger-theme {
   .timer-custom-input,
   .note-composer-input {
     font-size: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   IPHONE 15 PRO MAX & MOBILE HEADER IMMACULATE SINGLE-ROW ARCHITECTURE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .app-topbar {
+    padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left)) !important;
+    flex-wrap: nowrap !important;
+    min-height: calc(52px + max(0px, env(safe-area-inset-top))) !important;
+    gap: 8px !important;
+  }
+  .topbar-left {
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+  }
+  .oc-logo-img {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 7px !important;
+  }
+  .brand-title {
+    font-size: 1.15rem !important;
+    letter-spacing: 1px !important;
+    white-space: nowrap !important;
+  }
+  .topbar-right {
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+  .nf-clock-digital {
+    display: none !important;
+  }
+  .nav-clock-box {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+  .btn-topbar-sync {
+    height: 32px !important;
+    padding: 0 9px !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+  }
+  .btn-topbar-system {
+    height: 32px !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+  }
+  .mobile-timers-summary-pill {
+    height: 32px !important;
+    padding: 0 8px !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+    box-sizing: border-box !important;
   }
 }
