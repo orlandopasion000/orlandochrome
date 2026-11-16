@@ -2112,6 +2112,9 @@
   if (!enabled) {
     backCanvas.style.display = "none";
     if (frontCanvas) frontCanvas.style.display = "none";
+  } else {
+    backCanvas.style.display = "block";
+    if (frontCanvas) frontCanvas.style.display = "block";
   }
 
   var width = window.innerWidth;
@@ -5076,9 +5079,14 @@
     syncGameMusicBtn();
 
     // 2. Prepare Game Mode (particles retain their full avoidance behavior!)
-    if (window.antigravityFX && typeof window.antigravityFX.setGameMode === "function") {
-      window.antigravityFX.setGameMode(true, currentGameVariant);
-      window.antigravityFX.stopVictoryDance();
+    if (window.antigravityFX) {
+      if (typeof window.antigravityFX.enable === "function") {
+        window.antigravityFX.enable();
+      }
+      if (typeof window.antigravityFX.setGameMode === "function") {
+        window.antigravityFX.setGameMode(true, currentGameVariant);
+        window.antigravityFX.stopVictoryDance();
+      }
     }
 
     if (!animId) {

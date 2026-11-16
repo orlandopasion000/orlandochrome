@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=pure250">
+  <link rel="stylesheet" href="styles.css?v=pure251">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -127,16 +127,54 @@
     body.universe-game-active #appWorkspace,
     body.universe-game-active #appSidebar,
     body.universe-game-active .sidebar,
+    body.universe-game-active .sidebar-header,
+    body.universe-game-active .profile-list,
+    body.universe-game-active .standalone-subapp-dock,
     body.universe-game-active .workspace-resizer,
-    body.universe-game-active main {
+    body.universe-game-active main,
+    body.universe-game-active #chatMain {
       opacity: 0 !important;
       visibility: hidden !important;
       pointer-events: none !important;
     }
+    body.universe-game-active .antigravity-canvas,
+    body.universe-game-active .antigravity-front-canvas {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 1000 !important;
+      pointer-events: none !important;
+    }
+    body.universe-game-active .antigravity-front-canvas {
+      z-index: 1001 !important;
+    }
     body.universe-game-active .quantum-game-overlay {
-      background: #000000 !important;
-      background-color: #000000 !important;
-      z-index: 99999 !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      z-index: 1002 !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+    }
+    body.universe-game-active .quantum-game-canvas {
+      z-index: 2 !important;
+      pointer-events: none !important;
+    }
+    body.universe-game-active .qgame-hud-top,
+    body.universe-game-active .qgame-left-hud,
+    body.universe-game-active .qgame-mission-hud {
+      z-index: 10 !important;
+      pointer-events: auto !important;
+    }
+    body.universe-game-active .qgame-btn-exit,
+    body.universe-game-active .qgame-btn-action,
+    body.universe-game-active .qgame-btn-music {
+      pointer-events: auto !important;
+      cursor: pointer !important;
     }
   </style>
 </head>
@@ -676,8 +714,8 @@
 
     
   <!-- Antigravity Interactive Particles Canvases for Quantum Universe Games -->
-  <canvas id="antigravityCanvas" class="antigravity-canvas" aria-hidden="true" style="display:none;"></canvas>
-  <canvas id="antigravityFrontCanvas" class="antigravity-front-canvas" aria-hidden="true" style="display:none;"></canvas>
+  <canvas id="antigravityCanvas" class="antigravity-canvas" aria-hidden="true"></canvas>
+  <canvas id="antigravityFrontCanvas" class="antigravity-front-canvas" aria-hidden="true"></canvas>
 
   <div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
   <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
@@ -789,7 +827,7 @@
 </div>
 
     <!-- CacheFlush: 1794862673222 -->
-  <script src="game.js?v=quantum250"></script>
+  <script src="game.js?v=quantum251"></script>
   <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>

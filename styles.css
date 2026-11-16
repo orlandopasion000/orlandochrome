@@ -13428,9 +13428,20 @@ body.netflix-messenger-theme {
   z-index: 999;
 }
 
+body.universe-game-active .antigravity-canvas,
 body.universe-game-active .antigravity-front-canvas {
-  z-index: 10001; /* Elevate particles above game overlay */
   display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
+}
+body.universe-game-active .antigravity-front-canvas {
+  z-index: 1001 !important;
 }
 
 /* ───────── TWIN QUANTUM REALM NAVIGATION & CONTROLS ───────── */
@@ -13898,8 +13909,9 @@ body.universe-game-active .quantum-game-overlay {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
-  background: #000000 !important;
-  background-color: #000000 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  z-index: 1002 !important;
 }
 
 .quantum-game-canvas {
