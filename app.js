@@ -11396,6 +11396,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
 
     // C. SEARCH: Quick Actions & System Tools
     const actions = [
+      { id: 'act-game', title: 'Chrome Synapse: Quantum Taskbar Blitz (Play Arcade Game)', desc: 'Math Overdrive, Reflex Blitz & Memory Matrix · Teacher & Student hit! (Alt + G)', badge: 'PLAY 🎮', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open(); } },
       { id: 'act-sync', title: 'Cloud Sync Now (Laptop ↔ iPhone)', desc: 'Real-time bidirectional Firebase Firestore sync stream', badge: 'Action', action: () => { const b = $('#btnTopbarSyncNow'); if (b) b.click(); } },
       { id: 'act-launch', title: 'Open Main Web App (Desktop Window)', desc: 'Borderless 1180×820 dedicated Chromium standalone window', badge: 'Desktop', action: () => { handleLaunchStandaloneApp(); } },
       { id: 'act-voice', title: 'Voice Commands Manual (Wispr Flow)', desc: '10 superpowers, auto-punctuation & voice dictation', badge: 'Wispr', action: () => { openVoiceCommandsCheatSheetModal(); } },

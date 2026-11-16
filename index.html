@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title id="pageTitle">OrlandoChrome (Main Version)</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure124">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure124">
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure124">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure125">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure125">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure125">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure125">
 
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,13 +15,13 @@
   <meta name="apple-mobile-web-app-title" content="OrlandoChrome (Main Version)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
-  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure124">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure124">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png?v=pure124">
-  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure124">
-  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure124">
-  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure124">
-  <link rel="stylesheet" href="styles.css?v=pure124">
+  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure125">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure125">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png?v=pure125">
+  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
+  <link rel="stylesheet" href="styles.css?v=pure125">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -48,6 +48,13 @@
         <span id="topbarSyncQuickLabel">Sync</span>
       </button>
 
+      <!-- Surprise Arcade Game Launcher: Chrome Synapse -->
+      <button type="button" class="btn-topbar-quick btn-topbar-game" id="btnTopbarGameLaunch" title="Chrome Synapse: Quantum Arcade Arena (Math, Reflex & Memory Challenge) · Alt + G">
+        <span class="arcade-controller-icon">🎮</span>
+        <span class="topbar-game-label">Play</span>
+        <span class="game-live-dot" title="Arcade Ready"></span>
+      </button>
+
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
         <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next Ready</span>
       </button>
@@ -69,6 +76,20 @@
         <!-- Floating Dropdown Menu -->
         <div class="system-dropdown-menu" id="systemDropdownMenu" role="menu" aria-label="System Menu">
           <!-- 1. Recovery (renamed from Recovery Vault) -->
+          <!-- Arcade Arena Lounge -->
+          <button type="button" class="system-menu-item" id="btnSystemGame" role="menuitem" title="Chrome Synapse: Quantum Arcade Arena">
+            <div class="menu-item-icon" style="background:rgba(168,85,247,0.18);border:1px solid rgba(168,85,247,0.4);">
+              <span style="font-size:14px;">🎮</span>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Arcade Lounge</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(168,85,247,0.22);color:#c084fc;font-weight:700;">CHROME SYNAPSE</span>
+              </div>
+              <div class="menu-item-desc">Math Overdrive, Reflex Blitz & Memory Matrix</div>
+            </div>
+          </button>
+
           <button type="button" class="system-menu-item" id="btnOpenVault" role="menuitem" title="Recovery: Enterprise Data Recovery Vault & Rollback Checkpoints">
             <div class="menu-item-icon menu-icon-emerald">
               <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#10b981" stroke-width="1.8" fill="rgba(16,185,129,0.2)"/><path d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -255,9 +276,9 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=pure124"></script>
+  <script src="sound.js?v=pure125"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure124"></script>
+  <script src="app.js?v=pure125"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -317,5 +338,96 @@
     </div>
   </div>
 
+
+  <!-- CHROME SYNAPSE: QUANTUM ARCADE ARENA MODAL -->
+  <div class="game-modal-overlay" id="chromeGameModal" style="display:none;" role="dialog" aria-modal="true" aria-label="Chrome Synapse Arcade Arena">
+    <div class="game-container-card">
+      <!-- Top Game Bar -->
+      <div class="game-topbar">
+        <div class="game-brand">
+          <span class="game-brand-icon">🎮</span>
+          <div class="game-brand-text">
+            <span class="game-title">CHROME SYNAPSE</span>
+            <span class="game-sub">Quantum Taskbar Blitz · Math &amp; Reflex Arena</span>
+          </div>
+        </div>
+        <div class="game-stats-cluster">
+          <div class="game-stat-pill score-pill">
+            <span class="g-stat-label">SCORE</span>
+            <span class="g-stat-val" id="gScoreDisplay">0</span>
+          </div>
+          <div class="game-stat-pill combo-pill">
+            <span class="g-stat-label">COMBO</span>
+            <span class="g-stat-val" id="gComboDisplay">1x</span>
+          </div>
+          <div class="game-stat-pill best-pill">
+            <span class="g-stat-label">BEST</span>
+            <span class="g-stat-val" id="gBestDisplay">0</span>
+          </div>
+        </div>
+        <div class="game-controls-actions">
+          <button type="button" class="game-btn-icon" id="btnGameMute" title="Toggle Sound">🔊</button>
+          <button type="button" class="game-btn-close" id="btnGameClose" title="Exit Game (Esc)">✕</button>
+        </div>
+      </div>
+
+      <!-- Mode Selector Tabs -->
+      <div class="game-mode-bar" id="gameModeBar">
+        <button type="button" class="g-mode-btn active" data-mode="math">
+          <span class="m-icon">🧮</span>
+          <span class="m-title">Math Overdrive</span>
+          <span class="m-tag">Teacher &amp; Student Hit!</span>
+        </button>
+        <button type="button" class="g-mode-btn" data-mode="reflex">
+          <span class="m-icon">⚡</span>
+          <span class="m-title">Reflex Blitz</span>
+          <span class="m-tag">Speed &amp; Avoidance</span>
+        </button>
+        <button type="button" class="g-mode-btn" data-mode="memory">
+          <span class="m-icon">🧠</span>
+          <span class="m-title">Memory Matrix</span>
+          <span class="m-tag">Musical Recall</span>
+        </button>
+      </div>
+
+      <!-- Active Game Arena (Canvas + Interactive Overlays) -->
+      <div class="game-arena-stage" id="gameArenaStage">
+        <canvas id="synapseCanvas"></canvas>
+        
+        <!-- Interactive Question & Options HUD for Math Mode -->
+        <div class="math-hud-overlay" id="mathHudOverlay" style="display:none;">
+          <div class="math-timer-bar-wrap">
+            <div class="math-timer-bar" id="mathTimerBar"></div>
+          </div>
+          <div class="math-question-box">
+            <span class="math-question-label">SOLVE QUANTUM SYNAPSE:</span>
+            <span class="math-equation-text" id="mathEquationText">12 × 12 = ?</span>
+          </div>
+          <div class="math-options-grid" id="mathOptionsGrid"></div>
+        </div>
+
+        <!-- Memory Matrix Grid HUD for Memory Mode -->
+        <div class="memory-hud-overlay" id="memoryHudOverlay" style="display:none;">
+          <div class="memory-round-indicator" id="memoryRoundIndicator">ROUND 1 · WATCH SEQUENCE</div>
+          <div class="memory-grid-pads" id="memoryGridPads"></div>
+        </div>
+
+        <!-- Start Screen / Game Over Screen Overlay -->
+        <div class="game-screen-overlay" id="gameScreenOverlay">
+          <div class="screen-card">
+            <div class="screen-icon" id="screenIcon">⚡</div>
+            <h2 class="screen-title" id="screenTitle">READY TO ENGAGE?</h2>
+            <p class="screen-desc" id="screenDesc">Select a mode and challenge your mental math speed, reflexes, or memory matrix!</p>
+            <div class="screen-actions">
+              <button type="button" class="screen-btn-primary" id="btnGameStart">ENGAGE SYNAPSE</button>
+            </div>
+            <div class="screen-hint" id="screenHint">Tip: Press [1], [2], [3], [4] or Click to answer · Arrow keys or Drag to steer · Alt+G anytime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js?v=pure125"></script>
 </body>
 </html>
