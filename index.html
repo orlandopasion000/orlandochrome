@@ -21,11 +21,103 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=pure125">
+  <link rel="stylesheet" href="styles.css?v=pure240">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-</head>
+  <style id="qgameTopbarInlineStyles">
+    .topbar-left {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      flex-shrink: 0 !important;
+    }
+    .topbar-left .qgame-topbar-cluster,
+    .qgame-topbar-cluster {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      flex-shrink: 0 !important;
+      z-index: 50 !important;
+    }
+    .topbar-left .qgame-btn-launch,
+    .qgame-btn-launch {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      height: 28px !important;
+      box-sizing: border-box !important;
+      padding: 0 10px !important;
+      border-radius: 9999px !important;
+      font-family: 'Lexend', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      font-size: 0.68rem !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.04em !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      text-decoration: none !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .qgame-btn-realm {
+      background: rgba(14, 165, 233, 0.16) !important;
+      border: 1.5px solid #38bdf8 !important;
+      color: #f8fafc !important;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.20) !important;
+    }
+    .qgame-btn-realm .game-btn-glyph {
+      color: #38bdf8 !important;
+      text-shadow: 0 0 8px #38bdf8 !important;
+    }
+    .qgame-btn-realm:hover {
+      background: rgba(14, 165, 233, 0.32) !important;
+      border-color: #38bdf8 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.85), inset 0 0 12px rgba(56, 189, 248, 0.35) !important;
+      transform: translateY(-1px);
+    }
+    .qgame-btn-helix {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.14) 0%, rgba(192, 132, 252, 0.18) 100%) !important;
+      border: 1.5px solid #c084fc !important;
+      color: #f8fafc !important;
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.45), 0 0 16px rgba(34, 211, 238, 0.25), inset 0 0 8px rgba(192, 132, 252, 0.20) !important;
+    }
+    .qgame-btn-helix:hover {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.28) 0%, rgba(192, 132, 252, 0.32) 100%) !important;
+      border-color: #22d3ee !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 22px rgba(192, 132, 252, 0.80), 0 0 24px rgba(34, 211, 238, 0.50) !important;
+      transform: translateY(-1px);
+    }
+    .qgame-btn-meteor {
+      background: rgba(234, 88, 12, 0.18) !important;
+      border: 1.5px solid #fb923c !important;
+      color: #f8fafc !important;
+      box-shadow: 0 0 12px rgba(251, 146, 60, 0.48), inset 0 0 8px rgba(249, 115, 22, 0.22) !important;
+    }
+    .qgame-btn-meteor:hover {
+      background: rgba(234, 88, 12, 0.34) !important;
+      border-color: #fb923c !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 22px rgba(251, 146, 60, 0.90), inset 0 0 14px rgba(249, 115, 22, 0.45) !important;
+      transform: translateY(-1px);
+    }
+    @media (max-width: 1350px) {
+      .qg-word-quantum {
+        display: none !important;
+      }
+    }
+    @media (max-width: 600px) {
+      .qgame-topbar-cluster {
+        display: none !important;
+      }
+    }
+  </style>
+  </head>
 <body class="netflix-messenger-theme">
   <!-- Top Application Bar -->
   <header class="app-topbar">
@@ -36,9 +128,39 @@
           <span class="brand-title"><span class="title-orlando">ORLANDO</span><span class="title-chrome">CHROME</span></span>
         </div>
       </div>
+
+    <!-- Quantum Universe Game Suite Launcher Cluster (Exact Realm, Helix, Meteor) Directly Beside Logo -->
+    <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
+      <button type="button" class="qgame-btn-launch qgame-btn-realm" id="btnLaunchGame" title="Enter Quantum Realm Game (Classic Particles)" aria-label="Launch Quantum Realm Game">
+        <span class="game-btn-glyph" aria-hidden="true">◈</span>
+        <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>REALM</span>
+      </button>
+
+      <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Enter Quantum Helix Game (Cyan & Violet Double-Helix)" aria-label="Launch Quantum Helix Game">
+        <span class="game-btn-glyph game-btn-glyph-helix" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6c4 0 6 12 10 12s6-12 10-12" stroke="#22d3ee"/>
+            <path d="M4 18c4 0 6-12 10-12s6 12 10 12" stroke="#c084fc" stroke-dasharray="2 2" opacity="0.92"/>
+          </svg>
+        </span>
+        <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>HELIX</span>
+      </button>
+
+      <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Enter Quantum Meteor Game (Fiery Meteors & Molten Asteroids)" aria-label="Launch Quantum Meteor Game">
+        <span class="game-btn-glyph game-btn-glyph-meteor" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 3L13.5 10.5M19 7L14 12M17 3L11.5 8.5" stroke="#f97316" stroke-width="1.8" opacity="0.95"/>
+            <path d="M5.5 12.5L3 15c-1.3 1.3-1.3 3.5 0 4.8 1.3 1.3 3.5 1.3 4.8 0l2.5-2.5-1.2-3.6-3.6-1.2z" fill="rgba(234, 88, 12, 0.55)" stroke="#fb923c" stroke-width="1.8"/>
+            <circle cx="6" cy="18" r="1.5" fill="#fef08a"/>
+          </svg>
+        </span>
+        <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>METEOR</span>
+      </button>
+    </div>
     </div>
 
-            <div class="topbar-right">
+    <div class="topbar-right">
+      <!-- Quantum Universe Game Suite (Quantum Realm, Quantum Helix, Quantum Meteor) -->
       <!-- 1. Designated Game Button: Math Overdrive -->
       <button type="button" class="btn-topbar-game-dest btn-game-math" id="btnLaunchMathGame" title="Math Overdrive: Eight-Level Difficulty System (20 Qs · 10 Strikes Max)">
         <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
@@ -466,10 +588,10 @@
     </div>
   </div>
 
-  <script src="assets/relative-time.js"></script>
-  <script src="sound.js?v=pure125"></script>
+  <script src="/assets/relative-time.js"></script>
+  <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure125"></script>
+  <script src="app.js?v=pure240"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -531,6 +653,121 @@
 
 
     
-  <script src="game.js?v=arena203"></script>
+  <!-- Antigravity Interactive Particles Canvases for Quantum Universe Games -->
+  <canvas id="antigravityCanvas" class="antigravity-canvas" aria-hidden="true" style="display:none;"></canvas>
+  <canvas id="antigravityFrontCanvas" class="antigravity-front-canvas" aria-hidden="true" style="display:none;"></canvas>
+
+  <div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
+  <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
+  <canvas id="quantumGameCanvas" class="quantum-game-canvas"></canvas>
+
+  <!-- Top Game HUD Bar -->
+  <header class="qgame-hud-top">
+    <div class="qgame-hud-inner">
+      <!-- Upper Left: Music Controller & Countdown Timer Cluster -->
+      <div class="qgame-left-hud">
+        <!-- In-Game Play Music Button -->
+        <button type="button" class="qgame-btn-music" id="btnGamePlayMusic" title="Play Curated Alarm Music & Antigravity Beats" aria-label="Play Music in Game">
+          <span class="qgame-music-glyph" id="qGameMusicGlyph">▶</span>
+          <span class="qgame-music-text" id="qGameMusicText">Play Music</span>
+          <span class="qgame-music-bars" id="qGameMusicBars" aria-hidden="true">
+            <span class="qg-bar b1"></span>
+            <span class="qg-bar b2"></span>
+            <span class="qg-bar b3"></span>
+          </span>
+        </button>
+
+        <!-- Futuristic Countdown Timer -->
+        <div class="qgame-timer-hud" id="qGameTimerHud">
+          <div class="qgame-hud-tag">
+            <span class="qgame-tag-dot"></span>
+            <span class="qgame-tag-text">QUANTUM HARMONY COUNTDOWN</span>
+          </div>
+          <div class="qgame-timer-display" id="qGameTimerDisplay">
+            <span class="qgame-digits" id="qGameDigits">60.00</span><span class="qgame-unit">s</span>
+          </div>
+          <div class="qgame-timer-track">
+            <div class="qgame-timer-fill" id="qGameTimerFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Top: Telemetry Instruction Badge -->
+      <div class="qgame-mission-hud">
+        <span class="qgame-mission-icon">◈</span>
+        <span class="qgame-mission-text" id="qGameMissionText">TARGET: TOUCH ANY PARTICLE · MAINTAIN CONTACT FOR 2.0s</span>
+      </div>
+
+      <!-- Upper Right: Subtle Futuristic Return & In-Game Fullscreen Buttons -->
+      <div class="qgame-exit-hud">
+        <button type="button" class="fs-toggle-btn qgame-fs-exit" id="btnGameToggleFullscreen" title="Enter Full Screen (Click)" aria-label="Toggle Full Screen in Game">
+          <span class="fs-btn-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </span>
+          <span class="fs-btn-label">ENTER FULL SCREEN</span>
+        </button>
+
+        <button type="button" class="qgame-btn-exit" id="btnExitGame" title="Return to OrlandoRecharge Horizon (Esc)" aria-label="Exit Game Mode">
+          <span class="qgame-exit-glyph">✕</span>
+          <span class="qgame-exit-label">RETURN TO HORIZON</span>
+          <span class="qgame-exit-key">ESC</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Result Center Stage Modal / Hologram (Shared Zero-Shift Card for Victory & Game Over) -->
+  <div class="qgame-victory-modal" id="qGameVictoryModal" style="display:none;">
+    <div class="qgame-victory-card" id="qGameResultCard">
+      <div class="qgame-victory-aurora" id="qGameResultAurora"></div>
+      <div class="qgame-victory-icon" id="qGameResultIcon">
+        <svg viewBox="0 0 24 24" fill="none" class="qgame-victory-svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#vicGoldGrad)" stroke="#ffffff" stroke-width="1.2"/>
+          <defs>
+            <linearGradient id="vicGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffd700"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="qgame-victory-title" id="qGameResultTitle">QUANTUM RESONANCE COMPLETE</h2>
+      <div class="qgame-victory-subtitle" id="qGameResultSubtitle">TARGET SYNCHRONIZED · HARMONIC DANCE ACTIVE</div>
+      
+      <div class="qgame-victory-stats">
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel1">FINAL TIME PRESERVED</div>
+          <div class="qgame-stat-val highlight" id="qGamePreservedTime">60.00s</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel2">LOCK DURATION</div>
+          <div class="qgame-stat-val" id="qGameLockDuration">2.00s CONTINUOUS</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel3">SYSTEM STATUS</div>
+          <div class="qgame-stat-val success" id="qGameSystemStatus">CELEBRATION DANCE</div>
+        </div>
+      </div>
+
+      <div class="qgame-victory-actions">
+        <button type="button" class="qgame-btn-action primary" id="btnGamePlayAgain">
+          <span class="qgame-btn-icon" id="qGameActionIcon">⚡</span>
+          <span id="qGameActionLabel">Play Again</span>
+        </button>
+        <button type="button" class="qgame-btn-action secondary" id="btnGameReturn">
+          <span class="qgame-btn-icon">✕</span>
+          <span>Return to Horizon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- CacheFlush: 1794862673222 -->
+  <script src="game.js?v=quantum240"></script>
+  <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>

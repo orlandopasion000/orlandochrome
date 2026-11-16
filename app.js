@@ -3,6 +3,7 @@
  * 7 High-Impact Enhancements + Wispr Flow Pro Dictation + App Distribution & Command Suite (PWA & Blank Edition)
  */
 (function() {
+  window.connectSSE = function() {};
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -836,13 +837,61 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=pure120').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=arena212').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
       }).catch(() => {});
     });
   }
+
+  // Ensure Quantum Universe Launcher Cluster is always present beside ORLANDOCHROME logo
+  (function ensureQuantumClusterBesideLogo() {
+    function checkAndInject() {
+      const logo = document.getElementById('logoBtn');
+      if (!logo) return;
+      let cluster = document.getElementById('qgameTopbarCluster');
+      if (!cluster) {
+        cluster = document.createElement('div');
+        cluster.className = 'qgame-topbar-cluster';
+        cluster.id = 'qgameTopbarCluster';
+        cluster.innerHTML = `
+          <button type="button" class="qgame-btn-launch qgame-btn-realm" id="btnLaunchGame" title="Enter Quantum Realm Game (Classic Particles)" aria-label="Launch Quantum Realm Game">
+            <span class="game-btn-glyph" aria-hidden="true">◈</span>
+            <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>REALM</span>
+          </button>
+          <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Enter Quantum Helix Game (Cyan & Violet Double-Helix)" aria-label="Launch Quantum Helix Game">
+            <span class="game-btn-glyph game-btn-glyph-helix" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 6c4 0 6 12 10 12s6-12 10-12" stroke="#22d3ee"/>
+                <path d="M4 18c4 0 6-12 10-12s6 12 10 12" stroke="#c084fc" stroke-dasharray="2 2" opacity="0.92"/>
+              </svg>
+            </span>
+            <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>HELIX</span>
+          </button>
+          <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Enter Quantum Meteor Game (Fiery Meteors & Molten Asteroids)" aria-label="Launch Quantum Meteor Game">
+            <span class="game-btn-glyph game-btn-glyph-meteor" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 3L13.5 10.5M19 7L14 12M17 3L11.5 8.5" stroke="#f97316" stroke-width="1.8" opacity="0.95"/>
+                <path d="M5.5 12.5L3 15c-1.3 1.3-1.3 3.5 0 4.8 1.3 1.3 3.5 1.3 4.8 0l2.5-2.5-1.2-3.6-3.6-1.2z" fill="rgba(234, 88, 12, 0.55)" stroke="#fb923c" stroke-width="1.8"/>
+                <circle cx="6" cy="18" r="1.5" fill="#fef08a"/>
+              </svg>
+            </span>
+            <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>METEOR</span>
+          </button>
+        `;
+        logo.parentNode.insertBefore(cluster, logo.nextSibling);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkAndInject);
+    } else {
+      checkAndInject();
+    }
+    setTimeout(checkAndInject, 100);
+    setTimeout(checkAndInject, 500);
+    setTimeout(checkAndInject, 1500);
+  })();
 
   // Application State
   const state = {
@@ -4118,7 +4167,9 @@ const Icons = {
         takeBackupSnapshot('Background Freeze Checkpoint');
       } else if (document.visibilityState === 'visible') {
         pullFromCloud(false, false);
-        connectSSE();
+        if (typeof connectSSE === 'function') {
+          try { connectSSE(); } catch (e) {}
+        }
       }
     });
 
@@ -5922,7 +5973,7 @@ const Icons = {
               </div>
             </div>
             <div class="note-timestamp" data-action="edit-date" data-nid="${n.id}" role="button" tabindex="0" title="Click to change or edit date/time (Apple Notes style)">
-              <span class="note-time-text">${formatNoteDateTime(n.createdAt)} · ${n.done ? 'Completed' : 'Pending'}</span>
+              <span class="note-time-text">${formatNoteDateTime(n.createdAt)} <span class="note-rel-time" data-relative-time="${n.createdAt || Date.now()}" data-relative-prefix="· " data-relative-format="compact">just now</span> · ${n.done ? 'Completed' : 'Pending'}</span>
               ${n.isCustomDate ? `<span class="note-custom-date-badge" title="Customized date (originally created ${formatNoteDateTime(n.originalCreatedAt || n.createdAt)})">${Icons.calendar(11)} <span>Edited Date</span></span>` : (n.editedAt ? `<span class="note-edited-label">(edited ${formatNoteDateTime(n.editedAt)})</span>` : '')}
               <span class="note-timestamp-edit-icon" title="Edit Date & Time">${Icons.laserStylus(12)}</span>
             </div>
@@ -6942,6 +6993,9 @@ const Icons = {
       const s = $('#notesStream');
       if (s) s.scrollTop = s.scrollHeight;
     });
+    if (window.updateRelativeTimestamps) {
+      window.updateRelativeTimestamps(main);
+    }
   }
 
   // Save inline edited message
@@ -11404,6 +11458,9 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
 
     // C. SEARCH: Quick Actions & System Tools
     const actions = [
+      { id: 'act-quantum-realm', title: 'Quantum Realm (Game 1)', desc: 'Classic streamlined quantum wavepackets & electric tail arcs (Touch/hold 2.0s)', badge: 'REALM ◈', action: () => { if (window.quantumGame) window.quantumGame.launch('classic'); } },
+      { id: 'act-quantum-helix', title: 'Quantum Helix (Game 2)', desc: 'Silky-smooth bi-chromatic cyan & violet DNA double-helix (Touch/hold 2.0s)', badge: 'HELIX 🧬', action: () => { if (window.quantumGame) window.quantumGame.launch('helix'); } },
+      { id: 'act-quantum-meteor', title: 'Quantum Meteor (Game 3)', desc: 'High-fidelity 3D tumbling molten asteroid & solar dynamo rings (Touch/hold 2.0s)', badge: 'METEOR ☄️', action: () => { if (window.quantumGame) window.quantumGame.launch('meteor'); } },
       { id: 'act-math', title: 'Math Overdrive: Eight-Level Difficulty System', desc: 'Academically structured arithmetic progression (20 Qs · 10 Mistakes Max)', badge: 'MATH 🧮', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('math'); } },
       { id: 'act-reflex', title: 'Reflex Blitz: Quantum Realm, Helix & Meteor Catcher', desc: 'Extra Big Tier 3 particles · Catcher transmutations (10 Lives)', badge: 'REFLEX ⚡', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('reflex'); } },
       { id: 'act-memory', title: 'Memory Matrix: 16-Box Quantum Array', desc: 'Fullscreen 4x4 array · Musical harmonic sequence (1 Mistake Game Over)', badge: 'MATRIX 🧠', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('memory'); } },
