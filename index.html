@@ -39,46 +39,46 @@
     </div>
 
         <div class="topbar-right">
-      <!-- 1. Designated Game Button: Math Overdrive -->
-      <button type="button" class="btn-topbar-game-dest btn-game-math" id="btnLaunchMathGame" title="Math Overdrive: Eight-Level Difficulty System (20 Qs Â· 10 Strikes)">
+      <!-- 1. Designated Game Button: Quantum Realm -->
+      <button type="button" class="btn-topbar-game-dest btn-game-realm" id="btnLaunchRealm" title="Quantum Realm: Touch particle and maintain contact for 2.0s">
         <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <path d="M4 7h16M4 17h16M9 4v6M15 14v6" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="8" stroke="#38bdf8" stroke-width="2"/>
+          <circle cx="12" cy="12" r="3" fill="#38bdf8"/>
         </svg>
-        <span>Math</span>
+        <span>◈ Realm</span>
       </button>
 
-      <!-- 2. Designated Game Button: Reflex Blitz -->
-      <button type="button" class="btn-topbar-game-dest btn-game-reflex" id="btnLaunchReflexGame" title="Reflex Blitz: Quantum Realm, Helix & Meteor Catcher (10 Lives)">
+      <!-- 2. Designated Game Button: Quantum Helix -->
+      <button type="button" class="btn-topbar-game-dest btn-game-helix" id="btnLaunchHelix" title="Quantum Helix: Touch helix particle and maintain contact for 2.0s">
         <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 12c4-8 12-8 16 0s-12 8-16 0z" stroke="#c084fc" stroke-width="2"/>
+          <circle cx="12" cy="12" r="2.5" fill="#c084fc"/>
         </svg>
-        <span>Reflex</span>
+        <span>🧬 Helix</span>
       </button>
 
-      <!-- 3. Designated Game Button: Memory Matrix -->
-      <button type="button" class="btn-topbar-game-dest btn-game-memory" id="btnLaunchMemoryGame" title="Memory Matrix: 16-Box Fullscreen Array (1 Mistake Game Over)">
+      <!-- 3. Designated Game Button: Quantum Meteor -->
+      <button type="button" class="btn-topbar-game-dest btn-game-meteor" id="btnLaunchMeteor" title="Quantum Meteor: Touch meteor and maintain contact for 2.0s">
         <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
-          <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
-          <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
-          <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#fbbf24" stroke-width="2" fill="rgba(251,191,36,0.2)"/>
         </svg>
-        <span>Matrix</span>
+        <span>☄️ Meteor</span>
       </button>
 
       <!-- 4. Fullscreen Toggle Button -->
-      <button type="button" class="btn-topbar-quick btn-topbar-fullscreen" id="btnTopbarFullscreen" title="Toggle Fullscreen Arena Mode">
-        <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <path d="M15 3h6v6M9 21H3v-6M21 9l-7 7M3 15l7-7M21 3l-7 7M3 21l7-7" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Full</span>
+      <button type="button" class="btn-topbar-quick btn-topbar-fullscreen fs-toggle-btn" id="btnTopbarFullscreen" title="Toggle Fullscreen Arena Mode">
+        <span class="fs-btn-glyph">
+          <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="fs-btn-label">Full</span>
       </button>
 
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
         <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next</span>
       </button>
 
-      <!-- Compressed Single "System" Command Button & Floating Futuristic Dropdown -->
       <div class="system-menu-wrapper" id="systemMenuWrapper">
         <button type="button" class="btn-topbar-system" id="btnSystemMenu" aria-haspopup="true" aria-expanded="false" title="System Menu (Sync, Voice Commands, Recovery, Centennial, Standalone App)">
           <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;"><circle cx="12" cy="12" r="3" stroke="#38bdf8" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#38bdf8" stroke-width="1.8"/></svg>
@@ -322,6 +322,467 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
+  
+<!-- ══════════════════════════════════════════════════════════════
+     ANTIGRAVITY QUANTUM PARTICLES & THREE FULLSCREEN GAMES SUITE
+     ══════════════════════════════════════════════════════════════ -->
+
+
+<div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
+  <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
+  <canvas id="quantumGameCanvas" class="quantum-game-canvas"></canvas>
+
+  <!-- Top Game HUD Bar -->
+  <header class="qgame-hud-top">
+    <div class="qgame-hud-inner">
+      <!-- Upper Left: Music Controller & Countdown Timer Cluster -->
+      <div class="qgame-left-hud">
+        <!-- In-Game Play Music Button -->
+        <button type="button" class="qgame-btn-music" id="btnGamePlayMusic" title="Play Curated Alarm Music & Antigravity Beats" aria-label="Play Music in Game">
+          <span class="qgame-music-glyph" id="qGameMusicGlyph">▶</span>
+          <span class="qgame-music-text" id="qGameMusicText">Play Music</span>
+          <span class="qgame-music-bars" id="qGameMusicBars" aria-hidden="true">
+            <span class="qg-bar b1"></span>
+            <span class="qg-bar b2"></span>
+            <span class="qg-bar b3"></span>
+          </span>
+        </button>
+
+        <!-- Futuristic Countdown Timer -->
+        <div class="qgame-timer-hud" id="qGameTimerHud">
+          <div class="qgame-hud-tag">
+            <span class="qgame-tag-dot"></span>
+            <span class="qgame-tag-text">QUANTUM HARMONY COUNTDOWN</span>
+          </div>
+          <div class="qgame-timer-display" id="qGameTimerDisplay">
+            <span class="qgame-digits" id="qGameDigits">60.00</span><span class="qgame-unit">s</span>
+          </div>
+          <div class="qgame-timer-track">
+            <div class="qgame-timer-fill" id="qGameTimerFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Top: Telemetry Instruction Badge -->
+      <div class="qgame-mission-hud">
+        <span class="qgame-mission-icon">◈</span>
+        <span class="qgame-mission-text" id="qGameMissionText">TARGET: TOUCH ANY PARTICLE · MAINTAIN CONTACT FOR 2.0s</span>
+      </div>
+
+      <!-- Upper Right: Subtle Futuristic Return & In-Game Fullscreen Buttons -->
+      <div class="qgame-exit-hud">
+        <button type="button" class="fs-toggle-btn qgame-fs-exit" id="btnGameToggleFullscreen" title="Enter Full Screen (Click)" aria-label="Toggle Full Screen in Game">
+          <span class="fs-btn-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </span>
+          <span class="fs-btn-label">ENTER FULL SCREEN</span>
+        </button>
+
+        <button type="button" class="qgame-btn-exit" id="btnExitGame" title="Return to OrlandoRecharge Horizon (Esc)" aria-label="Exit Game Mode">
+          <span class="qgame-exit-glyph">✕</span>
+          <span class="qgame-exit-label">RETURN TO HORIZON</span>
+          <span class="qgame-exit-key">ESC</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Result Center Stage Modal / Hologram (Shared Zero-Shift Card for Victory & Game Over) -->
+  <div class="qgame-victory-modal" id="qGameVictoryModal" style="display:none;">
+    <div class="qgame-victory-card" id="qGameResultCard">
+      <div class="qgame-victory-aurora" id="qGameResultAurora"></div>
+      <div class="qgame-victory-icon" id="qGameResultIcon">
+        <svg viewBox="0 0 24 24" fill="none" class="qgame-victory-svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#vicGoldGrad)" stroke="#ffffff" stroke-width="1.2"/>
+          <defs>
+            <linearGradient id="vicGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffd700"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="qgame-victory-title" id="qGameResultTitle">QUANTUM RESONANCE COMPLETE</h2>
+      <div class="qgame-victory-subtitle" id="qGameResultSubtitle">TARGET SYNCHRONIZED · HARMONIC DANCE ACTIVE</div>
+      
+      <div class="qgame-victory-stats">
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel1">FINAL TIME PRESERVED</div>
+          <div class="qgame-stat-val highlight" id="qGamePreservedTime">60.00s</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel2">LOCK DURATION</div>
+          <div class="qgame-stat-val" id="qGameLockDuration">2.00s CONTINUOUS</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel3">SYSTEM STATUS</div>
+          <div class="qgame-stat-val success" id="qGameSystemStatus">CELEBRATION DANCE</div>
+        </div>
+      </div>
+
+      <div class="qgame-victory-actions">
+        <button type="button" class="qgame-btn-action primary" id="btnGamePlayAgain">
+          <span class="qgame-btn-icon" id="qGameActionIcon">⚡</span>
+          <span id="qGameActionLabel">Play Again</span>
+        </button>
+        <button type="button" class="qgame-btn-action secondary" id="btnGameReturn">
+          <span class="qgame-btn-icon">✕</span>
+          <span>Return to Horizon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+<!-- ══════════════════════════════════════════════════════════════
+     ANTIGRAVITY QUANTUM PARTICLES & THREE FULLSCREEN GAMES SUITE
+     ══════════════════════════════════════════════════════════════ -->
+
+
+<div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
+  <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
+  <canvas id="quantumGameCanvas" class="quantum-game-canvas"></canvas>
+
+  <!-- Top Game HUD Bar -->
+  <header class="qgame-hud-top">
+    <div class="qgame-hud-inner">
+      <!-- Upper Left: Music Controller & Countdown Timer Cluster -->
+      <div class="qgame-left-hud">
+        <!-- In-Game Play Music Button -->
+        <button type="button" class="qgame-btn-music" id="btnGamePlayMusic" title="Play Curated Alarm Music & Antigravity Beats" aria-label="Play Music in Game">
+          <span class="qgame-music-glyph" id="qGameMusicGlyph">▶</span>
+          <span class="qgame-music-text" id="qGameMusicText">Play Music</span>
+          <span class="qgame-music-bars" id="qGameMusicBars" aria-hidden="true">
+            <span class="qg-bar b1"></span>
+            <span class="qg-bar b2"></span>
+            <span class="qg-bar b3"></span>
+          </span>
+        </button>
+
+        <!-- Futuristic Countdown Timer -->
+        <div class="qgame-timer-hud" id="qGameTimerHud">
+          <div class="qgame-hud-tag">
+            <span class="qgame-tag-dot"></span>
+            <span class="qgame-tag-text">QUANTUM HARMONY COUNTDOWN</span>
+          </div>
+          <div class="qgame-timer-display" id="qGameTimerDisplay">
+            <span class="qgame-digits" id="qGameDigits">60.00</span><span class="qgame-unit">s</span>
+          </div>
+          <div class="qgame-timer-track">
+            <div class="qgame-timer-fill" id="qGameTimerFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Top: Telemetry Instruction Badge -->
+      <div class="qgame-mission-hud">
+        <span class="qgame-mission-icon">◈</span>
+        <span class="qgame-mission-text" id="qGameMissionText">TARGET: TOUCH ANY PARTICLE · MAINTAIN CONTACT FOR 2.0s</span>
+      </div>
+
+      <!-- Upper Right: Subtle Futuristic Return & In-Game Fullscreen Buttons -->
+      <div class="qgame-exit-hud">
+        <button type="button" class="fs-toggle-btn qgame-fs-exit" id="btnGameToggleFullscreen" title="Enter Full Screen (Click)" aria-label="Toggle Full Screen in Game">
+          <span class="fs-btn-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </span>
+          <span class="fs-btn-label">ENTER FULL SCREEN</span>
+        </button>
+
+        <button type="button" class="qgame-btn-exit" id="btnExitGame" title="Return to OrlandoRecharge Horizon (Esc)" aria-label="Exit Game Mode">
+          <span class="qgame-exit-glyph">✕</span>
+          <span class="qgame-exit-label">RETURN TO HORIZON</span>
+          <span class="qgame-exit-key">ESC</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Result Center Stage Modal / Hologram (Shared Zero-Shift Card for Victory & Game Over) -->
+  <div class="qgame-victory-modal" id="qGameVictoryModal" style="display:none;">
+    <div class="qgame-victory-card" id="qGameResultCard">
+      <div class="qgame-victory-aurora" id="qGameResultAurora"></div>
+      <div class="qgame-victory-icon" id="qGameResultIcon">
+        <svg viewBox="0 0 24 24" fill="none" class="qgame-victory-svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#vicGoldGrad)" stroke="#ffffff" stroke-width="1.2"/>
+          <defs>
+            <linearGradient id="vicGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffd700"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="qgame-victory-title" id="qGameResultTitle">QUANTUM RESONANCE COMPLETE</h2>
+      <div class="qgame-victory-subtitle" id="qGameResultSubtitle">TARGET SYNCHRONIZED · HARMONIC DANCE ACTIVE</div>
+      
+      <div class="qgame-victory-stats">
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel1">FINAL TIME PRESERVED</div>
+          <div class="qgame-stat-val highlight" id="qGamePreservedTime">60.00s</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel2">LOCK DURATION</div>
+          <div class="qgame-stat-val" id="qGameLockDuration">2.00s CONTINUOUS</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel3">SYSTEM STATUS</div>
+          <div class="qgame-stat-val success" id="qGameSystemStatus">CELEBRATION DANCE</div>
+        </div>
+      </div>
+
+      <div class="qgame-victory-actions">
+        <button type="button" class="qgame-btn-action primary" id="btnGamePlayAgain">
+          <span class="qgame-btn-icon" id="qGameActionIcon">⚡</span>
+          <span id="qGameActionLabel">Play Again</span>
+        </button>
+        <button type="button" class="qgame-btn-action secondary" id="btnGameReturn">
+          <span class="qgame-btn-icon">✕</span>
+          <span>Return to Horizon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+<!-- ══════════════════════════════════════════════════════════════
+     ANTIGRAVITY QUANTUM PARTICLES & THREE FULLSCREEN GAMES SUITE
+     ══════════════════════════════════════════════════════════════ -->
+
+
+<div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
+  <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
+  <canvas id="quantumGameCanvas" class="quantum-game-canvas"></canvas>
+
+  <!-- Top Game HUD Bar -->
+  <header class="qgame-hud-top">
+    <div class="qgame-hud-inner">
+      <!-- Upper Left: Music Controller & Countdown Timer Cluster -->
+      <div class="qgame-left-hud">
+        <!-- In-Game Play Music Button -->
+        <button type="button" class="qgame-btn-music" id="btnGamePlayMusic" title="Play Curated Alarm Music & Antigravity Beats" aria-label="Play Music in Game">
+          <span class="qgame-music-glyph" id="qGameMusicGlyph">▶</span>
+          <span class="qgame-music-text" id="qGameMusicText">Play Music</span>
+          <span class="qgame-music-bars" id="qGameMusicBars" aria-hidden="true">
+            <span class="qg-bar b1"></span>
+            <span class="qg-bar b2"></span>
+            <span class="qg-bar b3"></span>
+          </span>
+        </button>
+
+        <!-- Futuristic Countdown Timer -->
+        <div class="qgame-timer-hud" id="qGameTimerHud">
+          <div class="qgame-hud-tag">
+            <span class="qgame-tag-dot"></span>
+            <span class="qgame-tag-text">QUANTUM HARMONY COUNTDOWN</span>
+          </div>
+          <div class="qgame-timer-display" id="qGameTimerDisplay">
+            <span class="qgame-digits" id="qGameDigits">60.00</span><span class="qgame-unit">s</span>
+          </div>
+          <div class="qgame-timer-track">
+            <div class="qgame-timer-fill" id="qGameTimerFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Top: Telemetry Instruction Badge -->
+      <div class="qgame-mission-hud">
+        <span class="qgame-mission-icon">◈</span>
+        <span class="qgame-mission-text" id="qGameMissionText">TARGET: TOUCH ANY PARTICLE · MAINTAIN CONTACT FOR 2.0s</span>
+      </div>
+
+      <!-- Upper Right: Subtle Futuristic Return & In-Game Fullscreen Buttons -->
+      <div class="qgame-exit-hud">
+        <button type="button" class="fs-toggle-btn qgame-fs-exit" id="btnGameToggleFullscreen" title="Enter Full Screen (Click)" aria-label="Toggle Full Screen in Game">
+          <span class="fs-btn-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </span>
+          <span class="fs-btn-label">ENTER FULL SCREEN</span>
+        </button>
+
+        <button type="button" class="qgame-btn-exit" id="btnExitGame" title="Return to OrlandoRecharge Horizon (Esc)" aria-label="Exit Game Mode">
+          <span class="qgame-exit-glyph">✕</span>
+          <span class="qgame-exit-label">RETURN TO HORIZON</span>
+          <span class="qgame-exit-key">ESC</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Result Center Stage Modal / Hologram (Shared Zero-Shift Card for Victory & Game Over) -->
+  <div class="qgame-victory-modal" id="qGameVictoryModal" style="display:none;">
+    <div class="qgame-victory-card" id="qGameResultCard">
+      <div class="qgame-victory-aurora" id="qGameResultAurora"></div>
+      <div class="qgame-victory-icon" id="qGameResultIcon">
+        <svg viewBox="0 0 24 24" fill="none" class="qgame-victory-svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#vicGoldGrad)" stroke="#ffffff" stroke-width="1.2"/>
+          <defs>
+            <linearGradient id="vicGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffd700"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="qgame-victory-title" id="qGameResultTitle">QUANTUM RESONANCE COMPLETE</h2>
+      <div class="qgame-victory-subtitle" id="qGameResultSubtitle">TARGET SYNCHRONIZED · HARMONIC DANCE ACTIVE</div>
+      
+      <div class="qgame-victory-stats">
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel1">FINAL TIME PRESERVED</div>
+          <div class="qgame-stat-val highlight" id="qGamePreservedTime">60.00s</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel2">LOCK DURATION</div>
+          <div class="qgame-stat-val" id="qGameLockDuration">2.00s CONTINUOUS</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel3">SYSTEM STATUS</div>
+          <div class="qgame-stat-val success" id="qGameSystemStatus">CELEBRATION DANCE</div>
+        </div>
+      </div>
+
+      <div class="qgame-victory-actions">
+        <button type="button" class="qgame-btn-action primary" id="btnGamePlayAgain">
+          <span class="qgame-btn-icon" id="qGameActionIcon">⚡</span>
+          <span id="qGameActionLabel">Play Again</span>
+        </button>
+        <button type="button" class="qgame-btn-action secondary" id="btnGameReturn">
+          <span class="qgame-btn-icon">✕</span>
+          <span>Return to Horizon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+<!-- ══════════════════════════════════════════════════════════════
+     ANTIGRAVITY QUANTUM PARTICLES & THREE FULLSCREEN GAMES SUITE
+     ══════════════════════════════════════════════════════════════ -->
+<canvas id="antigravityCanvas" class="antigravity-fx-canvas"></canvas>
+<canvas id="antigravityFrontCanvas" class="antigravity-front-canvas"></canvas>
+<div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
+  <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
+  <canvas id="quantumGameCanvas" class="quantum-game-canvas"></canvas>
+
+  <!-- Top Game HUD Bar -->
+  <header class="qgame-hud-top">
+    <div class="qgame-hud-inner">
+      <!-- Upper Left: Music Controller & Countdown Timer Cluster -->
+      <div class="qgame-left-hud">
+        <!-- In-Game Play Music Button -->
+        <button type="button" class="qgame-btn-music" id="btnGamePlayMusic" title="Play Curated Alarm Music & Antigravity Beats" aria-label="Play Music in Game">
+          <span class="qgame-music-glyph" id="qGameMusicGlyph">▶</span>
+          <span class="qgame-music-text" id="qGameMusicText">Play Music</span>
+          <span class="qgame-music-bars" id="qGameMusicBars" aria-hidden="true">
+            <span class="qg-bar b1"></span>
+            <span class="qg-bar b2"></span>
+            <span class="qg-bar b3"></span>
+          </span>
+        </button>
+
+        <!-- Futuristic Countdown Timer -->
+        <div class="qgame-timer-hud" id="qGameTimerHud">
+          <div class="qgame-hud-tag">
+            <span class="qgame-tag-dot"></span>
+            <span class="qgame-tag-text">QUANTUM HARMONY COUNTDOWN</span>
+          </div>
+          <div class="qgame-timer-display" id="qGameTimerDisplay">
+            <span class="qgame-digits" id="qGameDigits">60.00</span><span class="qgame-unit">s</span>
+          </div>
+          <div class="qgame-timer-track">
+            <div class="qgame-timer-fill" id="qGameTimerFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Top: Telemetry Instruction Badge -->
+      <div class="qgame-mission-hud">
+        <span class="qgame-mission-icon">◈</span>
+        <span class="qgame-mission-text" id="qGameMissionText">TARGET: TOUCH ANY PARTICLE · MAINTAIN CONTACT FOR 2.0s</span>
+      </div>
+
+      <!-- Upper Right: Subtle Futuristic Return & In-Game Fullscreen Buttons -->
+      <div class="qgame-exit-hud">
+        <button type="button" class="fs-toggle-btn qgame-fs-exit" id="btnGameToggleFullscreen" title="Enter Full Screen (Click)" aria-label="Toggle Full Screen in Game">
+          <span class="fs-btn-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </span>
+          <span class="fs-btn-label">ENTER FULL SCREEN</span>
+        </button>
+
+        <button type="button" class="qgame-btn-exit" id="btnExitGame" title="Return to OrlandoRecharge Horizon (Esc)" aria-label="Exit Game Mode">
+          <span class="qgame-exit-glyph">✕</span>
+          <span class="qgame-exit-label">RETURN TO HORIZON</span>
+          <span class="qgame-exit-key">ESC</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Result Center Stage Modal / Hologram (Shared Zero-Shift Card for Victory & Game Over) -->
+  <div class="qgame-victory-modal" id="qGameVictoryModal" style="display:none;">
+    <div class="qgame-victory-card" id="qGameResultCard">
+      <div class="qgame-victory-aurora" id="qGameResultAurora"></div>
+      <div class="qgame-victory-icon" id="qGameResultIcon">
+        <svg viewBox="0 0 24 24" fill="none" class="qgame-victory-svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#vicGoldGrad)" stroke="#ffffff" stroke-width="1.2"/>
+          <defs>
+            <linearGradient id="vicGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffd700"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="qgame-victory-title" id="qGameResultTitle">QUANTUM RESONANCE COMPLETE</h2>
+      <div class="qgame-victory-subtitle" id="qGameResultSubtitle">TARGET SYNCHRONIZED · HARMONIC DANCE ACTIVE</div>
+      
+      <div class="qgame-victory-stats">
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel1">FINAL TIME PRESERVED</div>
+          <div class="qgame-stat-val highlight" id="qGamePreservedTime">60.00s</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel2">LOCK DURATION</div>
+          <div class="qgame-stat-val" id="qGameLockDuration">2.00s CONTINUOUS</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel3">SYSTEM STATUS</div>
+          <div class="qgame-stat-val success" id="qGameSystemStatus">CELEBRATION DANCE</div>
+        </div>
+      </div>
+
+      <div class="qgame-victory-actions">
+        <button type="button" class="qgame-btn-action primary" id="btnGamePlayAgain">
+          <span class="qgame-btn-icon" id="qGameActionIcon">⚡</span>
+          <span id="qGameActionLabel">Play Again</span>
+        </button>
+        <button type="button" class="qgame-btn-action secondary" id="btnGameReturn">
+          <span class="qgame-btn-icon">✕</span>
+          <span>Return to Horizon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="assets/relative-time.js"></script>
   <script src="sound.js?v=pure125"></script>
   <script src="qrcode.min.js"></script>
   <script src="app.js?v=pure125"></script>
@@ -525,6 +986,125 @@
     </div>
   </div>
 
-  <script src="game.js?v=arena200"></script>
+  
+
+<!-- ══════════════════════════════════════════════════════════════
+     ANTIGRAVITY QUANTUM PARTICLES & THREE FULLSCREEN GAMES SUITE
+     ══════════════════════════════════════════════════════════════ -->
+
+
+<div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
+  <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
+  <canvas id="quantumGameCanvas" class="quantum-game-canvas"></canvas>
+
+  <!-- Top Game HUD Bar -->
+  <header class="qgame-hud-top">
+    <div class="qgame-hud-inner">
+      <!-- Upper Left: Music Controller & Countdown Timer Cluster -->
+      <div class="qgame-left-hud">
+        <!-- In-Game Play Music Button -->
+        <button type="button" class="qgame-btn-music" id="btnGamePlayMusic" title="Play Curated Alarm Music & Antigravity Beats" aria-label="Play Music in Game">
+          <span class="qgame-music-glyph" id="qGameMusicGlyph">▶</span>
+          <span class="qgame-music-text" id="qGameMusicText">Play Music</span>
+          <span class="qgame-music-bars" id="qGameMusicBars" aria-hidden="true">
+            <span class="qg-bar b1"></span>
+            <span class="qg-bar b2"></span>
+            <span class="qg-bar b3"></span>
+          </span>
+        </button>
+
+        <!-- Futuristic Countdown Timer -->
+        <div class="qgame-timer-hud" id="qGameTimerHud">
+          <div class="qgame-hud-tag">
+            <span class="qgame-tag-dot"></span>
+            <span class="qgame-tag-text">QUANTUM HARMONY COUNTDOWN</span>
+          </div>
+          <div class="qgame-timer-display" id="qGameTimerDisplay">
+            <span class="qgame-digits" id="qGameDigits">60.00</span><span class="qgame-unit">s</span>
+          </div>
+          <div class="qgame-timer-track">
+            <div class="qgame-timer-fill" id="qGameTimerFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Top: Telemetry Instruction Badge -->
+      <div class="qgame-mission-hud">
+        <span class="qgame-mission-icon">◈</span>
+        <span class="qgame-mission-text" id="qGameMissionText">TARGET: TOUCH ANY PARTICLE · MAINTAIN CONTACT FOR 2.0s</span>
+      </div>
+
+      <!-- Upper Right: Subtle Futuristic Return & In-Game Fullscreen Buttons -->
+      <div class="qgame-exit-hud">
+        <button type="button" class="fs-toggle-btn qgame-fs-exit" id="btnGameToggleFullscreen" title="Enter Full Screen (Click)" aria-label="Toggle Full Screen in Game">
+          <span class="fs-btn-glyph" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </span>
+          <span class="fs-btn-label">ENTER FULL SCREEN</span>
+        </button>
+
+        <button type="button" class="qgame-btn-exit" id="btnExitGame" title="Return to OrlandoRecharge Horizon (Esc)" aria-label="Exit Game Mode">
+          <span class="qgame-exit-glyph">✕</span>
+          <span class="qgame-exit-label">RETURN TO HORIZON</span>
+          <span class="qgame-exit-key">ESC</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Result Center Stage Modal / Hologram (Shared Zero-Shift Card for Victory & Game Over) -->
+  <div class="qgame-victory-modal" id="qGameVictoryModal" style="display:none;">
+    <div class="qgame-victory-card" id="qGameResultCard">
+      <div class="qgame-victory-aurora" id="qGameResultAurora"></div>
+      <div class="qgame-victory-icon" id="qGameResultIcon">
+        <svg viewBox="0 0 24 24" fill="none" class="qgame-victory-svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#vicGoldGrad)" stroke="#ffffff" stroke-width="1.2"/>
+          <defs>
+            <linearGradient id="vicGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffd700"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="qgame-victory-title" id="qGameResultTitle">QUANTUM RESONANCE COMPLETE</h2>
+      <div class="qgame-victory-subtitle" id="qGameResultSubtitle">TARGET SYNCHRONIZED · HARMONIC DANCE ACTIVE</div>
+      
+      <div class="qgame-victory-stats">
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel1">FINAL TIME PRESERVED</div>
+          <div class="qgame-stat-val highlight" id="qGamePreservedTime">60.00s</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel2">LOCK DURATION</div>
+          <div class="qgame-stat-val" id="qGameLockDuration">2.00s CONTINUOUS</div>
+        </div>
+        <div class="qgame-stat-box">
+          <div class="qgame-stat-label" id="qGameStatLabel3">SYSTEM STATUS</div>
+          <div class="qgame-stat-val success" id="qGameSystemStatus">CELEBRATION DANCE</div>
+        </div>
+      </div>
+
+      <div class="qgame-victory-actions">
+        <button type="button" class="qgame-btn-action primary" id="btnGamePlayAgain">
+          <span class="qgame-btn-icon" id="qGameActionIcon">⚡</span>
+          <span id="qGameActionLabel">Play Again</span>
+        </button>
+        <button type="button" class="qgame-btn-action secondary" id="btnGameReturn">
+          <span class="qgame-btn-icon">✕</span>
+          <span>Return to Horizon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+  
+  
+  <script src="game.js?v=quantum300"></script>
 </body>
 </html>
