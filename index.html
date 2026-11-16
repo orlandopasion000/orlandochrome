@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=pure251">
+  <link rel="stylesheet" href="styles.css?v=arcade300">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -117,66 +117,7 @@
       }
     }
   </style>
-  <style id="quantumCurtainSafetyGuard">
-    body.universe-game-active {
-      background: #000000 !important;
-      overflow: hidden !important;
-    }
-    body.universe-game-active .app-topbar,
-    body.universe-game-active .app-workspace,
-    body.universe-game-active #appWorkspace,
-    body.universe-game-active #appSidebar,
-    body.universe-game-active .sidebar,
-    body.universe-game-active .sidebar-header,
-    body.universe-game-active .profile-list,
-    body.universe-game-active .standalone-subapp-dock,
-    body.universe-game-active .workspace-resizer,
-    body.universe-game-active main,
-    body.universe-game-active #chatMain {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-    body.universe-game-active .antigravity-canvas,
-    body.universe-game-active .antigravity-front-canvas {
-      display: block !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      z-index: 1000 !important;
-      pointer-events: none !important;
-    }
-    body.universe-game-active .antigravity-front-canvas {
-      z-index: 1001 !important;
-    }
-    body.universe-game-active .quantum-game-overlay {
-      background: transparent !important;
-      background-color: transparent !important;
-      z-index: 1002 !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      pointer-events: auto !important;
-    }
-    body.universe-game-active .quantum-game-canvas {
-      z-index: 2 !important;
-      pointer-events: none !important;
-    }
-    body.universe-game-active .qgame-hud-top,
-    body.universe-game-active .qgame-left-hud,
-    body.universe-game-active .qgame-mission-hud {
-      z-index: 10 !important;
-      pointer-events: auto !important;
-    }
-    body.universe-game-active .qgame-btn-exit,
-    body.universe-game-active .qgame-btn-action,
-    body.universe-game-active .qgame-btn-music {
-      pointer-events: auto !important;
-      cursor: pointer !important;
-    }
-  </style>
+  
 </head>
 <body class="netflix-messenger-theme">
   <!-- Top Application Bar -->
@@ -191,22 +132,22 @@
 
     <!-- Quantum Universe Game Suite Launcher Cluster (Exact Realm, Helix, Meteor) Directly Beside Logo -->
     <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
-      <button type="button" class="qgame-btn-launch qgame-btn-realm" id="btnLaunchGame" title="Enter Quantum Realm Game (Classic Particles)" aria-label="Launch Quantum Realm Game">
+      <button type="button" class="qgame-btn-launch qgame-btn-realm" id="btnLaunchGame" title="Chrome Realm: Profile Synapse Wave Catcher (10 Shields)" aria-label="Launch Chrome Realm">
         <span class="game-btn-glyph" aria-hidden="true">◈</span>
-        <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>REALM</span>
+        <span class="game-btn-label">REALM</span>
       </button>
 
-      <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Enter Quantum Helix Game (Cyan & Violet Double-Helix)" aria-label="Launch Quantum Helix Game">
+      <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Chrome Helix: Dual-Thread Task Synchronizer (10 Shields)" aria-label="Launch Chrome Helix">
         <span class="game-btn-glyph game-btn-glyph-helix" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 6c4 0 6 12 10 12s6-12 10-12" stroke="#22d3ee"/>
             <path d="M4 18c4 0 6-12 10-12s6 12 10 12" stroke="#c084fc" stroke-dasharray="2 2" opacity="0.92"/>
           </svg>
         </span>
-        <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>HELIX</span>
+        <span class="game-btn-label">HELIX</span>
       </button>
 
-      <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Enter Quantum Meteor Game (Fiery Meteors & Molten Asteroids)" aria-label="Launch Quantum Meteor Game">
+      <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Chrome Meteor: Task Surge Asteroid Deflector (10 Shields)" aria-label="Launch Chrome Meteor">
         <span class="game-btn-glyph game-btn-glyph-meteor" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 3L13.5 10.5M19 7L14 12M17 3L11.5 8.5" stroke="#f97316" stroke-width="1.8" opacity="0.95"/>
@@ -214,7 +155,7 @@
             <circle cx="6" cy="18" r="1.5" fill="#fef08a"/>
           </svg>
         </span>
-        <span class="game-btn-label"><span class="qg-word-quantum">QUANTUM </span>METEOR</span>
+        <span class="game-btn-label">METEOR</span>
       </button>
     </div>
     </div>
@@ -651,7 +592,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure250"></script>
+  <script src="app.js?v=arcade300"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -713,43 +654,7 @@
 
 
     
-  <!-- Antigravity Interactive Particles Canvases for Quantum Universe Games -->
-  <canvas id="antigravityCanvas" class="antigravity-canvas" aria-hidden="true"></canvas>
-  <canvas id="antigravityFrontCanvas" class="antigravity-front-canvas" aria-hidden="true"></canvas>
-
-  <div id="quantumGameOverlay" class="quantum-game-overlay" aria-hidden="true">
-  <!-- Game Dedicated Canvas for Crosshairs, Reticle, Beams, Shockwaves & Spark Fragments -->
-  <canvas id="quantumGameCanvas" class="quantum-game-canvas"></canvas>
-
-  <!-- Top Game HUD Bar -->
-  <header class="qgame-hud-top">
-    <div class="qgame-hud-inner">
-      <!-- Upper Left: Music Controller & Countdown Timer Cluster -->
-      <div class="qgame-left-hud">
-        <!-- In-Game Play Music Button -->
-        <button type="button" class="qgame-btn-music" id="btnGamePlayMusic" title="Play Curated Alarm Music & Antigravity Beats" aria-label="Play Music in Game">
-          <span class="qgame-music-glyph" id="qGameMusicGlyph">▶</span>
-          <span class="qgame-music-text" id="qGameMusicText">Play Music</span>
-          <span class="qgame-music-bars" id="qGameMusicBars" aria-hidden="true">
-            <span class="qg-bar b1"></span>
-            <span class="qg-bar b2"></span>
-            <span class="qg-bar b3"></span>
-          </span>
-        </button>
-
-        <!-- Futuristic Countdown Timer -->
-        <div class="qgame-timer-hud" id="qGameTimerHud">
-          <div class="qgame-hud-tag">
-            <span class="qgame-tag-dot"></span>
-            <span class="qgame-tag-text">QUANTUM HARMONY COUNTDOWN</span>
-          </div>
-          <div class="qgame-timer-display" id="qGameTimerDisplay">
-            <span class="qgame-digits" id="qGameDigits">60.00</span><span class="qgame-unit">s</span>
-          </div>
-          <div class="qgame-timer-track">
-            <div class="qgame-timer-fill" id="qGameTimerFill"></div>
-          </div>
-        </div>
+  
       </div>
 
       <!-- Center Top: Telemetry Instruction Badge -->
@@ -827,7 +732,7 @@
 </div>
 
     <!-- CacheFlush: 1794862673222 -->
-  <script src="game.js?v=quantum251"></script>
+  <script src="game.js?v=arcade300"></script>
   <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>

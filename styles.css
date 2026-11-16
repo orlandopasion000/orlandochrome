@@ -13428,21 +13428,8 @@ body.netflix-messenger-theme {
   z-index: 999;
 }
 
-body.universe-game-active .antigravity-canvas,
-body.universe-game-active .antigravity-front-canvas {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 1000 !important;
-  pointer-events: none !important;
-}
-body.universe-game-active .antigravity-front-canvas {
-  z-index: 1001 !important;
-}
+
+
 
 /* ───────── TWIN QUANTUM REALM NAVIGATION & CONTROLS ───────── */
 .qgame-btn-launch {
@@ -13812,76 +13799,29 @@ body.light-theme .fs-toggle-btn:hover {
 }
 
 /* ───────── IMMERSIVE UNIVERSE GAME ENVIRONMENT (#quantumGameOverlay) ───────── */
-body.universe-game-active {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  overflow: hidden !important;
-}
+
 
 /* Alive Quantum Atomic Reticle: Canvas rendered with 0ms latency, OS cursor hidden over game zone */
 /* Alive Quantum Atomic Reticle: Canvas rendered with 0ms latency, OS cursor hidden on mouse devices only */
-body.universe-game-active.mode-mouse,
-body.universe-game-active.mode-mouse .quantum-game-overlay,
-body.universe-game-active.mode-mouse .quantum-game-canvas {
-  cursor: none !important;
-}
-body.universe-game-active.mode-touch,
-body.universe-game-active.mode-touch .quantum-game-overlay,
-body.universe-game-active.mode-touch .quantum-game-canvas {
-  cursor: auto !important;
-}
+
+
 
 /* Touch Comfort & Gesture Protection: prevent page scrolling, pinch zooming, or pull-to-refresh during game */
-body.universe-game-active .quantum-game-overlay,
-body.universe-game-active .quantum-game-canvas {
-  touch-action: none !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  -webkit-touch-callout: none !important;
-  -webkit-tap-highlight-color: transparent !important;
-}
+
 
 /* Touch screens share proportional uniform HUD pill heights across each row (preventing 44px oval distortion) */
 
 /* Ensure all HUD buttons and interactive elements retain clean pointer cursor */
-body.universe-game-active button,
-body.universe-game-active a,
-body.universe-game-active [role="button"],
-body.universe-game-active .fs-toggle-btn,
-body.universe-game-active .qgame-btn-exit,
-body.universe-game-active .qgame-btn-music,
-body.universe-game-active .qgame-btn-action,
-body.universe-game-active .qgame-victory-actions * {
-  cursor: pointer !important;
-}
+
 
 .qgame-victory-modal {
   cursor: default;
 }
 
 /* ───────── SOLUTION 1: PURE FULLSCREEN CURTAIN (ZERO TEXT BLEED) ───────── */
-body.universe-game-active .app-topbar,
-body.universe-game-active .app-workspace,
-body.universe-game-active #appWorkspace,
-body.universe-game-active #appSidebar,
-body.universe-game-active .sidebar,
-body.universe-game-active .sidebar-header,
-body.universe-game-active .profile-list,
-body.universe-game-active .standalone-subapp-dock,
-body.universe-game-active .workspace-resizer,
-body.universe-game-active main,
-body.universe-game-active #chatMain {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transition: opacity 0.3s ease, visibility 0.3s ease !important;
-}
 
-body.universe-game-active .modal-wrap:not(#qGameVictoryModal) {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
+
+
 
 /* Solid pure black stage curtain for quantum game overlay */
 .quantum-game-overlay {
@@ -13900,19 +13840,9 @@ body.universe-game-active .modal-wrap:not(#qGameVictoryModal) {
   will-change: opacity, visibility;
 }
 
-body:not(.universe-game-active) .quantum-game-overlay,
-body:not(.universe-game-active) .quantum-game-overlay * {
-  pointer-events: none !important;
-}
 
-body.universe-game-active .quantum-game-overlay {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  z-index: 1002 !important;
-}
+
+
 
 .quantum-game-canvas {
   position: absolute;
@@ -13969,10 +13899,7 @@ body.universe-game-active .quantum-game-overlay {
   transform: translateY(-12px);
   transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.20s, transform 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.20s;
 }
-body.universe-game-active .qgame-left-hud {
-  opacity: 1;
-  transform: translateY(0);
-}
+
 
 /* In-Game "Play Music" Button */
 .qgame-btn-music {
@@ -14195,10 +14122,7 @@ body.universe-game-active .qgame-left-hud {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-body.universe-game-active .qgame-mission-hud {
-  opacity: 1;
-  transform: translateY(0);
-}
+
 .qgame-mission-icon {
   color: rgba(255, 215, 0, 0.72);
   font-size: 0.76rem;
@@ -14227,11 +14151,7 @@ body.universe-game-active .qgame-mission-hud {
   transform: translateY(-12px);
   transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.25s, transform 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.25s, background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
-body.universe-game-active .qgame-btn-exit,
-body.universe-game-active .qgame-fs-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
+
 
 /* Translucent Result Modal: Subtle transparency showing animated particles */
 .qgame-victory-modal {
@@ -14473,9 +14393,7 @@ body.universe-game-active .qgame-fs-exit {
     overflow: visible;
     text-overflow: clip;
   }
-  body.universe-game-active .qgame-mission-hud {
-    transform: translateX(-50%) translateY(0) !important;
-  }
+  
 }
 
 
@@ -14770,4 +14688,11 @@ body.universe-game-active .qgame-fs-exit {
   .qg-word-quantum {
     display: none !important;
   }
+}
+
+.game-modal-overlay.active {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 100000 !important;
 }
