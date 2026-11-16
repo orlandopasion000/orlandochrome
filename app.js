@@ -4715,9 +4715,16 @@ const Icons = {
       if (!query) return true;
       const inName = p.name.toLowerCase().includes(query);
       const inEmail = (p.email || '').toLowerCase().includes(query);
+      const inGaia = (p.gaia || '').toLowerCase().includes(query);
       const inSlot = String(p.taskbarSlot).includes(query) || (p.winShortcut || '').toLowerCase().includes(query);
-      const inNotes = (p.notes || []).some(n => (n.text || '').toLowerCase().includes(query));
-      return inName || inEmail || inSlot || inNotes;
+      const inSticky = (p.stickyNote || '').toLowerCase().includes(query);
+      const inStatus = (p.statusNote && p.statusNote.text || '').toLowerCase().includes(query);
+      const inNotes = (p.notes || []).some(n => {
+        const textMatch = (n.text || '').toLowerCase().includes(query);
+        const subMatch = (n.subItems || []).some(si => (si.text || '').toLowerCase().includes(query));
+        return textMatch || subMatch;
+      });
+      return inName || inEmail || inGaia || inSlot || inSticky || inStatus || inNotes;
     });
 
     // Sort: Pinned profiles with pending messages go to the top; unpinned stay in exact original taskbarSlot order
@@ -4766,7 +4773,25 @@ const Icons = {
       let snippetHtml = '';
       let snippetClass = '';
 
-      if (pendingNotes.length > 0) {
+      let matchedSnippet = null;
+      if (query) {
+        const matchingNote = allNotes.find(n => {
+          return (n.text || '').toLowerCase().includes(query) || 
+                 (n.subItems || []).some(si => (si.text || '').toLowerCase().includes(query));
+        });
+        if (matchingNote) {
+          const rawMatchText = matchingNote.text || (matchingNote.subItems && matchingNote.subItems[0]?.text) || '';
+          const matchLabel = matchingNote.done ? '✓ Note: ' : '⏳ Reminder: ';
+          matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#f59e0b;font-weight:700;">${matchLabel}</span>${highlightQueryInSnippet(rawMatchText, query, 60)}</span>`;
+        } else if ((p.stickyNote || '').toLowerCase().includes(query)) {
+          matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#10b981;font-weight:700;">📌 Sticky: </span>${highlightQueryInSnippet(p.stickyNote, query, 60)}</span>`;
+        }
+      }
+
+      if (matchedSnippet) {
+        snippetHtml = matchedSnippet;
+        snippetClass = 'search-match-row';
+      } else if (pendingNotes.length > 0) {
         // FB Messenger: Show the latest message in the snippet preview
         const latestNote = pendingNotes[pendingNotes.length - 1];
         const displayMsg = formatMessengerSnippet(latestNote);
@@ -11200,154 +11225,225 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
 
 
   // =========================================================================
-  // 2. SPOTLIGHT COMMAND PALETTE & SUITE CONTROLLER (Genius Modern Software Secret)
+  // 2. UNIVERSAL NEURAL DEEP SEARCH & SPOTLIGHT COMMAND PALETTE
   // =========================================================================
   let cmdSelectedIndex = 0;
   let filteredCmdItems = [];
+  let currentFilterCategory = 'all';
 
-  function buildCommandItems() {
+  function escapeRegExp(str) {
+    if (!str) return '';
+    const specials = ['-', '[', ']', '/', '{', '}', '(', ')', '*', '+', '?', '.', '\\', '^', '$', '|'];
+    return str.split('').map(c => specials.includes(c) ? '\\' + c : c).join('');
+  }
+
+  function highlightQueryInSnippet(text, query, maxLen = 75) {
+    if (!text) return '';
+    if (!query) return esc(text.length > maxLen ? text.slice(0, maxLen) + '...' : text);
+    
+    const lowerText = text.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    const matchIdx = lowerText.indexOf(lowerQuery);
+    
+    let start = 0;
+    let end = text.length;
+    
+    if (matchIdx !== -1 && text.length > maxLen) {
+      start = Math.max(0, matchIdx - 20);
+      end = Math.min(text.length, matchIdx + query.length + 45);
+    }
+    
+    let snippet = text.slice(start, end);
+    if (start > 0) snippet = '...' + snippet;
+    if (end < text.length) snippet = snippet + '...';
+    
+    const escapedSnippet = esc(snippet);
+    const regex = new RegExp('(' + escapeRegExp(esc(query)) + ')', 'gi');
+    return escapedSnippet.replace(regex, '<mark class="cmd-match-mark">$1</mark>');
+  }
+
+  function jumpToNoteCard(noteId) {
+    if (window.innerWidth <= 768 && typeof openMobileChatWithSlide === 'function') {
+      openMobileChatWithSlide();
+    }
+    setTimeout(() => {
+      const card = document.getElementById('noteCard_' + noteId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('note-search-highlight');
+        setTimeout(() => card.classList.remove('note-search-highlight'), 2600);
+      }
+    }, 160);
+  }
+
+  function buildDeepOmnisearchItems(query = '') {
+    const q = (query || '').toLowerCase().trim();
     const items = [];
+    const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
 
-    // A. Executive Suite Sub-Apps
-    items.push({
-      id: 'suite-hub',
-      cat: 'Executive Suite Sub-Apps',
-      icon: '🏛️',
-      title: 'Sir Orlando V. Pasion, Jr. — Main Web Portal',
-      desc: 'Official portfolio, mock test reviewers & digital library',
-      badge: 'Hub',
-      action: () => { window.location.href = 'https://orlandopasion000.github.io/'; }
-    });
-    items.push({
-      id: 'suite-recharge',
-      cat: 'Executive Suite Sub-Apps',
-      icon: '⚡',
-      title: 'OrlandoRecharge (Main Version)',
-      desc: 'Complete 23-block main schedule alarm cockpit & horology',
-      badge: 'PWA',
-      action: () => {
-        const w = window.open('https://orlandopasion000.github.io/orlandorecharge/?standalone=true', 'OrlandoRechargeMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1280,height=850,left=100,top=60');
-        if (w) try { w.focus(); } catch(e) {}
-      }
-    });
-    items.push({
-      id: 'suite-timer',
-      cat: 'Executive Suite Sub-Apps',
-      icon: '⏳',
-      title: 'OrlandoTimer (Quantum Focus Horizon)',
-      desc: 'Atmospheric focus timer, soundscapes & quantum horology',
-      badge: 'PWA',
-      action: () => {
-        const w = window.open('https://orlandopasion000.github.io/orlandotimer/?standalone=true', 'OrlandoTimerMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1180,height=820,left=140,top=100');
-        if (w) try { w.focus(); } catch(e) {}
-      }
-    });
-    items.push({
-      id: 'suite-vault',
-      cat: 'Executive Suite Sub-Apps',
-      icon: '🔐',
-      title: 'OrlandoVault (Secure Digital Locker)',
-      desc: 'Encrypted passwords, credential safe & security health',
-      badge: 'Vault',
-      action: () => {
-        const w = window.open('https://orlandopasion000.github.io/orlandovault/?standalone=true', 'OrlandoVaultMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1180,height=820,left=160,top=120');
-        if (w) try { w.focus(); } catch(e) {}
-      }
-    });
+    function matchesTokens(targetStr) {
+      if (!targetStr) return false;
+      const lower = targetStr.toLowerCase();
+      if (!q) return true;
+      return tokens.every(tok => lower.includes(tok));
+    }
 
-    // B. Quick Actions
-    items.push({
-      id: 'act-sync',
-      cat: 'Quick Actions',
-      icon: '🔄',
-      title: 'Cloud Sync Now (Laptop ↔ iPhone)',
-      desc: 'Real-time bidirectional Firebase Firestore sync stream',
-      badge: 'Action',
-      action: () => {
-        const btn = $('#btnTopbarSyncNow');
-        if (btn) btn.click();
-      }
-    });
-    items.push({
-      id: 'act-launch',
-      cat: 'Quick Actions',
-      icon: '🚀',
-      title: 'Open Main Web App (Desktop Window)',
-      desc: 'Borderless 1180×820 dedicated Chromium standalone window',
-      badge: 'Desktop',
-      action: () => { handleLaunchStandaloneApp(); }
-    });
-    items.push({
-      id: 'act-voice',
-      cat: 'Quick Actions',
-      icon: '🎙️',
-      title: 'Voice Commands Manual (Wispr Flow)',
-      desc: '10 superpowers, auto-punctuation & voice dictation',
-      badge: 'Wispr',
-      action: () => { openVoiceCommandsCheatSheetModal(); }
-    });
-    items.push({
-      id: 'act-vault',
-      cat: 'Quick Actions',
-      icon: '🛡️',
-      title: 'Recovery Vault & Rollback Checkpoints',
-      desc: 'Multi-tier encrypted data safety vault & history rollback',
-      badge: 'Vault',
-      action: () => { const b = $('#btnOpenVault'); if (b) b.click(); }
-    });
-    items.push({
-      id: 'act-centennial',
-      cat: 'Quick Actions',
-      icon: '💎',
-      title: 'Centennial Recovery (Merkle Cryptographic Self-Heal)',
-      desc: 'Sha256 Merkle tree verification & audit console',
-      badge: 'Crypto',
-      action: () => { const b = $('#btnOpenCentennial'); if (b) b.click(); }
-    });
-    items.push({
-      id: 'act-backup',
-      cat: 'Quick Actions',
-      icon: '💾',
-      title: 'Backup & Restore Workspace JSON',
-      desc: 'Export encrypted backup or restore profile state',
-      badge: 'JSON',
-      action: () => { const b = $('#btnSystemBackup'); if (b) b.click(); }
-    });
-    items.push({
-      id: 'act-blank',
-      cat: 'Quick Actions',
-      icon: '🎨',
-      title: 'OrlandoChrome (Blank Canvas)',
-      desc: 'Pristine zero-note workspace · Auto-scan laptop',
-      badge: 'Canvas',
-      action: () => { window.location.href = BLANK_APP_URL; }
-    });
-
-    // C. Chrome Profiles & Workspaces (all 22)
+    // A. DEEP SEARCH: Messages, Reminders, Conversations & Checklist Sub-Items Across All 22 Profiles
     if (Array.isArray(state.profiles)) {
       state.profiles.forEach(p => {
-        const hasTimer = p.timerActive && p.timerRemaining > 0;
-        const pendingCount = (p.notes || []).filter(n => !n.done).length;
-        const desc = hasTimer 
-          ? `⏱️ Active Cooldown: ${formatRemaining(p.timerRemaining)} · ${pendingCount} pending notes`
-          : `${(p.notes || []).length} notes · ${pendingCount} pending · ${p.email || 'Workspace'}`;
-        
-        items.push({
-          id: `prof-${p.id}`,
-          cat: 'Chrome Profiles & Workspaces (22)',
-          icon: p.avatar ? `<img src="${p.avatar}" class="cmd-item-avatar" alt="${p.name}">` : '🌐',
-          title: p.name,
-          desc: desc,
-          badge: hasTimer ? `⏱️ ${formatRemaining(p.timerRemaining)}` : `W+${p.id}`,
-          action: () => {
-            selectProfile(p);
-            if (window.innerWidth <= 768 && typeof openMobileChatWithSlide === 'function') {
-              openMobileChatWithSlide();
-            }
+        const notes = p.notes || [];
+        notes.forEach(n => {
+          const text = n.text || '';
+          const subItemsText = (n.subItems || []).map(si => si.text).join(' ');
+          const combined = text + ' ' + subItemsText + ' ' + (n.forwardedFrom || '');
+
+          if (q && matchesTokens(combined)) {
+            const isReminder = !n.done;
+            const cat = isReminder ? 'Reminders & Pending Tasks' : 'Messages & Conversations';
+            const statusLabel = isReminder ? '⏳ Pending Reminder' : '✓ Completed Note';
+            const timeAgo = formatMessengerTimeAgo(n.createdAt);
+            
+            // Highlight matching snippet
+            const snippet = highlightQueryInSnippet(text || subItemsText, q, 80);
+
+            items.push({
+              id: `note-${n.id}`,
+              cat: cat,
+              type: isReminder ? 'reminders' : 'messages',
+              icon: p.avatar ? `<img src="${p.avatar}" class="cmd-item-avatar" alt="${esc(p.name)}">` : (isReminder ? '📌' : '💬'),
+              title: snippet,
+              desc: `in ${p.name} · ${timeAgo ? timeAgo + ' ago · ' : ''}${statusLabel}`,
+              badge: p.name,
+              score: 100 + (isReminder ? 10 : 0),
+              action: () => {
+                selectProfile(p);
+                jumpToNoteCard(n.id);
+              }
+            });
           }
         });
+
+        // Sticky Note match
+        if (q && p.stickyNote && matchesTokens(p.stickyNote)) {
+          items.push({
+            id: `sticky-${p.id}`,
+            cat: 'Reminders & Pending Tasks',
+            type: 'reminders',
+            icon: '📌',
+            title: `Pinned Note: ${highlightQueryInSnippet(p.stickyNote, q, 70)}`,
+            desc: `Sticky note on ${p.name}`,
+            badge: 'Sticky',
+            score: 95,
+            action: () => { selectProfile(p); }
+          });
+        }
+
+        // 24h Status Note match
+        if (q && p.statusNote && p.statusNote.text && matchesTokens(p.statusNote.text)) {
+          items.push({
+            id: `status-${p.id}`,
+            cat: 'Messages & Conversations',
+            type: 'messages',
+            icon: '💭',
+            title: `24h Note: ${highlightQueryInSnippet(p.statusNote.text, q, 70)}`,
+            desc: `Thought cloud on ${p.name}`,
+            badge: '24h Note',
+            score: 90,
+            action: () => { selectProfile(p); }
+          });
+        }
       });
     }
+
+    // B. SEARCH: Chrome Profiles & Workspaces (22)
+    if (Array.isArray(state.profiles)) {
+      state.profiles.forEach(p => {
+        const searchTarget = [
+          p.name,
+          p.email,
+          p.gaia,
+          p.winShortcut,
+          `slot ${p.taskbarSlot}`,
+          p.stickyNote || ''
+        ].join(' ');
+
+        if (!q || matchesTokens(searchTarget)) {
+          const hasTimer = p.timerActive && p.timerRemaining > 0;
+          const pendingCount = (p.notes || []).filter(n => !n.done).length;
+          const desc = hasTimer 
+            ? `⏱️ Active Cooldown: ${formatRemaining(p.timerRemaining)} · ${pendingCount} pending notes`
+            : `${(p.notes || []).length} notes · ${pendingCount} pending · ${p.email || 'Workspace'}`;
+
+          items.push({
+            id: `prof-${p.id}`,
+            cat: 'Chrome Profiles & Workspaces (22)',
+            type: 'profiles',
+            icon: p.avatar ? `<img src="${p.avatar}" class="cmd-item-avatar" alt="${esc(p.name)}">` : '🌐',
+            title: q ? highlightQueryInSnippet(p.name, q) : p.name,
+            desc: desc,
+            badge: hasTimer ? `⏱️ ${formatRemaining(p.timerRemaining)}` : `W+${p.id}`,
+            score: 80,
+            action: () => {
+              selectProfile(p);
+              if (window.innerWidth <= 768 && typeof openMobileChatWithSlide === 'function') {
+                openMobileChatWithSlide();
+              }
+            }
+          });
+        }
+      });
+    }
+
+    // C. SEARCH: Quick Actions & System Tools
+    const actions = [
+      { id: 'act-sync', title: 'Cloud Sync Now (Laptop ↔ iPhone)', desc: 'Real-time bidirectional Firebase Firestore sync stream', badge: 'Action', action: () => { const b = $('#btnTopbarSyncNow'); if (b) b.click(); } },
+      { id: 'act-launch', title: 'Open Main Web App (Desktop Window)', desc: 'Borderless 1180×820 dedicated Chromium standalone window', badge: 'Desktop', action: () => { handleLaunchStandaloneApp(); } },
+      { id: 'act-voice', title: 'Voice Commands Manual (Wispr Flow)', desc: '10 superpowers, auto-punctuation & voice dictation', badge: 'Wispr', action: () => { openVoiceCommandsCheatSheetModal(); } },
+      { id: 'act-vault', title: 'Recovery Vault & Rollback Checkpoints', desc: 'Multi-tier encrypted data safety vault & history rollback', badge: 'Vault', action: () => { const b = $('#btnOpenVault'); if (b) b.click(); } },
+      { id: 'act-centennial', title: 'Centennial Recovery (Merkle Cryptographic Self-Heal)', desc: 'Sha256 Merkle tree verification & audit console', badge: 'Crypto', action: () => { const b = $('#btnOpenCentennial'); if (b) b.click(); } },
+      { id: 'act-backup', title: 'Backup & Restore Workspace JSON', desc: 'Export encrypted backup or restore profile state', badge: 'JSON', action: () => { const b = $('#btnSystemBackup'); if (b) b.click(); } },
+      { id: 'act-blank', title: 'OrlandoChrome (Blank Canvas)', desc: 'Pristine zero-note workspace · Auto-scan laptop', badge: 'Canvas', action: () => { window.location.href = BLANK_APP_URL; } }
+    ];
+
+    actions.forEach(act => {
+      if (!q || matchesTokens(act.title + ' ' + act.desc)) {
+        items.push({
+          id: act.id,
+          cat: 'Quick Actions',
+          type: 'actions',
+          icon: '⚡',
+          title: q ? highlightQueryInSnippet(act.title, q) : act.title,
+          desc: act.desc,
+          badge: act.badge,
+          score: 70,
+          action: act.action
+        });
+      }
+    });
+
+    // D. SEARCH: Executive Suite Sub-Apps
+    const suiteApps = [
+      { id: 'suite-hub', title: 'Sir Orlando V. Pasion, Jr. — Main Web Portal', desc: 'Official portfolio, mock test reviewers & digital library', badge: 'Hub', icon: '🏛️', action: () => { window.location.href = 'https://orlandopasion000.github.io/'; } },
+      { id: 'suite-recharge', title: 'OrlandoRecharge (Main Version)', desc: 'Complete 23-block main schedule alarm cockpit & horology', badge: 'PWA', icon: '⚡', action: () => { const w = window.open('https://orlandopasion000.github.io/orlandorecharge/?standalone=true', 'OrlandoRechargeMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1280,height=850,left=100,top=60'); if (w) try { w.focus(); } catch(e) {} } },
+      { id: 'suite-timer', title: 'OrlandoTimer (Quantum Focus Horizon)', desc: 'Atmospheric focus timer, soundscapes & quantum horology', badge: 'PWA', icon: '⏳', action: () => { const w = window.open('https://orlandopasion000.github.io/orlandotimer/?standalone=true', 'OrlandoTimerMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1180,height=820,left=140,top=100'); if (w) try { w.focus(); } catch(e) {} } },
+      { id: 'suite-vault', title: 'OrlandoVault (Secure Digital Locker)', desc: 'Encrypted passwords, credential safe & security health', badge: 'Vault', icon: '🔐', action: () => { const w = window.open('https://orlandopasion000.github.io/orlandovault/?standalone=true', 'OrlandoVaultMainAppWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no,width=1180,height=820,left=160,top=120'); if (w) try { w.focus(); } catch(e) {} } }
+    ];
+
+    suiteApps.forEach(sa => {
+      if (!q || matchesTokens(sa.title + ' ' + sa.desc)) {
+        items.push({
+          id: sa.id,
+          cat: 'Executive Suite Sub-Apps',
+          type: 'actions',
+          icon: sa.icon,
+          title: q ? highlightQueryInSnippet(sa.title, q) : sa.title,
+          desc: sa.desc,
+          badge: sa.badge,
+          score: 60,
+          action: sa.action
+        });
+      }
+    });
 
     return items;
   }
@@ -11361,33 +11457,40 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     cmdModal.style.display = 'flex';
     cmdInput.value = initialQuery;
     cmdSelectedIndex = 0;
+    currentFilterCategory = 'all';
+    updateFilterPillUI();
     filterAndRenderCommands(initialQuery);
-    setTimeout(() => cmdInput.focus(), 50);
+    setTimeout(() => {
+      cmdInput.focus();
+      cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length);
+    }, 50);
   }
 
   function closeCommandPalette() {
     const cmdModal = $('#cmdPaletteModal');
     if (!cmdModal) return;
     cmdModal.style.display = 'none';
-    const spotlightTrigger = $('#spotlightCommandTrigger');
-    if (spotlightTrigger) spotlightTrigger.focus();
+    const profileSearch = $('#profileSearch');
+    if (profileSearch) profileSearch.focus();
+  }
+
+  function updateFilterPillUI() {
+    const pills = $$('#cmdFilterPills .cmd-filter-pill');
+    pills.forEach(p => {
+      p.classList.toggle('active', p.getAttribute('data-cat') === currentFilterCategory);
+    });
   }
 
   function filterAndRenderCommands(query) {
     const q = (query || '').toLowerCase().trim();
-    const allItems = buildCommandItems();
-    
-    if (!q) {
-      filteredCmdItems = allItems;
-    } else {
-      filteredCmdItems = allItems.filter(item => {
-        return item.title.toLowerCase().includes(q) ||
-               item.desc.toLowerCase().includes(q) ||
-               item.cat.toLowerCase().includes(q) ||
-               (item.badge && item.badge.toLowerCase().includes(q));
-      });
+    let allItems = buildDeepOmnisearchItems(q);
+
+    // Apply category filter if not 'all'
+    if (currentFilterCategory !== 'all') {
+      allItems = allItems.filter(it => it.type === currentFilterCategory);
     }
 
+    filteredCmdItems = allItems;
     renderCommandList();
   }
 
@@ -11397,9 +11500,11 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     if (filteredCmdItems.length === 0) {
       cmdResults.innerHTML = `
         <div class="cmd-palette-empty">
-          <div style="font-size:24px;margin-bottom:8px;">🔍</div>
-          <div>No matching profiles, commands, or sub-apps found.</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">Try searching "deped", "timer", "sync", or "recharge"</div>
+          <div style="font-size:26px;margin-bottom:8px;">🔍</div>
+          <div style="font-size:14px;font-weight:600;color:#fff;">No matching results found</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;">
+            Search any message, reminder text, DepEd note, taskbar slot, or profile name.
+          </div>
         </div>
       `;
       return;
@@ -11411,11 +11516,12 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     filteredCmdItems.forEach((item, idx) => {
       if (item.cat !== currentCat) {
         currentCat = item.cat;
-        html += `<div class="cmd-palette-category">${currentCat}</div>`;
+        const countInCat = filteredCmdItems.filter(i => i.cat === currentCat).length;
+        html += `<div class="cmd-palette-category">${currentCat} (${countInCat})</div>`;
       }
 
       const isSelected = idx === cmdSelectedIndex;
-      const iconHtml = item.icon.startsWith('<img') 
+      const iconHtml = (typeof item.icon === 'string' && item.icon.startsWith('<img')) 
         ? item.icon 
         : `<span class="cmd-item-icon">${item.icon}</span>`;
 
@@ -11460,24 +11566,51 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
   }
 
   function initSpotlightEvents() {
-    const spotlightTrigger = $('#spotlightCommandTrigger');
     const cmdBackdrop = $('#cmdPaletteBackdrop');
     const cmdCloseBtn = $('#btnCloseCmdPalette');
     const cmdInput = $('#cmdPaletteInput');
     const cmdModal = $('#cmdPaletteModal');
+    const profileSearch = $('#profileSearch');
+    const btnSearchIcon = $('#btnSearchIcon');
+    const btnCapsuleKbd = $('#btnCapsuleKbd');
 
-    if (spotlightTrigger) {
-      spotlightTrigger.onclick = () => openCommandPalette();
-      spotlightTrigger.onkeydown = (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+    // Sidebar search input: typing performs real-time search, Enter opens Spotlight Omnisearch
+    if (profileSearch) {
+      profileSearch.oninput = (e) => {
+        state.searchQuery = e.target.value;
+        renderSidebar();
+      };
+
+      profileSearch.onkeydown = (e) => {
+        if (e.key === 'Enter') {
           e.preventDefault();
-          openCommandPalette();
+          openCommandPalette(profileSearch.value);
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          openCommandPalette(profileSearch.value);
         }
       };
     }
 
+    if (btnSearchIcon) {
+      btnSearchIcon.onclick = () => openCommandPalette(profileSearch ? profileSearch.value : '');
+    }
+    if (btnCapsuleKbd) {
+      btnCapsuleKbd.onclick = () => openCommandPalette(profileSearch ? profileSearch.value : '');
+    }
+
     if (cmdBackdrop) cmdBackdrop.onclick = closeCommandPalette;
     if (cmdCloseBtn) cmdCloseBtn.onclick = closeCommandPalette;
+
+    // Filter pills click handling
+    $$('#cmdFilterPills .cmd-filter-pill').forEach(pill => {
+      pill.onclick = () => {
+        currentFilterCategory = pill.getAttribute('data-cat') || 'all';
+        updateFilterPillUI();
+        cmdSelectedIndex = 0;
+        filterAndRenderCommands(cmdInput ? cmdInput.value : '');
+      };
+    });
 
     if (cmdInput) {
       cmdInput.oninput = (e) => {
@@ -11511,22 +11644,24 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     // Global Key Listener for Ctrl+K, ⌘K, or /
     window.addEventListener('keydown', (e) => {
       const activeEl = document.activeElement;
-      const isInput = activeEl && ['INPUT', 'TEXTAREA'].includes(activeEl.tagName) && activeEl.id !== 'cmdPaletteInput';
+      const isInput = activeEl && ['INPUT', 'TEXTAREA'].includes(activeEl.tagName) && activeEl.id !== 'cmdPaletteInput' && activeEl.id !== 'profileSearch';
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         if (cmdModal && cmdModal.style.display === 'flex') {
           closeCommandPalette();
         } else {
-          openCommandPalette();
+          openCommandPalette(profileSearch ? profileSearch.value : '');
         }
       } else if (e.key === '/' && !isInput && !(e.ctrlKey || e.metaKey || e.altKey)) {
         e.preventDefault();
-        openCommandPalette();
+        openCommandPalette(profileSearch ? profileSearch.value : '');
       }
     });
 
     window.openCommandPalette = openCommandPalette;
     window.closeCommandPalette = closeCommandPalette;
+    window.buildDeepOmnisearchItems = buildDeepOmnisearchItems;
+    window.highlightQueryInSnippet = highlightQueryInSnippet;
   }
 
   // =========================================================================

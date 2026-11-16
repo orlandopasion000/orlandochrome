@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title id="pageTitle">OrlandoChrome (Main Version)</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure123">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure123">
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure123">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure123">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure124">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure124">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure124">
 
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,13 +15,13 @@
   <meta name="apple-mobile-web-app-title" content="OrlandoChrome (Main Version)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
-  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure123">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure123">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png?v=pure123">
-  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure123">
-  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure123">
-  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure123">
-  <link rel="stylesheet" href="styles.css?v=pure123">
+  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure124">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure124">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png?v=pure124">
+  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure124">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure124">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure124">
+  <link rel="stylesheet" href="styles.css?v=pure124">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -179,11 +179,10 @@
     <!-- Left Column: Search, Filters, and Chrome Profiles -->
     <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header">
-        <div class="search-box-wrap spotlight-trigger-wrap" id="spotlightCommandTrigger" role="button" tabindex="0" title="Launch Spotlight Command Palette (Ctrl + K / ⌘K)">
-          <span class="search-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.5)"/></svg></span>
-          <span class="spotlight-capsule-text">Search profiles, notes...</span>
-          <kbd class="spotlight-capsule-kbd">Ctrl K</kbd>
-          <input type="text" id="profileSearch" class="search-input" placeholder="Search profiles or notes... (Alt+↑/↓)" style="display:none;" autocomplete="off">
+        <div class="search-box-wrap spotlight-trigger-wrap" id="spotlightCommandTrigger" title="Deep Search: Messages, notes, reminders, conversations, profiles (Ctrl + K)">
+          <span class="search-icon" id="btnSearchIcon" title="Open Omnisearch (Ctrl + K)" style="cursor:pointer;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.5)"/></svg></span>
+          <input type="text" id="profileSearch" class="search-input spotlight-live-input" placeholder="Search messages, notes, reminders..." autocomplete="off" spellcheck="false">
+          <kbd class="spotlight-capsule-kbd" id="btnCapsuleKbd" title="Launch Spotlight Command Palette (Ctrl + K / ⌘K)">Ctrl K</kbd>
         </div>
 
         <div class="filter-tabs-row">
@@ -256,9 +255,9 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=pure123"></script>
+  <script src="sound.js?v=pure124"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure123"></script>
+  <script src="app.js?v=pure124"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -294,8 +293,15 @@
         <span class="cmd-palette-search-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="2"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.4)"/></svg>
         </span>
-        <input type="text" id="cmdPaletteInput" class="cmd-palette-input" placeholder="Search 22 profiles, notes, timers, actions, or sub-apps..." autocomplete="off" spellcheck="false">
+        <input type="text" id="cmdPaletteInput" class="cmd-palette-input" placeholder="Deep Search: Type any text from messages, reminders, profiles..." autocomplete="off" spellcheck="false">
         <span class="cmd-palette-esc-badge" id="btnCloseCmdPalette">ESC</span>
+      </div>
+      <div class="cmd-palette-filter-pills" id="cmdFilterPills">
+        <button type="button" class="cmd-filter-pill active" data-cat="all">All Items</button>
+        <button type="button" class="cmd-filter-pill" data-cat="messages">💬 Messages</button>
+        <button type="button" class="cmd-filter-pill" data-cat="reminders">📌 Reminders</button>
+        <button type="button" class="cmd-filter-pill" data-cat="profiles">🌐 Profiles</button>
+        <button type="button" class="cmd-filter-pill" data-cat="actions">⚡ Actions</button>
       </div>
       <div class="cmd-palette-results" id="cmdPaletteResults" role="listbox">
         <!-- Rendered dynamically -->
