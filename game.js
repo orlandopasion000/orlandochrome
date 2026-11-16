@@ -1196,7 +1196,11 @@
   // --- Main Application State ---
   const state = {
     active: false,
-    gameType: 'math', // 'math' | 'reflex' | 'memory' | 'realm' | 'helix' | 'meteor'
+    gameType: 'math',
+    score: 0,
+    combo: 1,
+    targetMultiple: 7, // Default multiple for Reflex Numbers Blitz
+    floatingTexts: [],
 
     // Math Overdrive State
     mathLevel: 1,
@@ -1206,10 +1210,10 @@
     mathTimer: null,
     mathTimeLeft: 100,
 
-    // Reflex Blitz & Dedicated Quantum Catchers State
+    // Reflex Blitz State
     reflexLives: 10,
-    catcherType: 'realm', // 'realm' | 'helix' | 'meteor'
     catcherX: 0.5,
+    catcherType: 'realm',
     lastTransmuteTime: 0,
     particles: [],
 
@@ -1219,16 +1223,13 @@
     playerSequence: [],
     isAcceptingInput: false,
 
-    // Shared Stats across all 6 Games
-    score: 0,
-    combo: 1,
     bestScores: {
       math: parseInt(localStorage.getItem('oc_best_math') || '0', 10),
       reflex: parseInt(localStorage.getItem('oc_best_reflex') || '0', 10),
-      memory: parseInt(localStorage.getItem('oc_best_memory') || '0', 10),
       realm: parseInt(localStorage.getItem('oc_best_realm') || '0', 10),
       helix: parseInt(localStorage.getItem('oc_best_helix') || '0', 10),
-      meteor: parseInt(localStorage.getItem('oc_best_meteor') || '0', 10)
+      meteor: parseInt(localStorage.getItem('oc_best_meteor') || '0', 10),
+      memory: parseInt(localStorage.getItem('oc_best_memory') || '0', 10)
     }
   };
 
@@ -1265,6 +1266,8 @@
       // Reflex View Elements
       reflexShields: document.getElementById('reflexShields'),
       transmuteIndicator: document.getElementById('transmuteIndicator'),
+      reflexMultiplePicker: document.getElementById('reflexMultiplePicker'),
+      reflexDigitBtns: document.querySelectorAll('#reflexDigitBtns .digit-pill'),
 
       // Memory View Elements
       memoryRoundLabel: document.getElementById('memoryRoundLabel'),
@@ -1308,6 +1311,12 @@
     if (dom.viewReflex) dom.viewReflex.style.display = (type === 'reflex' || type === 'realm' || type === 'helix' || type === 'meteor') ? 'flex' : 'none';
     if (dom.viewMemory) dom.viewMemory.style.display = type === 'memory' ? 'flex' : 'none';
 
+    // Toggle Reflex Numbers Picker vs Transmute Indicator
+    const picker = document.getElementById('reflexMultiplePicker');
+    const badge = document.getElementById('transmuteIndicator');
+    if (picker) picker.style.display = type === 'reflex' ? 'flex' : 'none';
+    if (badge) badge.style.display = (type === 'realm' || type === 'helix' || type === 'meteor') ? 'block' : 'none';
+
     updateHeaderUI();
     startGame(type);
   }
@@ -1341,13 +1350,13 @@
       dom.gameSub.textContent = 'Task Surge Asteroid Deflector · 10 Shield Units';
     } else if (state.gameType === 'reflex') {
       dom.gameTitle.textContent = 'REFLEX BLITZ';
-      dom.gameSub.textContent = 'Tri-Core Transmutation Blitz (10 Lives)';
+      dom.gameSub.textContent = `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
     } else if (state.gameType === 'math') {
       dom.gameTitle.textContent = 'MATH OVERDRIVE';
       dom.gameSub.textContent = `Level ${state.mathLevel} · 20 Questions · 10 Mistakes Max`;
     } else if (state.gameType === 'memory') {
       dom.gameTitle.textContent = 'MEMORY MATRIX';
-      dom.gameSub.textContent = '16-Box Quantum Array (1 Mistake = Game Over)';
+      dom.gameSub.textContent = '16 Radiant Pure Numbers · Sequence Reproduction (1 Mistake = Game Over)';
     }
 
     if (dom.scoreVal) dom.scoreVal.textContent = state.score.toLocaleString();
@@ -1509,6 +1518,7 @@
     state.catcherX = 0.5;
     state.lastTransmuteTime = performance.now();
     state.particles = [];
+    state.floatingTexts = [];
 
     // Set designated catcher type per game mode
     if (state.gameType === 'realm') {
@@ -1520,6 +1530,11 @@
     } else {
       state.catcherType = 'realm'; // Reflex blitz starts in realm
     }
+
+    const picker = document.getElementById('reflexMultiplePicker');
+    const badge = document.getElementById('transmuteIndicator');
+    if (picker) picker.style.display = state.gameType === 'reflex' ? 'flex' : 'none';
+    if (badge) badge.style.display = (state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor') ? 'block' : 'none';
 
     renderReflexShields();
     updateTransmuteIndicator();
@@ -1560,11 +1575,377 @@
     dom.transmuteIndicator.className = `transmute-badge transmute-${state.catcherType}`;
   }
 
+  function reflexGameLoop(timestamp) {
+    if (!state.active || (state.gameType !== 'reflex' && state.gameType !== 'realm' && state.gameType !== 'helix' && state.gameType !== 'meteor')) return;
+
+    const ctx = dom.canvasReflex?.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const w = dom.canvasReflex.width / dpr;
+    const h = dom.canvasReflex.height / dpr;
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+
+    // Subtle Grid Background
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
+    ctx.lineWidth = 1;
+    const step = 40;
+    for (let x = 0; x < w; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 0; y < h; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    const catcherPixelX = Math.max(55, Math.min(w - 55, state.catcherX * w));
+    const catcherPixelY = h - 60;
+
+    // ─────────────────────────────────────────────────────────────
+    // MODE A: REFLEX BLITZ — NUMBERS MULTIPLE CATCHER
+    // ─────────────────────────────────────────────────────────────
+    if (state.gameType === 'reflex') {
+      const D = state.targetMultiple || 7;
+
+      // Spawn falling 2-digit numbers
+      if (Math.random() < 0.045) {
+        let num;
+        // 45% chance: valid 2-digit multiple of D
+        if (Math.random() < 0.45) {
+          const minK = Math.max(2, Math.ceil(10 / D));
+          const maxK = Math.floor(99 / D);
+          if (maxK >= minK) {
+            const k = Math.floor(Math.random() * (maxK - minK + 1)) + minK;
+            num = k * D;
+          } else {
+            num = D * 2;
+          }
+        } else {
+          // 55% chance: non-multiple 2-digit number (10 to 99)
+          let attempts = 0;
+          do {
+            num = Math.floor(Math.random() * 90) + 10;
+            attempts++;
+          } while (num % D === 0 && attempts < 25);
+          if (num % D === 0) num = num === 99 ? 98 : num + 1;
+        }
+
+        const px = Math.random() * (w - 130) + 65;
+        const speed = 2.8 + Math.random() * 2.4;
+        state.particles.push({
+          isNumber: true,
+          num: num,
+          x: px,
+          y: -40,
+          speed: speed,
+          stardust: []
+        });
+      }
+
+      // Draw Futuristic Catcher Paddle for Reflex Numbers
+      ctx.save();
+      // Glowing bottom track
+      ctx.strokeStyle = "rgba(168, 85, 247, 0.25)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(30, catcherPixelY);
+      ctx.lineTo(w - 30, catcherPixelY);
+      ctx.stroke();
+
+      // Catcher Energy Field
+      const paddleW = 120;
+      const paddleH = 26;
+      const paddleX = catcherPixelX - paddleW / 2;
+      const paddleY = catcherPixelY - paddleH / 2;
+
+      // Outer Glow
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.roundRect(paddleX, paddleY, paddleW, paddleH, 13);
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.28)';
+      ctx.fill();
+
+      // Core Glass Paddle
+      ctx.beginPath();
+      ctx.roundRect(paddleX + 2, paddleY + 2, paddleW - 4, paddleH - 4, 11);
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = '#c084fc';
+      ctx.stroke();
+
+      // Target Multiple Indicator on Paddle
+      ctx.shadowBlur = 0;
+      ctx.font = '800 11px "Lexend", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`CATCH MULTIPLES OF ${D}`, catcherPixelX, catcherPixelY);
+      ctx.restore();
+
+      // Update & Render Falling 2-Digit Numbers
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.y += p.speed;
+
+        // Render 2-digit number capsule
+        ctx.save();
+        ctx.translate(p.x, p.y);
+
+        // Cyber Capsule Outer Glow
+        const capsuleW = 58;
+        const capsuleH = 38;
+        ctx.shadowColor = (p.num % D === 0) ? '#38bdf8' : '#a855f7';
+        ctx.shadowBlur = 12;
+
+        ctx.beginPath();
+        ctx.roundRect(-capsuleW / 2, -capsuleH / 2, capsuleW, capsuleH, 12);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+        ctx.fill();
+
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = (p.num % D === 0) ? '#38bdf8' : 'rgba(192, 132, 252, 0.7)';
+        ctx.stroke();
+
+        // 2-Digit Number Text
+        ctx.shadowBlur = 0;
+        ctx.font = '800 21px "Lexend", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(p.num.toString(), 0, 1);
+        ctx.restore();
+
+        // Collision Check with Catcher
+        const hitX = Math.abs(p.x - catcherPixelX) < (paddleW / 2 + 10);
+        const hitY = Math.abs(p.y - catcherPixelY) < (paddleH / 2 + 15);
+
+        if (hitX && hitY) {
+          const isMultiple = (p.num % D === 0);
+          if (isMultiple) {
+            // CORRECT CATCH!
+            state.score += 150 * state.combo;
+            state.combo = Math.min(10, state.combo + 1);
+            audio.playCorrectChime(state.combo);
+            state.floatingTexts.push({
+              text: `+${150 * (state.combo - 1)} [MULTIPLE OF ${D}!]`,
+              x: p.x,
+              y: catcherPixelY - 35,
+              color: '#34d399',
+              alpha: 1.0,
+              vy: -1.6
+            });
+          } else {
+            // MISTAKE! Caught non-multiple
+            state.reflexLives--;
+            state.combo = 1;
+            audio.playMistakeBuzzer();
+            state.floatingTexts.push({
+              text: `STRIKE! ${p.num} is NOT a multiple of ${D}!`,
+              x: p.x,
+              y: catcherPixelY - 35,
+              color: '#f87171',
+              alpha: 1.0,
+              vy: -1.6
+            });
+            renderReflexShields();
+
+            if (state.reflexLives <= 0) {
+              handleGameOver('SHIELDS DEPLETED', `Caught non-multiple numbers. Final Score: ${state.score.toLocaleString()} points.`);
+              ctx.restore();
+              return;
+            }
+          }
+          state.particles.splice(i, 1);
+          updateHeaderUI();
+          continue;
+        }
+
+        // Screen Exit (Past Bottom)
+        if (p.y > h + 50) {
+          const wasMultiple = (p.num % D === 0);
+          if (wasMultiple) {
+            // Player MISSED a valid multiple!
+            state.reflexLives--;
+            state.combo = 1;
+            audio.playMistakeBuzzer();
+            state.floatingTexts.push({
+              text: `MISSED MULTIPLE: ${p.num}!`,
+              x: Math.max(70, Math.min(w - 70, p.x)),
+              y: h - 80,
+              color: '#f87171',
+              alpha: 1.0,
+              vy: -1.2
+            });
+            renderReflexShields();
+
+            if (state.reflexLives <= 0) {
+              handleGameOver('SHIELDS DEPLETED', `Missed valid multiples of ${D}. Final Score: ${state.score.toLocaleString()} points.`);
+              ctx.restore();
+              return;
+            }
+          }
+          // Non-multiples despawn safely with no penalty!
+          state.particles.splice(i, 1);
+          updateHeaderUI();
+        }
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MODE B: CHROME REALM, CHROME HELIX, CHROME METEOR
+    // ─────────────────────────────────────────────────────────────
+    else {
+      // Spawn Flagship Particles
+      const spawnRate = (state.gameType === 'meteor') ? 0.045 : 0.038;
+      if (Math.random() < spawnRate) {
+        let pType = state.gameType;
+        const px = Math.random() * (w - 140) + 70;
+        const speed = (pType === 'meteor') ? (4.2 + Math.random() * 2.6) : (3.2 + Math.random() * 2.2);
+
+        const p = {
+          type: pType,
+          x: px,
+          y: -45,
+          speed: speed,
+          headR: 24.0,
+          spine: [],
+          stardust: []
+        };
+
+        for (let j = 0; j < 8; j++) {
+          p.spine.push({ x: px, y: -45 - j * 8.5 });
+        }
+        state.particles.push(p);
+      }
+
+      // Draw designated Quantum Core Catcher
+      if (state.catcherType === 'realm') {
+        QuantumRenderer.drawQuantumAtomic(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5);
+      } else if (state.catcherType === 'helix') {
+        QuantumRenderer.drawHelixCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5);
+      } else {
+        QuantumRenderer.drawMeteorAsteroid(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5);
+      }
+
+      // Update & Render Flagship Particles
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.y += p.speed;
+
+        // Update spine IK
+        p.spine[0].x = p.x;
+        p.spine[0].y = p.y;
+        for (let j = 1; j < p.spine.length; j++) {
+          p.spine[j].y = p.y - j * 8.5;
+          p.spine[j].x = p.x + Math.sin(timestamp * 0.005 + j * 0.6) * (j * 1.1);
+        }
+
+        // Render Particle
+        if (p.type === 'realm') {
+          QuantumRenderer.drawTier3RealmParticle(ctx, p, timestamp);
+        } else if (p.type === 'helix') {
+          QuantumRenderer.drawTier3HelixParticle(ctx, p, timestamp);
+        } else {
+          QuantumRenderer.drawTier3MeteorParticle(ctx, p, timestamp);
+        }
+
+        // Collision Check with Catcher
+        const dist = Math.hypot(p.x - catcherPixelX, p.y - catcherPixelY);
+        if (dist < 52) {
+          state.score += 150 * state.combo;
+          state.combo = Math.min(10, state.combo + 1);
+          audio.playCorrectChime(state.combo);
+          state.particles.splice(i, 1);
+          updateHeaderUI();
+          continue;
+        }
+
+        // Screen Exit (Past Bottom)
+        if (p.y > h + 70) {
+          state.particles.splice(i, 1);
+          state.reflexLives--;
+          state.combo = 1;
+          audio.playMistakeBuzzer();
+          renderReflexShields();
+
+          if (state.reflexLives <= 0) {
+            const gameNames = { realm: 'CHROME REALM', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
+            handleGameOver('SHIELDS DEPLETED', `${gameNames[state.gameType]} session concluded. Final Score: ${state.score.toLocaleString()} points.`);
+            ctx.restore();
+            return;
+          }
+          updateHeaderUI();
+        }
+      }
+    }
+
+    // Render Floating Texts (Score / Feedback Alerts)
+    for (let f = state.floatingTexts.length - 1; f >= 0; f--) {
+      const ft = state.floatingTexts[f];
+      ft.y += ft.vy;
+      ft.alpha -= 0.02;
+      if (ft.alpha <= 0) {
+        state.floatingTexts.splice(f, 1);
+        continue;
+      }
+      ctx.save();
+      ctx.font = '800 14px "Lexend", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = ft.color;
+      ctx.globalAlpha = ft.alpha;
+      ctx.shadowColor = ft.color;
+      ctx.shadowBlur = 8;
+      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.restore();
+    }
+
+    ctx.restore();
+    animFrameId = requestAnimationFrame(reflexGameLoop);
+  }
+
+  function renderReflexShields() {
+    if (!dom.reflexShields) return;
+    dom.reflexShields.innerHTML = '';
+    for (let i = 0; i < 10; i++) {
+      const cell = document.createElement('span');
+      cell.className = `shield-cell ${i < state.reflexLives ? 'shield-on' : 'shield-lost'}`;
+      dom.reflexShields.appendChild(cell);
+    }
+  }
+
+  function updateTransmuteIndicator() {
+    if (!dom.transmuteIndicator) return;
+    const labels = {
+      realm: '⚛️ ACTIVE CORE: CHROME REALM (Catch Synapse Waves!)',
+      helix: '🧬 ACTIVE CORE: CHROME HELIX (Catch Dual-Strands!)',
+      meteor: '☄️ ACTIVE CORE: CHROME METEOR (Deflect Molten Surges!)'
+    };
+
+    if (state.gameType === 'reflex') {
+      const reflexMorphLabels = {
+        realm: '⚡ CORE TRANSMUTED: CHROME REALM (Catch Synapse Waves!)',
+        helix: '⚡ CORE TRANSMUTED: CHROME HELIX (Catch Dual-Strands!)',
+        meteor: '⚡ CORE TRANSMUTED: CHROME METEOR (Deflect Molten Asteroids!)'
+      };
+      dom.transmuteIndicator.textContent = reflexMorphLabels[state.catcherType];
+    } else {
+      dom.transmuteIndicator.textContent = labels[state.catcherType] || labels.realm;
+    }
+    dom.transmuteIndicator.className = `transmute-badge transmute-${state.catcherType}`;
+  }
+
   function resizeCanvas() {
     if (!dom.canvasReflex) return;
     const dpr = window.devicePixelRatio || 1;
-    dom.canvasReflex.width = window.innerWidth * dpr;
-    dom.canvasReflex.height = window.innerHeight * dpr;
+    const rect = dom.canvasReflex.getBoundingClientRect();
+    const w = rect.width > 0 ? rect.width : window.innerWidth;
+    const h = rect.height > 0 ? rect.height : (window.innerHeight - 56);
+    dom.canvasReflex.width = Math.floor(w * dpr);
+    dom.canvasReflex.height = Math.floor(h * dpr);
   }
 
   function reflexGameLoop(timestamp) {
@@ -1800,22 +2181,22 @@
   // GAME 3: MEMORY MATRIX (16 Boxes 4x4 Array, 1 Mistake Game Over)
   // ══════════════════════════════════════════════════════════════════════════
   const MATRIX_PALETTES = [
-    { name: 'Realm Core', color: '#a855f7', type: 'core-realm' },
-    { name: 'Helix Core', color: '#06b6d4', type: 'core-helix' },
-    { name: 'Meteor Core', color: '#f59e0b', type: 'core-meteor' },
-    { name: 'Tier 3 Realm', color: '#38bdf8', type: 'tier3-realm' },
-    { name: 'Tier 3 Helix', color: '#d946ef', type: 'tier3-helix' },
-    { name: 'Tier 3 Meteor', color: '#ea580c', type: 'tier3-meteor' },
-    { name: 'Emerald Core', color: '#10b981', type: 'core-realm' },
-    { name: 'Rose Helix', color: '#f43f5e', type: 'core-helix' },
-    { name: 'Solar Flame', color: '#f97316', type: 'core-meteor' },
-    { name: 'Cyan Apex', color: '#0ea5e9', type: 'tier3-realm' },
-    { name: 'Violet Peak', color: '#8b5cf6', type: 'tier3-helix' },
-    { name: 'Amber Nova', color: '#fbbf24', type: 'tier3-meteor' },
-    { name: 'Neon Lime', color: '#84cc16', type: 'core-realm' },
-    { name: 'Electric Sky', color: '#00f2fe', type: 'core-helix' },
-    { name: 'Plasma Pink', color: '#ec4899', type: 'tier3-helix' },
-    { name: 'Deep Space', color: '#6366f1', type: 'tier3-realm' }
+    { num: 1, glow: '#38bdf8', to: '#818cf8', freq: 261.63 }, // C4 Cyan
+    { num: 2, glow: '#a855f7', to: '#c084fc', freq: 293.66 }, // D4 Violet
+    { num: 3, glow: '#f59e0b', to: '#fbbf24', freq: 329.63 }, // E4 Amber
+    { num: 4, glow: '#10b981', to: '#34d399', freq: 349.23 }, // F4 Emerald
+    { num: 5, glow: '#f43f5e', to: '#fb7185', freq: 392.00 }, // G4 Rose
+    { num: 6, glow: '#f97316', to: '#fdba74', freq: 440.00 }, // A4 Molten
+    { num: 7, glow: '#6366f1', to: '#a5b4fc', freq: 493.88 }, // B4 Indigo
+    { num: 8, glow: '#14b8a6', to: '#2dd4bf', freq: 523.25 }, // C5 Teal
+    { num: 9, glow: '#84cc16', to: '#a3e635', freq: 587.33 }, // D5 Lime
+    { num: 10, glow: '#d946ef', to: '#f0abfc', freq: 659.25 }, // E5 Fuchsia
+    { num: 11, glow: '#eab308', to: '#fde047', freq: 698.46 }, // F5 Gold
+    { num: 12, glow: '#0284c7', to: '#38bdf8', freq: 783.99 }, // G5 Sky
+    { num: 13, glow: '#e11d48', to: '#fda4af', freq: 880.00 }, // A5 Ruby
+    { num: 14, glow: '#9333ea', to: '#c084fc', freq: 987.77 }, // B5 Purple
+    { num: 15, glow: '#06b6d4', to: '#67e8f9', freq: 1046.50 }, // C6 Turquoise
+    { num: 16, glow: '#ec4899', to: '#f472b6', freq: 1174.66 }  // D6 Pink
   ];
 
   function startMemoryGame() {
@@ -1838,13 +2219,12 @@
       box.className = 'matrix-cell';
       box.dataset.idx = i;
 
-      const pal = MATRIX_PALETTES[i % MATRIX_PALETTES.length];
-      box.style.setProperty('--cell-glow', pal.color);
+      const pal = MATRIX_PALETTES[i];
+      box.style.setProperty('--cell-glow', pal.glow);
+      box.style.setProperty('--cell-gradient-to', pal.to);
 
-      box.innerHTML = `
-        <span class="cell-num">${i + 1}</span>
-        <span class="cell-type-tag">${pal.name}</span>
-      `;
+      // Pure radiant number ONLY - no text tags
+      box.innerHTML = `<span class="cell-num">${i + 1}</span>`;
 
       box.onclick = () => handleMemoryInput(i, box);
       dom.memoryGrid.appendChild(box);
@@ -1937,12 +2317,33 @@
     // Fullscreen toggle
     if (dom.btnFullscreen) dom.btnFullscreen.onclick = toggleAppFullscreen;
 
+    // Window Resize Handler to guarantee pixel-perfect resolution on all screens
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+
     // Mute toggle
     if (dom.btnMute) {
       dom.btnMute.onclick = () => {
         audio.isMuted = !audio.isMuted;
         dom.btnMute.style.opacity = audio.isMuted ? '0.4' : '1';
       };
+    }
+
+    // Digit Picker Buttons for Reflex Blitz
+    const digitBtnsContainer = document.getElementById('reflexDigitBtns');
+    if (digitBtnsContainer) {
+      digitBtnsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.digit-pill');
+        if (!btn) return;
+        const digit = parseInt(btn.dataset.digit, 10);
+        if (!isNaN(digit) && digit >= 1 && digit <= 9) {
+          state.targetMultiple = digit;
+          digitBtnsContainer.querySelectorAll('.digit-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          audio.playTone(350 + digit * 60, 'sine', 0.15, 0.2);
+          updateHeaderUI();
+        }
+      });
     }
 
     // Math Choice Buttons
@@ -1962,9 +2363,16 @@
       };
     });
 
-    // Canvas Pointer / Touch Movement for Catcher
+    // Canvas Pointer / Touch Movement for Catcher with accurate rect calculation
     const handlePointerMove = (clientX) => {
       if (!state.active) return;
+      if (dom.canvasReflex) {
+        const rect = dom.canvasReflex.getBoundingClientRect();
+        if (rect.width > 0) {
+          state.catcherX = Math.max(0.05, Math.min(0.95, (clientX - rect.left) / rect.width));
+          return;
+        }
+      }
       state.catcherX = Math.max(0.05, Math.min(0.95, clientX / window.innerWidth));
     };
 
@@ -1972,6 +2380,16 @@
     window.addEventListener('touchmove', (e) => {
       if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX);
     }, { passive: true });
+
+    // Keyboard Arrow navigation for Catcher
+    window.addEventListener('keydown', (e) => {
+      if (!state.active) return;
+      if (e.key === 'ArrowLeft' || e.key === 'a') {
+        state.catcherX = Math.max(0.05, state.catcherX - 0.05);
+      } else if (e.key === 'ArrowRight' || e.key === 'd') {
+        state.catcherX = Math.min(0.95, state.catcherX + 0.05);
+      }
+    });
 
     // Designated topbar launch buttons
     const btnRealm = document.getElementById('btnLaunchGame');

@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=arcade301">
+  <link rel="stylesheet" href="styles.css?v=arcade302">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -130,66 +130,42 @@
         </div>
       </div>
 
-    <!-- Quantum Universe Game Suite Launcher Cluster (Exact Realm, Helix, Meteor) Directly Beside Logo -->
-    <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
-      <button type="button" class="qgame-btn-launch qgame-btn-realm" id="btnLaunchGame" title="Chrome Realm: Profile Synapse Wave Catcher (10 Shields)" aria-label="Launch Chrome Realm">
-        <span class="game-btn-glyph" aria-hidden="true">◈</span>
-        <span class="game-btn-label">REALM</span>
-      </button>
+      <!-- Unified 6-Game Futuristic Arcade Suite -->
+      <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
+        <button type="button" class="qgame-btn-launch qgame-btn-realm" id="btnLaunchGame" title="Chrome Realm: Profile Synapse Wave Catcher (10 Shields)" aria-label="Launch Chrome Realm">
+          <span class="game-btn-glyph" aria-hidden="true">◈</span>
+          <span class="game-btn-label">REALM</span>
+        </button>
 
-      <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Chrome Helix: Dual-Thread Task Synchronizer (10 Shields)" aria-label="Launch Chrome Helix">
-        <span class="game-btn-glyph game-btn-glyph-helix" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 6c4 0 6 12 10 12s6-12 10-12" stroke="#22d3ee"/>
-            <path d="M4 18c4 0 6-12 10-12s6 12 10 12" stroke="#c084fc" stroke-dasharray="2 2" opacity="0.92"/>
-          </svg>
-        </span>
-        <span class="game-btn-label">HELIX</span>
-      </button>
+        <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Chrome Helix: Dual-Thread Task Synchronizer (10 Shields)" aria-label="Launch Chrome Helix">
+          <span class="game-btn-glyph game-btn-glyph-helix" aria-hidden="true">⋈</span>
+          <span class="game-btn-label">HELIX</span>
+        </button>
 
-      <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Chrome Meteor: Task Surge Asteroid Deflector (10 Shields)" aria-label="Launch Chrome Meteor">
-        <span class="game-btn-glyph game-btn-glyph-meteor" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 3L13.5 10.5M19 7L14 12M17 3L11.5 8.5" stroke="#f97316" stroke-width="1.8" opacity="0.95"/>
-            <path d="M5.5 12.5L3 15c-1.3 1.3-1.3 3.5 0 4.8 1.3 1.3 3.5 1.3 4.8 0l2.5-2.5-1.2-3.6-3.6-1.2z" fill="rgba(234, 88, 12, 0.55)" stroke="#fb923c" stroke-width="1.8"/>
-            <circle cx="6" cy="18" r="1.5" fill="#fef08a"/>
-          </svg>
-        </span>
-        <span class="game-btn-label">METEOR</span>
-      </button>
-    </div>
+        <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Chrome Meteor: Task Surge Asteroid Deflector (10 Shields)" aria-label="Launch Chrome Meteor">
+          <span class="game-btn-glyph game-btn-glyph-meteor" aria-hidden="true">☄</span>
+          <span class="game-btn-label">METEOR</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-math" id="btnLaunchMathGame" title="Math Overdrive: Eight-Level Difficulty System (20 Qs · 10 Strikes)" aria-label="Launch Math Overdrive">
+          <span class="game-btn-glyph game-btn-glyph-math" aria-hidden="true">🧮</span>
+          <span class="game-btn-label">MATH</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-reflex" id="btnLaunchReflexGame" title="Reflex Blitz: Numbers Multiple Catcher (Catch 2-Digit Multiples)" aria-label="Launch Reflex Blitz">
+          <span class="game-btn-glyph game-btn-glyph-reflex" aria-hidden="true">⚡</span>
+          <span class="game-btn-label">REFLEX</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-matrix" id="btnLaunchMemoryGame" title="Memory Matrix: 16 Radiant Pure Numbers (1 Mistake Game Over)" aria-label="Launch Memory Matrix">
+          <span class="game-btn-glyph game-btn-glyph-matrix" aria-hidden="true">⊞</span>
+          <span class="game-btn-label">MATRIX</span>
+        </button>
+      </div>
     </div>
 
     <div class="topbar-right">
-      <!-- Quantum Universe Game Suite (Quantum Realm, Quantum Helix, Quantum Meteor) -->
-      <!-- 1. Designated Game Button: Math Overdrive -->
-      <button type="button" class="btn-topbar-game-dest btn-game-math" id="btnLaunchMathGame" title="Math Overdrive: Eight-Level Difficulty System (20 Qs · 10 Strikes Max)">
-        <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <path d="M4 7h16M4 17h16M9 4v6M15 14v6" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-        <span>Math</span>
-      </button>
-
-      <!-- 2. Designated Game Button: Reflex Blitz -->
-      <button type="button" class="btn-topbar-game-dest btn-game-reflex" id="btnLaunchReflexGame" title="Reflex Blitz: Quantum Realm, Helix & Meteor Catcher with Tier 3 Extra Big Particles (10 Lives)">
-        <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Reflex</span>
-      </button>
-
-      <!-- 3. Designated Game Button: Memory Matrix -->
-      <button type="button" class="btn-topbar-game-dest btn-game-memory" id="btnLaunchMemoryGame" title="Memory Matrix: 16-Box Fullscreen Array (1 Mistake Game Over)">
-        <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
-          <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
-          <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
-          <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
-          <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#f43f5e" stroke-width="2"/>
-        </svg>
-        <span>Matrix</span>
-      </button>
-
-      <!-- 4. Fullscreen Toggle Button -->
+      <!-- Fullscreen Toggle Button -->
       <button type="button" class="btn-topbar-quick btn-topbar-fullscreen fs-toggle-btn" id="btnTopbarFullscreen" title="Toggle Fullscreen Arena Mode">
         <span class="fs-btn-glyph">
           <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
@@ -240,129 +216,37 @@
             </div>
             <div class="menu-item-text">
               <div class="menu-item-title-row">
-                <span class="menu-item-title">Voice Control Guide</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(168,85,247,0.22);color:#c084fc;font-weight:700;">WISPR</span>
+                <span class="menu-item-title">Voice Command Center</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(168,85,247,0.22);color:#c084fc;font-weight:700;">PRO</span>
               </div>
-              <div class="menu-item-desc">10 native voice commands &amp; hands-free speech control</div>
+              <div class="menu-item-desc">Hands-free speech automation for profile switching &amp; reminders</div>
             </div>
           </button>
 
-          <!-- 1. Recovery (renamed from Recovery Vault) -->
-          <!-- Arcade Arena Lounge -->
-          <button type="button" class="system-menu-item" id="btnSystemGame" role="menuitem" title="Chrome Synapse: Quantum Arcade Arena">
-            <div class="menu-item-icon" style="background:rgba(168,85,247,0.18);border:1px solid rgba(168,85,247,0.4);">
-              <span style="font-size:14px;">🎮</span>
+          <!-- 3. System Reset & Emergency Recovery -->
+          <button type="button" class="system-menu-item" id="btnDropdownRecovery" role="menuitem" title="Emergency Profile Recovery & State Verification">
+            <div class="menu-item-icon" style="background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.4);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#ef4444" stroke-width="2"/>
+                <line x1="12" y1="9" x2="12" y2="13" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="17" r="1" fill="#ef4444"/>
+              </svg>
             </div>
             <div class="menu-item-text">
               <div class="menu-item-title-row">
-                <span class="menu-item-title">Arcade Lounge</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(168,85,247,0.22);color:#c084fc;font-weight:700;">CHROME SYNAPSE</span>
+                <span class="menu-item-title">System Diagnostics</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(239,68,68,0.22);color:#f87171;font-weight:700;">DIAG</span>
               </div>
-              <div class="menu-item-desc">Math Overdrive, Reflex Blitz & Memory Matrix</div>
+              <div class="menu-item-desc">Verify local persistence integrity and recover profile states</div>
             </div>
           </button>
-
-          <button type="button" class="system-menu-item" id="btnOpenVault" role="menuitem" title="Recovery: Enterprise Data Recovery Vault & Rollback Checkpoints">
-            <div class="menu-item-icon menu-icon-emerald">
-              <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#10b981" stroke-width="1.8" fill="rgba(16,185,129,0.2)"/><path d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title">Recovery</div>
-              <div class="menu-item-desc">Multi-tier vault & rollback checkpoints</div>
-            </div>
-          </button>
-
-          <!-- 2. Centennial Recovery (renamed from v100 Centennial) -->
-          <button type="button" class="system-menu-item" id="btnOpenCentennial" role="menuitem" title="Centennial Recovery: Merkle Cryptographic Integrity & Forensic Console">
-            <div class="menu-item-icon menu-icon-cyan">
-              <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 8.5 17 21 7 21 3 8.5 12 2" stroke="#38bdf8" stroke-width="1.8" fill="rgba(56,189,248,0.2)"/><polyline points="3 8.5 12 12.5 21 8.5" stroke="#38bdf8" stroke-width="1.8"/><line x1="12" y1="12.5" x2="12" y2="21" stroke="#38bdf8" stroke-width="1.8"/><line x1="12" y1="2" x2="12" y2="12.5" stroke="#38bdf8" stroke-width="1.8"/></svg>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title">Centennial Recovery</div>
-              <div class="menu-item-desc">Merkle cryptographic integrity & self-heal</div>
-            </div>
-          </button>
-
-          <!-- 3. Open main web app -->
-          <button type="button" class="system-menu-item" id="btnTopbarLaunchApp" role="menuitem" title="Open main web app: Standalone Window">
-            <div class="menu-item-icon menu-icon-red">
-              <span class="desktop-btn-icon" id="topbarLaunchIcon"><svg class="modern-icon" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="#ff4d58" stroke-width="1.8" fill="rgba(229,9,20,0.2)" stroke-linejoin="round"/><polyline points="7 12 12 7 17 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="7" x2="12" y2="17" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg></span>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title" id="topbarLaunchLabel">Open main web app</div>
-              <div class="menu-item-desc">Launch standalone desktop window</div>
-            </div>
-          </button>
-
-          <!-- 4. Holographic QR (renamed from App Suite) -->
-          <button type="button" class="system-menu-item" id="btnOpenAppSuite" role="menuitem" title="Holographic QR: Live Phone Scanner & Cross-Device Cloud Sync Suite">
-            <div class="menu-item-icon menu-icon-blue">
-              <svg class="modern-icon modern-icon-blue" viewBox="0 0 24 24" fill="none"><polygon points="12 2 22 7.5 22 16.5 12 22 2 16.5 2 7.5" stroke="#60a5fa" stroke-width="1.8" fill="rgba(96,165,250,0.2)" stroke-linejoin="round"/><line x1="12" y1="22" x2="12" y2="12" stroke="#60a5fa" stroke-width="1.6"/><line x1="22" y1="7.5" x2="12" y2="12" stroke="#60a5fa" stroke-width="1.6"/><line x1="2" y1="7.5" x2="12" y2="12" stroke="#60a5fa" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="#ffffff"/></svg>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title-row">
-                <span class="menu-item-title">Holographic QR</span>
-                <span class="pwa-ready-mini-badge" style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(16,185,129,0.15);color:#34d399;font-weight:700;"><span id="topbarSyncLabel">Synced</span></span>
-              </div>
-              <div class="menu-item-desc">Live phone scanner & cloud sync bridge</div>
-            </div>
-          </button>
-
-          <!-- 5. Trash (Recently Deleted Vault) -->
-          <button type="button" class="system-menu-item" id="btnSystemTrash" role="menuitem" title="Trash: 30-Day Recently Deleted Vault & Restoration">
-            <div class="menu-item-icon menu-icon-orange">
-              <svg class="modern-icon" viewBox="0 0 24 24" fill="none" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6" stroke="#fb923c" stroke-width="2" stroke-linecap="round"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#fb923c" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="11" x2="10" y2="17" stroke="#fb923c" stroke-width="1.8"/><line x1="14" y1="11" x2="14" y2="17" stroke="#fb923c" stroke-width="1.8"/></svg>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title-row">
-                <span class="menu-item-title">Trash</span>
-                <span class="system-trash-badge" id="systemTrashCount" style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(251,146,60,0.18);color:#fb923c;font-weight:700;">0 items</span>
-              </div>
-              <div class="menu-item-desc">30-day soft-delete safety vault</div>
-            </div>
-          </button>
-
-          <!-- 7. Backup & Restore Workspace -->
-          <button type="button" class="system-menu-item" id="btnSystemBackup" role="menuitem" title="Backup & Restore: Export or restore encrypted workspace JSON">
-            <div class="menu-item-icon menu-icon-emerald">
-              <svg class="modern-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title">Backup &amp; Restore</div>
-              <div class="menu-item-desc">Export or import JSON workspace backup</div>
-            </div>
-          </button>
-
-          <!-- 8. OrlandoChrome (Blank Canvas) -->
-          <button type="button" class="system-menu-item" id="btnSystemBlankCanvas" role="menuitem" title="OrlandoChrome (Blank Canvas): Clean pristine workspace">
-            <div class="menu-item-icon menu-icon-purple" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);">
-              <svg class="modern-icon" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" style="width:14px;height:14px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title">OrlandoChrome (Blank Canvas)</div>
-              <div class="menu-item-desc">Pristine workspace · Auto-scan laptop</div>
-            </div>
-          </button>
-
-          <!-- 6. Voice Commands Manual & Hands-Free Instructions -->
-          <button type="button" class="system-menu-item" id="btnSystemVoiceManual" role="menuitem" title="Voice Commands: 10 Superpowers & Hands-Free Instructions Manual">
-            <div class="menu-item-icon" style="background:rgba(255,82,99,0.15);border:1px solid rgba(255,82,99,0.3);">
-              <span style="font-size:14px;">🎙️</span>
-            </div>
-            <div class="menu-item-text">
-              <div class="menu-item-title-row">
-                <span class="menu-item-title">Voice Commands</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(255,82,99,0.18);color:#ff8591;font-weight:700;">10 Active</span>
-              </div>
-              <div class="menu-item-desc">10 Superpowers & hands-free instructions</div>
-            </div>
-          </button>
-          </div>
+        </div>
       </div>
 
-      <!-- Live Clock & Daily Recharge Alarm Widget -->
-      <div class="nav-clock-box" id="navClockBox">
-        <!-- Rendered dynamically -->
+      <!-- Live Clock & Alarm Display -->
+      <div class="nav-clock-box" id="navClockBox" title="Current Local Time (Asia/Manila)">
+        <span class="nav-clock-time" id="clockTime">--:--</span>
+        <span class="nav-clock-ampm" id="clockAmPm">--</span>
       </div>
     </div>
   </header>
@@ -553,9 +437,26 @@
         <!-- VIEW 2: Reflex Blitz (Quantum Catcher Canvas) -->
         <div class="reflex-view-container" id="cgViewReflex" style="display:none;">
           <div class="reflex-hud-banner">
-            <div class="transmute-badge" id="transmuteIndicator">ACTIVE CORE: QUANTUM REALM</div>
+            <!-- Numbers Mode Multiple Picker: Choose 1, 2, 3, 4, 5, 6, 7, 8, 9 -->
+            <div class="reflex-multiple-picker" id="reflexMultiplePicker">
+              <span class="picker-label">TARGET MULTIPLE:</span>
+              <div class="picker-btns" id="reflexDigitBtns">
+                <button type="button" class="digit-pill" data-digit="1">1</button>
+                <button type="button" class="digit-pill" data-digit="2">2</button>
+                <button type="button" class="digit-pill" data-digit="3">3</button>
+                <button type="button" class="digit-pill" data-digit="4">4</button>
+                <button type="button" class="digit-pill" data-digit="5">5</button>
+                <button type="button" class="digit-pill" data-digit="6">6</button>
+                <button type="button" class="digit-pill active" data-digit="7">7</button>
+                <button type="button" class="digit-pill" data-digit="8">8</button>
+                <button type="button" class="digit-pill" data-digit="9">9</button>
+              </div>
+            </div>
+            <!-- Quantum Transmute Badge for Realm/Helix/Meteor -->
+            <div class="transmute-badge" id="transmuteIndicator" style="display:none;">ACTIVE CORE: CHROME REALM</div>
+            
             <div class="shields-cluster">
-              <span class="shields-label">LIVES (10 SHIELDS):</span>
+              <span class="shields-label">SHIELDS (10 LIVES):</span>
               <div class="shields-cells" id="reflexShields"></div>
             </div>
           </div>
@@ -592,7 +493,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade301"></script>
+  <script src="app.js?v=arcade302"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -732,7 +633,7 @@
 </div>
 
     <!-- CacheFlush: 1794862673222 -->
-  <script src="game.js?v=arcade301"></script>
+  <script src="game.js?v=arcade302"></script>
   <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>
