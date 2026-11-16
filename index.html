@@ -129,6 +129,28 @@
             </div>
           </button>
 
+          <!-- 7. Backup & Restore Workspace -->
+          <button type="button" class="system-menu-item" id="btnSystemBackup" role="menuitem" title="Backup & Restore: Export or restore encrypted workspace JSON">
+            <div class="menu-item-icon menu-icon-emerald">
+              <svg class="modern-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title">Backup &amp; Restore</div>
+              <div class="menu-item-desc">Export or import JSON workspace backup</div>
+            </div>
+          </button>
+
+          <!-- 8. OrlandoChrome (Blank Canvas) -->
+          <button type="button" class="system-menu-item" id="btnSystemBlankCanvas" role="menuitem" title="OrlandoChrome (Blank Canvas): Clean pristine workspace">
+            <div class="menu-item-icon menu-icon-purple" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);">
+              <svg class="modern-icon" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" style="width:14px;height:14px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title">OrlandoChrome (Blank Canvas)</div>
+              <div class="menu-item-desc">Pristine workspace · Auto-scan laptop</div>
+            </div>
+          </button>
+
           <!-- 6. Voice Commands Manual & Hands-Free Instructions -->
           <button type="button" class="system-menu-item" id="btnSystemVoiceManual" role="menuitem" title="Voice Commands: 10 Superpowers & Hands-Free Instructions Manual">
             <div class="menu-item-icon" style="background:rgba(255,82,99,0.15);border:1px solid rgba(255,82,99,0.3);">
@@ -188,80 +210,7 @@
   </div>
 
   <!-- 8. APP DISTRIBUTION & COMMAND SUITE (Install, Share, QR, Backup, Blank Edition) -->
-  <section class="app-dist oc-app-dist minimized" id="appDistSection" aria-labelledby="distTitle">
-    <div class="dist-head" id="distHead" role="button" tabindex="0" title="Click header anywhere to toggle App Suite">
-      <div class="dist-head-left">
-        <div class="dist-oc-mini" title="OrlandoChrome">
-          <img src="oc-logo.svg" alt="OC" class="dist-oc-logo-img">
-        </div>
-        <div class="dist-header-text">
-          <div class="dist-title" id="distTitle">
-            <span class="dist-title-name">App Distribution &amp; Live Sync Suite</span>
-            <span class="dist-badge">● PWA READY</span>
-            <span class="dist-collapse-hint" id="distCollapseHint">· 4 Command Tools · Tap to Expand</span>
-          </div>
-          <div class="dist-subtitle" id="distSubtitle">Installed, offline-cached, zero-warning install &amp; holographic device sync</div>
-        </div>
-      </div>
-      <div class="dist-head-actions">
-        <button type="button" class="dist-toggle-btn" id="distMinimizeBtn" title="Toggle Minimized View" aria-expanded="false">
-            <span id="distMinIcon" class="dist-min-icon">▸</span> <span id="distMinText">Expand</span>
-          </button>
-      </div>
-    </div>
-
-    <!-- Collapsible Command Drawer with Fluid Morphing Transition -->
-    <div class="dist-drawer-wrapper" id="distDrawerWrapper">
-      <div class="dist-body" id="distBody">
-      <div class="dist-grid">
-        <!-- Card: Backup & Restore Workspace -->
-        <div class="dist-card">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-red">
-              <svg class="modern-icon modern-icon-red" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name">Backup &amp; Restore</div>
-              <div class="dist-desc">Encrypted local workspace backup</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack">
-            <div class="dist-btn-row">
-              <button type="button" class="ghost dist-btn" id="exportBackupBtn">
-                <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                <span>Export</span>
-              </button>
-              <button type="button" class="ghost dist-btn" id="importBackupBtn">
-                <svg class="modern-icon" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <span>Import</span>
-              </button>
-            </div>
-            <input type="file" id="importBackupFile" accept=".json,application/json" style="display:none">
-          </div>
-        </div>
-
-        <!-- Card 4: Clean Blank Edition -->
-        <div class="dist-card dist-card-blank" id="distCardBlank">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-gold">
-              <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name" id="distCardBlankTitle" style="color:#ffffff">OrlandoChrome (Blank Canvas)</div>
-              <div class="dist-desc" id="distCardBlankDesc">100% blank canvas (0 notes / clean routine)</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack" id="distBlankBtnStack">
-            <a class="primary dist-btn" id="openBlankAppBtn" href="https://orlandopasion000.github.io/orlandochrome/?edition=blank" target="_blank" rel="noopener">
-              <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              <span>Open Blank Web App</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-  </section>
+  
   <!-- Hidden Photo Upload Input (Profile Avatar) -->
   <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
   <!-- Hidden Photo / Media Attachment Input (Chat Notes) -->
@@ -279,5 +228,31 @@
   <script src="sound.js?v=pure121"></script>
   <script src="qrcode.min.js"></script>
   <script src="app.js?v=pure121"></script>
+
+  <!-- BACKUP & RESTORE WORKSPACE MODAL -->
+  <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
+    <div class="modal-card" style="max-width:440px;width:90%;background:#0f1117;border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:22px;box-shadow:0 25px 60px rgba(0,0,0,0.85);color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="margin:0;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;color:#fff;">
+          <span style="color:#10b981;">💾</span> Backup &amp; Restore Workspace
+        </h3>
+        <button type="button" id="btnCloseBackupRestoreModal" style="background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;line-height:1;">✕</button>
+      </div>
+      <p style="font-size:12.5px;color:#94a3b8;line-height:1.5;margin-bottom:18px;">
+        Export your entire 22-profile setup, timers, notes, and settings as an encrypted JSON file, or restore an existing backup.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button type="button" class="primary dist-btn" id="modalExportBackupBtn" style="padding:12px;font-weight:700;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:8px;border:none;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Export Workspace Backup (.json)</span>
+        </button>
+        <button type="button" class="ghost dist-btn" id="modalImportBackupBtn" style="padding:12px;font-weight:600;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px;color:#e2e8f0;cursor:pointer;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Restore Workspace from File (.json)</span>
+        </button>
+        <input type="file" id="modalImportBackupFile" accept=".json,application/json" style="display:none">
+      </div>
+    </div>
+  </div>
 </body>
 </html>
