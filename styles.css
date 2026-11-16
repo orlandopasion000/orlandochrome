@@ -14696,3 +14696,6 @@ body.light-theme .fs-toggle-btn:hover {
   visibility: visible !important;
   z-index: 100000 !important;
 }
+
+body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-active #appSidebar, body.arcade-active main { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+.game-modal-overlay { background: #000000 !important; background-color: #000000 !important; animation: none !important; }

@@ -1298,6 +1298,7 @@
     if (!dom.modal) return;
 
     state.gameType = type;
+    document.body.classList.add('arcade-active');
     dom.modal.classList.add('active');
     dom.modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -1313,6 +1314,7 @@
 
   function closeGame() {
     state.active = false;
+    document.body.classList.remove('arcade-active');
     clearInterval(state.mathTimer);
     if (animFrameId) {
       cancelAnimationFrame(animFrameId);
