@@ -10253,15 +10253,38 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     const sidebar = $('#appSidebar');
     const SIDEBAR_WIDTH_KEY = 'orlandochrome_sidebar_width_v1';
 
-    if (sidebar) {
-      const applyClampedSavedWidth = () => {
-        const savedWidth = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY), 10);
-        if (!isNaN(savedWidth) && savedWidth >= 115 && savedWidth <= 900) {
-          const maxAllowed = Math.floor(window.innerWidth * (window.innerWidth <= 600 ? 0.44 : 0.56));
-          const clamped = Math.max(window.innerWidth <= 600 ? 115 : 155, Math.min(savedWidth, maxAllowed));
+    const clampSidebarWidth = (val) => {
+      if (window.innerWidth <= 768) return null;
+      const minW = 280; // Requirement: List min 280px
+      const maxW = Math.max(minW, Math.floor(window.innerWidth * 0.45)); // Requirement: Max 45% of viewport
+      const defaultW = Math.max(minW, Math.min(360, maxW));
+      if (typeof val !== 'number' || isNaN(val) || val <= 0) {
+        return defaultW;
+      }
+      return Math.max(minW, Math.min(val, maxW));
+    };
+
+    const applyClampedSavedWidth = () => {
+      if (window.innerWidth <= 768) {
+        document.documentElement.style.removeProperty('--sidebar-width');
+        return;
+      }
+      const savedRaw = localStorage.getItem(SIDEBAR_WIDTH_KEY);
+      const parsed = savedRaw ? parseInt(savedRaw, 10) : NaN;
+      if (!isNaN(parsed)) {
+        const clamped = clampSidebarWidth(parsed);
+        if (clamped) {
           document.documentElement.style.setProperty('--sidebar-width', `${clamped}px`);
+          if (clamped !== parsed) {
+            try { localStorage.setItem(SIDEBAR_WIDTH_KEY, String(clamped)); } catch (e) {}
+          }
         }
-      };
+      } else {
+        document.documentElement.style.removeProperty('--sidebar-width');
+      }
+    };
+
+    if (sidebar) {
       applyClampedSavedWidth();
       window.addEventListener('resize', applyClampedSavedWidth);
     }
@@ -10272,10 +10295,10 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       const onPointerMove = (e) => {
         if (!isDragging) return;
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const minW = window.innerWidth <= 600 ? 115 : 155;
-        const maxW = Math.min(860, Math.floor(window.innerWidth * 0.64));
-        const newWidth = Math.max(minW, Math.min(maxW, clientX));
-        document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
+        const clamped = clampSidebarWidth(clientX);
+        if (clamped) {
+          document.documentElement.style.setProperty('--sidebar-width', `${clamped}px`);
+        }
       };
 
       const onPointerUp = () => {
@@ -10284,9 +10307,10 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         resizer.classList.remove('dragging');
         document.body.classList.remove('is-resizing-pane');
         const currentW = sidebar.getBoundingClientRect().width;
-        if (currentW >= 115) {
+        const clamped = clampSidebarWidth(Math.round(currentW));
+        if (clamped) {
           try {
-            localStorage.setItem(SIDEBAR_WIDTH_KEY, String(Math.round(currentW)));
+            localStorage.setItem(SIDEBAR_WIDTH_KEY, String(clamped));
           } catch (err) {}
         }
         window.removeEventListener('mousemove', onPointerMove);
@@ -10296,6 +10320,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       };
 
       const startDrag = (e) => {
+        if (window.innerWidth <= 768) return;
         e.preventDefault();
         isDragging = true;
         resizer.classList.add('dragging');
@@ -10315,6 +10340,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         try {
           localStorage.removeItem(SIDEBAR_WIDTH_KEY);
         } catch (err) {}
+        applyClampedSavedWidth();
         showToast('↔️ Reset profile list width to default');
       });
     }
