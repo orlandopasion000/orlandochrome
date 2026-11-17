@@ -1015,6 +1015,9 @@
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
         var imgSize = 106 + exc * 22;
+        ctx.beginPath();
+        ctx.arc(0, 0, imgSize * 0.46, 0, Math.PI * 2);
+        ctx.clip();
         ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
         ctx.restore();
 
@@ -1176,6 +1179,9 @@
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
         var imgSize = 106 + exc * 22;
+        ctx.beginPath();
+        ctx.arc(0, 0, imgSize * 0.46, 0, Math.PI * 2);
+        ctx.clip();
         ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
         ctx.restore();
 
@@ -1256,6 +1262,9 @@
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
         var imgSize = 106 + exc * 22;
+        ctx.beginPath();
+        ctx.arc(0, 0, imgSize * 0.46, 0, Math.PI * 2);
+        ctx.clip();
         ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
         ctx.restore();
 
