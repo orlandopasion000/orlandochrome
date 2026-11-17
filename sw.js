@@ -1,17 +1,17 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v309';
+const CACHE_NAME = 'orlandochrome-arcade-v310';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade309',
-  './game.js?v=arcade309',
+  './styles.css?v=arcade310',
+  './game.js?v=arcade310',
   './qrcode.min.js',
-  './app.js?v=arcade309',
+  './app.js?v=arcade310',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',
-  './oc-logo.png?v=arcade309',
-  './oc-logo.svg?v=arcade309',
+  './oc-logo.png?v=oc310',
+  './oc-logo.svg?v=oc310',
   './icon-192.png',
   './icon-512.png',
   './icon-maskable.png',
@@ -19,7 +19,7 @@ const ASSETS = [
   './favicon-32.png',
   './favicon-16.png',
   './manifest.json',
-  './manifest.json?v=arcade309'
+  './manifest.json?v=oc310'
 ];
 
 self.addEventListener('install', (event) => {

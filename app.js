@@ -648,9 +648,9 @@ const Icons = {
     portal: (size = 14) => `
       <span class="oc-icon oc-icon-portal" style="width:${size}px;height:${size}px;" title="Main Web App">
         <svg viewBox="0 0 24 24" fill="none">
-          <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="rgba(255,100,110,0.9)" stroke-width="1.8" fill="rgba(229,9,20,0.18)" stroke-linejoin="round"/>
-          <polyline points="7 12 12 7 17 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="12" y1="7" x2="12" y2="17" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+          <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="#00f0ff" stroke-width="1.8" fill="rgba(0,240,255,0.18)" stroke-linejoin="round"/>
+          <polyline points="7 12 12 7 17 12" stroke="#fef08a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="12" y1="7" x2="12" y2="17" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </span>`,
 
@@ -4518,7 +4518,7 @@ const Icons = {
           </button>
         ` : ''}
         <a href="https://orlandopasion000.github.io/orlandorecharge" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge (Main Version) — Synced Live Schedule">
-          <span class="alarm-pill-icon-svg" style="display:inline-flex;align-items:center;margin-right:4px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff2a3c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px rgba(255,42,60,0.85));"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3L2 6"></path><path d="M19 3l3 3"></path></svg></span>
+          <span class="alarm-pill-icon-svg" style="display:inline-flex;align-items:center;margin-right:4px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f5c451" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px rgba(0,240,255,0.75));"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3L2 6"></path><path d="M19 3l3 3"></path></svg></span>
           <span class="alarm-pill-text"><strong class="alarm-pill-countdown">${alarm.diffText}</strong> — ${esc(alarm.title)}</span>
         </a>
       `;
@@ -8363,22 +8363,22 @@ ${jsRes}
     const backdrop = document.createElement('div');
     backdrop.className = 'rename-dialog-backdrop';
     backdrop.innerHTML = `
-      <div class="qr-studio-modal" style="max-width:380px; width:100%; text-align:center; padding:20px; background:#0c0c10; border:1px solid rgba(255, 77, 88, 0.45); border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,0.9), 0 0 35px rgba(229,9,20,0.3); animation:modalPopIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+      <div class="qr-studio-modal" style="max-width:380px; width:100%; text-align:center; padding:20px; background:linear-gradient(160deg,#0b101e 0%,#050811 100%); border:1px solid rgba(56, 189, 248, 0.45); border-radius:18px; box-shadow:0 16px 48px rgba(0,0,0,0.9), 0 0 35px rgba(56,189,248,0.25); animation:modalPopIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div style="display:flex; align-items:center; gap:8px;">
-            <img src="oc-logo.svg" alt="OC" style="width:26px; height:26px; border-radius:6px; box-shadow:0 0 10px rgba(229,9,20,0.5);">
+            <img src="oc-logo.png?v=oc310" alt="OC" style="width:26px; height:26px; border-radius:6px; border:1px solid rgba(212,168,83,0.5); box-shadow:0 0 10px rgba(0,240,255,0.5);">
             <span style="font-size:0.98rem; font-weight:800; color:#fff;">Holographic QR Scanner</span>
           </div>
           <button type="button" class="btn-banner-clear" id="btnCloseQrModal" style="color:#aaa; font-size:1.2rem; cursor:pointer; background:none; border:none; padding:4px 8px;">✕</button>
         </div>
         <p style="font-size:0.78rem; color:#94a3b8; margin:0 0 14px; line-height:1.4;">Point your iPhone or Android camera to open and live-sync OrlandoChrome instantly.</p>
         
-        <!-- High-Tech HUD Viewfinder with glowing red brackets -->
-        <div class="qr-hud-box" id="qrViewfinderBox" style="position:relative; width:240px; height:240px; margin:0 auto 14px; padding:12px; background:rgba(20, 10, 14, 0.6); border:1px solid rgba(255,77,88,0.3); border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(229,9,20,0.2); cursor:pointer;" title="Click to open app or copy link">
-          <div class="qr-hud-corner tl" style="position:absolute; top:6px; left:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-top-left-radius:4px;"></div>
-          <div class="qr-hud-corner tr" style="position:absolute; top:6px; right:6px; width:14px; height:14px; border-top:2.5px solid #ff4d58; border-right:2.5px solid #ff4d58; border-top-right-radius:4px;"></div>
-          <div class="qr-hud-corner bl" style="position:absolute; bottom:6px; left:6px; width:14px; height:14px; border-bottom:2.5px solid #ff4d58; border-left:2.5px solid #ff4d58; border-bottom-left-radius:4px;"></div>
-          <div class="qr-hud-corner br" style="position:absolute; bottom:6px; right:6px; width:14px; height:14px; border-bottom:2.5px solid #ff4d58; border-right:2.5px solid #ff4d58; border-bottom-right-radius:4px;"></div>
+        <!-- High-Tech HUD Viewfinder with Quantum Chromatic brackets -->
+        <div class="qr-hud-box" id="qrViewfinderBox" style="position:relative; width:240px; height:240px; margin:0 auto 14px; padding:12px; background:rgba(9, 14, 26, 0.7); border:1px solid rgba(56,189,248,0.35); border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(0,240,255,0.2); cursor:pointer;" title="Click to open app or copy link">
+          <div class="qr-hud-corner tl" style="position:absolute; top:6px; left:6px; width:14px; height:14px; border-top:2.5px solid #00f0ff; border-left:2.5px solid #00f0ff; border-top-left-radius:4px;"></div>
+          <div class="qr-hud-corner tr" style="position:absolute; top:6px; right:6px; width:14px; height:14px; border-top:2.5px solid #f5c451; border-right:2.5px solid #f5c451; border-top-right-radius:4px;"></div>
+          <div class="qr-hud-corner bl" style="position:absolute; bottom:6px; left:6px; width:14px; height:14px; border-bottom:2.5px solid #f5c451; border-left:2.5px solid #f5c451; border-bottom-left-radius:4px;"></div>
+          <div class="qr-hud-corner br" style="position:absolute; bottom:6px; right:6px; width:14px; height:14px; border-bottom:2.5px solid #00f0ff; border-right:2.5px solid #00f0ff; border-bottom-right-radius:4px;"></div>
           <!-- QR Viewfinder HUD Corners (Laser removed for 100% optical camera scannability) -->
           
           <!-- Pure White Card with pitch-black modules for 100% instant scanner lock -->

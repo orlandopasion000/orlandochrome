@@ -1,27 +1,33 @@
-/* OrlandoChrome · OLED Pure Black Theme
+/* OrlandoChrome · Quantum Chromatic Monogram OLED Theme
  * 100% True Black (#000000) for OLED Displays with
- * Bloody Red / Red & White / Dark Red Radiant Gradients & Green & White Radiant Top Pin
+ * 24K Architectural Gold ("O"), Liquid Hyper-Chrome ("C") & Quantum Sapphire Aperture ("OC") Accents
  */
 
 :root {
   --nf-black: #000000;
   --nf-dark-1: #000000;
-  --nf-dark-2: #050505;
-  --nf-dark-3: #0a0a0a;
-  --nf-border: #161616;
-  --nf-border-subtle: #111111;
-  --nf-red: #E50914;
-  --nf-red-hover: #b80710;
-  --nf-red-glow: rgba(229, 9, 20, 0.55);
-  --nf-blood-grad: linear-gradient(135deg, #ff4d58 0%, #e50914 45%, #8a0007 82%, #3d0003 100%);
-  --nf-blood-hover: linear-gradient(135deg, #ff7079 0%, #ff1e27 45%, #a80009 85%, #520004 100%);
-  --nf-red-white-grad: linear-gradient(90deg, #ffffff 0%, #ffd1d6 40%, #ff2a36 78%, #b8000a 100%);
-  --nf-dark-red-grad: linear-gradient(135deg, rgba(165, 0, 12, 0.42) 0%, rgba(80, 0, 5, 0.52) 55%, rgba(25, 0, 2, 0.88) 100%);
+  --nf-dark-2: #05070d;
+  --nf-dark-3: #090d16;
+  --nf-border: #151c28;
+  --nf-border-subtle: #0e131d;
+  --nf-red: #38bdf8;
+  --nf-red-hover: #0284c7;
+  --nf-red-glow: rgba(56, 189, 248, 0.55);
+  --nf-blood-grad: linear-gradient(135deg, #00f0ff 0%, #0284c7 45%, #4f46e5 82%, #1e1b4b 100%);
+  --nf-blood-hover: linear-gradient(135deg, #67e8f9 0%, #38bdf8 45%, #6366f1 85%, #312e81 100%);
+  --nf-red-white-grad: linear-gradient(90deg, #ffffff 0%, #fef08a 38%, #38bdf8 78%, #a855f7 100%);
+  --nf-dark-red-grad: linear-gradient(135deg, rgba(14, 165, 233, 0.28) 0%, rgba(212, 168, 83, 0.20) 55%, rgba(10, 15, 28, 0.90) 100%);
   --nf-gold: #F59E0B;
+  --qc-gold: #d4a853;
+  --qc-gold-bright: #fef08a;
+  --qc-cyan: #00f0ff;
+  --qc-sapphire: #38bdf8;
+  --qc-violet: #a855f7;
+  --qc-chrome: #e2e8f0;
   --nf-green: #10B981;
   --nf-text: #FFFFFF;
-  --nf-text-muted: #8E8E8E;
-  --nf-text-dim: #555555;
+  --nf-text-muted: #94A3B8;
+  --nf-text-dim: #64748B;
   --font-logo: 'Bebas Neue', 'Impact', sans-serif;
   --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --radius-sm: 6px;
@@ -142,7 +148,8 @@ img, video, audio, canvas, svg {
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 9px;
-  box-shadow: 0 0 14px rgba(229, 9, 20, 0.55), 0 0 4px rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.55), 0 0 6px rgba(212, 168, 83, 0.45);
+  border: 1px solid rgba(212, 168, 83, 0.45);
   display: block;
   flex-shrink: 0;
 }
@@ -164,16 +171,19 @@ img, video, audio, canvas, svg {
 }
 
 .title-orlando {
+  background: linear-gradient(180deg, #ffffff 0%, #fef08a 75%, #d4a853 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: #FFFFFF;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+  filter: drop-shadow(0 0 8px rgba(212, 168, 83, 0.35));
 }
 
 .title-chrome {
-  background: linear-gradient(180deg, #ffffff 0%, #ffc2c9 22%, #ff1e27 58%, #8a0007 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #bae6fd 24%, #38bdf8 60%, #c084fc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #ff2a36;
-  filter: drop-shadow(0 2px 10px rgba(229, 9, 20, 0.6));
+  color: #38bdf8;
+  filter: drop-shadow(0 2px 10px rgba(56, 189, 248, 0.55));
 }
 
 .topbar-right {
@@ -9556,7 +9566,7 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
     filter: none !important;
   }
   .app-topbar .title-chrome {
-    background: linear-gradient(180deg, #ffffff 0%, #ff4d58 60%, #e50914 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #bae6fd 35%, #38bdf8 70%, #c084fc 100%) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     filter: none !important;
@@ -15339,3 +15349,263 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
     gap: 3px !important;
   }
 }
+
+/* ==========================================================================
+   QUANTUM CHROMATIC MONOGRAM DESIGN SYSTEM (v310 MASTER REDESIGN)
+   - Guided by the 4K OC Monogram: 24K Gold ("O"), Liquid Hyper-Chrome ("C")
+     with Prismatic Violet/Cyan Refraction, and Sapphire Quantum Aperture Iris.
+   - High-ergonomics daily OLED dashboard with instant chromatic identification
+     for Active Workspace, Selected Tab, and Primary Actions.
+   ========================================================================== */
+
+/* 1. Topbar & Brand Monogram Identity */
+.app-topbar {
+  background: linear-gradient(180deg, #060911 0%, #000000 100%) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.28) !important;
+  box-shadow: 0 1px 0 rgba(212, 168, 83, 0.14), 0 4px 20px rgba(0, 0, 0, 0.85) !important;
+}
+
+.oc-logo-img {
+  border: 1px solid rgba(212, 168, 83, 0.55) !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.48), 0 0 4px rgba(212, 168, 83, 0.4) !important;
+  image-rendering: -webkit-optimize-contrast !important;
+}
+
+.title-orlando {
+  background: linear-gradient(180deg, #ffffff 0%, #fef08a 75%, #d4a853 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.title-chrome {
+  background: linear-gradient(180deg, #ffffff 0%, #bae6fd 26%, #38bdf8 62%, #c084fc 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #38bdf8 !important;
+}
+
+/* Topbar Controls & Horology Alarm Pill */
+.btn-topbar-quick {
+  background: rgba(15, 23, 42, 0.55) !important;
+  border: 1px solid rgba(212, 168, 83, 0.35) !important;
+  color: #f8fafc !important;
+}
+.btn-topbar-quick:hover {
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.22), rgba(56, 189, 248, 0.18)) !important;
+  border-color: #f5c451 !important;
+  box-shadow: 0 0 12px rgba(212, 168, 83, 0.35) !important;
+}
+
+.btn-topbar-system {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(168, 85, 247, 0.12)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.45) !important;
+  color: #f8fafc !important;
+}
+.btn-topbar-system:hover {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.28), rgba(168, 85, 247, 0.22)) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4) !important;
+}
+
+.nf-alarm-pill {
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.18) 0%, rgba(14, 165, 233, 0.16) 55%, rgba(9, 13, 24, 0.94) 100%) !important;
+  border: 1px solid rgba(212, 168, 83, 0.55) !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(254, 240, 138, 0.25) !important;
+  color: #f8fafc !important;
+}
+.nf-alarm-pill:hover {
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.32) 0%, rgba(14, 165, 233, 0.28) 60%, rgba(15, 23, 42, 0.96) 100%) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.45), 0 0 10px rgba(212, 168, 83, 0.35) !important;
+}
+
+/* 2. Sidebar Omnisearch & Selected Filter Tabs (Chromatic Clarity) */
+.sidebar-header {
+  background: linear-gradient(180deg, #04070e 0%, #000000 100%) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.16) !important;
+}
+
+.spotlight-trigger-wrap {
+  background: rgba(9, 14, 26, 0.85) !important;
+  border: 1px solid rgba(56, 189, 248, 0.32) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+.spotlight-trigger-wrap:hover,
+.spotlight-trigger-wrap:focus-within {
+  background: rgba(12, 19, 36, 0.95) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.18), 0 0 16px rgba(56, 189, 248, 0.3) !important;
+}
+
+.filter-tab {
+  background: rgba(12, 17, 30, 0.65) !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  color: #94a3b8 !important;
+}
+.filter-tab:hover {
+  background: rgba(14, 165, 233, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  color: #ffffff !important;
+}
+
+/* Selected Tab: High-Contrast Quantum Sapphire & 24K Gold */
+.filter-tab.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(212, 168, 83, 0.16) 100%) !important;
+  border: 1.5px solid #00f0ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35), inset 0 1px 0 rgba(254, 240, 138, 0.32) !important;
+}
+
+.filter-tab.active[data-filter="pending"] {
+  background: linear-gradient(135deg, rgba(245, 196, 81, 0.26) 0%, rgba(217, 119, 6, 0.22) 100%) !important;
+  border: 1.5px solid #f5c451 !important;
+  color: #fef08a !important;
+  box-shadow: 0 0 14px rgba(245, 196, 81, 0.4) !important;
+}
+
+.tab-red-radiant-dot {
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #fef08a 35%, #f59e0b 75%, #b45309 100%) !important;
+  box-shadow: 0 0 7px rgba(245, 196, 81, 0.9), 0 0 3px rgba(0, 240, 255, 0.65) !important;
+}
+
+/* 3. Active Workspace (Profile Row) — Unmistakable Visual Identification */
+.profile-item {
+  border-bottom: 1px solid rgba(56, 189, 248, 0.08) !important;
+}
+.profile-item:hover {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.06) 0%, rgba(12, 17, 30, 0.4) 100%) !important;
+}
+
+.profile-item.active {
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.15) 0%, rgba(212, 168, 83, 0.09) 48%, rgba(8, 12, 24, 0.45) 100%) !important;
+  border-top: 1px solid rgba(0, 240, 255, 0.32) !important;
+  border-bottom: 1px solid rgba(212, 168, 83, 0.32) !important;
+  box-shadow: inset 0 0 24px rgba(0, 240, 255, 0.07) !important;
+}
+
+.profile-item.active::before {
+  width: 4.5px !important;
+  background: linear-gradient(180deg, #fef08a 0%, #d4a853 32%, #00f0ff 70%, #a855f7 100%) !important;
+  box-shadow: 2px 0 16px rgba(0, 240, 255, 0.85), 1px 0 6px rgba(212, 168, 83, 0.65) !important;
+}
+
+.profile-item.active .profile-avatar-img {
+  border: 2.5px solid #00f0ff !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.68), 0 0 6px rgba(245, 196, 81, 0.55) !important;
+}
+
+.profile-item.active .profile-name {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.32) !important;
+}
+
+/* Pending Snippets & High-Contrast 24K Gold Count Badge */
+.profile-snippet.pending-glow {
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.16), rgba(14, 165, 233, 0.14)) !important;
+  border: 1px solid rgba(245, 196, 81, 0.45) !important;
+  box-shadow: 0 0 12px rgba(212, 168, 83, 0.18) !important;
+}
+.profile-snippet.pending-glow .snippet-msg-text {
+  color: #fef9c3 !important;
+}
+
+.badge-pending-count {
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 55%, #d97706 100%) !important;
+  color: #050507 !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
+}
+.badge-pending-count:hover {
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.85), 0 0 10px rgba(245, 196, 81, 0.9) !important;
+}
+
+/* 4. Executive Suite Dock & Resizer */
+.standalone-subapp-dock {
+  background: linear-gradient(180deg, rgba(8, 12, 22, 0.88) 0%, rgba(3, 5, 10, 0.98) 100%) !important;
+  border-top: 1px solid rgba(56, 189, 248, 0.22) !important;
+}
+.dock-title {
+  color: #d4a853 !important;
+  letter-spacing: 1.6px !important;
+}
+.dock-pill-btn.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(212, 168, 83, 0.18) 100%) !important;
+  border: 1.5px solid #00f0ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.38), inset 0 1px 0 rgba(254, 240, 138, 0.35) !important;
+}
+
+.workspace-resizer::before {
+  background: rgba(56, 189, 248, 0.16) !important;
+}
+.workspace-resizer:hover::before,
+.workspace-resizer.dragging::before {
+  background: linear-gradient(180deg, #fef08a 0%, #00f0ff 50%, #a855f7 100%) !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.85) !important;
+}
+
+/* 5. Main Chat Header, Messages, Timers & Primary Action */
+.chat-header {
+  background: linear-gradient(180deg, #060912 0%, #000000 100%) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.20) !important;
+}
+
+.chat-header-avatar {
+  border: 2.5px solid #00f0ff !important;
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.42), 0 0 8px rgba(212, 168, 83, 0.35) !important;
+}
+.chat-header-avatar:hover {
+  border-color: #f5c451 !important;
+  box-shadow: 0 0 28px rgba(245, 196, 81, 0.65), 0 0 14px rgba(0, 240, 255, 0.5) !important;
+}
+
+.command-capsule {
+  background: rgba(9, 14, 26, 0.82) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(245, 196, 81, 0.18) !important;
+}
+
+.note-bubble {
+  background: linear-gradient(145deg, #090e1a 0%, #050811 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+.note-bubble:hover {
+  border-color: rgba(0, 240, 255, 0.42) !important;
+}
+
+/* Composer Input & Primary Action Send Button */
+.composer-input-wrap {
+  background: rgba(9, 14, 26, 0.88) !important;
+  border: 1px solid rgba(56, 189, 248, 0.28) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.composer-input-wrap:focus-within {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.20), 0 0 18px rgba(56, 189, 248, 0.32) !important;
+}
+
+.btn-antigravity-send {
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 48%, #7c3aed 100%) !important;
+  border: 1.5px solid rgba(254, 240, 138, 0.65) !important;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.55), 0 4px 12px rgba(0, 0, 0, 0.75) !important;
+}
+.btn-antigravity-send:hover {
+  background: linear-gradient(135deg, #67e8f9 0%, #00f0ff 45%, #a855f7 100%) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.85), 0 0 12px rgba(245, 196, 81, 0.55) !important;
+  transform: scale(1.07) !important;
+}
+
+/* 6. System Dropdown, Dialogs & Modals */
+.system-dropdown-menu,
+.cmd-palette-box {
+  background: linear-gradient(160deg, #0b101e 0%, #050811 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.42) !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.92), 0 0 28px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(245, 196, 81, 0.22) !important;
+}
+
