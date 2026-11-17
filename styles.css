@@ -14341,7 +14341,7 @@ body.light-theme .fs-toggle-btn:hover {
   text-transform: uppercase;
 }
 
-}
+
 
 .qgame-stat-val {
   font-family: 'Chakra Petch', 'Orbitron', monospace;
@@ -14363,7 +14363,7 @@ body.light-theme .fs-toggle-btn:hover {
 }
 
 
-}
+
 
 .qgame-btn-action {
   display: inline-flex;
@@ -14450,7 +14450,7 @@ body.light-theme .fs-toggle-btn:hover {
 .qgame-victory-card.is-defeat .qgame-btn-action.secondary:hover {
   border-color: rgba(239, 68, 68, 0.65) !important;
   box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25) !important;
-
+}
 
 @media (min-width: 1366px) {
   .qgame-hud-inner {
@@ -14461,6 +14461,7 @@ body.light-theme .fs-toggle-btn:hover {
   .qgame-left-hud { justify-self: start; }
   .qgame-mission-hud { justify-self: center; margin: 6px 0 0 0; }
   .qgame-exit-hud { justify-self: end; }
+}
 
 /* Below 1180px: keep the top HUD bar uncluttered & dock Mission Telemetry Pill at fixed viewport bottom */
 @media (max-width: 1180px) {
@@ -14514,6 +14515,7 @@ body.light-theme .fs-toggle-btn:hover {
     height: 30px !important;
     font-size: 0.60rem !important;
   }
+}
 
 @media (max-width: 768px) {
   /* Synchronized sleek 34px HUD row on tablets & phones */
@@ -14656,29 +14658,7 @@ body.light-theme .fs-toggle-btn:hover {
   }
 }
 
-/* Volume (Streamlined Compact) */
 
-    gap: 6px !important;
-  }
-  .or-header-right .qgame-btn-launch {
-    min-width: 0 !important;
-    padding: 0 9px !important;
-  }
-  .or-header-right .qg-word-quantum {
-    display: none !important;
-  }
-}
-
-    display: none !important;
-  }
-  .or-header-right .qgame-btn-launch {
-    flex: 1;
-    height: 34px !important;
-    min-width: 0 !important;
-    padding: 0 8px !important;
-    font-size: 0.68rem !important;
-    justify-content: center !important;
-    gap: 4px !important;
 
 
 /* ══════════════════════════════════════════════════════════════
@@ -15957,5 +15937,30 @@ body.arcade-active .screen-btn-primary {
   .reflex-shields-box {
     align-self: flex-end !important;
     font-size: 0.62rem !important;
+  }
+}
+
+/* Streamlined Icon-Only Circular Launcher Buttons on Mobile (Image 5 Fidelity) */
+@media (max-width: 650px) {
+  .topbar-left .qgame-topbar-cluster,
+  .qgame-topbar-cluster {
+    overflow-x: visible !important;
+    flex-shrink: 0 !important;
+    gap: 5px !important;
+    display: flex !important;
+  }
+  .qgame-btn-launch {
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+  }
+  .qgame-btn-launch .game-btn-label {
+    display: none !important;
+  }
+  .qgame-btn-launch svg {
+    margin: 0 !important;
   }
 }
