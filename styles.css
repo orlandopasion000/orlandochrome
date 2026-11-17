@@ -6205,15 +6205,15 @@ body.is-resizing-pane * {
 
 
 
-/* ───────── ADVANCED MESSENGER NOTE DIALOG (SOLID BLACK · RED RADIANT & GRADIENT THEME) ───────── */
+/* ───────── ADVANCED MESSENGER NOTE DIALOG (QUANTUM CHROMATIC RADIANT & GRADIENT THEME) ───────── */
 .messenger-note-dialog {
   max-width: 500px !important;
   width: 92% !important;
   padding: 24px !important;
-  background: radial-gradient(130% 90% at 50% -10%, rgba(229, 9, 20, 0.22) 0%, #000000 65%) !important;
-  border: 1.5px solid rgba(255, 77, 88, 0.45) !important;
+  background: radial-gradient(130% 90% at 50% -10%, rgba(0, 240, 255, 0.16) 0%, #060a12 65%) !important;
+  border: 1.5px solid rgba(0, 240, 255, 0.42) !important;
   border-radius: 20px !important;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.98), 0 0 35px rgba(229, 9, 20, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.98), 0 0 35px rgba(0, 240, 255, 0.22), 0 0 15px rgba(212, 168, 83, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
   display: flex !important;
   flex-direction: column !important;
@@ -6239,8 +6239,8 @@ body.is-resizing-pane * {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 77, 88, 0.55);
-  box-shadow: 0 0 12px rgba(229, 9, 20, 0.4);
+  border: 2px solid rgba(0, 240, 255, 0.55);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
   object-fit: cover;
   background: #000000;
 }
@@ -6250,7 +6250,7 @@ body.is-resizing-pane * {
   font-weight: 850;
   color: #ffffff;
   letter-spacing: -0.2px;
-  text-shadow: 0 0 12px rgba(229, 9, 20, 0.45);
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -6279,10 +6279,10 @@ body.is-resizing-pane * {
 }
 
 .btn-close-note-modal:hover {
-  background: rgba(229, 9, 20, 0.28);
-  border-color: #ff3344;
+  background: rgba(0, 240, 255, 0.2);
+  border-color: #00f0ff;
   color: #ffffff;
-  box-shadow: 0 0 12px rgba(229, 9, 20, 0.55);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
   transform: rotate(90deg) scale(1.08);
 }
 
@@ -6296,13 +6296,13 @@ body.is-resizing-pane * {
 .note-composer-input {
   width: 100% !important;
   background: #000000 !important;
-  border: 1.5px solid rgba(255, 77, 88, 0.55) !important;
+  border: 1.5px solid rgba(0, 240, 255, 0.45) !important;
   border-radius: 12px !important;
   color: #ffffff !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
   padding: 12px 65px 12px 14px !important;
-  box-shadow: 0 0 14px rgba(229, 9, 20, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.8) !important;
   transition: all 0.2s ease !important;
   outline: none !important;
   font-family: inherit !important;
@@ -6313,8 +6313,8 @@ body.is-resizing-pane * {
 }
 
 .note-composer-input:focus {
-  border-color: #ff2e38 !important;
-  box-shadow: 0 0 24px rgba(229, 9, 20, 0.6), inset 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.8) !important;
 }
 
 .note-char-counter {
@@ -6324,7 +6324,7 @@ body.is-resizing-pane * {
   transform: translateY(-50%);
   font-size: 11px;
   font-weight: 750;
-  color: #ff8a93;
+  color: #38bdf8;
   pointer-events: none;
   letter-spacing: 0.5px;
 }
@@ -6344,7 +6344,7 @@ body.is-resizing-pane * {
   font-weight: 850;
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  background: linear-gradient(90deg, #ff4d58 0%, #ff8a93 60%, #ffffff 100%);
+  background: linear-gradient(90deg, #00f0ff 0%, #38bdf8 50%, #d4a853 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -6369,7 +6369,7 @@ body.is-resizing-pane * {
 
 .btn-task-chip {
   background: #000000 !important;
-  border: 1px solid rgba(255, 77, 88, 0.35) !important;
+  border: 1px solid rgba(56, 189, 248, 0.28) !important;
   color: #ffffff !important;
   font-size: 12px !important;
   font-weight: 750 !important;
@@ -6386,28 +6386,28 @@ body.is-resizing-pane * {
 }
 
 .btn-task-chip:hover {
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.32) 0%, #060204 100%) !important;
-  border-color: #ff3344 !important;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(6, 10, 18, 0.95) 100%) !important;
+  border-color: #00f0ff !important;
   transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.9), 0 0 14px rgba(229, 9, 20, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.9), 0 0 14px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   color: #ffffff !important;
 }
 
 .btn-task-chip:active {
   transform: translateY(0) scale(0.98) !important;
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.5) 0%, #150508 100%) !important;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.35) 0%, #06101c 100%) !important;
 }
 
 .task-chip-icon {
   font-size: 13.5px;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 5px rgba(229, 9, 20, 0.5));
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 5px rgba(0, 240, 255, 0.4));
   transition: transform 0.2s ease, filter 0.2s ease;
   display: inline-block;
 }
 
 .btn-task-chip:hover .task-chip-icon {
   transform: scale(1.18);
-  filter: drop-shadow(0 0 8px rgba(255, 77, 88, 0.85));
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.75));
 }
 
 .note-dialog-actions-simple {
@@ -6436,34 +6436,34 @@ body.is-resizing-pane * {
 }
 
 .btn-composer-send.btn-save-note-radiant {
-  background: linear-gradient(135deg, #e50914 0%, #b20710 60%, #800005 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 45%, #d4a853 85%, #f59e0b 100%) !important;
+  border: 1px solid rgba(254, 240, 138, 0.6) !important;
   color: #ffffff !important;
   padding: 9px 24px !important;
   border-radius: 10px !important;
   font-size: 13.5px !important;
   font-weight: 850 !important;
   letter-spacing: 0.3px !important;
-  box-shadow: 0 4px 18px rgba(229, 9, 20, 0.65), 0 0 25px rgba(229, 9, 20, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 4px 18px rgba(0, 240, 255, 0.5), 0 0 20px rgba(212, 168, 83, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
   cursor: pointer !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .btn-composer-send.btn-save-note-radiant:hover {
   transform: translateY(-1.5px) scale(1.02) !important;
-  box-shadow: 0 6px 24px rgba(229, 9, 20, 0.85), 0 0 35px rgba(229, 9, 20, 0.65) !important;
-  background: linear-gradient(135deg, #ff1a26 0%, #c80812 60%, #940007 100%) !important;
+  box-shadow: 0 6px 24px rgba(0, 240, 255, 0.75), 0 0 30px rgba(212, 168, 83, 0.55) !important;
+  background: linear-gradient(135deg, #38bdf8 0%, #0369a1 45%, #f59e0b 85%, #fbbf24 100%) !important;
 }
 
 .btn-composer-send.btn-save-note-radiant:active {
   transform: translateY(0) !important;
-  box-shadow: 0 2px 10px rgba(229, 9, 20, 0.6) !important;
+  box-shadow: 0 2px 10px rgba(0, 240, 255, 0.4) !important;
 }
 
 .btn-delete-note-simple {
   background: transparent !important;
-  border: 1px solid rgba(239, 68, 68, 0.45) !important;
-  color: #ef4444 !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  color: #94a3b8 !important;
   padding: 9px 16px !important;
   border-radius: 10px !important;
   font-size: 13px !important;
@@ -6473,14 +6473,13 @@ body.is-resizing-pane * {
 }
 
 .btn-delete-note-simple:hover {
-  background: rgba(239, 68, 68, 0.18) !important;
-  border-color: #ff3344 !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border-color: #38bdf8 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.45) !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
 }
 
-
-/* Sidebar Floating Thought Cloud Bubble on Top Left of Profile */
+/* Sidebar Floating Thought Cloud Bubble/* Sidebar Floating Thought Cloud Bubble on Top Left of Profile */
 .avatar-note-bubble {
   position: absolute !important;
   top: -12px !important;
@@ -8472,51 +8471,54 @@ html, body,
 .react-inline-btn {
   background: transparent !important;
   border: 1px solid transparent !important;
-  border-radius: 6px !important;
-  width: 22px !important;
-  height: 22px !important;
+  border-radius: 7px !important;
+  width: 28px !important;
+  height: 28px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 0 !important;
   cursor: pointer !important;
-  opacity: 0.65 !important;
+  padding: 0 !important;
+  opacity: 0.8 !important;
   transition: all 0.15s ease !important;
 }
 
 .react-inline-btn:hover {
   opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(0, 240, 255, 0.14) !important;
+  border-color: rgba(0, 240, 255, 0.4) !important;
   transform: scale(1.1) !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) !important;
 }
 
 .react-inline-btn.active {
   opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2) !important;
+  background: rgba(0, 240, 255, 0.22) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.45) !important;
 }
 
 .btn-note-micro {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 6px !important;
-  width: 24px !important;
-  height: 24px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 7px !important;
+  width: 28px !important;
+  height: 28px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  cursor: pointer !important;
   padding: 0 !important;
   color: #94a3b8 !important;
-  cursor: pointer !important;
   transition: all 0.15s ease !important;
 }
 
 .btn-note-micro:hover {
-  background: rgba(255, 255, 255, 0.14) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(0, 240, 255, 0.16) !important;
+  border-color: #00f0ff !important;
   color: #ffffff !important;
-  transform: scale(1.06) !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.35) !important;
 }
 
 .btn-note-micro.btn-note-done {
@@ -8652,54 +8654,58 @@ html, body,
 
 /* Row 1: 4 status reaction tags */
 .note-actions-row-status .react-inline-btn {
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  height: 22px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  width: 28px !important;
+  height: 28px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 0 !important;
-  border-radius: 5px !important;
-  background: transparent !important;
-  border: 1px solid transparent !important;
   cursor: pointer !important;
-  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease !important;
+  padding: 0 !important;
+  opacity: 0.8 !important;
+  transition: all 0.15s ease !important;
 }
 
-.note-actions-row-status .react-inline-btn:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
+.react-inline-btn:hover {
+  opacity: 1 !important;
+  background: rgba(0, 240, 255, 0.14) !important;
+  border-color: rgba(0, 240, 255, 0.4) !important;
   transform: scale(1.1) !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) !important;
 }
 
-.note-actions-row-status .react-inline-btn.active {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2) !important;
+.react-inline-btn.active {
+  opacity: 1 !important;
+  background: rgba(0, 240, 255, 0.22) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.45) !important;
 }
 
 /* Rows 2 & 3: 3 action buttons per row (Done/Copy/Sub and Edit/Forward/Delete) */
 .note-actions-row-primary .btn-note-micro,
 .note-actions-row-util .btn-note-micro {
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  height: 22px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 7px !important;
+  width: 28px !important;
+  height: 28px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 0 !important;
-  border-radius: 5px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   cursor: pointer !important;
-  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease, color 0.12s ease !important;
+  padding: 0 !important;
+  color: #94a3b8 !important;
+  transition: all 0.15s ease !important;
 }
 
-.note-actions-row-primary .btn-note-micro:hover,
-.note-actions-row-util .btn-note-micro:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
+.btn-note-micro:hover {
+  background: rgba(0, 240, 255, 0.16) !important;
+  border-color: #00f0ff !important;
+  color: #ffffff !important;
   transform: scale(1.08) !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.35) !important;
 }
 
 /* Done Checkmark accent */
@@ -8800,10 +8806,10 @@ html, body,
 /* Expanded State: 3-Row Matrix is revealed when "More" is clicked */
 .note-bubble.actions-expanded .btn-note-more {
   opacity: 0.95 !important;
-  background: rgba(229, 9, 20, 0.18) !important;
-  border-color: rgba(229, 9, 20, 0.45) !important;
-  color: #ff9da4 !important;
-  box-shadow: 0 0 12px rgba(229, 9, 20, 0.3) !important;
+  background: rgba(0, 240, 255, 0.16) !important;
+  border-color: rgba(0, 240, 255, 0.45) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3) !important;
 }
 
 .note-bubble.actions-expanded .note-bubble-actions {
@@ -13557,16 +13563,16 @@ body.netflix-messenger-theme {
 
 /* 2. Quantum Helix: Cyan & Violet Intertwined */
 .qgame-btn-helix {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.16) 0%, rgba(192, 132, 252, 0.16) 100%) !important;
-  border: 1px solid rgba(192, 132, 252, 0.55) !important;
-  color: #e2e8f0 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 10px rgba(192, 132, 252, 0.25) !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
 }
 .qgame-btn-helix:hover {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.28) 0%, rgba(192, 132, 252, 0.28) 100%) !important;
-  border-color: #c084fc !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 165, 233, 0.38) 100%) !important;
+  border-color: #38bdf8 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 16px rgba(192, 132, 252, 0.55) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
   transform: translateY(-1px);
 }
 
@@ -13758,17 +13764,16 @@ body.light-theme .qgame-btn-meteor:hover {
 
 /* Quantum Helix Button Special Styling (Cyan and Violet Double-Helix Aura) */
 .qgame-btn-helix {
-  background: linear-gradient(135deg, rgba(88, 28, 135, 0.20) 0%, rgba(6, 182, 212, 0.14) 100%) !important;
-  border: 1px solid rgba(34, 211, 238, 0.32) !important;
-  color: rgba(224, 242, 254, 0.75) !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18), 0 0 10px rgba(34, 211, 238, 0.14) !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
 }
-
 .qgame-btn-helix:hover {
-  background: linear-gradient(135deg, rgba(126, 34, 206, 0.32) 0%, rgba(8, 145, 178, 0.26) 100%) !important;
-  border-color: rgba(103, 232, 249, 0.70) !important;
-  color: #f0fdf4 !important;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32), 0 0 16px rgba(34, 211, 238, 0.35) !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 165, 233, 0.38) 100%) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
   transform: translateY(-1px);
 }
 
@@ -13790,15 +13795,17 @@ body.light-theme .qgame-btn-meteor:hover {
 }
 
 body.light-theme .qgame-btn-helix {
-  background: linear-gradient(135deg, rgba(245, 243, 255, 0.65) 0%, rgba(237, 233, 254, 0.50) 100%) !important;
-  border-color: rgba(147, 51, 234, 0.35) !important;
-  color: #7e22ce !important;
-  box-shadow: 0 4px 14px rgba(147, 51, 234, 0.12) !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
 }
-
-body.light-theme .qgame-btn-helix:hover {
-  border-color: rgba(147, 51, 234, 0.75) !important;
-  color: #6b21a8 !important;
+.qgame-btn-helix:hover {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 165, 233, 0.38) 100%) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
+  transform: translateY(-1px);
 }
 
 .qgame-btn-launch:hover,
@@ -14744,16 +14751,16 @@ body.light-theme .fs-toggle-btn:hover {
 }
 
 .qgame-btn-helix {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.14) 0%, rgba(192, 132, 252, 0.18) 100%) !important;
-  border: 1.5px solid #c084fc !important;
-  color: #f8fafc !important;
-  box-shadow: 0 0 12px rgba(192, 132, 252, 0.45), 0 0 16px rgba(34, 211, 238, 0.25), inset 0 0 8px rgba(192, 132, 252, 0.20) !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
 }
 .qgame-btn-helix:hover {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.28) 0%, rgba(192, 132, 252, 0.32) 100%) !important;
-  border-color: #22d3ee !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 165, 233, 0.38) 100%) !important;
+  border-color: #38bdf8 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 22px rgba(192, 132, 252, 0.80), 0 0 24px rgba(34, 211, 238, 0.50) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
   transform: translateY(-1px);
 }
 
@@ -14857,16 +14864,16 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
 
 /* 2. Chrome Helix: Violet & Cyan Dual Thread */
 .qgame-btn-helix {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.16) 0%, rgba(192, 132, 252, 0.16) 100%) !important;
-  border: 1px solid rgba(192, 132, 252, 0.55) !important;
-  color: #e2e8f0 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 10px rgba(192, 132, 252, 0.25) !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
 }
 .qgame-btn-helix:hover {
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.3) 0%, rgba(192, 132, 252, 0.3) 100%) !important;
-  border-color: #c084fc !important;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 165, 233, 0.38) 100%) !important;
+  border-color: #38bdf8 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 16px rgba(192, 132, 252, 0.6) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
   transform: translateY(-1px);
 }
 
@@ -14917,16 +14924,16 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
 
 /* 6. Memory Matrix: Radiant Rose / Cyber Ruby */
 .qgame-btn-matrix {
-  background: rgba(244, 63, 94, 0.16) !important;
-  border: 1px solid rgba(251, 113, 133, 0.55) !important;
-  color: #fb7185 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 10px rgba(244, 63, 94, 0.25) !important;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.22) 0%, rgba(14, 165, 233, 0.2) 100%) !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.7) !important;
+  color: #5eead4 !important;
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.4) !important;
 }
 .qgame-btn-matrix:hover {
-  background: rgba(244, 63, 94, 0.32) !important;
-  border-color: #fb7185 !important;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.38) 0%, rgba(14, 165, 233, 0.35) 100%) !important;
+  border-color: #5eead4 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 16px rgba(244, 63, 94, 0.6) !important;
+  box-shadow: 0 0 18px rgba(45, 212, 191, 0.6) !important;
   transform: translateY(-1px);
 }
 

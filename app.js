@@ -99,9 +99,9 @@ const Icons = {
         case 'ecr': // ECR: Encrypted holographic cyber datapad ledger
           return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Electronic Class Record">
             <svg viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="18" height="18" rx="4" stroke="#c084fc" stroke-width="1.8"/>
-              <path d="M7 8h10M7 12h7M7 16h10" stroke="#e9d5ff" stroke-width="1.6" stroke-linecap="round"/>
-              <circle cx="18" cy="12" r="2" fill="#a855f7"/>
+              <rect x="3" y="3" width="18" height="18" rx="4" stroke="#00f0ff" stroke-width="1.8"/>
+              <path d="M7 8h10M7 12h7M7 16h10" stroke="#bae6fd" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="18" cy="12" r="2" fill="#38bdf8"/>
             </svg>
           </span>`;
         case 'class_record': // Class Record: Biometric class ledger with emerald check-nodes
@@ -120,30 +120,30 @@ const Icons = {
               <polygon points="16 15 17.5 18 19 15 17.5 12" fill="#d97706"/>
             </svg>
           </span>`;
-        case 'st1': // ST1: Supersonic delta vector in crimson laser with quantum 1
+        case 'st1': // ST1: Supersonic delta vector in electric cyan laser
           return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Summative Test 1">
             <svg viewBox="0 0 24 24" fill="none">
-              <polygon points="12 2 21 8 21 16 12 22 3 16 3 8" stroke="#fb7185" stroke-width="1.8"/>
+              <polygon points="12 2 21 8 21 16 12 22 3 16 3 8" stroke="#00f0ff" stroke-width="1.8"/>
               <path d="M10.5 10l2-2v8" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>`;
-        case 'st2': // ST2: Hypersonic dual-warp chevrons in neon magenta with quantum 2
+        case 'st2': // ST2: Hypersonic dual-warp chevrons in champagne gold
           return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Summative Test 2">
             <svg viewBox="0 0 24 24" fill="none">
-              <polygon points="12 2 21 8 21 16 12 22 3 16 3 8" stroke="#f472b6" stroke-width="1.8"/>
+              <polygon points="12 2 21 8 21 16 12 22 3 16 3 8" stroke="#d4a853" stroke-width="1.8"/>
               <path d="M9.5 9.5a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2.5 2.5-4 4.5h4.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>`;
-        case 'exam': // Exam: High-energy cyber laser scanning reticle
+        case 'exam': // Exam: High-precision cyber scanner reticle
           return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Exam">
             <svg viewBox="0 0 24 24" fill="none">
-              <polygon points="12 2 22 12 12 22 2 12" stroke="#ef4444" stroke-width="1.8"/>
+              <polygon points="12 2 22 12 12 22 2 12" stroke="#34d399" stroke-width="1.8"/>
               <circle cx="12" cy="12" r="4" stroke="#ffffff" stroke-width="1.5"/>
-              <circle cx="12" cy="12" r="1.5" fill="#ef4444"/>
-              <line x1="12" y1="2" x2="12" y2="6" stroke="#ef4444" stroke-width="1.5"/>
-              <line x1="12" y1="18" x2="12" y2="22" stroke="#ef4444" stroke-width="1.5"/>
-              <line x1="2" y1="12" x2="6" y2="12" stroke="#ef4444" stroke-width="1.5"/>
-              <line x1="18" y1="12" x2="22" y2="12" stroke="#ef4444" stroke-width="1.5"/>
+              <circle cx="12" cy="12" r="1.5" fill="#10b981"/>
+              <line x1="12" y1="2" x2="12" y2="6" stroke="#34d399" stroke-width="1.5"/>
+              <line x1="12" y1="18" x2="12" y2="22" stroke="#34d399" stroke-width="1.5"/>
+              <line x1="2" y1="12" x2="6" y2="12" stroke="#34d399" stroke-width="1.5"/>
+              <line x1="18" y1="12" x2="22" y2="12" stroke="#34d399" stroke-width="1.5"/>
             </svg>
           </span>`;
         case 'tos': // TOS: Table of Specifications 3D holographic matrix
@@ -159,11 +159,11 @@ const Icons = {
         case 'printing': // Printing: High-velocity photon laser emitter beam
           return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Printing">
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M6 8V3h12v5" stroke="#a855f7" stroke-width="1.8"/>
-              <rect x="4" y="8" width="16" height="9" rx="2" stroke="#c084fc" stroke-width="1.8"/>
-              <path d="M7 14v7h10v-7" stroke="#e9d5ff" stroke-width="1.8"/>
-              <line x1="8" y1="18" x2="16" y2="18" stroke="#8b5cf6" stroke-width="1.5"/>
-              <circle cx="16.5" cy="11.5" r="1" fill="#22c55e"/>
+              <path d="M6 8V3h12v5" stroke="#38bdf8" stroke-width="1.8"/>
+              <rect x="4" y="8" width="16" height="9" rx="2" stroke="#00f0ff" stroke-width="1.8"/>
+              <path d="M7 14v7h10v-7" stroke="#e0f2fe" stroke-width="1.8"/>
+              <line x1="8" y1="18" x2="16" y2="18" stroke="#0284c7" stroke-width="1.5"/>
+              <circle cx="16.5" cy="11.5" r="1" fill="#34d399"/>
             </svg>
           </span>`;
         case 'math': // Math Class: Quantum sigma summation + delta calculus wave
@@ -182,10 +182,10 @@ const Icons = {
               <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
             </svg>
           </span>`;
-        case 'rush': // Rush Priority: Hypersonic plasma warp thruster flame
+        case 'rush': // Rush Priority: Radiant solar plasma warp thruster
           return `<span class="oc-icon oc-icon-tpl" style="width:${s}px;height:${s}px;" title="Rush Priority">
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#ff4d00" stroke="#ff0055" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#f59e0b" stroke="#d4a853" stroke-width="1.5" stroke-linejoin="round"/>
             </svg>
           </span>`;
         case 'keys': // Answer Keys: Master quantum biometric decryption key
@@ -207,16 +207,17 @@ const Icons = {
     },
 
     urgent: (size = 14) => `
-      <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;" title="Urgent (Fire)">
+      <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;" title="Urgent Priority">
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gFireCyber" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ff1a53"/>
-              <stop offset="45%" stop-color="#ff6b00"/>
-              <stop offset="100%" stop-color="#ffcc00"/>
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="40%" stop-color="#fef08a"/>
+              <stop offset="75%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#d4a853"/>
             </linearGradient>
             <filter id="fFireCyber" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#ff3300" flood-opacity="0.85"/>
+              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#f59e0b" flood-opacity="0.85"/>
             </filter>
           </defs>
           <path d="M12 2c.8 2.8 2.4 4.4 4.2 5.8 2.2 1.8 3.6 4.2 3.6 7.4 0 4.3-3.5 7.8-7.8 7.8S4.2 19.5 4.2 15.2c0-3.2 1.4-5.6 3.6-7.4 1.2-1 2.2-2.2 2.2-3.8 1 1.4 1.8 2.6 1.8 3.8 0-2.4 1.2-4.2 2.2-5.8z" fill="url(#gFireCyber)" filter="url(#fFireCyber)"/>
@@ -225,21 +226,21 @@ const Icons = {
       </span>`,
 
     waiting: (size = 14) => `
-      <span class="oc-icon oc-icon-waiting" style="width:${size}px;height:${size}px;" title="Waiting (White Light Clock)">
+      <span class="oc-icon oc-icon-waiting" style="width:${size}px;height:${size}px;" title="Waiting / Cooldown">
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <filter id="fClockWhite" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#ffffff" flood-opacity="0.9"/>
+              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#00f0ff" flood-opacity="0.7"/>
             </filter>
           </defs>
-          <circle cx="12" cy="12" r="9" stroke="#ffffff" stroke-width="1.8" filter="url(#fClockWhite)"/>
-          <circle cx="12" cy="12" r="4.5" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+          <circle cx="12" cy="12" r="9" stroke="#00f0ff" stroke-width="1.8" filter="url(#fClockWhite)"/>
+          <circle cx="12" cy="12" r="4.5" stroke="rgba(0, 240, 255, 0.45)" stroke-width="1" stroke-dasharray="2 2"/>
           <path d="M12 7.2v4.8l3.2 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="12" r="1.5" fill="#ffffff"/>
-          <line x1="12" y1="1.5" x2="12" y2="3.2" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="12" y1="20.8" x2="12" y2="22.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="1.5" y1="12" x2="3.2" y2="12" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="20.8" y1="12" x2="22.5" y2="12" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="1.5" fill="#38bdf8"/>
+          <line x1="12" y1="1.5" x2="12" y2="3.2" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="12" y1="20.8" x2="12" y2="22.5" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="1.5" y1="12" x2="3.2" y2="12" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="20.8" y1="12" x2="22.5" y2="12" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>`,
 
@@ -298,14 +299,14 @@ const Icons = {
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gCopyCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="100%" stop-color="#4facfe"/>
+              <stop offset="0%" stop-color="#00f0ff"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
             </linearGradient>
           </defs>
-          <polygon points="7 6 17 6 20 9 20 20 7 20" stroke="url(#gCopyCyber)" stroke-width="1.8" fill="rgba(0,242,254,0.1)" stroke-linejoin="round"/>
-          <polygon points="4 9 4 4 14 4" stroke="#64748b" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
-          <line x1="10" y1="12" x2="16" y2="12" stroke="#00f2fe" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="10" y1="15" x2="14" y2="15" stroke="#00f2fe" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="8" y="8" width="13" height="13" rx="2.5" stroke="url(#gCopyCyber)" stroke-width="1.8" fill="rgba(0,240,255,0.12)"/>
+          <path d="M4 16V5a2 2 0 0 1 2-2h11" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="11" y1="12" x2="18" y2="12" stroke="#00f0ff" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="11" y1="15" x2="15" y2="15" stroke="#00f0ff" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </span>`,
 
@@ -314,33 +315,30 @@ const Icons = {
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gChecklistCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#a855f7"/>
-              <stop offset="100%" stop-color="#ec4899"/>
+              <stop offset="0%" stop-color="#00f0ff"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
             </linearGradient>
           </defs>
-          <polygon points="3 4 8 4 10 6 10 11 3 11" stroke="url(#gChecklistCyber)" stroke-width="1.6" fill="rgba(168,85,247,0.18)" stroke-linejoin="round"/>
-          <polyline points="4.5 7.5 6 9 8.5 6.5" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="13" y1="7" x2="21" y2="7" stroke="url(#gChecklistCyber)" stroke-width="1.8" stroke-linecap="round"/>
-          <circle cx="3.5" cy="16" r="1.5" fill="#ec4899"/>
-          <line x1="8" y1="16" x2="21" y2="16" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
-          <circle cx="3.5" cy="20" r="1.5" fill="#a855f7"/>
-          <line x1="8" y1="20" x2="17" y2="20" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
+          <rect x="3" y="3" width="18" height="18" rx="3.5" stroke="url(#gChecklistCyber)" stroke-width="1.8" fill="rgba(0,240,255,0.08)"/>
+          <polyline points="7 8 9 10 13 6" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="15" y1="8" x2="18" y2="8" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"/>
+          <polyline points="7 14 9 16 13 12" stroke="#d4a853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="15" y1="14" x2="18" y2="14" stroke="#d4a853" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>`,
 
     calendar: (size = 14) => `
       <span class="oc-icon oc-icon-calendar" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Calendar">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gCalCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#38bdf8"/>
-              <stop offset="100%" stop-color="#818cf8"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="url(#gCalCyber)" stroke-width="1.8" fill="rgba(56, 189, 248, 0.08)"/>
-          <line x1="3" y1="9" x2="21" y2="9" stroke="url(#gCalCyber)" stroke-width="1.4"/>
+          <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="#00f0ff" stroke-width="1.8" fill="rgba(0, 240, 255, 0.08)"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="#38bdf8" stroke-width="1.5"/>
           <line x1="8" y1="2" x2="8" y2="5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-          <line x1="16" y1="2" x2="16" y2="5" stroke="#818cf8" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="2" x2="16" y2="5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="8" cy="13" r="1.2" fill="#d4a853"/>
+          <circle cx="12" cy="13" r="1.2" fill="#00f0ff"/>
+          <circle cx="16" cy="13" r="1.2" fill="#ffffff"/>
+          <circle cx="8" cy="17" r="1.2" fill="#ffffff"/>
+          <circle cx="12" cy="17" r="1.2" fill="#34d399"/>
         </svg>
       </span>`,
 
@@ -356,8 +354,8 @@ const Icons = {
     settings: (size = 13) => `
       <span class="oc-icon oc-icon-settings" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Settings / Tools">
         <svg viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="3.2" stroke="#c084fc" stroke-width="1.8"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#818cf8" stroke-width="1.6" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3.2" stroke="#00f0ff" stroke-width="1.8"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#38bdf8" stroke-width="1.6" stroke-linejoin="round"/>
         </svg>
       </span>`,
 
@@ -366,16 +364,16 @@ const Icons = {
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gStylusLaser" x1="2" y1="22" x2="22" y2="2">
-              <stop offset="0%" stop-color="#00f2fe"/>
+              <stop offset="0%" stop-color="#00f0ff"/>
               <stop offset="50%" stop-color="#38bdf8"/>
-              <stop offset="100%" stop-color="#c084fc"/>
+              <stop offset="100%" stop-color="#d4a853"/>
             </linearGradient>
           </defs>
           <path d="M17 2.5l4.5 4.5-12 12-5.5 1.5 1.5-5.5L17 2.5z" stroke="url(#gStylusLaser)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.15)"/>
-          <line x1="14" y1="5.5" x2="18.5" y2="10" stroke="#00f2fe" stroke-width="1.4"/>
-          <line x1="8" y1="11.5" x2="12.5" y2="16" stroke="#c084fc" stroke-width="1.2" stroke-linecap="round"/>
-          <circle cx="4.5" cy="19.5" r="1.6" fill="#00f2fe"/>
-          <circle cx="4.5" cy="19.5" r="3" stroke="#00f2fe" stroke-width="0.7" opacity="0.6"/>
+          <line x1="14" y1="5.5" x2="18.5" y2="10" stroke="#00f0ff" stroke-width="1.4"/>
+          <line x1="8" y1="11.5" x2="12.5" y2="16" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="4.5" cy="19.5" r="1.6" fill="#00f0ff"/>
+          <circle cx="4.5" cy="19.5" r="3" stroke="#00f0ff" stroke-width="0.7" opacity="0.6"/>
         </svg>
       </span>`,
 
@@ -384,16 +382,16 @@ const Icons = {
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gChronos" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="100%" stop-color="#818cf8"/>
+              <stop offset="0%" stop-color="#00f0ff"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
             </linearGradient>
           </defs>
           <circle cx="12" cy="12" r="9" stroke="url(#gChronos)" stroke-width="1.8" stroke-dasharray="4 2"/>
           <circle cx="12" cy="12" r="4.5" stroke="#38bdf8" stroke-width="1.4"/>
-          <circle cx="12" cy="12" r="1.6" fill="#00f2fe"/>
-          <line x1="12" y1="12" x2="12" y2="6" stroke="#00f2fe" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="12" y1="12" x2="15.5" y2="14" stroke="#818cf8" stroke-width="1.6" stroke-linecap="round"/>
-          <circle cx="18.5" cy="7.5" r="1.5" fill="#c084fc"/>
+          <circle cx="12" cy="12" r="1.6" fill="#00f0ff"/>
+          <line x1="12" y1="12" x2="12" y2="6" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="12" y1="12" x2="15.5" y2="14" stroke="#d4a853" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="18.5" cy="7.5" r="1.5" fill="#38bdf8"/>
         </svg>
       </span>`,
 
@@ -473,16 +471,10 @@ const Icons = {
     delete: (size = 13) => `
       <span class="oc-icon oc-icon-delete" style="width:${size}px;height:${size}px;" title="Delete">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gDelCyber" x1="12" y1="2" x2="12" y2="22">
-              <stop offset="0%" stop-color="#ff0055"/>
-              <stop offset="100%" stop-color="#ff4400"/>
-            </linearGradient>
-          </defs>
-          <path d="M3 6h18M8 6V3.5h8V6" stroke="url(#gDelCyber)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <polygon points="5 6 6.5 21 17.5 21 19 6" stroke="url(#gDelCyber)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(255,0,85,0.1)"/>
-          <line x1="10" y1="10" x2="10" y2="17" stroke="#ff4d58" stroke-width="1.6" stroke-linecap="round"/>
-          <line x1="14" y1="10" x2="14" y2="17" stroke="#ff4d58" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M3 6h18M8 6V3.5h8V6" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <polygon points="5 6 6.5 21 17.5 21 19 6" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round" fill="rgba(148, 163, 184, 0.1)"/>
+          <line x1="10" y1="10" x2="10" y2="17" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="14" y1="10" x2="14" y2="17" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
       </span>`,
 
@@ -507,31 +499,31 @@ const Icons = {
         <svg viewBox="0 0 24 24" fill="none">
           <defs>
             <linearGradient id="gNoteCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="50%" stop-color="#a855f7"/>
-              <stop offset="100%" stop-color="#ff007f"/>
+              <stop offset="0%" stop-color="#00f0ff"/>
+              <stop offset="50%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#d4a853"/>
             </linearGradient>
           </defs>
-          <polygon points="12 2 20 6.5 20 15.5 12 20 4 15.5 4 6.5" stroke="url(#gNoteCyber)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(168,85,247,0.12)"/>
+          <polygon points="12 2 20 6.5 20 15.5 12 20 4 15.5 4 6.5" stroke="url(#gNoteCyber)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(0,240,255,0.12)"/>
           <circle cx="12" cy="11" r="2.5" fill="url(#gNoteCyber)"/>
-          <line x1="12" y1="2" x2="12" y2="8.5" stroke="#00f2fe" stroke-width="1.5"/>
-          <line x1="12" y1="13.5" x2="12" y2="20" stroke="#ff007f" stroke-width="1.5"/>
+          <line x1="12" y1="2" x2="12" y2="8.5" stroke="#00f0ff" stroke-width="1.5"/>
+          <line x1="12" y1="13.5" x2="12" y2="20" stroke="#d4a853" stroke-width="1.5"/>
         </svg>
       </span>`,
 
     undo: (size = 13) => `
       <span class="oc-icon oc-icon-undo" style="width:${size}px;height:${size}px;" title="Undo">
         <svg viewBox="0 0 24 24" fill="none">
-          <path d="M4 9h11a5.5 5.5 0 0 1 5.5 5.5v.5a5.5 5.5 0 0 1-5.5 5.5H8" stroke="#ff4d58" stroke-width="2" stroke-linecap="round"/>
-          <polygon points="8 4 3 9 8 14" fill="#ff4d58"/>
+          <path d="M4 9h11a5.5 5.5 0 0 1 5.5 5.5v.5a5.5 5.5 0 0 1-5.5 5.5H8" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <polygon points="8 4 3 9 8 14" fill="#38bdf8"/>
         </svg>
       </span>`,
 
     redo: (size = 13) => `
       <span class="oc-icon oc-icon-redo" style="width:${size}px;height:${size}px;" title="Redo">
         <svg viewBox="0 0 24 24" fill="none">
-          <path d="M20 9H9a5.5 5.5 0 0 0-5.5 5.5v.5a5.5 5.5 0 0 0 5.5 5.5h7" stroke="#ff4d58" stroke-width="2" stroke-linecap="round"/>
-          <polygon points="16 4 21 9 16 14" fill="#ff4d58"/>
+          <path d="M20 9H9a5.5 5.5 0 0 0-5.5 5.5v.5a5.5 5.5 0 0 0 5.5 5.5h7" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <polygon points="16 4 21 9 16 14" fill="#38bdf8"/>
         </svg>
       </span>`,
 
@@ -6075,10 +6067,10 @@ const Icons = {
               <button type="button" class="wispr-cmd-chip" data-vcmd="switch" title="Say 'go to deped', 'switch to slot 3', or 'next profile'">🎯 Profiles</button>
               <button type="button" class="wispr-cmd-chip" data-vcmd="tag" title="Say 'mark urgent', 'mark waiting', 'star note'">🏷️ Reactions</button>
               <button type="button" class="wispr-cmd-chip" data-vcmd="sharenote" title="Say 'share note [text]' or 'status note [text]'">💭 24h Status</button>
-              <button type="button" class="wispr-cmd-chip" data-vcmd="sticky" title="Say 'sticky note [text]' or 'clear sticky note'">📌 Sticky Note</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="sticky" title="Say 'sticky note [text]' or 'clear sticky note'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#38bdf8" stroke-width="2" style="vertical-align:middle;margin-right:3px;"><path d="M16 3l5 5-1.5 1.5-1.5-1.5-4 4v5l-2 2-2-2v-5l-4-4-1.5 1.5L3 8l5-5 8 0z"/></svg>Sticky Note</button>
               <button type="button" class="wispr-cmd-chip" data-vcmd="template" title="Say 'template lesson plan', 'template test'">📋 Templates</button>
               <button type="button" class="wispr-cmd-chip" data-vcmd="forward" title="Say 'forward to deped' or 'forward task'">🔄 Forward</button>
-              <button type="button" class="wispr-cmd-chip" data-vcmd="bulk" title="Say 'select notes', 'select all', 'trash selected'">☑️ Bulk Clean</button>
+              <button type="button" class="wispr-cmd-chip" data-vcmd="bulk" title="Say 'select notes', 'select all', 'trash selected'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#34d399" stroke-width="2" style="vertical-align:middle;margin-right:3px;"><rect x="3" y="3" width="18" height="18" rx="4" stroke="#34d399" stroke-width="2"/><polyline points="8 12 11 15 16 9" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Bulk Clean</button>
               <button type="button" class="wispr-cmd-chip" data-vcmd="undo" title="Say 'undo that', 'redo that', 'delete last note'">↩️ Undo / Trash</button>
               <button type="button" class="wispr-cmd-chip" data-vcmd="format" title="Say 'new line', 'bullet point', 'new paragraph'">✨ Formatting</button>
               <button type="button" class="wispr-cmd-cheat-btn" id="btnOpenVoiceCheatSheet" title="View all 10 Voice Command Superpowers">📖 Cheat Sheet</button>
@@ -8584,10 +8576,10 @@ ${jsRes}
           <button type="button" class="voice-filter-pill" data-filter="switch">🎯 Profiles</button>
           <button type="button" class="voice-filter-pill" data-filter="tag">🏷️ Reactions</button>
           <button type="button" class="voice-filter-pill" data-filter="sharenote">💭 24h Status</button>
-          <button type="button" class="voice-filter-pill" data-filter="sticky">📌 Sticky Note</button>
+          <button type="button" class="voice-filter-pill" data-filter="sticky"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#38bdf8" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><path d="M16 3l5 5-1.5 1.5-1.5-1.5-4 4v5l-2 2-2-2v-5l-4-4-1.5 1.5L3 8l5-5 8 0z" fill="rgba(56,189,248,0.2)"/></svg>Sticky Note</button>
           <button type="button" class="voice-filter-pill" data-filter="template">📋 Templates</button>
           <button type="button" class="voice-filter-pill" data-filter="forward">🔄 Forward</button>
-          <button type="button" class="voice-filter-pill" data-filter="bulk">☑️ Bulk Clean</button>
+          <button type="button" class="voice-filter-pill" data-filter="bulk"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#34d399" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="4" stroke="#34d399" stroke-width="2"/><polyline points="8 12 11 15 16 9" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Bulk Clean</button>
           <button type="button" class="voice-filter-pill" data-filter="undo">↩️ Undo / Trash</button>
           <button type="button" class="voice-filter-pill" data-filter="format">✨ Formatting</button>
         </div>
@@ -8666,7 +8658,7 @@ ${jsRes}
           <!-- 5. Sticky Note -->
           <div class="voice-cheat-card" data-cat="sticky">
             <div class="voice-cheat-title">
-              <span>📌 Instant Header Sticky Note Dictation</span>
+              <span>⚡ Instant Header Sticky Note Dictation</span>
               <span class="voice-cheat-num">#5</span>
             </div>
             <div class="voice-cheat-desc">Pins a persistent golden note banner to the top of the chat window for reference. Stays active across resets.</div>
@@ -8715,7 +8707,7 @@ ${jsRes}
           <!-- 8. Multi-Select & Bulk Clean -->
           <div class="voice-cheat-card" data-cat="bulk">
             <div class="voice-cheat-title">
-              <span>☑️ Voice Multi-Select & Bulk Clean Suite</span>
+              <span>✨ Voice Multi-Select & Bulk Clean Suite</span>
               <span class="voice-cheat-num">#8</span>
             </div>
             <div class="voice-cheat-desc">Operate the bulk deletion mode hands-free to select and trash clutter in seconds with instant 1-click Undo.</div>
@@ -9000,7 +8992,7 @@ ${jsRes}
       activeProf.stickyNote = stickyText;
       saveState();
       renderMainChat();
-      flashVoiceCommandFeedback('Sticky Note Saved 📌');
+      flashVoiceCommandFeedback('Sticky Note Saved ⚡');
       showToast(`🗣️ Voice Command: Pinned Sticky Note for ${activeProf.name}`);
       return { consumed: true, text: '' };
     }
