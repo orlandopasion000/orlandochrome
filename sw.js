@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v334';
+const CACHE_NAME = 'orlandochrome-arcade-v335';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade334',
-  './game.js?v=arcade334',
+  './styles.css?v=arcade335',
+  './game.js?v=arcade335',
   './qrcode.min.js',
-  './app.js?v=arcade334',
+  './app.js?v=arcade335',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',
