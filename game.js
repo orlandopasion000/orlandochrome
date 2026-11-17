@@ -1357,32 +1357,70 @@
         ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
         ctx.restore();
 
-        // Real dynamic supersonic fire flames licking ahead of catcher (Zero static curves!)
-        var fTick = now * 0.028;
+        // Real dynamic supersonic fire flames licking ahead of catcher (Fluid organic flame petals)
+        var fTick = now * 0.035;
         ctx.save();
-        for (var f = 0; f < 18; f++) {
-          var fAng = Math.PI * 1.12 + (f / 18) * Math.PI * 0.76;
-          var fLen = (38 + exc * 8) + Math.sin(fTick * 3.0 + f * 1.9) * 8.0 + Math.cos(fTick * 4.5 + f) * 4.0;
-          var bx = Math.cos(fAng) * 26;
-          var by = Math.sin(fAng) * 26 - 6;
-          var tx = Math.cos(fAng) * fLen;
-          var ty = Math.sin(fAng) * fLen - 6;
-
-          ctx.beginPath();
-          ctx.moveTo(bx, by);
-          ctx.lineTo(tx, ty);
-          ctx.strokeStyle = (f % 2 === 0) ? "rgba(249, 115, 22, 0.90)" : "rgba(254, 240, 138, 0.98)";
-          ctx.lineWidth = 3.2;
-          ctx.stroke();
-
+        var numFlames = 16;
+        for (var f = 0; f < numFlames; f++) {
+          var fAng = Math.PI * 1.10 + (f / numFlames) * Math.PI * 0.80;
+          var fSway = Math.sin(fTick * 2.8 + f * 2.2) * 0.12;
+          var tipAng = fAng + fSway;
+          var fLen = (36 + exc * 10) + Math.sin(fTick * 3.4 + f * 2.0) * 10.0 + Math.cos(fTick * 4.8 + f) * 5.0;
+          
+          var bAng1 = fAng - 0.08;
+          var bAng2 = fAng + 0.08;
+          var bx1 = Math.cos(bAng1) * 28;
+          var by1 = Math.sin(bAng1) * 28 - 6;
+          var bx2 = Math.cos(bAng2) * 28;
+          var by2 = Math.sin(bAng2) * 28 - 6;
+          
+          var tipX = Math.cos(tipAng) * fLen;
+          var tipY = Math.sin(tipAng) * fLen - 6;
+          
+          var c1x = Math.cos(bAng1 + 0.03) * (fLen * 0.55);
+          var c1y = Math.sin(bAng1 + 0.03) * (fLen * 0.55) - 6;
+          var c2x = Math.cos(bAng2 - 0.03) * (fLen * 0.55);
+          var c2y = Math.sin(bAng2 - 0.03) * (fLen * 0.55) - 6;
+          
+          var flameGrad = ctx.createLinearGradient(bx1, by1, tipX, tipY);
           if (f % 2 === 0) {
-            ctx.beginPath();
-            ctx.moveTo(bx, by);
-            ctx.lineTo((bx + tx) * 0.5, (by + ty) * 0.5);
-            ctx.strokeStyle = "#ffffff";
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            flameGrad.addColorStop(0.0, "rgba(255, 255, 255, 0.95)");
+            flameGrad.addColorStop(0.35, "rgba(254, 240, 138, 0.90)");
+            flameGrad.addColorStop(0.70, "rgba(249, 115, 22, 0.75)");
+            flameGrad.addColorStop(1.0, "rgba(220, 38, 38, 0.0)");
+          } else {
+            flameGrad.addColorStop(0.0, "rgba(254, 240, 138, 0.95)");
+            flameGrad.addColorStop(0.45, "rgba(249, 115, 22, 0.85)");
+            flameGrad.addColorStop(0.85, "rgba(234, 88, 12, 0.50)");
+            flameGrad.addColorStop(1.0, "rgba(185, 28, 28, 0.0)");
           }
+          
+          ctx.beginPath();
+          ctx.moveTo(bx1, by1);
+          ctx.quadraticCurveTo(c1x, c1y, tipX, tipY);
+          ctx.quadraticCurveTo(c2x, c2y, bx2, by2);
+          ctx.closePath();
+          ctx.fillStyle = flameGrad;
+          ctx.fill();
+        }
+        
+        // Dynamic incandescent fire puffs dancing along the leading edge
+        for (var cf = 0; cf < 9; cf++) {
+          var pAng = Math.PI * 1.12 + (cf / 9) * Math.PI * 0.76;
+          var pDist = 32 + exc * 6 + Math.sin(fTick * 4.0 + cf) * 5.0;
+          var pRad = 4.0 + Math.sin(fTick * 4.5 + cf * 1.8) * 2.2;
+          var px = Math.cos(pAng) * pDist;
+          var py = Math.sin(pAng) * pDist - 6;
+          
+          ctx.beginPath();
+          ctx.arc(px, py, pRad, 0, Math.PI * 2);
+          var puffG = ctx.createRadialGradient(px, py, 0, px, py, pRad);
+          puffG.addColorStop(0.0, "rgba(255, 255, 255, 0.95)");
+          puffG.addColorStop(0.40, "rgba(254, 240, 138, 0.85)");
+          puffG.addColorStop(0.80, "rgba(249, 115, 22, 0.55)");
+          puffG.addColorStop(1.0, "rgba(234, 88, 12, 0.0)");
+          ctx.fillStyle = puffG;
+          ctx.fill();
         }
         ctx.restore();
 
@@ -1403,17 +1441,18 @@
         return;
       }
 
-      // Supersonic Detached Bow Shockwave Arc ahead of catcher
-      ctx.beginPath();
-      ctx.arc(0, -6, 32 + exc * 8, Math.PI * 1.15, Math.PI * 1.85);
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
-      ctx.lineWidth = 3.0;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(0, -6, 34 + exc * 8, Math.PI * 1.15, Math.PI * 1.85);
-      ctx.strokeStyle = "rgba(254, 240, 138, 0.55)";
-      ctx.lineWidth = 6.0;
-      ctx.stroke();
+      // Dynamic supersonic combustion fire ahead of catcher (Zero static curves!)
+      var fbTick = now * 0.035;
+      for (var fbf = 0; fbf < 12; fbf++) {
+        var fbAng = Math.PI * 1.15 + (fbf / 12) * Math.PI * 0.70;
+        var fbDist = 32 + exc * 6 + Math.sin(fbTick * 3.5 + fbf * 1.8) * 5.0;
+        var fbx = Math.cos(fbAng) * fbDist;
+        var fby = Math.sin(fbAng) * fbDist - 6;
+        ctx.beginPath();
+        ctx.arc(fbx, fby, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = (fbf % 2 === 0) ? "rgba(254, 240, 138, 0.90)" : "rgba(249, 115, 22, 0.80)";
+        ctx.fill();
+      }
 
       // Asteroid Body
       var ast = MeteorVFXEngine.getAsteroid(0);
@@ -1930,14 +1969,18 @@
       for (var sj = 1; sj < Math.min(K, 4); sj++) targetCtx.lineTo(spinePts[sj].x, spinePts[sj].y);
       targetCtx.stroke();
 
-      // ── C. FLAMING ORBITAL RINGS ──
-      var orbR = headR * 1.85;
+      // ── C. FIERY EMBER HALO (ZERO HARD GEOMETRIC RINGS) ──
       var spinM = now * 0.0035;
-      targetCtx.beginPath();
-      targetCtx.ellipse(px0, py0, orbR * 1.25, orbR * 0.65, spinM, 0, Math.PI * 2);
-      targetCtx.strokeStyle = "rgba(251, 146, 60, 0.45)";
-      targetCtx.lineWidth = 1.35;
-      targetCtx.stroke();
+      for (var fhb = 0; fhb < 6; fhb++) {
+        var fhAng = spinM * 2.0 + (fhb * Math.PI / 3);
+        var fhDist = headR * (1.35 + Math.sin(now * 0.005 + fhb) * 0.25);
+        var fhx = px0 + Math.cos(fhAng) * fhDist;
+        var fhy = py0 + Math.sin(fhAng) * (fhDist * 0.6);
+        targetCtx.beginPath();
+        targetCtx.arc(fhx, fhy, 2.0, 0, Math.PI * 2);
+        targetCtx.fillStyle = (fhb % 2 === 0) ? "rgba(254, 240, 138, 0.75)" : "rgba(249, 115, 22, 0.65)";
+        targetCtx.fill();
+      }
 
       // ── D. THE PERFECT MOLTEN VOLCANIC SPHERE HEAD ──
       // (True round sphere at all times; active churning magma inside; REAL TURBULENT FIRE around perimeter)
@@ -1987,42 +2030,73 @@
       }
       targetCtx.shadowBlur = 0;
 
-      // 2. REPLACING THICK CIRCLE & CURVE LINES WITH REAL FIRE MOVING FAST:
-      // (Multi-layered procedural combustion flames licking and dancing around the sphere perimeter)
-      var fFireTick = now * 0.030;
+      // 2. REPLACING THICK CIRCLE & CURVE LINES WITH REAL ORGANIC FIRE MOVING FAST:
+      // (High-speed multi-layered organic licking fire tongues & boiling plasma puffs)
+      var fFireTick = now * 0.035;
       targetCtx.save();
-      // Outer fiery orange flame tongues
-      for (var fi = 0; fi < 16; fi++) {
-        var fiAng = (fi / 16) * Math.PI * 2;
-        var fiLen = 4.5 + Math.sin(fFireTick * 2.8 + fi * 2.2) * 5.5 + Math.cos(fFireTick * 4.2 + fi) * 3.5;
-        var bx = px0 + Math.cos(fiAng) * headR;
-        var by = py0 + Math.sin(fiAng) * headR;
-        var tx = px0 + Math.cos(fiAng) * (headR + fiLen);
-        var ty = py0 + Math.sin(fiAng) * (headR + fiLen);
-
+      
+      // A. Dynamic Turbulent Fire Tongues (Filled curved bezier flame petals)
+      var numTongues = 14;
+      for (var fi = 0; fi < numTongues; fi++) {
+        var fiAng = (fi / numTongues) * Math.PI * 2;
+        var sway = Math.sin(fFireTick * 2.5 + fi * 2.1) * 0.18;
+        var tipAng = fiAng + sway;
+        var fiLen = headR * (0.28 + Math.abs(Math.sin(fFireTick * 3.2 + fi * 1.9)) * 0.42 + Math.cos(fFireTick * 4.5 + fi) * 0.15);
+        
+        var baseAng1 = fiAng - 0.14;
+        var baseAng2 = fiAng + 0.14;
+        var bx1 = px0 + Math.cos(baseAng1) * (headR * 0.95);
+        var by1 = py0 + Math.sin(baseAng1) * (headR * 0.95);
+        var bx2 = px0 + Math.cos(baseAng2) * (headR * 0.95);
+        var by2 = py0 + Math.sin(baseAng2) * (headR * 0.95);
+        
+        var tipX = px0 + Math.cos(tipAng) * (headR + fiLen);
+        var tipY = py0 + Math.sin(tipAng) * (headR + fiLen);
+        
+        var c1x = px0 + Math.cos(baseAng1 + 0.05) * (headR + fiLen * 0.45);
+        var c1y = py0 + Math.sin(baseAng1 + 0.05) * (headR + fiLen * 0.45);
+        var c2x = px0 + Math.cos(baseAng2 - 0.05) * (headR + fiLen * 0.45);
+        var c2y = py0 + Math.sin(baseAng2 - 0.05) * (headR + fiLen * 0.45);
+        
+        var flGrad = targetCtx.createLinearGradient(bx1, by1, tipX, tipY);
+        if (fi % 2 === 0) {
+          flGrad.addColorStop(0.0, "rgba(255, 255, 255, 0.95)");
+          flGrad.addColorStop(0.35, "rgba(254, 240, 138, 0.90)");
+          flGrad.addColorStop(0.70, "rgba(249, 115, 22, 0.75)");
+          flGrad.addColorStop(1.0, "rgba(220, 38, 38, 0.0)");
+        } else {
+          flGrad.addColorStop(0.0, "rgba(254, 240, 138, 0.95)");
+          flGrad.addColorStop(0.45, "rgba(249, 115, 22, 0.85)");
+          flGrad.addColorStop(0.85, "rgba(234, 88, 12, 0.50)");
+          flGrad.addColorStop(1.0, "rgba(185, 28, 28, 0.0)");
+        }
+        
         targetCtx.beginPath();
-        targetCtx.moveTo(bx, by);
-        targetCtx.lineTo(tx, ty);
-        targetCtx.strokeStyle = (fi % 2 === 0) ? "rgba(249, 115, 22, 0.90)" : "rgba(254, 240, 138, 0.98)";
-        targetCtx.lineWidth = 2.6;
-        targetCtx.stroke();
+        targetCtx.moveTo(bx1, by1);
+        targetCtx.quadraticCurveTo(c1x, c1y, tipX, tipY);
+        targetCtx.quadraticCurveTo(c2x, c2y, bx2, by2);
+        targetCtx.closePath();
+        targetCtx.fillStyle = flGrad;
+        targetCtx.fill();
       }
-
-      // Inner white-hot supersonic fire tongue core
-      for (var fi = 0; fi < 16; fi += 2) {
-        var fiAng = (fi / 16) * Math.PI * 2;
-        var fiLen = 2.8 + Math.sin(fFireTick * 3.5 + fi * 1.7) * 3.2;
-        var bx = px0 + Math.cos(fiAng) * headR;
-        var by = py0 + Math.sin(fiAng) * headR;
-        var tx = px0 + Math.cos(fiAng) * (headR + fiLen);
-        var ty = py0 + Math.sin(fiAng) * (headR + fiLen);
-
+      
+      // B. Boiling Combustion Plasma Puffs around Perimeter
+      for (var pfi = 0; pfi < 8; pfi++) {
+        var pAng = (pfi / 8) * Math.PI * 2 + (fFireTick * 0.8);
+        var pDist = headR * (0.92 + Math.sin(fFireTick * 3.8 + pfi) * 0.12);
+        var pRad = 3.5 + Math.sin(fFireTick * 4.2 + pfi * 2.0) * 2.0;
+        var pfx = px0 + Math.cos(pAng) * pDist;
+        var pfy = py0 + Math.sin(pAng) * pDist;
+        
         targetCtx.beginPath();
-        targetCtx.moveTo(bx, by);
-        targetCtx.lineTo(tx, ty);
-        targetCtx.strokeStyle = "#ffffff";
-        targetCtx.lineWidth = 1.3;
-        targetCtx.stroke();
+        targetCtx.arc(pfx, pfy, pRad, 0, Math.PI * 2);
+        var puffGrad = targetCtx.createRadialGradient(pfx, pfy, 0, pfx, pfy, pRad);
+        puffGrad.addColorStop(0.0, "rgba(255, 255, 255, 0.95)");
+        puffGrad.addColorStop(0.45, "rgba(254, 240, 138, 0.85)");
+        puffGrad.addColorStop(0.85, "rgba(249, 115, 22, 0.50)");
+        puffGrad.addColorStop(1.0, "rgba(234, 88, 12, 0.0)");
+        targetCtx.fillStyle = puffGrad;
+        targetCtx.fill();
       }
       targetCtx.restore();
 
