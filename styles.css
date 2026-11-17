@@ -13324,7 +13324,11 @@ body.netflix-messenger-theme {
   width: 100vw;
   height: 100%;
   display: block;
-  cursor: crosshair;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 /* ==========================================================================
@@ -15840,3 +15844,93 @@ html, body {
 }
 
 
+
+
+/* ───────── UNIFIED CURSOR & CELLPHONE SAFE-AREA INTEGRATION (v323) ───────── */
+/* 1. Desktop Mouse: OS cursor hidden, atom IS the only cursor */
+body.arcade-active.mode-mouse #chromeGameModal,
+body.arcade-active.mode-mouse #cgCanvasReflex,
+body.arcade-active.mode-mouse .game-arena-stage {
+  cursor: none !important;
+}
+
+/* 2. Touchscreens: OS cursor remains natural */
+body.arcade-active.mode-touch #chromeGameModal,
+body.arcade-active.mode-touch #cgCanvasReflex,
+body.arcade-active.mode-touch .game-arena-stage {
+  cursor: auto !important;
+}
+
+/* All interactive buttons in game retain clickable pointer */
+body.arcade-active button,
+body.arcade-active .game-btn-icon,
+body.arcade-active .game-btn-close,
+body.arcade-active .screen-btn-primary {
+  cursor: pointer !important;
+}
+
+/* 3. Mobile Safe-Area & Viewport Comfort for Cellphones */
+.game-modal-overlay {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  padding-left: env(safe-area-inset-left, 0px) !important;
+  padding-right: env(safe-area-inset-right, 0px) !important;
+}
+
+.game-topbar {
+  padding: max(10px, env(safe-area-inset-top, 12px)) max(14px, env(safe-area-inset-right, 14px)) 10px max(14px, env(safe-area-inset-left, 14px)) !important;
+}
+
+@media (max-width: 650px) {
+  .game-topbar {
+    padding: max(8px, env(safe-area-inset-top, 10px)) 10px 8px 10px !important;
+    gap: 6px !important;
+  }
+  .game-brand-icon {
+    display: none !important;
+  }
+  .game-title {
+    font-size: 13px !important;
+    letter-spacing: 0.5px !important;
+  }
+  .game-sub {
+    font-size: 9.5px !important;
+    max-width: 140px !important;
+  }
+  .game-stats-cluster {
+    gap: 4px !important;
+  }
+  .game-stat-pill {
+    min-width: 46px !important;
+    padding: 2px 6px !important;
+  }
+  .g-stat-label {
+    font-size: 7.5px !important;
+  }
+  .g-stat-val {
+    font-size: 11.5px !important;
+  }
+  .game-btn-icon,
+  .game-btn-close {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .reflex-hud-banner {
+    top: 6px !important;
+    left: 8px !important;
+    right: 8px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 5px !important;
+  }
+  .transmute-badge {
+    padding: 4px 10px !important;
+    font-size: 0.62rem !important;
+  }
+  .reflex-shields-box {
+    align-self: flex-end !important;
+    font-size: 0.62rem !important;
+  }
+}

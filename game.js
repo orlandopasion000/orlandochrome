@@ -977,6 +977,24 @@
   // MASTER HIGH-FIDELITY PARTICLE RENDERERS (DYNAMO, HELIX, METEOR)
   // (Conforming to 4K HUD Scientific Telemetry Blueprints)
   // ══════════════════════════════════════════════════════════════
+  
+  // ─────────────────────────────────────────────────────────────
+  // 4K MASTER CELLPHONE & DESKTOP CORE SPRITES
+  // (Conforming exactly to uploaded Dynamo, Helix, Meteor cores)
+  // ─────────────────────────────────────────────────────────────
+  const CoreAssets = {
+    dynamo: new Image(),
+    helix: new Image(),
+    meteor: new Image(),
+    loaded: { dynamo: false, helix: false, meteor: false }
+  };
+  CoreAssets.dynamo.onload = () => { CoreAssets.loaded.dynamo = true; };
+  CoreAssets.dynamo.src = 'assets/core-dynamo-hd.jpg';
+  CoreAssets.helix.onload = () => { CoreAssets.loaded.helix = true; };
+  CoreAssets.helix.src = 'assets/core-helix-hd.jpg';
+  CoreAssets.meteor.onload = () => { CoreAssets.loaded.meteor = true; };
+  CoreAssets.meteor.src = 'assets/core-meteor-hd.jpg';
+
   const QuantumRenderer = {
     // 1. Quantum Dynamo / Player Atom Core Catcher
     drawQuantumAtomic(ctx, cx, cy, now, progress = 0) {
@@ -1736,6 +1754,56 @@
   let dom = {};
 
   // --- DOM Initializer ---
+  
+  // ─────────────────────────────────────────────────────────────
+  // DEVICE CAPABILITIES & LIVE HYBRID INPUT ENGINE (v323)
+  // (matchMedia, maxTouchPoints, Coalesced Pointer Events, Lerp)
+  // ─────────────────────────────────────────────────────────────
+  let deviceInputMode = 'mouse'; // 'mouse' | 'touch'
+  let isPointerDown = false;
+  let precisionMode = true; // Relative trackpad movement on touch
+  let touchGuidePos = { x: -9999, y: -9999, active: false };
+  let targetCatcherX = 0.5;
+  let currentCatcherX = 0.5;
+  let lastTouchClientX = 0;
+  let lastTouchClientY = 0;
+  let invulnerabilityTimer = 0;
+
+  function detectDeviceCapabilities() {
+    const isCoarse = window.matchMedia && (
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(hover: none)').matches
+    );
+    const hasTouch = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+    setDeviceMode(isCoarse || hasTouch ? 'touch' : 'mouse');
+  }
+
+  function setDeviceMode(mode) {
+    if (deviceInputMode === mode) return;
+    deviceInputMode = mode;
+    document.body.classList.remove('mode-mouse', 'mode-touch');
+    document.body.classList.add(`mode-${mode}`);
+    updateTargetText();
+  }
+
+  function updateTargetText() {
+    const sub = document.getElementById('cgGameSub');
+    if (!sub) return;
+    const isTouch = deviceInputMode === 'touch';
+    const targetHint = isTouch
+      ? 'DRAG FINGER TO MOVE · DEFLECT PARTICLES'
+      : 'TRACKPAD / MOUSE · DEFLECT PARTICLES';
+    sub.setAttribute('data-device-hint', targetHint);
+  }
+
+  window.addEventListener('resize', detectDeviceCapabilities);
+  if (window.matchMedia) {
+    const mPointer = window.matchMedia('(pointer: fine)');
+    if (mPointer.addEventListener) {
+      mPointer.addEventListener('change', detectDeviceCapabilities);
+    }
+  }
+
   function initDOM() {
     dom = {
       modal: document.getElementById('chromeGameModal'),
@@ -2131,8 +2199,20 @@
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
 
-    const catcherPixelX = Math.max(55, Math.min(w - 55, state.catcherX * w));
-    const catcherPixelY = h - 60;
+    // Smooth Linear Interpolation (Lerp) for Catcher Movement:
+    const lerpFactor = (deviceInputMode === 'touch') ? 0.35 : 0.22;
+    currentCatcherX += (targetCatcherX - currentCatcherX) * lerpFactor;
+    state.catcherX = currentCatcherX;
+
+    const catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
+    
+    // Cellphone & Mobile Safe-Area Inset:
+    // On cellphones and touchscreens, lift catcher up to 135px above bottom
+    // so the entire 3D core and flare rings are 100% visible and thumb sits comfortably below!
+    const isCoarse = (deviceInputMode === 'touch') || window.innerWidth <= 768;
+    const bottomSafe = (window.innerHeight > 800) ? 34 : 20;
+    const catcherBottomMargin = isCoarse ? Math.max(135, 95 + bottomSafe) : 80;
+    const catcherPixelY = h - catcherBottomMargin;
 
     // ─────────────────────────────────────────────────────────────
     // MODE A: REFLEX BLITZ — NUMBERS MULTIPLE CATCHER
@@ -2353,37 +2433,43 @@
     // MODE B: CHROME DYNAMO, CHROME HELIX, CHROME METEOR
     // ─────────────────────────────────────────────────────────────
     else {
-      // Dynamic Progressive Difficulty Curve:
-      // Starts easy and slow (Wave 1: 1.5 - 2.2 px/frame) and gradually accelerates
-      const calculatedWave = Math.min(10, Math.floor(state.score / 500) + 1);
-      if (calculatedWave > state.currentWave) {
-        state.currentWave = calculatedWave;
-        audio.playVictoryFanfare();
-        state.floatingTexts.push({
-          text: `⚡ WAVE ${state.currentWave}: ACCELERATION!`,
-          x: w / 2,
-          y: h / 2 - 40,
-          color: '#00f0ff',
-          alpha: 1.0,
-          vy: -1.0
-        });
-        updateHeaderUI();
-      }
+      // ─────────────────────────────────────────────────────────────
+        // RELAXED PROGRESSIVE DIFFICULTY & VIEWPORT-RESPONSIVE VELOCITY (v323)
+        // (Less particles at beginning, gentle speed, generous progression)
+        // ─────────────────────────────────────────────────────────────
+        const calculatedWave = Math.min(10, Math.floor(state.score / 800) + 1);
+        if (calculatedWave > state.currentWave) {
+          state.currentWave = calculatedWave;
+          audio.playVictoryFanfare();
+          state.floatingTexts.push({
+            text: `⚡ WAVE ${state.currentWave}: ADVANCING!`,
+            x: w / 2,
+            y: h / 2 - 40,
+            color: '#00f0ff',
+            alpha: 1.0,
+            vy: -1.0
+          });
+          updateHeaderUI();
+        }
 
-      // Base speed starts relaxed and readable
-      const speedMult = 1.0 + (state.currentWave - 1) * 0.12;
-      const baseSpawnRate = (state.gameType === 'meteor') ? 0.026 : 0.022;
-      const spawnRate = Math.min(0.048, baseSpawnRate + (state.currentWave - 1) * 0.003);
+        // Wave 1 starts extra easy and relaxed:
+        // Spawn rate: 0.012 (1 particle every ~3-4 seconds)
+        // Capped at 2 active particles on Wave 1!
+        const maxParticles = (state.currentWave === 1) ? 2 : (state.currentWave === 2 ? 3 : 5);
+        const baseSpawn = (state.currentWave === 1) ? 0.012 : (0.016 + (state.currentWave - 1) * 0.003);
+        const spawnRate = Math.min(0.040, baseSpawn);
 
-      if (Math.random() < spawnRate) {
-        let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
-        const px = Math.random() * (w - 140) + 70;
+        // Gentle speed ramp: only +7% per wave (normalized to screen height h)
+        const speedMult = 1.0 + (state.currentWave - 1) * 0.07;
+        const normFactor = Math.max(0.75, Math.min(1.35, h / 750));
 
-        // Easy and slow starting speed:
-        // Dynamo & Helix: 1.5 to 2.2 px/frame
-        // Meteor: 1.8 to 2.5 px/frame
-        const baseSpeed = (pType === 'meteor') ? (1.8 + Math.random() * 0.7) : (1.5 + Math.random() * 0.6);
-        const actualSpeed = baseSpeed * speedMult;
+        if (state.particles.length < maxParticles && Math.random() < spawnRate) {
+          let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
+          const px = Math.random() * (w - 140) + 70;
+
+          // Easy, readable starting velocity:
+          const baseSpeed = (0.95 + Math.random() * 0.45) * normFactor;
+          const actualSpeed = baseSpeed * speedMult;
 
         const p = {
           type: pType,
@@ -2435,7 +2521,9 @@
 
         // Collision Check with Catcher
         const dist = Math.hypot(p.x - catcherPixelX, p.y - catcherPixelY);
-        if (dist < 52) {
+        // Contact radius: 1.5x larger on touch for effortless mobile play (78px vs 52px)
+        const hitRadius = (deviceInputMode === 'touch') ? 78 : 52;
+        if (dist < hitRadius) {
           state.score += 150 * state.combo;
           state.combo = Math.min(10, state.combo + 1);
           audio.playCorrectChime(state.combo);
@@ -2719,25 +2807,91 @@
       };
     });
 
-    // Canvas Pointer / Touch Movement for Catcher with accurate rect calculation
-    const handlePointerMove = (clientX) => {
-      if (!state.active) return;
-      if (dom.canvasReflex) {
-        const rect = dom.canvasReflex.getBoundingClientRect();
-        if (rect.width > 0) {
-          state.catcherX = Math.max(0.05, Math.min(0.95, (clientX - rect.left) / rect.width));
-          return;
-        }
-      }
-      state.catcherX = Math.max(0.05, Math.min(0.95, clientX / window.innerWidth));
+    // ─────────────────────────────────────────────────────────────
+    // UNIFIED POINTER EVENTS ENGINE (Pointer Events, Coalesced, Safe-Area)
+    // ─────────────────────────────────────────────────────────────
+    const getCanvasCoords = (clientX, clientY) => {
+      if (!dom.canvasReflex) return { x: clientX, y: clientY, normX: clientX / window.innerWidth };
+      const rect = dom.canvasReflex.getBoundingClientRect();
+      const normX = (rect.width > 0) ? Math.max(0.05, Math.min(0.95, (clientX - rect.left) / rect.width)) : (clientX / window.innerWidth);
+      return { x: clientX - rect.left, y: clientY - rect.top, normX };
     };
 
-    window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX));
-    window.addEventListener('touchmove', (e) => {
-      if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX);
-    }, { passive: true });
+    const onPointerDown = (e) => {
+      if (!state.active) return;
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        setDeviceMode('touch');
+      } else if (e.pointerType === 'mouse') {
+        setDeviceMode('mouse');
+      }
 
-    // Keyboard Arrow navigation for Catcher
+      isPointerDown = true;
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      lastTouchClientX = e.clientX;
+      lastTouchClientY = e.clientY;
+
+      if (deviceInputMode === 'touch') {
+        // Offset atom 64px ABOVE finger touch point so thumb never covers it!
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+        targetCatcherX = coords.normX;
+        currentCatcherX = coords.normX; // Jump immediately on first touch!
+      } else {
+        touchGuidePos.active = false;
+        targetCatcherX = coords.normX;
+      }
+
+      if (e.cancelable && deviceInputMode === 'touch') e.preventDefault();
+    };
+
+    const onPointerMove = (e) => {
+      if (!state.active) return;
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        setDeviceMode('touch');
+      } else if (e.pointerType === 'mouse') {
+        setDeviceMode('mouse');
+      }
+
+      // Use coalesced events if available for high-DPI buttery smooth tracking
+      const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+      const lastEv = events[events.length - 1] || e;
+
+      if (deviceInputMode === 'touch') {
+        if (!isPointerDown) return;
+        const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+
+        if (precisionMode && dom.canvasReflex) {
+          // Relative trackpad movement: small finger motion translates to smooth gliding
+          const deltaX = lastEv.clientX - lastTouchClientX;
+          const rect = dom.canvasReflex.getBoundingClientRect();
+          const sensitivity = 1.15;
+          targetCatcherX = Math.max(0.05, Math.min(0.95, targetCatcherX + (deltaX / rect.width) * sensitivity));
+        } else {
+          targetCatcherX = coords.normX;
+        }
+
+        lastTouchClientX = lastEv.clientX;
+        lastTouchClientY = lastEv.clientY;
+      } else {
+        // Mouse / Trackpad: atom follows pointer freely
+        const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
+        touchGuidePos.active = false;
+        targetCatcherX = coords.normX;
+      }
+
+      if (e.cancelable && deviceInputMode === 'touch') e.preventDefault();
+    };
+
+    const onPointerUp = (e) => {
+      isPointerDown = false;
+      touchGuidePos.active = false;
+    };
+
+    window.addEventListener('pointerdown', onPointerDown, { passive: false });
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointercancel', onPointerUp, { passive: true });
+
     window.addEventListener('keydown', (e) => {
       if (!state.active) return;
       if (e.key === 'ArrowLeft' || e.key === 'a') {
