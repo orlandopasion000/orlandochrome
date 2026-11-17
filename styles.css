@@ -443,7 +443,12 @@ img, video, audio, canvas, svg {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   font-weight: 800;
-  color: #F0CF7A;
+  background: linear-gradient(180deg, #FFFFFF 0%, #E0F2FE 30%, #38BDF8 70%, #0284C7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.45);
 }
 
 .nf-alarm-pill:hover {

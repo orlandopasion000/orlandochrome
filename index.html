@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade315">
+  <link rel="stylesheet" href="styles.css?v=arcade316">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -524,6 +524,56 @@
         font-size: 0.56rem !important;
       }
     }
+    /* Clock & Alarm Pill: Radiant Ice Cyan & Platinum (Zero Amber/Gold) */
+    body .nf-clock-digital .chrome span,
+    body .nav-clock-box .chrome span,
+    body .nav-clock-time {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 20%, #BAE6FD 45%, #38BDF8 75%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.45) !important;
+    }
+    body .nf-clock-digital .nf-clock-ampm,
+    body .nav-clock-box .nav-clock-ampm {
+      color: #38bdf8 !important;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.4) !important;
+    }
+    body .alarm-pill-countdown {
+      background: linear-gradient(180deg, #FFFFFF 0%, #E0F2FE 30%, #38BDF8 70%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    body .alarm-pill-text {
+      color: #E2E8F0 !important;
+    }
+    body .alarm-pill-icon-svg svg {
+      stroke: #00f0ff !important;
+      filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.85)) !important;
+    }
+
+    /* Voice Commands Filter Row Alignment */
+    body .voice-cheat-filters {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      overflow-x: auto !important;
+      padding: 6px 2px !important;
+      margin: 8px 0 !important;
+      flex-shrink: 0 !important;
+      min-height: 38px !important;
+      scrollbar-width: none !important;
+    }
+    body .voice-filter-pill {
+      flex-shrink: 0 !important;
+      padding: 5px 12px !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      line-height: 1.2 !important;
+    }
   </style>
 
   <!-- QUANTUM CHROMATIC MONOGRAM DESIGN SYSTEM (v311 AUTHORITATIVE THEME) -->
@@ -908,6 +958,56 @@
       -moz-osx-font-smoothing: grayscale !important;
       text-rendering: optimizeLegibility !important;
     }
+    /* Clock & Alarm Pill: Radiant Ice Cyan & Platinum (Zero Amber/Gold) */
+    body .nf-clock-digital .chrome span,
+    body .nav-clock-box .chrome span,
+    body .nav-clock-time {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 20%, #BAE6FD 45%, #38BDF8 75%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.45) !important;
+    }
+    body .nf-clock-digital .nf-clock-ampm,
+    body .nav-clock-box .nav-clock-ampm {
+      color: #38bdf8 !important;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.4) !important;
+    }
+    body .alarm-pill-countdown {
+      background: linear-gradient(180deg, #FFFFFF 0%, #E0F2FE 30%, #38BDF8 70%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    body .alarm-pill-text {
+      color: #E2E8F0 !important;
+    }
+    body .alarm-pill-icon-svg svg {
+      stroke: #00f0ff !important;
+      filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.85)) !important;
+    }
+
+    /* Voice Commands Filter Row Alignment */
+    body .voice-cheat-filters {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      overflow-x: auto !important;
+      padding: 6px 2px !important;
+      margin: 8px 0 !important;
+      flex-shrink: 0 !important;
+      min-height: 38px !important;
+      scrollbar-width: none !important;
+    }
+    body .voice-filter-pill {
+      flex-shrink: 0 !important;
+      padding: 5px 12px !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      line-height: 1.2 !important;
+    }
   </style>
   
 </head>
@@ -935,7 +1035,7 @@
         </button>
 
         <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Chrome Meteor: Task Surge Asteroid Deflector (10 Shields)" aria-label="Launch Chrome Meteor">
-          <span class="game-btn-glyph game-btn-glyph-meteor" aria-hidden="true">☄</span>
+          <svg class="game-btn-glyph game-btn-glyph-meteor" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#7dd3fc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="3.5"/><path d="M9 15L21 3M13 18l7-7M6 21l7-7"/></svg>
           <span class="game-btn-label">METEOR</span>
         </button>
 
@@ -945,7 +1045,7 @@
         </button>
 
         <button type="button" class="qgame-btn-launch qgame-btn-reflex" id="btnLaunchReflexGame" title="Reflex Blitz: Numbers Multiple Catcher (Catch 2-Digit Multiples)" aria-label="Launch Reflex Blitz">
-          <span class="game-btn-glyph game-btn-glyph-reflex" aria-hidden="true">⚡</span>
+          <svg class="game-btn-glyph game-btn-glyph-reflex" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#00f0ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
           <span class="game-btn-label">REFLEX</span>
         </button>
 
@@ -968,7 +1068,7 @@
       </button>
 
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
-        <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next</span>
+        <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.25)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next</span>
       </button>
 
       <!-- Compressed Single "System" Command Button & Floating Futuristic Dropdown -->
@@ -1347,7 +1447,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade315"></script>
+  <script src="app.js?v=arcade316"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -1406,7 +1506,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade315"></script>
+  <script src="game.js?v=arcade316"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 </body>
 </html>
