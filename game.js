@@ -414,7 +414,8 @@
         b,
         op,
         ans,
-        options
+        options,
+        choices: options
       };
     }
   };
@@ -1445,8 +1446,9 @@
     if (dom.mathEquation) dom.mathEquation.textContent = `${q.a} ${q.op} ${q.b} = ?`;
 
     // Populate 4 choice buttons
+    const choices = q.choices || q.options || [];
     dom.mathOptions.forEach((btn, idx) => {
-      const val = q.choices[idx];
+      const val = choices[idx] !== undefined ? choices[idx] : 0;
       btn.dataset.ans = val;
       const valSpan = btn.querySelector('.opt-val');
       if (valSpan) valSpan.textContent = val;

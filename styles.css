@@ -15284,3 +15284,58 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
     max-width: 32px !important;
   }
 }
+
+/* Responsive Topbar for <= 850px (Tablets, Split-screen, and when DevTools is open) */
+@media (max-width: 850px) {
+  .brand-title .title-chrome {
+    display: none !important;
+  }
+  .brand-title {
+    font-size: 0.82rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+  .fs-toggle-btn .fs-btn-label {
+    display: none !important;
+  }
+  .fs-toggle-btn {
+    padding: 0 !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    height: 26px !important;
+    justify-content: center !important;
+  }
+  .btn-topbar-quick span {
+    display: none !important;
+  }
+  .btn-topbar-quick {
+    padding: 0 !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    height: 26px !important;
+    justify-content: center !important;
+  }
+  .system-btn-text,
+  .system-caret {
+    display: none !important;
+  }
+  .btn-topbar-system {
+    padding: 0 !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    height: 26px !important;
+    justify-content: center !important;
+  }
+  .nf-clock-digital .chrome span:nth-last-child(-n+3) {
+    display: none !important;
+  }
+  .nf-alarm-pill .alarm-pill-text {
+    max-width: 48px !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+  }
+  .topbar-right {
+    gap: 3px !important;
+  }
+}

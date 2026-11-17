@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=arcade307">
+  <link rel="stylesheet" href="styles.css?v=arcade308">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -377,58 +377,81 @@
 
     @media (max-width: 1050px) {
       .nf-alarm-pill .alarm-pill-text {
-        max-width: 100px !important;
+        max-width: 85px !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         white-space: nowrap !important;
       }
     }
 
-    @media (max-width: 768px) {
+    /* Screen Width <= 850px (Tablets, Split-screen, and when DevTools is open) */
+    @media (max-width: 850px) {
       .app-topbar {
         padding: 0 8px !important;
         gap: 6px !important;
       }
+      .brand-title .title-chrome {
+        display: none !important;
+      }
       .brand-title {
-        font-size: 0.85rem !important;
+        font-size: 0.82rem !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
       }
       .fs-toggle-btn .fs-btn-label {
         display: none !important;
       }
       .fs-toggle-btn {
-        padding: 0 5px !important;
+        padding: 0 !important;
         width: 26px !important;
         min-width: 26px !important;
+        height: 26px !important;
         justify-content: center !important;
       }
       .btn-topbar-quick span {
         display: none !important;
       }
       .btn-topbar-quick {
-        padding: 0 5px !important;
+        padding: 0 !important;
         width: 26px !important;
         min-width: 26px !important;
+        height: 26px !important;
         justify-content: center !important;
       }
-      .system-btn-text {
-        font-size: 0.60rem !important;
+      .system-btn-text,
+      .system-caret {
+        display: none !important;
       }
       .btn-topbar-system {
-        padding: 0 5px !important;
+        padding: 0 !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        justify-content: center !important;
       }
-      .nf-alarm-pill .alarm-pill-text {
-        max-width: 75px !important;
-        font-size: 0.62rem !important;
-      }
-      .nf-alarm-pill {
-        padding: 0 5px !important;
+      .nf-clock-digital .chrome span:nth-last-child(-n+3) {
+        display: none !important;
       }
       .nf-clock-digital {
         font-size: 0.68rem !important;
       }
+      .nf-alarm-pill .alarm-pill-text {
+        max-width: 48px !important;
+        font-size: 0.60rem !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        white-space: nowrap !important;
+      }
+      .nf-alarm-pill {
+        padding: 0 5px !important;
+        height: 24px !important;
+      }
+      .topbar-right {
+        gap: 3px !important;
+      }
     }
 
-    /* Ultra-compact Mobile Zero-Overlap Breakpoint (<= 450px down to 360px) */
+    /* Ultra-compact Mobile (<= 450px down to 360px) */
     @media (max-width: 450px) {
       .app-topbar {
         padding: 0 5px !important;
@@ -445,11 +468,8 @@
         height: 20px !important;
         border-radius: 5px !important;
       }
-      .brand-title .title-chrome {
-        display: none !important;
-      }
       .brand-title {
-        font-size: 0.70rem !important;
+        font-size: 0.72rem !important;
       }
       .qgame-topbar-cluster {
         gap: 2px !important;
@@ -468,27 +488,12 @@
       }
       .fs-toggle-btn,
       .btn-topbar-fullscreen,
-      .btn-topbar-quick {
-        width: 22px !important;
-        min-width: 22px !important;
-        height: 22px !important;
-        padding: 0 !important;
-        justify-content: center !important;
-      }
+      .btn-topbar-quick,
       .btn-topbar-system {
         width: 22px !important;
         min-width: 22px !important;
         height: 22px !important;
         padding: 0 !important;
-        justify-content: center !important;
-      }
-      .system-btn-text,
-      .system-caret {
-        display: none !important;
-      }
-      .nav-clock-box {
-        gap: 2px !important;
-        margin-left: 0 !important;
       }
       .nf-clock-digital {
         font-size: 0.60rem !important;
@@ -499,15 +504,10 @@
       .nf-alarm-pill {
         height: 22px !important;
         padding: 0 3px !important;
-        gap: 2px !important;
-      }
-      .nf-alarm-pill .alarm-pill-icon-svg svg {
-        width: 12px !important;
-        height: 12px !important;
       }
       .nf-alarm-pill .alarm-pill-text {
         max-width: 32px !important;
-        font-size: 0.58rem !important;
+        font-size: 0.56rem !important;
       }
     }
   </style>
@@ -916,7 +916,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade307"></script>
+  <script src="app.js?v=arcade308"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -975,7 +975,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade307"></script>
+  <script src="game.js?v=arcade308"></script>
   <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>
