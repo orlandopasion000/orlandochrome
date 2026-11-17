@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade326">
+  <link rel="stylesheet" href="styles.css?v=arcade327">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -575,6 +575,71 @@
       font-size: 11px !important;
       font-weight: 700 !important;
       line-height: 1.2 !important;
+    }
+
+    /* Mobile Responsive 2-Row Layout for Arcade Arena (Prevents Title Squeeze & Clipping) */
+    @media (max-width: 650px) {
+      .game-modal-overlay .game-topbar {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        row-gap: 8px !important;
+        column-gap: 10px !important;
+        padding: max(10px, env(safe-area-inset-top, 12px)) 14px 10px 14px !important;
+        height: auto !important;
+        min-height: unset !important;
+      }
+      .game-modal-overlay .game-brand {
+        grid-column: 1 / 2 !important;
+        grid-row: 1 / 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+      }
+      .game-modal-overlay .game-brand-text {
+        min-width: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      .game-modal-overlay .game-title {
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.05em !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+        line-height: 1.2 !important;
+      }
+      .game-modal-overlay .game-sub {
+        font-size: 9.5px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 220px !important;
+      }
+      .game-modal-overlay .game-controls-actions {
+        grid-column: 2 / 3 !important;
+        grid-row: 1 / 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 6px !important;
+      }
+      .game-modal-overlay .game-stats-cluster {
+        grid-column: 1 / 3 !important;
+        grid-row: 2 / 3 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 8px !important;
+      }
+      .game-modal-overlay .game-stat-pill {
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+        text-align: center !important;
+        padding: 4px 6px !important;
+      }
     }
   </style>
 
@@ -1589,7 +1654,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade326"></script>
+  <script src="game.js?v=arcade327"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 </body>
 </html>

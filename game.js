@@ -1014,9 +1014,36 @@
       if (img && (img.complete || CoreAssets.loaded.dynamo) && img.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        var imgSize = 92 + exc * 22;
+        var imgSize = 106 + exc * 22;
         ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
         ctx.restore();
+
+        // Dynamic synchronized crackling micro-arcs around the golden orbits
+        var eTick = (now * 0.09) | 0;
+        for (var a = 0; a < 4; a++) {
+          var baseAng = (a / 4) * Math.PI * 2 + eTick * 0.25;
+          var rLen = 24 + (Math.sin(eTick * 2.3 + a) * 6);
+          var endX = Math.cos(baseAng) * rLen;
+          var endY = Math.sin(baseAng) * rLen;
+          var midX = (endX * 0.5) + (Math.sin(eTick * 4.1 + a * 1.7) * 4);
+          var midY = (endY * 0.5) + (Math.cos(eTick * 3.3 + a * 1.3) * 4);
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(midX, midY);
+          ctx.lineTo(endX, endY);
+          ctx.strokeStyle = "rgba(0, 240, 255, 0.75)";
+          ctx.lineWidth = 1.3;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(endX, endY, 2.0, 0, Math.PI * 2);
+          ctx.fillStyle = "#ffffff";
+          ctx.fill();
+        }
+
+        ctx.restore();
+        return;
       }
 
       // 1. Photonic Lens Flares in Electric Cyan & Townsend Violet
@@ -1148,9 +1175,27 @@
       if (img && (img.complete || CoreAssets.loaded.helix) && img.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        var imgSize = 92 + exc * 22;
+        var imgSize = 106 + exc * 22;
         ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
         ctx.restore();
+
+        // Luminous bioluminescent sparkle motes orbiting the crystal orb
+        for (var s = 0; s < 4; s++) {
+          var sAng = t * 1.8 + (s * Math.PI / 2);
+          var sRad = 48 + Math.sin(t * 3 + s) * 6;
+          var sx = Math.cos(sAng) * sRad;
+          var sy = Math.sin(sAng) * (sRad * 0.45);
+
+          ctx.beginPath();
+          ctx.arc(sx, sy, 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = (s % 2 === 0) ? "#22d3ee" : "#d946ef";
+          ctx.shadowColor = (s % 2 === 0) ? "#00f0ff" : "#f43f5e";
+          ctx.shadowBlur = 8;
+          ctx.fill();
+        }
+
+        ctx.restore();
+        return;
       }
 
       // Soliton waveguide glow
@@ -1210,9 +1255,37 @@
       if (img && (img.complete || CoreAssets.loaded.meteor) && img.naturalWidth > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-        var imgSize = 92 + exc * 22;
+        var imgSize = 106 + exc * 22;
         ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
         ctx.restore();
+
+        // Supersonic Detached Bow Shockwave Arc ahead of catcher
+        ctx.beginPath();
+        ctx.arc(0, -6, 38 + exc * 8, Math.PI * 1.15, Math.PI * 1.85);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.lineWidth = 2.8;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, -6, 40 + exc * 8, Math.PI * 1.15, Math.PI * 1.85);
+        ctx.strokeStyle = "rgba(254, 240, 138, 0.55)";
+        ctx.lineWidth = 5.0;
+        ctx.stroke();
+
+        // Floating incandescent cinder embers rising from molten surface
+        var eTick = (now * 0.003);
+        for (var m = 0; m < 5; m++) {
+          var mx = Math.sin(eTick * 2.5 + m * 1.4) * 28;
+          var my = -16 - ((now * 0.04 + m * 18) % 36);
+          ctx.beginPath();
+          ctx.arc(mx, my, 1.8, 0, Math.PI * 2);
+          ctx.fillStyle = (m % 2 === 0) ? "#fef08a" : "#f97316";
+          ctx.shadowColor = "#f97316";
+          ctx.shadowBlur = 6;
+          ctx.fill();
+        }
+
+        ctx.restore();
+        return;
       }
 
       // Supersonic Detached Bow Shockwave Arc ahead of catcher
@@ -2243,7 +2316,8 @@
     // so the entire 3D core and flare rings are 100% visible and thumb sits comfortably below!
     const isCoarse = (deviceInputMode === 'touch') || window.innerWidth <= 768;
     const bottomSafe = (window.innerHeight > 800) ? 34 : 20;
-    const catcherBottomMargin = isCoarse ? Math.max(160, 120 + bottomSafe) : 85;
+    // Elevate catcher comfortably: 22% of screen height (or at least 185px) on touch/mobile
+    const catcherBottomMargin = isCoarse ? Math.max(185, Math.round(h * 0.22)) : 105;
     const catcherPixelY = h - catcherBottomMargin;
 
     // ─────────────────────────────────────────────────────────────
@@ -2466,15 +2540,16 @@
     // ─────────────────────────────────────────────────────────────
     else {
       // ─────────────────────────────────────────────────────────────
-        // RELAXED PROGRESSIVE DIFFICULTY & VIEWPORT-RESPONSIVE VELOCITY (v323)
-        // (Less particles at beginning, gentle speed, generous progression)
         // ─────────────────────────────────────────────────────────────
-        const calculatedWave = Math.min(10, Math.floor(state.score / 800) + 1);
+        // WAVE ADVANCEMENT & ACCELERATION ARCHITECTURE
+        // ─────────────────────────────────────────────────────────────
+        // Wave progression: 1 wave every 1000 points.
+        const calculatedWave = Math.min(10, Math.floor(state.score / 1000) + 1);
         if (calculatedWave > state.currentWave) {
           state.currentWave = calculatedWave;
           audio.playVictoryFanfare();
           state.floatingTexts.push({
-            text: `⚡ WAVE ${state.currentWave}: ADVANCING!`,
+            text: `⚡ WAVE ${state.currentWave}: ACCELERATION!`,
             x: w / 2,
             y: h / 2 - 40,
             color: '#00f0ff',
@@ -2484,23 +2559,32 @@
           updateHeaderUI();
         }
 
-        // Wave 1 starts extra easy and relaxed:
-        // Spawn rate: 0.012 (1 particle every ~3-4 seconds)
-        // Capped at 2 active particles on Wave 1!
-        const maxParticles = (state.currentWave === 1) ? 2 : (state.currentWave === 2 ? 3 : 5);
-        const baseSpawn = (state.currentWave === 1) ? 0.012 : (0.016 + (state.currentWave - 1) * 0.003);
-        const spawnRate = Math.min(0.040, baseSpawn);
+        // Particle Density Gating:
+        // Wave 1 begins extra calm and relaxing:
+        // - From 0 to 350 pts: strictly 1 particle on screen at a time!
+        // - From 350 to 1000 pts: max 2 particles.
+        // - Wave 2: max 2 particles.
+        // - Wave 3: max 3 particles.
+        // - Wave 4: max 3 particles.
+        // - Wave 5+: max 4 particles.
+        const maxParticles = (state.currentWave === 1) 
+          ? (state.score < 350 ? 1 : 2) 
+          : (state.currentWave === 2 ? 2 : (state.currentWave === 3 ? 3 : 4));
+        const baseSpawn = (state.currentWave === 1) ? 0.010 : (0.014 + (state.currentWave - 1) * 0.003);
+        const spawnRate = Math.min(0.035, baseSpawn);
 
-        // Gentle speed ramp: only +7% per wave (normalized to screen height h)
-        const speedMult = 1.0 + (state.currentWave - 1) * 0.07;
-        const normFactor = Math.max(0.75, Math.min(1.35, h / 750));
+        // Responsive Screen Height Normalization & Wave Speed Ramp:
+        // normFactor ensures identical travel time across all phone & desktop screens
+        const normFactor = Math.max(0.70, Math.min(1.20, h / 800));
+        // Gentle +5% velocity increase per wave:
+        const speedMult = 1.0 + (state.currentWave - 1) * 0.05;
 
         if (state.particles.length < maxParticles && Math.random() < spawnRate) {
           let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
           const px = Math.random() * (w - 140) + 70;
 
-          // Easy, readable starting velocity:
-          const baseSpeed = (0.95 + Math.random() * 0.45) * normFactor;
+          // Gentle, predictable, relaxed starting velocity:
+          const baseSpeed = (0.75 + Math.random() * 0.30) * normFactor;
           const actualSpeed = baseSpeed * speedMult;
 
         const p = {
@@ -2553,8 +2637,8 @@
 
         // Collision Check with Catcher
         const dist = Math.hypot(p.x - catcherPixelX, p.y - catcherPixelY);
-        // Contact radius: 1.5x larger on touch for effortless mobile play (78px vs 52px)
-        const hitRadius = (deviceInputMode === 'touch') ? 78 : 52;
+        // Contact radius: generous 80px on touch (54px on mouse) for effortless, forgiving catching
+        const hitRadius = (deviceInputMode === 'touch') ? 80 : 54;
         if (dist < hitRadius) {
           state.score += 150 * state.combo;
           state.combo = Math.min(10, state.combo + 1);
