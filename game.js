@@ -1199,7 +1199,8 @@
     gameType: 'math',
     score: 0,
     combo: 1,
-    targetMultiple: 7, // Default multiple for Reflex Numbers Blitz
+    targetMultiple: 7, // Chosen multiple for Reflex Numbers Blitz (1 to 9)
+    isChoosingMultiple: false, // True until player chooses 1-9
     floatingTexts: [],
 
     // Math Overdrive State
@@ -1268,6 +1269,9 @@
       transmuteIndicator: document.getElementById('transmuteIndicator'),
       reflexMultiplePicker: document.getElementById('reflexMultiplePicker'),
       reflexDigitBtns: document.querySelectorAll('#reflexDigitBtns .digit-pill'),
+      reflexStartOverlay: document.getElementById('reflexStartOverlay'),
+      reflexStartDigitsGrid: document.getElementById('reflexStartDigitsGrid'),
+      btnChangeDivisor: document.getElementById('btnChangeDivisor'),
 
       // Memory View Elements
       memoryRoundLabel: document.getElementById('memoryRoundLabel'),
@@ -1350,7 +1354,7 @@
       dom.gameSub.textContent = 'Task Surge Asteroid Deflector · 10 Shield Units';
     } else if (state.gameType === 'reflex') {
       dom.gameTitle.textContent = 'REFLEX BLITZ';
-      dom.gameSub.textContent = `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
+      dom.gameSub.textContent = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
     } else if (state.gameType === 'math') {
       dom.gameTitle.textContent = 'MATH OVERDRIVE';
       dom.gameSub.textContent = `Level ${state.mathLevel} · 20 Questions · 10 Mistakes Max`;
@@ -1528,13 +1532,26 @@
     } else if (state.gameType === 'meteor') {
       state.catcherType = 'meteor';
     } else {
-      state.catcherType = 'realm'; // Reflex blitz starts in realm
+      state.catcherType = 'realm';
     }
 
     const picker = document.getElementById('reflexMultiplePicker');
     const badge = document.getElementById('transmuteIndicator');
-    if (picker) picker.style.display = state.gameType === 'reflex' ? 'flex' : 'none';
-    if (badge) badge.style.display = (state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor') ? 'block' : 'none';
+    const startOverlay = document.getElementById('reflexStartOverlay');
+
+    if (state.gameType === 'reflex') {
+      if (picker) picker.style.display = 'flex';
+      if (badge) badge.style.display = 'none';
+      // Prompt player to choose 1, 2, 3, 4, 5, 6, 7, 8, 9 FIRST
+      state.isChoosingMultiple = true;
+      if (startOverlay) startOverlay.style.display = 'flex';
+      updateHeaderUI();
+    } else {
+      if (picker) picker.style.display = 'none';
+      if (badge) badge.style.display = 'block';
+      if (startOverlay) startOverlay.style.display = 'none';
+      state.isChoosingMultiple = false;
+    }
 
     renderReflexShields();
     updateTransmuteIndicator();
@@ -1609,6 +1626,29 @@
     if (state.gameType === 'reflex') {
       const D = state.targetMultiple || 7;
 
+      // If player is still choosing number (1-9), do not spawn numbers yet
+      if (state.isChoosingMultiple) {
+        // Draw bottom track and waiting paddle
+        ctx.save();
+        ctx.strokeStyle = "rgba(168, 85, 247, 0.25)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(30, catcherPixelY);
+        ctx.lineTo(w - 30, catcherPixelY);
+        ctx.stroke();
+
+        ctx.font = '800 13px "Lexend", sans-serif';
+        ctx.fillStyle = '#a855f7';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚡ SELECT A MULTIPLE (1 — 9) TO BEGIN', w / 2, h / 2);
+        ctx.restore();
+
+        ctx.restore();
+        animFrameId = requestAnimationFrame(reflexGameLoop);
+        return;
+      }
+
+      // Player has chosen! THEN numbers will fall (2-digit numbers 10 to 99)
       // Spawn falling 2-digit numbers
       if (Math.random() < 0.045) {
         let num;
@@ -2343,6 +2383,52 @@
           audio.playTone(350 + digit * 60, 'sine', 0.15, 0.2);
           updateHeaderUI();
         }
+      });
+    }
+
+    // Dedicated Divisor Selection Grid (1 through 9)
+    const startDigitsGrid = document.getElementById('reflexStartDigitsGrid');
+    if (startDigitsGrid) {
+      startDigitsGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.start-digit-btn');
+        if (!btn) return;
+        const choice = parseInt(btn.dataset.choice, 10);
+        if (!isNaN(choice) && choice >= 1 && choice <= 9) {
+          state.targetMultiple = choice;
+          state.isChoosingMultiple = false;
+          
+          const overlay = document.getElementById('reflexStartOverlay');
+          if (overlay) overlay.style.display = 'none';
+
+          // Sync topbar digit pills
+          const pills = document.querySelectorAll('#reflexDigitBtns .digit-pill');
+          pills.forEach(p => p.classList.toggle('active', parseInt(p.dataset.digit, 10) === choice));
+
+          audio.playTone(523.25, 'sine', 0.25, 0.25);
+          updateHeaderUI();
+
+          state.floatingTexts.push({
+            text: `TARGET: MULTIPLES OF ${choice} · ENGAGE!`,
+            x: (dom.canvasReflex?.width || 800) / (2 * (window.devicePixelRatio || 1)),
+            y: (dom.canvasReflex?.height || 600) / (2 * (window.devicePixelRatio || 1)),
+            color: '#c084fc',
+            alpha: 1.0,
+            vy: -1.0
+          });
+        }
+      });
+    }
+
+    // Change Divisor Button
+    const btnChangeDivisor = document.getElementById('btnChangeDivisor');
+    if (btnChangeDivisor) {
+      btnChangeDivisor.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.isChoosingMultiple = true;
+        state.particles = [];
+        const overlay = document.getElementById('reflexStartOverlay');
+        if (overlay) overlay.style.display = 'flex';
+        updateHeaderUI();
       });
     }
 

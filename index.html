@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=arcade302">
+  <link rel="stylesheet" href="styles.css?v=arcade303">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -436,6 +436,34 @@
 
         <!-- VIEW 2: Reflex Blitz (Quantum Catcher Canvas) -->
         <div class="reflex-view-container" id="cgViewReflex" style="display:none;">
+          <!-- Dedicated Divisor Selection Overlay: Player picks 1 to 9, THEN numbers fall -->
+          <div class="reflex-start-overlay" id="reflexStartOverlay" style="display:none;">
+            <div class="reflex-start-card">
+              <div class="reflex-start-icon">⚡</div>
+              <h2 class="reflex-start-title">REFLEX BLITZ: NUMBERS CATCHER</h2>
+              <p class="reflex-start-desc">Choose your target digit (<strong>1 to 9</strong>). Falling items are <strong>2-digit numbers (10–99)</strong>.<br>You must <strong>ONLY catch numbers that are multiples</strong> of your chosen digit!</p>
+              
+              <div class="reflex-start-selector-label">CHOOSE YOUR MULTIPLE:</div>
+              <div class="reflex-start-digits-grid" id="reflexStartDigitsGrid">
+                <button type="button" class="start-digit-btn" data-choice="1"><span>1</span><small>All Numbers</small></button>
+                <button type="button" class="start-digit-btn" data-choice="2"><span>2</span><small>Even Numbers</small></button>
+                <button type="button" class="start-digit-btn" data-choice="3"><span>3</span><small>Multiples of 3</small></button>
+                <button type="button" class="start-digit-btn" data-choice="4"><span>4</span><small>Multiples of 4</small></button>
+                <button type="button" class="start-digit-btn" data-choice="5"><span>5</span><small>Ends in 0 or 5</small></button>
+                <button type="button" class="start-digit-btn" data-choice="6"><span>6</span><small>Multiples of 6</small></button>
+                <button type="button" class="start-digit-btn" data-choice="7"><span>7</span><small>Multiples of 7</small></button>
+                <button type="button" class="start-digit-btn" data-choice="8"><span>8</span><small>Multiples of 8</small></button>
+                <button type="button" class="start-digit-btn" data-choice="9"><span>9</span><small>Sum of digits 9</small></button>
+              </div>
+              
+              <div class="reflex-start-tips">
+                <span class="tip-item">⚡ 10 Shield Units</span>
+                <span class="tip-item">🎯 Catch Multiples for Combos</span>
+                <span class="tip-item">⚠️ Avoid Non-Multiples</span>
+              </div>
+            </div>
+          </div>
+
           <div class="reflex-hud-banner">
             <!-- Numbers Mode Multiple Picker: Choose 1, 2, 3, 4, 5, 6, 7, 8, 9 -->
             <div class="reflex-multiple-picker" id="reflexMultiplePicker">
@@ -447,10 +475,11 @@
                 <button type="button" class="digit-pill" data-digit="4">4</button>
                 <button type="button" class="digit-pill" data-digit="5">5</button>
                 <button type="button" class="digit-pill" data-digit="6">6</button>
-                <button type="button" class="digit-pill active" data-digit="7">7</button>
+                <button type="button" class="digit-pill" data-digit="7">7</button>
                 <button type="button" class="digit-pill" data-digit="8">8</button>
                 <button type="button" class="digit-pill" data-digit="9">9</button>
               </div>
+              <button type="button" class="btn-change-divisor" id="btnChangeDivisor" title="Choose a different number (1-9)">Change</button>
             </div>
             <!-- Quantum Transmute Badge for Realm/Helix/Meteor -->
             <div class="transmute-badge" id="transmuteIndicator" style="display:none;">ACTIVE CORE: CHROME REALM</div>
@@ -493,7 +522,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade302"></script>
+  <script src="app.js?v=arcade303"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -633,7 +662,7 @@
 </div>
 
     <!-- CacheFlush: 1794862673222 -->
-  <script src="game.js?v=arcade302"></script>
+  <script src="game.js?v=arcade303"></script>
   <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>

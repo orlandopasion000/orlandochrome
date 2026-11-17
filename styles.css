@@ -14999,3 +14999,176 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
     font-size: 0.70rem;
   }
 }
+
+
+/* ==========================================================================
+   REFLEX BLITZ: DEDICATED DIVISOR SELECTOR (1-9) START OVERLAY
+   ========================================================================== */
+.reflex-start-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+  box-sizing: border-box;
+  animation: reflexOverlayFadeIn 0.22s ease;
+}
+
+@keyframes reflexOverlayFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.reflex-start-card {
+  max-width: 520px;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(24, 24, 27, 0.96) 0%, rgba(9, 9, 11, 0.98) 100%);
+  border: 1.5px solid rgba(168, 85, 247, 0.45);
+  border-radius: 20px;
+  padding: clamp(18px, 3.5vw, 28px);
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 85, 247, 0.25);
+  box-sizing: border-box;
+}
+
+.reflex-start-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.7));
+}
+
+.reflex-start-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px 0;
+  text-shadow: 0 0 16px rgba(168, 85, 247, 0.5);
+}
+
+.reflex-start-desc {
+  font-family: 'Lexend', sans-serif;
+  font-size: clamp(0.76rem, 1.4vw, 0.86rem);
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0 0 18px 0;
+}
+
+.reflex-start-desc strong {
+  color: #c084fc;
+}
+
+.reflex-start-selector-label {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.70rem;
+  font-weight: 800;
+  color: #a855f7;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.reflex-start-digits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.start-digit-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 10px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.start-digit-btn span {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.start-digit-btn small {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
+
+.start-digit-btn:hover {
+  background: rgba(168, 85, 247, 0.28);
+  border-color: #c084fc;
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.6);
+  transform: translateY(-2px);
+}
+
+.start-digit-btn:hover span {
+  color: #ffffff;
+  filter: drop-shadow(0 0 8px #c084fc);
+}
+
+.start-digit-btn:hover small {
+  color: #e2e8f0;
+}
+
+.start-digit-btn:active {
+  transform: scale(0.96);
+}
+
+.reflex-start-tips {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.tip-item {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.btn-change-divisor {
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(192, 132, 252, 0.4);
+  color: #c084fc;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-change-divisor:hover {
+  background: rgba(168, 85, 247, 0.35);
+  color: #ffffff;
+  border-color: #c084fc;
+}
