@@ -9819,7 +9819,7 @@ body.mobile-typing-mode .chat-header-avatar-wrap {
 }
 .btn-vault-action {
   flex: 1;
-  min-width: 140px;
+  min-width: 0;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f1f5f9;
@@ -13547,7 +13547,7 @@ body.netflix-messenger-theme {
 @media (min-width: 1181px) {
   .fs-toggle-btn {
     width: auto;
-    min-width: 140px;
+    min-width: 0;
   }
   .qgame-btn-launch,
   .qgame-btn-exit {
@@ -13562,7 +13562,7 @@ body.netflix-messenger-theme {
   }
   .fs-toggle-btn {
     width: auto !important;
-    min-width: 116px !important;
+    min-width: 0 !important;
     height: 30px !important;
     padding: 0 9px !important;
     font-size: 0.60rem !important;
