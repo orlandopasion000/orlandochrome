@@ -2096,6 +2096,16 @@
     dom.transmuteIndicator.className = `transmute-badge transmute-${state.catcherType}`;
   }
 
+  function resizeCanvas() {
+    if (!dom.canvasReflex) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = dom.canvasReflex.getBoundingClientRect();
+    const w = rect.width > 0 ? rect.width : window.innerWidth;
+    const h = rect.height > 0 ? rect.height : (window.innerHeight - 56);
+    dom.canvasReflex.width = Math.floor(w * dpr);
+    dom.canvasReflex.height = Math.floor(h * dpr);
+  }
+
   function reflexGameLoop(timestamp) {
     if (!state.active || (state.gameType !== 'reflex' && state.gameType !== 'realm' && state.gameType !== 'dynamo' && state.gameType !== 'helix' && state.gameType !== 'meteor')) return;
 
