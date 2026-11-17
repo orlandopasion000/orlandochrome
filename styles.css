@@ -15881,41 +15881,80 @@ body.arcade-active .screen-btn-primary {
   padding: max(10px, env(safe-area-inset-top, 12px)) max(14px, env(safe-area-inset-right, 14px)) 10px max(14px, env(safe-area-inset-left, 14px)) !important;
 }
 
+/* Mobile Responsive 2-Row Layout for Arcade Arena (Prevents ANY Title Clipping) */
 @media (max-width: 650px) {
   .game-topbar {
-    padding: max(8px, env(safe-area-inset-top, 10px)) 10px 8px 10px !important;
-    gap: 6px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto !important;
+    gap: 8px 10px !important;
+    padding: max(10px, env(safe-area-inset-top, 12px)) 12px 10px 12px !important;
+  }
+  .game-brand {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    gap: 8px !important;
   }
   .game-brand-icon {
     display: none !important;
   }
+  .game-brand-text {
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
   .game-title {
-    font-size: 13px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
     letter-spacing: 0.5px !important;
   }
   .game-sub {
     font-size: 9.5px !important;
-    max-width: 140px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 220px !important;
+  }
+  .game-controls-actions {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+  }
+  .game-btn-icon,
+  .game-btn-close {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
   .game-stats-cluster {
-    gap: 4px !important;
+    grid-column: 1 / 3 !important;
+    grid-row: 2 / 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 6px !important;
   }
   .game-stat-pill {
-    min-width: 46px !important;
-    padding: 2px 6px !important;
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    padding: 3px 6px !important;
+    border-radius: 8px !important;
   }
   .g-stat-label {
     font-size: 7.5px !important;
   }
   .g-stat-val {
-    font-size: 11.5px !important;
-  }
-  .game-btn-icon,
-  .game-btn-close {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    width: 44px !important;
-    height: 44px !important;
+    font-size: 12px !important;
   }
   .reflex-hud-banner {
     top: 6px !important;
