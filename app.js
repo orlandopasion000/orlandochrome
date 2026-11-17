@@ -7547,7 +7547,7 @@ const Icons = {
             <span class="popover-badge-pill">${pendingNotes.length}</span>
             <div>
               <div class="popover-profile-name">${esc(profile.name)}</div>
-              <div class="popover-sub-count">${pendingNotes.length} Pending Task${pendingNotes.length > 1 ? 's' : ''}</div>
+              <div class="popover-sub-count">✨ ${pendingNotes.length} Pending Task${pendingNotes.length > 1 ? 's' : ''} · Relaxed Flow</div>
             </div>
           </div>
           <button type="button" class="btn-close-popover" id="btnClosePopover" title="Close (Esc)">✕</button>
@@ -10005,6 +10005,52 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
         closeMenu();
       }
     });
+
+    // Connect all System Menu Actions directly with robust feedback
+    const btnSync = $('#btnDropdownSyncNow', menu);
+    if (btnSync) {
+      btnSync.onclick = (e) => {
+        e.stopPropagation();
+        closeMenu();
+        if (typeof triggerSyncAction === 'function') triggerSyncAction();
+      };
+    }
+
+    const btnVoice = $('#btnDropdownVoiceGuide', menu);
+    if (btnVoice) {
+      btnVoice.onclick = (e) => {
+        e.stopPropagation();
+        closeMenu();
+        if (typeof openVoiceCommandsCheatSheetModal === 'function') openVoiceCommandsCheatSheetModal();
+      };
+    }
+
+    const btnRecovery = $('#btnDropdownRecovery', menu);
+    if (btnRecovery) {
+      btnRecovery.onclick = (e) => {
+        e.stopPropagation();
+        closeMenu();
+        if (typeof openVaultModal === 'function') openVaultModal();
+      };
+    }
+
+    const btnCleanSlate = $('#btnDropdownCleanSlate', menu);
+    if (btnCleanSlate) {
+      btnCleanSlate.onclick = (e) => {
+        e.stopPropagation();
+        closeMenu();
+        if (typeof openCleanSlateChallengeModal === 'function') openCleanSlateChallengeModal();
+      };
+    }
+
+    const btnExport = $('#btnDropdownExport', menu);
+    if (btnExport) {
+      btnExport.onclick = (e) => {
+        e.stopPropagation();
+        closeMenu();
+        if (typeof exportFullBackupJson === 'function') exportFullBackupJson();
+      };
+    }
 
     // Close dropdown smoothly when an item is selected
     $$('.system-menu-item', menu).forEach(item => {

@@ -4815,8 +4815,8 @@ body.is-resizing-pane * {
     font-weight: 750;
   }
   .btn-mobile-back .back-pending-badge {
-    background: radial-gradient(circle at 30% 25%, #ffffff 0%, #ff7a82 22%, #e50914 55%, #800006 88%, #3d0003 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #fef08a 0%, #f59e0b 55%, #d97706 100%) !important;
+    color: #050507 !important;
     font-size: 10px;
     font-weight: 900;
     min-width: 18px;
@@ -4827,6 +4827,7 @@ body.is-resizing-pane * {
     justify-content: center;
     padding: 0 4px;
     margin-left: 2px;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6) !important;
   }
 
   /* Compact Mobile Profile Header Title */
@@ -7276,28 +7277,28 @@ button:hover .modern-icon,
 
 .pending-tasks-popover {
   position: fixed;
-  z-index: 9995;
-  width: 330px;
+  z-index: 99995;
+  width: 350px;
   max-width: calc(100vw - 24px);
-  background: rgba(14, 14, 20, 0.92) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(239, 68, 68, 0.35) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.92), 0 0 24px rgba(239, 68, 68, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-  padding: 14px 16px !important;
+  background: linear-gradient(160deg, rgba(11, 17, 32, 0.97) 0%, rgba(6, 10, 20, 0.98) 100%) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  backdrop-filter: blur(28px) !important;
+  border: 1px solid rgba(56, 189, 248, 0.40) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.92), 0 0 32px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(254, 240, 138, 0.28) !important;
+  padding: 16px 18px !important;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   user-select: none;
-  animation: popoverDropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: popoverDropIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box !important;
 }
 
 @keyframes popoverDropIn {
   from {
-    transform: scale(0.94) translateY(-6px);
+    transform: scale(0.95) translateY(-8px);
     opacity: 0;
   }
   to {
@@ -7321,12 +7322,12 @@ button:hover .modern-icon,
     inset: auto 0 0 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    border-radius: 20px 20px 0 0 !important;
+    border-radius: 22px 22px 0 0 !important;
     border-left: none !important;
     border-right: none !important;
     border-bottom: none !important;
-    max-height: 82vh !important;
-    padding: 12px 16px 28px 16px !important;
+    max-height: 85vh !important;
+    padding: 14px 18px 32px 18px !important;
     animation: popoverSheetUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 }
@@ -7335,108 +7336,113 @@ button:hover .modern-icon,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+  padding-bottom: 10px;
 }
 
 .popover-title-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .popover-badge-pill {
-  background: radial-gradient(circle at 30% 25%, #ffffff 0%, #ff7a82 22%, #e50914 55%, #800006 88%, #3d0003 100%);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 900;
-  min-width: 20px;
-  height: 20px;
-  border-radius: var(--radius-full);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 6px;
-  box-shadow: 0 0 8px rgba(229, 9, 20, 0.8);
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 60%, #ca8a04 100%) !important;
+  color: #0b1120 !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  border-radius: var(--radius-full) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 7px !important;
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.55), 0 2px 4px rgba(0, 0, 0, 0.4) !important;
 }
 
 .popover-profile-name {
-  font-size: 13px;
-  font-weight: 800;
-  color: #ffffff;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.2px !important;
 }
 
 .popover-sub-count {
-  font-size: 11px;
-  font-weight: 600;
-  color: #ff8a93;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #38bdf8 !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .btn-close-popover {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
-  font-size: 11px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
 }
 
 .btn-close-popover:hover {
-  background: rgba(229, 9, 20, 0.3);
-  border-color: #ff3344;
-  color: #ffffff;
-  transform: rotate(90deg);
+  background: rgba(56, 189, 248, 0.2) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  transform: rotate(90deg) scale(1.05) !important;
 }
 
 .popover-tasks-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 240px;
+  gap: 8px;
+  max-height: 260px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 2px;
+  padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 77, 88, 0.3) transparent;
+  scrollbar-color: rgba(56, 189, 248, 0.35) transparent;
 }
 
 .popover-task-item {
-  background: rgba(22, 22, 30, 0.65) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 10px !important;
-  padding: 8px 10px !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  border: 1px solid rgba(56, 189, 248, 0.18) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 12px !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   cursor: pointer !important;
 }
 
 .popover-task-item:hover {
-  background: rgba(30, 30, 42, 0.85) !important;
-  border-color: rgba(239, 68, 68, 0.35) !important;
+  background: rgba(20, 32, 56, 0.85) !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 14px rgba(56, 189, 248, 0.18) !important;
   transform: translateX(2px) !important;
 }
 
 .popover-task-item.task-completing {
   transform: translateX(24px) scale(0.96) !important;
   opacity: 0 !important;
-  background: rgba(16, 185, 129, 0.22) !important;
-  border-color: rgba(52, 211, 153, 0.5) !important;
+  background: rgba(16, 185, 129, 0.25) !important;
+  border-color: rgba(52, 211, 153, 0.6) !important;
 }
 
 .btn-popover-checkbox {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
-  width: 24px !important;
-  height: 24px !important;
-  border-radius: 7px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 8px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -7459,14 +7465,14 @@ button:hover .modern-icon,
   min-width: 0 !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 3px !important;
+  gap: 4px !important;
 }
 
 .popover-task-text {
-  font-size: 0.78rem !important;
+  font-size: 0.82rem !important;
   font-weight: 600 !important;
   color: #f1f5f9 !important;
-  line-height: 1.35 !important;
+  line-height: 1.4 !important;
   word-break: break-word !important;
 }
 
@@ -7474,15 +7480,15 @@ button:hover .modern-icon,
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 6px !important;
+  gap: 8px !important;
 }
 
 .popover-task-time {
-  font-size: 0.64rem !important;
+  font-size: 0.66rem !important;
   color: #94a3b8 !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 3px !important;
+  gap: 4px !important;
 }
 
 .popover-task-time svg {
@@ -7490,41 +7496,44 @@ button:hover .modern-icon,
 }
 
 .popover-jump-hint {
-  font-size: 0.62rem !important;
+  font-size: 0.66rem !important;
   font-weight: 600 !important;
-  color: #ef4444 !important;
-  opacity: 0.75 !important;
-  transition: opacity 0.15s ease !important;
+  color: #38bdf8 !important;
+  opacity: 0.85 !important;
+  transition: all 0.15s ease !important;
 }
 
 .popover-task-item:hover .popover-jump-hint {
   opacity: 1 !important;
-  text-decoration: underline !important;
+  color: #fef08a !important;
+  text-shadow: 0 0 8px rgba(254, 240, 138, 0.5) !important;
 }
 
 .btn-popover-all-done {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.35) 100%) !important;
-  border: 1px solid rgba(239, 68, 68, 0.4) !important;
-  color: #fecaca !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(14, 165, 233, 0.28) 100%) !important;
+  border: 1px solid rgba(52, 211, 153, 0.55) !important;
+  color: #a7f3d0 !important;
   font-weight: 700 !important;
-  font-size: 0.72rem !important;
-  padding: 8px 12px !important;
-  border-radius: 8px !important;
+  font-size: 0.76rem !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
-  margin-top: 4px !important;
+  gap: 8px !important;
+  margin-top: 6px !important;
   flex-shrink: 0 !important;
-  transition: all 0.15s ease !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.18) !important;
 }
 
 .btn-popover-all-done:hover {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.35) 0%, rgba(185, 28, 28, 0.5) 100%) !important;
-  border-color: rgba(239, 68, 68, 0.7) !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.42) 0%, rgba(14, 165, 233, 0.45) 100%) !important;
+  border-color: #34d399 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Pulsing highlight for Jump to Note */
@@ -15610,5 +15619,41 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
   background: linear-gradient(160deg, #0b101e 0%, #050811 100%) !important;
   border: 1px solid rgba(56, 189, 248, 0.42) !important;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.92), 0 0 28px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(245, 196, 81, 0.22) !important;
+  z-index: 100000 !important;
 }
+
+/* 7. Quantum Chromatic Topbar Quick Actions & System Dropdown Items */
+.fs-toggle-btn,
+.btn-topbar-quick,
+.btn-topbar-system {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(9, 13, 24, 0.95) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.32) !important;
+  color: #f1f5f9 !important;
+  border-radius: 14px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.fs-toggle-btn:hover,
+.btn-topbar-quick:hover,
+.btn-topbar-system:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(212, 168, 83, 0.15) 100%) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.btn-topbar-system.active {
+  border-color: #00f0ff !important;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.28) 0%, rgba(212, 168, 83, 0.20) 100%) !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.45) !important;
+}
+
+.fs-toggle-btn .fs-btn-glyph svg path {
+  stroke: #38bdf8 !important;
+}
+
+.fs-toggle-btn:hover .fs-btn-glyph svg path {
+  stroke: #fef08a !important;
+}
+
 

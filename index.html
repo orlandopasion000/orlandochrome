@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade311">
+  <link rel="stylesheet" href="styles.css?v=arcade312">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -60,9 +60,11 @@
       width: 100% !important;
       max-width: 100vw !important;
       box-sizing: border-box !important;
-      padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)) !important;
+      padding: 0 max(14px, env(safe-area-inset-right)) 0 max(14px, env(safe-area-inset-left)) !important;
       gap: 8px !important;
-      overflow: hidden !important;
+      overflow: visible !important;
+      position: relative !important;
+      z-index: 9999 !important;
       background: #000000 !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
       display: flex !important;
@@ -149,8 +151,7 @@
       gap: 8px !important;
       flex: 1 1 auto !important;
       min-width: 0 !important;
-      overflow: hidden !important;
-      contain: paint !important;
+      overflow: visible !important;
     }
 
     .brand-logo {
@@ -159,6 +160,9 @@
       gap: 6px !important;
       cursor: pointer !important;
       flex-shrink: 0 !important;
+      margin-left: 2px !important;
+      margin-right: 2px !important;
+      overflow: visible !important;
     }
 
     .oc-logo-img {
@@ -166,6 +170,8 @@
       height: 26px !important;
       border-radius: 7px !important;
       flex-shrink: 0 !important;
+      margin: 1px 0 1px 2px !important;
+      overflow: visible !important;
     }
 
     .brand-title {
@@ -387,7 +393,7 @@
     /* Screen Width <= 850px (Tablets, Split-screen, and when DevTools is open) */
     @media (max-width: 850px) {
       .app-topbar {
-        padding: 0 8px !important;
+        padding: 0 max(12px, env(safe-area-inset-right)) 0 max(14px, env(safe-area-inset-left)) !important;
         gap: 6px !important;
       }
       .brand-title .title-chrome {
@@ -401,6 +407,9 @@
       .fs-toggle-btn .fs-btn-label {
         display: none !important;
       }
+      .fs-toggle-btn .fs-btn-glyph {
+        display: inline-flex !important;
+      }
       .fs-toggle-btn {
         padding: 0 !important;
         width: 26px !important;
@@ -408,8 +417,11 @@
         height: 26px !important;
         justify-content: center !important;
       }
-      .btn-topbar-quick span {
+      .btn-topbar-quick .quick-btn-label {
         display: none !important;
+      }
+      .btn-topbar-quick .quick-btn-icon {
+        display: inline-flex !important;
       }
       .btn-topbar-quick {
         padding: 0 !important;
@@ -454,7 +466,7 @@
     /* Ultra-compact Mobile (<= 450px down to 360px) */
     @media (max-width: 450px) {
       .app-topbar {
-        padding: 0 5px !important;
+        padding: 0 max(10px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left)) !important;
         gap: 3px !important;
       }
       .topbar-left {
@@ -462,11 +474,13 @@
       }
       .brand-logo {
         gap: 3px !important;
+        margin-left: 0 !important;
       }
       .oc-logo-img {
-        width: 20px !important;
-        height: 20px !important;
-        border-radius: 5px !important;
+        width: 22px !important;
+        height: 22px !important;
+        border-radius: 6px !important;
+        margin: 1px 0 1px 1px !important;
       }
       .brand-title {
         font-size: 0.72rem !important;
@@ -476,12 +490,12 @@
         padding: 0 !important;
       }
       .qgame-btn-launch {
-        width: 21px !important;
-        min-width: 21px !important;
-        height: 22px !important;
+        width: 22px !important;
+        min-width: 22px !important;
+        height: 24px !important;
       }
       .game-btn-glyph {
-        font-size: 0.60rem !important;
+        font-size: 0.62rem !important;
       }
       .topbar-right {
         gap: 2px !important;
@@ -490,9 +504,9 @@
       .btn-topbar-fullscreen,
       .btn-topbar-quick,
       .btn-topbar-system {
-        width: 22px !important;
-        min-width: 22px !important;
-        height: 22px !important;
+        width: 24px !important;
+        min-width: 24px !important;
+        height: 24px !important;
         padding: 0 !important;
       }
       .nf-clock-digital {
@@ -741,6 +755,90 @@
       box-shadow: 0 0 24px rgba(0, 240, 255, 0.85), 0 0 12px rgba(245, 196, 81, 0.6) !important;
       transform: scale(1.07) !important;
     }
+
+    /* 6. Pending Tasks Popover (Calming, Glad, Luxurious Quantum Glass HUD) */
+    body .pending-tasks-popover {
+      background: linear-gradient(160deg, rgba(11, 17, 32, 0.97) 0%, rgba(6, 10, 20, 0.98) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.40) !important;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.92), 0 0 32px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(254, 240, 138, 0.28) !important;
+      border-radius: 18px !important;
+    }
+    body .popover-badge-pill {
+      background: linear-gradient(135deg, #fef08a 0%, #eab308 60%, #ca8a04 100%) !important;
+      color: #0b1120 !important;
+      box-shadow: 0 0 12px rgba(234, 179, 8, 0.55), 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    }
+    body .popover-sub-count {
+      color: #38bdf8 !important;
+      font-weight: 600 !important;
+    }
+    body .popover-task-item {
+      background: rgba(15, 23, 42, 0.65) !important;
+      border: 1px solid rgba(56, 189, 248, 0.18) !important;
+    }
+    body .popover-task-item:hover {
+      background: rgba(20, 32, 56, 0.85) !important;
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 14px rgba(56, 189, 248, 0.18) !important;
+    }
+    body .btn-popover-checkbox {
+      border-color: rgba(56, 189, 248, 0.35) !important;
+    }
+    body .btn-popover-checkbox:hover {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #34d399 !important;
+      color: #34d399 !important;
+    }
+    body .popover-jump-hint {
+      color: #38bdf8 !important;
+    }
+    body .popover-jump-hint:hover {
+      color: #fef08a !important;
+    }
+    body .btn-popover-all-done {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(14, 165, 233, 0.28) 100%) !important;
+      border: 1px solid rgba(52, 211, 153, 0.55) !important;
+      color: #a7f3d0 !important;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.18) !important;
+    }
+    body .btn-popover-all-done:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.42) 0%, rgba(14, 165, 233, 0.45) 100%) !important;
+      border-color: #34d399 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+    }
+
+    /* 7. System Dropdown Menu & Topbar Quick Actions */
+    body .system-dropdown-menu {
+      background: linear-gradient(160deg, rgba(11, 17, 32, 0.98) 0%, rgba(6, 10, 20, 0.99) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.42) !important;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.92), 0 0 28px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(245, 196, 81, 0.22) !important;
+      z-index: 100000 !important;
+    }
+    body .fs-toggle-btn,
+    body .btn-topbar-quick,
+    body .btn-topbar-system {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(9, 13, 24, 0.95) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.32) !important;
+      color: #f1f5f9 !important;
+    }
+    body .fs-toggle-btn:hover,
+    body .btn-topbar-quick:hover,
+    body .btn-topbar-system:hover {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(212, 168, 83, 0.15) 100%) !important;
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35) !important;
+    }
+    body .btn-topbar-system.active {
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.45) !important;
+    }
+    body .fs-toggle-btn .fs-btn-glyph svg path {
+      stroke: #38bdf8 !important;
+    }
+    body .fs-toggle-btn:hover .fs-btn-glyph svg path {
+      stroke: #fef08a !important;
+    }
   </style>
   
 </head>
@@ -850,19 +948,55 @@
 
           <!-- 3. System Reset & Emergency Recovery -->
           <button type="button" class="system-menu-item" id="btnDropdownRecovery" role="menuitem" title="Emergency Profile Recovery & State Verification">
-            <div class="menu-item-icon" style="background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.4);">
+            <div class="menu-item-icon" style="background:rgba(212,168,83,0.18);border:1px solid rgba(212,168,83,0.4);">
               <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#ef4444" stroke-width="2"/>
-                <line x1="12" y1="9" x2="12" y2="13" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="12" cy="17" r="1" fill="#ef4444"/>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#f5c451" stroke-width="2"/>
+                <polyline points="9 12 11 14 15 10" stroke="#f5c451" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="menu-item-text">
               <div class="menu-item-title-row">
-                <span class="menu-item-title">System Diagnostics</span>
-                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(239,68,68,0.22);color:#f87171;font-weight:700;">DIAG</span>
+                <span class="menu-item-title">Recovery Vault</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(212,168,83,0.22);color:#fef08a;font-weight:700;">FORTRESS</span>
               </div>
-              <div class="menu-item-desc">Verify local persistence integrity and recover profile states</div>
+              <div class="menu-item-desc">Enterprise data checkpoints, rollbacks &amp; trash audit ledger</div>
+            </div>
+          </button>
+
+          <!-- 4. Two-Step Clean Slate Reset -->
+          <button type="button" class="system-menu-item" id="btnDropdownCleanSlate" role="menuitem" title="Reset all 22 profiles to clean slate with automatic safety checkpoint">
+            <div class="menu-item-icon" style="background:rgba(52,211,153,0.18);border:1px solid rgba(52,211,153,0.4);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3 3v5h5" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16 21h5v-5" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Start Clean Slate</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(52,211,153,0.22);color:#a7f3d0;font-weight:700;">FRESH</span>
+              </div>
+              <div class="menu-item-desc">Clear 0 pendings, 0 timers, and empty trash with instant vault rollback</div>
+            </div>
+          </button>
+
+          <!-- 5. Export JSON Backup -->
+          <button type="button" class="system-menu-item" id="btnDropdownExport" role="menuitem" title="Download encrypted JSON backup of all 22 workspaces">
+            <div class="menu-item-icon" style="background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.4);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                <polyline points="7 10 12 15 17 10" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Export Backup JSON</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(56,189,248,0.22);color:#38bdf8;font-weight:700;">BACKUP</span>
+              </div>
+              <div class="menu-item-desc">Secure JSON snapshot of profiles, messages, reminders &amp; timers</div>
             </div>
           </button>
         </div>
@@ -1144,7 +1278,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade310"></script>
+  <script src="app.js?v=arcade312"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -1203,7 +1337,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade310"></script>
-  <!-- BuildStamp: 2026-11-17T12:35:00.000Z - Quantum Chromatic Monogram v310 -->
+  <script src="game.js?v=arcade312"></script>
+  <!-- BuildStamp: 2026-11-17T13:30:00.000Z - Quantum Chromatic Monogram v312 -->
 </body>
 </html>
