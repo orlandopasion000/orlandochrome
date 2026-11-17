@@ -7577,7 +7577,7 @@ const Icons = {
         ` : ''}
       `;
 
-      // 1. 1-Tap Checkbox Mark Done with card-exit animation
+      // 1. 1-Tap Checkbox Mark Done with Zen Dissolve animation
       $$('.btn-popover-checkbox', popoverEl).forEach(btn => {
         btn.onclick = (e) => {
           e.stopPropagation();
@@ -7600,8 +7600,8 @@ const Icons = {
             saveState();
             renderSidebar();
             renderMainChat();
-            showToast(`✓ Completed: "${note.text.slice(0, 25)}"`);
-            setTimeout(() => renderContent(), 200);
+            showToast(`✨ Completed: "${note.text.slice(0, 25)}"`);
+            setTimeout(() => renderContent(), 380);
           }
         };
       });
@@ -7626,23 +7626,29 @@ const Icons = {
         };
       });
 
-      // 3. Mark All Done
+      // 3. Mark All Done with Cascading Zen Shimmer
       const btnAllDone = $('#btnPopoverAllDone', popoverEl);
       if (btnAllDone) {
         btnAllDone.onclick = (e) => {
           e.stopPropagation();
-          (profile.notes || []).forEach(n => { n.done = true; n.doneAt = now(); });
+          $$('.popover-task-item', popoverEl).forEach((item, idx) => {
+            setTimeout(() => item.classList.add('task-completing'), idx * 60);
+          });
           if (window.soundMgr) {
             if (typeof window.soundMgr.playReadyChime === 'function') window.soundMgr.playReadyChime();
             else if (typeof window.soundMgr.playClick === 'function') window.soundMgr.playClick();
           }
-          profile.isPinned = false;
-          profile.pinnedAt = null;
-          saveState();
-          renderSidebar();
-          renderMainChat();
-          showToast(`✓ Completed all tasks on ${profile.name}`);
-          renderContent();
+          triggerHaptic('success');
+          setTimeout(() => {
+            (profile.notes || []).forEach(n => { n.done = true; n.doneAt = now(); });
+            profile.isPinned = false;
+            profile.pinnedAt = null;
+            saveState();
+            renderSidebar();
+            renderMainChat();
+            showToast(`✨ All tasks completed on ${profile.name}!`);
+            renderContent();
+          }, 380);
         };
       }
 
@@ -10081,12 +10087,17 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     $('#tabTimers').onclick = () => setFilter($('#tabTimers'), 'timers');
 
     // Logo click resets filters
-    // Real-Time Cloud Sync (Topbar & System Dropdown)
+    // Real-Time Cloud Sync (Topbar & System Dropdown) with Monogram Tourbillon Animation
     const triggerSyncAction = async () => {
       triggerHaptic('medium');
+      const logoImg = $('#logoBtn .oc-logo-img');
+      if (logoImg) logoImg.classList.add('monogram-syncing');
       showToast('🔄 Synchronizing with Cloud...');
       await pullFromCloud(false, false);
       await pushToCloudNow(false);
+      if (logoImg) {
+        setTimeout(() => logoImg.classList.remove('monogram-syncing'), 800);
+      }
       triggerHaptic('success');
       showToast('☁️ Synced! Laptop and iPhone are 100% up to date.');
     };
@@ -11396,6 +11407,41 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       return tokens.every(tok => lower.includes(tok));
     }
 
+    // 0. TOP-TIER REC 3: Universal Executive Slash Commands HUD (Raycast / Spotlight Command Center)
+    const isSlash = q.startsWith('/');
+    const cleanCmd = isSlash ? q.slice(1).trim() : q;
+    const slashCommands = [
+      { cmd: 'sync', title: '/sync — Real-Time Cloud Sync', desc: 'Trigger bidirectional real-time Firestore sync stream', badge: 'EXEC ⚡', action: () => { if (typeof triggerSyncAction === 'function') triggerSyncAction(); } },
+      { cmd: 'vault', title: '/vault — Data Recovery Vault', desc: 'Open Enterprise multi-tier rollback checkpoints & ledger', badge: 'VAULT 🛡️', action: () => { if (typeof openVaultModal === 'function') openVaultModal(); } },
+      { cmd: 'clean', title: '/clean — Clean Slate Reset', desc: 'Two-step safety challenge gate to reset 0 pendings, 0 timers', badge: 'RESET ♻️', action: () => { if (typeof openCleanSlateChallengeModal === 'function') openCleanSlateChallengeModal(); } },
+      { cmd: 'voice', title: '/voice — Voice Commands Manual', desc: 'Wispr Flow speech dictation, punctuation & command cheatsheet', badge: 'WISPR 🎙️', action: () => { if (typeof openVoiceCommandsCheatSheetModal === 'function') openVoiceCommandsCheatSheetModal(); } },
+      { cmd: 'backup', title: '/backup — Export Backup JSON', desc: 'Download encrypted snapshot of all 22 workspaces', badge: 'BACKUP 💾', action: () => { if (typeof exportFullBackupJson === 'function') exportFullBackupJson(); } },
+      { cmd: 'pending', title: '/pending — Filter Pending Tasks', desc: 'Switch sidebar view strictly to profiles with active tasks', badge: 'FILTER ⏳', action: () => { const tab = document.querySelector('.filter-tab[data-filter="pending"]'); if (tab) tab.click(); } },
+      { cmd: 'all', title: '/all — View All 22 Profiles', desc: 'Reset sidebar filter to display all workspaces', badge: 'FILTER 🌐', action: () => { const tab = document.querySelector('.filter-tab[data-filter="all"]'); if (tab) tab.click(); } },
+      { cmd: 'math', title: '/math — Math Overdrive Arcade', desc: 'Launch 8-level adaptive arithmetic challenge', badge: 'GAME 🧮', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('math'); } },
+      { cmd: 'reflex', title: '/reflex — Reflex Blitz Arcade', desc: 'Launch multi-digit multiple catcher game', badge: 'GAME ⚡', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('reflex'); } },
+      { cmd: 'matrix', title: '/matrix — Memory Matrix Arcade', desc: 'Launch radiant 16-box quantum array game', badge: 'GAME 🧠', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('memory'); } },
+      { cmd: 'realm', title: '/realm — Quantum Realm Universe', desc: 'Launch standalone classic quantum particle game', badge: 'GAME ◈', action: () => { if (window.quantumGame) window.quantumGame.launch('classic'); } },
+      { cmd: 'helix', title: '/helix — Quantum Helix Universe', desc: 'Launch bi-chromatic cyan/violet DNA double helix game', badge: 'GAME 🧬', action: () => { if (window.quantumGame) window.quantumGame.launch('helix'); } },
+      { cmd: 'meteor', title: '/meteor — Quantum Meteor Universe', desc: 'Launch 3D molten asteroid & solar dynamo game', badge: 'GAME ☄️', action: () => { if (window.quantumGame) window.quantumGame.launch('meteor'); } },
+    ];
+
+    slashCommands.forEach(sc => {
+      if (isSlash ? (sc.cmd.startsWith(cleanCmd) || !cleanCmd) : (q && (sc.cmd === q || sc.title.toLowerCase().includes(q)))) {
+        items.push({
+          id: `cmd-${sc.cmd}`,
+          cat: 'Executive Slash Commands',
+          type: 'actions',
+          icon: '⚡',
+          title: sc.title,
+          desc: sc.desc,
+          badge: sc.badge,
+          score: 160,
+          action: sc.action
+        });
+      }
+    });
+
     // A. DEEP SEARCH: Messages, Reminders, Conversations & Checklist Sub-Items Across All 22 Profiles
     if (Array.isArray(state.profiles)) {
       state.profiles.forEach(p => {
@@ -11833,8 +11879,26 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     }
   }
 
+  // REC 5: Multi-Display Auto-DPI Calibration & Zoom Watcher
+  function initDpiAutoCalibration() {
+    const calibrate = () => {
+      const dpr = window.devicePixelRatio || 1;
+      document.documentElement.style.setProperty('--app-dpr', dpr.toString());
+      const isHighDpi = dpr >= 1.25;
+      document.body.classList.toggle('high-dpi-display', isHighDpi);
+    };
+    calibrate();
+    window.addEventListener('resize', calibrate, { passive: true });
+    if (window.matchMedia) {
+      try {
+        window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`).addEventListener('change', calibrate);
+      } catch(e) {}
+    }
+  }
+
   // Initializer
   function init() {
+    initDpiAutoCalibration();
     document.title = IS_BLANK_EDITION ? 'OrlandoChrome (Blank Canvas)' : 'OrlandoChrome (Main Version)'; // Immediate 0ms Title
     loadState();
     

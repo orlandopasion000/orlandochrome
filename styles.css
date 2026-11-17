@@ -15656,4 +15656,161 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
   stroke: #fef08a !important;
 }
 
+/* ==========================================================================
+   TOP-TIER ARCHITECTURAL SUITE: RECOMMENDATIONS 1 - 5 IMPLEMENTATION
+   ========================================================================== */
+
+/* REC 1: Component Container Queries for Elastic Zoom Scaling */
+.app-topbar {
+  container-type: inline-size;
+  container-name: topbar;
+}
+
+@container topbar (max-width: 960px) {
+  .brand-title .title-chrome {
+    display: none !important;
+  }
+  .fs-toggle-btn .fs-btn-label,
+  .btn-topbar-quick .quick-btn-label {
+    display: none !important;
+  }
+}
+
+@container topbar (max-width: 720px) {
+  .system-btn-text,
+  .system-caret {
+    display: none !important;
+  }
+  .btn-topbar-system {
+    padding: 0 !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    justify-content: center !important;
+  }
+  .nf-alarm-pill .alarm-pill-text {
+    max-width: 44px !important;
+    font-size: 0.60rem !important;
+  }
+}
+
+@container topbar (max-width: 520px) {
+  .brand-title {
+    font-size: 0.76rem !important;
+  }
+  .topbar-left {
+    gap: 4px !important;
+  }
+  .topbar-right {
+    gap: 3px !important;
+  }
+  .nf-alarm-pill {
+    padding: 0 4px !important;
+    height: 22px !important;
+  }
+  .nf-clock-digital {
+    font-size: 0.62rem !important;
+  }
+  .nf-clock-digital .nf-clock-ampm {
+    display: none !important;
+  }
+}
+
+/* REC 2: Ambient "Glad & Relaxed" Biometric Aesthetic Engine */
+@keyframes goldLuminescentBreath {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.55), 0 2px 4px rgba(0, 0, 0, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(254, 240, 138, 0.75), 0 0 8px rgba(56, 189, 248, 0.4), 0 2px 6px rgba(0, 0, 0, 0.5);
+    transform: scale(1.05);
+  }
+}
+
+body .badge-pending-count,
+body .popover-badge-pill {
+  animation: goldLuminescentBreath 3.2s ease-in-out infinite !important;
+}
+
+@keyframes zenTaskDissolve {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    background: rgba(15, 23, 42, 0.65);
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translateX(8px) scale(1.02);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(56, 189, 248, 0.24) 100%);
+    border-color: #34d399 !important;
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.45), inset 0 0 10px rgba(52, 211, 153, 0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(28px) scale(0.94);
+    filter: blur(4px);
+  }
+}
+
+.popover-task-item.task-completing {
+  animation: zenTaskDissolve 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* REC 4: Prismatic Vector Micro-Animations for the OC Monogram */
+@keyframes prismaticLightSweep {
+  0% {
+    filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.4)) drop-shadow(0 0 2px rgba(212, 168, 83, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.85)) drop-shadow(0 0 10px rgba(254, 240, 138, 0.8)) drop-shadow(0 0 6px rgba(168, 85, 247, 0.6));
+    transform: scale(1.04) rotate(0.5deg);
+  }
+  100% {
+    filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.4)) drop-shadow(0 0 2px rgba(212, 168, 83, 0.4));
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+body .app-topbar .brand-logo:hover .oc-logo-img {
+  animation: prismaticLightSweep 1.2s cubic-bezier(0.16, 1, 0.3, 1) infinite !important;
+}
+
+/* Tourbillon Sync Escapement Pulsing Ring during Cloud Sync */
+@keyframes tourbillonPulse {
+  0% {
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.6), 0 0 0 1px rgba(0, 240, 255, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(0, 240, 255, 0.95), 0 0 12px rgba(254, 240, 138, 0.7), 0 0 0 2.5px rgba(0, 240, 255, 0.65);
+    transform: scale(1.06);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.6), 0 0 0 1px rgba(0, 240, 255, 0.4);
+    transform: scale(1);
+  }
+}
+
+body .oc-logo-img.monogram-syncing {
+  animation: tourbillonPulse 1.4s ease-in-out infinite !important;
+  border-color: #00f0ff !important;
+}
+
+/* REC 5: Multi-Display Auto-DPI Calibration & Non-Scaling Vector Stroke */
+svg,
+svg path,
+svg line,
+svg circle,
+svg polyline,
+svg rect {
+  vector-effect: non-scaling-stroke;
+}
+
+html, body {
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
 

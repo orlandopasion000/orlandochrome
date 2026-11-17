@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade312">
+  <link rel="stylesheet" href="styles.css?v=arcade313">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -839,6 +839,59 @@
     body .fs-toggle-btn:hover .fs-btn-glyph svg path {
       stroke: #fef08a !important;
     }
+
+    /* TOP-TIER ARCHITECTURAL SUITE: RECOMMENDATIONS 1 - 5 */
+    body .app-topbar {
+      container-type: inline-size;
+      container-name: topbar;
+    }
+    @container topbar (max-width: 960px) {
+      .brand-title .title-chrome { display: none !important; }
+      .fs-toggle-btn .fs-btn-label,
+      .btn-topbar-quick .quick-btn-label { display: none !important; }
+    }
+    @container topbar (max-width: 720px) {
+      .system-btn-text, .system-caret { display: none !important; }
+      .btn-topbar-system { padding: 0 !important; width: 28px !important; min-width: 28px !important; justify-content: center !important; }
+    }
+    @keyframes goldLuminescentBreath {
+      0%, 100% { box-shadow: 0 0 10px rgba(234, 179, 8, 0.55), 0 2px 4px rgba(0, 0, 0, 0.4); transform: scale(1); }
+      50% { box-shadow: 0 0 18px rgba(254, 240, 138, 0.75), 0 0 8px rgba(56, 189, 248, 0.4); transform: scale(1.05); }
+    }
+    body .badge-pending-count, body .popover-badge-pill {
+      animation: goldLuminescentBreath 3.2s ease-in-out infinite !important;
+    }
+    @keyframes zenTaskDissolve {
+      0% { opacity: 1; transform: translateX(0) scale(1); background: rgba(15, 23, 42, 0.65); }
+      40% { opacity: 0.9; transform: translateX(8px) scale(1.02); background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(56, 189, 248, 0.24) 100%); border-color: #34d399 !important; box-shadow: 0 0 20px rgba(52, 211, 153, 0.45); }
+      100% { opacity: 0; transform: translateX(28px) scale(0.94); filter: blur(4px); }
+    }
+    body .popover-task-item.task-completing {
+      animation: zenTaskDissolve 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+    @keyframes prismaticLightSweep {
+      0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.4)) drop-shadow(0 0 2px rgba(212, 168, 83, 0.4)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.85)) drop-shadow(0 0 10px rgba(254, 240, 138, 0.8)); transform: scale(1.04); }
+    }
+    body .app-topbar .brand-logo:hover .oc-logo-img {
+      animation: prismaticLightSweep 1.2s cubic-bezier(0.16, 1, 0.3, 1) infinite !important;
+    }
+    @keyframes tourbillonPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(0, 240, 255, 0.6); transform: scale(1); }
+      50% { box-shadow: 0 0 22px rgba(0, 240, 255, 0.95), 0 0 12px rgba(254, 240, 138, 0.7); transform: scale(1.06); }
+    }
+    body .oc-logo-img.monogram-syncing {
+      animation: tourbillonPulse 1.4s ease-in-out infinite !important;
+      border-color: #00f0ff !important;
+    }
+    svg, svg path, svg line, svg circle, svg polyline, svg rect {
+      vector-effect: non-scaling-stroke;
+    }
+    html, body {
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      text-rendering: optimizeLegibility !important;
+    }
   </style>
   
 </head>
@@ -1278,7 +1331,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade312"></script>
+  <script src="app.js?v=arcade313"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -1337,7 +1390,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade312"></script>
-  <!-- BuildStamp: 2026-11-17T13:30:00.000Z - Quantum Chromatic Monogram v312 -->
+  <script src="game.js?v=arcade313"></script>
+  <!-- BuildStamp: 2026-11-17T13:45:00.000Z - Quantum Chromatic Monogram v313 -->
 </body>
 </html>
