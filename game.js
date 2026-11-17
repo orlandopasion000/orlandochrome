@@ -100,6 +100,58 @@
         setTimeout(() => this.playTone(f, 'sine', 0.45, 0.20), idx * 80);
       });
     }
+
+    // Recommendation 5: Mode-Specific Multi-Harmonic Audio & Micro-Haptics
+    playDynamoCapture(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const freq = 480 * Math.min(2.2, 1 + (combo - 1) * 0.08);
+      this.playTone(freq, 'sawtooth', 0.10, 0.22);
+      setTimeout(() => this.playTone(freq * 1.5, 'sine', 0.16, 0.20), 35);
+      try { if (navigator.vibrate) navigator.vibrate(8); } catch(e){}
+    }
+
+    playHelixCapture(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+      const pitch = pentatonic[(combo - 1) % pentatonic.length];
+      this.playTone(pitch, 'sine', 0.16, 0.24);
+      setTimeout(() => this.playTone(pitch * 1.25, 'triangle', 0.20, 0.18), 45);
+      try { if (navigator.vibrate) navigator.vibrate([10, 15, 10]); } catch(e){}
+    }
+
+    playMeteorCapture(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        const startPitch = 88 + Math.min(40, (combo - 1) * 4);
+        osc.frequency.setValueAtTime(startPitch, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(36, this.ctx.currentTime + 0.28);
+        gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.28);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.28);
+      } catch(e) {
+        this.playTone(65, 'triangle', 0.25, 0.30);
+      }
+      try { if (navigator.vibrate) navigator.vibrate(28); } catch(e){}
+    }
+
+    playOverdriveFanfare() {
+      if (this.isMuted) return;
+      this.init();
+      const notes = [440, 554.37, 659.25, 880, 1108.73, 1318.51];
+      notes.forEach((f, idx) => {
+        setTimeout(() => this.playTone(f, 'sine', 0.35, 0.25), idx * 55);
+      });
+      try { if (navigator.vibrate) navigator.vibrate([30, 40, 30, 40, 60]); } catch(e){}
+    }
   }
 
   const audio = new CyberAudioEngine();
@@ -2214,8 +2266,8 @@
     if (!sub) return;
     const isTouch = deviceInputMode === 'touch';
     const targetHint = isTouch
-      ? 'DRAG FINGER TO MOVE · DEFLECT PARTICLES'
-      : 'TRACKPAD / MOUSE · DEFLECT PARTICLES';
+      ? 'DRAG TO ALIGN CHROME CORE · INTERCEPT CELESTIAL FLUX NODES'
+      : 'ALIGN CHROME CORE WITH CURSOR · INTERCEPT CELESTIAL FLUX NODES';
     sub.setAttribute('data-device-hint', targetHint);
   }
 
@@ -2334,13 +2386,13 @@
 
     if (state.gameType === 'dynamo' || state.gameType === 'realm') {
       dom.gameTitle.textContent = 'CHROME DYNAMO';
-      dom.gameSub.textContent = `Profile Synapse Wave Catcher · Wave ${state.currentWave} · 10 Shield Units`;
+      dom.gameSub.textContent = `Chrome Core: Faraday Singularity · Intercept Plasma Orbs · Wave ${state.currentWave} · 10 Shields`;
     } else if (state.gameType === 'helix') {
       dom.gameTitle.textContent = 'CHROME HELIX';
-      dom.gameSub.textContent = `Dual-Thread Task Synchronizer · Wave ${state.currentWave} · 10 Shield Units`;
+      dom.gameSub.textContent = `Chrome Core: Harmonic Bio-Lattice · Intercept Nucleotide Pearls · Wave ${state.currentWave} · 10 Shields`;
     } else if (state.gameType === 'meteor') {
       dom.gameTitle.textContent = 'CHROME METEOR';
-      dom.gameSub.textContent = `Task Surge Asteroid Deflector · Wave ${state.currentWave} · 10 Shield Units`;
+      dom.gameSub.textContent = `Chrome Core: Aegis Caldera · Deflect Molten Bolides · Wave ${state.currentWave} · 10 Shields`;
     } else if (state.gameType === 'reflex') {
       dom.gameTitle.textContent = 'REFLEX BLITZ';
       dom.gameSub.textContent = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
@@ -2513,6 +2565,17 @@
     state.lastTransmuteTime = performance.now();
     state.particles = [];
     state.floatingTexts = [];
+    state.absorptionEffects = [];
+    state.ambientField = [];
+
+    // Session Opening Choreography (First 15s High-Reflex Opening)
+    state.gameStartTime = performance.now();
+    state.totalNodesSpawned = 0;
+    state.lastSpawnTime = 0;
+    state.isOverdrive = false;
+    state.overdriveEndTime = 0;
+    state.prevCatcherPixelX = null;
+    state.catcherVelocity = 0;
 
     state.currentWave = 1;
     MeteorVFXEngine.init();
@@ -2567,10 +2630,10 @@
   function updateTransmuteIndicator() {
     if (!dom.transmuteIndicator) return;
     const labels = {
-      dynamo: '⚡ ACTIVE CORE: CHROME DYNAMO (Catch Synapse Waves!)',
-      realm: '⚡ ACTIVE CORE: CHROME DYNAMO (Catch Synapse Waves!)',
-      helix: '🧬 ACTIVE CORE: CHROME HELIX (Catch Dual-Strands!)',
-      meteor: '☄️ ACTIVE CORE: CHROME METEOR (Deflect Molten Surges!)'
+      dynamo: '⚡ CHROME CORE: FARADAY SINGULARITY (Capture Plasma Orbs!)',
+      realm: '⚡ CHROME CORE: FARADAY SINGULARITY (Capture Plasma Orbs!)',
+      helix: '🧬 CHROME CORE: HARMONIC BIO-LATTICE (Capture Nucleotide Pearls!)',
+      meteor: '☄️ CHROME CORE: AEGIS CALDERA (Deflect Molten Bolides!)'
     };
 
     if (state.gameType === 'reflex') {
@@ -2622,12 +2685,24 @@
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
 
-    // Smooth Linear Interpolation (Lerp) for Catcher Movement:
-    const lerpFactor = (deviceInputMode === 'touch') ? 0.35 : 0.22;
+    // Smooth Linear Interpolation (Lerp) with Mode-Specific Kinematics:
+    // - Dynamo: Snappy, agile electromagnetic tracking (0.44 touch / 0.28 mouse)
+    // - Helix: Fluid harmonic gliding with gyroscopic banking tilt (0.36 touch / 0.22 mouse)
+    // - Meteor: Substantial volcanic inertia and high-momentum weight (0.30 touch / 0.18 mouse)
+    let lerpFactor = (deviceInputMode === 'touch') ? 0.36 : 0.22;
+    if (state.catcherType === 'dynamo' || state.catcherType === 'realm') {
+      lerpFactor = (deviceInputMode === 'touch') ? 0.44 : 0.28;
+    } else if (state.catcherType === 'meteor') {
+      lerpFactor = (deviceInputMode === 'touch') ? 0.30 : 0.18;
+    }
     currentCatcherX += (targetCatcherX - currentCatcherX) * lerpFactor;
     state.catcherX = currentCatcherX;
 
     const catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
+    if (state.prevCatcherPixelX !== null) {
+      state.catcherVelocity = catcherPixelX - state.prevCatcherPixelX;
+    }
+    state.prevCatcherPixelX = catcherPixelX;
     
     // Cellphone & Mobile Safe-Area Inset:
     // On cellphones and touchscreens, lift catcher up to 135px above bottom
@@ -2857,12 +2932,161 @@
     // MODE B: CHROME DYNAMO, CHROME HELIX, CHROME METEOR
     // ─────────────────────────────────────────────────────────────
     else {
+      const now = timestamp;
+      const elapsedSec = (now - state.gameStartTime) / 1000;
+      const normFactor = Math.max(0.70, Math.min(1.20, h / 800));
+
+      // Check Overdrive status (10x Combo State)
+      if (state.isOverdrive && now > state.overdriveEndTime) {
+        state.isOverdrive = false;
+        state.floatingTexts.push({
+          text: '✨ OVERDRIVE COOLING',
+          x: w / 2,
+          y: h / 2 - 40,
+          color: '#94a3b8',
+          alpha: 1.0,
+          vy: -0.8
+        });
+      }
+
       // ─────────────────────────────────────────────────────────────
-        // ─────────────────────────────────────────────────────────────
-        // WAVE ADVANCEMENT & ACCELERATION ARCHITECTURE
-        // ─────────────────────────────────────────────────────────────
-        // Wave progression: 1 wave every 1000 points.
-        const calculatedWave = Math.min(10, Math.floor(state.score / 1000) + 1);
+      // RECOMMENDATION 4: ATMOSPHERIC DEPTH & ENVIRONMENTAL FIELD
+      // ─────────────────────────────────────────────────────────────
+      ctx.save();
+      if (state.catcherType === 'dynamo' || state.catcherType === 'realm') {
+        // Dynamo CRT Ion Sweep Lines & Electromagnetic Ambient Static
+        const sweepY = (now * 0.08) % h;
+        const sweepGrad = ctx.createLinearGradient(0, sweepY, 0, sweepY + 36);
+        sweepGrad.addColorStop(0.0, "rgba(0, 240, 255, 0.0)");
+        sweepGrad.addColorStop(0.5, "rgba(0, 240, 255, 0.045)");
+        sweepGrad.addColorStop(1.0, "rgba(0, 240, 255, 0.0)");
+        ctx.fillStyle = sweepGrad;
+        ctx.fillRect(0, sweepY, w, 36);
+
+        // Ambient micro-spark nodes
+        for (let g = 0; g < 4; g++) {
+          const gx = ((now * 0.03 + g * 110) % w);
+          const gy = ((g * 190 + now * 0.015) % h);
+          ctx.beginPath();
+          ctx.arc(gx, gy, 1.2, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(0, 240, 255, 0.45)";
+          ctx.fill();
+        }
+      } else if (state.catcherType === 'helix') {
+        // Helix Cosmic Nebula & Drifting Stardust Constellations
+        const nebGrad = ctx.createRadialGradient(w * 0.5, h * 0.45, 10, w * 0.5, h * 0.45, w * 0.7);
+        nebGrad.addColorStop(0.0, "rgba(217, 70, 239, 0.035)");
+        nebGrad.addColorStop(0.5, "rgba(34, 211, 238, 0.025)");
+        nebGrad.addColorStop(1.0, "transparent");
+        ctx.fillStyle = nebGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Drifting bioluminescent stardust
+        for (let s = 0; s < 6; s++) {
+          const sx = ((s * 75 + Math.sin(now * 0.001 + s) * 30 + w) % w);
+          const sy = ((h - (now * 0.02 + s * 120) % h));
+          ctx.beginPath();
+          ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = (s % 2 === 0) ? "rgba(34, 211, 238, 0.55)" : "rgba(217, 70, 239, 0.55)";
+          ctx.fill();
+        }
+      } else {
+        // Meteor Volcanic Horizon Glow & Rising Thermal Convection Embers
+        const horizGrad = ctx.createLinearGradient(0, h, 0, h - 220);
+        horizGrad.addColorStop(0.0, "rgba(249, 115, 22, 0.12)");
+        horizGrad.addColorStop(0.4, "rgba(234, 88, 12, 0.05)");
+        horizGrad.addColorStop(1.0, "transparent");
+        ctx.fillStyle = horizGrad;
+        ctx.fillRect(0, h - 220, w, 220);
+
+        // Rising convective smoke embers
+        for (let m = 0; m < 6; m++) {
+          const mx = ((m * 85 + Math.sin(now * 0.002 + m) * 25 + w) % w);
+          const my = ((h - ((now * 0.035 + m * 90) % 260)));
+          ctx.beginPath();
+          ctx.arc(mx, my, 1.8, 0, Math.PI * 2);
+          ctx.fillStyle = (m % 2 === 0) ? "rgba(254, 240, 138, 0.65)" : "rgba(249, 115, 22, 0.55)";
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      // ─────────────────────────────────────────────────────────────
+      // OPENING CHOREOGRAPHY & CALIBRATED DIFFICULTY PROGRESSION
+      // ─────────────────────────────────────────────────────────────
+      // Multi-target fair lane separation algorithm:
+      function pickFairLaneX() {
+        const margin = 70;
+        const minSeparation = 72;
+        let bestX = Math.random() * (w - margin * 2) + margin;
+        for (let att = 0; att < 16; att++) {
+          const candidateX = Math.random() * (w - margin * 2) + margin;
+          const isClear = state.particles.every(pt => {
+            if (pt.y < 380) return Math.abs(pt.x - candidateX) >= minSeparation;
+            return true;
+          });
+          if (isClear) return candidateX;
+        }
+        return bestX;
+      }
+
+      function spawnNode(baseSpeed) {
+        let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
+        const px = pickFairLaneX();
+        const actualSpeed = baseSpeed * normFactor;
+        const p = {
+          type: pType,
+          x: px,
+          y: -48,
+          speed: actualSpeed,
+          baseSpeed: baseSpeed,
+          headR: 26.0,
+          spine: [],
+          stardust: []
+        };
+        for (let j = 0; j < 8; j++) {
+          p.spine.push({ x: px, y: -48 - j * 8.5 });
+        }
+        state.particles.push(p);
+        state.totalNodesSpawned++;
+        state.lastSpawnTime = now;
+      }
+
+      // Immediate spawn at t = 0s:
+      if (state.totalNodesSpawned === 0) {
+        spawnNode(2.45);
+      }
+
+      // Opening 15-Second Choreography Engine:
+      let shouldSpawn = false;
+      let nextBaseSpeed = 2.45;
+
+      if (elapsedSec < 5.0) {
+        // PHASE 1 (0–5s): 6–8 fast Nodes (target 7), interval ~680ms, max 3 concurrent
+        const interval = 680;
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 3 && state.totalNodesSpawned < 7) {
+          shouldSpawn = true;
+          nextBaseSpeed = 2.40 + Math.random() * 0.40; // 2.40 to 2.80 px/frame (~150-175 px/s)
+        }
+      } else if (elapsedSec < 10.0) {
+        // PHASE 2 (5–10s): 7–10 slightly faster Nodes (target 8), interval ~540ms, max 4 concurrent
+        const interval = 540;
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 4 && state.totalNodesSpawned < 15) {
+          shouldSpawn = true;
+          nextBaseSpeed = 2.85 + Math.random() * 0.45; // 2.85 to 3.30 px/frame (~175-210 px/s)
+        }
+      } else if (elapsedSec < 15.0) {
+        // PHASE 3 (10–15s): 5–10 fast Nodes with syncopated rhythm (target 7), max 4 concurrent
+        // Alternating rhythm: twin rapid bursts (320ms) followed by breathing spacing (850ms)
+        const isPairBurst = (state.totalNodesSpawned % 3 !== 0);
+        const interval = isPairBurst ? 320 : 850;
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 4 && state.totalNodesSpawned < 22) {
+          shouldSpawn = true;
+          nextBaseSpeed = 3.10 + Math.random() * 0.45; // 3.10 to 3.55 px/frame (~190-225 px/s)
+        }
+      } else {
+        // PHASE 4 (15s+): Steady Adaptive Wave Progression
+        const calculatedWave = Math.min(10, Math.floor(state.score / 1200) + 1);
         if (calculatedWave > state.currentWave) {
           state.currentWave = calculatedWave;
           audio.playVictoryFanfare();
@@ -2877,66 +3101,62 @@
           updateHeaderUI();
         }
 
-        // Particle Density Gating:
-        // Wave 1 begins extra calm and relaxing:
-        // - From 0 to 350 pts: strictly 1 particle on screen at a time!
-        // - From 350 to 1000 pts: max 2 particles.
-        // - Wave 2: max 2 particles.
-        // - Wave 3: max 3 particles.
-        // - Wave 4: max 3 particles.
-        // - Wave 5+: max 4 particles.
-        const maxParticles = (state.currentWave === 1) 
-          ? (state.score < 350 ? 1 : 2) 
-          : (state.currentWave === 2 ? 2 : (state.currentWave === 3 ? 3 : 4));
-        const baseSpawn = (state.currentWave === 1) ? 0.010 : (0.014 + (state.currentWave - 1) * 0.003);
-        const spawnRate = Math.min(0.035, baseSpawn);
-
-        // Responsive Screen Height Normalization & Wave Speed Ramp:
-        // normFactor ensures identical travel time across all phone & desktop screens
-        const normFactor = Math.max(0.70, Math.min(1.20, h / 800));
-        // Gentle +5% velocity increase per wave:
-        const speedMult = 1.0 + (state.currentWave - 1) * 0.05;
-
-        if (state.particles.length < maxParticles && Math.random() < spawnRate) {
-          let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
-          const px = Math.random() * (w - 140) + 70;
-
-          // Fast, fluid, smooth starting animation:
-          const baseSpeed = (1.40 + Math.random() * 0.40) * normFactor;
-          const actualSpeed = baseSpeed * speedMult;
-
-        const p = {
-          type: pType,
-          x: px,
-          y: -45,
-          speed: actualSpeed,
-          baseSpeed: baseSpeed,
-          headR: 26.0,
-          spine: [],
-          stardust: []
-        };
-
-        for (let j = 0; j < 8; j++) {
-          p.spine.push({ x: px, y: -45 - j * 8.5 });
+        const maxConcurrent = Math.min(5, 3 + Math.floor(state.currentWave / 2));
+        const waveInterval = Math.max(380, 650 - (state.currentWave - 1) * 45);
+        if ((now - state.lastSpawnTime) >= waveInterval && state.particles.length < maxConcurrent) {
+          shouldSpawn = true;
+          nextBaseSpeed = 2.60 + (state.currentWave - 1) * 0.22 + Math.random() * 0.35;
         }
-        state.particles.push(p);
       }
 
-      // Draw designated Quantum Core Catcher
-      if (state.catcherType === 'dynamo' || state.catcherType === 'realm') {
-        QuantumRenderer.drawDynamoCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5);
-      } else if (state.catcherType === 'helix') {
-        QuantumRenderer.drawHelixCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5);
+      if (shouldSpawn) {
+        spawnNode(nextBaseSpeed);
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // DRAW CHROME CORE WITH KINEMATIC TILT & OVERDRIVE EFFECTS
+      // ─────────────────────────────────────────────────────────────
+      ctx.save();
+      // Organic gyroscopic banking tilt on lateral movement
+      if (state.catcherType === 'helix') {
+        const tilt = Math.max(-0.25, Math.min(0.25, state.catcherVelocity * 0.008));
+        ctx.translate(catcherPixelX, catcherPixelY);
+        ctx.rotate(tilt);
+        QuantumRenderer.drawHelixCore(ctx, 0, 0, timestamp, 0.5);
+      } else if (state.catcherType === 'dynamo' || state.catcherType === 'realm') {
+        QuantumRenderer.drawDynamoCore(ctx, catcherPixelX, catcherPixelY, timestamp, state.isOverdrive ? 1.0 : 0.5);
       } else {
-        QuantumRenderer.drawMeteorAsteroid(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5);
+        QuantumRenderer.drawMeteorAsteroid(ctx, catcherPixelX, catcherPixelY, timestamp, state.isOverdrive ? 1.0 : 0.5);
+      }
+      ctx.restore();
+
+      // ─────────────────────────────────────────────────────────────
+      // RECOMMENDATION 3: 10X OVERDRIVE CORE CLIMAX AURA
+      // ─────────────────────────────────────────────────────────────
+      if (state.isOverdrive) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const odPulse = Math.sin(now * 0.015) * 8;
+        const odGrad = ctx.createRadialGradient(catcherPixelX, catcherPixelY, 15, catcherPixelX, catcherPixelY, 80 + odPulse);
+        odGrad.addColorStop(0.0, "rgba(255, 255, 255, 0.90)");
+        odGrad.addColorStop(0.3, "rgba(254, 240, 138, 0.70)");
+        odGrad.addColorStop(0.7, "rgba(249, 115, 22, 0.40)");
+        odGrad.addColorStop(1.0, "transparent");
+        ctx.fillStyle = odGrad;
+        ctx.beginPath();
+        ctx.arc(catcherPixelX, catcherPixelY, 80 + odPulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       }
 
-      // Update & Render Flagship Particles
+      // ─────────────────────────────────────────────────────────────
+      // UPDATE & RENDER CELESTIAL FLUX NODES + MAGNETIC ATTRACTION
+      // ─────────────────────────────────────────────────────────────
       for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
         p.y += p.speed;
 
-        // Update spine IK
+        // Update spine IK (Clean Trailing Wake)
         p.spine[0].x = p.x;
         p.spine[0].y = p.y;
         for (let j = 1; j < p.spine.length; j++) {
@@ -2944,7 +3164,43 @@
           p.spine[j].x = p.x + Math.sin(timestamp * 0.005 + j * 0.6) * (j * 1.1);
         }
 
-        // Render Particle
+        // RECOMMENDATION 2: SUBTLE GRAVITATIONAL / MAGNETIC WELL
+        const dxToCore = catcherPixelX - p.x;
+        const dyToCore = catcherPixelY - p.y;
+        const distToCore = Math.hypot(dxToCore, dyToCore);
+        const gravRadius = 125;
+        const hitRadius = (deviceInputMode === 'touch') ? 80 : 54;
+
+        if (distToCore < gravRadius && p.y < catcherPixelY + 20 && distToCore >= hitRadius) {
+          const gravStrength = (1.0 - (distToCore / gravRadius)) * 0.95;
+          p.x += Math.sign(dxToCore) * Math.min(Math.abs(dxToCore) * 0.12, gravStrength * 3.8);
+
+          // Render subtle magnetic / gravitational energy tether
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          if (p.type === 'dynamo' || p.type === 'realm') {
+            const midX = (p.x + catcherPixelX) * 0.5 + Math.sin(now * 0.05) * 8;
+            const midY = (p.y + catcherPixelY) * 0.5;
+            ctx.quadraticCurveTo(midX, midY, catcherPixelX, catcherPixelY);
+            ctx.strokeStyle = `rgba(0, 240, 255, ${0.35 * gravStrength})`;
+            ctx.lineWidth = 1.8;
+          } else if (p.type === 'helix') {
+            ctx.lineTo(catcherPixelX, catcherPixelY);
+            ctx.strokeStyle = `rgba(217, 70, 239, ${0.40 * gravStrength})`;
+            ctx.lineWidth = 1.5;
+          } else {
+            const midX = (p.x + catcherPixelX) * 0.5 + Math.sin(now * 0.04) * 10;
+            const midY = (p.y + catcherPixelY) * 0.5;
+            ctx.quadraticCurveTo(midX, midY, catcherPixelX, catcherPixelY);
+            ctx.strokeStyle = `rgba(249, 115, 22, ${0.45 * gravStrength})`;
+            ctx.lineWidth = 2.0;
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Render Celestial Flux Node
         if (p.type === 'dynamo' || p.type === 'realm') {
           QuantumRenderer.drawTier3DynamoParticle(ctx, p, timestamp);
         } else if (p.type === 'helix') {
@@ -2953,14 +3209,73 @@
           QuantumRenderer.drawTier3MeteorParticle(ctx, p, timestamp);
         }
 
-        // Collision Check with Catcher
-        const dist = Math.hypot(p.x - catcherPixelX, p.y - catcherPixelY);
-        // Contact radius: generous 80px on touch (54px on mouse) for effortless, forgiving catching
-        const hitRadius = (deviceInputMode === 'touch') ? 80 : 54;
-        if (dist < hitRadius) {
-          state.score += 150 * state.combo;
+        // ─────────────────────────────────────────────────────────────
+        // COLLISION CHECK & RECOMMENDATION 1: ABSORPTION RESONANCE
+        // ─────────────────────────────────────────────────────────────
+        if (distToCore < hitRadius) {
+          const basePoints = state.isOverdrive ? 300 : 150;
+          state.score += basePoints * state.combo;
           state.combo = Math.min(10, state.combo + 1);
-          audio.playCorrectChime(state.combo);
+
+          // Overdrive 10x Climax Trigger
+          if (state.combo >= 10 && !state.isOverdrive) {
+            state.isOverdrive = true;
+            state.overdriveEndTime = now + 6500;
+            audio.playOverdriveFanfare();
+            state.floatingTexts.push({
+              text: '🔥 OVERDRIVE 10× ACTIVE! (2X POINTS)',
+              x: w / 2,
+              y: h / 2 - 50,
+              color: '#fef08a',
+              alpha: 1.0,
+              vy: -1.2
+            });
+          }
+
+          // Mode-Specific Sensory Audio & Micro-Haptics
+          if (p.type === 'helix') {
+            audio.playHelixCapture(state.combo);
+            state.floatingTexts.push({
+              text: `🧬 HARMONIZED +${basePoints * state.combo}`,
+              x: p.x,
+              y: catcherPixelY - 30,
+              color: '#22d3ee',
+              alpha: 1.0,
+              vy: -1.2
+            });
+          } else if (p.type === 'meteor') {
+            audio.playMeteorCapture(state.combo);
+            state.floatingTexts.push({
+              text: `☄️ DEFLECTED +${basePoints * state.combo}`,
+              x: p.x,
+              y: catcherPixelY - 30,
+              color: '#f97316',
+              alpha: 1.0,
+              vy: -1.2
+            });
+          } else {
+            audio.playDynamoCapture(state.combo);
+            state.floatingTexts.push({
+              text: `⚡ CAPTURED +${basePoints * state.combo}`,
+              x: p.x,
+              y: catcherPixelY - 30,
+              color: '#00f0ff',
+              alpha: 1.0,
+              vy: -1.2
+            });
+          }
+
+          // Spawn Custom Core Capture Resonance Shockwave
+          state.absorptionEffects.push({
+            type: p.type,
+            x: catcherPixelX,
+            y: catcherPixelY,
+            radius: 12,
+            maxRadius: 155,
+            alpha: 1.0,
+            startTime: now
+          });
+
           state.particles.splice(i, 1);
           updateHeaderUI();
           continue;
@@ -2971,6 +3286,7 @@
           state.particles.splice(i, 1);
           state.reflexLives--;
           state.combo = 1;
+          state.isOverdrive = false;
           audio.playMistakeBuzzer();
           renderReflexShields();
 
@@ -2982,6 +3298,69 @@
           }
           updateHeaderUI();
         }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // RENDER ABSORPTION RESONANCE SHOCKWAVES
+      // ─────────────────────────────────────────────────────────────
+      for (let ab = state.absorptionEffects.length - 1; ab >= 0; ab--) {
+        const eff = state.absorptionEffects[ab];
+        eff.radius += 7.5;
+        eff.alpha -= 0.045;
+        if (eff.alpha <= 0 || eff.radius >= eff.maxRadius) {
+          state.absorptionEffects.splice(ab, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        if (eff.type === 'helix') {
+          // Twin intertwined cyan & magenta harmonic resonance rings
+          ctx.beginPath();
+          ctx.arc(eff.x, eff.y, eff.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(34, 211, 238, ${eff.alpha * 0.85})`;
+          ctx.lineWidth = 3.2;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(eff.x, eff.y, eff.radius * 0.75, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(217, 70, 239, ${eff.alpha * 0.85})`;
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+        } else if (eff.type === 'meteor') {
+          // Explosive volcanic thermal wave with searing flame ring
+          ctx.beginPath();
+          ctx.arc(eff.x, eff.y, eff.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(249, 115, 22, ${eff.alpha * 0.90})`;
+          ctx.lineWidth = 4.2;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(eff.x, eff.y, eff.radius * 0.85, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(254, 240, 138, ${eff.alpha * 0.95})`;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+        } else {
+          // Tesla lightning shockwave with radiating discharge arcs
+          ctx.beginPath();
+          ctx.arc(eff.x, eff.y, eff.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 240, 255, ${eff.alpha * 0.95})`;
+          ctx.lineWidth = 3.0;
+          ctx.stroke();
+
+          for (let a = 0; a < 6; a++) {
+            const arcAng = (a / 6) * Math.PI * 2 + now * 0.01;
+            const ax = eff.x + Math.cos(arcAng) * eff.radius;
+            const ay = eff.y + Math.sin(arcAng) * eff.radius;
+            ctx.beginPath();
+            ctx.moveTo(eff.x, eff.y);
+            ctx.lineTo(ax, ay);
+            ctx.strokeStyle = `rgba(168, 85, 247, ${eff.alpha * 0.65})`;
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
       }
     }
 
