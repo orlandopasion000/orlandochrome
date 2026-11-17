@@ -9965,6 +9965,23 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
   }
 
   // Event Listeners Setup
+  // Real-Time Cloud Sync (Topbar & System Dropdown) with Monogram Tourbillon Animation
+  async function triggerSyncAction() {
+    triggerHaptic('medium');
+    const logoImg = $('#logoBtn .oc-logo-img');
+    if (logoImg) logoImg.classList.add('monogram-syncing');
+    showToast('🔄 Synchronizing with Cloud...');
+    if (typeof pullFromCloud === 'function') await pullFromCloud(false, false);
+    if (typeof pushToCloudNow === 'function') await pushToCloudNow(false);
+    if (logoImg) {
+      setTimeout(() => logoImg.classList.remove('monogram-syncing'), 800);
+    }
+    triggerHaptic('success');
+    showToast('☁️ Synced! Laptop and iPhone are 100% up to date.');
+  }
+  window.triggerSyncAction = triggerSyncAction;
+  window.__ocTriggerSync = triggerSyncAction;
+
   // Futuristic System Menu Controller (Compressed Clean Front View)
   function initSystemMenu() {
     const btn = $('#btnSystemMenu');
@@ -10087,27 +10104,13 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
     $('#tabTimers').onclick = () => setFilter($('#tabTimers'), 'timers');
 
     // Logo click resets filters
-    // Real-Time Cloud Sync (Topbar & System Dropdown) with Monogram Tourbillon Animation
-    const triggerSyncAction = async () => {
-      triggerHaptic('medium');
-      const logoImg = $('#logoBtn .oc-logo-img');
-      if (logoImg) logoImg.classList.add('monogram-syncing');
-      showToast('🔄 Synchronizing with Cloud...');
-      await pullFromCloud(false, false);
-      await pushToCloudNow(false);
-      if (logoImg) {
-        setTimeout(() => logoImg.classList.remove('monogram-syncing'), 800);
-      }
-      triggerHaptic('success');
-      showToast('☁️ Synced! Laptop and iPhone are 100% up to date.');
-    };
     const btnSyncNow = $('#btnTopbarSyncNow');
     if (btnSyncNow) btnSyncNow.onclick = triggerSyncAction;
     const btnDropdownSync = $('#btnDropdownSyncNow');
     if (btnDropdownSync) {
       btnDropdownSync.onclick = () => {
         const menu = $('#systemDropdownMenu');
-        if (menu) menu.classList.remove('active');
+        if (menu) menu.classList.remove('show');
         triggerSyncAction();
       };
     }
