@@ -4575,14 +4575,14 @@ const Icons = {
             <defs>
               <linearGradient id="${rgid}" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FFFFFF"/>
-                <stop offset="28%" stop-color="#FFD1D6"/>
-                <stop offset="62%" stop-color="#FF1E27"/>
-                <stop offset="86%" stop-color="#B8000A"/>
-                <stop offset="100%" stop-color="#590004"/>
+                <stop offset="28%" stop-color="#BAE6FD"/>
+                <stop offset="62%" stop-color="#38BDF8"/>
+                <stop offset="86%" stop-color="#0284C7"/>
+                <stop offset="100%" stop-color="#0369A1"/>
               </linearGradient>
               <linearGradient id="${rnid}" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FFFFFF"/>
-                <stop offset="100%" stop-color="#FF9EA8"/>
+                <stop offset="100%" stop-color="#7DD3FC"/>
               </linearGradient>
             </defs>
             <g transform="rotate(45 12 12)">
@@ -4833,7 +4833,7 @@ const Icons = {
         if (matchingNote) {
           const rawMatchText = matchingNote.text || (matchingNote.subItems && matchingNote.subItems[0]?.text) || '';
           const matchLabel = matchingNote.done ? '✓ Note: ' : '⏳ Reminder: ';
-          matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#f59e0b;font-weight:700;">${matchLabel}</span>${highlightQueryInSnippet(rawMatchText, query, 60)}</span>`;
+          matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#38bdf8;font-weight:700;">${matchLabel}</span>${highlightQueryInSnippet(rawMatchText, query, 60)}</span>`;
         } else if ((p.stickyNote || '').toLowerCase().includes(query)) {
           matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#10b981;font-weight:700;">📌 Sticky: </span>${highlightQueryInSnippet(p.stickyNote, query, 60)}</span>`;
         }
