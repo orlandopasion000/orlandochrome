@@ -17,12 +17,12 @@
   --nf-blood-hover: linear-gradient(135deg, #67e8f9 0%, #38bdf8 45%, #6366f1 85%, #312e81 100%);
   --nf-red-white-grad: linear-gradient(90deg, #ffffff 0%, #e0f2fe 38%, #38bdf8 78%, #0284c7 100%);
   --nf-dark-red-grad: linear-gradient(135deg, rgba(14, 165, 233, 0.28) 0%, rgba(16, 185, 129, 0.20) 55%, rgba(10, 15, 28, 0.90) 100%);
-  --nf-gold: #38bdf8;
-  --qc-gold: #00f0ff;
-  --qc-gold-bright: #67e8f9;
+  --nf-gold: #d4a853;
+  --qc-gold: #d4a853;
+  --qc-gold-bright: #fef08a;
   --qc-cyan: #00f0ff;
   --qc-sapphire: #38bdf8;
-  --qc-violet: #0284c7;
+  --qc-violet: #c084fc;
   --qc-chrome: #e2e8f0;
   --nf-green: #10B981;
   --nf-text: #FFFFFF;
@@ -806,9 +806,9 @@ body.is-resizing-pane * {
   bottom: -3px;
   left: 50%;
   transform: translateX(-50%);
-  background: #030712;
-  border: 1.5px solid #38bdf8;
-  color: #38bdf8;
+  background: #060a14;
+  border: 1.5px solid #d4a853;
+  color: #fef08a;
   font-family: Consolas, monospace;
   font-size: 11px;
   font-weight: 800;
@@ -816,7 +816,7 @@ body.is-resizing-pane * {
   border-radius: 4px;
   line-height: 1.25;
   white-space: nowrap;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 8px rgba(212, 168, 83, 0.4);
 }
 
 /* Unread Radiant Dot on Avatar Top-Right */
@@ -5484,9 +5484,9 @@ body.is-resizing-pane * {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0284c7 0%, #0f172a 100%);
-  border: 1.5px solid #00f0ff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 240, 255, 0.45);
+  background: linear-gradient(135deg, #0284c7 0%, #1e1b4b 100%);
+  border: 1.5px solid #d4a853;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 10px rgba(212, 168, 83, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5498,9 +5498,9 @@ body.is-resizing-pane * {
 
 .chat-header-avatar-wrap:hover .header-avatar-upload-badge {
   transform: scale(1.15);
-  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+  background: linear-gradient(135deg, #d4a853 0%, #00f0ff 100%);
   border-color: #ffffff;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.85), 0 2px 8px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 16px rgba(212, 168, 83, 0.85), 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 .header-avatar-unread-dot {

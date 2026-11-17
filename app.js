@@ -648,7 +648,7 @@ const Icons = {
     portal: (size = 14) => `
       <span class="oc-icon oc-icon-portal" style="width:${size}px;height:${size}px;" title="Main Web App">
         <svg viewBox="0 0 24 24" fill="none">
-          <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="#00f0ff" stroke-width="1.8" fill="rgba(0,240,255,0.18)" stroke-linejoin="round"/>
+          <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" stroke="#d4a853" stroke-width="1.8" fill="rgba(0,240,255,0.18)" stroke-linejoin="round"/>
           <polyline points="7 12 12 7 17 12" stroke="#fef08a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <line x1="12" y1="7" x2="12" y2="17" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
         </svg>
@@ -4518,7 +4518,7 @@ const Icons = {
           </button>
         ` : ''}
         <a href="https://orlandopasion000.github.io/orlandorecharge" target="_blank" rel="noopener noreferrer" class="nf-alarm-pill" id="topAlarmPill" title="Open OrlandoRecharge (Main Version) — Synced Live Schedule">
-          <span class="alarm-pill-icon-svg" style="display:inline-flex;align-items:center;margin-right:4px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px rgba(0,240,255,0.75));"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3L2 6"></path><path d="M19 3l3 3"></path></svg></span>
+          <span class="alarm-pill-icon-svg" style="display:inline-flex;align-items:center;margin-right:4px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d4a853" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px rgba(0,240,255,0.75));"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3L2 6"></path><path d="M19 3l3 3"></path></svg></span>
           <span class="alarm-pill-text"><strong class="alarm-pill-countdown">${alarm.diffText}</strong> — ${esc(alarm.title)}</span>
         </a>
       `;
@@ -4575,14 +4575,14 @@ const Icons = {
             <defs>
               <linearGradient id="${rgid}" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FFFFFF"/>
-                <stop offset="28%" stop-color="#BAE6FD"/>
-                <stop offset="62%" stop-color="#38BDF8"/>
-                <stop offset="86%" stop-color="#0284C7"/>
-                <stop offset="100%" stop-color="#0369A1"/>
+                <stop offset="30%" stop-color="#FEF08A"/>
+                <stop offset="65%" stop-color="#D4A853"/>
+                <stop offset="88%" stop-color="#00F0FF"/>
+                <stop offset="100%" stop-color="#0284C7"/>
               </linearGradient>
               <linearGradient id="${rnid}" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FFFFFF"/>
-                <stop offset="100%" stop-color="#7DD3FC"/>
+                <stop offset="100%" stop-color="#FDE68A"/>
               </linearGradient>
             </defs>
             <g transform="rotate(45 12 12)">
@@ -4833,7 +4833,7 @@ const Icons = {
         if (matchingNote) {
           const rawMatchText = matchingNote.text || (matchingNote.subItems && matchingNote.subItems[0]?.text) || '';
           const matchLabel = matchingNote.done ? '✓ Note: ' : '⏳ Reminder: ';
-          matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#38bdf8;font-weight:700;">${matchLabel}</span>${highlightQueryInSnippet(rawMatchText, query, 60)}</span>`;
+          matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#d4a853;font-weight:700;">${matchLabel}</span>${highlightQueryInSnippet(rawMatchText, query, 60)}</span>`;
         } else if ((p.stickyNote || '').toLowerCase().includes(query)) {
           matchedSnippet = `<span class="snippet-msg-text" style="color:#38bdf8;font-weight:600;"><span style="color:#10b981;font-weight:700;">📌 Sticky: </span>${highlightQueryInSnippet(p.stickyNote, query, 60)}</span>`;
         }
