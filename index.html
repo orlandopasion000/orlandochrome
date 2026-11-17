@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade310">
+  <link rel="stylesheet" href="styles.css?v=arcade311">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -509,6 +509,237 @@
         max-width: 32px !important;
         font-size: 0.56rem !important;
       }
+    }
+  </style>
+
+  <!-- QUANTUM CHROMATIC MONOGRAM DESIGN SYSTEM (v311 AUTHORITATIVE THEME) -->
+  <style id="quantumChromaticMasterTheme">
+    /* 1. Topbar & Brand Monogram Identity */
+    body .app-topbar {
+      background: linear-gradient(180deg, #060911 0%, #000000 100%) !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.28) !important;
+      box-shadow: 0 1px 0 rgba(212, 168, 83, 0.14), 0 4px 20px rgba(0, 0, 0, 0.85) !important;
+    }
+
+    body .app-topbar .brand-logo .oc-logo-img {
+      border: 1px solid rgba(212, 168, 83, 0.6) !important;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.5), 0 0 4px rgba(212, 168, 83, 0.45) !important;
+      image-rendering: -webkit-optimize-contrast !important;
+    }
+
+    @media (max-width: 450px) {
+      body .app-topbar .brand-logo .oc-logo-img {
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 5px !important;
+      }
+    }
+
+    body .app-topbar .brand-title .title-orlando {
+      background: linear-gradient(180deg, #ffffff 0%, #fef08a 75%, #d4a853 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #ffffff !important;
+    }
+
+    body .app-topbar .brand-title .title-chrome {
+      background: linear-gradient(180deg, #ffffff 0%, #bae6fd 26%, #38bdf8 62%, #c084fc 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #38bdf8 !important;
+    }
+
+    body .app-topbar .nf-alarm-pill {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.18) 0%, rgba(14, 165, 233, 0.16) 55%, rgba(9, 13, 24, 0.94) 100%) !important;
+      border: 1px solid rgba(212, 168, 83, 0.55) !important;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(254, 240, 138, 0.25) !important;
+      color: #f8fafc !important;
+    }
+    body .app-topbar .nf-alarm-pill:hover {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.32) 0%, rgba(14, 165, 233, 0.28) 60%, rgba(15, 23, 42, 0.96) 100%) !important;
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.45), 0 0 10px rgba(212, 168, 83, 0.35) !important;
+    }
+
+    /* 2. Sidebar Omnisearch & Selected Filter Tabs (Chromatic Clarity) */
+    body .sidebar-header {
+      background: linear-gradient(180deg, #04070e 0%, #000000 100%) !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.16) !important;
+    }
+
+    body .spotlight-trigger-wrap {
+      background: rgba(9, 14, 26, 0.85) !important;
+      border: 1px solid rgba(56, 189, 248, 0.32) !important;
+    }
+    body .spotlight-trigger-wrap:hover,
+    body .spotlight-trigger-wrap:focus-within {
+      background: rgba(12, 19, 36, 0.95) !important;
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.18), 0 0 16px rgba(56, 189, 248, 0.3) !important;
+    }
+
+    body .filter-tabs-row .filter-tab {
+      background: rgba(12, 17, 30, 0.65) !important;
+      border: 1px solid rgba(148, 163, 184, 0.18) !important;
+      color: #94a3b8 !important;
+    }
+    body .filter-tabs-row .filter-tab:hover {
+      background: rgba(14, 165, 233, 0.12) !important;
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      color: #ffffff !important;
+    }
+
+    /* Selected Filter Tab: High-Contrast Quantum Sapphire & 24K Gold */
+    body .filter-tabs-row .filter-tab.active {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(212, 168, 83, 0.18) 100%) !important;
+      border: 1.5px solid #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.38), inset 0 1px 0 rgba(254, 240, 138, 0.35) !important;
+    }
+
+    body .filter-tabs-row .filter-tab.active[data-filter="pending"] {
+      background: linear-gradient(135deg, rgba(245, 196, 81, 0.28) 0%, rgba(217, 119, 6, 0.22) 100%) !important;
+      border: 1.5px solid #f5c451 !important;
+      color: #fef08a !important;
+      box-shadow: 0 0 14px rgba(245, 196, 81, 0.42) !important;
+    }
+
+    body .tab-red-radiant-dot {
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #fef08a 35%, #f59e0b 75%, #b45309 100%) !important;
+      box-shadow: 0 0 7px rgba(245, 196, 81, 0.9), 0 0 3px rgba(0, 240, 255, 0.65) !important;
+    }
+
+    /* 3. Active Workspace (Profile Row) — Unmistakable Visual Identification */
+    body .profile-list .profile-item {
+      border-bottom: 1px solid rgba(56, 189, 248, 0.08) !important;
+    }
+    body .profile-list .profile-item:hover {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.07) 0%, rgba(12, 17, 30, 0.45) 100%) !important;
+    }
+
+    body .profile-list .profile-item.active {
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.16) 0%, rgba(212, 168, 83, 0.10) 48%, rgba(8, 12, 24, 0.5) 100%) !important;
+      border-top: 1px solid rgba(0, 240, 255, 0.35) !important;
+      border-bottom: 1px solid rgba(212, 168, 83, 0.35) !important;
+      box-shadow: inset 0 0 24px rgba(0, 240, 255, 0.08) !important;
+    }
+
+    body .profile-list .profile-item.active::before {
+      content: '' !important;
+      width: 4.5px !important;
+      background: linear-gradient(180deg, #fef08a 0%, #d4a853 32%, #00f0ff 70%, #a855f7 100%) !important;
+      box-shadow: 2px 0 16px rgba(0, 240, 255, 0.85), 1px 0 6px rgba(212, 168, 83, 0.65) !important;
+    }
+
+    body .profile-list .profile-item.active .profile-avatar-img {
+      border: 2.5px solid #00f0ff !important;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.7), 0 0 6px rgba(245, 196, 81, 0.55) !important;
+    }
+
+    body .profile-list .profile-item.active .profile-name {
+      color: #ffffff !important;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.35) !important;
+    }
+
+    /* Pending Snippets & High-Contrast 24K Gold Count Badge */
+    body .profile-snippet.pending-glow {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.18), rgba(14, 165, 233, 0.15)) !important;
+      border: 1px solid rgba(245, 196, 81, 0.48) !important;
+      box-shadow: 0 0 12px rgba(212, 168, 83, 0.2) !important;
+    }
+    body .profile-snippet.pending-glow .snippet-msg-text {
+      color: #fef9c3 !important;
+    }
+
+    body .badge-pending-count {
+      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 55%, #d97706 100%) !important;
+      color: #050507 !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
+    }
+    body .badge-pending-count:hover {
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.85), 0 0 10px rgba(245, 196, 81, 0.9) !important;
+    }
+
+    /* 4. Executive Suite Dock & Resizer */
+    body .standalone-subapp-dock {
+      background: linear-gradient(180deg, rgba(8, 12, 22, 0.88) 0%, rgba(3, 5, 10, 0.98) 100%) !important;
+      border-top: 1px solid rgba(56, 189, 248, 0.22) !important;
+    }
+    body .standalone-subapp-dock .dock-title {
+      color: #d4a853 !important;
+      letter-spacing: 1.6px !important;
+    }
+    body .standalone-subapp-dock .dock-pill-btn.active {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(212, 168, 83, 0.18) 100%) !important;
+      border: 1.5px solid #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.38), inset 0 1px 0 rgba(254, 240, 138, 0.35) !important;
+    }
+
+    body .workspace-resizer::before {
+      background: rgba(56, 189, 248, 0.18) !important;
+    }
+    body .workspace-resizer:hover::before,
+    body .workspace-resizer.dragging::before {
+      background: linear-gradient(180deg, #fef08a 0%, #00f0ff 50%, #a855f7 100%) !important;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.85) !important;
+    }
+
+    /* 5. Main Chat Header, Messages, Timers & Primary Action */
+    body .chat-header {
+      background: linear-gradient(180deg, #060912 0%, #000000 100%) !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.20) !important;
+    }
+
+    body .chat-header .chat-header-avatar {
+      border: 2.5px solid #00f0ff !important;
+      box-shadow: 0 0 22px rgba(0, 240, 255, 0.45), 0 0 8px rgba(212, 168, 83, 0.38) !important;
+    }
+    body .chat-header .chat-header-avatar:hover {
+      border-color: #f5c451 !important;
+      box-shadow: 0 0 28px rgba(245, 196, 81, 0.65), 0 0 14px rgba(0, 240, 255, 0.5) !important;
+    }
+
+    body .command-capsule {
+      background: rgba(9, 14, 26, 0.82) !important;
+      border: 1px solid rgba(56, 189, 248, 0.38) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(245, 196, 81, 0.18) !important;
+    }
+
+    body .note-bubble {
+      background: linear-gradient(145deg, #090e1a 0%, #050811 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+    body .note-bubble:hover {
+      border-color: rgba(0, 240, 255, 0.45) !important;
+    }
+
+    /* Composer Input & Primary Action Send Button */
+    body .composer-input-wrap {
+      background: rgba(9, 14, 26, 0.88) !important;
+      border: 1px solid rgba(56, 189, 248, 0.28) !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    body .composer-input-wrap:focus-within {
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.20), 0 0 18px rgba(56, 189, 248, 0.32) !important;
+    }
+
+    body .composer-bar .btn-antigravity-send {
+      background: linear-gradient(135deg, #00f0ff 0%, #0284c7 48%, #7c3aed 100%) !important;
+      border: 1.5px solid rgba(254, 240, 138, 0.7) !important;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.58), 0 4px 12px rgba(0, 0, 0, 0.75) !important;
+    }
+    body .composer-bar .btn-antigravity-send:hover {
+      background: linear-gradient(135deg, #67e8f9 0%, #00f0ff 45%, #a855f7 100%) !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.85), 0 0 12px rgba(245, 196, 81, 0.6) !important;
+      transform: scale(1.07) !important;
     }
   </style>
   

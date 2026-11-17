@@ -720,9 +720,11 @@ body.is-resizing-pane * {
   transform: translateX(3px);
 }
 
-/* Active Profile Item with Red & White to Bloody Red Radiant Bar */
+/* Active Profile Item with Quantum Chromatic Monogram Bar */
 .profile-item.active {
-  background: #0d0506;
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.16) 0%, rgba(212, 168, 83, 0.10) 48%, rgba(8, 12, 24, 0.5) 100%);
+  border-top: 1px solid rgba(0, 240, 255, 0.35);
+  border-bottom: 1px solid rgba(212, 168, 83, 0.35);
 }
 
 .profile-item.active::before {
@@ -731,9 +733,9 @@ body.is-resizing-pane * {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #ffffff 0%, #ff5c66 28%, #e50914 68%, #590004 100%);
-  box-shadow: 2px 0 12px rgba(229, 9, 20, 0.75);
+  width: 4.5px;
+  background: linear-gradient(180deg, #fef08a 0%, #d4a853 32%, #00f0ff 70%, #a855f7 100%);
+  box-shadow: 2px 0 16px rgba(0, 240, 255, 0.85), 1px 0 6px rgba(212, 168, 83, 0.65);
 }
 
 /* Pinned Profile Item at Top (Pure OLED Black with Green-White Radiant Accent) */
@@ -755,7 +757,7 @@ body.is-resizing-pane * {
 
 /* Unread Profile Item Highlight */
 .profile-item.is-unread .profile-name {
-  background: linear-gradient(90deg, #ffffff 0%, #ffd6dc 65%, #ff4d58 100%);
+  background: linear-gradient(90deg, #ffffff 0%, #fef08a 60%, #38bdf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
@@ -784,8 +786,8 @@ body.is-resizing-pane * {
 }
 
 .profile-item.active .profile-avatar-img {
-  border-color: #ff2e38;
-  box-shadow: 0 0 12px rgba(229, 9, 20, 0.6), 0 0 3px rgba(255, 255, 255, 0.4);
+  border-color: #00f0ff;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.7), 0 0 6px rgba(245, 196, 81, 0.55);
 }
 
 .profile-item.is-pinned .profile-avatar-img {
@@ -1138,8 +1140,8 @@ body.is-resizing-pane * {
 /* Sidebar Badges: Bloody Red & White Radiant Gradient Count Pill */
 /* Sidebar Badges: Bloody Red & White Radiant Gradient Count Pill (Interactive Quick Action) */
 .badge-pending-count {
-  background: radial-gradient(circle at 30% 25%, #ffffff 0%, #ff7a82 22%, #e50914 55%, #800006 88%, #3d0003 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 55%, #d97706 100%);
+  color: #050507;
   font-size: 11px;
   font-weight: 900;
   min-width: 20px;
@@ -1149,8 +1151,8 @@ body.is-resizing-pane * {
   align-items: center;
   justify-content: center;
   padding: 0 5px;
-  box-shadow: 0 0 9px rgba(229, 9, 20, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.65);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.85);
+  text-shadow: none;
   flex-shrink: 0;
   cursor: pointer !important;
   border: none !important;
@@ -1161,7 +1163,7 @@ body.is-resizing-pane * {
 
 .badge-pending-count:hover {
   transform: scale(1.18);
-  box-shadow: 0 0 16px rgba(255, 30, 39, 1), 0 2px 8px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.85), 0 0 10px rgba(245, 196, 81, 0.9) !important;
 }
 
 .badge-pending-count:active {
@@ -1275,9 +1277,9 @@ body.is-resizing-pane * {
   height: 78px;
   border-radius: var(--radius-full);
   object-fit: cover;
-  border: 2.5px solid rgba(255, 77, 88, 0.5);
+  border: 2.5px solid #00f0ff;
   background: #09090c;
-  box-shadow: 0 0 18px rgba(229, 9, 20, 0.35), 0 4px 12px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.45), 0 0 8px rgba(212, 168, 83, 0.38);
   transition: transform var(--speed-normal) var(--ease-spring), border-color var(--speed-fast) ease, box-shadow var(--speed-fast) ease;
   flex-shrink: 0;
   cursor: pointer;
@@ -1285,8 +1287,8 @@ body.is-resizing-pane * {
 
 .chat-header-avatar:hover {
   transform: scale(1.03);
-  border-color: #ff3344;
-  box-shadow: 0 0 24px rgba(229, 9, 20, 0.65), 0 4px 16px rgba(0, 0, 0, 0.85);
+  border-color: #f5c451;
+  box-shadow: 0 0 28px rgba(245, 196, 81, 0.65), 0 0 14px rgba(0, 240, 255, 0.5);
 }
 
 .chat-header-info {
@@ -15349,9 +15351,10 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
     gap: 3px !important;
   }
 }
+}
 
 /* ==========================================================================
-   QUANTUM CHROMATIC MONOGRAM DESIGN SYSTEM (v310 MASTER REDESIGN)
+   QUANTUM CHROMATIC MONOGRAM DESIGN SYSTEM (v311 MASTER REDESIGN)
    - Guided by the 4K OC Monogram: 24K Gold ("O"), Liquid Hyper-Chrome ("C")
      with Prismatic Violet/Cyan Refraction, and Sapphire Quantum Aperture Iris.
    - High-ergonomics daily OLED dashboard with instant chromatic identification
