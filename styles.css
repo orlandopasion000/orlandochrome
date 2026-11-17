@@ -7543,15 +7543,15 @@ button:hover .modern-icon,
 /* Pulsing highlight for Jump to Note */
 @keyframes noteCardPulse {
   0% {
-    box-shadow: 0 0 0 rgba(229, 9, 20, 0);
+    box-shadow: 0 0 0 rgba(0, 240, 255, 0);
     border-color: rgba(255, 255, 255, 0.1);
   }
   30% {
-    box-shadow: 0 0 25px rgba(229, 9, 20, 0.85), inset 0 0 10px rgba(229, 9, 20, 0.4);
-    border-color: #ff3344;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.85), inset 0 0 10px rgba(212, 168, 83, 0.4);
+    border-color: #00f0ff;
   }
   100% {
-    box-shadow: 0 0 0 rgba(229, 9, 20, 0);
+    box-shadow: 0 0 0 rgba(0, 240, 255, 0);
   }
 }
 
@@ -13547,12 +13547,14 @@ body.netflix-messenger-theme {
 }
 
 /* 1. Quantum Realm: Electric Cyan Glass */
+.qgame-btn-dynamo,
 .qgame-btn-realm {
   background: rgba(14, 165, 233, 0.16) !important;
   border: 1px solid rgba(56, 189, 248, 0.55) !important;
   color: #38bdf8 !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 10px rgba(56, 189, 248, 0.25) !important;
 }
+.qgame-btn-dynamo:hover,
 .qgame-btn-realm:hover {
   background: rgba(14, 165, 233, 0.30) !important;
   border-color: #38bdf8 !important;
@@ -14732,6 +14734,7 @@ body.light-theme .fs-toggle-btn:hover {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
+.qgame-btn-dynamo,
 .qgame-btn-realm {
   background: rgba(14, 165, 233, 0.16) !important;
   border: 1.5px solid #38bdf8 !important;
@@ -14742,6 +14745,7 @@ body.light-theme .fs-toggle-btn:hover {
   color: #38bdf8 !important;
   text-shadow: 0 0 8px #38bdf8 !important;
 }
+.qgame-btn-dynamo:hover,
 .qgame-btn-realm:hover {
   background: rgba(14, 165, 233, 0.32) !important;
   border-color: #38bdf8 !important;
@@ -14847,13 +14851,15 @@ body.arcade-active .app-topbar, body.arcade-active .app-workspace, body.arcade-a
   line-height: 1 !important;
 }
 
-/* 1. Chrome Realm: Electric Cyan Glass */
+/* 1. Chrome Dynamo: Electric Cyan Glass */
+.qgame-btn-dynamo,
 .qgame-btn-realm {
   background: rgba(14, 165, 233, 0.16) !important;
   border: 1px solid rgba(56, 189, 248, 0.55) !important;
   color: #38bdf8 !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 10px rgba(56, 189, 248, 0.25) !important;
 }
+.qgame-btn-dynamo:hover,
 .qgame-btn-realm:hover {
   background: rgba(14, 165, 233, 0.32) !important;
   border-color: #38bdf8 !important;

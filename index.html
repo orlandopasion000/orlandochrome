@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade319">
+  <link rel="stylesheet" href="styles.css?v=arcade320">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -239,12 +239,14 @@
     }
 
     /* 1. Chrome Realm: Electric Cyan Glass */
+    .qgame-btn-dynamo,
     .qgame-btn-realm {
       background: rgba(14, 165, 233, 0.16) !important;
       border: 1px solid rgba(56, 189, 248, 0.55) !important;
       color: #38bdf8 !important;
       box-shadow: 0 0 8px rgba(56, 189, 248, 0.35) !important;
     }
+    .qgame-btn-dynamo:hover,
     .qgame-btn-realm:hover {
       background: rgba(14, 165, 233, 0.32) !important;
       border-color: #38bdf8 !important;
@@ -627,12 +629,14 @@
     }
 
     /* 6 Topbar Launcher Buttons: Rich Multi-Color Chromatic Spectrum */
+    .qgame-btn-dynamo,
     .qgame-btn-realm {
       background: linear-gradient(135deg, rgba(0, 240, 255, 0.18) 0%, rgba(2, 132, 199, 0.22) 100%) !important;
       border: 1px solid rgba(0, 240, 255, 0.6) !important;
       color: #38bdf8 !important;
       box-shadow: 0 0 10px rgba(0, 240, 255, 0.35) !important;
     }
+    .qgame-btn-dynamo:hover,
     .qgame-btn-realm:hover {
       background: linear-gradient(135deg, rgba(0, 240, 255, 0.32) 0%, rgba(2, 132, 199, 0.35) 100%) !important;
       border-color: #00f0ff !important;
@@ -1094,18 +1098,27 @@
 
       <!-- Unified 6-Game Futuristic Arcade Suite -->
       <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
-        <button type="button" class="qgame-btn-launch qgame-btn-realm" id="btnLaunchGame" title="Chrome Realm: Profile Synapse Wave Catcher (10 Shields)" aria-label="Launch Chrome Realm">
-          <span class="game-btn-glyph" aria-hidden="true">◈</span>
-          <span class="game-btn-label">REALM</span>
+        <button type="button" class="qgame-btn-launch qgame-btn-dynamo qgame-btn-realm" id="btnLaunchGame" title="Chrome Dynamo: Profile Synapse Wave Catcher (10 Shields)" aria-label="Launch Chrome Dynamo">
+          <svg class="game-btn-glyph game-btn-glyph-dynamo" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" fill="#00f0ff"/>
+            <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(-30 12 12)"/>
+            <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)"/>
+          </svg>
+          <span class="game-btn-label">DYNAMO</span>
         </button>
 
         <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Chrome Helix: Dual-Thread Task Synchronizer (10 Shields)" aria-label="Launch Chrome Helix">
-          <span class="game-btn-glyph game-btn-glyph-helix" aria-hidden="true">⋈</span>
+          <svg class="game-btn-glyph game-btn-glyph-helix" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 3c3 3 7 3 10 0M5 11c3 3 7 3 10 0M5 19c3 3 7 3 10 0M7 7l6 6M13 7L7 13M7 15l6 6"/>
+          </svg>
           <span class="game-btn-label">HELIX</span>
         </button>
 
         <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Chrome Meteor: Task Surge Asteroid Deflector (10 Shields)" aria-label="Launch Chrome Meteor">
-          <svg class="game-btn-glyph game-btn-glyph-meteor" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#7dd3fc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="3.5"/><path d="M9 15L21 3M13 18l7-7M6 21l7-7"/></svg>
+          <svg class="game-btn-glyph game-btn-glyph-meteor" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#f5c451" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="7" cy="17" r="3.5" fill="rgba(245,196,81,0.3)"/>
+            <path d="M10 14L21 3M14 17l7-7M6 21l7-7"/>
+          </svg>
           <span class="game-btn-label">METEOR</span>
         </button>
 
@@ -1477,7 +1490,7 @@
               <button type="button" class="btn-change-divisor" id="btnChangeDivisor" title="Choose a different number (1-9)">Change</button>
             </div>
             <!-- Quantum Transmute Badge for Realm/Helix/Meteor -->
-            <div class="transmute-badge" id="transmuteIndicator" style="display:none;">ACTIVE CORE: CHROME REALM</div>
+            <div class="transmute-badge" id="transmuteIndicator" style="display:none;">ACTIVE CORE: CHROME DYNAMO</div>
             
             <div class="shields-cluster">
               <span class="shields-label">SHIELDS (10 LIVES):</span>
@@ -1498,7 +1511,7 @@
           <div class="screen-card">
             <div class="screen-glyph">
               <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
-                <circle cx="12" cy="12" r="10" stroke="#a855f7" stroke-width="2"/>
+                <circle cx="12" cy="12" r="10" stroke="#00f0ff" stroke-width="2"/>
                 <path d="M12 6v6l4 2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </div>
@@ -1517,7 +1530,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade319"></script>
+  <script src="app.js?v=arcade320"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -1576,7 +1589,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade319"></script>
+  <script src="game.js?v=arcade320"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 </body>
 </html>
