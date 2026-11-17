@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=arcade304">
+  <link rel="stylesheet" href="styles.css?v=arcade305">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@
       box-sizing: border-box !important;
       padding: 6px 14px !important;
       gap: 8px !important;
-      overflow: hidden !important;
+      overflow: visible !important;
       background: #000000 !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
@@ -44,10 +44,11 @@
     .topbar-left {
       display: flex !important;
       align-items: center !important;
-      gap: clamp(6px, 0.8vw, 10px) !important;
+      gap: 8px !important;
       flex: 1 1 auto !important;
       min-width: 0 !important;
-      overflow: hidden !important;
+      max-width: none !important;
+      overflow: visible !important;
     }
 
     .brand-logo {
@@ -67,7 +68,7 @@
 
     .brand-title {
       font-family: var(--font-logo, sans-serif) !important;
-      font-size: clamp(1.0rem, 1.3vw, 1.2rem) !important;
+      font-size: clamp(0.95rem, 1.2vw, 1.15rem) !important;
       letter-spacing: 1px !important;
       line-height: 1 !important;
       white-space: nowrap !important;
@@ -78,26 +79,30 @@
     .qgame-topbar-cluster {
       display: inline-flex !important;
       align-items: center !important;
-      gap: clamp(3px, 0.4vw, 5px) !important;
+      gap: 4px !important;
       margin: 0 !important;
       padding: 0 !important;
-      flex-shrink: 1 !important;
+      flex-shrink: 0 !important;
       min-width: 0 !important;
+      max-width: none !important;
       z-index: 50 !important;
     }
 
     .topbar-left .qgame-btn-launch,
     .qgame-btn-launch {
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
       gap: 4px !important;
       height: 26px !important;
       box-sizing: border-box !important;
-      padding: 0 clamp(6px, 0.6vw, 9px) !important;
+      padding: 0 8px !important;
       border-radius: 9999px !important;
       font-family: 'Lexend', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-      font-size: clamp(0.58rem, 0.68vw, 0.66rem) !important;
+      font-size: 0.64rem !important;
       font-weight: 700 !important;
       letter-spacing: 0.04em !important;
       cursor: pointer !important;
@@ -207,7 +212,7 @@
     .topbar-right {
       display: flex !important;
       align-items: center !important;
-      gap: clamp(4px, 0.6vw, 8px) !important;
+      gap: 6px !important;
       flex-shrink: 0 !important;
       margin-left: auto !important;
       min-width: max-content !important;
@@ -235,7 +240,7 @@
 
     @media (max-width: 1200px) {
       .brand-title {
-        font-size: 1.0rem !important;
+        font-size: 0.95rem !important;
       }
       .qgame-btn-launch {
         padding: 0 5px !important;
@@ -243,7 +248,7 @@
       }
       .btn-topbar-quick,
       .btn-topbar-system {
-        padding: 0 6px !important;
+        padding: 0 5px !important;
         font-size: 0.60rem !important;
       }
     }
@@ -653,7 +658,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade304"></script>
+  <script src="app.js?v=arcade305"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -793,7 +798,7 @@
 </div>
 
     <!-- CacheFlush: 1794862673222 -->
-  <script src="game.js?v=arcade304"></script>
+  <script src="game.js?v=arcade305"></script>
   <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>
