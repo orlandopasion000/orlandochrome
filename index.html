@@ -21,38 +21,140 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=pure125">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=pure125">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=pure125">
-  <link rel="stylesheet" href="styles.css?v=arcade306">
+  <link rel="stylesheet" href="styles.css?v=arcade307">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style id="qgameTopbarInlineStyles">
-    /* Topbar Layout & Screen Resolution Optimization */
-    .app-topbar {
+    /* 1. Full Viewport Height & Zero Bottom Gap Architecture */
+    html {
+      height: 100% !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    body {
+      height: 100% !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      min-height: 100vh !important;
+      min-height: 100dvh !important;
+      max-height: 100dvh !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
       display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
+      flex-direction: column !important;
+      box-sizing: border-box !important;
+    }
+
+    .app-topbar {
+      flex-shrink: 0 !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
       width: 100% !important;
       max-width: 100vw !important;
       box-sizing: border-box !important;
-      padding: 6px 14px !important;
+      padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)) !important;
       gap: 8px !important;
-      overflow: visible !important;
+      overflow: hidden !important;
       background: #000000 !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
     }
 
+    .app-workspace {
+      flex: 1 1 0% !important;
+      height: calc(100vh - 44px) !important;
+      height: calc(100dvh - 44px) !important;
+      min-height: 0 !important;
+      width: 100% !important;
+      display: flex !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      background: #000000 !important;
+    }
+
+    .sidebar {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+      background: #000000 !important;
+    }
+
+    .profile-list {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-sizing: border-box !important;
+    }
+
+    .standalone-subapp-dock {
+      flex-shrink: 0 !important;
+      margin-top: auto !important;
+      padding-bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+      box-sizing: border-box !important;
+    }
+
+    .chat-main {
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      background: #000000 !important;
+    }
+
+    .notes-stream {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-sizing: border-box !important;
+    }
+
+    .quick-templates-bar {
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    .composer-bar {
+      flex-shrink: 0 !important;
+      margin-top: auto !important;
+      padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+      box-sizing: border-box !important;
+    }
+
+    /* 2. Topbar No-Overlap & Game Group Architecture */
     .topbar-left {
       display: flex !important;
       align-items: center !important;
       gap: 8px !important;
       flex: 1 1 auto !important;
       min-width: 0 !important;
-      max-width: none !important;
-      overflow: visible !important;
+      overflow: hidden !important;
+      contain: paint !important;
     }
 
     .brand-logo {
-      display: flex !important;
+      display: inline-flex !important;
       align-items: center !important;
       gap: 6px !important;
       cursor: pointer !important;
@@ -72,27 +174,39 @@
       letter-spacing: 1px !important;
       line-height: 1 !important;
       white-space: nowrap !important;
+      flex-shrink: 0 !important;
     }
 
-    /* Unified 6-Game Suite Cluster in Topbar */
+    /* Unified 6-Game Suite Cluster: Can shrink to icon-only or scroll horizontally with hidden scrollbar */
     .topbar-left .qgame-topbar-cluster,
     .qgame-topbar-cluster {
       display: inline-flex !important;
       align-items: center !important;
       gap: 4px !important;
       margin: 0 !important;
-      padding: 0 !important;
-      flex-shrink: 0 !important;
+      padding: 0 2px !important;
+      flex: 1 1 auto !important;
       min-width: 0 !important;
-      max-width: none !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+      -webkit-overflow-scrolling: touch !important;
+      white-space: nowrap !important;
+      contain: paint !important;
       z-index: 50 !important;
+    }
+
+    .qgame-topbar-cluster::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     .topbar-left .qgame-btn-launch,
     .qgame-btn-launch {
       width: auto !important;
       min-width: 0 !important;
-      max-width: none !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -208,7 +322,7 @@
       transform: translateY(-1px);
     }
 
-    /* Anchored Topbar Right: Always visible, never cut off */
+    /* Anchored Topbar Right: Always visible, strictly flex-shrink: 0, margin-left: auto */
     .topbar-right {
       display: flex !important;
       align-items: center !important;
@@ -235,23 +349,165 @@
     .nav-clock-box {
       display: inline-flex !important;
       align-items: center !important;
+      gap: 6px !important;
       flex-shrink: 0 !important;
       font-size: 0.76rem !important;
       margin-left: 2px !important;
     }
 
-    @media (max-width: 1200px) {
-      .brand-title {
-        font-size: 0.95rem !important;
+    .nf-alarm-pill {
+      flex-shrink: 0 !important;
+      height: 26px !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Responsive Rules: Smooth shrinking without overlap from 3440px down to 360px */
+    @media (max-width: 1250px) {
+      .qgame-btn-launch .game-btn-label {
+        display: none !important;
       }
       .qgame-btn-launch {
-        padding: 0 5px !important;
-        font-size: 0.58rem !important;
+        padding: 0 !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        justify-content: center !important;
       }
-      .btn-topbar-quick,
+    }
+
+    @media (max-width: 1050px) {
+      .nf-alarm-pill .alarm-pill-text {
+        max-width: 100px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-topbar {
+        padding: 0 8px !important;
+        gap: 6px !important;
+      }
+      .brand-title {
+        font-size: 0.85rem !important;
+      }
+      .fs-toggle-btn .fs-btn-label {
+        display: none !important;
+      }
+      .fs-toggle-btn {
+        padding: 0 5px !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        justify-content: center !important;
+      }
+      .btn-topbar-quick span {
+        display: none !important;
+      }
+      .btn-topbar-quick {
+        padding: 0 5px !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        justify-content: center !important;
+      }
+      .system-btn-text {
+        font-size: 0.60rem !important;
+      }
       .btn-topbar-system {
         padding: 0 5px !important;
+      }
+      .nf-alarm-pill .alarm-pill-text {
+        max-width: 75px !important;
+        font-size: 0.62rem !important;
+      }
+      .nf-alarm-pill {
+        padding: 0 5px !important;
+      }
+      .nf-clock-digital {
+        font-size: 0.68rem !important;
+      }
+    }
+
+    /* Ultra-compact Mobile Zero-Overlap Breakpoint (<= 450px down to 360px) */
+    @media (max-width: 450px) {
+      .app-topbar {
+        padding: 0 5px !important;
+        gap: 3px !important;
+      }
+      .topbar-left {
+        gap: 3px !important;
+      }
+      .brand-logo {
+        gap: 3px !important;
+      }
+      .oc-logo-img {
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 5px !important;
+      }
+      .brand-title .title-chrome {
+        display: none !important;
+      }
+      .brand-title {
+        font-size: 0.70rem !important;
+      }
+      .qgame-topbar-cluster {
+        gap: 2px !important;
+        padding: 0 !important;
+      }
+      .qgame-btn-launch {
+        width: 21px !important;
+        min-width: 21px !important;
+        height: 22px !important;
+      }
+      .game-btn-glyph {
         font-size: 0.60rem !important;
+      }
+      .topbar-right {
+        gap: 2px !important;
+      }
+      .fs-toggle-btn,
+      .btn-topbar-fullscreen,
+      .btn-topbar-quick {
+        width: 22px !important;
+        min-width: 22px !important;
+        height: 22px !important;
+        padding: 0 !important;
+        justify-content: center !important;
+      }
+      .btn-topbar-system {
+        width: 22px !important;
+        min-width: 22px !important;
+        height: 22px !important;
+        padding: 0 !important;
+        justify-content: center !important;
+      }
+      .system-btn-text,
+      .system-caret {
+        display: none !important;
+      }
+      .nav-clock-box {
+        gap: 2px !important;
+        margin-left: 0 !important;
+      }
+      .nf-clock-digital {
+        font-size: 0.60rem !important;
+      }
+      .nf-clock-digital .nf-clock-ampm {
+        display: none !important;
+      }
+      .nf-alarm-pill {
+        height: 22px !important;
+        padding: 0 3px !important;
+        gap: 2px !important;
+      }
+      .nf-alarm-pill .alarm-pill-icon-svg svg {
+        width: 12px !important;
+        height: 12px !important;
+      }
+      .nf-alarm-pill .alarm-pill-text {
+        max-width: 32px !important;
+        font-size: 0.58rem !important;
       }
     }
   </style>
@@ -660,7 +916,7 @@
   <script src="/assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade306"></script>
+  <script src="app.js?v=arcade307"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
@@ -719,88 +975,7 @@
       </div>
     </div>
   </div>
-
-
-    
-  
-      </div>
-
-      <!-- Center Top: Telemetry Instruction Badge -->
-      <div class="qgame-mission-hud">
-        <span class="qgame-mission-icon">◈</span>
-        <span class="qgame-mission-text" id="qGameMissionText">TARGET: TOUCH ANY PARTICLE · MAINTAIN CONTACT FOR 2.0s</span>
-      </div>
-
-      <!-- Upper Right: Subtle Futuristic Return & In-Game Fullscreen Buttons -->
-      <div class="qgame-exit-hud">
-        <button type="button" class="fs-toggle-btn qgame-fs-exit" id="btnGameToggleFullscreen" title="Enter Full Screen (Click)" aria-label="Toggle Full Screen in Game">
-          <span class="fs-btn-glyph" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-            </svg>
-          </span>
-          <span class="fs-btn-label">ENTER FULL SCREEN</span>
-        </button>
-
-        <button type="button" class="qgame-btn-exit" id="btnExitGame" title="Return to OrlandoChrome Horizon (Esc)" aria-label="Exit Game Mode">
-          <span class="qgame-exit-glyph">✕</span>
-          <span class="qgame-exit-label">RETURN TO HORIZON</span>
-          <span class="qgame-exit-key">ESC</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Result Center Stage Modal / Hologram (Shared Zero-Shift Card for Victory & Game Over) -->
-  <div class="qgame-victory-modal" id="qGameVictoryModal" style="display:none;">
-    <div class="qgame-victory-card" id="qGameResultCard">
-      <div class="qgame-victory-aurora" id="qGameResultAurora"></div>
-      <div class="qgame-victory-icon" id="qGameResultIcon">
-        <svg viewBox="0 0 24 24" fill="none" class="qgame-victory-svg">
-          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#vicGoldGrad)" stroke="#ffffff" stroke-width="1.2"/>
-          <defs>
-            <linearGradient id="vicGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ffd700"/>
-              <stop offset="50%" stop-color="#38bdf8"/>
-              <stop offset="100%" stop-color="#f59e0b"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <h2 class="qgame-victory-title" id="qGameResultTitle">QUANTUM RESONANCE COMPLETE</h2>
-      <div class="qgame-victory-subtitle" id="qGameResultSubtitle">TARGET SYNCHRONIZED · HARMONIC DANCE ACTIVE</div>
-      
-      <div class="qgame-victory-stats">
-        <div class="qgame-stat-box">
-          <div class="qgame-stat-label" id="qGameStatLabel1">FINAL TIME PRESERVED</div>
-          <div class="qgame-stat-val highlight" id="qGamePreservedTime">60.00s</div>
-        </div>
-        <div class="qgame-stat-box">
-          <div class="qgame-stat-label" id="qGameStatLabel2">LOCK DURATION</div>
-          <div class="qgame-stat-val" id="qGameLockDuration">2.00s CONTINUOUS</div>
-        </div>
-        <div class="qgame-stat-box">
-          <div class="qgame-stat-label" id="qGameStatLabel3">SYSTEM STATUS</div>
-          <div class="qgame-stat-val success" id="qGameSystemStatus">CELEBRATION DANCE</div>
-        </div>
-      </div>
-
-      <div class="qgame-victory-actions">
-        <button type="button" class="qgame-btn-action primary" id="btnGamePlayAgain">
-          <span class="qgame-btn-icon" id="qGameActionIcon">⚡</span>
-          <span id="qGameActionLabel">Play Again</span>
-        </button>
-        <button type="button" class="qgame-btn-action secondary" id="btnGameReturn">
-          <span class="qgame-btn-icon">✕</span>
-          <span>Return to Horizon</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-    <!-- CacheFlush: 1794862673222 -->
-  <script src="game.js?v=arcade306"></script>
+  <script src="game.js?v=arcade307"></script>
   <!-- BuildStamp: 2026-11-16T21:38:09.806Z - All 6 Games Authoritative -->
 </body>
 </html>
