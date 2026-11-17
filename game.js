@@ -1464,6 +1464,48 @@
     ctx.restore();
   }
 
+  // 10x Consecutive Combo (Tier III Overdrive) Supernova Corona Glow & 8-Ray Starburst
+  function drawOverdriveSupernovaCorona(ctx, now, imgSize, primaryCol, secondaryCol) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const pulse = Math.sin(now * 0.014) * 10;
+    const rad = imgSize * 0.84 + pulse;
+
+    const coronaGrad = ctx.createRadialGradient(0, 0, 12, 0, 0, rad);
+    coronaGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.92)');
+    coronaGrad.addColorStop(0.32, primaryCol + '99');
+    coronaGrad.addColorStop(0.68, secondaryCol + '55');
+    coronaGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = coronaGrad;
+    ctx.beginPath();
+    ctx.arc(0, 0, rad, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 8 Rotating Supernova Starburst Rays
+    const t = now * 0.0018;
+    for (let ray = 0; ray < 8; ray++) {
+      ctx.save();
+      ctx.rotate(t * 0.55 + (ray * Math.PI) / 4);
+      const rLen = imgSize * (ray % 2 === 0 ? 0.82 : 0.60) + pulse * 0.5;
+      const rGrad = ctx.createLinearGradient(-rLen, 0, rLen, 0);
+      rGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
+      rGrad.addColorStop(0.35, primaryCol);
+      rGrad.addColorStop(0.5, '#ffffff');
+      rGrad.addColorStop(0.65, primaryCol);
+      rGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = rGrad;
+      ctx.beginPath();
+      ctx.moveTo(-rLen, 0);
+      ctx.lineTo(0, -3.2);
+      ctx.lineTo(rLen, 0);
+      ctx.lineTo(0, 3.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
   const QuantumRenderer = {
     drawQuantumAtomic(ctx, cx, cy, now, progress = 0) {
       this.drawDynamoCore(ctx, cx, cy, now, progress);
@@ -1481,6 +1523,11 @@
       const primaryCol = isBeta ? '#fbbf24' : '#00f0ff';
       const secondaryCol = isBeta ? '#f59e0b' : '#a855f7';
       const imgSize = 138 + exc * 26 + tierBonus;
+
+      // 10x Consecutive Combo (Tier III / Overdrive) Supernova Corona Glow
+      if (tier >= 3 || isOverdrive) {
+        drawOverdriveSupernovaCorona(ctx, now, imgSize, primaryCol, secondaryCol);
+      }
 
       // High-Definition Pre-Feathered Faraday Singularity Core Sprite
       const spr = CoreAssets.sprites.dynamo;
@@ -1546,6 +1593,11 @@
       const secondaryCol = isBeta ? '#fbbf24' : '#d946ef';
       const imgSize = 116 + exc * 22 + tierBonus;
 
+      // 10x Consecutive Combo (Tier III / Overdrive) Supernova Corona Glow
+      if (tier >= 3 || isOverdrive) {
+        drawOverdriveSupernovaCorona(ctx, now, imgSize, primaryCol, secondaryCol);
+      }
+
       // TIER II & III: Articulated Bioluminescent Crystalline Seraph-Wings
       if (tier >= 2) {
         const wingFeathers = (tier >= 3 || isOverdrive) ? 4 : 3;
@@ -1604,6 +1656,11 @@
       const isBeta = (phase === 'beta');
       const primaryCol = isBeta ? '#fef08a' : '#f97316';
       const imgSize = 116 + exc * 22 + tierBonus;
+
+      // 10x Consecutive Combo (Tier III / Overdrive) Supernova Corona Glow
+      if (tier >= 3 || isOverdrive) {
+        drawOverdriveSupernovaCorona(ctx, now, imgSize, '#fef08a', primaryCol);
+      }
 
       // TIER II & III: Twin Solar-Prominence Magnetic Plasma Loops
       if (tier >= 2) {
@@ -3491,7 +3548,13 @@
           const basePoints = 300;
           const finalCatchPoints = Math.floor(basePoints * state.combo * precisionMultiplier * classMultiplier * chainBonus);
           state.score += finalCatchPoints;
+          const prevCombo = state.combo;
           state.combo = Math.min(10, state.combo + 1);
+          if (prevCombo < 10 && state.combo === 10) {
+            state.isOverdrive = true;
+            state.overdriveEndTime = 0; // Stays active as long as 10x streak is held!
+            audio.playOverdriveFanfare();
+          }
 
           // Official Mode-Specific Capture Action Verbs:
           // Dynamo -> CAPTURED, Helix -> HARMONIZED, Meteor -> DEFLECTED
