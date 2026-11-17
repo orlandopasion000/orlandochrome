@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade332">
+  <link rel="stylesheet" href="styles.css?v=arcade333">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1460,7 +1460,7 @@
           </div>
         </div>
 
-        <!-- Live Score Cluster -->
+        <!-- Live Score Cluster & Advanced HUD (Tier, Pulse, Phase) -->
         <div class="game-stats-cluster">
           <div class="game-stat-pill score-pill">
             <span class="g-stat-label">SCORE</span>
@@ -1470,6 +1470,18 @@
             <span class="g-stat-label">COMBO</span>
             <span class="g-stat-val" id="cgComboVal">1x</span>
           </div>
+          <div class="game-stat-pill tier-pill" id="cgTierPill" title="Core Evolution Tier: Tier I (Combo 1-4x), Tier II (Combo 5-9x), Tier III (Combo 10x Overdrive)">
+            <span class="g-stat-label">TIER</span>
+            <span class="g-stat-val" id="cgTierVal" style="color:#00f0ff;font-weight:900;">I</span>
+          </div>
+          <div class="game-stat-pill pulse-pill" id="cgPulsePill" style="cursor:pointer;" title="Flux Pulse: Charges with 3 consecutive Perfect catches. Tap or Spacebar to unleash!">
+            <span class="g-stat-label">PULSE</span>
+            <span class="g-stat-val" id="cgPulseVal" style="color:#94a3b8;">0%</span>
+          </div>
+          <button type="button" class="game-stat-pill phase-pill" id="cgPhasePill" style="cursor:pointer;background:rgba(0,240,255,0.12);border:1px solid #00f0ff;" title="Tap or Double-Tap to Toggle Core Phase (Alpha ↔ Beta)">
+            <span class="g-stat-label">PHASE</span>
+            <span class="g-stat-val" id="cgPhaseVal" style="color:#00f0ff;font-weight:900;">α</span>
+          </button>
           <div class="game-stat-pill best-pill">
             <span class="g-stat-label">BEST</span>
             <span class="g-stat-val" id="cgBestVal">0</span>
@@ -1690,7 +1702,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade332"></script>
+  <script src="game.js?v=arcade333"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 </body>
 </html>

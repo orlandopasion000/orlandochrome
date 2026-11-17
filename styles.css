@@ -15964,3 +15964,44 @@ body.arcade-active .screen-btn-primary {
     margin: 0 !important;
   }
 }
+
+/* ─── ARCADE ADVANCED HUD: TIER, PULSE & PHASE PILLS ─── */
+.tier-pill {
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  background: rgba(0, 240, 255, 0.08);
+}
+.pulse-pill {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.6);
+  transition: all 0.25s ease;
+}
+.pulse-pill.pulse-ready {
+  border-color: #fef08a !important;
+  background: linear-gradient(135deg, rgba(254, 240, 138, 0.25) 0%, rgba(249, 115, 22, 0.25) 100%) !important;
+  box-shadow: 0 0 14px rgba(254, 240, 138, 0.65), inset 0 0 8px rgba(254, 240, 138, 0.4);
+  animation: pulseReadyGlow 1.2s infinite alternate ease-in-out;
+}
+@keyframes pulseReadyGlow {
+  0% { transform: scale(1.0); box-shadow: 0 0 10px rgba(254, 240, 138, 0.5); }
+  100% { transform: scale(1.06); box-shadow: 0 0 18px rgba(254, 240, 138, 0.95); }
+}
+.phase-pill {
+  transition: all 0.2s ease;
+}
+.phase-pill:hover {
+  filter: brightness(1.2);
+}
+.phase-pill.phase-alpha {
+  border-color: #00f0ff !important;
+  background: rgba(0, 240, 255, 0.16) !important;
+}
+.phase-pill.phase-alpha #cgPhaseVal {
+  color: #00f0ff !important;
+}
+.phase-pill.phase-beta {
+  border-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.16) !important;
+}
+.phase-pill.phase-beta #cgPhaseVal {
+  color: #fbbf24 !important;
+}
