@@ -207,119 +207,65 @@ const Icons = {
     },
 
     urgent: (size = 14) => `
-      <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;" title="Urgent Priority">
+      <span class="oc-icon oc-icon-urgent" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Urgent Priority">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gFireCyber" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="40%" stop-color="#fef08a"/>
-              <stop offset="75%" stop-color="#f59e0b"/>
-              <stop offset="100%" stop-color="#d4a853"/>
-            </linearGradient>
-            <filter id="fFireCyber" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#f59e0b" flood-opacity="0.85"/>
-            </filter>
-          </defs>
-          <path d="M12 2c.8 2.8 2.4 4.4 4.2 5.8 2.2 1.8 3.6 4.2 3.6 7.4 0 4.3-3.5 7.8-7.8 7.8S4.2 19.5 4.2 15.2c0-3.2 1.4-5.6 3.6-7.4 1.2-1 2.2-2.2 2.2-3.8 1 1.4 1.8 2.6 1.8 3.8 0-2.4 1.2-4.2 2.2-5.8z" fill="url(#gFireCyber)" filter="url(#fFireCyber)"/>
-          <path d="M12 11c1.2 1.4 2 2.6 2 4.2 0 2.2-1.8 4-4 4s-4-1.8-4-4c0-1.8 1-3 2-4 .5 1.2 1.2 2 2 2 .4-1.2 1.2-1.8 2-2.2z" fill="#ffffff" opacity="0.95"/>
+          <path d="M12 2c.8 2.8 2.4 4.4 4.2 5.8 2.2 1.8 3.6 4.2 3.6 7.4 0 4.3-3.5 7.8-7.8 7.8S4.2 19.5 4.2 15.2c0-3.2 1.4-5.6 3.6-7.4 1.2-1 2.2-2.2 2.2-3.8 1 1.4 1.8 2.6 1.8 3.8 0-2.4 1.2-4.2 2.2-5.8z" fill="#f59e0b" stroke="#d4a853" stroke-width="1.6"/>
+          <path d="M12 11c1.2 1.4 2 2.6 2 4.2 0 2.2-1.8 4-4 4s-4-1.8-4-4c0-1.8 1-3 2-4 .5 1.2 1.2 2 2 2 .4-1.2 1.2-1.8 2-2.2z" fill="#ffffff"/>
         </svg>
       </span>`,
 
     waiting: (size = 14) => `
-      <span class="oc-icon oc-icon-waiting" style="width:${size}px;height:${size}px;" title="Waiting / Cooldown">
+      <span class="oc-icon oc-icon-waiting" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Waiting / Cooldown">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <filter id="fClockWhite" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#00f0ff" flood-opacity="0.7"/>
-            </filter>
-          </defs>
-          <circle cx="12" cy="12" r="9" stroke="#00f0ff" stroke-width="1.8" filter="url(#fClockWhite)"/>
-          <circle cx="12" cy="12" r="4.5" stroke="rgba(0, 240, 255, 0.45)" stroke-width="1" stroke-dasharray="2 2"/>
-          <path d="M12 7.2v4.8l3.2 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="9" stroke="#00f0ff" stroke-width="2"/>
+          <circle cx="12" cy="12" r="4.5" stroke="rgba(0, 240, 255, 0.45)" stroke-width="1.2" stroke-dasharray="2 2"/>
+          <path d="M12 7v5l3 2" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="12" cy="12" r="1.5" fill="#38bdf8"/>
-          <line x1="12" y1="1.5" x2="12" y2="3.2" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="12" y1="20.8" x2="12" y2="22.5" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="1.5" y1="12" x2="3.2" y2="12" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="20.8" y1="12" x2="22.5" y2="12" stroke="#00f0ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="12" y1="1.5" x2="12" y2="3.2" stroke="#00f0ff" stroke-width="2" stroke-linecap="round"/>
+          <line x1="12" y1="20.8" x2="12" y2="22.5" stroke="#00f0ff" stroke-width="2" stroke-linecap="round"/>
+          <line x1="1.5" y1="12" x2="3.2" y2="12" stroke="#00f0ff" stroke-width="2" stroke-linecap="round"/>
+          <line x1="20.8" y1="12" x2="22.5" y2="12" stroke="#00f0ff" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </span>`,
 
     important: (size = 14) => `
-      <span class="oc-icon oc-icon-important" style="width:${size}px;height:${size}px;" title="Important (Neon Green Star)">
+      <span class="oc-icon oc-icon-important" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Important">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gStarNeon" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#a7f3d0"/>
-              <stop offset="50%" stop-color="#10b981"/>
-              <stop offset="100%" stop-color="#059669"/>
-            </linearGradient>
-            <filter id="fStarNeon" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#10b981" flood-opacity="0.95"/>
-            </filter>
-          </defs>
-          <polygon points="12 1.5 15.2 8.2 22.5 9.2 17.2 14.3 18.5 21.5 12 18.1 5.5 21.5 6.8 14.3 1.5 9.2 8.8 8.2" fill="rgba(16,185,129,0.22)" stroke="url(#gStarNeon)" stroke-width="1.8" stroke-linejoin="round" filter="url(#fStarNeon)"/>
+          <polygon points="12 1.5 15.2 8.2 22.5 9.2 17.2 14.3 18.5 21.5 12 18.1 5.5 21.5 6.8 14.3 1.5 9.2 8.8 8.2" fill="rgba(52,211,153,0.25)" stroke="#34d399" stroke-width="2" stroke-linejoin="round"/>
           <circle cx="12" cy="12" r="2.2" fill="#ffffff"/>
         </svg>
       </span>`,
 
     verified: (size = 15) => `
-      <span class="oc-icon oc-icon-verified" style="width:${size}px;height:${size}px;" title="Verified / Done">
+      <span class="oc-icon oc-icon-verified" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Verified">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gHexCyber" x1="2" y1="12" x2="22" y2="12" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#00ffa3"/>
-              <stop offset="50%" stop-color="#00d4ff"/>
-              <stop offset="100%" stop-color="#00ffa3"/>
-            </linearGradient>
-            <filter id="fHexCyber" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#00ffa3" flood-opacity="0.8"/>
-            </filter>
-          </defs>
-          <polygon points="12 1.5 21 6.5 21 17.5 12 22.5 3 17.5 3 6.5" fill="rgba(0,255,163,0.14)" stroke="url(#gHexCyber)" stroke-width="1.8" stroke-linejoin="round" filter="url(#fHexCyber)"/>
+          <polygon points="12 1.5 21 6.5 21 17.5 12 22.5 3 17.5 3 6.5" fill="rgba(0,240,255,0.18)" stroke="#00f0ff" stroke-width="2" stroke-linejoin="round"/>
           <path d="M7.5 12l3 3.2L16.5 8.5" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>`,
 
     check: (size = 13) => `
-      <span class="oc-icon oc-icon-check" style="width:${size}px;height:${size}px;" title="Done">
+      <span class="oc-icon oc-icon-check" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Done">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gCheckCyber" x1="4" y1="12" x2="20" y2="12">
-              <stop offset="0%" stop-color="#00ffa3"/>
-              <stop offset="100%" stop-color="#00d4ff"/>
-            </linearGradient>
-          </defs>
-          <path d="M4 12.5l5.5 5.5L20 6" stroke="url(#gCheckCyber)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="20" cy="6" r="1.5" fill="#00d4ff"/>
+          <path d="M4 12.5l5.5 5.5L20 6" stroke="#34d399" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="20" cy="6" r="1.6" fill="#34d399"/>
         </svg>
       </span>`,
 
     copy: (size = 13) => `
-      <span class="oc-icon oc-icon-copy" style="width:${size}px;height:${size}px;" title="Copy to Clipboard">
+      <span class="oc-icon oc-icon-copy" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Copy to Clipboard">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gCopyCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f0ff"/>
-              <stop offset="100%" stop-color="#38bdf8"/>
-            </linearGradient>
-          </defs>
-          <rect x="8" y="8" width="13" height="13" rx="2.5" stroke="url(#gCopyCyber)" stroke-width="1.8" fill="rgba(0,240,255,0.12)"/>
+          <rect x="8" y="8" width="13" height="13" rx="2.5" stroke="#00f0ff" stroke-width="1.8" fill="rgba(0,240,255,0.14)"/>
           <path d="M4 16V5a2 2 0 0 1 2-2h11" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
-          <line x1="11" y1="12" x2="18" y2="12" stroke="#00f0ff" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="11" y1="15" x2="15" y2="15" stroke="#00f0ff" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="11" y1="12" x2="18" y2="12" stroke="#00f0ff" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="11" y1="15" x2="15" y2="15" stroke="#00f0ff" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
       </span>`,
 
     checklist: (size = 13) => `
-      <span class="oc-icon oc-icon-checklist" style="width:${size}px;height:${size}px;" title="Add Sub-item">
+      <span class="oc-icon oc-icon-checklist" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Add Sub-item">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gChecklistCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f0ff"/>
-              <stop offset="100%" stop-color="#38bdf8"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="3" width="18" height="18" rx="3.5" stroke="url(#gChecklistCyber)" stroke-width="1.8" fill="rgba(0,240,255,0.08)"/>
+          <rect x="3" y="3" width="18" height="18" rx="3.5" stroke="#00f0ff" stroke-width="1.8" fill="rgba(0,240,255,0.08)"/>
           <polyline points="7 8 9 10 13 6" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <line x1="15" y1="8" x2="18" y2="8" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"/>
           <polyline points="7 14 9 16 13 12" stroke="#d4a853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -331,14 +277,14 @@ const Icons = {
       <span class="oc-icon oc-icon-calendar" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Calendar">
         <svg viewBox="0 0 24 24" fill="none">
           <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="#00f0ff" stroke-width="1.8" fill="rgba(0, 240, 255, 0.08)"/>
-          <line x1="3" y1="9" x2="21" y2="9" stroke="#38bdf8" stroke-width="1.5"/>
+          <line x1="3" y1="9" x2="21" y2="9" stroke="#38bdf8" stroke-width="1.6"/>
           <line x1="8" y1="2" x2="8" y2="5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
           <line x1="16" y1="2" x2="16" y2="5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="8" cy="13" r="1.2" fill="#d4a853"/>
-          <circle cx="12" cy="13" r="1.2" fill="#00f0ff"/>
-          <circle cx="16" cy="13" r="1.2" fill="#ffffff"/>
-          <circle cx="8" cy="17" r="1.2" fill="#ffffff"/>
-          <circle cx="12" cy="17" r="1.2" fill="#34d399"/>
+          <circle cx="8" cy="13" r="1.3" fill="#d4a853"/>
+          <circle cx="12" cy="13" r="1.3" fill="#00f0ff"/>
+          <circle cx="16" cy="13" r="1.3" fill="#ffffff"/>
+          <circle cx="8" cy="17" r="1.3" fill="#ffffff"/>
+          <circle cx="12" cy="17" r="1.3" fill="#34d399"/>
         </svg>
       </span>`,
 
@@ -362,18 +308,10 @@ const Icons = {
     laserStylus: (size = 13) => `
       <span class="oc-icon oc-icon-laser-stylus" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Edit Date & Time">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gStylusLaser" x1="2" y1="22" x2="22" y2="2">
-              <stop offset="0%" stop-color="#00f0ff"/>
-              <stop offset="50%" stop-color="#38bdf8"/>
-              <stop offset="100%" stop-color="#d4a853"/>
-            </linearGradient>
-          </defs>
-          <path d="M17 2.5l4.5 4.5-12 12-5.5 1.5 1.5-5.5L17 2.5z" stroke="url(#gStylusLaser)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.15)"/>
+          <path d="M17 2.5l4.5 4.5-12 12-5.5 1.5 1.5-5.5L17 2.5z" stroke="#00f0ff" stroke-width="1.8" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.15)"/>
           <line x1="14" y1="5.5" x2="18.5" y2="10" stroke="#00f0ff" stroke-width="1.4"/>
           <line x1="8" y1="11.5" x2="12.5" y2="16" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round"/>
           <circle cx="4.5" cy="19.5" r="1.6" fill="#00f0ff"/>
-          <circle cx="4.5" cy="19.5" r="3" stroke="#00f0ff" stroke-width="0.7" opacity="0.6"/>
         </svg>
       </span>`,
 
@@ -454,17 +392,11 @@ const Icons = {
       </span>`,
 
     edit: (size = 13) => `
-      <span class="oc-icon oc-icon-edit" style="width:${size}px;height:${size}px;" title="Edit">
+      <span class="oc-icon oc-icon-edit" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Edit">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gEditCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="100%" stop-color="#0284c7"/>
-            </linearGradient>
-          </defs>
-          <path d="M16 2.5l5.5 5.5-12 12H4v-5.5L16 2.5z" stroke="url(#gEditCyber)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(0,242,254,0.12)"/>
-          <line x1="13.5" y1="5" x2="19" y2="10.5" stroke="#00f2fe" stroke-width="1.5"/>
-          <circle cx="4" cy="20" r="1.5" fill="#00f2fe"/>
+          <path d="M16 2.5l5.5 5.5-12 12H4v-5.5L16 2.5z" stroke="#00f0ff" stroke-width="1.8" stroke-linejoin="round" fill="rgba(0,240,255,0.14)"/>
+          <line x1="13.5" y1="5" x2="19" y2="10.5" stroke="#38bdf8" stroke-width="1.6"/>
+          <circle cx="4" cy="20" r="1.5" fill="#00f0ff"/>
         </svg>
       </span>`,
 
@@ -479,33 +411,17 @@ const Icons = {
       </span>`,
 
     forward: (size = 13) => `
-      <span class="oc-icon oc-icon-forward" style="width:${size}px;height:${size}px;" title="Forward">
+      <span class="oc-icon oc-icon-forward" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Forward">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gFwdCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#38bdf8"/>
-              <stop offset="100%" stop-color="#2563eb"/>
-            </linearGradient>
-            <filter id="fFwdCyber" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#38bdf8" flood-opacity="0.65"/>
-            </filter>
-          </defs>
-          <path d="M4 12h11M11 6l6 6-6 6M17 7l4 5-4 5" stroke="url(#gFwdCyber)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#fFwdCyber)"/>
+          <path d="M4 12h11M11 6l6 6-6 6M17 7l4 5-4 5" stroke="#00f0ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>`,
 
     note: (size = 13) => `
-      <span class="oc-icon oc-icon-note" style="width:${size}px;height:${size}px;" title="Neural Note">
+      <span class="oc-icon oc-icon-note" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Neural Note">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gNoteCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#00f0ff"/>
-              <stop offset="50%" stop-color="#38bdf8"/>
-              <stop offset="100%" stop-color="#d4a853"/>
-            </linearGradient>
-          </defs>
-          <polygon points="12 2 20 6.5 20 15.5 12 20 4 15.5 4 6.5" stroke="url(#gNoteCyber)" stroke-width="1.8" stroke-linejoin="round" fill="rgba(0,240,255,0.12)"/>
-          <circle cx="12" cy="11" r="2.5" fill="url(#gNoteCyber)"/>
+          <polygon points="12 2 20 6.5 20 15.5 12 20 4 15.5 4 6.5" stroke="#00f0ff" stroke-width="1.8" stroke-linejoin="round" fill="rgba(0,240,255,0.12)"/>
+          <circle cx="12" cy="11" r="2.5" fill="#38bdf8"/>
           <line x1="12" y1="2" x2="12" y2="8.5" stroke="#00f0ff" stroke-width="1.5"/>
           <line x1="12" y1="13.5" x2="12" y2="20" stroke="#d4a853" stroke-width="1.5"/>
         </svg>
@@ -528,19 +444,13 @@ const Icons = {
       </span>`,
 
     trashVault: (size = 14) => `
-      <span class="oc-icon oc-icon-vault" style="width:${size}px;height:${size}px;" title="Recently Deleted Vault">
+      <span class="oc-icon oc-icon-vault" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;" title="Recently Deleted Vault">
         <svg viewBox="0 0 24 24" fill="none">
-          <defs>
-            <linearGradient id="gVaultCyber" x1="0" y1="0" x2="24" y2="24">
-              <stop offset="0%" stop-color="#ff0055"/>
-              <stop offset="100%" stop-color="#f59e0b"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="4" width="18" height="17" rx="3" stroke="url(#gVaultCyber)" stroke-width="1.8" fill="rgba(255,0,85,0.1)"/>
+          <rect x="3" y="4" width="18" height="17" rx="3" stroke="#d4a853" stroke-width="1.8" fill="rgba(212,168,83,0.1)"/>
           <circle cx="12" cy="12.5" r="4" stroke="#f59e0b" stroke-width="1.6" stroke-dasharray="3 1.5"/>
           <circle cx="12" cy="12.5" r="1.5" fill="#ffffff"/>
-          <line x1="12" y1="4" x2="12" y2="7" stroke="url(#gVaultCyber)" stroke-width="1.8"/>
-          <line x1="7" y1="2" x2="17" y2="2" stroke="url(#gVaultCyber)" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="12" y1="4" x2="12" y2="7" stroke="#d4a853" stroke-width="1.8"/>
+          <line x1="7" y1="2" x2="17" y2="2" stroke="#d4a853" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </span>`,
 
