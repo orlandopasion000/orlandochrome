@@ -1009,6 +1009,16 @@
       var rotBase = now * 0.0004;
       var exc = (progress > 0) ? (progress * 0.35) : 0;
 
+      // High-Definition Quantum Dynamo Artwork Core
+      var img = CoreAssets.dynamo;
+      if (img && (img.complete || CoreAssets.loaded.dynamo) && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        var imgSize = 92 + exc * 22;
+        ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+        ctx.restore();
+      }
+
       // 1. Photonic Lens Flares in Electric Cyan & Townsend Violet
       var flareLen = 46 + exc * 14;
       var flareW = 3.0 + exc * 1.2;
@@ -1129,8 +1139,19 @@
     drawHelixCore(ctx, cx, cy, now, progress = 0) {
       ctx.save();
       ctx.translate(cx, cy);
+
       var t = now * 0.003;
       var exc = progress * 0.4;
+
+      // High-Definition Quantum Helix Artwork Core
+      var img = CoreAssets.helix;
+      if (img && (img.complete || CoreAssets.loaded.helix) && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        var imgSize = 92 + exc * 22;
+        ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+        ctx.restore();
+      }
 
       // Soliton waveguide glow
       var g = ctx.createRadialGradient(0, 0, 0, 0, 0, 32 + exc * 10);
@@ -1181,7 +1202,18 @@
     drawMeteorAsteroid(ctx, cx, cy, now, progress = 0) {
       ctx.save();
       ctx.translate(cx, cy);
+
       var exc = progress * 0.45;
+
+      // High-Definition Quantum Meteor Artwork Core
+      var img = CoreAssets.meteor;
+      if (img && (img.complete || CoreAssets.loaded.meteor) && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        var imgSize = 92 + exc * 22;
+        ctx.drawImage(img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+        ctx.restore();
+      }
 
       // Supersonic Detached Bow Shockwave Arc ahead of catcher
       ctx.beginPath();
@@ -2211,7 +2243,7 @@
     // so the entire 3D core and flare rings are 100% visible and thumb sits comfortably below!
     const isCoarse = (deviceInputMode === 'touch') || window.innerWidth <= 768;
     const bottomSafe = (window.innerHeight > 800) ? 34 : 20;
-    const catcherBottomMargin = isCoarse ? Math.max(135, 95 + bottomSafe) : 80;
+    const catcherBottomMargin = isCoarse ? Math.max(160, 120 + bottomSafe) : 85;
     const catcherPixelY = h - catcherBottomMargin;
 
     // ─────────────────────────────────────────────────────────────

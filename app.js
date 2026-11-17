@@ -4469,22 +4469,22 @@ const Icons = {
   function renderPinButton(profile) {
     const isPinned = !!(profile.isPinned && countPending(profile) > 0);
     if (!isPinned) {
-      const rgid = `redPinGrad_${profile.id}`;
-      const rnid = `redNeedleGrad_${profile.id}`;
+      const rgid = `cyanPinGrad_${profile.id}`;
+      const rnid = `cyanNeedleGrad_${profile.id}`;
       return `
         <button type="button" class="pin-btn unpinned" data-pin-id="${profile.id}" title="Click to pin ${esc(profile.name)} &amp; message to top">
           <svg class="pin-svg-radiant" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
             <defs>
               <linearGradient id="${rgid}" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FFFFFF"/>
-                <stop offset="30%" stop-color="#FEF08A"/>
-                <stop offset="65%" stop-color="#D4A853"/>
+                <stop offset="30%" stop-color="#67E8F9"/>
+                <stop offset="65%" stop-color="#38BDF8"/>
                 <stop offset="88%" stop-color="#00F0FF"/>
                 <stop offset="100%" stop-color="#0284C7"/>
               </linearGradient>
               <linearGradient id="${rnid}" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FFFFFF"/>
-                <stop offset="100%" stop-color="#FDE68A"/>
+                <stop offset="100%" stop-color="#38BDF8"/>
               </linearGradient>
             </defs>
             <g transform="rotate(45 12 12)">
@@ -4494,7 +4494,7 @@ const Icons = {
               <rect x="6" y="11" width="12" height="3.4" rx="1.7" fill="url(#${rgid})"/>
               <!-- Middle Cylinder Body -->
               <path d="M8.5 5.2 L15.5 5.2 L14.5 11.2 L9.5 11.2 Z" fill="url(#${rgid})"/>
-              <!-- Top Cap with White & Crimson Radiant Highlight -->
+              <!-- Top Cap with White & Cyan Radiant Highlight -->
               <rect x="7" y="2.2" width="10" height="3.3" rx="1.65" fill="#FFFFFF"/>
               <rect x="7.5" y="2.6" width="9" height="2.5" rx="1.25" fill="url(#${rgid})"/>
             </g>
