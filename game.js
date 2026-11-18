@@ -4727,6 +4727,7 @@
     if (btnReflex) btnReflex.onclick = (e) => { e.preventDefault(); openGame('reflex'); };
     if (btnMemory) btnMemory.onclick = (e) => { e.preventDefault(); openGame('memory'); };
     if (btnTopFullscreen) btnTopFullscreen.onclick = toggleAppFullscreen;
+    checkUrlAutoLaunch();
   }
 
   // Global Unified API
@@ -4746,6 +4747,43 @@
     }
   };
   window.openChromeGame = openGame;
+
+  // ReflexArcade programmatic API & URL auto-launch
+  window.ReflexArcade = {
+    open: openGame,
+    close: closeGame,
+    setTier: function(t) {
+      if (!state.active) return;
+      state.combo = (t >= 4 ? 10 : (t === 3 ? 7 : (t === 2 ? 4 : 1)));
+      state.coreTier = t;
+      CoreKinematics.continuousTier = t;
+      state.isOverdrive = (t >= 4);
+      updateHeaderUI();
+    },
+    getState: function() { return state; }
+  };
+
+  function checkUrlAutoLaunch() {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const arc = p.get('arcade');
+      if (arc) {
+        setTimeout(() => {
+          openGame(arc);
+          const t = parseInt(p.get('tier') || '0', 10);
+          if (t >= 1 && t <= 4) {
+            setTimeout(() => {
+              state.combo = (t === 4 ? 10 : (t === 3 ? 7 : (t === 2 ? 4 : 1)));
+              state.coreTier = t;
+              CoreKinematics.continuousTier = t;
+              state.isOverdrive = (t === 4);
+              updateHeaderUI();
+            }, 300);
+          }
+        }, 500);
+      }
+    } catch (e) {}
+  }
 
   // QuantumGame bridge for full backward compatibility
   window.quantumGame = {
