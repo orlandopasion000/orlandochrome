@@ -3,10 +3,10 @@ const CACHE_NAME = 'orlandochrome-arcade-v339';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade340',
-  './game.js?v=arcade340',
+  './styles.css?v=arcade342',
+  './game.js?v=arcade342',
   './qrcode.min.js',
-  './app.js?v=arcade340',
+  './app.js?v=arcade342',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',
