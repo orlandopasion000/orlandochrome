@@ -1139,46 +1139,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade348`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade349`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade348`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade349`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade348';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade349';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade348';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade349';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade348';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade349';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade348';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade349';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade348';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade349';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade348';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade349';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade348';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade349';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade348';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade349';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade348';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade349';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade348';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade349';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade348';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade349';
 
   // ─────────────────────────────────────────────────────────────
   // SECONDARY KINEMATICS, ASCENSION MORPHING & LOCK-ON ENGINE
@@ -1562,12 +1562,14 @@
 
   // UPGRADES 1, 2, 3 & 5:
   // ─────────────────────────────────────────────────────────────
-  // SOVEREIGN 4K ARCHANGEL WING KINEMATICS (v345 Pure Organic Mesh)
-  // - Full 688x768 intact wings containing all soaring archangel pinions
+  // ─────────────────────────────────────────────────────────────
+  // ARTICULATED KINEMATIC WINGS ENGINE (v349 REAL-3D ENHANCED)
+  // - Symmetrical outward-soaring archangel pinions with intact 4K tips
   // - Zero slice seams: renders intact 4K texture with continuous fluid kinematics
   // - Direct zero-gap core anchoring into the Chrome Core wall
-  // - Aerodynamic inertial tip flex & organic breathing
-  // - Dynamic energy conduit conduits & feather-tip spark nodes
+  // - Proportional sleek wingspan (reduced by ~31% for majestic balance)
+  // - Real-3D experience: perspective foreshortening, pitch tilt, and dynamic light glint
+  // - REMOVED wing-root socket orbs ("falling nodes on wings" bug eliminated)
   // ─────────────────────────────────────────────────────────────
   function drawArticulatedWings(ctx, mode, u, cySrc, tier, now) {
     const cTier = CoreKinematics.continuousTier;
@@ -1576,7 +1578,8 @@
     const wingR = LayeredT4Assets.wingRight[mode];
     if (!wingR || !LayeredT4Assets.loaded.wingRight[mode]) return;
 
-    // Continuous Morphing Span & Scale across Tiers
+    // Continuous Morphing Proportional Span & Scale across Tiers
+    // Appropriately reduced for sleek, majestic, aerodynamic visual balance
     let spanScale = 0.0;
     let heightScale = 0.0;
     let wingAlpha = 1.0;
@@ -1584,35 +1587,33 @@
     if (cTier < 2.0) {
       const t12 = Math.max(0, cTier - 1.0);
       const ease12 = 1.0 - Math.pow(1.0 - t12, 2.2);
-      spanScale = 0.52 * ease12;
-      heightScale = 0.52 * (0.40 + 0.60 * ease12);
+      spanScale = 0.36 * ease12;
+      heightScale = 0.36 * (0.45 + 0.55 * ease12);
       wingAlpha = Math.min(1.0, t12 * 1.6);
     } else if (cTier < 3.0) {
       const t23 = cTier - 2.0;
-      spanScale = 0.52 + (0.76 - 0.52) * t23;
-      heightScale = 0.52 + (0.76 - 0.52) * t23;
+      spanScale = 0.36 + (0.50 - 0.36) * t23;
+      heightScale = 0.36 + (0.50 - 0.36) * t23;
     } else {
       const t34 = Math.min(1.2, cTier - 3.0);
-      spanScale = 0.76 + (0.95 - 0.76) * t34;
-      heightScale = 0.76 + (0.95 - 0.76) * t34;
+      spanScale = 0.50 + (0.64 - 0.50) * t34;
+      heightScale = 0.50 + (0.62 - 0.50) * t34;
     }
 
     const srcW = 688;
     const srcH = 768;
-    const rootSocketX = (mode === 'helix') ? 14.0 : (mode === 'dynamo' ? 12.0 : 14.0);
+    const rootSocketX = (mode === 'helix') ? 12.0 : (mode === 'dynamo' ? 10.0 : 12.0);
     const breathPhase = now * 0.0032;
 
-    // Fluid Physical Kinematics:
-    // 1. Root Banking: tracks user hand/pointer sweep immediately
-    // 2. Aerodynamic Tip Flex: settles fraction later, whipping back on reversals
+    // Fluid Physical Kinematics & 3D Perspective Transformations:
     const bankAngle = CoreKinematics.bodyBank * 0.40;
     const tipInertia = (CoreKinematics.tipY * 0.015 - CoreKinematics.bodyBank * 0.25);
-    const breathOsc = Math.sin(breathPhase) * 0.022;
+    const breathOsc = Math.sin(breathPhase) * 0.020;
     const lockLiftAngle = -CoreKinematics.lockOnProximity * 0.05;
 
     for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
       const dir = (sideIdx === 0) ? 1 : -1;
-      const imgSource = wingR; // Symmetrically flipped via ctx.scale(dir, 1) with zero seam artifacts
+      const imgSource = wingR; // Symmetrically flipped via ctx.scale(dir, 1)
 
       ctx.save();
       // Translate to the wing root socket directly touching the core sphere
@@ -1624,15 +1625,37 @@
       const totalRotation = bankAngle + dir * (tipInertia + breathOsc + lockLiftAngle);
       ctx.rotate(totalRotation);
 
-      // Breathing span scale
+      // Real-3D Experience: Perspective Foreshortening & Pitch Compression
+      // When banking, the wing swinging forward slightly expands; trailing wing compresses
+      const foreshortenX = 1.0 - dir * Math.sin(bankAngle) * 0.20;
+      const pitch3D = Math.max(0.75, Math.cos(totalRotation * 0.55));
       const breathScale = 1.0 + Math.sin(breathPhase + sideIdx * 0.4) * 0.016;
-      ctx.scale(dir * spanScale * breathScale * u, heightScale * breathScale * u);
 
+      ctx.scale(dir * spanScale * breathScale * u * foreshortenX, heightScale * breathScale * u * pitch3D);
       ctx.globalAlpha = wingAlpha;
 
+      // 3D Ambient Occlusion Shadow Behind Core
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.40)';
+      ctx.beginPath();
+      ctx.ellipse(30, -cySrc * 0.15, 65, 45, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
       // Draw the full, intact 4K wing sprite: (0, -cySrc) anchors root directly at (0, 0)!
-      // ZERO slices, ZERO seams, ZERO overlapping grid lines!
       ctx.drawImage(imgSource, 0, -cySrc, srcW, srcH);
+
+      // Real-3D Lighting: Dynamic Specular Reflection based on virtual light vector
+      const lightDot = Math.cos(totalRotation * 1.4 - dir * 0.25);
+      const spec3D = Math.pow(Math.max(0, lightDot), 2.2);
+      if (spec3D > 0.05) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = Math.min(0.60, spec3D * 0.50 * wingAlpha);
+        ctx.drawImage(imgSource, 0, -cySrc, srcW, srcH);
+        ctx.restore();
+      }
 
       // In Tier IV (cTier >= 2.6): Render Sovereign Starlight Vein Shimmer
       if (cTier >= 2.6) {
@@ -1645,35 +1668,6 @@
       }
 
       ctx.restore();
-
-      // Wing-Root Power Gyros & Energy Sockets
-      if (cTier >= 1.5) {
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        const sockDispX = dir * (rootSocketX + 22) * u;
-        const sockDispY = 4 * u;
-        const sockScale = Math.min(1.0, (cTier - 1.0) * 0.65);
-        const sockPulse = (0.75 + 0.25 * Math.sin(now * 0.008 + sideIdx * Math.PI)) * sockScale;
-        const sg = ctx.createRadialGradient(sockDispX, sockDispY, 0, sockDispX, sockDispY, 26 * u * sockScale);
-        if (mode === 'dynamo') {
-          sg.addColorStop(0.0, `rgba(255, 255, 255, ${0.92 * sockPulse})`);
-          sg.addColorStop(0.45, `rgba(56, 189, 248, ${0.68 * sockPulse})`);
-          sg.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
-        } else if (mode === 'helix') {
-          sg.addColorStop(0.0, `rgba(255, 255, 255, ${0.92 * sockPulse})`);
-          sg.addColorStop(0.45, `rgba(232, 121, 249, ${0.68 * sockPulse})`);
-          sg.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
-        } else {
-          sg.addColorStop(0.0, `rgba(254, 249, 195, ${0.95 * sockPulse})`);
-          sg.addColorStop(0.45, `rgba(249, 115, 22, ${0.72 * sockPulse})`);
-          sg.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
-        }
-        ctx.fillStyle = sg;
-        ctx.beginPath();
-        ctx.arc(sockDispX, sockDispY, 26 * u * sockScale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
     }
   }
 
@@ -2549,11 +2543,12 @@
         drawDynamoRingsHalf(ctx, u, now, false, tierIdx);
 
         if (LayeredT4Assets.loaded.coreBase.dynamo) {
-          const dScale = 1.15;
+          // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 56.0 * 1.2143 = 68.0)
+          const dScale = 1.2143;
           ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
         }
 
-        drawInternalPlasmaArcs(ctx, 0, 5 * u, 56 * u, now, 0.0, true, tierIdx);
+        drawInternalPlasmaArcs(ctx, 0, 0, 59 * u, now, 0.0, true, tierIdx);
         drawDynamoRingsHalf(ctx, u, now, true, tierIdx);
 
         for (let d = 0; d < CoreKinematics.dynamoDischarges.length; d++) {
@@ -2581,7 +2576,8 @@
       } else if (mode === 'helix') {
         drawHelixOrbitalRingsHalf(ctx, u, now, false, tierIdx);
 
-        const hScale = 0.88;
+        // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 88.0 * 0.7727 = 68.0)
+        const hScale = 0.7727;
         if (LayeredT4Assets.loaded.coreBase.helix) {
           ctx.drawImage(LayeredT4Assets.coreBase.helix, -170 * u * hScale, -144 * u * hScale, 340 * u * hScale, 280 * u * hScale);
         }
@@ -2589,18 +2585,18 @@
         // Complete 3D Spherical Crystal Enclosure (Prismatic Bio-Lattice Horizon)
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const rimGrad = ctx.createRadialGradient(0, 2 * u, 68 * u * hScale, 0, 2 * u, 78 * u * hScale);
+        const rimGrad = ctx.createRadialGradient(0, 0, 58 * u, 0, 0, 68 * u);
         rimGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
         rimGrad.addColorStop(0.7, 'rgba(56, 189, 248, 0.45)');
         rimGrad.addColorStop(1.0, 'rgba(232, 121, 249, 0.25)');
         ctx.fillStyle = rimGrad;
         ctx.beginPath();
-        ctx.arc(0, 2 * u, 78 * u * hScale, 0, Math.PI * 2);
+        ctx.arc(0, 0, 68 * u, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
         // Internal 3D Double Helix
-        drawRotating3DDNAInsideGlass(ctx, 0, 2 * u, 25 * u, 64 * u, now, 0.0, true, tierIdx);
+        drawRotating3DDNAInsideGlass(ctx, 0, 0, 24 * u, 60 * u, now, 0.0, true, tierIdx);
 
         // Sovereign Crown Pearl (Design 2 Feature: Top Floating Bio-Lattice Pearl with Starlight Bridge)
         if (cTier >= 2.4) {
@@ -2632,8 +2628,10 @@
 
         drawMeteorMoltenRingsHalf(ctx, u, now, false, tierIdx);
 
+        // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 71.0 * 0.9577 = 68.0)
+        const mScale = 0.9577;
         if (LayeredT4Assets.loaded.coreBase.meteor) {
-          ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u, -140 * u, 340 * u, 280 * u);
+          ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, -140 * u * mScale, 340 * u * mScale, 280 * u * mScale);
         }
 
         drawMeteorMagmaFissuresAndPlates(ctx, 68 * u, now, 0.0, Math.sin(now * 0.0008) * 0.14, tierIdx);
