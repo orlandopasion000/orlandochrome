@@ -2389,22 +2389,24 @@
       ctx.save();
       ctx.rotate(raySpin);
       const rays = 16;
+      const innerRayR = baseR * 0.62;
       ctx.beginPath();
       for (let r = 0; r < rays; r++) {
         const ang = (r / rays) * Math.PI * 2;
         const isCardinal = (r % 4 === 0);
         const rayLen = baseR * (isCardinal ? 1.55 : 1.15) * (1.0 + Math.sin(now * 0.005 + r) * 0.06);
-        ctx.moveTo(0, 0);
+        ctx.moveTo(Math.cos(ang) * innerRayR, Math.sin(ang) * innerRayR);
         ctx.lineTo(Math.cos(ang) * rayLen, Math.sin(ang) * rayLen);
       }
       if (mode === 'dynamo') {
-        ctx.strokeStyle = `rgba(186, 230, 253, ${rayAlpha * 0.75})`;
+        ctx.strokeStyle = `rgba(186, 230, 253, ${rayAlpha * 0.65})`;
       } else if (mode === 'helix') {
-        ctx.strokeStyle = `rgba(245, 208, 254, ${rayAlpha * 0.75})`;
+        ctx.strokeStyle = `rgba(245, 208, 254, ${rayAlpha * 0.65})`;
       } else {
-        ctx.strokeStyle = `rgba(254, 249, 195, ${rayAlpha * 0.80})`;
+        ctx.strokeStyle = `rgba(254, 249, 195, ${rayAlpha * 0.70})`;
       }
-      ctx.lineWidth = 1.8 * u;
+      ctx.lineWidth = 1.6 * u;
+      ctx.lineCap = 'round';
       ctx.stroke();
       ctx.restore();
     }
