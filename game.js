@@ -1139,46 +1139,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade345`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade348`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade345`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade348`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade345';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade348';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade345';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade348';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade345';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade348';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade345';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade348';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade345';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade348';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade345';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade348';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade345';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade348';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade345';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade348';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade345';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade348';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade345';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade348';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade345';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade348';
 
   // ─────────────────────────────────────────────────────────────
   // SECONDARY KINEMATICS, ASCENSION MORPHING & LOCK-ON ENGINE
@@ -2073,7 +2073,7 @@
       }
     }
 
-    // UPGRADE 4 (Helix Tier IV): Counter-Rotating Holographic Pole Irises at Top & Bottom Glass Domes!
+    // UPGRADE 4 (Helix Tier IV): Soft Volumetric Polar Aurora Crowns
     if (isCore && tierIdx >= 4) {
       const lockLeanX = Math.max(-14, Math.min(14, CoreKinematics.lockOnDX * 0.06));
       for (let pole = -1; pole <= 1; pole += 2) {
@@ -2081,13 +2081,14 @@
         const px = (pole === -1) ? lockLeanX * 0.5 : 0;
         ctx.save();
         ctx.translate(px, py);
-        ctx.scale(1, 0.36);
-        ctx.rotate(pole * now * 0.005);
+        const pg = ctx.createRadialGradient(0, 0, 0, 0, 0, radiusX * 0.85);
+        pg.addColorStop(0.0, (pole === -1) ? 'rgba(34, 211, 238, 0.70)' : 'rgba(232, 121, 249, 0.70)');
+        pg.addColorStop(0.6, (pole === -1) ? 'rgba(56, 189, 248, 0.35)' : 'rgba(168, 85, 247, 0.35)');
+        pg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = pg;
         ctx.beginPath();
-        ctx.arc(0, 0, radiusX * 1.15, 0, Math.PI * 1.6);
-        ctx.strokeStyle = (pole === -1) ? 'rgba(34, 211, 238, 0.82)' : 'rgba(232, 121, 249, 0.82)';
-        ctx.lineWidth = 3.2;
-        ctx.stroke();
+        ctx.ellipse(0, 0, radiusX * 0.85, radiusX * 0.32, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
       }
     }
@@ -2096,15 +2097,17 @@
     drawStrandPass(strandA, true, true);
     drawStrandPass(strandB, false, true);
 
-    // Stable Outer Glass Specular Highlight Arc
+    // Smooth Volumetric 3D Spherical Crystal Glass Highlight (Zero Harsh Wire Arcs)
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
+    const specG = ctx.createRadialGradient(-radiusY * 0.30, -radiusY * 0.45, 0, -radiusY * 0.30, -radiusY * 0.45, radiusY * 0.65);
+    specG.addColorStop(0.0, 'rgba(255, 255, 255, 0.75)');
+    specG.addColorStop(0.35, 'rgba(224, 242, 254, 0.40)');
+    specG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = specG;
     ctx.beginPath();
-    ctx.arc(0, 0, radiusY * 0.96, -Math.PI * 0.76, -Math.PI * 0.24);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.58)';
-    ctx.lineWidth = Math.max(1.5, radiusY * 0.048);
-    ctx.lineCap = 'round';
-    ctx.stroke();
+    ctx.arc(0, 0, radiusY * 0.96, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
 
     ctx.restore();
@@ -2358,75 +2361,123 @@
     if (cTier <= 1.05) return;
     const auraMorph = Math.min(1.0, (cTier - 1.0) / 2.2);
     const breathe = 1.0 + Math.sin(now * 0.0035) * 0.035 + CoreKinematics.overdriveFlash * 0.12;
-    const baseR = 135 * u * (0.65 + 0.55 * auraMorph) * breathe;
+    const baseR = 145 * u * (0.65 + 0.55 * auraMorph) * breathe;
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
     // 1. Hyper-Intense Photonic Starlight Core Corona (Volumetric Radial Bloom)
-    const gCore = ctx.createRadialGradient(0, 0, baseR * 0.15, 0, 0, baseR * 0.95);
+    const gCore = ctx.createRadialGradient(0, 0, baseR * 0.10, 0, 0, baseR * 1.05);
     gCore.addColorStop(0.0, `rgba(255, 255, 255, ${0.98 * auraMorph})`);
     if (mode === 'dynamo') {
-      gCore.addColorStop(0.35, `rgba(56, 189, 248, ${0.85 * auraMorph})`);
-      gCore.addColorStop(0.70, `rgba(168, 85, 247, ${0.45 * auraMorph})`);
+      gCore.addColorStop(0.28, `rgba(186, 230, 253, ${0.90 * auraMorph})`);
+      gCore.addColorStop(0.55, `rgba(56, 189, 248, ${0.60 * auraMorph})`);
+      gCore.addColorStop(0.80, `rgba(168, 85, 247, ${0.28 * auraMorph})`);
     } else if (mode === 'helix') {
-      gCore.addColorStop(0.35, `rgba(34, 211, 238, ${0.85 * auraMorph})`);
-      gCore.addColorStop(0.70, `rgba(232, 121, 249, ${0.45 * auraMorph})`);
+      gCore.addColorStop(0.28, `rgba(245, 208, 254, ${0.90 * auraMorph})`);
+      gCore.addColorStop(0.55, `rgba(34, 211, 238, ${0.60 * auraMorph})`);
+      gCore.addColorStop(0.80, `rgba(232, 121, 249, ${0.28 * auraMorph})`);
     } else {
-      gCore.addColorStop(0.35, `rgba(254, 240, 138, ${0.90 * auraMorph})`);
-      gCore.addColorStop(0.70, `rgba(249, 115, 22, ${0.50 * auraMorph})`);
+      gCore.addColorStop(0.28, `rgba(254, 249, 195, ${0.95 * auraMorph})`);
+      gCore.addColorStop(0.55, `rgba(251, 146, 60, ${0.65 * auraMorph})`);
+      gCore.addColorStop(0.80, `rgba(239, 68, 68, ${0.25 * auraMorph})`);
     }
     gCore.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gCore;
     ctx.beginPath();
-    ctx.arc(0, 0, baseR * 0.95, 0, Math.PI * 2);
+    ctx.arc(0, 0, baseR * 1.05, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. 16 Rotating Crystalline Starlight Diffraction Needle Rays
+    // 2. Anamorphic Cinematic Starlight Flare Streak (Horizontal Ethereal Cinema Bloom)
+    if (cTier >= 2.0) {
+      const flareAlpha = Math.min(0.85, (cTier - 1.8) * 0.55);
+      const flareLen = baseR * 2.2;
+      const flareH = 14 * u * (0.8 + 0.2 * Math.sin(now * 0.005));
+      const gFlare = ctx.createLinearGradient(-flareLen, 0, flareLen, 0);
+      gFlare.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+      if (mode === 'dynamo') {
+        gFlare.addColorStop(0.35, `rgba(56, 189, 248, ${0.40 * flareAlpha})`);
+        gFlare.addColorStop(0.50, `rgba(255, 255, 255, ${0.95 * flareAlpha})`);
+        gFlare.addColorStop(0.65, `rgba(168, 85, 247, ${0.40 * flareAlpha})`);
+      } else if (mode === 'helix') {
+        gFlare.addColorStop(0.35, `rgba(232, 121, 249, ${0.40 * flareAlpha})`);
+        gFlare.addColorStop(0.50, `rgba(255, 255, 255, ${0.95 * flareAlpha})`);
+        gFlare.addColorStop(0.65, `rgba(34, 211, 238, ${0.40 * flareAlpha})`);
+      } else {
+        gFlare.addColorStop(0.35, `rgba(249, 115, 22, ${0.40 * flareAlpha})`);
+        gFlare.addColorStop(0.50, `rgba(255, 255, 255, ${0.95 * flareAlpha})`);
+        gFlare.addColorStop(0.65, `rgba(254, 240, 138, ${0.40 * flareAlpha})`);
+      }
+      gFlare.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = gFlare;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, flareLen, flareH, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 3. Volumetric Crystalline Starlight Diamond Flares (Zero Wire Lines, 100% Smooth Tapered Light)
     if (cTier >= 2.2) {
       const rayAlpha = Math.min(0.85, (cTier - 2.0) * 0.55);
       const raySpin = now * 0.0006;
       ctx.save();
       ctx.rotate(raySpin);
-      const rays = 16;
-      const innerRayR = baseR * 0.62;
-      ctx.beginPath();
+      const rays = 8;
       for (let r = 0; r < rays; r++) {
         const ang = (r / rays) * Math.PI * 2;
-        const isCardinal = (r % 4 === 0);
-        const rayLen = baseR * (isCardinal ? 1.55 : 1.15) * (1.0 + Math.sin(now * 0.005 + r) * 0.06);
-        ctx.moveTo(Math.cos(ang) * innerRayR, Math.sin(ang) * innerRayR);
-        ctx.lineTo(Math.cos(ang) * rayLen, Math.sin(ang) * rayLen);
+        const isCardinal = (r % 2 === 0);
+        const rayLen = baseR * (isCardinal ? 1.65 : 1.25) * (1.0 + Math.sin(now * 0.004 + r) * 0.05);
+        const rayW = (isCardinal ? 9.5 : 5.5) * u;
+        
+        ctx.save();
+        ctx.rotate(ang);
+        const gRay = ctx.createLinearGradient(baseR * 0.55, 0, rayLen, 0);
+        if (mode === 'dynamo') {
+          gRay.addColorStop(0.0, `rgba(255, 255, 255, ${0.90 * rayAlpha})`);
+          gRay.addColorStop(0.35, `rgba(186, 230, 253, ${0.75 * rayAlpha})`);
+          gRay.addColorStop(0.75, `rgba(56, 189, 248, ${0.35 * rayAlpha})`);
+        } else if (mode === 'helix') {
+          gRay.addColorStop(0.0, `rgba(255, 255, 255, ${0.90 * rayAlpha})`);
+          gRay.addColorStop(0.35, `rgba(245, 208, 254, ${0.75 * rayAlpha})`);
+          gRay.addColorStop(0.75, `rgba(232, 121, 249, ${0.35 * rayAlpha})`);
+        } else {
+          gRay.addColorStop(0.0, `rgba(255, 255, 255, ${0.95 * rayAlpha})`);
+          gRay.addColorStop(0.35, `rgba(254, 240, 138, ${0.80 * rayAlpha})`);
+          gRay.addColorStop(0.75, `rgba(249, 115, 22, ${0.40 * rayAlpha})`);
+        }
+        gRay.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gRay;
+        ctx.beginPath();
+        ctx.moveTo(baseR * 0.55, 0);
+        ctx.lineTo(baseR * 0.90, -rayW * 0.5);
+        ctx.lineTo(rayLen, 0);
+        ctx.lineTo(baseR * 0.90, rayW * 0.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
       }
-      if (mode === 'dynamo') {
-        ctx.strokeStyle = `rgba(186, 230, 253, ${rayAlpha * 0.65})`;
-      } else if (mode === 'helix') {
-        ctx.strokeStyle = `rgba(245, 208, 254, ${rayAlpha * 0.65})`;
-      } else {
-        ctx.strokeStyle = `rgba(254, 249, 195, ${rayAlpha * 0.70})`;
-      }
-      ctx.lineWidth = 1.6 * u;
-      ctx.lineCap = 'round';
-      ctx.stroke();
       ctx.restore();
     }
 
-    // 3. Concentric Ascension Resonance Rings in Tier IV
+    // 4. Soft Concentric Ascension Resonance Ripples in Tier IV
     if (cTier >= 3.2) {
-      const t4Alpha = Math.min(0.75, (cTier - 3.0) * 0.75);
+      const t4Alpha = Math.min(0.70, (cTier - 3.0) * 0.70);
       for (let ring = 0; ring < 2; ring++) {
         const ringR = baseR * (0.95 + ring * 0.35 + Math.sin(now * 0.002 + ring) * 0.04);
-        ctx.beginPath();
-        ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+        const ringGrad = ctx.createRadialGradient(0, 0, ringR - 8 * u, 0, 0, ringR + 8 * u);
+        ringGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
         if (mode === 'dynamo') {
-          ctx.strokeStyle = `rgba(56, 189, 248, ${t4Alpha * (0.6 - ring * 0.2)})`;
+          ringGrad.addColorStop(0.5, `rgba(56, 189, 248, ${t4Alpha * (0.6 - ring * 0.2)})`);
         } else if (mode === 'helix') {
-          ctx.strokeStyle = `rgba(232, 121, 249, ${t4Alpha * (0.6 - ring * 0.2)})`;
+          ringGrad.addColorStop(0.5, `rgba(232, 121, 249, ${t4Alpha * (0.6 - ring * 0.2)})`);
         } else {
-          ctx.strokeStyle = `rgba(254, 240, 138, ${t4Alpha * (0.6 - ring * 0.2)})`;
+          ringGrad.addColorStop(0.5, `rgba(254, 240, 138, ${t4Alpha * (0.6 - ring * 0.2)})`);
         }
-        ctx.lineWidth = 1.4 * u;
-        ctx.stroke();
+        ringGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = ringGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, ringR + 8 * u, 0, Math.PI * 2);
+        ctx.arc(0, 0, Math.max(0, ringR - 8 * u), Math.PI * 2, 0, true);
+        ctx.fill();
       }
     }
 
@@ -2535,7 +2586,43 @@
           ctx.drawImage(LayeredT4Assets.coreBase.helix, -170 * u * hScale, -144 * u * hScale, 340 * u * hScale, 280 * u * hScale);
         }
 
+        // Complete 3D Spherical Crystal Enclosure (Prismatic Bio-Lattice Horizon)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const rimGrad = ctx.createRadialGradient(0, 2 * u, 68 * u * hScale, 0, 2 * u, 78 * u * hScale);
+        rimGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+        rimGrad.addColorStop(0.7, 'rgba(56, 189, 248, 0.45)');
+        rimGrad.addColorStop(1.0, 'rgba(232, 121, 249, 0.25)');
+        ctx.fillStyle = rimGrad;
+        ctx.beginPath();
+        ctx.arc(0, 2 * u, 78 * u * hScale, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Internal 3D Double Helix
         drawRotating3DDNAInsideGlass(ctx, 0, 2 * u, 25 * u, 64 * u, now, 0.0, true, tierIdx);
+
+        // Sovereign Crown Pearl (Design 2 Feature: Top Floating Bio-Lattice Pearl with Starlight Bridge)
+        if (cTier >= 2.4) {
+          const topPearlAlpha = Math.min(1.0, (cTier - 2.2) * 1.5);
+          ctx.save();
+          ctx.globalAlpha = topPearlAlpha;
+          // Starlight bridge between main sphere and top pearl
+          const bridgeG = ctx.createRadialGradient(0, -42 * u, 0, 0, -42 * u, 20 * u);
+          bridgeG.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+          bridgeG.addColorStop(0.4, 'rgba(254, 240, 138, 0.85)');
+          bridgeG.addColorStop(0.7, 'rgba(232, 121, 249, 0.45)');
+          bridgeG.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
+          ctx.fillStyle = bridgeG;
+          ctx.beginPath();
+          ctx.arc(0, -42 * u, 20 * u, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Top Pearl sphere & mini-helix
+          drawRotating3DDNAInsideGlass(ctx, 0, -60 * u, 12 * u, 24 * u, now, 1.2, false, tierIdx);
+          ctx.restore();
+        }
+
         drawHelixOrbitalRingsHalf(ctx, u, now, true, tierIdx);
       } else {
         const sr = CoreKinematics.meteorShieldRecoil;
