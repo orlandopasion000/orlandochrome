@@ -1143,7 +1143,6 @@
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
-      LayeredT4Assets.wingLeftCanvas[m] = buildMirroredWingCanvas(LayeredT4Assets.wingRight[m]);
     };
     LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade345`;
   });
@@ -1575,8 +1574,7 @@
     if (cTier <= 1.03) return; // Tier I has no wings until morphing toward Tier II begins!
 
     const wingR = LayeredT4Assets.wingRight[mode];
-    const wingL = LayeredT4Assets.wingLeftCanvas[mode];
-    if (!wingR || !LayeredT4Assets.loaded.wingRight[mode] || !wingL) return;
+    if (!wingR || !LayeredT4Assets.loaded.wingRight[mode]) return;
 
     // Continuous Morphing Span & Scale across Tiers
     let spanScale = 0.0;
@@ -1614,7 +1612,7 @@
 
     for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
       const dir = (sideIdx === 0) ? 1 : -1;
-      const imgSource = (dir === 1) ? wingR : wingL;
+      const imgSource = wingR; // Symmetrically flipped via ctx.scale(dir, 1) with zero seam artifacts
 
       ctx.save();
       // Translate to the wing root socket directly touching the core sphere
