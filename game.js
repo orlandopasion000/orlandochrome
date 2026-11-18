@@ -1139,46 +1139,51 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade351`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade352`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade351`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade352`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade351';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade352';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade351';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade352';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade351';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade352';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade351';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade352';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade351';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade352';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade351';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade352';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade351';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade352';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade351';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade352';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade351';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade352';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade351';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade352';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade351';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade352';
+
+  // Helper: Identifies any hazard trap or anomaly archetype
+  function isHazardNode(nodeClass) {
+    return nodeClass === 'volatile' || nodeClass === 'seeker' || nodeClass === 'phantom' || nodeClass === 'fragmentation' || nodeClass === 'vortex';
+  }
 
   // ─────────────────────────────────────────────────────────────
   // SECONDARY KINEMATICS, ASCENSION MORPHING & LOCK-ON ENGINE
@@ -1286,7 +1291,7 @@
       let bestDX = 0;
       for (let i = 0; i < particles.length; i++) {
         const pt = particles[i];
-        if (pt.nodeClass === 'volatile' || pt.isNumber) continue;
+        if (isHazardNode(pt.nodeClass) || pt.isNumber) continue;
         const dy = catcherPixelY - pt.y;
         if (dy > -20 && dy < 195) {
           const dx = pt.x - catcherPixelX;
@@ -1563,13 +1568,11 @@
   // UPGRADES 1, 2, 3 & 5:
   // ─────────────────────────────────────────────────────────────
   // ─────────────────────────────────────────────────────────────
-  // ARTICULATED KINEMATIC WINGS ENGINE (v349 REAL-3D ENHANCED)
-  // - Symmetrical outward-soaring archangel pinions with intact 4K tips
-  // - Zero slice seams: renders intact 4K texture with continuous fluid kinematics
-  // - Direct zero-gap core anchoring into the Chrome Core wall
-  // - Proportional sleek wingspan (reduced by ~31% for majestic balance)
-  // - Real-3D experience: perspective foreshortening, pitch tilt, and dynamic light glint
-  // - REMOVED wing-root socket orbs ("falling nodes on wings" bug eliminated)
+  // ARTICULATED KINEMATIC WINGS ENGINE (v352 TOP-TIER FLIGHT & PROPORTIONS)
+  // - Recommendation 1: Wing Flap Damping & Convergence Limiter (strictly prevents tips touching/converging)
+  // - Recommendation 2: Asymmetric Directional Kinematics (identifies strafe direction; leading wing lifts & glints, trailing drags & tucks)
+  // - Recommendation 3: Proportional Sleek Wingspan (reduced max span to 0.46 for majestic, balanced aerospace silhouette)
+  // - Intact 4K feathers, real-3D perspective foreshortening, and zero-slice seams
   // ─────────────────────────────────────────────────────────────
   function drawArticulatedWings(ctx, mode, u, cySrc, tier, now) {
     const cTier = CoreKinematics.continuousTier;
@@ -1579,7 +1582,7 @@
     if (!wingR || !LayeredT4Assets.loaded.wingRight[mode]) return;
 
     // Continuous Morphing Proportional Span & Scale across Tiers
-    // Appropriately reduced for sleek, majestic, aerodynamic visual balance
+    // Recommendation 3: Sleek, majestic, aerodynamic visual balance (reduced wingspan)
     let spanScale = 0.0;
     let heightScale = 0.0;
     let wingAlpha = 1.0;
@@ -1587,17 +1590,17 @@
     if (cTier < 2.0) {
       const t12 = Math.max(0, cTier - 1.0);
       const ease12 = 1.0 - Math.pow(1.0 - t12, 2.2);
-      spanScale = 0.36 * ease12;
-      heightScale = 0.36 * (0.45 + 0.55 * ease12);
+      spanScale = 0.25 * ease12;
+      heightScale = 0.27 * (0.45 + 0.55 * ease12);
       wingAlpha = Math.min(1.0, t12 * 1.6);
     } else if (cTier < 3.0) {
       const t23 = cTier - 2.0;
-      spanScale = 0.36 + (0.50 - 0.36) * t23;
-      heightScale = 0.36 + (0.50 - 0.36) * t23;
+      spanScale = 0.25 + (0.35 - 0.25) * t23;
+      heightScale = 0.27 + (0.37 - 0.27) * t23;
     } else {
       const t34 = Math.min(1.2, cTier - 3.0);
-      spanScale = 0.50 + (0.64 - 0.50) * t34;
-      heightScale = 0.50 + (0.62 - 0.50) * t34;
+      spanScale = 0.35 + (0.46 - 0.35) * t34;
+      heightScale = 0.37 + (0.48 - 0.37) * t34;
     }
 
     const srcW = 688;
@@ -1605,45 +1608,74 @@
     const rootSocketX = (mode === 'helix') ? 12.0 : (mode === 'dynamo' ? 10.0 : 12.0);
     const breathPhase = now * 0.0032;
 
-    // Fluid Physical Kinematics & 3D Perspective Transformations:
-    const bankAngle = CoreKinematics.bodyBank * 0.40;
-    const tipInertia = (CoreKinematics.tipY * 0.015 - CoreKinematics.bodyBank * 0.25);
-    const breathOsc = Math.sin(breathPhase) * 0.020;
-    const lockLiftAngle = -CoreKinematics.lockOnProximity * 0.05;
+    // Horizontal Strafe Velocity & Ram-Air Aerodynamic Stabilization
+    const vx = CoreKinematics.vx || 0;
+    const ramAirFactor = 1.0 / (1.0 + 0.12 * Math.abs(vx));
+
+    // Recommendation 1: Damped Base Flap with Angular Convergence Limiter
+    // Strict clamp ensures wingtips never touch or converge inward above the sphere
+    const tipInertia = (CoreKinematics.tipY * 0.0045 - CoreKinematics.bodyBank * 0.10) * ramAirFactor;
+    const breathOsc = Math.sin(breathPhase) * 0.008;
+    const lockLiftAngle = -CoreKinematics.lockOnProximity * 0.035;
+
+    // Flap angle strictly clamped: max inward rotation 0.045 rad (~2.5 deg), max outward 0.12 rad (~6.8 deg)
+    const rawFlap = tipInertia + breathOsc + lockLiftAngle;
+    const clampedFlap = Math.max(-0.045, Math.min(0.12, rawFlap));
+
+    // Body Bank Angle into turn
+    const bankAngle = CoreKinematics.bodyBank * 0.32;
+    const normVx = Math.max(-1.0, Math.min(1.0, vx / 14.0));
 
     for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
       const dir = (sideIdx === 0) ? 1 : -1;
       const imgSource = wingR; // Symmetrically flipped via ctx.scale(dir, 1)
 
       ctx.save();
-      // Translate to the wing root socket directly touching the core sphere
       const sockX = dir * rootSocketX * u;
       const sockY = (mode === 'meteor' ? 2 : 4) * u;
       ctx.translate(sockX, sockY);
 
-      // Apply seamless compound kinematic rotation & breathing
-      const totalRotation = bankAngle + dir * (tipInertia + breathOsc + lockLiftAngle);
+      // Recommendation 2: ASYMMETRIC DIRECTIONAL KINEMATICS (Left vs Right)
+      // dirLead > 0: Wing is LEADING into the strafe vector (meets oncoming airflow)
+      // dirLead < 0: Wing is TRAILING behind (dragged in slipstream wake)
+      const dirLead = dir * normVx;
+
+      // Leading wing lifts up with aerodynamic ground effect / slipstream lift
+      // Trailing wing sweeps back and drags slightly downward
+      const leadLift = Math.max(0, dirLead) * 0.065;
+      const trailSweep = Math.min(0, dirLead) * 0.050;
+      const asymmetricTilt = leadLift + trailSweep;
+
+      const totalRotation = bankAngle + dir * clampedFlap + asymmetricTilt;
       ctx.rotate(totalRotation);
 
-      // Real-3D Experience: Perspective Foreshortening & Pitch Compression
-      // When banking, the wing swinging forward slightly expands; trailing wing compresses
-      const foreshortenX = 1.0 - dir * Math.sin(bankAngle) * 0.20;
-      const pitch3D = Math.max(0.75, Math.cos(totalRotation * 0.55));
-      const breathScale = 1.0 + Math.sin(breathPhase + sideIdx * 0.4) * 0.016;
+      // 3D Perspective Foreshortening & Asymmetric Span Modulation
+      // Leading wing extends forward into the slipstream (+6% span)
+      // Trailing wing tucks slightly inward (-8% span)
+      const spanModifier = 1.0 + dirLead * 0.07;
+      const foreshortenX = (1.0 - dir * Math.sin(bankAngle) * 0.15) * Math.max(0.85, Math.min(1.10, spanModifier));
+      const pitch3D = Math.max(0.78, Math.cos(totalRotation * 0.48));
+      const breathScale = 1.0 + Math.sin(breathPhase + sideIdx * 0.4) * 0.012;
 
       ctx.scale(dir * spanScale * breathScale * u * foreshortenX, heightScale * breathScale * u * pitch3D);
-      ctx.globalAlpha = wingAlpha;
 
-      // Draw the full, intact 4K wing sprite: (0, -cySrc) anchors root directly at (0, 0)!
+      // Z-Depth Lighting & Ambient Slipstream Shadow:
+      // Leading wing stays bright; trailing wing experiences subtle aerodynamic wake depth attenuation
+      const slipstreamAlpha = (dirLead < 0) ? (1.0 + dirLead * 0.10) : 1.0;
+      ctx.globalAlpha = wingAlpha * slipstreamAlpha;
+
+      // Draw the pristine, intact 4K wing sprite: (0, -cySrc) anchors root directly at (0, 0)!
       ctx.drawImage(imgSource, 0, -cySrc, srcW, srcH);
 
-      // Real-3D Lighting: Dynamic Specular Reflection based on virtual light vector
-      const lightDot = Math.cos(totalRotation * 1.4 - dir * 0.25);
-      const spec3D = Math.pow(Math.max(0, lightDot), 2.2);
+      // Real-3D Lighting: Windward Leading-Edge Specular Glint
+      // The leading wing catches the oncoming starlight vector intensely!
+      const lightDot = Math.cos(totalRotation * 1.3 - dir * 0.20 + dirLead * 0.35);
+      const specMultiplier = 1.0 + Math.max(0, dirLead) * 0.85; // +85% glint on leading edge!
+      const spec3D = Math.pow(Math.max(0, lightDot), 2.2) * specMultiplier;
       if (spec3D > 0.05) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = Math.min(0.60, spec3D * 0.50 * wingAlpha);
+        ctx.globalAlpha = Math.min(0.65, spec3D * 0.48 * wingAlpha);
         ctx.drawImage(imgSource, 0, -cySrc, srcW, srcH);
         ctx.restore();
       }
@@ -2721,10 +2753,11 @@
     },
 
     _drawLayeredNodeOrHazard(ctx, mode, p, now) {
-      const isHazard = (p.nodeClass === 'volatile');
+      const isHazard = isHazardNode(p.nodeClass);
       const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
       const isMobile = canvasW < 600;
-      const targetR = isMobile ? 27.0 : 38.0;
+      const baseR = isMobile ? 26.0 : 36.0;
+      const targetR = p.headR ? (p.headR * (isMobile ? 0.72 : 1.0)) : baseR;
       const scale = targetR / 48.0;
       const animPhase = p.animPhase || 0.0;
 
@@ -2732,6 +2765,11 @@
 
       ctx.save();
       ctx.translate(p.x, p.y);
+
+      // Phantom Hazard cloaking opacity
+      if (p.nodeClass === 'phantom') {
+        ctx.globalAlpha = (p.phantomAlpha !== undefined) ? p.phantomAlpha : 1.0;
+      }
 
       if (!isHazard) {
         if (mode === 'dynamo') {
@@ -2756,9 +2794,136 @@
           ctx.restore();
 
           drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4);
-          // Removed artificial curved plain line below falling node for realistic 3D incandescent volcanic aesthetic
         }
+
+        // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHE TYPES:
+        if (p.nodeClass === 'cluster') {
+          // BIFURCATION FLUX NODE (CLUSTER DOUBLER): Twin orbiting satellite motes + iridescent resonance rings
+          const orbitR = targetR * 1.35;
+          const orbitAngle = now * 0.005 + animPhase;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          // Orbiting Mote 1 (Cyan)
+          const mx1 = Math.cos(orbitAngle) * orbitR;
+          const my1 = Math.sin(orbitAngle) * orbitR * 0.45;
+          ctx.beginPath();
+          ctx.arc(mx1, my1, 5.5 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#00f0ff';
+          ctx.fill();
+          // Orbiting Mote 2 (Magenta)
+          const mx2 = -mx1;
+          const my2 = -my1;
+          ctx.beginPath();
+          ctx.arc(mx2, my2, 5.5 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#c084fc';
+          ctx.fill();
+
+          // Pulsing Double-Ring
+          const pulseR = targetR * (1.1 + 0.15 * Math.sin(now * 0.008 + animPhase));
+          ctx.beginPath();
+          ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.75)';
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+
+          // '2X' Badge
+          ctx.font = `bold ${Math.round(11 * scale)}px system-ui, sans-serif`;
+          ctx.fillStyle = '#fef08a';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('2X', 0, -targetR * 1.25);
+          ctx.restore();
+
+        } else if (p.nodeClass === 'supercharge') {
+          // SUPERCHARGED HYPER-NODE: Solar flare corona & golden plasma starburst
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const coronaR = targetR * (1.25 + 0.20 * Math.sin(now * 0.012 + animPhase));
+          const gradCorona = ctx.createRadialGradient(0, 0, targetR * 0.4, 0, 0, coronaR);
+          gradCorona.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+          gradCorona.addColorStop(0.4, 'rgba(251, 191, 36, 0.85)');
+          gradCorona.addColorStop(0.8, 'rgba(249, 115, 22, 0.45)');
+          gradCorona.addColorStop(1.0, 'rgba(239, 68, 68, 0)');
+          ctx.fillStyle = gradCorona;
+          ctx.beginPath();
+          ctx.arc(0, 0, coronaR, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 4 Rotating Hyper Star Spikes
+          const spikeAngle = now * 0.004 + animPhase;
+          for (let sp = 0; sp < 4; sp++) {
+            const sa = spikeAngle + (sp * Math.PI / 2);
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(sa) * targetR * 1.6, Math.sin(sa) * targetR * 1.6);
+            ctx.lineTo(Math.cos(sa + 1.57) * 4, Math.sin(sa + 1.57) * 4);
+            ctx.lineTo(Math.cos(sa - 1.57) * 4, Math.sin(sa - 1.57) * 4);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
+            ctx.fill();
+          }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'chronos') {
+          // CHRONOS STASIS PEARL: Crystalline teal chronometer reticle & ticking tickmarks
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const reticleR = targetR * 1.28;
+          ctx.beginPath();
+          ctx.arc(0, 0, reticleR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(6, 182, 212, 0.85)';
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
+          // 12 Chronometer Ticks
+          const tickRot = now * 0.002;
+          for (let t = 0; t < 12; t++) {
+            const ta = tickRot + (t * Math.PI / 6);
+            const isMajor = (t % 3 === 0);
+            const tLen = isMajor ? 5 * scale : 2.5 * scale;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(ta) * reticleR, Math.sin(ta) * reticleR);
+            ctx.lineTo(Math.cos(ta) * (reticleR - tLen), Math.sin(ta) * (reticleR - tLen));
+            ctx.strokeStyle = isMajor ? '#38bdf8' : 'rgba(147, 197, 253, 0.6)';
+            ctx.lineWidth = isMajor ? 2.0 : 1.2;
+            ctx.stroke();
+          }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'singularity') {
+          // GRAVITON SINGULARITY NODE: Deep violet gravitational accretion disc & spiraling event horizon
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const vortexAngle = -now * 0.008;
+          for (let v = 0; v < 3; v++) {
+            const va = vortexAngle + (v * Math.PI * 2 / 3);
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * (1.15 + v * 0.15), va, va + 1.2);
+            ctx.strokeStyle = `rgba(168, 85, 247, ${0.85 - v * 0.20})`;
+            ctx.lineWidth = 2.4;
+            ctx.stroke();
+          }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'catalyst') {
+          // ASCENSION CATALYST STAR: Multifaceted prismatic diamond starburst
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const catAngle = now * 0.003 + animPhase;
+          for (let c = 0; c < 8; c++) {
+            const ca = catAngle + (c * Math.PI / 4);
+            const cLen = (c % 2 === 0) ? targetR * 1.55 : targetR * 1.15;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(ca) * cLen, Math.sin(ca) * cLen);
+            ctx.strokeStyle = (c % 2 === 0) ? 'rgba(244, 114, 182, 0.90)' : 'rgba(56, 189, 248, 0.85)';
+            ctx.lineWidth = 2.2;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
       } else {
+        // RENDER HAZARD TRAPS & ANOMALIES
         if (mode === 'dynamo') {
           const gSpr = LayeredT4Assets.hazard.dynamoGlitch;
           if (gSpr && LayeredT4Assets.loaded.hazard.dynamoGlitch) {
@@ -2872,6 +3037,69 @@
           ctx.beginPath();
           ctx.arc(0, 0, targetR * 0.34, 0, Math.PI * 2);
           ctx.fill();
+        }
+
+        // BESPOKE HAZARD ARCHETYPE OVERLAYS
+        if (p.nodeClass === 'seeker') {
+          // SEEKER MINE: Active rotating targeting reticle & directional laser pip
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const retAngle = now * 0.006;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.32, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.90)';
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+
+          // 4 Crosshair Notches
+          for (let ch = 0; ch < 4; ch++) {
+            const cha = retAngle + ch * Math.PI / 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(cha) * targetR * 1.15, Math.sin(cha) * targetR * 1.15);
+            ctx.lineTo(Math.cos(cha) * targetR * 1.45, Math.sin(cha) * targetR * 1.45);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+          }
+
+          // Pulsing Radar Ping
+          const pingR = targetR * (0.8 + ((now * 0.003) % 1.0) * 1.2);
+          const pingAlpha = Math.max(0, 1.0 - pingR / (targetR * 2.0));
+          ctx.beginPath();
+          ctx.arc(0, 0, pingR, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255, 100, 100, ${pingAlpha})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.restore();
+
+        } else if (p.nodeClass === 'fragmentation') {
+          // FRAGMENTATION BOLIDE: Unstable ticking fissure core
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const pulseFissure = Math.sin(now * 0.018);
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.20, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(251, 146, 60, ${0.6 + 0.4 * pulseFissure})`;
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.restore();
+
+        } else if (p.nodeClass === 'vortex') {
+          // VORTEX NULL-WELL: Counter-rotating void distortion ring
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const vRingAngle = now * 0.007;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.4, vRingAngle, vRingAngle + Math.PI * 1.2);
+          ctx.strokeStyle = 'rgba(220, 38, 38, 0.85)';
+          ctx.lineWidth = 3.0;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.15, -vRingAngle, -vRingAngle + Math.PI * 1.2);
+          ctx.strokeStyle = 'rgba(147, 51, 234, 0.85)';
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+          ctx.restore();
         }
       }
 
@@ -3004,8 +3232,8 @@
       tierVal: document.getElementById('cgTierVal'),
       pulseVal: document.getElementById('cgPulseVal'),
       pulsePill: document.getElementById('cgPulsePill'),
-      phaseVal: document.getElementById('cgPhaseVal'),
-      phasePill: document.getElementById('cgPhasePill'),
+      buffVal: document.getElementById('cgBuffVal') || document.getElementById('cgPhaseVal'),
+      buffPill: document.getElementById('cgBuffPill') || document.getElementById('cgPhasePill'),
       scoreVal: document.getElementById('cgScoreVal'),
       comboVal: document.getElementById('cgComboVal'),
       bestVal: document.getElementById('cgBestVal'),
@@ -3143,12 +3371,33 @@
     if (dom.pulsePill) {
       dom.pulsePill.classList.toggle('pulse-ready', !!state.isPulseReady);
     }
-    if (dom.phaseVal) {
-      dom.phaseVal.textContent = state.corePhase === 'alpha' ? 'α' : 'β';
-    }
-    if (dom.phasePill) {
-      dom.phasePill.classList.toggle('phase-alpha', state.corePhase === 'alpha');
-      dom.phasePill.classList.toggle('phase-beta', state.corePhase === 'beta');
+    const activeBuffEl = dom.buffVal;
+    const activeBuffPillEl = dom.buffPill;
+    if (activeBuffEl) {
+      const curNow = performance.now();
+      if (state.activeBuff && state.activeBuff.expiresAt > curNow) {
+        const rem = Math.max(0, (state.activeBuff.expiresAt - curNow) / 1000).toFixed(1);
+        activeBuffEl.textContent = `${state.activeBuff.name} ${rem}s`;
+        activeBuffEl.style.color = state.activeBuff.color || '#38bdf8';
+        if (activeBuffPillEl) {
+          activeBuffPillEl.className = `game-stat-pill buff-pill buff-active buff-${state.activeBuff.type}`;
+        }
+      } else {
+        state.activeBuff = null;
+        if (state.isOverdrive) {
+          activeBuffEl.textContent = '10X OVERDRIVE';
+          activeBuffEl.style.color = '#fef08a';
+          if (activeBuffPillEl) {
+            activeBuffPillEl.className = 'game-stat-pill buff-pill buff-active buff-hyper';
+          }
+        } else {
+          activeBuffEl.textContent = 'READY';
+          activeBuffEl.style.color = '#38bdf8';
+          if (activeBuffPillEl) {
+            activeBuffPillEl.className = 'game-stat-pill buff-pill';
+          }
+        }
+      }
     }
   }
 
@@ -3322,11 +3571,11 @@
     state.lastLoopTimestamp = 0;
 
     // The 5 Advanced Features State
-    state.coreTier = 1; // Tier I, II, III
+    state.coreTier = 1; // Tier I, II, III, IV
     state.consecutivePerfects = 0;
     state.pulseMeter = 0; // 0 to 100
     state.isPulseReady = false;
-    state.corePhase = 'alpha'; // 'alpha' (cyan) or 'beta' (amber/magenta)
+    state.activeBuff = null; // Active Celestial Surge / Power Buff
     state.resonanceChain = 0;
 
     state.currentWave = 1;
@@ -3785,35 +4034,84 @@
 
       function spawnNode(baseSpeed) {
         let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
-        const actualSpeed = baseSpeed * normFactor;
 
-        // Pure Node & Hazard Selection (100% faithful to uploaded images: standard nodes + 1 distinct hazard on the right)
-        const hasActiveHazard = state.particles.some(pt => pt.nodeClass === 'volatile');
+        // Recommendation 5: Dynamic Speed Escalation (speed scales +3.5% per combo level & wave)
+        const speedComboBonus = 1.0 + Math.min(0.60, (state.combo - 1) * 0.040 + (state.currentWave - 1) * 0.035);
+        const actualSpeed = baseSpeed * normFactor * speedComboBonus;
+
+        // Recommendation 5: Escalating Difficulty & Multi-Lane Hazard Traps
+        // Max concurrent hazards scales up from 1 to 2 when Wave >= 2 or combo >= 5
+        const maxHazards = (state.currentWave >= 2 || state.combo >= 5) ? 2 : 1;
+        const currentHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
+
+        // Dynamic hazard chance scales up to 38%
+        const hazardChance = Math.min(0.38, 0.22 + (state.currentWave - 1) * 0.03 + (state.combo >= 5 ? 0.06 : 0));
+        const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.0 && Math.random() < hazardChance);
+
         let nClass = 'standard';
         let px = pickFairLaneX();
 
-        if (!hasActiveHazard && elapsedSec > 2.5 && Math.random() < 0.28) {
-          nClass = 'volatile'; // Distinct Hazard to avoid on the right!
-          px = w * (0.74 + Math.random() * 0.14);
+        if (canSpawnHazard) {
+          // Diverse Hazard Archetypes:
+          const rHaz = Math.random();
+          if (rHaz < 0.35) {
+            nClass = 'volatile'; // Standard Antimatter Core
+          } else if (rHaz < 0.60) {
+            nClass = 'seeker'; // Orbital Homing Harbinger (tracks player)
+          } else if (rHaz < 0.75) {
+            nClass = 'phantom'; // Stealth Phase-Glitch Trap (cloaks)
+          } else if (rHaz < 0.90) {
+            nClass = 'fragmentation'; // Fragmentation Bolide (splits into 3 shards)
+          } else {
+            nClass = 'vortex'; // Vortex Null-Well (repels collectibles)
+          }
+          // Hazards spawn across multiple playfield lanes (left, center, right)
+          const hazardLanes = [0.20, 0.38, 0.55, 0.72, 0.86];
+          px = w * hazardLanes[Math.floor(Math.random() * hazardLanes.length)];
         } else {
-          // Keep standard nodes comfortably spaced across the main playfield
-          px = Math.min(w * 0.72, pickFairLaneX());
+          // Recommendation 4: Dynamic Falling Node Archetypes (awesome special collectibles)
+          const rNode = Math.random();
+          if (rNode < 0.08) {
+            nClass = 'cluster'; // Bifurcation Flux Node ("Cluster Doubler")
+          } else if (rNode < 0.15) {
+            nClass = 'supercharge'; // Supercharged Hyper-Node (Supernova)
+          } else if (rNode < 0.20) {
+            nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time)
+          } else if (rNode < 0.24) {
+            nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum)
+          } else if (rNode < 0.27 && (state.coreTier < 4 || state.combo >= 7)) {
+            nClass = 'catalyst'; // Ascension Catalyst Star (Overdrive / Extra Shield)
+          } else {
+            nClass = 'standard';
+          }
+          px = pickFairLaneX();
         }
 
-        // Energy Phase: Alpha (Cyan) or Beta (Amber/Magenta)
-        const phase = Math.random() < 0.5 ? 'alpha' : 'beta';
+        const headRadiusMap = {
+          standard: 26.0,
+          cluster: 28.0,
+          supercharge: 30.0,
+          chronos: 25.0,
+          singularity: 27.0,
+          catalyst: 28.0,
+          volatile: 28.0,
+          seeker: 30.0,
+          phantom: 26.0,
+          fragmentation: 32.0,
+          vortex: 34.0
+        };
 
         const p = {
           type: pType,
           nodeClass: nClass,
-          phase: phase,
           x: px,
           y: -48,
           vx: 0,
-          speed: actualSpeed,
+          speed: actualSpeed * (nClass === 'supercharge' ? 1.30 : (nClass === 'chronos' ? 0.90 : 1.0)),
           baseSpeed: baseSpeed,
-          headR: nClass === 'prime' ? 29.0 : 26.0,
+          headR: headRadiusMap[nClass] || 26.0,
           hasSplit: false,
+          hasDetonated: false,
           phantomAlpha: 1.0,
           animPhase: Math.random() * Math.PI * 2,
           tumbleDir: Math.random() < 0.5 ? 1 : -1,
@@ -3861,12 +4159,11 @@
         if (calculatedWave > state.currentWave) {
           state.currentWave = calculatedWave;
           audio.playVictoryFanfare();
-          // Wave acceleration shown cleanly in header HUD without floating text clutter
           updateHeaderUI();
         }
 
-        const maxConcurrent = Math.min(5, 3 + Math.floor(state.currentWave / 2));
-        const waveInterval = Math.max(380, 650 - (state.currentWave - 1) * 45);
+        const maxConcurrent = Math.min(6, 3 + Math.floor(state.currentWave / 2));
+        const waveInterval = Math.max(340, 620 - (state.currentWave - 1) * 45);
         if ((now - state.lastSpawnTime) >= waveInterval && state.particles.length < maxConcurrent) {
           shouldSpawn = true;
           nextBaseSpeed = 2.60 + (state.currentWave - 1) * 0.22 + Math.random() * 0.35;
@@ -3880,7 +4177,7 @@
       // Check if any non-volatile node is inside the magnetic horizon for Iris Lock-On
       const tierHitBonusPre = (state.coreTier - 1) * 12;
       const gravRadiusPre = 130 + tierHitBonusPre;
-      const isCoreLockedOn = state.particles.some(pt => pt.nodeClass !== 'volatile' && Math.hypot(catcherPixelX - pt.x, catcherPixelY - pt.y) < gravRadiusPre);
+      const isCoreLockedOn = state.particles.some(pt => !isHazardNode(pt.nodeClass) && Math.hypot(catcherPixelX - pt.x, catcherPixelY - pt.y) < gravRadiusPre);
 
       // ─────────────────────────────────────────────────────────────
       // OPTIONAL LIVE SHOWCASE RECORDER (?capture=1)
@@ -3907,32 +4204,32 @@
           state._capState.offCanvas.height = 384;
           updateHeaderUI();
 
-          // Seed deterministic showcase nodes + nearby right-lane hazard
+          // Seed deterministic showcase nodes + nearby hazard
           state.particles = [
             {
-              type: modeName, nodeClass: 'standard', phase: 'alpha',
+              type: modeName, nodeClass: 'cluster',
               x: w * 0.18, y: 55, vx: 0, speed: 1.55, baseSpeed: 1.55,
-              headR: 26, hasSplit: false, phantomAlpha: 1.0,
+              headR: 28, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
               animPhase: 0.2, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
             },
             {
-              type: modeName, nodeClass: 'standard', phase: 'beta',
+              type: modeName, nodeClass: 'supercharge',
               x: w * 0.34, y: 15, vx: 0, speed: 1.60, baseSpeed: 1.60,
-              headR: 26, hasSplit: false, phantomAlpha: 1.0,
+              headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
               animPhase: 2.4, tumbleDir: -1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
             },
             {
-              // Target capture node at x = 0.64 * w: arrives at catcherPixelY - 78 right at t = 3.45s (Frame 62)!
-              type: modeName, nodeClass: 'standard', phase: 'alpha',
+              // Target capture node at x = 0.64 * w
+              type: modeName, nodeClass: 'standard',
               x: w * 0.64, y: (catcherPixelY - 78) - 2.20 * (3.45 * 60), vx: 0, speed: 2.20, baseSpeed: 2.20,
-              headR: 26, hasSplit: false, phantomAlpha: 1.0,
+              headR: 26, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
               animPhase: 4.5, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
             },
             {
-              // Nearby right-lane hazard at x = 0.85 * w passing right beside the catcher during t = 3.0s..4.2s
-              type: modeName, nodeClass: 'volatile', phase: 'beta',
+              // Nearby hazard at x = 0.85 * w
+              type: modeName, nodeClass: 'seeker',
               x: w * 0.85, y: (catcherPixelY - 20) - 2.10 * (3.65 * 60), vx: 0, speed: 2.10, baseSpeed: 2.10,
-              headR: 26, hasSplit: false, phantomAlpha: 1.0,
+              headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
               animPhase: 1.3, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
             }
           ];
@@ -3943,28 +4240,23 @@
         if (!cs.done) {
           const tCap = (now - cs.startTime) / 1000.0;
           if (tCap < 2.0) {
-            // 0.0s .. 2.0s: Hold catcher completely still at x = 0.45 for 2 full seconds
             targetCatcherX = 0.45;
             currentCatcherX = 0.45;
           } else if (tCap < 2.65) {
-            // 2.0s .. 2.65s: Sweep left (0.45 -> 0.22)
             const pLeft = (tCap - 2.0) / 0.65;
             const ease = 0.5 - 0.5 * Math.cos(pLeft * Math.PI);
             targetCatcherX = 0.45 - 0.23 * ease;
           } else if (tCap < 3.25) {
-            // 2.65s .. 3.25s: Reverse sharply to the right (0.22 -> 0.64)
             const pRight = (tCap - 2.65) / 0.60;
             const ease = 1.0 - Math.pow(1.0 - pRight, 2.6);
             targetCatcherX = 0.22 + 0.42 * ease;
           } else {
-            // 3.25s .. 4.25s: Hold at x = 0.64 for node capture & impact VFX + nearby hazard pass at x = 0.85
             targetCatcherX = 0.64;
           }
           currentCatcherX += (targetCatcherX - currentCatcherX) * 0.86;
           state.catcherX = currentCatcherX;
           catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
         } else {
-          // After 76 frames are recorded, center catcher at x = 0.50 and keep 3 nodes + 1 right hazard visible for screenshot
           targetCatcherX = 0.50;
           currentCatcherX += (targetCatcherX - currentCatcherX) * 0.22;
           state.catcherX = currentCatcherX;
@@ -3972,10 +4264,10 @@
           if (!cs.reseededForShot) {
             cs.reseededForShot = true;
             state.particles = [
-              { type: modeName, nodeClass: 'standard', phase: 'alpha', x: w * 0.22, y: 120, vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 26, hasSplit: false, phantomAlpha: 1.0, animPhase: 0.4, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
-              { type: modeName, nodeClass: 'standard', phase: 'beta',  x: w * 0.40, y: 40,  vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 26, hasSplit: false, phantomAlpha: 1.0, animPhase: 2.1, tumbleDir: -1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
-              { type: modeName, nodeClass: 'standard', phase: 'alpha', x: w * 0.62, y: 85,  vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 26, hasSplit: false, phantomAlpha: 1.0, animPhase: 3.9, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
-              { type: modeName, nodeClass: 'volatile', phase: 'beta',  x: w * 0.82, y: 110, vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 26, hasSplit: false, phantomAlpha: 1.0, animPhase: 1.2, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] }
+              { type: modeName, nodeClass: 'cluster', x: w * 0.22, y: 120, vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 28, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 0.4, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
+              { type: modeName, nodeClass: 'supercharge', x: w * 0.40, y: 40,  vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 2.1, tumbleDir: -1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
+              { type: modeName, nodeClass: 'standard', x: w * 0.62, y: 85,  vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 26, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 3.9, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
+              { type: modeName, nodeClass: 'seeker',  x: w * 0.82, y: 110, vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 1.2, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] }
             ];
           }
         }
@@ -3992,11 +4284,11 @@
       // ─────────────────────────────────────────────────────────────
       ctx.save();
       if (state.catcherType === 'helix') {
-        QuantumRenderer.drawHelixCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier, state.corePhase, state.isOverdrive, isCoreLockedOn);
+        QuantumRenderer.drawHelixCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier);
       } else if (state.catcherType === 'dynamo' || state.catcherType === 'realm') {
-        QuantumRenderer.drawDynamoCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier, state.corePhase, state.isOverdrive, isCoreLockedOn);
+        QuantumRenderer.drawDynamoCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier);
       } else {
-        QuantumRenderer.drawMeteorAsteroid(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier, state.corePhase, state.isOverdrive, isCoreLockedOn);
+        QuantumRenderer.drawMeteorAsteroid(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier);
       }
       ctx.restore();
 
@@ -4039,80 +4331,122 @@
       for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
 
-        // FEATURE 1: Splitter Node logic (splits at 42% height)
-        if (p.nodeClass === 'splitter' && !p.hasSplit && p.y > h * 0.42) {
-          p.hasSplit = true;
-          // Spawn twin daughter node
-          const daughter = {
-            type: p.type,
-            nodeClass: 'standard',
-            phase: p.phase === 'alpha' ? 'beta' : 'alpha',
-            x: p.x + 24,
-            y: p.y,
-            vx: 1.6,
-            speed: p.speed,
-            baseSpeed: p.baseSpeed,
-            headR: 24.0,
-            hasSplit: true,
-            phantomAlpha: 1.0,
-            spine: [],
-            stardust: []
-          };
-          for (let j = 0; j < 8; j++) daughter.spine.push({ x: p.x + 24, y: p.y - j * 8.5 });
-          p.vx = -1.6;
-          p.x -= 24;
-          state.particles.push(daughter);
-          audio.playTone(600, 'triangle', 0.15, 0.2);
-          // Clean visual mitosis without floating text clutter
+        // Recommendation 5: HAZARD TRAP KINEMATICS
+        if (p.nodeClass === 'seeker') {
+          // Tracking Seeker Mine: Horizontally glides towards the core
+          const dxSeek = catcherPixelX - p.x;
+          const steerSpeed = Math.min(2.4, Math.abs(dxSeek) * 0.038) * Math.sign(dxSeek);
+          p.x += steerSpeed * dtScale;
+          p.x = Math.max(30, Math.min(w - 30, p.x));
         }
 
-        // Apply horizontal splitter velocity
+        if (p.nodeClass === 'fragmentation' && !p.hasDetonated && p.y > h * 0.38) {
+          // Fragmentation Bolide: Detonates mid-air into 3 angled shrapnel shards!
+          p.hasDetonated = true;
+          audio.playHazardExplosion();
+          const shardAngles = [-0.55, 0, 0.55];
+          for (let sIdx = 0; sIdx < 3; sIdx++) {
+            const ang = shardAngles[sIdx];
+            const sh = {
+              type: p.type,
+              nodeClass: 'volatile',
+              x: p.x + (sIdx - 1) * 16,
+              y: p.y,
+              vx: Math.sin(ang) * 3.2,
+              speed: p.speed * 1.15,
+              baseSpeed: p.baseSpeed,
+              headR: 18.0,
+              isShard: true,
+              animPhase: Math.random() * Math.PI * 2,
+              spine: []
+            };
+            for (let j = 0; j < 6; j++) sh.spine.push({ x: sh.x, y: sh.y - j * 7 });
+            state.particles.push(sh);
+          }
+          state.particles.splice(i, 1);
+          continue;
+        }
+
+        if (p.nodeClass === 'vortex') {
+          // Vortex Null-Well: Repels nearby good nodes away from it
+          for (let k = 0; k < state.particles.length; k++) {
+            const other = state.particles[k];
+            if (other !== p && !isHazardNode(other.nodeClass)) {
+              const dxV = other.x - p.x;
+              const dyV = other.y - p.y;
+              const distV = Math.hypot(dxV, dyV);
+              if (distV < 140 && distV > 1) {
+                const repelForce = (1.0 - distV / 140) * 2.8 * dtScale;
+                other.x += (dxV / distV) * repelForce;
+                other.x = Math.max(25, Math.min(w - 25, other.x));
+              }
+            }
+          }
+        }
+
+        if (p.nodeClass === 'phantom') {
+          // Stealth Phase-Glitch Trap: Dynamic decloaking within 220px of player
+          const distToPlayer = Math.hypot(catcherPixelX - p.x, catcherPixelY - p.y);
+          if (distToPlayer < 220) {
+            p.phantomAlpha = 0.55 + 0.45 * Math.sin(now * 0.02);
+          } else {
+            p.phantomAlpha = 0.08 + 0.14 * (0.5 + 0.5 * Math.sin(now * 0.005 + p.animPhase));
+          }
+        }
+
+        // Apply horizontal velocity
         if (p.vx) {
           p.x += p.vx * dtScale;
           p.vx *= 0.98;
         }
 
-        // FEATURE 4: CHRONOS STASIS (Slows down by 28% inside magnetic tether horizon)
+        // Active Buffs: Bullet-Time (Chronos) & Graviton Vacuum (Singularity)
+        let globalSpeedMultiplier = 1.0;
+        if (state.activeBuff && (state.activeBuff.type === 'chronos' || state.activeBuff.type === 'stasis') && state.activeBuff.expiresAt > now) {
+          globalSpeedMultiplier = 0.40; // 60% slow motion bullet-time!
+        }
+        if (state.activeBuff && state.activeBuff.type === 'singularity' && state.activeBuff.expiresAt > now) {
+          if (!isHazardNode(p.nodeClass)) {
+            const dxSing = catcherPixelX - p.x;
+            const dySing = catcherPixelY - p.y;
+            const distSing = Math.hypot(dxSing, dySing);
+            if (distSing > 10) {
+              p.x += (dxSing / distSing) * 6.5 * dtScale;
+              p.y += (dySing / distSing) * 3.5 * dtScale;
+            }
+          }
+        }
+
+        // Near-Core Proximity Slowdown & Tether Attraction
         const dxToCore = catcherPixelX - p.x;
         const dyToCore = catcherPixelY - p.y;
         const distToCore = Math.hypot(dxToCore, dyToCore);
 
         let speedFactor = 1.0;
-        if (distToCore < gravRadius && p.y < catcherPixelY + 20 && p.nodeClass !== 'volatile') {
-          // CHRONOS STASIS SLOW: 28% speed reduction so lining up intercept feels earned!
-          speedFactor = 0.72;
-
-          // Subtle Gravitational Magnetic Pull
+        if (distToCore < gravRadius && p.y < catcherPixelY + 20 && !isHazardNode(p.nodeClass)) {
+          speedFactor = 0.72; // Proximity tether dampening
           const gravStrength = (1.0 - (distToCore / gravRadius)) * 0.95;
           p.x += Math.sign(dxToCore) * Math.min(Math.abs(dxToCore) * 0.14, gravStrength * 4.2 * dtScale);
 
-          // Top-Rim Contact Flash as the node makes contact with the Chrome Core (Matches exact reference image!)
           const modeKey = (p.type === 'helix') ? 'helix' : (p.type === 'meteor' ? 'meteor' : 'dynamo');
           QuantumRenderer.drawContactBurst(ctx, (p.x + catcherPixelX) * 0.5, catcherPixelY - 52, modeKey, gravStrength, now);
         }
 
         // Advance Node using Delta-Time
-        p.y += p.speed * dtScale * speedFactor;
-
-        // FEATURE 1: Phantom Flicker Alpha
-        if (p.nodeClass === 'phantom') {
-          p.phantomAlpha = 0.32 + 0.68 * Math.abs(Math.sin(now * 0.007 + p.x));
-        }
+        p.y += p.speed * dtScale * speedFactor * globalSpeedMultiplier;
 
         // Update spine IK
-        p.spine[0].x = p.x;
-        p.spine[0].y = p.y;
-        for (let j = 1; j < p.spine.length; j++) {
-          p.spine[j].y = p.y - j * 8.5;
-          p.spine[j].x = p.x + Math.sin(timestamp * 0.005 + j * 0.6) * (j * 1.1);
+        if (p.spine && p.spine.length > 0) {
+          p.spine[0].x = p.x;
+          p.spine[0].y = p.y;
+          for (let j = 1; j < p.spine.length; j++) {
+            p.spine[j].y = p.y - j * 8.5;
+            p.spine[j].x = p.x + Math.sin(timestamp * 0.005 + j * 0.6) * (j * 1.1);
+          }
         }
 
-        // Render Celestial Flux Node (Bespoke 3D Models handle Prime, Volatile, Splitter & Phantom natively)
+        // Render Celestial Flux Node / Hazard
         ctx.save();
-        if (p.nodeClass === 'phantom') {
-          ctx.globalAlpha = p.phantomAlpha;
-        }
-
         if (p.type === 'dynamo' || p.type === 'realm') {
           QuantumRenderer.drawTier3DynamoParticle(ctx, p, timestamp);
         } else if (p.type === 'helix') {
@@ -4123,11 +4457,11 @@
         ctx.restore();
 
         // ─────────────────────────────────────────────────────────────
-        // COLLISION CHECK, PRECISION CATCH & OFFICIAL MODE CALLOUTS
+        // COLLISION CHECK, PRECISION CATCH & SPECIAL ARCHETYPE POWERS
         // ─────────────────────────────────────────────────────────────
         if (distToCore < hitRadius) {
-          // Check if player caught a Volatile Hazard!
-          if (p.nodeClass === 'volatile') {
+          // Check if player caught a Hazard Trap!
+          if (isHazardNode(p.nodeClass)) {
             state.combo = 1;
             state.coreTier = Math.max(1, state.coreTier - 1);
             state.reflexLives--;
@@ -4135,7 +4469,6 @@
             state.resonanceChain = 0;
             audio.playHazardExplosion();
             renderReflexShields();
-            // Clean visual shock & shield update without floating text clutter
 
             if (state.reflexLives <= 0) {
               const gameNames = { dynamo: 'CHROME DYNAMO', realm: 'CHROME DYNAMO', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
@@ -4152,19 +4485,60 @@
           // Non-Hazard Interception: Precision Catch Evaluation
           const isPerfect = (distToCore <= innerSweetSpotRadius);
           const precisionMultiplier = isPerfect ? 2.0 : 1.0;
-          const classMultiplier = (p.nodeClass === 'prime') ? 5.0 : 1.0;
 
-          // FEATURE 5: Phase Resonance Chain
-          let chainBonus = 1.0;
-          if (p.phase === state.corePhase) {
-            state.resonanceChain++;
-            chainBonus = 1.0 + Math.min(2.0, state.resonanceChain * 0.2);
-          } else {
-            state.resonanceChain = 0;
+          // Recommendation 4: Archetype Multipliers & Active Buff Powers
+          let classMultiplier = 1.0;
+          let clusterBonus = (state.activeBuff && state.activeBuff.type === 'cluster' && state.activeBuff.expiresAt > now) ? 2.0 : 1.0;
+
+          if (p.nodeClass === 'cluster') {
+            // DUPLICATE ALL NON-HAZARD NODES ON SCREEN!
+            const toAdd = [];
+            for (let pt of state.particles) {
+              if (!isHazardNode(pt.nodeClass) && pt !== p && !pt.isDuplicate) {
+                toAdd.push({
+                  ...pt,
+                  x: Math.max(30, Math.min(w - 30, pt.x + (Math.random() < 0.5 ? 45 : -45))),
+                  y: Math.max(0, pt.y - 30),
+                  isDuplicate: true,
+                  spine: []
+                });
+              }
+            }
+            for (let n of toAdd) {
+              for (let j = 0; j < 8; j++) n.spine.push({ x: n.x, y: n.y - j * 8.5 });
+              state.particles.push(n);
+            }
+            state.activeBuff = { type: 'cluster', name: '2X CLUSTER', color: '#c084fc', expiresAt: now + 5000 };
+            audio.playOverdriveFanfare();
+            classMultiplier = 2.0;
+
+          } else if (p.nodeClass === 'supercharge') {
+            classMultiplier = 8.0;
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 50);
+            if (state.pulseMeter >= 100) { state.isPulseReady = true; audio.playPulseCharged(); }
+            state.activeBuff = { type: 'hyper', name: 'HYPER SURGE', color: '#fbbf24', expiresAt: now + 5000 };
+            audio.playOverdriveFanfare();
+
+          } else if (p.nodeClass === 'chronos') {
+            state.activeBuff = { type: 'chronos', name: 'CHRONOS STASIS', color: '#22d3ee', expiresAt: now + 4500 };
+            audio.playPhaseSwitch();
+
+          } else if (p.nodeClass === 'singularity') {
+            state.activeBuff = { type: 'singularity', name: 'GRAVITON VORTEX', color: '#a855f7', expiresAt: now + 3500 };
+            audio.playPulseCharged();
+
+          } else if (p.nodeClass === 'catalyst') {
+            state.coreTier = Math.min(4, state.coreTier + 1);
+            state.combo = (state.coreTier === 4 ? 10 : (state.coreTier === 3 ? 7 : 4));
+            state.isOverdrive = (state.coreTier === 4);
+            state.reflexLives = Math.min(5, state.reflexLives + 1);
+            renderReflexShields();
+            state.activeBuff = { type: 'catalyst', name: 'ASCENSION CATALYST', color: '#f472b6', expiresAt: now + 6000 };
+            audio.playOverdriveFanfare();
           }
 
           const basePoints = 300;
-          const finalCatchPoints = Math.floor(basePoints * state.combo * precisionMultiplier * classMultiplier * chainBonus);
+          const finalCatchPoints = Math.floor(basePoints * state.combo * precisionMultiplier * classMultiplier * clusterBonus);
           state.score += finalCatchPoints;
           const prevCombo = state.combo;
           state.combo = Math.min(10, state.combo + 1);
@@ -4174,12 +4548,7 @@
             audio.playOverdriveFanfare();
           }
 
-          // Official Mode-Specific Capture Action Verbs:
-          // Dynamo -> CAPTURED, Helix -> HARMONIZED, Meteor -> DEFLECTED
-          const modeVerb = (p.type === 'helix') ? 'HARMONIZED' : (p.type === 'meteor' ? 'DEFLECTED' : 'CAPTURED');
-          const modeIcon = (p.type === 'helix') ? '🧬' : (p.type === 'meteor' ? '☄️' : '⚡');
-
-          // Perfect Catch Charging Flux Pulse (3 in a row fills meter! Zero floating text lag)
+          // Perfect Catch Charging Flux Pulse (3 in a row fills meter!)
           if (isPerfect) {
             state.consecutivePerfects++;
             state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 34);
@@ -4193,7 +4562,7 @@
             audio.playGrazeCatch(state.combo);
           }
 
-          // Trigger Mode-Specific Layered Capture Physics (Inward Discharge / Wing Ripple / Shield Recoil + Upward Cinders)
+          // Trigger Mode-Specific Layered Capture Physics
           CoreKinematics.triggerCaptureEffect(p.type, catcherPixelX, catcherPixelY, p.x, p.y, now);
 
           // Spawn Mode-Signature Kinetic Impact Physics Effect
@@ -4215,8 +4584,8 @@
 
         // Screen Exit (Past Bottom)
         if (p.y > h + 70) {
-          if (p.nodeClass === 'volatile') {
-            state.score += 100;
+          if (isHazardNode(p.nodeClass)) {
+            state.score += 150; // Dodging reward for successfully avoiding hazards!
             state.particles.splice(i, 1);
             updateHeaderUI();
             continue;
@@ -4476,29 +4845,18 @@
         color: pColor
       };
 
-      // Pull all non-volatile nodes on screen for automatic Perfect catch!
+      // Pull all non-hazard nodes on screen for automatic Perfect catch!
       for (let i = state.particles.length - 1; i >= 0; i--) {
         const pt = state.particles[i];
-        if (pt.nodeClass !== 'volatile') {
+        if (!isHazardNode(pt.nodeClass)) {
           state.score += 300 * state.combo;
           state.particles.splice(i, 1);
         }
       }
-      // Clean full-screen shockwave without floating text clutter
       updateHeaderUI();
-    }
-
-    // FEATURE 5: Cycle Core Phase (Alpha ↔ Beta)
-    function cycleCorePhase() {
-      if (!state.active) return;
-      state.corePhase = (state.corePhase === 'alpha') ? 'beta' : 'alpha';
-      audio.playPhaseSwitch();
-      updateHeaderUI();
-      // Phase pill & Core color shift provide instant feedback without text clutter
     }
 
     if (dom.pulsePill) dom.pulsePill.onclick = triggerFluxPulse;
-    if (dom.phasePill) dom.phasePill.onclick = cycleCorePhase;
 
     // Cycle Tier (I -> II -> III -> IV) on clicking the TIER pill or pressing 'T'
     function cycleCoreTier() {
@@ -4517,27 +4875,15 @@
       tierPillEl.onclick = cycleCoreTier;
     }
 
-    // Keyboard bindings for Flux Pulse (Space), Phase Switch (P / F), and Tier Cycle (T)
+    // Keyboard bindings for Flux Pulse (Space) and Tier Cycle (T)
     window.addEventListener('keydown', (e) => {
       if (!state.active) return;
       if (e.code === 'Space') {
         e.preventDefault();
         triggerFluxPulse();
-      } else if (e.key === 'p' || e.key === 'P' || e.key === 'f' || e.key === 'F') {
-        cycleCorePhase();
       } else if (e.key === 't' || e.key === 'T') {
         cycleCoreTier();
       }
-    });
-
-    // Double-tap on canvas to cycle phase on touchscreen
-    let lastCanvasTap = 0;
-    dom.canvasReflex?.addEventListener('pointerdown', (e) => {
-      const nowTap = performance.now();
-      if (nowTap - lastCanvasTap < 300) {
-        cycleCorePhase();
-      }
-      lastCanvasTap = nowTap;
     });
 
     // Window Resize Handler to guarantee pixel-perfect resolution on all screens
