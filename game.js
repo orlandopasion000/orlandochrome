@@ -1597,7 +1597,7 @@
       heightScale = 0.54 + (0.65 - 0.54) * t34;
     }
 
-    const numSlices = 20;
+    const numSlices = 60;
     const srcW = 652;
     const srcH = 468;
     const startX = 32;
@@ -1699,7 +1699,7 @@
           ctx.transform(1, shearY, 0, 1, stripXLeft, stripYLeft + anchorTopY);
           ctx.drawImage(imgSource, sx, 0, sw, srcH, 0, 0, destW, destH);
 
-          // UPGRADE 3: Traveling Wing-Vein Energy Conduits (Active in Tier III & IV, strongest in Tier IV!)
+          // UPGRADE 3: Smooth Wing-Vein Shimmer (zero rectangular fillRect columns)
           if (cTier >= 2.6 && !isTier4Secondary) {
             const tierIntensity = Math.min(1.0, (cTier - 2.5) / 1.2);
             const d1 = Math.abs(sMid - veinPulsePos1);
@@ -1709,27 +1709,10 @@
               Math.exp(-(d2 * d2) / 0.012) * 0.78
             ) * tierIntensity;
             const rGlow = Math.max(p0.rippleGlow, p1.rippleGlow, surge * 0.78);
-            if (rGlow > 0.07) {
+            if (rGlow > 0.15) {
               ctx.globalCompositeOperation = 'lighter';
-              const grad = ctx.createLinearGradient(0, destH * 0.12, 0, destH * 0.88);
-              if (mode === 'dynamo') {
-                grad.addColorStop(0.0, 'rgba(0, 240, 255, 0)');
-                grad.addColorStop(0.45, `rgba(56, 189, 248, ${rGlow * 0.55})`);
-                grad.addColorStop(0.68, `rgba(254, 240, 138, ${rGlow * 0.62})`);
-                grad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
-              } else if (mode === 'helix') {
-                grad.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
-                grad.addColorStop(0.45, `rgba(34, 211, 238, ${rGlow * 0.55})`);
-                grad.addColorStop(0.65, `rgba(240, 171, 252, ${rGlow * 0.65})`);
-                grad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
-              } else {
-                grad.addColorStop(0.0, 'rgba(249, 115, 22, 0)');
-                grad.addColorStop(0.45, `rgba(251, 146, 60, ${rGlow * 0.55})`);
-                grad.addColorStop(0.68, `rgba(254, 240, 138, ${rGlow * 0.68})`);
-                grad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
-              }
-              ctx.fillStyle = grad;
-              ctx.fillRect(0, destH * (0.24 - s0 * 0.18), destW, destH * 0.56);
+              ctx.globalAlpha = Math.min(1.0, rGlow * 0.45);
+              ctx.drawImage(imgSource, sx, 0, sw, srcH, 0, 0, destW, destH);
             }
           }
           ctx.restore();
@@ -1873,50 +1856,37 @@
       ctx.save();
       ctx.rotate(tilt);
 
-      for (let s = 0; s < numSegs; s++) {
-        const a0 = (s / numSegs) * Math.PI * 2;
-        const a1 = ((s + 1.15) / numSegs) * Math.PI * 2;
-        const aMid = (a0 + a1) * 0.5;
-        const zDepth = Math.sin(aMid);
+      // Continuous Anti-Aliased Elliptical Ring (Zero bumpy beads or pixelated knots)
+      const ringSteps = 72;
+      ctx.beginPath();
+      let started = false;
+      for (let s = 0; s <= ringSteps; s++) {
+        const a = (s / ringSteps) * Math.PI * 2;
+        const zDepth = Math.sin(a);
         const isFront = (zDepth >= 0);
-        if (isFront !== drawFrontHalf) continue;
-
-        const x0 = Math.cos(a0) * rx;
-        const y0 = Math.sin(a0) * ry;
-        const x1 = Math.cos(a1) * rx;
-        const y1 = Math.sin(a1) * ry;
-
-        const wave = 0.5 + 0.5 * Math.cos(aMid * 2.0 - spin * 2.0);
-        const depthAlpha = drawFrontHalf ? (0.85 + 0.15 * zDepth) : (0.40 + 0.25 * (1 + zDepth));
-        const width = (drawFrontHalf ? (4.4 + 1.8 * zDepth) : (2.5 + 0.8 * (1 + zDepth))) * u;
-
-        ctx.beginPath();
-        ctx.moveTo(x0, y0);
-        ctx.lineTo(x1, y1);
-        ctx.lineWidth = width;
-        ctx.lineCap = 'round';
-
-        if (cfg.isGold) {
-          ctx.strokeStyle = (wave > 0.70 && drawFrontHalf)
-            ? `rgba(254, 240, 138, ${depthAlpha})`
-            : `rgba(245, 158, 11, ${depthAlpha})`;
+        if (isFront === drawFrontHalf) {
+          const x = Math.cos(a) * rx;
+          const y = Math.sin(a) * ry;
+          if (!started) { ctx.moveTo(x, y); started = true; }
+          else ctx.lineTo(x, y);
         } else {
-          ctx.strokeStyle = (wave > 0.70 && drawFrontHalf)
-            ? `rgba(224, 242, 254, ${depthAlpha})`
-            : `rgba(56, 189, 248, ${depthAlpha})`;
+          started = false;
         }
-        ctx.stroke();
+      }
+      const ringAlpha = drawFrontHalf ? 0.94 : 0.42;
+      const baseWidth = (drawFrontHalf ? 3.8 : 2.2) * u;
+      ctx.lineWidth = baseWidth;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = cfg.isGold
+        ? (drawFrontHalf ? `rgba(254, 240, 138, ${ringAlpha})` : `rgba(245, 158, 11, ${ringAlpha})`)
+        : (drawFrontHalf ? `rgba(224, 242, 254, ${ringAlpha})` : `rgba(56, 189, 248, ${ringAlpha})`);
+      ctx.stroke();
 
-        if (drawFrontHalf) {
-          ctx.beginPath();
-          ctx.moveTo(x0, y0);
-          ctx.lineTo(x1, y1);
-          ctx.lineWidth = width * 0.40;
-          ctx.strokeStyle = cfg.isGold
-            ? `rgba(255, 251, 235, ${0.80 * depthAlpha})`
-            : `rgba(255, 255, 255, ${0.85 * depthAlpha})`;
-          ctx.stroke();
-        }
+      if (drawFrontHalf) {
+        ctx.lineWidth = baseWidth * 0.42;
+        ctx.strokeStyle = cfg.isGold ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.96)';
+        ctx.stroke();
       }
 
       for (let b = 0; b < 2; b++) {
@@ -3429,30 +3399,88 @@
     dom.canvasReflex.height = Math.floor(h * dpr);
   }
 
+  
+  // ─────────────────────────────────────────────────────────────
+  // LUXURY OLED COSMIC SPACE ATMOSPHERE (v343)
+  // Pure OLED True-Black Space, Zero Gridlines, Soft Organic Nebulas
+  // ─────────────────────────────────────────────────────────────
+  const COSMIC_STARS = Array.from({ length: 48 }, (_, i) => ({
+    x: ((i * 73 + 19) % 1000) / 1000,
+    y: ((i * 97 + 37) % 1000) / 1000,
+    baseR: 0.6 + (i % 3) * 0.45,
+    freq: 0.0018 + (i % 5) * 0.0009,
+    phase: i * 1.37
+  }));
+
+  function renderLuxuryCosmicBackground(ctx, w, h, mode, now) {
+    // 1. Organic drifting celestial nebular bloom (Zero geometry, zero gridlines)
+    const driftX = Math.sin(now * 0.0004) * 45;
+    const driftY = Math.cos(now * 0.0003) * 35;
+    const nebR = Math.max(w, h) * 0.65;
+    
+    ctx.save();
+    const g1 = ctx.createRadialGradient(w * 0.5 + driftX, h * 0.35 + driftY, 20, w * 0.5 + driftX, h * 0.35 + driftY, nebR);
+    if (mode === 'helix') {
+      g1.addColorStop(0.0, 'rgba(34, 211, 238, 0.038)');
+      g1.addColorStop(0.45, 'rgba(232, 121, 249, 0.022)');
+      g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+    } else if (mode === 'dynamo') {
+      g1.addColorStop(0.0, 'rgba(56, 189, 248, 0.038)');
+      g1.addColorStop(0.45, 'rgba(168, 85, 247, 0.022)');
+      g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+    } else {
+      g1.addColorStop(0.0, 'rgba(249, 115, 22, 0.038)');
+      g1.addColorStop(0.45, 'rgba(234, 88, 12, 0.022)');
+      g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+    }
+    ctx.fillStyle = g1;
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Anti-aliased micro-stars & diamond stardust (Subtle, silky twinkle)
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < COSMIC_STARS.length; i++) {
+      const s = COSMIC_STARS[i];
+      const sx = s.x * w;
+      const sy = s.y * h;
+      const tw = Math.pow(0.5 + 0.5 * Math.sin(now * s.freq + s.phase), 2.0);
+      const alpha = 0.15 + 0.55 * tw;
+      const r = s.baseR * (0.85 + 0.35 * tw);
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   function reflexGameLoop(timestamp) {
     if (!state.active || (state.gameType !== 'reflex' && state.gameType !== 'realm' && state.gameType !== 'dynamo' && state.gameType !== 'helix' && state.gameType !== 'meteor')) return;
 
     const ctx = dom.canvasReflex?.getContext('2d');
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    if (dom.canvasReflex) {
+      const rect = dom.canvasReflex.getBoundingClientRect();
+      const targetW = Math.max(320, Math.round(rect.width * dpr));
+      const targetH = Math.max(240, Math.round(rect.height * dpr));
+      if (dom.canvasReflex.width !== targetW || dom.canvasReflex.height !== targetH) {
+        dom.canvasReflex.width = targetW;
+        dom.canvasReflex.height = targetH;
+      }
+    }
+
     const w = dom.canvasReflex.width / dpr;
     const h = dom.canvasReflex.height / dpr;
 
     ctx.save();
     ctx.scale(dpr, dpr);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     ctx.clearRect(0, 0, w, h);
 
-    // Subtle Grid Background
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
-    ctx.lineWidth = 1;
-    const step = 40;
-    for (let x = 0; x < w; x += step) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-    }
-    for (let y = 0; y < h; y += step) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-    }
+    // ZERO GRIDLINES: Pure OLED True-Black Space with Silky Organic Ambient Nebulas
+    renderLuxuryCosmicBackground(ctx, w, h, state.catcherType, timestamp);
 
     // Smooth Linear Interpolation (Lerp) with Mode-Specific Kinematics:
     // - Dynamo: Snappy, agile electromagnetic tracking (0.44 touch / 0.28 mouse)
