@@ -1457,14 +1457,14 @@
         exhaustAngle = Math.atan2(-normVy, -normVx);
         exhaustSpeed = Math.min(8.5, 2.8 + speed2D * 0.45);
         // Spawn from the rear perimeter of the core sphere
-        spawnOffX = -normVx * 32 * u;
-        spawnOffY = -normVy * 32 * u;
+        spawnOffX = -normVx * 32;
+        spawnOffY = -normVy * 32;
       } else {
         // Soft downward hover exhaust when hovering
         exhaustAngle = Math.PI * 0.5;
         exhaustSpeed = 2.4;
         spawnOffX = 0;
-        spawnOffY = 28 * u;
+        spawnOffY = 28;
       }
 
       const emitCount = speed2D > 3.0 ? 3 : (speed2D > 0.4 ? 2 : 1);
@@ -1472,12 +1472,12 @@
         const spreadAng = exhaustAngle + (Math.random() - 0.5) * (isMoving ? 0.45 : 1.2);
         const pSpd = exhaustSpeed * (0.8 + Math.random() * 0.4);
         this.thrusterPlumes.push({
-          x: catcherPixelX + spawnOffX + (Math.random() - 0.5) * 8 * u,
-          y: catcherPixelY + spawnOffY + (Math.random() - 0.5) * 8 * u,
+          x: catcherPixelX + spawnOffX + (Math.random() - 0.5) * 8,
+          y: catcherPixelY + spawnOffY + (Math.random() - 0.5) * 8,
           vx: Math.cos(spreadAng) * pSpd,
           vy: Math.sin(spreadAng) * pSpd,
           color: pal[Math.floor(Math.random() * pal.length)],
-          size: (2.4 + Math.random() * 2.6) * u,
+          size: 2.4 + Math.random() * 2.6,
           life: 0,
           maxLife: 16 + Math.random() * 12
         });
@@ -1485,29 +1485,29 @@
 
       // Twin Wingtip Vortex Stardust (when wings are active at Tier II+)
       if (this.continuousTier >= 2.0 && isMoving) {
-        const spanDist = (0.24 + Math.min(0.22, (this.continuousTier - 2.0) * 0.11)) * 320 * u;
-        const wingYOff = this.tipY * u * 0.35;
+        const spanDist = (0.24 + Math.min(0.22, (this.continuousTier - 2.0) * 0.11)) * 320;
+        const wingYOff = this.tipY * 0.35;
         // Left Wingtip
         this.thrusterPlumes.push({
-          x: catcherPixelX - spanDist + (Math.random() - 0.5) * 4 * u,
-          y: catcherPixelY + wingYOff + (Math.random() - 0.5) * 4 * u,
+          x: catcherPixelX - spanDist + (Math.random() - 0.5) * 4,
+          y: catcherPixelY + wingYOff + (Math.random() - 0.5) * 4,
           vx: -this.vx * 0.25 + (Math.random() - 0.5) * 0.8,
           vy: -this.vy * 0.25 + (Math.random() - 0.5) * 0.8,
           color: pal[0],
           isWingtip: true,
-          size: 1.8 * u,
+          size: 2.2,
           life: 0,
           maxLife: 20 + Math.random() * 8
         });
         // Right Wingtip
         this.thrusterPlumes.push({
-          x: catcherPixelX + spanDist + (Math.random() - 0.5) * 4 * u,
-          y: catcherPixelY + wingYOff + (Math.random() - 0.5) * 4 * u,
+          x: catcherPixelX + spanDist + (Math.random() - 0.5) * 4,
+          y: catcherPixelY + wingYOff + (Math.random() - 0.5) * 4,
           vx: -this.vx * 0.25 + (Math.random() - 0.5) * 0.8,
           vy: -this.vy * 0.25 + (Math.random() - 0.5) * 0.8,
           color: pal[0],
           isWingtip: true,
-          size: 1.8 * u,
+          size: 2.2,
           life: 0,
           maxLife: 20 + Math.random() * 8
         });
