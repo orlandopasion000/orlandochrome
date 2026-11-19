@@ -3174,7 +3174,7 @@
         } else {
           ctx.strokeStyle = (pulseBoost > 0.45 && frontPass)
             ? `rgba(254, 240, 138, ${alpha})`
-            : `rgba(232, 121, 249, ${alpha})`;
+            : (!isCore ? `rgba(110, 231, 183, ${alpha})` : `rgba(232, 121, 249, ${alpha})`);
         }
         ctx.stroke();
       }
@@ -3202,7 +3202,7 @@
       rg.addColorStop(0.5, pulseIntensity > 0.35
         ? `rgba(254, 249, 195, ${0.98 * baseAlpha})`
         : `rgba(255, 255, 255, ${0.75 * baseAlpha})`);
-      rg.addColorStop(1.0, `rgba(232, 121, 249, ${baseAlpha})`);
+      rg.addColorStop(1.0, !isCore ? `rgba(110, 231, 183, ${baseAlpha})` : `rgba(232, 121, 249, ${baseAlpha})`);
 
       ctx.beginPath();
       ctx.moveTo(xA, yPx);
@@ -3882,10 +3882,26 @@
       }
 
       if (!isHazard) {
-        if (mode === 'dynamo') {
-          if (LayeredT4Assets.loaded.nodeShell.dynamo) {
-            ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
-          }
+        if (mode === 'dynamo' || mode === 'realm') {
+          // Pure Electric Cyan & Deep Azure Quantum Plasma Sphere (Zero Purple/Pink - Safe & Distinct!)
+          const dGlow = ctx.createRadialGradient(0, 0, targetR * 0.15, 0, 0, targetR * 0.95);
+          dGlow.addColorStop(0.0, 'rgba(240, 249, 255, 0.95)');
+          dGlow.addColorStop(0.35, 'rgba(56, 189, 248, 0.85)');
+          dGlow.addColorStop(0.75, 'rgba(14, 165, 233, 0.65)');
+          dGlow.addColorStop(0.95, 'rgba(2, 132, 199, 0.80)');
+          dGlow.addColorStop(1.0, 'rgba(3, 105, 161, 0.0)');
+          ctx.fillStyle = dGlow;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.95, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Luminous Outer Rim Reflection
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.95, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(224, 242, 254, 0.75)';
+          ctx.lineWidth = 1.6 * scale;
+          ctx.stroke();
+
           drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.86, now, animPhase, false, 4);
         } else if (mode === 'helix') {
           if (LayeredT4Assets.loaded.nodeShell.helix) {
