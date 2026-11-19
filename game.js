@@ -180,6 +180,17 @@
       try { if (navigator.vibrate) navigator.vibrate([50, 40, 60]); } catch(e){}
     }
 
+    playMissileHit() {
+      if (this.isMuted) return;
+      this.init();
+      // Positive tactical strike tone: bright rising crystalline major triad (D5 -> F#5 -> A5 -> D6)
+      const chord = [587.33, 739.99, 880.00, 1174.66];
+      chord.forEach((f, idx) => {
+        setTimeout(() => this.playTone(f, 'triangle', 0.22, 0.14), idx * 22);
+      });
+      try { if (navigator.vibrate) navigator.vibrate(14); } catch(e){}
+    }
+
     playPulseCharged() {
       if (this.isMuted) return;
       this.init();
@@ -1139,46 +1150,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade354`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade355`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade354`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade355`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade354';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade355';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade354';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade355';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade354';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade355';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade354';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade355';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade354';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade355';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade354';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade355';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade354';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade355';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade354';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade355';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade354';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade355';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade354';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade355';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade354';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade355';
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
@@ -1505,15 +1516,16 @@
       }
     },
 
-    fireMissiles(cx, cy, now, particles) {
+    fireMissiles(cx, cy, now, particles, mode = 'dynamo') {
       this.missileSalvoQueue = 14;
       this.salvoOrigin = { x: cx, y: cy };
+      this.salvoMode = mode;
       this.salvoTimer = 0;
-      this._launchMissilePair(cx, cy, now);
+      this._launchMissilePair(cx, cy, now, mode);
       this.missileSalvoQueue -= 2;
     },
 
-    _launchMissilePair(cx, cy, now) {
+    _launchMissilePair(cx, cy, now, mode = 'dynamo') {
       const pylonOffsets = [-24, 24];
       const baseAngles = [-1.88, -1.26]; // Fanned upward-left and upward-right (~-108 deg and ~-72 deg)
       for (let p = 0; p < 2; p++) {
@@ -1528,6 +1540,7 @@
           vy: Math.sin(angle) * initSpeed,
           angle: angle,
           speed: initSpeed,
+          mode: mode || 'dynamo',
           stage: 1, // Stage 1: Cold ejection coast; Stage 2: Solid rocket booster ignition
           smoke: [],
           target: null,
@@ -1536,13 +1549,14 @@
         });
 
         // Launch Muzzle Flash & Cold-Gas Launch Exhaust Puff
+        const flashColor = (mode === 'meteor') ? '#f97316' : (mode === 'helix' ? '#22d3ee' : '#38bdf8');
         this.launchFlashes.push({
           x: lx,
           y: ly,
           r: 6,
           maxR: 20,
           alpha: 1.0,
-          color: '#38bdf8'
+          color: flashColor
         });
         for (let sp = 0; sp < 4; sp++) {
           const sAng = Math.PI / 2 + (Math.random() - 0.5) * 1.2;
@@ -1552,7 +1566,7 @@
             y: ly,
             vx: Math.cos(sAng) * sSpd,
             vy: Math.sin(sAng) * sSpd,
-            color: 'rgba(224, 242, 254, 0.85)',
+            color: (mode === 'meteor') ? 'rgba(254, 240, 138, 0.9)' : ((mode === 'helix') ? 'rgba(167, 243, 208, 0.85)' : 'rgba(224, 242, 254, 0.85)'),
             life: 0,
             maxLife: 14 + Math.random() * 8
           });
@@ -1568,7 +1582,7 @@
         this.salvoTimer = (this.salvoTimer || 0) + dt;
         if (this.salvoTimer >= 2.4) {
           this.salvoTimer = 0;
-          this._launchMissilePair(this.salvoOrigin.x, this.salvoOrigin.y, now);
+          this._launchMissilePair(this.salvoOrigin.x, this.salvoOrigin.y, now, this.salvoMode || state.catcherType || 'dynamo');
           this.missileSalvoQueue -= 2;
         }
       }
@@ -1586,7 +1600,8 @@
         ctx.globalCompositeOperation = 'lighter';
         ctx.beginPath();
         ctx.arc(lf.x, lf.y, lf.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(56, 189, 248, ${lf.alpha * 0.65})`;
+        ctx.fillStyle = lf.color || 'rgba(56, 189, 248, 0.65)';
+        ctx.globalAlpha = lf.alpha * 0.70;
         ctx.fill();
         ctx.strokeStyle = `rgba(255, 255, 255, ${lf.alpha})`;
         ctx.lineWidth = 1.5;
@@ -1600,6 +1615,7 @@
 
       for (let mIdx = this.missiles.length - 1; mIdx >= 0; mIdx--) {
         const m = this.missiles[mIdx];
+        const mMode = m.mode || 'dynamo';
         m.life += dt;
 
         // Stage 2: Main Solid Rocket Booster Ignition after 7 frames (~0.12s)
@@ -1611,7 +1627,7 @@
             r: 5,
             maxR: 16,
             alpha: 0.95,
-            color: '#fbbf24'
+            color: (mMode === 'meteor') ? '#f97316' : ((mMode === 'helix') ? '#22d3ee' : '#fbbf24')
           });
         }
 
@@ -1648,13 +1664,24 @@
         m.x += m.vx * dt;
         m.y += m.vy * dt;
 
-        // Expanding White Aerodynamic Smoke Contrail Puffs
+        // Expanding Mode-Specific Smoke & Contrail Puffs
+        let smokeColor = 'rgba(240, 249, 255, 0.85)';
+        if (m.stage === 2) {
+          if (mMode === 'meteor') {
+            smokeColor = (Math.random() < 0.35) ? 'rgba(249, 115, 22, 0.85)' : 'rgba(120, 113, 108, 0.75)';
+          } else if (mMode === 'helix') {
+            smokeColor = (Math.random() < 0.35) ? 'rgba(34, 211, 238, 0.80)' : 'rgba(244, 114, 182, 0.70)';
+          } else {
+            smokeColor = (Math.random() < 0.35) ? 'rgba(56, 189, 248, 0.85)' : 'rgba(192, 132, 252, 0.70)';
+          }
+        }
+
         m.smoke.push({
           x: m.x - Math.cos(m.angle) * 11,
           y: m.y - Math.sin(m.angle) * 11,
           size: 2.8,
           alpha: 0.85,
-          color: (m.stage === 2 && Math.random() < 0.22) ? 'rgba(56, 189, 248, 0.75)' : 'rgba(240, 249, 255, 0.85)'
+          color: smokeColor
         });
 
         for (let s = m.smoke.length - 1; s >= 0; s--) {
@@ -1672,7 +1699,7 @@
           ctx.fill();
         }
 
-        // Draw Missile Warhead, Aerodynamic Body & Fins (Electric Cyan & Aerospace Titanium - ZERO Red!)
+        // Draw Mode-Specific Seeking Missile (Matching Chrome Core Variant!)
         ctx.save();
         ctx.translate(m.x, m.y);
         ctx.rotate(m.angle);
@@ -1685,7 +1712,13 @@
           ctx.lineTo(-17 - Math.random() * 5, 0);
           ctx.lineTo(-7, 2.2);
           ctx.closePath();
-          ctx.fillStyle = '#38bdf8';
+          if (mMode === 'meteor') {
+            ctx.fillStyle = '#f97316';
+          } else if (mMode === 'helix') {
+            ctx.fillStyle = (Math.random() < 0.5) ? '#22d3ee' : '#ec4899';
+          } else {
+            ctx.fillStyle = '#38bdf8';
+          }
           ctx.fill();
 
           ctx.beginPath();
@@ -1693,55 +1726,135 @@
           ctx.lineTo(-12, 0);
           ctx.lineTo(-7, 1.2);
           ctx.closePath();
-          ctx.fillStyle = '#ffffff';
+          ctx.fillStyle = (mMode === 'meteor') ? '#fef08a' : '#ffffff';
           ctx.fill();
         }
 
-        // Sleek Titanium Fuselage
-        ctx.fillStyle = '#0284c7';
-        ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(-7, -2.6, 14, 5.2, 1.5); else ctx.rect(-7, -2.6, 14, 5.2);
-        ctx.fill();
+        if (mMode === 'meteor') {
+          // METEOR MISSILE: Dark Obsidian Volcanic Basalt with Molten Magma Seams
+          ctx.fillStyle = '#292524';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(-7, -2.8, 14, 5.6, 1.5); else ctx.rect(-7, -2.8, 14, 5.6);
+          ctx.fill();
 
-        // High-Tech Forward Ogive Radome Nosecone (Electric Cyan & White)
-        ctx.beginPath();
-        ctx.moveTo(7, -2.6);
-        ctx.lineTo(13, 0);
-        ctx.lineTo(7, 2.6);
-        ctx.closePath();
-        ctx.fillStyle = '#e0f2fe';
-        ctx.fill();
+          // Magma fissure line along fuselage spine
+          ctx.beginPath();
+          ctx.moveTo(-6, 0);
+          ctx.lineTo(6, 0);
+          ctx.strokeStyle = '#f97316';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
 
-        // 4 Swept Delta Stabilizer Fins at Aft
-        ctx.fillStyle = '#38bdf8';
-        ctx.beginPath();
-        ctx.moveTo(-5, -2.6);
-        ctx.lineTo(-9, -6.5);
-        ctx.lineTo(-7, -2.6);
-        ctx.closePath();
-        ctx.fill();
+          // Molten Gold Tungsten Penetrator Nosecone
+          ctx.beginPath();
+          ctx.moveTo(7, -2.8);
+          ctx.lineTo(14, 0);
+          ctx.lineTo(7, 2.8);
+          ctx.closePath();
+          ctx.fillStyle = '#fbbf24';
+          ctx.fill();
 
-        ctx.beginPath();
-        ctx.moveTo(-5, 2.6);
-        ctx.lineTo(-9, 6.5);
-        ctx.lineTo(-7, 2.6);
-        ctx.closePath();
-        ctx.fill();
+          // Chiseled Volcanic Basalt Fins with Magma Edging
+          ctx.fillStyle = '#ea580c';
+          ctx.beginPath();
+          ctx.moveTo(-5, -2.8); ctx.lineTo(-10, -7.0); ctx.lineTo(-7, -2.8);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-5, 2.8); ctx.lineTo(-10, 7.0); ctx.lineTo(-7, 2.8);
+          ctx.closePath(); ctx.fill();
 
-        // 2 Forward Cruciform Canard Fins
-        ctx.beginPath();
-        ctx.moveTo(3, -2.6);
-        ctx.lineTo(1, -5.2);
-        ctx.lineTo(5, -2.6);
-        ctx.closePath();
-        ctx.fill();
+          // Forward Canards
+          ctx.beginPath();
+          ctx.moveTo(3, -2.8); ctx.lineTo(1, -5.5); ctx.lineTo(5, -2.8);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(3, 2.8); ctx.lineTo(1, 5.5); ctx.lineTo(5, 2.8);
+          ctx.closePath(); ctx.fill();
 
-        ctx.beginPath();
-        ctx.moveTo(3, 2.6);
-        ctx.lineTo(1, 5.2);
-        ctx.lineTo(5, 2.6);
-        ctx.closePath();
-        ctx.fill();
+        } else if (mMode === 'helix') {
+          // HELIX MISSILE: Pearlescent Teal Bio-Resonance Body with Iridescent Helical Stripe
+          ctx.fillStyle = '#0f766e';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(-7, -2.6, 14, 5.2, 1.5); else ctx.rect(-7, -2.6, 14, 5.2);
+          ctx.fill();
+
+          // Helical spiral wave
+          ctx.beginPath();
+          ctx.moveTo(-6, -1.5);
+          ctx.quadraticCurveTo(0, 2.0, 6, -1.5);
+          ctx.strokeStyle = '#ec4899';
+          ctx.lineWidth = 1.3;
+          ctx.stroke();
+
+          // Luminous Aquamarine Crystal Radome Nosecone
+          ctx.beginPath();
+          ctx.moveTo(7, -2.6);
+          ctx.lineTo(13.5, 0);
+          ctx.lineTo(7, 2.6);
+          ctx.closePath();
+          ctx.fillStyle = '#67e8f9';
+          ctx.fill();
+
+          // Iridescent Magenta Bio-Crystal Fins
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath();
+          ctx.moveTo(-5, -2.6); ctx.lineTo(-9, -6.5); ctx.lineTo(-7, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-5, 2.6); ctx.lineTo(-9, 6.5); ctx.lineTo(-7, 2.6);
+          ctx.closePath(); ctx.fill();
+
+          // Forward Aquamarine Canards
+          ctx.fillStyle = '#22d3ee';
+          ctx.beginPath();
+          ctx.moveTo(3, -2.6); ctx.lineTo(1, -5.2); ctx.lineTo(5, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(3, 2.6); ctx.lineTo(1, 5.2); ctx.lineTo(5, 2.6);
+          ctx.closePath(); ctx.fill();
+
+        } else {
+          // DYNAMO MISSILE: Deep Cobalt & Amethyst Quantum Arc Dart
+          ctx.fillStyle = '#312e81';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(-7, -2.6, 14, 5.2, 1.5); else ctx.rect(-7, -2.6, 14, 5.2);
+          ctx.fill();
+
+          // Cyan quantum circuit line along spine
+          ctx.beginPath();
+          ctx.moveTo(-6, 0);
+          ctx.lineTo(6, 0);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // High-Tech Forward Ogive Radome Nosecone (Electric Cyan & White)
+          ctx.beginPath();
+          ctx.moveTo(7, -2.6);
+          ctx.lineTo(13, 0);
+          ctx.lineTo(7, 2.6);
+          ctx.closePath();
+          ctx.fillStyle = '#e0f2fe';
+          ctx.fill();
+
+          // Swept Delta Quantum Stabilizer Fins at Aft
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.moveTo(-5, -2.6); ctx.lineTo(-9, -6.5); ctx.lineTo(-7, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-5, 2.6); ctx.lineTo(-9, 6.5); ctx.lineTo(-7, 2.6);
+          ctx.closePath(); ctx.fill();
+
+          // 2 Forward Amethyst Canard Fins
+          ctx.fillStyle = '#c084fc';
+          ctx.beginPath();
+          ctx.moveTo(3, -2.6); ctx.lineTo(1, -5.2); ctx.lineTo(5, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(3, 2.6); ctx.lineTo(1, 5.2); ctx.lineTo(5, 2.6);
+          ctx.closePath(); ctx.fill();
+        }
 
         ctx.restore();
 
@@ -1756,13 +1869,14 @@
             pt.hasDetonated = true;
 
             // Supersonic Kinetic Blast Ring
+            const blastColor = (mMode === 'meteor') ? '#f97316' : ((mMode === 'helix') ? '#22d3ee' : '#38bdf8');
             this.launchFlashes.push({
               x: pt.x,
               y: pt.y,
               r: 10,
               maxR: 44,
               alpha: 1.0,
-              color: isHazardNode(pt.nodeClass) ? '#38bdf8' : '#fbbf24'
+              color: isHazardNode(pt.nodeClass) ? blastColor : '#fbbf24'
             });
 
             if (isHazardNode(pt.nodeClass)) {
@@ -1771,11 +1885,11 @@
               state.floatingTexts.push({
                 x: pt.x, y: pt.y,
                 text: '+200 NEUTRALIZED',
-                color: '#38bdf8',
+                color: blastColor,
                 alpha: 1.0,
                 startTime: now
               });
-              audio.playHazardExplosion();
+              audio.playMissileHit();
             } else {
               const pts = 300 * state.combo;
               state.score += pts;
@@ -1784,11 +1898,11 @@
               state.floatingTexts.push({
                 x: pt.x, y: pt.y,
                 text: `+${pts} CLAIMED!`,
-                color: '#38bdf8',
+                color: blastColor,
                 alpha: 1.0,
                 startTime: now
               });
-              audio.playPerfectCatch(state.combo);
+              audio.playMissileHit();
 
               if (pt.nodeClass === 'cluster') {
                 state.activeBuff = { type: 'cluster', name: '2X CLUSTER', color: '#c084fc', expiresAt: now + 5000 };
@@ -1805,7 +1919,7 @@
                 state.activeBuff = { type: 'shield', name: 'AEGIS SHIELD', color: '#f59e0b', expiresAt: now + 5000 };
               } else if (pt.nodeClass === 'missiles') {
                 state.activeBuff = { type: 'missiles', name: 'ALLIED MISSILES', color: '#38bdf8', expiresAt: now + 4000 };
-                this.fireMissiles(m.x, m.y, now, state.particles);
+                this.fireMissiles(m.x, m.y, now, state.particles, mMode);
               }
             }
 
@@ -1821,30 +1935,37 @@
       ctx.restore();
     },
 
-    drawAegisForcefield(ctx, cx, cy, u, now) {
+    drawAegisForcefield(ctx, cx, cy, u, now, timeLeft = 5000) {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = 'lighter';
 
-      const baseRadius = 60 * u;
-      const pulse = 1.0 + 0.05 * Math.sin(now * 0.007);
+      // 1. High-Visibility Enveloping Spherical Dome
+      // Completely encloses the core sphere (68*u) and wing roots
+      const baseRadius = Math.max(92, 142 * u);
+      const pulse = 1.0 + 0.045 * Math.sin(now * 0.008);
       const r = baseRadius * pulse;
-      const rot = now * 0.0025;
+      const rot = now * 0.0028;
 
-      // 1. Shimmering Spherical Energy Shell
-      const grad = ctx.createRadialGradient(0, 0, r * 0.72, 0, 0, r * 1.15);
-      grad.addColorStop(0.0, 'rgba(245, 158, 11, 0.0)');
-      grad.addColorStop(0.65, 'rgba(251, 191, 36, 0.28)');
-      grad.addColorStop(0.92, 'rgba(254, 240, 138, 0.65)');
+      // Warning pulse when < 1.2s remaining
+      const isExpiring = timeLeft < 1200;
+      const warnPulse = isExpiring ? (0.5 + 0.5 * Math.sin(now * 0.025)) : 1.0;
+
+      // 2. Volumetric Radiant Golden Fill
+      const grad = ctx.createRadialGradient(0, 0, r * 0.45, 0, 0, r * 1.08);
+      grad.addColorStop(0.0, 'rgba(251, 191, 36, 0.04)');
+      grad.addColorStop(0.60, `rgba(245, 158, 11, ${0.18 * warnPulse})`);
+      grad.addColorStop(0.85, `rgba(251, 191, 36, ${0.32 * warnPulse})`);
+      grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.55 * warnPulse})`);
       grad.addColorStop(1.0, 'rgba(245, 158, 11, 0.0)');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(0, 0, r * 1.15, 0, Math.PI * 2);
+      ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
       ctx.fill();
 
-      // 2. 3D Rotating Geodesic Hexagonal Grid
+      // 3. Dual Counter-Rotating 3D Geodesic Hexagonal Crystal Wireframes
       for (let l = -2; l <= 2; l++) {
-        const yOffset = (l / 2.5) * (r * 0.72);
+        const yOffset = (l / 2.6) * (r * 0.75);
         const latR = Math.sqrt(Math.max(0, r * r - yOffset * yOffset));
         ctx.save();
         ctx.translate(0, yOffset);
@@ -1857,18 +1978,93 @@
           if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
         }
         ctx.closePath();
-        ctx.strokeStyle = `rgba(254, 240, 138, ${0.45 + 0.35 * Math.abs(l / 2.5)})`;
-        ctx.lineWidth = 1.6 * u;
+        ctx.strokeStyle = `rgba(254, 240, 138, ${(0.55 + 0.35 * Math.abs(l / 2.6)) * warnPulse})`;
+        ctx.lineWidth = 2.0 * Math.max(0.7, u);
         ctx.stroke();
+
+        // Glowing Hexagonal Node Vertices
+        for (let h = 0; h < 6; h++) {
+          const ha = h * Math.PI / 3;
+          const hx = Math.cos(ha) * latR;
+          const hy = Math.sin(ha) * latR * 0.38;
+          ctx.beginPath();
+          ctx.arc(hx, hy, 2.4 * Math.max(0.7, u), 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+        }
         ctx.restore();
       }
 
-      // 3. Shield Deflection Shockwave Flash
+      // 4. Perimeter High-Voltage Plasma Arcs Crawling on the Surface
+      const numArcs = 4;
+      for (let a = 0; a < numArcs; a++) {
+        const arcBase = now * 0.005 + a * (Math.PI * 2 / numArcs);
+        const arcSpan = 0.65 + 0.35 * Math.sin(now * 0.009 + a);
+        ctx.beginPath();
+        for (let s = 0; s <= 10; s++) {
+          const t = s / 10;
+          const ang = arcBase + t * arcSpan;
+          const jitter = (Math.sin(now * 0.03 + s * 2.1 + a) - 0.5) * 5.0;
+          const rad = r + jitter;
+          const ax = Math.cos(ang) * rad;
+          const ay = Math.sin(ang) * rad;
+          if (s === 0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
+        }
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.85 * warnPulse})`;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+      }
+
+      // 5. Heavy Outer Neon Barrier Rim
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(251, 191, 36, ${0.90 * warnPulse})`;
+      ctx.lineWidth = 3.6;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 2.5, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 * warnPulse})`;
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+
+      // 6. Overhead Tactical HUD Badge & Countdown Arc
+      ctx.save();
+      const hudY = -r - 20;
+      const secondsLeft = Math.max(0, (timeLeft / 1000)).toFixed(1);
+      const badgeText = `🛡️ AEGIS INVULNERABLE · ${secondsLeft}s`;
+      ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+      const bWidth = ctx.measureText(badgeText).width;
+
+      ctx.fillStyle = isExpiring ? 'rgba(239, 68, 68, 0.45)' : 'rgba(245, 158, 11, 0.38)';
+      ctx.strokeStyle = isExpiring ? '#f87171' : '#fbbf24';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-bWidth / 2 - 10, hudY - 10, bWidth + 20, 20, 10);
+      else ctx.rect(-bWidth / 2 - 10, hudY - 10, bWidth + 20, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(badgeText, 0, hudY);
+
+      // Remaining Time Radial Gauge on the Badge
+      const timeFrac = Math.max(0, Math.min(1.0, timeLeft / 5000));
+      ctx.beginPath();
+      ctx.arc(-bWidth / 2 - 18, hudY, 6, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * timeFrac);
+      ctx.strokeStyle = isExpiring ? '#ef4444' : '#fef08a';
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
+      ctx.restore();
+
+      // 7. Shield Deflection Shockwave Flash
       if (this.shieldDeflectFlash > 0.02) {
         ctx.beginPath();
         ctx.arc(0, 0, r * (1.1 + (1.0 - this.shieldDeflectFlash) * 0.4), 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(254, 240, 138, ${this.shieldDeflectFlash * 0.95})`;
-        ctx.lineWidth = 4.0 * u;
+        ctx.lineWidth = 5.0;
         ctx.stroke();
       }
 
@@ -2010,29 +2206,28 @@
     },
 
     emitNodeWorldStreaks(p, targetR, mode, isHazard, dtScale, now) {
-      if (mode === 'meteor' && isHazard) return;
       if (!p.lastStreakEmit) p.lastStreakEmit = now - Math.random() * 40;
-      const emitInterval = isHazard ? 48 : 34;
+      const emitInterval = isHazard ? 44 : 32;
       if (now - p.lastStreakEmit < emitInterval) return;
       p.lastStreakEmit = now;
 
-      p.streakSide = (p.streakSide === 1) ? -1 : 1;
-      const side = p.streakSide;
-      const flankFrac = 0.52 + Math.random() * 0.56;
-      const sx = p.x + side * flankFrac * targetR;
-      const sy = p.y - (0.25 + Math.random() * 0.55) * targetR;
-      const len = (0.58 + Math.random() * 0.48) * targetR;
+      // Soft cosmic plasma wake puff trailing directly along the node's path of motion
+      // Positioned just behind the sphere center with slight natural jitter
+      const jx = (Math.random() - 0.5) * targetR * 0.35;
+      const jy = -targetR * (0.45 + Math.random() * 0.30);
+      const wakeR = targetR * (0.50 + Math.random() * 0.25);
 
       this.worldStreaks.push({
-        x: sx,
-        y: sy,
-        vy: p.speed * 0.14,
-        len: len,
+        x: p.x + jx,
+        y: p.y + jy,
+        vy: p.speed * 0.18,
+        radius: wakeR,
+        maxRadius: wakeR * 1.65,
         mode: mode,
+        nodeClass: p.nodeClass || 'normal',
         isHazard: isHazard,
-        colorVariant: Math.floor(Math.random() * 3),
         life: 0,
-        maxLife: 16 + Math.random() * 10
+        maxLife: 20 + Math.random() * 8
       });
     },
 
@@ -2052,57 +2247,66 @@
         }
 
         const prog = st.life / st.maxLife;
-        const alpha = Math.sin(prog * Math.PI) * 0.82;
-        if (alpha <= 0.03) continue;
+        // Bell-shaped smooth opacity envelope: soft entry, silky dissipation
+        const alpha = Math.sin(prog * Math.PI) * 0.55;
+        if (alpha <= 0.02) continue;
 
-        const syBot = st.y;
-        const syTop = syBot - st.len;
-        const grad = ctx.createLinearGradient(st.x, syTop, st.x, syBot);
+        // Smoothly expand radius as the wake dissipates into the cosmos
+        const curR = st.radius + (st.maxRadius - st.radius) * prog;
+        const grad = ctx.createRadialGradient(st.x, st.y, 0, st.x, st.y, curR);
 
         if (st.isHazard) {
-          grad.addColorStop(0.0, 'rgba(255, 30, 50, 0)');
-          grad.addColorStop(0.55, `rgba(255, 80, 70, ${alpha})`);
-          grad.addColorStop(0.88, `rgba(255, 210, 180, ${alpha * 0.9})`);
-          grad.addColorStop(1.0, 'rgba(255, 40, 60, 0)');
-        } else if (st.mode === 'dynamo') {
-          grad.addColorStop(0.0, 'rgba(0, 240, 255, 0)');
-          grad.addColorStop(0.50, `rgba(56, 189, 248, ${alpha})`);
-          grad.addColorStop(0.85, `rgba(224, 242, 254, ${alpha * 0.95})`);
-          grad.addColorStop(1.0, 'rgba(0, 240, 255, 0)');
+          // Ominous subtle shadow/crimson void wake
+          grad.addColorStop(0.0, `rgba(239, 68, 68, ${alpha * 0.70})`);
+          grad.addColorStop(0.50, `rgba(185, 28, 28, ${alpha * 0.35})`);
+          grad.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
+        } else if (st.nodeClass === 'shield') {
+          // Radiant golden/amber sunbeam wake
+          grad.addColorStop(0.0, `rgba(254, 240, 138, ${alpha * 0.85})`);
+          grad.addColorStop(0.45, `rgba(251, 191, 36, ${alpha * 0.45})`);
+          grad.addColorStop(1.0, 'rgba(245, 158, 11, 0)');
+        } else if (st.nodeClass === 'missiles') {
+          // Sleek electric cyan supersonic shock vapor
+          grad.addColorStop(0.0, `rgba(224, 242, 254, ${alpha * 0.90})`);
+          grad.addColorStop(0.45, `rgba(56, 189, 248, ${alpha * 0.40})`);
+          grad.addColorStop(1.0, 'rgba(14, 165, 233, 0)');
+        } else if (st.nodeClass === 'cluster') {
+          // Iridescent stardust duotone wake
+          grad.addColorStop(0.0, `rgba(232, 121, 249, ${alpha * 0.85})`);
+          grad.addColorStop(0.50, `rgba(56, 189, 248, ${alpha * 0.40})`);
+          grad.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
+        } else if (st.nodeClass === 'supercharge') {
+          // Solar corona warmth & champagne starlight
+          grad.addColorStop(0.0, `rgba(254, 240, 138, ${alpha * 0.90})`);
+          grad.addColorStop(0.50, `rgba(245, 158, 11, ${alpha * 0.40})`);
+          grad.addColorStop(1.0, 'rgba(217, 119, 6, 0)');
+        } else if (st.nodeClass === 'catalyst') {
+          // Sparkling diamond stardust dust
+          grad.addColorStop(0.0, `rgba(255, 255, 255, ${alpha * 0.90})`);
+          grad.addColorStop(0.40, `rgba(244, 114, 182, ${alpha * 0.45})`);
+          grad.addColorStop(1.0, 'rgba(56, 189, 248, 0)');
         } else if (st.mode === 'helix') {
-          const cMid = (st.colorVariant === 0)
-            ? `rgba(34, 211, 238, ${alpha})`
-            : (st.colorVariant === 1 ? `rgba(232, 121, 249, ${alpha})` : `rgba(254, 240, 138, ${alpha})`);
-          grad.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
-          grad.addColorStop(0.48, cMid);
-          grad.addColorStop(0.82, `rgba(255, 255, 255, ${alpha * 0.95})`);
-          grad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
-        } else {
-          grad.addColorStop(0.0, 'rgba(234, 88, 12, 0)');
-          grad.addColorStop(0.50, `rgba(249, 115, 22, ${alpha})`);
-          grad.addColorStop(0.86, `rgba(254, 240, 138, ${alpha * 0.95})`);
+          // Bioluminescent turquoise / lilac harmonic spore ripples
+          grad.addColorStop(0.0, `rgba(255, 255, 255, ${alpha * 0.80})`);
+          grad.addColorStop(0.45, `rgba(34, 211, 238, ${alpha * 0.40})`);
+          grad.addColorStop(0.80, `rgba(232, 121, 249, ${alpha * 0.20})`);
+          grad.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
+        } else if (st.mode === 'meteor') {
+          // Warm volcanic thermal blur & ember atmosphere
+          grad.addColorStop(0.0, `rgba(254, 240, 138, ${alpha * 0.85})`);
+          grad.addColorStop(0.45, `rgba(249, 115, 22, ${alpha * 0.42})`);
           grad.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
+        } else {
+          // Dynamo: Soft cyan quantum ion wash
+          grad.addColorStop(0.0, `rgba(224, 242, 254, ${alpha * 0.85})`);
+          grad.addColorStop(0.45, `rgba(56, 189, 248, ${alpha * 0.42})`);
+          grad.addColorStop(1.0, 'rgba(14, 165, 233, 0)');
         }
 
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = 1.85;
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.moveTo(st.x, syTop);
-        ctx.lineTo(st.x, syBot);
-        ctx.stroke();
-
-        if (!st.isHazard && st.mode === 'helix' && alpha > 0.35) {
-          const gy = syBot - st.len * 0.32;
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
-          ctx.beginPath();
-          ctx.arc(st.x, gy, 1.5, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (!st.isHazard && st.mode === 'meteor' && alpha > 0.30) {
-          ctx.fillStyle = `rgba(254, 240, 138, ${alpha * 0.9})`;
-          ctx.beginPath();
-          ctx.arc(st.x, syBot - st.len * 0.22, 1.6, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.arc(st.x, st.y, curR, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       ctx.restore();
@@ -3269,7 +3473,7 @@
 
       // 5-Second Aegis Spherical Geodesic Forcefield
       if (state.activeBuff && state.activeBuff.type === 'shield' && state.activeBuff.expiresAt > now) {
-        CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now);
+        CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, state.activeBuff.expiresAt - now);
       }
 
       ctx.restore(); // End core translate
@@ -3799,66 +4003,91 @@
           ctx.fill();
         }
 
-        // BESPOKE HAZARD ARCHETYPE OVERLAYS
+        // BESPOKE HAZARD ARCHETYPE OVERLAYS (Ultra-Futuristic Tactical HUD & Atmospheric Void Warnings - ZERO Crude Red Circles!)
         if (p.nodeClass === 'seeker') {
-          // SEEKER MINE: Active rotating targeting reticle & directional laser pip
+          // SEEKER MINE: High-Tech Tactical Telemetry Brackets & Directional Threat Warning
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const retAngle = now * 0.006;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.32, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.90)';
-          ctx.lineWidth = 2.0;
-          ctx.stroke();
+          const retAngle = now * 0.0035;
 
-          // 4 Crosshair Notches
-          for (let ch = 0; ch < 4; ch++) {
-            const cha = retAngle + ch * Math.PI / 2;
+          // 1. Soft atmospheric crimson proximity warning aura (No harsh solid circle!)
+          const warnPulse = 0.65 + 0.35 * Math.sin(now * 0.008);
+          const warnGrad = ctx.createRadialGradient(0, 0, targetR * 0.45, 0, 0, targetR * 1.35);
+          warnGrad.addColorStop(0.0, `rgba(239, 68, 68, ${0.18 * warnPulse})`);
+          warnGrad.addColorStop(0.70, `rgba(220, 38, 38, ${0.10 * warnPulse})`);
+          warnGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+          ctx.fillStyle = warnGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.35, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 2. 4 Precision Corner HUD Tracking Brackets (Corner L-brackets like high-end jet avionics)
+          const bracketDist = targetR * 1.28;
+          const bracketLen = targetR * 0.28;
+          for (let b = 0; b < 4; b++) {
+            const ba = retAngle + b * (Math.PI / 2) + Math.PI / 4;
+            ctx.save();
+            ctx.translate(Math.cos(ba) * bracketDist, Math.sin(ba) * bracketDist);
+            ctx.rotate(ba);
             ctx.beginPath();
-            ctx.moveTo(Math.cos(cha) * targetR * 1.15, Math.sin(cha) * targetR * 1.15);
-            ctx.lineTo(Math.cos(cha) * targetR * 1.45, Math.sin(cha) * targetR * 1.45);
-            ctx.strokeStyle = '#ef4444';
-            ctx.lineWidth = 2.5;
+            ctx.moveTo(-bracketLen, 0);
+            ctx.lineTo(0, 0);
+            ctx.lineTo(0, -bracketLen);
+            ctx.strokeStyle = `rgba(248, 113, 113, ${0.85 * warnPulse})`;
+            ctx.lineWidth = 1.8 * scale;
+            ctx.lineCap = 'round';
             ctx.stroke();
+            ctx.restore();
           }
 
-          // Pulsing Radar Ping
-          const pingR = targetR * (0.8 + ((now * 0.003) % 1.0) * 1.2);
-          const pingAlpha = Math.max(0, 1.0 - pingR / (targetR * 2.0));
+          // 3. Directional Targeting Laser Pip towards Core
+          const pipPhase = (now * 0.004) % 1.0;
+          const pipR = targetR * (0.85 + pipPhase * 0.45);
           ctx.beginPath();
-          ctx.arc(0, 0, pingR, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255, 100, 100, ${pingAlpha})`;
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
+          ctx.arc(0, 0, 2.5 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#f87171';
+          ctx.fill();
           ctx.restore();
 
         } else if (p.nodeClass === 'fragmentation') {
-          // FRAGMENTATION BOLIDE: Unstable ticking fissure core
+          // FRAGMENTATION BOLIDE: Unstable thermal fissure bloom (Zero crude ring lines!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const pulseFissure = Math.sin(now * 0.018);
+          const pulseFissure = 0.65 + 0.35 * Math.sin(now * 0.016);
+          const fragGrad = ctx.createRadialGradient(0, 0, targetR * 0.3, 0, 0, targetR * 1.25);
+          fragGrad.addColorStop(0.0, `rgba(254, 240, 138, ${0.25 * pulseFissure})`);
+          fragGrad.addColorStop(0.5, `rgba(249, 115, 22, ${0.20 * pulseFissure})`);
+          fragGrad.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
+          ctx.fillStyle = fragGrad;
           ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.20, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(251, 146, 60, ${0.6 + 0.4 * pulseFissure})`;
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
+          ctx.arc(0, 0, targetR * 1.25, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Unstable micro-fissure sparks
+          for (let s = 0; s < 3; s++) {
+            const sa = now * 0.004 + s * (Math.PI * 2 / 3);
+            const sr = targetR * (0.95 + 0.15 * Math.sin(now * 0.02 + s));
+            ctx.beginPath();
+            ctx.arc(Math.cos(sa) * sr, Math.sin(sa) * sr, 1.8 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = '#fef08a';
+            ctx.fill();
+          }
           ctx.restore();
 
         } else if (p.nodeClass === 'vortex') {
-          // VORTEX NULL-WELL: Counter-rotating void distortion ring
+          // VORTEX NULL-WELL: Ethereal gravitational void distortion spirals
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const vRingAngle = now * 0.007;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.4, vRingAngle, vRingAngle + Math.PI * 1.2);
-          ctx.strokeStyle = 'rgba(220, 38, 38, 0.85)';
-          ctx.lineWidth = 3.0;
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.15, -vRingAngle, -vRingAngle + Math.PI * 1.2);
-          ctx.strokeStyle = 'rgba(147, 51, 234, 0.85)';
-          ctx.lineWidth = 2.2;
-          ctx.stroke();
+          const vRingAngle = now * 0.005;
+          for (let v = 0; v < 2; v++) {
+            const va = (v === 0 ? vRingAngle : -vRingAngle) + v * Math.PI;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * (1.18 + v * 0.16), va, va + Math.PI * 0.95);
+            ctx.strokeStyle = (v === 0) ? 'rgba(239, 68, 68, 0.65)' : 'rgba(168, 85, 247, 0.65)';
+            ctx.lineWidth = 2.2 * scale;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
           ctx.restore();
         }
       }
@@ -5257,13 +5486,16 @@
         // COLLISION CHECK, PRECISION CATCH & SPECIAL ARCHETYPE POWERS
         // ─────────────────────────────────────────────────────────────
         const isHazard = isHazardNode(p.nodeClass);
-        // Reduced Hitbox for Bad Falling Nodes (Hazards): 26.0px (strict inner nucleus only, 55% reduction!)
-        // Generous Hitbox for Collectibles: 54-80px + tier bonus for easy, satisfying catches
-        const effectiveHitRadius = isHazard ? 26.0 : hitRadius;
+        // Exact Physical Sphere Circumference Contact Hitbox for Hazards:
+        // Physical contact occurs when the two spheres touch: distToCore <= coreSphereRadius + nodeSphereRadius
+        const coreSphereRadius = 68.0 * u;
+        const nodeSphereRadius = p.headR ? (p.headR * (isMobile ? 0.72 : 1.0)) : (isMobile ? 26.0 : 36.0);
+        const hazardContactRadius = coreSphereRadius + nodeSphereRadius;
+        const effectiveHitRadius = isHazard ? hazardContactRadius : hitRadius;
 
         // Evasion Graze Mechanic for Hazards:
-        // When a hazard misses the core within 27px - 65px, trigger Graze +250 points and electric sparks!
-        if (isHazard && !p.hasGrazed && distToCore >= 26.0 && distToCore < 65.0) {
+        // When a hazard misses the core sphere circumference within 32.0px, trigger Graze +250 points and electric sparks!
+        if (isHazard && !p.hasGrazed && distToCore >= hazardContactRadius && distToCore < hazardContactRadius + 32.0) {
           p.hasGrazed = true;
           state.score += 250;
           CoreKinematics.triggerGraze(p.x, p.y, now);
@@ -5381,8 +5613,9 @@
             classMultiplier = 3.0;
 
           } else if (p.nodeClass === 'missiles') {
-            state.activeBuff = { type: 'missiles', name: 'ALLIED MISSILES', color: '#38bdf8', expiresAt: now + 4000 };
-            CoreKinematics.fireMissiles(catcherPixelX, catcherPixelY, now, state.particles);
+            const mColor = (state.catcherType === 'meteor') ? '#f97316' : ((state.catcherType === 'helix') ? '#22d3ee' : '#38bdf8');
+            state.activeBuff = { type: 'missiles', name: 'ALLIED MISSILES', color: mColor, expiresAt: now + 4000 };
+            CoreKinematics.fireMissiles(catcherPixelX, catcherPixelY, now, state.particles, state.catcherType || 'dynamo');
             audio.playOverdriveFanfare();
             classMultiplier = 4.0;
           }
