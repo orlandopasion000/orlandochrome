@@ -1150,46 +1150,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade356`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade357`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade356`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade357`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade356';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade357';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade356';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade357';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade356';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade357';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade356';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade357';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade356';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade357';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade356';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade357';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade356';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade357';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade356';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade357';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade356';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade357';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade356';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade357';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade356';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade357';
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
@@ -1439,35 +1439,85 @@
         }
       }
 
-      // 9. Emit & Update Reactive Ion Thrusters (Counter-Velocity Exhaust)
+      // 9. Emit & Update Reactive Omnidirectional Ion Thrusters & Twin Wingtip Vortex Trails
       const speed2D = Math.hypot(this.vx, this.vy);
-      const emitCount = speed2D > 3.0 ? 3 : (speed2D > 0.4 ? 2 : 1);
+      const isMoving = speed2D > 0.35;
       const thrusterColors = {
-        dynamo: ['#00f0ff', '#38bdf8', '#e0f2fe'],
-        helix: ['#e879f9', '#22d3ee', '#fef08a'],
-        meteor: ['#fbbf24', '#f97316', '#ef4444']
+        dynamo: ['#00f0ff', '#38bdf8', '#e0f2fe', '#ffffff'],
+        helix: ['#22d3ee', '#34d399', '#fef08a', '#ffffff'],
+        meteor: ['#fbbf24', '#f97316', '#ea580c', '#ffffff']
       };
       const pal = thrusterColors[mode] || thrusterColors.dynamo;
+
+      // Calculate directional exhaust angle strictly counter to movement vector
+      let exhaustAngle, exhaustSpeed, spawnOffX, spawnOffY;
+      if (isMoving) {
+        const normVx = this.vx / speed2D;
+        const normVy = this.vy / speed2D;
+        exhaustAngle = Math.atan2(-normVy, -normVx);
+        exhaustSpeed = Math.min(8.5, 2.8 + speed2D * 0.45);
+        // Spawn from the rear perimeter of the core sphere
+        spawnOffX = -normVx * 32 * u;
+        spawnOffY = -normVy * 32 * u;
+      } else {
+        // Soft downward hover exhaust when hovering
+        exhaustAngle = Math.PI * 0.5;
+        exhaustSpeed = 2.4;
+        spawnOffX = 0;
+        spawnOffY = 28 * u;
+      }
+
+      const emitCount = speed2D > 3.0 ? 3 : (speed2D > 0.4 ? 2 : 1);
       for (let k = 0; k < emitCount; k++) {
-        const spread = (Math.random() - 0.5) * 16;
-        const pVx = -this.vx * 0.42 + (Math.random() - 0.5) * 2.2;
-        const pVy = 3.6 - this.vy * 0.38 + Math.random() * 2.6;
+        const spreadAng = exhaustAngle + (Math.random() - 0.5) * (isMoving ? 0.45 : 1.2);
+        const pSpd = exhaustSpeed * (0.8 + Math.random() * 0.4);
         this.thrusterPlumes.push({
-          x: catcherPixelX + spread,
-          y: catcherPixelY + 28,
-          vx: pVx,
-          vy: pVy,
+          x: catcherPixelX + spawnOffX + (Math.random() - 0.5) * 8 * u,
+          y: catcherPixelY + spawnOffY + (Math.random() - 0.5) * 8 * u,
+          vx: Math.cos(spreadAng) * pSpd,
+          vy: Math.sin(spreadAng) * pSpd,
           color: pal[Math.floor(Math.random() * pal.length)],
-          size: 2.6 + Math.random() * 2.6,
+          size: (2.4 + Math.random() * 2.6) * u,
           life: 0,
           maxLife: 16 + Math.random() * 12
         });
       }
+
+      // Twin Wingtip Vortex Stardust (when wings are active at Tier II+)
+      if (this.continuousTier >= 2.0 && isMoving) {
+        const spanDist = (0.24 + Math.min(0.22, (this.continuousTier - 2.0) * 0.11)) * 320 * u;
+        const wingYOff = this.tipY * u * 0.35;
+        // Left Wingtip
+        this.thrusterPlumes.push({
+          x: catcherPixelX - spanDist + (Math.random() - 0.5) * 4 * u,
+          y: catcherPixelY + wingYOff + (Math.random() - 0.5) * 4 * u,
+          vx: -this.vx * 0.25 + (Math.random() - 0.5) * 0.8,
+          vy: -this.vy * 0.25 + (Math.random() - 0.5) * 0.8,
+          color: pal[0],
+          isWingtip: true,
+          size: 1.8 * u,
+          life: 0,
+          maxLife: 20 + Math.random() * 8
+        });
+        // Right Wingtip
+        this.thrusterPlumes.push({
+          x: catcherPixelX + spanDist + (Math.random() - 0.5) * 4 * u,
+          y: catcherPixelY + wingYOff + (Math.random() - 0.5) * 4 * u,
+          vx: -this.vx * 0.25 + (Math.random() - 0.5) * 0.8,
+          vy: -this.vy * 0.25 + (Math.random() - 0.5) * 0.8,
+          color: pal[0],
+          isWingtip: true,
+          size: 1.8 * u,
+          life: 0,
+          maxLife: 20 + Math.random() * 8
+        });
+      }
+
       for (let i = this.thrusterPlumes.length - 1; i >= 0; i--) {
         const tp = this.thrusterPlumes[i];
         tp.x += tp.vx * dt;
         tp.y += tp.vy * dt;
-        tp.size = Math.max(0.4, tp.size * 0.94);
+        tp.size = Math.max(0.3, tp.size * 0.94);
         tp.life += dt;
         if (tp.life >= tp.maxLife) this.thrusterPlumes.splice(i, 1);
       }
@@ -1937,13 +1987,12 @@
       ctx.restore();
     },
 
-    drawAegisForcefield(ctx, cx, cy, u, now, timeLeft = 5000) {
+    drawAegisForcefield(ctx, cx, cy, u, now, timeLeft = 5000, mode = 'dynamo') {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = 'lighter';
 
       // 1. High-Visibility Enveloping Spherical Dome
-      // Completely encloses the core sphere (68*u) and wing roots
       const baseRadius = Math.max(92, 142 * u);
       const pulse = 1.0 + 0.045 * Math.sin(now * 0.008);
       const r = baseRadius * pulse;
@@ -1952,94 +2001,239 @@
       // Warning pulse when < 1.2s remaining
       const isExpiring = timeLeft < 1200;
       const warnPulse = isExpiring ? (0.5 + 0.5 * Math.sin(now * 0.025)) : 1.0;
+      const secondsLeft = Math.max(0, (timeLeft / 1000)).toFixed(1);
 
-      // 2. Volumetric Radiant Golden Fill
-      const grad = ctx.createRadialGradient(0, 0, r * 0.45, 0, 0, r * 1.08);
-      grad.addColorStop(0.0, 'rgba(251, 191, 36, 0.04)');
-      grad.addColorStop(0.60, `rgba(245, 158, 11, ${0.18 * warnPulse})`);
-      grad.addColorStop(0.85, `rgba(251, 191, 36, ${0.32 * warnPulse})`);
-      grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.55 * warnPulse})`);
-      grad.addColorStop(1.0, 'rgba(245, 158, 11, 0.0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 3. Dual Counter-Rotating 3D Geodesic Hexagonal Crystal Wireframes
-      for (let l = -2; l <= 2; l++) {
-        const yOffset = (l / 2.6) * (r * 0.75);
-        const latR = Math.sqrt(Math.max(0, r * r - yOffset * yOffset));
-        ctx.save();
-        ctx.translate(0, yOffset);
-        ctx.rotate(rot * (l % 2 === 0 ? 1 : -1));
+      if (mode === 'dynamo' || mode === 'realm') {
+        // ─── CHROME DYNAMO: QUANTUM FARADAY CAGE AEGIS ───
+        // High-frequency electromagnetic containment grid & perimeter lightning
+        const grad = ctx.createRadialGradient(0, 0, r * 0.40, 0, 0, r * 1.08);
+        grad.addColorStop(0.0, 'rgba(0, 240, 255, 0.03)');
+        grad.addColorStop(0.60, `rgba(56, 189, 248, ${0.16 * warnPulse})`);
+        grad.addColorStop(0.85, `rgba(14, 165, 233, ${0.30 * warnPulse})`);
+        grad.addColorStop(0.96, `rgba(224, 242, 254, ${0.60 * warnPulse})`);
+        grad.addColorStop(1.0, 'rgba(56, 189, 248, 0.0)');
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        for (let h = 0; h < 6; h++) {
-          const ha = h * Math.PI / 3;
-          const hx = Math.cos(ha) * latR;
-          const hy = Math.sin(ha) * latR * 0.38;
-          if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 4 Rotating Electromagnetic Faraday Latitudinal Rings
+        for (let l = -2; l <= 2; l++) {
+          const yOff = (l / 2.5) * (r * 0.72);
+          const latR = Math.sqrt(Math.max(0, r * r - yOff * yOff));
+          ctx.save();
+          ctx.translate(0, yOff);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, latR, latR * 0.36, rot * (l % 2 === 0 ? 1 : -1), 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(103, 232, 249, ${(0.55 + 0.35 * Math.abs(l / 2.5)) * warnPulse})`;
+          ctx.lineWidth = 1.8 * Math.max(0.7, u);
+          ctx.stroke();
+
+          // Induction Polar Vertices
+          for (let v = 0; v < 4; v++) {
+            const va = rot * (l % 2 === 0 ? 1 : -1) + v * (Math.PI / 2);
+            const vx = Math.cos(va) * latR;
+            const vy = Math.sin(va) * latR * 0.36;
+            ctx.beginPath();
+            ctx.arc(vx, vy, 2.2 * Math.max(0.7, u), 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+          }
+          ctx.restore();
         }
-        ctx.closePath();
-        ctx.strokeStyle = `rgba(254, 240, 138, ${(0.55 + 0.35 * Math.abs(l / 2.6)) * warnPulse})`;
-        ctx.lineWidth = 2.0 * Math.max(0.7, u);
+
+        // Surface-Crawling Faraday Electrical Arcs
+        const numArcs = 5;
+        for (let a = 0; a < numArcs; a++) {
+          const arcBase = now * 0.0055 + a * (Math.PI * 2 / numArcs);
+          const arcSpan = 0.75 + 0.25 * Math.sin(now * 0.009 + a);
+          ctx.beginPath();
+          for (let s = 0; s <= 10; s++) {
+            const t = s / 10;
+            const ang = arcBase + t * arcSpan;
+            const jitter = (Math.sin(now * 0.035 + s * 2.3 + a) - 0.5) * 6.0;
+            const rad = r + jitter;
+            const ax = Math.cos(ang) * rad;
+            const ay = Math.sin(ang) * rad;
+            if (s === 0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
+          }
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.90 * warnPulse})`;
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+        }
+
+        // Heavy Cyan/White Barrier Rim
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(56, 189, 248, ${0.92 * warnPulse})`;
+        ctx.lineWidth = 3.4;
         ctx.stroke();
 
-        // Glowing Hexagonal Node Vertices
-        for (let h = 0; h < 6; h++) {
-          const ha = h * Math.PI / 3;
-          const hx = Math.cos(ha) * latR;
-          const hy = Math.sin(ha) * latR * 0.38;
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 2.5, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(224, 242, 254, ${0.65 * warnPulse})`;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+
+        this._drawAegisHudBadge(ctx, r, u, `🛡️ FARADAY AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#00f0ff', '#38bdf8', 'rgba(14, 165, 233, 0.40)');
+
+      } else if (mode === 'helix') {
+        // ─── CHROME HELIX: HARMONIC BIO-LATTICE BARRIER ───
+        // Interlocking crystalline aquamarine and rose-quartz helical boundary ribbons
+        const grad = ctx.createRadialGradient(0, 0, r * 0.40, 0, 0, r * 1.08);
+        grad.addColorStop(0.0, 'rgba(34, 211, 238, 0.03)');
+        grad.addColorStop(0.60, `rgba(110, 231, 183, ${0.16 * warnPulse})`);
+        grad.addColorStop(0.85, `rgba(34, 211, 238, ${0.30 * warnPulse})`);
+        grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.55 * warnPulse})`);
+        grad.addColorStop(1.0, 'rgba(34, 211, 238, 0.0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hexagonal Prismatic Crystal Lattice Ribs
+        for (let l = -2; l <= 2; l++) {
+          const yOff = (l / 2.6) * (r * 0.74);
+          const latR = Math.sqrt(Math.max(0, r * r - yOff * yOff));
+          ctx.save();
+          ctx.translate(0, yOff);
+          ctx.rotate(rot * (l % 2 === 0 ? 1 : -1));
           ctx.beginPath();
-          ctx.arc(hx, hy, 2.4 * Math.max(0.7, u), 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
+          for (let h = 0; h < 6; h++) {
+            const ha = h * Math.PI / 3;
+            const hx = Math.cos(ha) * latR;
+            const hy = Math.sin(ha) * latR * 0.38;
+            if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = `rgba(110, 231, 183, ${(0.55 + 0.35 * Math.abs(l / 2.6)) * warnPulse})`;
+          ctx.lineWidth = 1.9 * Math.max(0.7, u);
+          ctx.stroke();
+
+          // Diamond Node Vertices
+          for (let h = 0; h < 6; h++) {
+            const ha = h * Math.PI / 3;
+            const hx = Math.cos(ha) * latR;
+            const hy = Math.sin(ha) * latR * 0.38;
+            ctx.beginPath();
+            ctx.arc(hx, hy, 2.5 * Math.max(0.7, u), 0, Math.PI * 2);
+            ctx.fillStyle = '#fef08a';
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // Twin Counter-Rotating Helical Perimeter Boundary Ribbons
+        const ribbonRot = now * 0.0035;
+        for (let strand = 0; strand < 2; strand++) {
+          const sOff = strand * Math.PI;
+          ctx.beginPath();
+          for (let k = 0; k <= 32; k++) {
+            const t = k / 32;
+            const ang = ribbonRot + t * Math.PI * 2;
+            const zMod = Math.sin(ang * 3 + sOff) * 12 * u;
+            const rad = r + zMod;
+            const kx = Math.cos(ang) * rad;
+            const ky = Math.sin(ang) * rad * 0.75;
+            if (k === 0) ctx.moveTo(kx, ky); else ctx.lineTo(kx, ky);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = strand === 0 ? `rgba(34, 211, 238, ${0.80 * warnPulse})` : `rgba(254, 240, 138, ${0.75 * warnPulse})`;
+          ctx.lineWidth = 2.0 * Math.max(0.7, u);
+          ctx.stroke();
+        }
+
+        // Outer Bio-Lattice Barrier Rim
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(34, 211, 238, ${0.90 * warnPulse})`;
+        ctx.lineWidth = 3.2;
+        ctx.stroke();
+
+        this._drawAegisHudBadge(ctx, r, u, `🛡️ HARMONIC AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#22d3ee', '#6ee7b7', 'rgba(13, 148, 136, 0.40)');
+
+      } else {
+        // ─── CHROME METEOR: CALDERA THERMAL MAGMA AEGIS ───
+        // Volcanic basalt tectonic shield plates floating over molten magma envelope
+        const grad = ctx.createRadialGradient(0, 0, r * 0.38, 0, 0, r * 1.08);
+        grad.addColorStop(0.0, 'rgba(254, 240, 138, 0.05)');
+        grad.addColorStop(0.55, `rgba(249, 115, 22, ${0.22 * warnPulse})`);
+        grad.addColorStop(0.85, `rgba(234, 88, 12, ${0.38 * warnPulse})`);
+        grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.68 * warnPulse})`);
+        grad.addColorStop(1.0, 'rgba(234, 88, 12, 0.0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 8 Interlocking Basalt Tectonic Plates around the Perimeter
+        const numPlates = 8;
+        const plateRot = now * 0.002;
+        ctx.save();
+        ctx.rotate(plateRot);
+        for (let p = 0; p < numPlates; p++) {
+          const pAng1 = p * (Math.PI * 2 / numPlates) + 0.04;
+          const pAng2 = (p + 1) * (Math.PI * 2 / numPlates) - 0.04;
+          const rPlateIn = r * 0.82;
+          const rPlateOut = r * 1.02;
+
+          ctx.beginPath();
+          ctx.arc(0, 0, rPlateOut, pAng1, pAng2);
+          ctx.arc(0, 0, rPlateIn, pAng2, pAng1, true);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
           ctx.fill();
+          ctx.strokeStyle = `rgba(251, 146, 60, ${0.85 * warnPulse})`;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+
+          // Incandescent Magma Fissure in the Center of each Plate
+          const midAng = (pAng1 + pAng2) * 0.5;
+          const fX1 = Math.cos(midAng) * rPlateIn;
+          const fY1 = Math.sin(midAng) * rPlateIn;
+          const fX2 = Math.cos(midAng) * rPlateOut;
+          const fY2 = Math.sin(midAng) * rPlateOut;
+          ctx.beginPath();
+          ctx.moveTo(fX1, fY1);
+          ctx.lineTo(fX2, fY2);
+          ctx.strokeStyle = `rgba(254, 240, 138, ${0.92 * warnPulse})`;
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
         }
         ctx.restore();
+
+        // Molten Solar Gold Perimeter Ring
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(251, 191, 36, ${0.95 * warnPulse})`;
+        ctx.lineWidth = 3.6;
+        ctx.stroke();
+
+        this._drawAegisHudBadge(ctx, r, u, `🛡️ CALDERA AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#fbbf24', '#f97316', 'rgba(194, 65, 12, 0.40)');
       }
 
-      // 4. Perimeter High-Voltage Plasma Arcs Crawling on the Surface
-      const numArcs = 4;
-      for (let a = 0; a < numArcs; a++) {
-        const arcBase = now * 0.005 + a * (Math.PI * 2 / numArcs);
-        const arcSpan = 0.65 + 0.35 * Math.sin(now * 0.009 + a);
+      // Shield Deflection Shockwave Flash (Shared Across Modes)
+      if (this.shieldDeflectFlash > 0.02) {
         ctx.beginPath();
-        for (let s = 0; s <= 10; s++) {
-          const t = s / 10;
-          const ang = arcBase + t * arcSpan;
-          const jitter = (Math.sin(now * 0.03 + s * 2.1 + a) - 0.5) * 5.0;
-          const rad = r + jitter;
-          const ax = Math.cos(ang) * rad;
-          const ay = Math.sin(ang) * rad;
-          if (s === 0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
-        }
-        ctx.strokeStyle = `rgba(255, 255, 255, ${0.85 * warnPulse})`;
-        ctx.lineWidth = 2.2;
+        ctx.arc(0, 0, r * (1.1 + (1.0 - this.shieldDeflectFlash) * 0.4), 0, Math.PI * 2);
+        const flashColor = (mode === 'dynamo' || mode === 'realm') ? '#38bdf8' : (mode === 'helix' ? '#22d3ee' : '#fbbf24');
+        ctx.strokeStyle = flashColor;
+        ctx.globalAlpha = this.shieldDeflectFlash * 0.95;
+        ctx.lineWidth = 5.0;
         ctx.stroke();
       }
 
-      // 5. Heavy Outer Neon Barrier Rim
-      ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(251, 191, 36, ${0.90 * warnPulse})`;
-      ctx.lineWidth = 3.6;
-      ctx.stroke();
+      ctx.restore();
+    },
 
-      ctx.beginPath();
-      ctx.arc(0, 0, r + 2.5, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 * warnPulse})`;
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-
-      // 6. Overhead Tactical HUD Badge & Countdown Arc
+    _drawAegisHudBadge(ctx, r, u, badgeText, timeLeft, isExpiring, mainColor, borderColor, bgColor) {
       ctx.save();
       const hudY = -r - 20;
-      const secondsLeft = Math.max(0, (timeLeft / 1000)).toFixed(1);
-      const badgeText = `🛡️ AEGIS INVULNERABLE · ${secondsLeft}s`;
       ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
       const bWidth = ctx.measureText(badgeText).width;
 
-      ctx.fillStyle = isExpiring ? 'rgba(239, 68, 68, 0.45)' : 'rgba(245, 158, 11, 0.38)';
-      ctx.strokeStyle = isExpiring ? '#f87171' : '#fbbf24';
+      ctx.fillStyle = isExpiring ? 'rgba(239, 68, 68, 0.45)' : bgColor;
+      ctx.strokeStyle = isExpiring ? '#f87171' : borderColor;
       ctx.lineWidth = 1.6;
       ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(-bWidth / 2 - 10, hudY - 10, bWidth + 20, 20, 10);
@@ -2052,24 +2246,13 @@
       ctx.textBaseline = 'middle';
       ctx.fillText(badgeText, 0, hudY);
 
-      // Remaining Time Radial Gauge on the Badge
+      // Remaining Time Radial Gauge
       const timeFrac = Math.max(0, Math.min(1.0, timeLeft / 5000));
       ctx.beginPath();
       ctx.arc(-bWidth / 2 - 18, hudY, 6, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * timeFrac);
-      ctx.strokeStyle = isExpiring ? '#ef4444' : '#fef08a';
+      ctx.strokeStyle = isExpiring ? '#ef4444' : mainColor;
       ctx.lineWidth = 2.4;
       ctx.stroke();
-      ctx.restore();
-
-      // 7. Shield Deflection Shockwave Flash
-      if (this.shieldDeflectFlash > 0.02) {
-        ctx.beginPath();
-        ctx.arc(0, 0, r * (1.1 + (1.0 - this.shieldDeflectFlash) * 0.4), 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(254, 240, 138, ${this.shieldDeflectFlash * 0.95})`;
-        ctx.lineWidth = 5.0;
-        ctx.stroke();
-      }
-
       ctx.restore();
     },
 
@@ -2113,11 +2296,26 @@
       ctx.globalCompositeOperation = 'lighter';
       for (let tp of this.thrusterPlumes) {
         const alpha = Math.max(0, 1.0 - tp.life / tp.maxLife);
-        ctx.beginPath();
-        ctx.arc(tp.x, tp.y, tp.size * u, 0, Math.PI * 2);
-        ctx.fillStyle = tp.color;
-        ctx.globalAlpha = alpha * 0.85;
-        ctx.fill();
+        if (tp.isWingtip) {
+          // Delicate diamond wingtip vortex sparkle
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, tp.size * 0.7, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.globalAlpha = alpha * 0.95;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, tp.size * 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = tp.color;
+          ctx.globalAlpha = alpha * 0.45;
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, tp.size, 0, Math.PI * 2);
+          ctx.fillStyle = tp.color;
+          ctx.globalAlpha = alpha * 0.85;
+          ctx.fill();
+        }
       }
       ctx.restore();
     },
@@ -2208,29 +2406,127 @@
     },
 
     emitNodeWorldStreaks(p, targetR, mode, isHazard, dtScale, now) {
-      if (!p.lastStreakEmit) p.lastStreakEmit = now - Math.random() * 40;
-      const emitInterval = isHazard ? 44 : 32;
-      if (now - p.lastStreakEmit < emitInterval) return;
-      p.lastStreakEmit = now;
+      if (!p.lastStreakEmit) p.lastStreakEmit = now - Math.random() * 50;
 
-      // Soft cosmic plasma wake puff trailing directly along the node's path of motion
-      // Positioned just behind the sphere center with slight natural jitter
-      const jx = (Math.random() - 0.5) * targetR * 0.35;
-      const jy = -targetR * (0.45 + Math.random() * 0.30);
-      const wakeR = targetR * (0.50 + Math.random() * 0.25);
+      if (!isHazard) {
+        // ─── GOOD COLLECTIBLE NODES: EMBER DRIFT EFFECT ───
+        // Particles linger where released in world space and fade independently as node plunges downward.
+        // Clean gaps between emissions (~75ms) ensure clear readability of fast-fall paths and badges.
+        const emitInterval = 75;
+        if (now - p.lastStreakEmit < emitInterval) return;
+        p.lastStreakEmit = now;
 
-      this.worldStreaks.push({
-        x: p.x + jx,
-        y: p.y + jy,
-        vy: p.speed * 0.18,
-        radius: wakeR,
-        maxRadius: wakeR * 1.65,
-        mode: mode,
-        nodeClass: p.nodeClass || 'normal',
-        isHazard: isHazard,
-        life: 0,
-        maxLife: 20 + Math.random() * 8
-      });
+        if (mode === 'dynamo' || mode === 'realm') {
+          // Chrome Dynamo: Tiny electric cyan/white sparks breaking free where plasma touches orb's upper rim (Zero purple!)
+          const rimAng = -Math.PI * 0.5 + (Math.random() - 0.5) * 0.95;
+          const spawnX = p.x + Math.cos(rimAng) * targetR * 0.92;
+          const spawnY = p.y + Math.sin(rimAng) * targetR * 0.92;
+          this.worldStreaks.push({
+            type: 'ember',
+            kind: 'dynamoSpark',
+            x: spawnX,
+            y: spawnY,
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: -0.22 - Math.random() * 0.25, // buoyant gentle upward float
+            size: 1.8 + Math.random() * 1.6,
+            life: 0,
+            maxLife: 32 + Math.random() * 12
+          });
+        } else if (mode === 'helix') {
+          // Chrome Helix: Cyan and mint-emerald flecks that briefly glint as they turn above the glass DNA orb
+          const spawnX = p.x + (Math.random() - 0.5) * targetR * 0.55;
+          const spawnY = p.y - targetR * (0.80 + Math.random() * 0.22);
+          this.worldStreaks.push({
+            type: 'ember',
+            kind: 'helixFleck',
+            x: spawnX,
+            y: spawnY,
+            vx: (Math.random() - 0.5) * 0.38,
+            vy: -0.18 - Math.random() * 0.22,
+            size: 2.2 + Math.random() * 1.8,
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.12,
+            life: 0,
+            maxLife: 36 + Math.random() * 14
+          });
+        } else {
+          // Chrome Meteor: Shed orange cinders from glowing cracks in basalt that cool to dark red
+          const crackAng = Math.random() * Math.PI * 2;
+          const crackDist = targetR * (0.40 + Math.random() * 0.45);
+          const spawnX = p.x + Math.cos(crackAng) * crackDist;
+          const spawnY = p.y + Math.sin(crackAng) * crackDist;
+          this.worldStreaks.push({
+            type: 'ember',
+            kind: 'meteorCinder',
+            x: spawnX,
+            y: spawnY,
+            vx: (Math.random() - 0.5) * 0.40,
+            vy: -0.12 - Math.random() * 0.25,
+            size: 2.0 + Math.random() * 2.2,
+            life: 0,
+            maxLife: 38 + Math.random() * 16
+          });
+        }
+
+      } else {
+        // ─── BAD HAZARD NODES: ZERO BLURRY GLOW, BESPOKE ATMOSPHERIC EFFECTS ───
+        const emitInterval = 55;
+        if (now - p.lastStreakEmit < emitInterval) return;
+        p.lastStreakEmit = now;
+
+        if (mode === 'dynamo' || mode === 'realm') {
+          // Broken Arc segment spark released along recent path
+          this.worldStreaks.push({
+            type: 'hazard',
+            kind: 'brokenArcSpark',
+            x: p.x + (Math.random() - 0.5) * targetR * 0.4,
+            y: p.y - targetR * (0.95 + Math.random() * 0.65),
+            vx: (Math.random() - 0.5) * 0.45,
+            vy: -0.35 - Math.random() * 0.3,
+            len: 8 + Math.random() * 12,
+            angle: -Math.PI * 0.5 + (Math.random() - 0.5) * 0.6,
+            life: 0,
+            maxLife: 24 + Math.random() * 10
+          });
+        } else if (mode === 'helix') {
+          // Facet Dust: fine ruby grains and small angular chips tumbling behind the crystal
+          for (let fd = 0; fd < 2; fd++) {
+            this.worldStreaks.push({
+              type: 'hazard',
+              kind: 'facetDust',
+              x: p.x + (Math.random() - 0.5) * targetR * 0.6,
+              y: p.y - targetR * (0.4 + Math.random() * 0.6),
+              vx: (Math.random() - 0.5) * 0.5,
+              vy: -0.2 - Math.random() * 0.3,
+              size: (fd === 0) ? (1.4 + Math.random() * 1.2) : (2.8 + Math.random() * 1.8),
+              isChip: fd === 1,
+              rot: Math.random() * Math.PI * 2,
+              vRot: (Math.random() - 0.5) * 0.16,
+              life: 0,
+              maxLife: 32 + Math.random() * 12
+            });
+          }
+        } else {
+          // Ash Flakes: thin charcoal flakes peeling away from rotating purple spikes
+          for (let af = 0; af < 2; af++) {
+            const flakeAng = Math.random() * Math.PI * 2;
+            const flakeDist = targetR * (0.8 + Math.random() * 0.3);
+            this.worldStreaks.push({
+              type: 'hazard',
+              kind: 'ashFlake',
+              x: p.x + Math.cos(flakeAng) * flakeDist,
+              y: p.y + Math.sin(flakeAng) * flakeDist,
+              vx: (Math.random() - 0.5) * 0.45,
+              vy: -0.25 - Math.random() * 0.3,
+              size: 2.6 + Math.random() * 2.6,
+              rot: Math.random() * Math.PI * 2,
+              vRot: (Math.random() - 0.5) * 0.14,
+              life: 0,
+              maxLife: 35 + Math.random() * 14
+            });
+          }
+        }
+      }
     },
 
     updateAndDrawWorldStreaks(ctx, dtScale) {
@@ -2241,7 +2537,8 @@
 
       for (let i = this.worldStreaks.length - 1; i >= 0; i--) {
         const st = this.worldStreaks[i];
-        st.y += st.vy * dt;
+        st.x += (st.vx || 0) * dt;
+        st.y += (st.vy || 0) * dt;
         st.life += dt;
         if (st.life >= st.maxLife) {
           this.worldStreaks.splice(i, 1);
@@ -2249,66 +2546,146 @@
         }
 
         const prog = st.life / st.maxLife;
-        // Bell-shaped smooth opacity envelope: soft entry, silky dissipation
-        const alpha = Math.sin(prog * Math.PI) * 0.55;
+        const alpha = Math.sin(prog * Math.PI); // bell curve
         if (alpha <= 0.02) continue;
 
-        // Smoothly expand radius as the wake dissipates into the cosmos
-        const curR = st.radius + (st.maxRadius - st.radius) * prog;
-        const grad = ctx.createRadialGradient(st.x, st.y, 0, st.x, st.y, curR);
+        if (st.type === 'ember') {
+          // ─── EMBER DRIFT PARTICLES ───
+          if (st.kind === 'dynamoSpark') {
+            // Tiny electric cyan-white spark with diamond glint
+            ctx.save();
+            ctx.translate(st.x, st.y);
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.95})`;
+            ctx.beginPath();
+            ctx.arc(0, 0, st.size * (1.0 - prog * 0.4), 0, Math.PI * 2);
+            ctx.fill();
 
-        if (st.isHazard) {
-          // Ominous subtle shadow/crimson void wake
-          grad.addColorStop(0.0, `rgba(239, 68, 68, ${alpha * 0.70})`);
-          grad.addColorStop(0.50, `rgba(185, 28, 28, ${alpha * 0.35})`);
-          grad.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
-        } else if (st.nodeClass === 'shield') {
-          // Radiant golden/amber sunbeam wake
-          grad.addColorStop(0.0, `rgba(254, 240, 138, ${alpha * 0.85})`);
-          grad.addColorStop(0.45, `rgba(251, 191, 36, ${alpha * 0.45})`);
-          grad.addColorStop(1.0, 'rgba(245, 158, 11, 0)');
-        } else if (st.nodeClass === 'missiles') {
-          // Sleek electric cyan supersonic shock vapor
-          grad.addColorStop(0.0, `rgba(224, 242, 254, ${alpha * 0.90})`);
-          grad.addColorStop(0.45, `rgba(56, 189, 248, ${alpha * 0.40})`);
-          grad.addColorStop(1.0, 'rgba(14, 165, 233, 0)');
-        } else if (st.nodeClass === 'cluster') {
-          // Iridescent stardust duotone wake
-          grad.addColorStop(0.0, `rgba(232, 121, 249, ${alpha * 0.85})`);
-          grad.addColorStop(0.50, `rgba(56, 189, 248, ${alpha * 0.40})`);
-          grad.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
-        } else if (st.nodeClass === 'supercharge') {
-          // Solar corona warmth & champagne starlight
-          grad.addColorStop(0.0, `rgba(254, 240, 138, ${alpha * 0.90})`);
-          grad.addColorStop(0.50, `rgba(245, 158, 11, ${alpha * 0.40})`);
-          grad.addColorStop(1.0, 'rgba(217, 119, 6, 0)');
-        } else if (st.nodeClass === 'catalyst') {
-          // Sparkling diamond stardust dust
-          grad.addColorStop(0.0, `rgba(255, 255, 255, ${alpha * 0.90})`);
-          grad.addColorStop(0.40, `rgba(244, 114, 182, ${alpha * 0.45})`);
-          grad.addColorStop(1.0, 'rgba(56, 189, 248, 0)');
-        } else if (st.mode === 'helix') {
-          // Bioluminescent turquoise / lilac harmonic spore ripples
-          grad.addColorStop(0.0, `rgba(255, 255, 255, ${alpha * 0.80})`);
-          grad.addColorStop(0.45, `rgba(34, 211, 238, ${alpha * 0.40})`);
-          grad.addColorStop(0.80, `rgba(232, 121, 249, ${alpha * 0.20})`);
-          grad.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
-        } else if (st.mode === 'meteor') {
-          // Warm volcanic thermal blur & ember atmosphere
-          grad.addColorStop(0.0, `rgba(254, 240, 138, ${alpha * 0.85})`);
-          grad.addColorStop(0.45, `rgba(249, 115, 22, ${alpha * 0.42})`);
-          grad.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
-        } else {
-          // Dynamo: Soft cyan quantum ion wash
-          grad.addColorStop(0.0, `rgba(224, 242, 254, ${alpha * 0.85})`);
-          grad.addColorStop(0.45, `rgba(56, 189, 248, ${alpha * 0.42})`);
-          grad.addColorStop(1.0, 'rgba(14, 165, 233, 0)');
+            // Diamond cross glint
+            const glintLen = st.size * 2.2 * (1.0 - prog * 0.5);
+            ctx.strokeStyle = `rgba(56, 189, 248, ${alpha * 0.85})`;
+            ctx.lineWidth = 1.0;
+            ctx.beginPath();
+            ctx.moveTo(-glintLen, 0); ctx.lineTo(glintLen, 0);
+            ctx.moveTo(0, -glintLen); ctx.lineTo(0, glintLen);
+            ctx.stroke();
+            ctx.restore();
+
+          } else if (st.kind === 'helixFleck') {
+            // Cyan & mint flecks that briefly glint as they turn
+            st.rot += (st.vRot || 0.08) * dt;
+            const turnGlint = Math.pow(Math.abs(Math.cos(st.rot)), 3.0);
+            ctx.save();
+            ctx.translate(st.x, st.y);
+            ctx.rotate(st.rot);
+            const curW = st.size * Math.abs(Math.cos(st.rot));
+            const curH = st.size * 0.6;
+            ctx.fillStyle = `rgba(56, 189, 248, ${alpha * 0.75})`;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, Math.max(0.8, curW), curH, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (turnGlint > 0.45) {
+              ctx.fillStyle = `rgba(255, 255, 255, ${alpha * turnGlint * 0.95})`;
+              ctx.beginPath();
+              ctx.arc(0, 0, st.size * 0.75, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+
+          } else if (st.kind === 'meteorCinder') {
+            // Orange cinders that cool to dark red
+            const rCol = Math.round(251 - prog * 120); // 251 -> 131
+            const gCol = Math.round(146 - prog * 115); // 146 -> 31
+            const bCol = Math.round(60 - prog * 45);   // 60 -> 15
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.size * (1.0 - prog * 0.35), 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${rCol}, ${gCol}, ${bCol}, ${alpha * 0.90})`;
+            ctx.fill();
+            // Tiny incandescent white core when young
+            if (prog < 0.35) {
+              ctx.beginPath();
+              ctx.arc(st.x, st.y, st.size * 0.45 * (1.0 - prog / 0.35), 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(254, 240, 138, ${alpha * 0.85})`;
+              ctx.fill();
+            }
+          }
+
+        } else if (st.type === 'hazard') {
+          // ─── HAZARD PARTICLES ───
+          if (st.kind === 'brokenArcSpark') {
+            // Disconnected broken arc segment lingering and fading
+            ctx.save();
+            ctx.translate(st.x, st.y);
+            ctx.rotate(st.angle || 0);
+            ctx.strokeStyle = `rgba(244, 63, 94, ${alpha * 0.90})`;
+            ctx.lineWidth = 2.4;
+            ctx.beginPath();
+            ctx.moveTo(0, -st.len * 0.5);
+            ctx.lineTo((Math.random() - 0.5) * 3, 0);
+            ctx.lineTo(0, st.len * 0.5);
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
+            ctx.lineWidth = 1.0;
+            ctx.stroke();
+            ctx.restore();
+
+          } else if (st.kind === 'facetDust') {
+            // Ruby grains and angular chips catching amber light
+            st.rot += (st.vRot || 0.1) * dt;
+            const amberGlint = Math.pow(Math.max(0, Math.sin(st.rot * 2)), 3.0);
+            ctx.save();
+            ctx.translate(st.x, st.y);
+            ctx.rotate(st.rot);
+
+            if (st.isChip) {
+              // Triangular angular ruby chip
+              ctx.beginPath();
+              ctx.moveTo(0, -st.size);
+              ctx.lineTo(st.size * 0.8, st.size * 0.7);
+              ctx.lineTo(-st.size * 0.8, st.size * 0.7);
+              ctx.closePath();
+              ctx.fillStyle = `rgba(225, 29, 72, ${alpha * 0.85})`;
+              ctx.fill();
+
+              if (amberGlint > 0.4) {
+                ctx.fillStyle = `rgba(254, 240, 138, ${alpha * amberGlint * 0.95})`;
+                ctx.beginPath();
+                ctx.arc(0, 0, st.size * 0.55, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            } else {
+              // Fine ruby grain
+              ctx.beginPath();
+              ctx.arc(0, 0, st.size, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(190, 18, 60, ${alpha * 0.80})`;
+              ctx.fill();
+            }
+            ctx.restore();
+
+          } else if (st.kind === 'ashFlake') {
+            // Charcoal flake tumbling in 3D and flashing silver-violet
+            st.rot += (st.vRot || 0.1) * dt;
+            const turnCos = Math.cos(st.rot);
+            const edgeFlash = Math.pow(1.0 - Math.abs(turnCos), 3.0);
+            ctx.save();
+            ctx.translate(st.x, st.y);
+            ctx.rotate(st.rot * 0.5);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, Math.max(0.6, st.size * Math.abs(turnCos)), st.size * 0.5, 0, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(51, 65, 85, ${alpha * 0.85})`; // dark charcoal
+            ctx.fill();
+
+            if (edgeFlash > 0.45) {
+              // Silver-violet flash
+              ctx.fillStyle = `rgba(192, 132, 252, ${alpha * edgeFlash * 0.90})`;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, Math.max(0.5, st.size * 0.8 * Math.abs(turnCos)), st.size * 0.35, 0, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+          }
         }
-
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(st.x, st.y, curR, 0, Math.PI * 2);
-        ctx.fill();
       }
 
       ctx.restore();
@@ -2616,9 +2993,9 @@
       }
 
       const isCyan = (a % 2 === 0);
-      ctx.strokeStyle = isCyan
-        ? `rgba(103, 232, 249, ${0.90 * fadeAlpha})`
-        : `rgba(232, 121, 249, ${0.88 * fadeAlpha})`;
+      ctx.strokeStyle = (!isCore)
+        ? (isCyan ? `rgba(103, 232, 249, ${0.92 * fadeAlpha})` : `rgba(255, 255, 255, ${0.90 * fadeAlpha})`)
+        : (isCyan ? `rgba(103, 232, 249, ${0.90 * fadeAlpha})` : `rgba(147, 197, 253, ${0.88 * fadeAlpha})`);
       ctx.lineWidth = Math.max(1.2, maxR * 0.050);
       ctx.stroke();
 
@@ -3417,39 +3794,6 @@
         drawMeteorMagmaFissuresAndPlates(ctx, 68 * u, now, 0.0, Math.sin(now * 0.0008) * 0.14, tierIdx);
         drawMeteorMoltenRingsHalf(ctx, u, now, true, tierIdx);
 
-        // Reactive Top Cyan Deflection Shield Arc (Leans toward incoming node via Upgrade 5 Lock-On!)
-        const lockLeanAngle = Math.max(-0.22, Math.min(0.22, CoreKinematics.lockOnDX * 0.0025)) * CoreKinematics.lockOnProximity;
-        ctx.save();
-        ctx.translate(0, sr.y * u * 0.55);
-        ctx.rotate(sr.tilt + lockLeanAngle);
-        ctx.globalCompositeOperation = 'lighter';
-        const shieldBoost = 0.85 + 0.15 * Math.sin(now * 0.008) + sr.flash * 0.55 + CoreKinematics.lockOnProximity * 0.30;
-        const sg = ctx.createRadialGradient(0, -64 * u, 2 * u, 0, -64 * u, 38 * u);
-        sg.addColorStop(0.0, `rgba(255, 255, 255, ${Math.min(1, 0.92 * shieldBoost)})`);
-        sg.addColorStop(0.45, `rgba(103, 232, 249, ${Math.min(1, 0.82 * shieldBoost)})`);
-        sg.addColorStop(1.0, 'rgba(6, 182, 212, 0)');
-        ctx.fillStyle = sg;
-        ctx.beginPath();
-        ctx.arc(0, -64 * u, 38 * u, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(0, -6 * u, 68 * u, -Math.PI * 0.72, -Math.PI * 0.28);
-        ctx.strokeStyle = `rgba(165, 243, 252, ${Math.min(1, 0.90 * shieldBoost)})`;
-        ctx.lineWidth = 3.2 * u;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        // UPGRADE 4 (Meteor Tier IV): Secondary Outer Plasma-Aegis Crest Arc!
-        if (tierIdx >= 4) {
-          ctx.beginPath();
-          ctx.arc(0, -6 * u, 74 * u, -Math.PI * 0.66, -Math.PI * 0.34);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(1, 0.75 * shieldBoost)})`;
-          ctx.lineWidth = 1.8 * u;
-          ctx.stroke();
-        }
-        ctx.restore();
-
         ctx.restore();
       }
 
@@ -3473,9 +3817,9 @@
       // 1:1 Tactical Crosshair Reticle around Core Cursor
       CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
 
-      // 5-Second Aegis Spherical Geodesic Forcefield
+      // Mode-Specific 5-Second Aegis Spherical Geodesic Forcefield
       if (state.activeBuff && state.activeBuff.type === 'shield' && state.activeBuff.expiresAt > now) {
-        CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, state.activeBuff.expiresAt - now);
+        CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, state.activeBuff.expiresAt - now, mode);
       }
 
       ctx.restore(); // End core translate
@@ -3562,33 +3906,33 @@
           drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4);
         }
 
-        // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHE TYPES:
+        // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHE TYPES (Zero Purple/Violet - Safe, Welcoming & Radiant):
         if (p.nodeClass === 'cluster') {
-          // BIFURCATION FLUX NODE (CLUSTER DOUBLER): Twin orbiting satellite motes + iridescent resonance rings
+          // BIFURCATION FLUX NODE (CLUSTER DOUBLER): Twin orbiting satellite motes + emerald/cyan resonance rings
           const orbitR = targetR * 1.35;
           const orbitAngle = now * 0.005 + animPhase;
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          // Orbiting Mote 1 (Cyan)
+          // Orbiting Mote 1 (Electric Cyan)
           const mx1 = Math.cos(orbitAngle) * orbitR;
           const my1 = Math.sin(orbitAngle) * orbitR * 0.45;
           ctx.beginPath();
           ctx.arc(mx1, my1, 5.5 * scale, 0, Math.PI * 2);
           ctx.fillStyle = '#00f0ff';
           ctx.fill();
-          // Orbiting Mote 2 (Magenta)
+          // Orbiting Mote 2 (Mint Emerald - Safe & Friendly, Zero Purple!)
           const mx2 = -mx1;
           const my2 = -my1;
           ctx.beginPath();
           ctx.arc(mx2, my2, 5.5 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = '#c084fc';
+          ctx.fillStyle = '#34d399';
           ctx.fill();
 
-          // Pulsing Double-Ring
+          // Pulsing Double-Ring in Mint Emerald
           const pulseR = targetR * (1.1 + 0.15 * Math.sin(now * 0.008 + animPhase));
           ctx.beginPath();
           ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(192, 132, 252, 0.75)';
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.85)';
           ctx.lineWidth = 2.0;
           ctx.stroke();
 
@@ -3673,7 +4017,7 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'singularity') {
-          // GRAVITON SINGULARITY NODE: Deep violet gravitational accretion disc & spiraling event horizon
+          // GRAVITON SINGULARITY NODE: Celestial Gold & Starlight Cyan Accretion Discs (Zero Purple!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           const vortexAngle = -now * 0.008;
@@ -3681,14 +4025,14 @@
             const va = vortexAngle + (v * Math.PI * 2 / 3);
             ctx.beginPath();
             ctx.arc(0, 0, targetR * (1.15 + v * 0.15), va, va + 1.2);
-            ctx.strokeStyle = `rgba(168, 85, 247, ${0.85 - v * 0.20})`;
+            ctx.strokeStyle = (v % 2 === 0) ? `rgba(56, 189, 248, ${0.85 - v * 0.20})` : `rgba(254, 240, 138, ${0.85 - v * 0.20})`;
             ctx.lineWidth = 2.4;
             ctx.stroke();
           }
           ctx.restore();
 
         } else if (p.nodeClass === 'catalyst') {
-          // DELUXE PRISMATIC OCTAHEDRAL DIAMOND JEWEL (Zero crude stick lines! Faceted luxury gemstone geometry)
+          // DELUXE PRISMATIC OCTAHEDRAL DIAMOND JEWEL (Pure Diamond Starlight White & Electric Cyan - Zero Stick Lines, Zero Pink/Purple!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           const gemRot = now * 0.0026 + animPhase;
@@ -3707,36 +4051,36 @@
             if (pt === 0) ctx.moveTo(gx, gy); else ctx.lineTo(gx, gy);
           }
           ctx.closePath();
-          ctx.fillStyle = 'rgba(244, 114, 182, 0.24)';
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.20)';
           ctx.fill();
-          ctx.strokeStyle = 'rgba(251, 207, 232, 0.85)';
+          ctx.strokeStyle = 'rgba(224, 242, 254, 0.90)';
           ctx.lineWidth = 1.6 * scale;
           ctx.stroke();
 
-          // 2. Internal Radiant Refraction Facets (Champagne Starlight & Ethereal Cyan)
+          // 2. Internal Radiant Refraction Facets (Pure Diamond White & Ethereal Cyan)
           for (let f = 0; f < numPts; f++) {
             const fa = (f * Math.PI * 2) / numPts;
             const r = (f % 2 === 0) ? gemR : gemR * 0.64;
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(Math.cos(fa) * r, Math.sin(fa) * r);
-            ctx.strokeStyle = (f % 2 === 0) ? 'rgba(56, 189, 248, 0.65)' : 'rgba(244, 114, 182, 0.65)';
+            ctx.strokeStyle = (f % 2 === 0) ? 'rgba(56, 189, 248, 0.75)' : 'rgba(255, 255, 255, 0.80)';
             ctx.lineWidth = 1.2 * scale;
             ctx.stroke();
           }
 
           // 3. Volumetric Diamond Core Glow
           const diaGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, gemR * 0.52);
-          diaGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.85)');
-          diaGlow.addColorStop(0.45, 'rgba(244, 114, 182, 0.40)');
-          diaGlow.addColorStop(1.0, 'rgba(56, 189, 248, 0.0)');
+          diaGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+          diaGlow.addColorStop(0.45, 'rgba(56, 189, 248, 0.40)');
+          diaGlow.addColorStop(1.0, 'rgba(14, 165, 233, 0.0)');
           ctx.fillStyle = diaGlow;
           ctx.beginPath();
           ctx.arc(0, 0, gemR * 0.52, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
-          // 4. Delicate orbiting stardust facets
+          // 4. Delicate orbiting diamond stardust facets
           for (let s = 0; s < 3; s++) {
             const sAngle = -now * 0.0035 + (s * Math.PI * 2 / 3);
             const sDist = targetR * 1.15;
@@ -3744,7 +4088,7 @@
             const sy = Math.sin(sAngle) * sDist * 0.65;
             ctx.beginPath();
             ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
-            ctx.fillStyle = (s === 0) ? '#38bdf8' : (s === 1 ? '#f472b6' : '#fef08a');
+            ctx.fillStyle = (s === 0) ? '#38bdf8' : (s === 1 ? '#ffffff' : '#fef08a');
             ctx.fill();
           }
           ctx.restore();
@@ -3853,15 +4197,15 @@
           ctx.restore();
         }
 
-        // Floating Holographic Badges for Power-Ups (Friendly, Distinct, High-Contrast)
+        // Floating Holographic Badges for Power-Ups (Friendly, Distinct, High-Contrast, Zero Purple!)
         const badges = {
           shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.28)', border: '#fbbf24' },
           missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(14, 165, 233, 0.28)', border: '#38bdf8' },
-          cluster: { text: '✨ 2X DUP', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.28)', border: '#e879f9' },
+          cluster: { text: '✨ 2X DUP', color: '#34d399', bg: 'rgba(52, 211, 153, 0.28)', border: '#34d399' },
           supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.28)', border: '#fef08a' },
           chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(34, 211, 238, 0.28)', border: '#67e8f9' },
-          singularity: { text: '🌌 VORTEX', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.28)', border: '#c084fc' },
-          catalyst: { text: '💎 CATALYST', color: '#f472b6', bg: 'rgba(244, 114, 182, 0.28)', border: '#fbcfe8' }
+          singularity: { text: '🌌 VORTEX', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' },
+          catalyst: { text: '💎 CATALYST', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' }
         };
 
         if (badges[p.nodeClass]) {
@@ -3917,16 +4261,56 @@
               ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, -70 * scale + dxGlitch, dy, dw, dh);
             }
 
+            // ─── DYNAMO HAZARD: 03 BROKEN ARC (Reference: media_1795121092469_9ce161e0.jpg) ───
+            // Jagged magenta discharge flickers above the banded crimson orb, breaking into short segments
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
-            const arcAng = now * 0.012 + animPhase;
-            ctx.beginPath();
-            ctx.moveTo(-targetR * 0.6, Math.sin(arcAng) * 6);
-            ctx.lineTo(0, (Math.random() - 0.5) * 10);
-            ctx.lineTo(targetR * 0.6, Math.cos(arcAng) * 6);
-            ctx.strokeStyle = 'rgba(255, 180, 190, 0.85)';
-            ctx.lineWidth = 1.6;
-            ctx.stroke();
+            const arcSeed = Math.floor(now * 0.025 + animPhase * 5);
+            const arcH = targetR * (1.35 + 0.35 * Math.sin(now * 0.018 + animPhase));
+            const numSegs = 6;
+            let curX = 0;
+            let curY = -targetR * 0.92;
+
+            for (let seg = 1; seg <= numSegs; seg++) {
+              const t = seg / numSegs;
+              const nextY = -targetR * 0.92 - t * arcH;
+              const segJitter = Math.sin(arcSeed * 13 + seg * 29) * (targetR * 0.35) * (0.6 + t * 0.8);
+              const nextX = segJitter;
+
+              // Discontinuous / broken segment effect: skip rendering segment if random break occurs
+              const isBrokenGap = (seg === 3 && (arcSeed % 3 === 0)) || (seg === 5 && (arcSeed % 2 === 0));
+
+              if (!isBrokenGap) {
+                // Outer Vivid Magenta Stroke
+                ctx.beginPath();
+                ctx.moveTo(curX, curY);
+                ctx.lineTo(nextX, nextY);
+                ctx.strokeStyle = 'rgba(244, 63, 94, 0.92)';
+                ctx.lineWidth = 3.6 * scale;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // Inner White-Hot Core
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+                ctx.lineWidth = 1.4 * scale;
+                ctx.stroke();
+
+                // Branching secondary twig on segment 2 or 4
+                if (seg === 2 || seg === 4) {
+                  const bAngle = (segJitter > 0 ? 0.6 : -0.6) + Math.sin(arcSeed) * 0.3;
+                  const bLen = targetR * 0.45;
+                  ctx.beginPath();
+                  ctx.moveTo(nextX, nextY);
+                  ctx.lineTo(nextX + Math.sin(bAngle) * bLen, nextY - Math.cos(bAngle) * bLen);
+                  ctx.strokeStyle = 'rgba(236, 72, 153, 0.80)';
+                  ctx.lineWidth = 1.8 * scale;
+                  ctx.stroke();
+                }
+              }
+
+              curX = nextX;
+              curY = nextY;
+            }
             ctx.restore();
           }
         } else if (mode === 'helix') {
@@ -4005,25 +4389,15 @@
           ctx.fill();
         }
 
-        // BESPOKE HAZARD ARCHETYPE OVERLAYS (Ultra-Futuristic Tactical HUD & Atmospheric Void Warnings - ZERO Crude Red Circles!)
+        // BESPOKE HAZARD ARCHETYPE OVERLAYS (Ultra-Futuristic Tactical HUD & Atmospheric Void Warnings - ZERO Blurry Red Glow!)
         if (p.nodeClass === 'seeker') {
           // SEEKER MINE: High-Tech Tactical Telemetry Brackets & Directional Threat Warning
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           const retAngle = now * 0.0035;
-
-          // 1. Soft atmospheric crimson proximity warning aura (No harsh solid circle!)
           const warnPulse = 0.65 + 0.35 * Math.sin(now * 0.008);
-          const warnGrad = ctx.createRadialGradient(0, 0, targetR * 0.45, 0, 0, targetR * 1.35);
-          warnGrad.addColorStop(0.0, `rgba(239, 68, 68, ${0.18 * warnPulse})`);
-          warnGrad.addColorStop(0.70, `rgba(220, 38, 38, ${0.10 * warnPulse})`);
-          warnGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
-          ctx.fillStyle = warnGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.35, 0, Math.PI * 2);
-          ctx.fill();
 
-          // 2. 4 Precision Corner HUD Tracking Brackets (Corner L-brackets like high-end jet avionics)
+          // 1. 4 Precision Corner HUD Tracking Brackets (Corner L-brackets like high-end jet avionics - Sharp & Crisp)
           const bracketDist = targetR * 1.28;
           const bracketLen = targetR * 0.28;
           for (let b = 0; b < 4; b++) {
@@ -4042,7 +4416,7 @@
             ctx.restore();
           }
 
-          // 3. Directional Targeting Laser Pip towards Core
+          // 2. Directional Targeting Laser Pip towards Core
           const pipPhase = (now * 0.004) % 1.0;
           const pipR = targetR * (0.85 + pipPhase * 0.45);
           ctx.beginPath();
@@ -4052,22 +4426,13 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'fragmentation') {
-          // FRAGMENTATION BOLIDE: Unstable thermal fissure bloom (Zero crude ring lines!)
+          // FRAGMENTATION BOLIDE: Unstable thermal fissure sparks (Sharp & Crisp, Zero Blurry Ring Glow!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const pulseFissure = 0.65 + 0.35 * Math.sin(now * 0.016);
-          const fragGrad = ctx.createRadialGradient(0, 0, targetR * 0.3, 0, 0, targetR * 1.25);
-          fragGrad.addColorStop(0.0, `rgba(254, 240, 138, ${0.25 * pulseFissure})`);
-          fragGrad.addColorStop(0.5, `rgba(249, 115, 22, ${0.20 * pulseFissure})`);
-          fragGrad.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
-          ctx.fillStyle = fragGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.25, 0, Math.PI * 2);
-          ctx.fill();
 
           // Unstable micro-fissure sparks
-          for (let s = 0; s < 3; s++) {
-            const sa = now * 0.004 + s * (Math.PI * 2 / 3);
+          for (let s = 0; s < 4; s++) {
+            const sa = now * 0.004 + s * (Math.PI * 2 / 4);
             const sr = targetR * (0.95 + 0.15 * Math.sin(now * 0.02 + s));
             ctx.beginPath();
             ctx.arc(Math.cos(sa) * sr, Math.sin(sa) * sr, 1.8 * scale, 0, Math.PI * 2);
