@@ -5730,6 +5730,7 @@
 
       for (let i = state.particles.length - 1; i >= 0; i--) {
         const p = state.particles[i];
+        const isHazard = isHazardNode(p.nodeClass);
 
         // Recommendation 5: HAZARD TRAP KINEMATICS
         if (p.nodeClass === 'seeker') {
@@ -5875,7 +5876,6 @@
         // ─────────────────────────────────────────────────────────────
         // COLLISION CHECK, PRECISION CATCH & SPECIAL ARCHETYPE POWERS
         // ─────────────────────────────────────────────────────────────
-        const isHazard = isHazardNode(p.nodeClass);
         // Exact Physical Sphere Circumference Contact Hitbox for Hazards:
         // Physical contact occurs when the two spheres touch: distToCore <= coreSphereRadius + nodeSphereRadius
         const coreSphereRadius = 68.0 * u;
