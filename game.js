@@ -1158,46 +1158,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade360`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade361`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade360`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade361`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade360';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade361';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade360';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade361';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade360';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade361';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade360';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade361';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade360';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade361';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade360';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade361';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade360';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade361';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade360';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade361';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade360';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade361';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade360';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade361';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade360';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade361';
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
@@ -2392,20 +2392,23 @@
         p.lastStreakEmit = now;
 
         if (mode === 'dynamo' || mode === 'realm') {
-          // Chrome Dynamo: Micro violet-white spark breaking free at the orb's upper plasma rim
-          const rimAng = -Math.PI * 0.5 + (Math.random() - 0.5) * 0.85;
-          const spawnX = p.x + Math.cos(rimAng) * targetR * 0.90;
-          const spawnY = p.y + Math.sin(rimAng) * targetR * 0.90;
+          // Chrome Dynamo: Vertical Warp Speedlines trailing above falling node (matches user reference image!)
+          p.streakSide = (p.streakSide === 1) ? -1 : 1;
+          const side = p.streakSide;
+          const flankFrac = 0.35 + Math.random() * 0.45;
+          const sx = p.x + side * flankFrac * targetR;
+          const sy = p.y - (0.35 + Math.random() * 0.35) * targetR;
+          const len = (0.65 + Math.random() * 0.45) * targetR;
+
           this.worldStreaks.push({
-            type: 'ember',
-            kind: 'dynamoSpark',
-            x: spawnX,
-            y: spawnY,
-            vx: (Math.random() - 0.5) * 0.20,
-            vy: -0.14 - Math.random() * 0.12, // gentle buoyant micro-drift
-            size: 0.75 + Math.random() * 0.35,
+            type: 'speedline',
+            kind: 'dynamoSpeedline',
+            x: sx,
+            y: sy,
+            vy: p.speed * 0.12,
+            len: len,
             life: 0,
-            maxLife: 10 + Math.random() * 4
+            maxLife: 14 + Math.random() * 6
           });
         } else if (mode === 'helix') {
           // Chrome Helix: Micro cyan/lilac fleck turning above the glass DNA orb
@@ -2495,9 +2498,9 @@
 
     updateAndDrawWorldStreaks(ctx, dtScale) {
       if (this.worldStreaks.length === 0) return;
-      // High-refresh performance guard: hard-cap total world streaks to 12 particles max
-      if (this.worldStreaks.length > 12) {
-        this.worldStreaks.splice(0, this.worldStreaks.length - 12);
+      // High-refresh performance guard: hard-cap total world streaks to 18 particles max
+      if (this.worldStreaks.length > 18) {
+        this.worldStreaks.splice(0, this.worldStreaks.length - 18);
       }
       const dt = Math.max(0.25, Math.min(2.5, dtScale));
       ctx.save();
@@ -2517,7 +2520,23 @@
         const alpha = Math.sin(prog * Math.PI); // smooth bell fade
         if (alpha <= 0.03) continue;
 
-        if (st.type === 'ember') {
+        if (st.type === 'speedline' || st.kind === 'dynamoSpeedline') {
+          // Soft vertical cyan motion speedline (matches user reference image!)
+          const syBot = st.y;
+          const syTop = syBot - st.len;
+          const grad = ctx.createLinearGradient(st.x, syTop, st.x, syBot);
+          grad.addColorStop(0.0, 'rgba(0, 240, 255, 0)');
+          grad.addColorStop(0.45, `rgba(56, 189, 248, ${alpha * 0.72})`);
+          grad.addColorStop(0.85, `rgba(224, 242, 254, ${alpha * 0.90})`);
+          grad.addColorStop(1.0, 'rgba(0, 240, 255, 0)');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(st.x, syTop);
+          ctx.lineTo(st.x, syBot);
+          ctx.stroke();
+
+        } else if (st.type === 'ember') {
           // ─── EMBER DRIFT PARTICLES (DIRECT ZERO-ALLOC RENDERING) ───
           if (st.kind === 'dynamoSpark') {
             // Ultra-delicate violet-white micro-spark
@@ -3771,6 +3790,39 @@
             ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
           }
           drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.86, now, animPhase, false, 4);
+
+          // Outer Resonance Ring & Twin Satellite Motes (matches user reference close-up exactly!)
+          const ringR = targetR * 1.16;
+          ctx.beginPath();
+          ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.45)';
+          ctx.lineWidth = 1.4 * scale;
+          ctx.stroke();
+
+          const moteAngle = now * 0.0035 + animPhase;
+          const mx1 = Math.cos(moteAngle) * ringR;
+          const my1 = Math.sin(moteAngle) * ringR * 0.55;
+          // Mote 1: Electric Cyan
+          ctx.beginPath();
+          ctx.arc(mx1, my1, 4.2 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#00f0ff';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(mx1, my1, 1.8 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+
+          // Mote 2: Lilac
+          const mx2 = -mx1;
+          const my2 = -my1;
+          ctx.beginPath();
+          ctx.arc(mx2, my2, 4.2 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#c084fc';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(mx2, my2, 1.8 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
         } else if (mode === 'helix') {
           if (LayeredT4Assets.loaded.nodeShell.helix) {
             ctx.drawImage(LayeredT4Assets.nodeShell.helix, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
@@ -4390,7 +4442,12 @@
 
     applyBuff(type, name, color, icon, durationMs, now) {
       if (!this.activeBuffs) this.activeBuffs = {};
-      const expiresAt = now + durationMs;
+      const current = this.activeBuffs[type];
+      let expiresAt = now + durationMs;
+      if (current && current.expiresAt > now) {
+        // If buff already active: extend it! For shield: stack duration up to 15s max!
+        expiresAt = Math.min(now + 15000, current.expiresAt + durationMs);
+      }
       this.activeBuffs[type] = { type, name, color, icon, expiresAt, duration: durationMs };
       this.activeBuff = this.activeBuffs[type];
     },
@@ -5324,17 +5381,36 @@
       // ─────────────────────────────────────────────────────────────
       // FEATURE 1: FLUX NODE CLASSES SPAWN CHOREOGRAPHY
       // ─────────────────────────────────────────────────────────────
-      function pickFairLaneX() {
+      function pickFairLaneX(isHazard = false) {
         const margin = 70;
-        const minSeparation = 72;
+        const minSeparationSame = 75;
+        const minSeparationOpposite = 115; // Guaranteed 115px safe lateral clearance between hazards and rewards
         let bestX = Math.random() * (w - margin * 2) + margin;
-        for (let att = 0; att < 16; att++) {
+        let maxOppositeDist = 0;
+
+        for (let att = 0; att < 24; att++) {
           const candidateX = Math.random() * (w - margin * 2) + margin;
-          const isClear = state.particles.every(pt => {
-            if (pt.y < 380) return Math.abs(pt.x - candidateX) >= minSeparation;
-            return true;
-          });
+          let isClear = true;
+          let minOppDist = 9999;
+
+          for (let pt of state.particles) {
+            if (pt.y < 380) {
+              const ptIsHazard = isHazardNode(pt.nodeClass);
+              const dx = Math.abs(pt.x - candidateX);
+              const requiredSep = (isHazard !== ptIsHazard) ? minSeparationOpposite : minSeparationSame;
+              if (dx < requiredSep) {
+                isClear = false;
+              }
+              if (isHazard !== ptIsHazard && dx < minOppDist) {
+                minOppDist = dx;
+              }
+            }
+          }
           if (isClear) return candidateX;
+          if (minOppDist > maxOppositeDist) {
+            maxOppositeDist = minOppDist;
+            bestX = candidateX;
+          }
         }
         return bestX;
       }
@@ -5355,7 +5431,7 @@
         const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.5 && Math.random() < hazardChance);
 
         let nClass = 'standard';
-        let px = pickFairLaneX();
+        let px = pickFairLaneX(canSpawnHazard);
 
         if (canSpawnHazard) {
           // Diverse Hazard Archetypes:
@@ -5715,6 +5791,32 @@
             p.phantomAlpha = 0.55 + 0.45 * Math.sin(now * 0.02);
           } else {
             p.phantomAlpha = 0.08 + 0.14 * (0.5 + 0.5 * Math.sin(now * 0.005 + p.animPhase));
+          }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // SOLUTION 1: DYNAMIC HAZARD ANTI-COLLISION & GRAZE CORRIDOR
+        // Hazards and good collectible nodes actively steer apart if
+        // their paths converge, guaranteeing they never touch or overlap!
+        // ─────────────────────────────────────────────────────────────
+        if (isHazard) {
+          for (let j = 0; j < state.particles.length; j++) {
+            if (i === j) continue;
+            const other = state.particles[j];
+            if (isHazardNode(other.nodeClass)) continue; // only repel opposite types
+
+            const dx = p.x - other.x;
+            const dy = p.y - other.y;
+            const dist = Math.hypot(dx, dy);
+            const targetGap = 110; // 95px - 110px safe graze clearance corridor
+
+            if (dist < targetGap && Math.abs(dy) < 130) {
+              const dir = (dx !== 0) ? Math.sign(dx) : (p.x > w * 0.5 ? 1 : -1);
+              const pushFactor = Math.pow(1.0 - (dist / targetGap), 1.4) * 3.8 * dtScale;
+              p.x += dir * pushFactor;
+              p.vx = (p.vx || 0) * 0.85 + dir * pushFactor * 0.45;
+              p.x = Math.max(48, Math.min(w - 48, p.x));
+            }
           }
         }
 
