@@ -1139,46 +1139,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade352`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade353`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade352`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade353`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade352';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade353';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade352';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade353';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade352';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade353';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade352';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade353';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade352';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade353';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade352';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade353';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade352';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade353';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade352';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade353';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade352';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade353';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade352';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade353';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade352';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade353';
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
@@ -1188,12 +1188,19 @@
   // ─────────────────────────────────────────────────────────────
   // SECONDARY KINEMATICS, ASCENSION MORPHING & LOCK-ON ENGINE
   // ─────────────────────────────────────────────────────────────
+  // OMNIDIRECTIONAL 6-DOF CORE KINEMATICS & TACTICAL ORDNANCE (v353)
+  // ─────────────────────────────────────────────────────────────
   const CoreKinematics = {
     lastX: null,
+    lastY: null,
     vx: 0,
+    vy: 0,
     prevVx: 0,
+    prevVy: 0,
     bodyBank: 0,
     bodyBankVel: 0,
+    pitchAngle: 0,
+    pitchAngleVel: 0,
     rootY: 0, rootVelY: 0,
     midY: 0,  midVelY: 0,
     tipY: 0,  tipVelY: 0,
@@ -1215,6 +1222,12 @@
     lockOnProximity: 0,     // 0.0 (none) -> 1.0 (imminent contact)
     overdriveFlash: 0,      // Synchronized Core-to-Wing harmonic flash in Tier IV
 
+    // Reactive Ion Thrusters & Tactical Ordnance Systems
+    thrusterPlumes: [],
+    missiles: [],
+    grazeSparks: [],
+    shieldDeflectFlash: 0,
+
     // Mode-Specific Capture States
     wingRipples: [],
     dynamoDischarges: [],
@@ -1224,10 +1237,15 @@
 
     reset() {
       this.lastX = null;
+      this.lastY = null;
       this.vx = 0;
+      this.vy = 0;
       this.prevVx = 0;
+      this.prevVy = 0;
       this.bodyBank = 0;
       this.bodyBankVel = 0;
+      this.pitchAngle = 0;
+      this.pitchAngleVel = 0;
       this.rootY = 0; this.rootVelY = 0;
       this.midY = 0;  this.midVelY = 0;
       this.tipY = 0;  this.tipVelY = 0;
@@ -1242,6 +1260,10 @@
       this.lockOnDX = 0;
       this.lockOnProximity = 0;
       this.overdriveFlash = 0;
+      this.thrusterPlumes = [];
+      this.missiles = [];
+      this.grazeSparks = [];
+      this.shieldDeflectFlash = 0;
       this.wingRipples = [];
       this.dynamoDischarges = [];
       this.meteorShieldRecoil = { y: 0, vy: 0, tilt: 0, vTilt: 0, flash: 0 };
@@ -1252,12 +1274,22 @@
     update(catcherPixelX, catcherPixelY, dtScale, now, targetTier = 1, mode = 'dynamo', particles = []) {
       const dt = Math.max(0.25, Math.min(2.5, dtScale));
       if (this.lastX === null) this.lastX = catcherPixelX;
+      if (this.lastY === null) this.lastY = catcherPixelY;
       const rawVx = (catcherPixelX - this.lastX) / dt;
+      const rawVy = (catcherPixelY - this.lastY) / dt;
       this.lastX = catcherPixelX;
+      this.lastY = catcherPixelY;
 
       this.prevVx = this.vx;
+      this.prevVy = this.vy;
       this.vx = this.vx * 0.45 + rawVx * 0.55;
+      this.vy = this.vy * 0.45 + rawVy * 0.55;
       const accelX = this.vx - this.prevVx;
+
+      // 3D Pitch Kinematics: Vertical velocity induces aerodynamic dive/climb tilt
+      const targetPitch = Math.max(-0.25, Math.min(0.25, this.vy * 0.012));
+      this.pitchAngleVel = (this.pitchAngleVel + (targetPitch - this.pitchAngle) * 0.25 * dt) * Math.pow(0.72, dt);
+      this.pitchAngle += this.pitchAngleVel * dt;
 
       // UPGRADE 1: Real-Time Morphing "Ascension Unfurl" Spring (Tier I <-> II <-> III <-> IV)
       if (targetTier > this.lastTargetTier) {
@@ -1389,6 +1421,370 @@
           this.dynamoDischarges.splice(i, 1);
         }
       }
+
+      // 9. Emit & Update Reactive Ion Thrusters (Counter-Velocity Exhaust)
+      const speed2D = Math.hypot(this.vx, this.vy);
+      const emitCount = speed2D > 3.0 ? 3 : (speed2D > 0.4 ? 2 : 1);
+      const thrusterColors = {
+        dynamo: ['#00f0ff', '#38bdf8', '#e0f2fe'],
+        helix: ['#e879f9', '#22d3ee', '#fef08a'],
+        meteor: ['#fbbf24', '#f97316', '#ef4444']
+      };
+      const pal = thrusterColors[mode] || thrusterColors.dynamo;
+      for (let k = 0; k < emitCount; k++) {
+        const spread = (Math.random() - 0.5) * 16;
+        const pVx = -this.vx * 0.42 + (Math.random() - 0.5) * 2.2;
+        const pVy = 3.6 - this.vy * 0.38 + Math.random() * 2.6;
+        this.thrusterPlumes.push({
+          x: catcherPixelX + spread,
+          y: catcherPixelY + 28,
+          vx: pVx,
+          vy: pVy,
+          color: pal[Math.floor(Math.random() * pal.length)],
+          size: 2.6 + Math.random() * 2.6,
+          life: 0,
+          maxLife: 16 + Math.random() * 12
+        });
+      }
+      for (let i = this.thrusterPlumes.length - 1; i >= 0; i--) {
+        const tp = this.thrusterPlumes[i];
+        tp.x += tp.vx * dt;
+        tp.y += tp.vy * dt;
+        tp.size = Math.max(0.4, tp.size * 0.94);
+        tp.life += dt;
+        if (tp.life >= tp.maxLife) this.thrusterPlumes.splice(i, 1);
+      }
+
+      // 10. Update Graze & Shield Deflection Sparks
+      for (let i = this.grazeSparks.length - 1; i >= 0; i--) {
+        const gs = this.grazeSparks[i];
+        gs.x += gs.vx * dt;
+        gs.y += gs.vy * dt;
+        gs.life += dt;
+        if (gs.life >= gs.maxLife) this.grazeSparks.splice(i, 1);
+      }
+      this.shieldDeflectFlash = Math.max(0, this.shieldDeflectFlash - 0.05 * dt);
+    },
+
+    triggerGraze(x, y, now) {
+      for (let k = 0; k < 12; k++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = 2.4 + Math.random() * 4.6;
+        this.grazeSparks.push({
+          x: x,
+          y: y,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd,
+          color: '#38bdf8',
+          life: 0,
+          maxLife: 18 + Math.random() * 10
+        });
+      }
+    },
+
+    triggerShieldDeflect(x, y, now) {
+      this.shieldDeflectFlash = 1.0;
+      for (let k = 0; k < 22; k++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = 3.6 + Math.random() * 6.4;
+        this.grazeSparks.push({
+          x: x,
+          y: y,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd,
+          color: '#fbbf24',
+          life: 0,
+          maxLife: 24 + Math.random() * 14
+        });
+      }
+    },
+
+    fireMissiles(cx, cy, now, particles) {
+      const count = 12;
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+        const initSpeed = 8.5 + Math.random() * 3.5;
+        this.missiles.push({
+          x: cx,
+          y: cy,
+          vx: Math.cos(angle) * initSpeed,
+          vy: Math.sin(angle) * initSpeed,
+          angle: angle,
+          speed: initSpeed,
+          smoke: [],
+          target: null,
+          life: 0,
+          maxLife: 140
+        });
+      }
+    },
+
+    updateAndDrawMissiles(ctx, dtScale, now, state) {
+      if (this.missiles.length === 0) return;
+      const dt = Math.max(0.25, Math.min(2.5, dtScale));
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let mIdx = this.missiles.length - 1; mIdx >= 0; mIdx--) {
+        const m = this.missiles[mIdx];
+        m.life += dt;
+
+        // Target acquisition: seek closest active particle
+        let bestDist = 9999;
+        let bestTarget = null;
+        for (let p of state.particles) {
+          if (p.hasDetonated) continue;
+          const d = Math.hypot(p.x - m.x, p.y - m.y);
+          const weight = isHazardNode(p.nodeClass) ? 0.75 : 1.0;
+          if (d * weight < bestDist) {
+            bestDist = d * weight;
+            bestTarget = p;
+          }
+        }
+
+        if (bestTarget) {
+          const desiredAngle = Math.atan2(bestTarget.y - m.y, bestTarget.x - m.x);
+          let diff = desiredAngle - m.angle;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          const maxTurn = 0.22 * dt;
+          m.angle += Math.max(-maxTurn, Math.min(maxTurn, diff));
+        }
+
+        // Realistic acceleration up to 24px/frame
+        m.speed = Math.min(24.0, m.speed + 0.85 * dt);
+        m.vx = Math.cos(m.angle) * m.speed;
+        m.vy = Math.sin(m.angle) * m.speed;
+        m.x += m.vx * dt;
+        m.y += m.vy * dt;
+
+        // Rocket smoke & fire trail
+        m.smoke.push({
+          x: m.x - Math.cos(m.angle) * 8,
+          y: m.y - Math.sin(m.angle) * 8,
+          size: 3.5,
+          alpha: 0.9,
+          color: (Math.random() < 0.6) ? '#ef4444' : '#fbbf24'
+        });
+
+        for (let s = m.smoke.length - 1; s >= 0; s--) {
+          const sm = m.smoke[s];
+          sm.size += 0.3 * dt;
+          sm.alpha -= 0.07 * dt;
+          if (sm.alpha <= 0) {
+            m.smoke.splice(s, 1);
+            continue;
+          }
+          ctx.beginPath();
+          ctx.arc(sm.x, sm.y, sm.size, 0, Math.PI * 2);
+          ctx.fillStyle = sm.color;
+          ctx.globalAlpha = sm.alpha * 0.75;
+          ctx.fill();
+        }
+
+        // Draw missile warhead & fuselage
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        ctx.rotate(m.angle);
+        ctx.globalAlpha = 1.0;
+
+        ctx.fillStyle = '#f87171';
+        ctx.beginPath();
+        ctx.moveTo(9, 0);
+        ctx.lineTo(-6, -3.5);
+        ctx.lineTo(-4, 0);
+        ctx.lineTo(-6, 3.5);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.moveTo(-4, -2);
+        ctx.lineTo(-10, 0);
+        ctx.lineTo(-4, 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        // Check impact with targets
+        let hit = false;
+        for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+          const pt = state.particles[pIdx];
+          if (pt.hasDetonated) continue;
+          const hitDist = Math.hypot(pt.x - m.x, pt.y - m.y);
+          if (hitDist < 30) {
+            hit = true;
+            pt.hasDetonated = true;
+
+            if (isHazardNode(pt.nodeClass)) {
+              state.score += 200;
+              this.triggerGraze(pt.x, pt.y, now);
+              state.floatingTexts.push({
+                x: pt.x, y: pt.y,
+                text: '+200 NEUTRALIZED',
+                color: '#ef4444',
+                alpha: 1.0,
+                startTime: now
+              });
+              audio.playHazardExplosion();
+            } else {
+              const pts = 300 * state.combo;
+              state.score += pts;
+              state.combo = Math.min(10, state.combo + 1);
+              if (state.combo === 10) state.isOverdrive = true;
+              state.floatingTexts.push({
+                x: pt.x, y: pt.y,
+                text: `+${pts} CLAIMED!`,
+                color: '#38bdf8',
+                alpha: 1.0,
+                startTime: now
+              });
+              audio.playPerfectCatch(state.combo);
+
+              if (pt.nodeClass === 'cluster') {
+                state.activeBuff = { type: 'cluster', name: '2X CLUSTER', color: '#c084fc', expiresAt: now + 5000 };
+              } else if (pt.nodeClass === 'supercharge') {
+                state.activeBuff = { type: 'hyper', name: 'HYPER SURGE', color: '#fbbf24', expiresAt: now + 5000 };
+              } else if (pt.nodeClass === 'chronos') {
+                state.activeBuff = { type: 'chronos', name: 'CHRONOS STASIS', color: '#22d3ee', expiresAt: now + 4500 };
+              } else if (pt.nodeClass === 'singularity') {
+                state.activeBuff = { type: 'singularity', name: 'GRAVITON VORTEX', color: '#a855f7', expiresAt: now + 3500 };
+              } else if (pt.nodeClass === 'catalyst') {
+                state.coreTier = Math.min(4, state.coreTier + 1);
+                state.activeBuff = { type: 'catalyst', name: 'ASCENSION CATALYST', color: '#f472b6', expiresAt: now + 6000 };
+              } else if (pt.nodeClass === 'shield') {
+                state.activeBuff = { type: 'shield', name: 'AEGIS SHIELD', color: '#f59e0b', expiresAt: now + 5000 };
+              }
+            }
+
+            state.particles.splice(pIdx, 1);
+            break;
+          }
+        }
+
+        if (hit || m.life >= m.maxLife || m.x < -60 || m.x > ctx.canvas.width + 60 || m.y < -60 || m.y > ctx.canvas.height + 60) {
+          this.missiles.splice(mIdx, 1);
+        }
+      }
+      ctx.restore();
+    },
+
+    drawAegisForcefield(ctx, cx, cy, u, now) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = 'lighter';
+
+      const baseRadius = 60 * u;
+      const pulse = 1.0 + 0.05 * Math.sin(now * 0.007);
+      const r = baseRadius * pulse;
+      const rot = now * 0.0025;
+
+      // 1. Shimmering Spherical Energy Shell
+      const grad = ctx.createRadialGradient(0, 0, r * 0.72, 0, 0, r * 1.15);
+      grad.addColorStop(0.0, 'rgba(245, 158, 11, 0.0)');
+      grad.addColorStop(0.65, 'rgba(251, 191, 36, 0.28)');
+      grad.addColorStop(0.92, 'rgba(254, 240, 138, 0.65)');
+      grad.addColorStop(1.0, 'rgba(245, 158, 11, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 1.15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. 3D Rotating Geodesic Hexagonal Grid
+      for (let l = -2; l <= 2; l++) {
+        const yOffset = (l / 2.5) * (r * 0.72);
+        const latR = Math.sqrt(Math.max(0, r * r - yOffset * yOffset));
+        ctx.save();
+        ctx.translate(0, yOffset);
+        ctx.rotate(rot * (l % 2 === 0 ? 1 : -1));
+        ctx.beginPath();
+        for (let h = 0; h < 6; h++) {
+          const ha = h * Math.PI / 3;
+          const hx = Math.cos(ha) * latR;
+          const hy = Math.sin(ha) * latR * 0.38;
+          if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = `rgba(254, 240, 138, ${0.45 + 0.35 * Math.abs(l / 2.5)})`;
+        ctx.lineWidth = 1.6 * u;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 3. Shield Deflection Shockwave Flash
+      if (this.shieldDeflectFlash > 0.02) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r * (1.1 + (1.0 - this.shieldDeflectFlash) * 0.4), 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(254, 240, 138, ${this.shieldDeflectFlash * 0.95})`;
+        ctx.lineWidth = 4.0 * u;
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    },
+
+    drawCursorReticle(ctx, cx, cy, u, now) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = 'lighter';
+
+      const retR = 48 * u;
+      const rot = now * 0.0018;
+
+      for (let b = 0; b < 4; b++) {
+        const ba = rot + (b * Math.PI / 2);
+        const bx = Math.cos(ba) * retR;
+        const by = Math.sin(ba) * retR;
+        const armLen = 8 * u;
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(ba);
+        ctx.beginPath();
+        ctx.moveTo(-armLen, 0);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(0, -armLen);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.42)';
+        ctx.lineWidth = 1.4 * u;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.beginPath();
+      ctx.arc(0, 0, 1.8 * u, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(224, 242, 254, 0.65)';
+      ctx.fill();
+
+      ctx.restore();
+    },
+
+    drawThrusterPlumes(ctx, u) {
+      if (this.thrusterPlumes.length === 0) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let tp of this.thrusterPlumes) {
+        const alpha = Math.max(0, 1.0 - tp.life / tp.maxLife);
+        ctx.beginPath();
+        ctx.arc(tp.x, tp.y, tp.size * u, 0, Math.PI * 2);
+        ctx.fillStyle = tp.color;
+        ctx.globalAlpha = alpha * 0.85;
+        ctx.fill();
+      }
+      ctx.restore();
+    },
+
+    drawGrazeSparks(ctx, u) {
+      if (this.grazeSparks.length === 0) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let gs of this.grazeSparks) {
+        const alpha = Math.max(0, 1.0 - gs.life / gs.maxLife);
+        ctx.beginPath();
+        ctx.arc(gs.x, gs.y, 2.2 * u, 0, Math.PI * 2);
+        ctx.fillStyle = gs.color || '#38bdf8';
+        ctx.globalAlpha = alpha;
+        ctx.fill();
+      }
+      ctx.restore();
     },
 
     triggerCaptureEffect(mode, catcherX, catcherY, nodeX, nodeY, now) {
@@ -1619,7 +2015,10 @@
     const lockLiftAngle = -CoreKinematics.lockOnProximity * 0.035;
 
     // Flap angle strictly clamped: max inward rotation 0.045 rad (~2.5 deg), max outward 0.12 rad (~6.8 deg)
-    const rawFlap = tipInertia + breathOsc + lockLiftAngle;
+    // Vertical Pitch Dynamics: Moving UP compresses wings aerodynamically; moving DOWN flares them
+    const pitchAngle = CoreKinematics.pitchAngle || 0;
+    const pitchFlapMod = -pitchAngle * 0.35;
+    const rawFlap = tipInertia + breathOsc + lockLiftAngle + pitchFlapMod;
     const clampedFlap = Math.max(-0.045, Math.min(0.12, rawFlap));
 
     // Body Bank Angle into turn
@@ -1646,7 +2045,7 @@
       const trailSweep = Math.min(0, dirLead) * 0.050;
       const asymmetricTilt = leadLift + trailSweep;
 
-      const totalRotation = bankAngle + dir * clampedFlap + asymmetricTilt;
+      const totalRotation = bankAngle + dir * clampedFlap + asymmetricTilt + dir * pitchAngle * 0.15;
       ctx.rotate(totalRotation);
 
       // 3D Perspective Foreshortening & Asymmetric Span Modulation
@@ -2712,6 +3111,15 @@
       }
 
       ctx.restore(); // End shared core/wing bank
+
+      // 1:1 Tactical Crosshair Reticle around Core Cursor
+      CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
+
+      // 5-Second Aegis Spherical Geodesic Forcefield
+      if (state.activeBuff && state.activeBuff.type === 'shield' && state.activeBuff.expiresAt > now) {
+        CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now);
+      }
+
       ctx.restore(); // End core translate
 
       if (mode === 'meteor' && CoreKinematics.impactCinders.length > 0) {
@@ -2919,6 +3327,109 @@
             ctx.lineWidth = 2.2;
             ctx.stroke();
           }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'shield') {
+          // 5-SECOND AEGIS FORCEFIELD CRYSTAL: Rotating 3D Golden Hexagonal Shield
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const hexAngle = now * 0.0035 + animPhase;
+          const hxR = targetR * 1.25;
+          ctx.beginPath();
+          for (let hx = 0; hx < 6; hx++) {
+            const ha = hexAngle + (hx * Math.PI / 3);
+            const px = Math.cos(ha) * hxR;
+            const py = Math.sin(ha) * hxR;
+            if (hx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 2.4 * scale;
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(245, 158, 11, 0.28)';
+          ctx.fill();
+
+          const pCoreR = targetR * (0.45 + 0.15 * Math.sin(now * 0.009));
+          const shGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, pCoreR);
+          shGrad.addColorStop(0.0, '#ffffff');
+          shGrad.addColorStop(0.5, '#fef08a');
+          shGrad.addColorStop(1.0, 'rgba(245, 158, 11, 0)');
+          ctx.fillStyle = shGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, pCoreR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+        } else if (p.nodeClass === 'missiles') {
+          // LIVE SEEKING MICRO-MISSILE CLUSTER: 3 Sleek Rocket Warheads orbiting with ion fire
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const mRot = now * 0.004 + animPhase;
+          for (let rk = 0; rk < 3; rk++) {
+            const ra = mRot + (rk * Math.PI * 2 / 3);
+            const rDist = targetR * 1.15;
+            const rx = Math.cos(ra) * rDist;
+            const ry = Math.sin(ra) * rDist;
+            ctx.save();
+            ctx.translate(rx, ry);
+            ctx.rotate(ra + Math.PI / 2);
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(0, -8 * scale);
+            ctx.lineTo(4 * scale, 5 * scale);
+            ctx.lineTo(-4 * scale, 5 * scale);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.moveTo(-2 * scale, 5 * scale);
+            ctx.lineTo(0, 11 * scale);
+            ctx.lineTo(2 * scale, 5 * scale);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+          }
+
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.35, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.85)';
+          ctx.lineWidth = 2.0 * scale;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Floating Holographic Badges for Power-Ups
+        const badges = {
+          shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.28)', border: '#fbbf24' },
+          missiles: { text: '🚀 MISSILES', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.28)', border: '#f87171' },
+          cluster: { text: '✨ 2X DUP', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.28)', border: '#e879f9' },
+          supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.28)', border: '#fef08a' },
+          chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(34, 211, 238, 0.28)', border: '#67e8f9' },
+          singularity: { text: '🌌 VORTEX', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.28)', border: '#c084fc' },
+          catalyst: { text: '💎 CATALYST', color: '#f472b6', bg: 'rgba(244, 114, 182, 0.28)', border: '#fbcfe8' }
+        };
+
+        if (badges[p.nodeClass]) {
+          const b = badges[p.nodeClass];
+          ctx.save();
+          ctx.translate(0, -targetR * 1.38);
+          ctx.font = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
+          const textW = ctx.measureText(b.text).width;
+          const padX = 8 * scale;
+          const padY = 4 * scale;
+
+          ctx.fillStyle = b.bg;
+          ctx.strokeStyle = b.border;
+          ctx.lineWidth = 1.3 * scale;
+          ctx.beginPath();
+          ctx.roundRect(-textW / 2 - padX, -padY - 7 * scale, textW + padX * 2, 16 * scale, 7 * scale);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(b.text, 0, 0);
           ctx.restore();
         }
 
@@ -3184,6 +3695,8 @@
   let touchGuidePos = { x: -9999, y: -9999, active: false };
   let targetCatcherX = 0.5;
   let currentCatcherX = 0.5;
+  let targetCatcherY = 0.82;
+  let currentCatcherY = 0.82;
   let lastTouchClientX = 0;
   let lastTouchClientY = 0;
   let invulnerabilityTimer = 0;
@@ -3554,6 +4067,11 @@
   function startReflexGame() {
     state.reflexLives = 10;
     state.catcherX = 0.5;
+    state.catcherY = 0.82;
+    targetCatcherX = 0.5;
+    currentCatcherX = 0.5;
+    targetCatcherY = 0.82;
+    currentCatcherY = 0.82;
     state.lastTransmuteTime = performance.now();
     state.particles = [];
     state.floatingTexts = [];
@@ -3749,11 +4267,14 @@
     // - Dynamo: Snappy, agile electromagnetic tracking (0.44 touch / 0.28 mouse)
     // - Helix: Fluid harmonic gliding with gyroscopic banking tilt (0.36 touch / 0.22 mouse)
     // - Meteor: Substantial volcanic inertia and high-momentum weight (0.30 touch / 0.18 mouse)
-    // Immediate Capture Center Tracking:
-    // The capture center tracks pointer/hand input immediately so catches stay razor-sharp,
-    // while CoreKinematics drives body banking, wing root lag, and outer feather momentum whip!
-    currentCatcherX += (targetCatcherX - currentCatcherX) * 0.86;
+    // Immediate Capture Center Tracking (1:1 Omnidirectional Freedom):
+    // The capture center tracks pointer/hand input across all 2D axes (X & Y) with critically-damped spring follow,
+    // while CoreKinematics drives body banking, wing pitch/splay, thrusters, and momentum whip!
+    currentCatcherX += (targetCatcherX - currentCatcherX) * 0.92;
     state.catcherX = currentCatcherX;
+
+    currentCatcherY += (targetCatcherY - currentCatcherY) * 0.92;
+    state.catcherY = currentCatcherY;
 
     let catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
     if (state.prevCatcherPixelX !== null) {
@@ -3762,14 +4283,20 @@
     state.prevCatcherPixelX = catcherPixelX;
     
     // Cellphone & Mobile Safe-Area Inset:
-    // On cellphones and touchscreens, lift catcher up to 135px above bottom
-    // so the entire 3D core and flare rings are 100% visible and thumb sits comfortably below!
     const isCoarse = (deviceInputMode === 'touch') || window.innerWidth <= 768;
-    const bottomSafe = (window.innerHeight > 800) ? 34 : 20;
-    // Elevate catcher comfortably: 24% on mobile (at least 185px) and 26% on desktop (at least 160px)
-    // so the entire 360-degree radiant aura, starburst halo, and wings have ample breathing room and are never cut off by the screen bottom!
     const catcherBottomMargin = isCoarse ? Math.max(185, Math.round(h * 0.24)) : Math.max(160, Math.round(h * 0.26));
-    const catcherPixelY = h - catcherBottomMargin;
+    const catcherPixelY = (state.gameType === 'reflex')
+      ? (h - catcherBottomMargin)
+      : Math.max(70, Math.min(h - 75, currentCatcherY * h));
+
+    // Dynamic Cursor State: In arcade mode, the Chrome Core IS the cursor itself (1:1 ratio)
+    if (dom.canvasReflex) {
+      if (state.active && state.gameType !== 'reflex') {
+        if (dom.canvasReflex.style.cursor !== 'none') dom.canvasReflex.style.cursor = 'none';
+      } else {
+        if (dom.canvasReflex.style.cursor !== 'default') dom.canvasReflex.style.cursor = 'default';
+      }
+    }
 
     // ─────────────────────────────────────────────────────────────
     // MODE A: REFLEX BLITZ — NUMBERS MULTIPLE CATCHER
@@ -4035,18 +4562,17 @@
       function spawnNode(baseSpeed) {
         let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
 
-        // Recommendation 5: Dynamic Speed Escalation (speed scales +3.5% per combo level & wave)
-        const speedComboBonus = 1.0 + Math.min(0.60, (state.combo - 1) * 0.040 + (state.currentWave - 1) * 0.035);
+        // Tuned Dynamic Speed Escalation: Capped gently at +25% max (preventing excessive difficulty)
+        const speedComboBonus = 1.0 + Math.min(0.25, (state.combo - 1) * 0.020 + (state.currentWave - 1) * 0.016);
         const actualSpeed = baseSpeed * normFactor * speedComboBonus;
 
-        // Recommendation 5: Escalating Difficulty & Multi-Lane Hazard Traps
-        // Max concurrent hazards scales up from 1 to 2 when Wave >= 2 or combo >= 5
-        const maxHazards = (state.currentWave >= 2 || state.combo >= 5) ? 2 : 1;
+        // Balanced Hazard Spawning: Max 1 hazard at a time until high wave & streak
+        const maxHazards = (state.currentWave >= 4 && state.combo >= 7) ? 2 : 1;
         const currentHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
 
-        // Dynamic hazard chance scales up to 38%
-        const hazardChance = Math.min(0.38, 0.22 + (state.currentWave - 1) * 0.03 + (state.combo >= 5 ? 0.06 : 0));
-        const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.0 && Math.random() < hazardChance);
+        // Dynamic hazard chance tuned to a fair 14% - 20%
+        const hazardChance = Math.min(0.20, 0.14 + (state.currentWave - 1) * 0.015);
+        const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.5 && Math.random() < hazardChance);
 
         let nClass = 'standard';
         let px = pickFairLaneX();
@@ -4069,17 +4595,21 @@
           const hazardLanes = [0.20, 0.38, 0.55, 0.72, 0.86];
           px = w * hazardLanes[Math.floor(Math.random() * hazardLanes.length)];
         } else {
-          // Recommendation 4: Dynamic Falling Node Archetypes (awesome special collectibles)
+          // Dynamic Falling Node Archetypes & Awesome Power-Ups (Shield & Missiles Included!)
           const rNode = Math.random();
           if (rNode < 0.08) {
+            nClass = 'shield'; // 5-Second Aegis Forcefield Shield!
+          } else if (rNode < 0.16) {
+            nClass = 'missiles'; // Live Seeking Micro-Missiles!
+          } else if (rNode < 0.23) {
             nClass = 'cluster'; // Bifurcation Flux Node ("Cluster Doubler")
-          } else if (rNode < 0.15) {
+          } else if (rNode < 0.30) {
             nClass = 'supercharge'; // Supercharged Hyper-Node (Supernova)
-          } else if (rNode < 0.20) {
+          } else if (rNode < 0.36) {
             nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time)
-          } else if (rNode < 0.24) {
+          } else if (rNode < 0.41) {
             nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum)
-          } else if (rNode < 0.27 && (state.coreTier < 4 || state.combo >= 7)) {
+          } else if (rNode < 0.46 && (state.coreTier < 4 || state.combo >= 7)) {
             nClass = 'catalyst'; // Ascension Catalyst Star (Overdrive / Extra Shield)
           } else {
             nClass = 'standard';
@@ -4089,6 +4619,8 @@
 
         const headRadiusMap = {
           standard: 26.0,
+          shield: 29.0,
+          missiles: 30.0,
           cluster: 28.0,
           supercharge: 30.0,
           chronos: 25.0,
@@ -4107,11 +4639,12 @@
           x: px,
           y: -48,
           vx: 0,
-          speed: actualSpeed * (nClass === 'supercharge' ? 1.30 : (nClass === 'chronos' ? 0.90 : 1.0)),
+          speed: actualSpeed * (nClass === 'supercharge' ? 1.25 : (nClass === 'chronos' ? 0.88 : 1.0)),
           baseSpeed: baseSpeed,
           headR: headRadiusMap[nClass] || 26.0,
           hasSplit: false,
           hasDetonated: false,
+          hasGrazed: false,
           phantomAlpha: 1.0,
           animPhase: Math.random() * Math.PI * 2,
           tumbleDir: Math.random() < 0.5 ? 1 : -1,
@@ -4128,31 +4661,31 @@
 
       // Immediate spawn at t = 0s:
       if (state.totalNodesSpawned === 0) {
-        spawnNode(2.45);
+        spawnNode(1.95);
       }
 
       // Opening 15-Second Choreography Engine:
       let shouldSpawn = false;
-      let nextBaseSpeed = 2.45;
+      let nextBaseSpeed = 1.95;
 
       if (elapsedSec < 5.0) {
-        const interval = 680;
+        const interval = 720;
         if ((now - state.lastSpawnTime) >= interval && state.particles.length < 3 && state.totalNodesSpawned < 7) {
           shouldSpawn = true;
-          nextBaseSpeed = 2.40 + Math.random() * 0.40;
+          nextBaseSpeed = 1.90 + Math.random() * 0.30;
         }
       } else if (elapsedSec < 10.0) {
-        const interval = 540;
+        const interval = 580;
         if ((now - state.lastSpawnTime) >= interval && state.particles.length < 4 && state.totalNodesSpawned < 15) {
           shouldSpawn = true;
-          nextBaseSpeed = 2.85 + Math.random() * 0.45;
+          nextBaseSpeed = 2.20 + Math.random() * 0.35;
         }
       } else if (elapsedSec < 15.0) {
         const isPairBurst = (state.totalNodesSpawned % 3 !== 0);
-        const interval = isPairBurst ? 320 : 850;
+        const interval = isPairBurst ? 360 : 880;
         if ((now - state.lastSpawnTime) >= interval && state.particles.length < 4 && state.totalNodesSpawned < 22) {
           shouldSpawn = true;
-          nextBaseSpeed = 3.10 + Math.random() * 0.45;
+          nextBaseSpeed = 2.40 + Math.random() * 0.35;
         }
       } else {
         const calculatedWave = Math.min(10, Math.floor(state.score / 1200) + 1);
@@ -4162,11 +4695,11 @@
           updateHeaderUI();
         }
 
-        const maxConcurrent = Math.min(6, 3 + Math.floor(state.currentWave / 2));
-        const waveInterval = Math.max(340, 620 - (state.currentWave - 1) * 45);
+        const maxConcurrent = Math.min(5, 3 + Math.floor(state.currentWave / 3));
+        const waveInterval = Math.max(380, 650 - (state.currentWave - 1) * 35);
         if ((now - state.lastSpawnTime) >= waveInterval && state.particles.length < maxConcurrent) {
           shouldSpawn = true;
-          nextBaseSpeed = 2.60 + (state.currentWave - 1) * 0.22 + Math.random() * 0.35;
+          nextBaseSpeed = 2.10 + (state.currentWave - 1) * 0.15 + Math.random() * 0.30;
         }
       }
 
@@ -4278,6 +4811,17 @@
       // ─────────────────────────────────────────────────────────────
       CoreKinematics.update(catcherPixelX, catcherPixelY, dtScale, now, state.coreTier, (state.catcherType === 'realm' ? 'dynamo' : state.catcherType), state.particles);
       CoreKinematics.updateAndDrawWorldStreaks(ctx, dtScale);
+
+      // Render Reactive Ion Thruster Exhaust & Graze Sparks in World Coordinates
+      const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
+      const isMobile = canvasW < 600;
+      const drawW = isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060);
+      const u = drawW / 1376.0;
+      CoreKinematics.drawThrusterPlumes(ctx, u);
+      CoreKinematics.drawGrazeSparks(ctx, u);
+
+      // Update & Render Live Seeking Micro-Missiles
+      CoreKinematics.updateAndDrawMissiles(ctx, dtScale, now, state);
 
       // ─────────────────────────────────────────────────────────────
       // DRAW LAYERED CHROME CORE WITH INDEPENDENT INTERNAL ANIMATION
@@ -4459,9 +5003,50 @@
         // ─────────────────────────────────────────────────────────────
         // COLLISION CHECK, PRECISION CATCH & SPECIAL ARCHETYPE POWERS
         // ─────────────────────────────────────────────────────────────
-        if (distToCore < hitRadius) {
+        const isHazard = isHazardNode(p.nodeClass);
+        // Reduced Hitbox for Bad Falling Nodes (Hazards): 26.0px (strict inner nucleus only, 55% reduction!)
+        // Generous Hitbox for Collectibles: 54-80px + tier bonus for easy, satisfying catches
+        const effectiveHitRadius = isHazard ? 26.0 : hitRadius;
+
+        // Evasion Graze Mechanic for Hazards:
+        // When a hazard misses the core within 27px - 65px, trigger Graze +250 points and electric sparks!
+        if (isHazard && !p.hasGrazed && distToCore >= 26.0 && distToCore < 65.0) {
+          p.hasGrazed = true;
+          state.score += 250;
+          CoreKinematics.triggerGraze(p.x, p.y, now);
+          state.floatingTexts.push({
+            x: p.x,
+            y: p.y,
+            text: 'GRAZE +250',
+            color: '#38bdf8',
+            alpha: 1.0,
+            startTime: now
+          });
+          audio.playGrazeCatch(state.combo);
+        }
+
+        if (distToCore < effectiveHitRadius) {
           // Check if player caught a Hazard Trap!
-          if (isHazardNode(p.nodeClass)) {
+          if (isHazard) {
+            // Check if 5-Second Aegis Shield is active!
+            if (state.activeBuff && state.activeBuff.type === 'shield' && state.activeBuff.expiresAt > now) {
+              // Complete Invulnerability: Shield deflects and vaporizes the hazard!
+              state.score += 300;
+              CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
+              state.floatingTexts.push({
+                x: p.x,
+                y: p.y,
+                text: 'SHIELD DEFLECT +300',
+                color: '#fbbf24',
+                alpha: 1.0,
+                startTime: now
+              });
+              audio.playPerfectCatch(state.combo);
+              state.particles.splice(i, 1);
+              updateHeaderUI();
+              continue;
+            }
+
             state.combo = 1;
             state.coreTier = Math.max(1, state.coreTier - 1);
             state.reflexLives--;
@@ -4535,6 +5120,18 @@
             renderReflexShields();
             state.activeBuff = { type: 'catalyst', name: 'ASCENSION CATALYST', color: '#f472b6', expiresAt: now + 6000 };
             audio.playOverdriveFanfare();
+
+          } else if (p.nodeClass === 'shield') {
+            state.activeBuff = { type: 'shield', name: 'AEGIS SHIELD', color: '#f59e0b', expiresAt: now + 5000 };
+            CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
+            audio.playPulseCharged();
+            classMultiplier = 3.0;
+
+          } else if (p.nodeClass === 'missiles') {
+            state.activeBuff = { type: 'missiles', name: 'APEX MISSILES', color: '#ef4444', expiresAt: now + 4000 };
+            CoreKinematics.fireMissiles(catcherPixelX, catcherPixelY, now, state.particles);
+            audio.playOverdriveFanfare();
+            classMultiplier = 4.0;
           }
 
           const basePoints = 300;
@@ -4982,10 +5579,11 @@
     // UNIFIED POINTER EVENTS ENGINE (Pointer Events, Coalesced, Safe-Area)
     // ─────────────────────────────────────────────────────────────
     const getCanvasCoords = (clientX, clientY) => {
-      if (!dom.canvasReflex) return { x: clientX, y: clientY, normX: clientX / window.innerWidth };
+      if (!dom.canvasReflex) return { x: clientX, y: clientY, normX: clientX / window.innerWidth, normY: clientY / window.innerHeight };
       const rect = dom.canvasReflex.getBoundingClientRect();
-      const normX = (rect.width > 0) ? Math.max(0.05, Math.min(0.95, (clientX - rect.left) / rect.width)) : (clientX / window.innerWidth);
-      return { x: clientX - rect.left, y: clientY - rect.top, normX };
+      const normX = (rect.width > 0) ? Math.max(0.04, Math.min(0.96, (clientX - rect.left) / rect.width)) : (clientX / window.innerWidth);
+      const normY = (rect.height > 0) ? Math.max(0.06, Math.min(0.94, (clientY - rect.top) / rect.height)) : (clientY / window.innerHeight);
+      return { x: clientX - rect.left, y: clientY - rect.top, normX, normY };
     };
 
     const onPointerDown = (e) => {
@@ -5002,13 +5600,15 @@
       lastTouchClientY = e.clientY;
 
       if (deviceInputMode === 'touch') {
-        // Offset atom 64px ABOVE finger touch point so thumb never covers it!
         touchGuidePos = { x: coords.x, y: coords.y, active: true };
         targetCatcherX = coords.normX;
-        currentCatcherX = coords.normX; // Jump immediately on first touch!
+        currentCatcherX = coords.normX;
+        targetCatcherY = Math.max(0.06, Math.min(0.94, coords.normY - 0.08));
+        currentCatcherY = targetCatcherY;
       } else {
         touchGuidePos.active = false;
         targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
       }
 
       if (e.cancelable && deviceInputMode === 'touch') e.preventDefault();
@@ -5022,7 +5622,6 @@
         setDeviceMode('mouse');
       }
 
-      // Use coalesced events if available for high-DPI buttery smooth tracking
       const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
       const lastEv = events[events.length - 1] || e;
 
@@ -5032,22 +5631,25 @@
         touchGuidePos = { x: coords.x, y: coords.y, active: true };
 
         if (precisionMode && dom.canvasReflex) {
-          // Relative trackpad movement: small finger motion translates to smooth gliding
           const deltaX = lastEv.clientX - lastTouchClientX;
+          const deltaY = lastEv.clientY - lastTouchClientY;
           const rect = dom.canvasReflex.getBoundingClientRect();
           const sensitivity = 1.15;
-          targetCatcherX = Math.max(0.05, Math.min(0.95, targetCatcherX + (deltaX / rect.width) * sensitivity));
+          targetCatcherX = Math.max(0.04, Math.min(0.96, targetCatcherX + (deltaX / rect.width) * sensitivity));
+          targetCatcherY = Math.max(0.06, Math.min(0.94, targetCatcherY + (deltaY / rect.height) * sensitivity));
         } else {
           targetCatcherX = coords.normX;
+          targetCatcherY = Math.max(0.06, Math.min(0.94, coords.normY - 0.08));
         }
 
         lastTouchClientX = lastEv.clientX;
         lastTouchClientY = lastEv.clientY;
       } else {
-        // Mouse / Trackpad: atom follows pointer freely
+        // Mouse / Trackpad: 1:1 instantaneous omnidirectional tracking across X and Y
         const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
         touchGuidePos.active = false;
         targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
       }
 
       if (e.cancelable && deviceInputMode === 'touch') e.preventDefault();
@@ -5063,12 +5665,18 @@
     window.addEventListener('pointerup', onPointerUp, { passive: true });
     window.addEventListener('pointercancel', onPointerUp, { passive: true });
 
+    // 2D Full Omnidirectional Flight Keyboard Controls (WASD & Arrow Keys)
     window.addEventListener('keydown', (e) => {
       if (!state.active) return;
-      if (e.key === 'ArrowLeft' || e.key === 'a') {
-        state.catcherX = Math.max(0.05, state.catcherX - 0.05);
-      } else if (e.key === 'ArrowRight' || e.key === 'd') {
-        state.catcherX = Math.min(0.95, state.catcherX + 0.05);
+      const step = 0.045;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        targetCatcherX = Math.max(0.04, targetCatcherX - step);
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        targetCatcherX = Math.min(0.96, targetCatcherX + step);
+      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        targetCatcherY = Math.max(0.06, targetCatcherY - step);
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        targetCatcherY = Math.min(0.94, targetCatcherY + step);
       }
     });
 
@@ -5098,7 +5706,8 @@
     toggleFullscreen: toggleAppFullscreen,
     setLevel: (lvl) => { state.mathLevel = lvl; },
     getState: () => state,
-    setPointerX: (nx) => { targetCatcherX = Math.max(0.05, Math.min(0.95, nx)); },
+    setPointerX: (nx) => { targetCatcherX = Math.max(0.04, Math.min(0.96, nx)); },
+    setPointerY: (ny) => { targetCatcherY = Math.max(0.06, Math.min(0.94, ny)); },
     setTier: (t) => {
       const nextCombo = { 1: 1, 2: 4, 3: 7, 4: 10 };
       state.combo = nextCombo[t] || 10;

@@ -16010,6 +16010,14 @@ body.arcade-active .screen-btn-primary {
   border-color: #8b5cf6 !important;
   background: rgba(139, 92, 246, 0.22) !important;
 }
+.buff-pill.buff-shield {
+  border-color: #eab308 !important;
+  background: rgba(234, 179, 8, 0.24) !important;
+}
+.buff-pill.buff-missiles {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.24) !important;
+}
 .buff-pill.buff-catalyst {
   border-color: #ec4899 !important;
   background: rgba(236, 72, 153, 0.22) !important;
