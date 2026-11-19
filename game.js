@@ -1139,46 +1139,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade353`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade354`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade353`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade354`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade353';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade354';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade353';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade354';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade353';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade354';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade353';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade354';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade353';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade354';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade353';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade354';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade353';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade354';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade353';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade354';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade353';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade354';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade353';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade354';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade353';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade354';
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
@@ -1225,6 +1225,9 @@
     // Reactive Ion Thrusters & Tactical Ordnance Systems
     thrusterPlumes: [],
     missiles: [],
+    missileSalvoQueue: 0,
+    salvoOrigin: null,
+    launchFlashes: [],
     grazeSparks: [],
     shieldDeflectFlash: 0,
 
@@ -1262,6 +1265,9 @@
       this.overdriveFlash = 0;
       this.thrusterPlumes = [];
       this.missiles = [];
+      this.missileSalvoQueue = 0;
+      this.salvoOrigin = null;
+      this.launchFlashes = [];
       this.grazeSparks = [];
       this.shieldDeflectFlash = 0;
       this.wingRipples = [];
@@ -1500,28 +1506,95 @@
     },
 
     fireMissiles(cx, cy, now, particles) {
-      const count = 12;
-      for (let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
-        const initSpeed = 8.5 + Math.random() * 3.5;
+      this.missileSalvoQueue = 14;
+      this.salvoOrigin = { x: cx, y: cy };
+      this.salvoTimer = 0;
+      this._launchMissilePair(cx, cy, now);
+      this.missileSalvoQueue -= 2;
+    },
+
+    _launchMissilePair(cx, cy, now) {
+      const pylonOffsets = [-24, 24];
+      const baseAngles = [-1.88, -1.26]; // Fanned upward-left and upward-right (~-108 deg and ~-72 deg)
+      for (let p = 0; p < 2; p++) {
+        const lx = cx + pylonOffsets[p];
+        const ly = cy - 6;
+        const angle = baseAngles[p] + (Math.random() - 0.5) * 0.15;
+        const initSpeed = 7.5 + Math.random() * 2.0;
         this.missiles.push({
-          x: cx,
-          y: cy,
+          x: lx,
+          y: ly,
           vx: Math.cos(angle) * initSpeed,
           vy: Math.sin(angle) * initSpeed,
           angle: angle,
           speed: initSpeed,
+          stage: 1, // Stage 1: Cold ejection coast; Stage 2: Solid rocket booster ignition
           smoke: [],
           target: null,
           life: 0,
-          maxLife: 140
+          maxLife: 150
         });
+
+        // Launch Muzzle Flash & Cold-Gas Launch Exhaust Puff
+        this.launchFlashes.push({
+          x: lx,
+          y: ly,
+          r: 6,
+          maxR: 20,
+          alpha: 1.0,
+          color: '#38bdf8'
+        });
+        for (let sp = 0; sp < 4; sp++) {
+          const sAng = Math.PI / 2 + (Math.random() - 0.5) * 1.2;
+          const sSpd = 1.2 + Math.random() * 2.4;
+          this.grazeSparks.push({
+            x: lx,
+            y: ly,
+            vx: Math.cos(sAng) * sSpd,
+            vy: Math.sin(sAng) * sSpd,
+            color: 'rgba(224, 242, 254, 0.85)',
+            life: 0,
+            maxLife: 14 + Math.random() * 8
+          });
+        }
       }
     },
 
     updateAndDrawMissiles(ctx, dtScale, now, state) {
-      if (this.missiles.length === 0) return;
       const dt = Math.max(0.25, Math.min(2.5, dtScale));
+
+      // 1. Process Missile Salvo Queue (Rapid Ripple Launch from Core Pylons)
+      if (this.missileSalvoQueue > 0 && this.salvoOrigin) {
+        this.salvoTimer = (this.salvoTimer || 0) + dt;
+        if (this.salvoTimer >= 2.4) {
+          this.salvoTimer = 0;
+          this._launchMissilePair(this.salvoOrigin.x, this.salvoOrigin.y, now);
+          this.missileSalvoQueue -= 2;
+        }
+      }
+
+      // 2. Render & Update Launch Muzzle Flashes
+      for (let fIdx = this.launchFlashes.length - 1; fIdx >= 0; fIdx--) {
+        const lf = this.launchFlashes[fIdx];
+        lf.r += (lf.maxR - lf.r) * 0.35 * dt;
+        lf.alpha -= 0.14 * dt;
+        if (lf.alpha <= 0) {
+          this.launchFlashes.splice(fIdx, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(lf.x, lf.y, lf.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(56, 189, 248, ${lf.alpha * 0.65})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(255, 255, 255, ${lf.alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      if (this.missiles.length === 0) return;
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
 
@@ -1529,48 +1602,65 @@
         const m = this.missiles[mIdx];
         m.life += dt;
 
-        // Target acquisition: seek closest active particle
+        // Stage 2: Main Solid Rocket Booster Ignition after 7 frames (~0.12s)
+        if (m.stage === 1 && m.life >= 7) {
+          m.stage = 2;
+          this.launchFlashes.push({
+            x: m.x,
+            y: m.y,
+            r: 5,
+            maxR: 16,
+            alpha: 0.95,
+            color: '#fbbf24'
+          });
+        }
+
+        // Target Acquisition & Proportional Navigation (Prioritize Hazards to Protect Core!)
         let bestDist = 9999;
         let bestTarget = null;
         for (let p of state.particles) {
           if (p.hasDetonated) continue;
           const d = Math.hypot(p.x - m.x, p.y - m.y);
-          const weight = isHazardNode(p.nodeClass) ? 0.75 : 1.0;
+          const weight = isHazardNode(p.nodeClass) ? 0.50 : 1.0;
           if (d * weight < bestDist) {
             bestDist = d * weight;
             bestTarget = p;
           }
         }
 
-        if (bestTarget) {
+        if (bestTarget && m.stage === 2) {
           const desiredAngle = Math.atan2(bestTarget.y - m.y, bestTarget.x - m.x);
           let diff = desiredAngle - m.angle;
           while (diff < -Math.PI) diff += Math.PI * 2;
           while (diff > Math.PI) diff -= Math.PI * 2;
-          const maxTurn = 0.22 * dt;
+          const maxTurn = 0.28 * dt;
           m.angle += Math.max(-maxTurn, Math.min(maxTurn, diff));
         }
 
-        // Realistic acceleration up to 24px/frame
-        m.speed = Math.min(24.0, m.speed + 0.85 * dt);
+        // High-Thrust Rocket Propulsion (Accelerates up to 26px/frame)
+        if (m.stage === 2) {
+          m.speed = Math.min(26.0, m.speed + 1.20 * dt);
+        } else {
+          m.speed = Math.max(5.5, m.speed - 0.20 * dt);
+        }
         m.vx = Math.cos(m.angle) * m.speed;
         m.vy = Math.sin(m.angle) * m.speed;
         m.x += m.vx * dt;
         m.y += m.vy * dt;
 
-        // Rocket smoke & fire trail
+        // Expanding White Aerodynamic Smoke Contrail Puffs
         m.smoke.push({
-          x: m.x - Math.cos(m.angle) * 8,
-          y: m.y - Math.sin(m.angle) * 8,
-          size: 3.5,
-          alpha: 0.9,
-          color: (Math.random() < 0.6) ? '#ef4444' : '#fbbf24'
+          x: m.x - Math.cos(m.angle) * 11,
+          y: m.y - Math.sin(m.angle) * 11,
+          size: 2.8,
+          alpha: 0.85,
+          color: (m.stage === 2 && Math.random() < 0.22) ? 'rgba(56, 189, 248, 0.75)' : 'rgba(240, 249, 255, 0.85)'
         });
 
         for (let s = m.smoke.length - 1; s >= 0; s--) {
           const sm = m.smoke[s];
-          sm.size += 0.3 * dt;
-          sm.alpha -= 0.07 * dt;
+          sm.size += 0.38 * dt;
+          sm.alpha -= 0.055 * dt;
           if (sm.alpha <= 0) {
             m.smoke.splice(s, 1);
             continue;
@@ -1578,43 +1668,102 @@
           ctx.beginPath();
           ctx.arc(sm.x, sm.y, sm.size, 0, Math.PI * 2);
           ctx.fillStyle = sm.color;
-          ctx.globalAlpha = sm.alpha * 0.75;
+          ctx.globalAlpha = sm.alpha * 0.70;
           ctx.fill();
         }
 
-        // Draw missile warhead & fuselage
+        // Draw Missile Warhead, Aerodynamic Body & Fins (Electric Cyan & Aerospace Titanium - ZERO Red!)
         ctx.save();
         ctx.translate(m.x, m.y);
         ctx.rotate(m.angle);
         ctx.globalAlpha = 1.0;
 
-        ctx.fillStyle = '#f87171';
+        // Rocket Motor Flame & Mach Shock Diamonds
+        if (m.stage === 2) {
+          ctx.beginPath();
+          ctx.moveTo(-7, -2.2);
+          ctx.lineTo(-17 - Math.random() * 5, 0);
+          ctx.lineTo(-7, 2.2);
+          ctx.closePath();
+          ctx.fillStyle = '#38bdf8';
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(-7, -1.2);
+          ctx.lineTo(-12, 0);
+          ctx.lineTo(-7, 1.2);
+          ctx.closePath();
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+        }
+
+        // Sleek Titanium Fuselage
+        ctx.fillStyle = '#0284c7';
         ctx.beginPath();
-        ctx.moveTo(9, 0);
-        ctx.lineTo(-6, -3.5);
-        ctx.lineTo(-4, 0);
-        ctx.lineTo(-6, 3.5);
+        if (ctx.roundRect) ctx.roundRect(-7, -2.6, 14, 5.2, 1.5); else ctx.rect(-7, -2.6, 14, 5.2);
+        ctx.fill();
+
+        // High-Tech Forward Ogive Radome Nosecone (Electric Cyan & White)
+        ctx.beginPath();
+        ctx.moveTo(7, -2.6);
+        ctx.lineTo(13, 0);
+        ctx.lineTo(7, 2.6);
+        ctx.closePath();
+        ctx.fillStyle = '#e0f2fe';
+        ctx.fill();
+
+        // 4 Swept Delta Stabilizer Fins at Aft
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.moveTo(-5, -2.6);
+        ctx.lineTo(-9, -6.5);
+        ctx.lineTo(-7, -2.6);
         ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = '#fef08a';
         ctx.beginPath();
-        ctx.moveTo(-4, -2);
-        ctx.lineTo(-10, 0);
-        ctx.lineTo(-4, 2);
+        ctx.moveTo(-5, 2.6);
+        ctx.lineTo(-9, 6.5);
+        ctx.lineTo(-7, 2.6);
         ctx.closePath();
         ctx.fill();
+
+        // 2 Forward Cruciform Canard Fins
+        ctx.beginPath();
+        ctx.moveTo(3, -2.6);
+        ctx.lineTo(1, -5.2);
+        ctx.lineTo(5, -2.6);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(3, 2.6);
+        ctx.lineTo(1, 5.2);
+        ctx.lineTo(5, 2.6);
+        ctx.closePath();
+        ctx.fill();
+
         ctx.restore();
 
-        // Check impact with targets
+        // Check Impact with Falling Targets (Neutralize Hazards & Auto-Claim Collectibles)
         let hit = false;
         for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
           const pt = state.particles[pIdx];
           if (pt.hasDetonated) continue;
           const hitDist = Math.hypot(pt.x - m.x, pt.y - m.y);
-          if (hitDist < 30) {
+          if (hitDist < 32) {
             hit = true;
             pt.hasDetonated = true;
+
+            // Supersonic Kinetic Blast Ring
+            this.launchFlashes.push({
+              x: pt.x,
+              y: pt.y,
+              r: 10,
+              maxR: 44,
+              alpha: 1.0,
+              color: isHazardNode(pt.nodeClass) ? '#38bdf8' : '#fbbf24'
+            });
 
             if (isHazardNode(pt.nodeClass)) {
               state.score += 200;
@@ -1622,7 +1771,7 @@
               state.floatingTexts.push({
                 x: pt.x, y: pt.y,
                 text: '+200 NEUTRALIZED',
-                color: '#ef4444',
+                color: '#38bdf8',
                 alpha: 1.0,
                 startTime: now
               });
@@ -1654,6 +1803,9 @@
                 state.activeBuff = { type: 'catalyst', name: 'ASCENSION CATALYST', color: '#f472b6', expiresAt: now + 6000 };
               } else if (pt.nodeClass === 'shield') {
                 state.activeBuff = { type: 'shield', name: 'AEGIS SHIELD', color: '#f59e0b', expiresAt: now + 5000 };
+              } else if (pt.nodeClass === 'missiles') {
+                state.activeBuff = { type: 'missiles', name: 'ALLIED MISSILES', color: '#38bdf8', expiresAt: now + 4000 };
+                this.fireMissiles(m.x, m.y, now, state.particles);
               }
             }
 
@@ -1662,7 +1814,7 @@
           }
         }
 
-        if (hit || m.life >= m.maxLife || m.x < -60 || m.x > ctx.canvas.width + 60 || m.y < -60 || m.y > ctx.canvas.height + 60) {
+        if (hit || m.life >= m.maxLife || m.x < -70 || m.x > ctx.canvas.width + 70 || m.y < -70 || m.y > ctx.canvas.height + 70) {
           this.missiles.splice(mIdx, 1);
         }
       }
@@ -3243,32 +3395,49 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'supercharge') {
-          // SUPERCHARGED HYPER-NODE: Solar flare corona & golden plasma starburst
+          // DELUXE SOLAR HYPER-SURGE CORE: Warm golden solar plasma & elegant prominence loops (No harsh white washout, zero rigid spikes!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const coronaR = targetR * (1.25 + 0.20 * Math.sin(now * 0.012 + animPhase));
-          const gradCorona = ctx.createRadialGradient(0, 0, targetR * 0.4, 0, 0, coronaR);
-          gradCorona.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
-          gradCorona.addColorStop(0.4, 'rgba(251, 191, 36, 0.85)');
-          gradCorona.addColorStop(0.8, 'rgba(249, 115, 22, 0.45)');
-          gradCorona.addColorStop(1.0, 'rgba(239, 68, 68, 0)');
+          // 1. Soft atmospheric solar plasma corona
+          const coronaR = targetR * (1.18 + 0.12 * Math.sin(now * 0.007 + animPhase));
+          const gradCorona = ctx.createRadialGradient(0, 0, targetR * 0.25, 0, 0, coronaR);
+          gradCorona.addColorStop(0.0, 'rgba(254, 240, 138, 0.45)');
+          gradCorona.addColorStop(0.4, 'rgba(245, 158, 11, 0.38)');
+          gradCorona.addColorStop(0.8, 'rgba(217, 119, 6, 0.18)');
+          gradCorona.addColorStop(1.0, 'rgba(180, 83, 9, 0)');
           ctx.fillStyle = gradCorona;
           ctx.beginPath();
           ctx.arc(0, 0, coronaR, 0, Math.PI * 2);
           ctx.fill();
 
-          // 4 Rotating Hyper Star Spikes
-          const spikeAngle = now * 0.004 + animPhase;
-          for (let sp = 0; sp < 4; sp++) {
-            const sa = spikeAngle + (sp * Math.PI / 2);
+          // 2. Three Organic Curving Solar Prominence Arches (Magnetic loops)
+          const promAngle = now * 0.0022 + animPhase;
+          for (let pIdx = 0; pIdx < 3; pIdx++) {
+            const pa = promAngle + (pIdx * Math.PI * 2 / 3);
+            const rInner = targetR * 0.85;
+            const rOuter = targetR * (1.25 + 0.10 * Math.sin(now * 0.005 + pIdx * 1.8));
+            const p1x = Math.cos(pa - 0.32) * rInner;
+            const p1y = Math.sin(pa - 0.32) * rInner;
+            const p2x = Math.cos(pa + 0.32) * rInner;
+            const p2y = Math.sin(pa + 0.32) * rInner;
+            const cpx = Math.cos(pa) * rOuter;
+            const cpy = Math.sin(pa) * rOuter;
             ctx.beginPath();
-            ctx.moveTo(Math.cos(sa) * targetR * 1.6, Math.sin(sa) * targetR * 1.6);
-            ctx.lineTo(Math.cos(sa + 1.57) * 4, Math.sin(sa + 1.57) * 4);
-            ctx.lineTo(Math.cos(sa - 1.57) * 4, Math.sin(sa - 1.57) * 4);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
-            ctx.fill();
+            ctx.moveTo(p1x, p1y);
+            ctx.quadraticCurveTo(cpx, cpy, p2x, p2y);
+            ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 + 0.25 * Math.sin(now * 0.004 + pIdx)})`;
+            ctx.lineWidth = 2.2 * scale;
+            ctx.lineCap = 'round';
+            ctx.stroke();
           }
+
+          // 3. Gentle rotating solar flare filaments
+          const flareR = targetR * 0.95;
+          ctx.beginPath();
+          ctx.arc(0, 0, flareR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
+          ctx.lineWidth = 1.4 * scale;
+          ctx.stroke();
           ctx.restore();
 
         } else if (p.nodeClass === 'chronos') {
@@ -3313,19 +3482,64 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'catalyst') {
-          // ASCENSION CATALYST STAR: Multifaceted prismatic diamond starburst
+          // DELUXE PRISMATIC OCTAHEDRAL DIAMOND JEWEL (Zero crude stick lines! Faceted luxury gemstone geometry)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const catAngle = now * 0.003 + animPhase;
-          for (let c = 0; c < 8; c++) {
-            const ca = catAngle + (c * Math.PI / 4);
-            const cLen = (c % 2 === 0) ? targetR * 1.55 : targetR * 1.15;
+          const gemRot = now * 0.0026 + animPhase;
+          const gemR = targetR * 0.82;
+          ctx.save();
+          ctx.rotate(gemRot);
+
+          // 1. Faceted Diamond Outer Pavilion & Crown
+          const numPts = 6;
+          ctx.beginPath();
+          for (let pt = 0; pt < numPts; pt++) {
+            const a = (pt * Math.PI * 2) / numPts;
+            const r = (pt % 2 === 0) ? gemR : gemR * 0.64;
+            const gx = Math.cos(a) * r;
+            const gy = Math.sin(a) * r;
+            if (pt === 0) ctx.moveTo(gx, gy); else ctx.lineTo(gx, gy);
+          }
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(244, 114, 182, 0.24)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(251, 207, 232, 0.85)';
+          ctx.lineWidth = 1.6 * scale;
+          ctx.stroke();
+
+          // 2. Internal Radiant Refraction Facets (Champagne Starlight & Ethereal Cyan)
+          for (let f = 0; f < numPts; f++) {
+            const fa = (f * Math.PI * 2) / numPts;
+            const r = (f % 2 === 0) ? gemR : gemR * 0.64;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(ca) * cLen, Math.sin(ca) * cLen);
-            ctx.strokeStyle = (c % 2 === 0) ? 'rgba(244, 114, 182, 0.90)' : 'rgba(56, 189, 248, 0.85)';
-            ctx.lineWidth = 2.2;
+            ctx.lineTo(Math.cos(fa) * r, Math.sin(fa) * r);
+            ctx.strokeStyle = (f % 2 === 0) ? 'rgba(56, 189, 248, 0.65)' : 'rgba(244, 114, 182, 0.65)';
+            ctx.lineWidth = 1.2 * scale;
             ctx.stroke();
+          }
+
+          // 3. Volumetric Diamond Core Glow
+          const diaGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, gemR * 0.52);
+          diaGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.85)');
+          diaGlow.addColorStop(0.45, 'rgba(244, 114, 182, 0.40)');
+          diaGlow.addColorStop(1.0, 'rgba(56, 189, 248, 0.0)');
+          ctx.fillStyle = diaGlow;
+          ctx.beginPath();
+          ctx.arc(0, 0, gemR * 0.52, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 4. Delicate orbiting stardust facets
+          for (let s = 0; s < 3; s++) {
+            const sAngle = -now * 0.0035 + (s * Math.PI * 2 / 3);
+            const sDist = targetR * 1.15;
+            const sx = Math.cos(sAngle) * sDist;
+            const sy = Math.sin(sAngle) * sDist * 0.65;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = (s === 0) ? '#38bdf8' : (s === 1 ? '#f472b6' : '#fef08a');
+            ctx.fill();
           }
           ctx.restore();
 
@@ -3361,47 +3575,82 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'missiles') {
-          // LIVE SEEKING MICRO-MISSILE CLUSTER: 3 Sleek Rocket Warheads orbiting with ion fire
+          // ALLIED TACTICAL ORDNANCE POD (Electric Cyan & Burnished Aerospace Titanium - Absolutely NO Red!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const mRot = now * 0.004 + animPhase;
-          for (let rk = 0; rk < 3; rk++) {
-            const ra = mRot + (rk * Math.PI * 2 / 3);
-            const rDist = targetR * 1.15;
-            const rx = Math.cos(ra) * rDist;
-            const ry = Math.sin(ra) * rDist;
+          const podAngle = now * 0.0028 + animPhase;
+
+          // 1. Sleek Hexagonal Titanium Launch Canister
+          const podR = targetR * 0.95;
+          ctx.beginPath();
+          for (let hx = 0; hx < 6; hx++) {
+            const ha = podAngle + (hx * Math.PI / 3);
+            const px = Math.cos(ha) * podR;
+            const py = Math.sin(ha) * podR;
+            if (hx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(14, 165, 233, 0.22)';
+          ctx.fill();
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2.0 * scale;
+          ctx.stroke();
+
+          // 2. 4 Precision Missile Silo Ports with Glowing Cyan/Gold Telemetry LEDs
+          const siloDist = podR * 0.52;
+          for (let s = 0; s < 4; s++) {
+            const sa = podAngle + (s * Math.PI / 2) + Math.PI / 4;
+            const sx = Math.cos(sa) * siloDist;
+            const sy = Math.sin(sa) * siloDist;
+
+            // Silo launch port
+            ctx.beginPath();
+            ctx.arc(sx, sy, 4.2 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(2, 132, 199, 0.85)';
+            ctx.fill();
+            ctx.strokeStyle = '#e0f2fe';
+            ctx.lineWidth = 1.0 * scale;
+            ctx.stroke();
+
+            // Active guidance rocket warhead tip
+            ctx.beginPath();
+            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = (s % 2 === 0) ? '#38bdf8' : '#fbbf24';
+            ctx.fill();
+          }
+
+          // 3. Friendly Tactical Radar Alignment Brackets in Electric Cyan (Friendly, NON-HAZARD!)
+          const bracketR = targetR * 1.30;
+          const radarRot = -now * 0.002;
+          for (let b = 0; b < 4; b++) {
+            const ba = radarRot + (b * Math.PI / 2);
             ctx.save();
-            ctx.translate(rx, ry);
-            ctx.rotate(ra + Math.PI / 2);
-            ctx.fillStyle = '#ef4444';
+            ctx.translate(Math.cos(ba) * bracketR, Math.sin(ba) * bracketR);
+            ctx.rotate(ba);
             ctx.beginPath();
-            ctx.moveTo(0, -8 * scale);
-            ctx.lineTo(4 * scale, 5 * scale);
-            ctx.lineTo(-4 * scale, 5 * scale);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = '#fbbf24';
-            ctx.beginPath();
-            ctx.moveTo(-2 * scale, 5 * scale);
-            ctx.lineTo(0, 11 * scale);
-            ctx.lineTo(2 * scale, 5 * scale);
-            ctx.closePath();
-            ctx.fill();
+            ctx.moveTo(-5 * scale, 0);
+            ctx.lineTo(0, 0);
+            ctx.lineTo(0, -5 * scale);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+            ctx.lineWidth = 1.5 * scale;
+            ctx.stroke();
             ctx.restore();
           }
 
+          // 4. Pulsing Friendly Telemetry Halo
+          const telR = targetR * (1.10 + 0.08 * Math.sin(now * 0.006));
           ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.35, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.85)';
-          ctx.lineWidth = 2.0 * scale;
+          ctx.arc(0, 0, telR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+          ctx.lineWidth = 1.2 * scale;
           ctx.stroke();
           ctx.restore();
         }
 
-        // Floating Holographic Badges for Power-Ups
+        // Floating Holographic Badges for Power-Ups (Friendly, Distinct, High-Contrast)
         const badges = {
           shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.28)', border: '#fbbf24' },
-          missiles: { text: '🚀 MISSILES', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.28)', border: '#f87171' },
+          missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(14, 165, 233, 0.28)', border: '#38bdf8' },
           cluster: { text: '✨ 2X DUP', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.28)', border: '#e879f9' },
           supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.28)', border: '#fef08a' },
           chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(34, 211, 238, 0.28)', border: '#67e8f9' },
@@ -3691,7 +3940,7 @@
   // ─────────────────────────────────────────────────────────────
   let deviceInputMode = 'mouse'; // 'mouse' | 'touch'
   let isPointerDown = false;
-  let precisionMode = true; // Relative trackpad movement on touch
+  let precisionMode = false; // Direct 1:1 physical touch tracking (finger is exact core center)
   let touchGuidePos = { x: -9999, y: -9999, active: false };
   let targetCatcherX = 0.5;
   let currentCatcherX = 0.5;
@@ -4268,12 +4517,16 @@
     // - Helix: Fluid harmonic gliding with gyroscopic banking tilt (0.36 touch / 0.22 mouse)
     // - Meteor: Substantial volcanic inertia and high-momentum weight (0.30 touch / 0.18 mouse)
     // Immediate Capture Center Tracking (1:1 Omnidirectional Freedom):
-    // The capture center tracks pointer/hand input across all 2D axes (X & Y) with critically-damped spring follow,
-    // while CoreKinematics drives body banking, wing pitch/splay, thrusters, and momentum whip!
-    currentCatcherX += (targetCatcherX - currentCatcherX) * 0.92;
+    // The capture center tracks pointer/hand input across all 2D axes (X & Y) with critically-damped spring follow for mouse,
+    // and instantaneous zero-lag direct physical tracking for touchscreen & mobile devices!
+    if (deviceInputMode === 'touch') {
+      currentCatcherX = targetCatcherX;
+      currentCatcherY = targetCatcherY;
+    } else {
+      currentCatcherX += (targetCatcherX - currentCatcherX) * 0.92;
+      currentCatcherY += (targetCatcherY - currentCatcherY) * 0.92;
+    }
     state.catcherX = currentCatcherX;
-
-    currentCatcherY += (targetCatcherY - currentCatcherY) * 0.92;
     state.catcherY = currentCatcherY;
 
     let catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
@@ -5128,7 +5381,7 @@
             classMultiplier = 3.0;
 
           } else if (p.nodeClass === 'missiles') {
-            state.activeBuff = { type: 'missiles', name: 'APEX MISSILES', color: '#ef4444', expiresAt: now + 4000 };
+            state.activeBuff = { type: 'missiles', name: 'ALLIED MISSILES', color: '#38bdf8', expiresAt: now + 4000 };
             CoreKinematics.fireMissiles(catcherPixelX, catcherPixelY, now, state.particles);
             audio.playOverdriveFanfare();
             classMultiplier = 4.0;
@@ -5603,8 +5856,8 @@
         touchGuidePos = { x: coords.x, y: coords.y, active: true };
         targetCatcherX = coords.normX;
         currentCatcherX = coords.normX;
-        targetCatcherY = Math.max(0.06, Math.min(0.94, coords.normY - 0.08));
-        currentCatcherY = targetCatcherY;
+        targetCatcherY = coords.normY;
+        currentCatcherY = coords.normY;
       } else {
         touchGuidePos.active = false;
         targetCatcherX = coords.normX;
@@ -5629,19 +5882,10 @@
         if (!isPointerDown) return;
         const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
         touchGuidePos = { x: coords.x, y: coords.y, active: true };
-
-        if (precisionMode && dom.canvasReflex) {
-          const deltaX = lastEv.clientX - lastTouchClientX;
-          const deltaY = lastEv.clientY - lastTouchClientY;
-          const rect = dom.canvasReflex.getBoundingClientRect();
-          const sensitivity = 1.15;
-          targetCatcherX = Math.max(0.04, Math.min(0.96, targetCatcherX + (deltaX / rect.width) * sensitivity));
-          targetCatcherY = Math.max(0.06, Math.min(0.94, targetCatcherY + (deltaY / rect.height) * sensitivity));
-        } else {
-          targetCatcherX = coords.normX;
-          targetCatcherY = Math.max(0.06, Math.min(0.94, coords.normY - 0.08));
-        }
-
+        targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        currentCatcherX = coords.normX;
+        currentCatcherY = coords.normY;
         lastTouchClientX = lastEv.clientX;
         lastTouchClientY = lastEv.clientY;
       } else {
@@ -5664,6 +5908,37 @@
     window.addEventListener('pointermove', onPointerMove, { passive: false });
     window.addEventListener('pointerup', onPointerUp, { passive: true });
     window.addEventListener('pointercancel', onPointerUp, { passive: true });
+
+    // Direct 1:1 Mobile / iPhone Touch Tracking (Zero Gesture Latency & Prevents Native Drag Swallows)
+    const onTouchDirectHandler = (e) => {
+      if (!state.active) return;
+      setDeviceMode('touch');
+      if (e.touches && e.touches.length > 0) {
+        const t = e.touches[0];
+        const coords = getCanvasCoords(t.clientX, t.clientY);
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+        targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        currentCatcherX = coords.normX;
+        currentCatcherY = coords.normY;
+        isPointerDown = true;
+      }
+      if (e.cancelable) e.preventDefault();
+    };
+
+    if (dom.canvasReflex) {
+      dom.canvasReflex.addEventListener('touchstart', onTouchDirectHandler, { passive: false });
+      dom.canvasReflex.addEventListener('touchmove', onTouchDirectHandler, { passive: false });
+      dom.canvasReflex.addEventListener('touchend', (e) => {
+        isPointerDown = false;
+        touchGuidePos.active = false;
+        if (e.cancelable) e.preventDefault();
+      }, { passive: false });
+      dom.canvasReflex.addEventListener('touchcancel', (e) => {
+        isPointerDown = false;
+        touchGuidePos.active = false;
+      }, { passive: true });
+    }
 
     // 2D Full Omnidirectional Flight Keyboard Controls (WASD & Arrow Keys)
     window.addEventListener('keydown', (e) => {
