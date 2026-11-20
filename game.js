@@ -4729,12 +4729,25 @@
       const curNow = performance.now();
       const activeBuffs = state.getAllActiveBuffs ? state.getAllActiveBuffs(curNow) : [];
       if (activeBuffs.length > 0) {
-        // Render all simultaneous active buffs (e.g. "🛡️ 4.2s  🚀 3.1s  ✨ 2.5s")
-        const buffStrs = activeBuffs.map(b => {
+        // Compressed, non-distracting formatting for active surges
+        if (activeBuffs.length === 1) {
+          const b = activeBuffs[0];
           const rem = Math.max(0, (b.expiresAt - curNow) / 1000).toFixed(1);
-          return `${b.icon || ''} ${rem}s`;
-        });
-        activeBuffEl.textContent = buffStrs.join('  ');
+          activeBuffEl.textContent = `${b.icon || ''}${rem}s`;
+        } else if (activeBuffs.length === 2) {
+          const b1 = activeBuffs[0];
+          const b2 = activeBuffs[1];
+          const rem1 = Math.max(0, Math.ceil((b1.expiresAt - curNow) / 1000));
+          const rem2 = Math.max(0, Math.ceil((b2.expiresAt - curNow) / 1000));
+          activeBuffEl.textContent = `${b1.icon || ''}${rem1}s ${b2.icon || ''}${rem2}s`;
+        } else {
+          const b1 = activeBuffs[0];
+          const rem1 = Math.max(0, Math.ceil((b1.expiresAt - curNow) / 1000));
+          activeBuffEl.textContent = `${b1.icon || ''}${rem1}s +${activeBuffs.length - 1}`;
+        }
+        if (activeBuffPillEl) {
+          activeBuffPillEl.title = 'Active Surges:\n' + activeBuffs.map(b => `${b.icon || ''} ${b.name}: ${Math.max(0, (b.expiresAt - curNow) / 1000).toFixed(1)}s`).join('\n');
+        }
         const primary = activeBuffs[0];
         activeBuffEl.style.color = primary.color || '#38bdf8';
         if (activeBuffPillEl) {
@@ -4742,15 +4755,18 @@
         }
       } else {
         state.activeBuff = null;
+        if (activeBuffPillEl) {
+          activeBuffPillEl.title = 'Active Celestial Surge / Node Buff';
+        }
         if (state.isOverdrive) {
-          activeBuffEl.textContent = '10X OVERDRIVE';
+          activeBuffEl.textContent = '10X';
           activeBuffEl.style.color = '#fef08a';
           if (activeBuffPillEl) {
             activeBuffPillEl.className = 'game-stat-pill buff-pill buff-active buff-hyper';
           }
         } else {
           activeBuffEl.textContent = 'READY';
-          activeBuffEl.style.color = '#38bdf8';
+          activeBuffEl.style.color = '#64748b';
           if (activeBuffPillEl) {
             activeBuffPillEl.className = 'game-stat-pill buff-pill';
           }

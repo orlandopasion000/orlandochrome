@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade361">
+  <link rel="stylesheet" href="styles.css?v=arcade365_surge_adaptive">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -613,15 +613,15 @@
       line-height: 1.2 !important;
     }
 
-    /* Mobile Responsive 2-Row Layout for Arcade Arena (Prevents Title Squeeze & Clipping) */
+    /* Mobile Responsive 2-Row Layout for Arcade Arena (Ultra-Compact, Flexible & Adaptive) */
     @media (max-width: 650px) {
       .game-modal-overlay .game-topbar {
         display: grid !important;
         grid-template-columns: 1fr auto !important;
         grid-template-rows: auto auto !important;
-        row-gap: 8px !important;
-        column-gap: 10px !important;
-        padding: max(10px, env(safe-area-inset-top, 12px)) 14px 10px 14px !important;
+        row-gap: 4px !important;
+        column-gap: 6px !important;
+        padding: max(5px, env(safe-area-inset-top, 6px)) 8px 5px 8px !important;
         height: auto !important;
         min-height: unset !important;
       }
@@ -630,8 +630,12 @@
         grid-row: 1 / 2 !important;
         display: flex !important;
         align-items: center !important;
-        gap: 8px !important;
+        gap: 6px !important;
         min-width: 0 !important;
+      }
+      .game-modal-overlay .game-brand-icon {
+        width: 18px !important;
+        height: 18px !important;
       }
       .game-modal-overlay .game-brand-text {
         min-width: 0 !important;
@@ -639,19 +643,20 @@
         flex-direction: column !important;
       }
       .game-modal-overlay .game-title {
-        font-size: 15px !important;
+        font-size: 13px !important;
         font-weight: 800 !important;
-        letter-spacing: 0.05em !important;
-        white-space: nowrap !important;
-        overflow: visible !important;
-        line-height: 1.2 !important;
-      }
-      .game-modal-overlay .game-sub {
-        font-size: 9.5px !important;
+        letter-spacing: 0.04em !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        max-width: 220px !important;
+        line-height: 1.15 !important;
+      }
+      .game-modal-overlay .game-sub {
+        font-size: 8.5px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 140px !important;
       }
       .game-modal-overlay .game-controls-actions {
         grid-column: 2 / 3 !important;
@@ -659,7 +664,12 @@
         display: flex !important;
         align-items: center !important;
         justify-content: flex-end !important;
-        gap: 6px !important;
+        gap: 4px !important;
+      }
+      .game-modal-overlay .game-ctrl-btn {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 11px !important;
       }
       .game-modal-overlay .game-stats-cluster {
         grid-column: 1 / 3 !important;
@@ -668,13 +678,33 @@
         align-items: center !important;
         justify-content: space-between !important;
         width: 100% !important;
-        gap: 8px !important;
+        gap: 3px !important;
       }
       .game-modal-overlay .game-stat-pill {
         flex: 1 1 0% !important;
         min-width: 0 !important;
+        max-width: none !important;
         text-align: center !important;
-        padding: 4px 6px !important;
+        padding: 2px 2px !important;
+        border-radius: 4px !important;
+      }
+      .game-modal-overlay .g-stat-label {
+        font-size: 6.5px !important;
+        letter-spacing: 0.2px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+      }
+      .game-modal-overlay .g-stat-val {
+        font-size: 9.5px !important;
+        letter-spacing: -0.2px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+      }
+      .game-modal-overlay .buff-pill {
+        min-width: 0 !important;
+        max-width: none !important;
       }
     }
 
@@ -1472,7 +1502,7 @@
       <div class="game-topbar">
         <div class="game-brand">
           <div class="game-cyber-glyph" style="display:flex;align-items:center;">
-            <img src="oc-logo.png?v=oc310" alt="OrlandoChrome" style="width:24px;height:24px;border-radius:6px;border:1px solid rgba(212,168,83,0.5);box-shadow:0 0 10px rgba(0,240,255,0.45);">
+            <img src="oc-logo.png?v=oc310" alt="OrlandoChrome" style="width:18px;height:18px;border-radius:4px;border:1px solid rgba(212,168,83,0.4);box-shadow:0 0 6px rgba(0,240,255,0.3);">
           </div>
           <div class="game-brand-text">
             <span class="game-title" id="cgGameTitle">CHROME SYNAPSE</span>
@@ -1722,7 +1752,8 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade363"></script>
+  <script src="game.js?v=arcade365_surge_adaptive"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
+
 </body>
 </html>
