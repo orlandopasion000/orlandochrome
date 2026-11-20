@@ -1158,46 +1158,46 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade361`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade363`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade361`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade363`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade361';
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade363';
 
   LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade361';
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade363';
 
   LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade361';
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade363';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
-  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade361';
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade363';
 
   LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
-  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade361';
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade363';
 
   LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
-  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade361';
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade363';
 
   LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
-  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade361';
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade363';
 
   LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
-  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade361';
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade363';
 
   LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
-  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade361';
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade363';
 
   LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
-  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade361';
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade363';
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
-  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade361';
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade363';
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
@@ -1950,7 +1950,7 @@
               } else if (pt.nodeClass === 'chronos') {
                 state.applyBuff('chronos', 'CHRONOS STASIS', '#22d3ee', '⏳', 4500, now);
               } else if (pt.nodeClass === 'singularity') {
-                state.applyBuff('singularity', 'GRAVITON VORTEX', '#38bdf8', '🌌', 3500, now);
+                state.applyBuff('singularity', 'GRAVITON VACUUM', '#38bdf8', '🧲', 3500, now);
               } else if (pt.nodeClass === 'catalyst') {
                 state.coreTier = Math.min(4, state.coreTier + 1);
                 state.reflexLives = Math.min(10, state.reflexLives + 1);
@@ -3785,9 +3785,31 @@
 
       if (!isHazard) {
         if (mode === 'dynamo' || mode === 'realm') {
-          // Iconic Quantum Plasma Purple Orb with internal branching electric filaments & amber crescent
+          // Iconic Quantum Plasma Purple Glass Orb (matching user reference images)
           if (LayeredT4Assets.loaded.nodeShell.dynamo) {
             ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+          } else {
+            // High-fidelity procedural fallback: deep cosmic purple glass plasma sphere
+            const pOrb = ctx.createRadialGradient(-targetR * 0.28, -targetR * 0.32, targetR * 0.05, 0, 0, targetR);
+            pOrb.addColorStop(0.0, 'rgba(216, 180, 254, 0.95)'); // soft lilac highlight
+            pOrb.addColorStop(0.28, 'rgba(147, 51, 234, 0.92)'); // electric royal purple
+            pOrb.addColorStop(0.68, 'rgba(88, 28, 135, 0.95)');  // deep cosmic violet
+            pOrb.addColorStop(0.95, 'rgba(59, 7, 100, 1.0)');    // dark obsidian violet edge
+            pOrb.addColorStop(1.0, 'rgba(30, 4, 55, 0.85)');
+            ctx.fillStyle = pOrb;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Glass specular dome highlight
+            const specGrad = ctx.createRadialGradient(-targetR * 0.30, -targetR * 0.38, 1, -targetR * 0.30, -targetR * 0.38, targetR * 0.52);
+            specGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.78)');
+            specGrad.addColorStop(0.40, 'rgba(255, 255, 255, 0.22)');
+            specGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = specGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * 0.95, 0, Math.PI * 2);
+            ctx.fill();
           }
           drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.86, now, animPhase, false, 4);
 
@@ -3844,48 +3866,16 @@
 
         // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHETYPES:
         if (p.nodeClass === 'cluster') {
-          // BIFURCATION FLUX NODE (CLUSTER DOUBLER / 2X DUP):
-          // Thin circle line around the sphere replaced with Electric Cyan & Starlight Gold resonance rings (Zero Violet Ring Line!)
-          const orbitR = targetR * 1.35;
-          const orbitAngle = now * 0.005 + animPhase;
+          // BIFURCATION FLUX NODE (CLUSTER DOUBLER / 2X DUP - Reference: Image 4):
+          // Delicate harmonic shimmer halo (Zero redundant text clutter, matches Image 4 exactly!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          // Orbiting Mote 1 (Electric Cyan)
-          const mx1 = Math.cos(orbitAngle) * orbitR;
-          const my1 = Math.sin(orbitAngle) * orbitR * 0.45;
-          ctx.beginPath();
-          ctx.arc(mx1, my1, 5.5 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = '#00f0ff';
-          ctx.fill();
-          // Orbiting Mote 2 (Starlight Gold - Safe, Welcoming & Friendly!)
-          const mx2 = -mx1;
-          const my2 = -my1;
-          ctx.beginPath();
-          ctx.arc(mx2, my2, 5.5 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = '#fef08a';
-          ctx.fill();
-
-          // Pulsing Double Orbital Ring (Electric Cyan & Starlight Gold - Replaces the thin violet circle line!)
-          const pulseR = targetR * (1.1 + 0.15 * Math.sin(now * 0.008 + animPhase));
+          const pulseR = targetR * (1.18 + 0.06 * Math.sin(now * 0.006 + animPhase));
           ctx.beginPath();
           ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
-          ctx.lineWidth = 2.0 * scale;
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.40)';
+          ctx.lineWidth = 1.4 * scale;
           ctx.stroke();
-
-          // Inner gold harmonic ring
-          ctx.beginPath();
-          ctx.arc(0, 0, pulseR * 0.94, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(254, 240, 138, 0.45)';
-          ctx.lineWidth = 1.0 * scale;
-          ctx.stroke();
-
-          // '2X' Badge
-          ctx.font = `bold ${Math.round(11 * scale)}px system-ui, sans-serif`;
-          ctx.fillStyle = '#fef08a';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('2X', 0, -targetR * 1.25);
           ctx.restore();
 
         } else if (p.nodeClass === 'supercharge') {
@@ -4145,10 +4135,10 @@
         const badges = {
           shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.28)', border: '#fbbf24' },
           missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(14, 165, 233, 0.28)', border: '#38bdf8' },
-          cluster: { text: '✨ 2X DUP', color: '#38bdf8', bg: 'rgba(14, 165, 233, 0.28)', border: '#38bdf8' },
+          cluster: { text: '✨ 2X DUP', color: '#ffffff', bg: 'rgba(192, 132, 252, 0.28)', border: '#c084fc' },
           supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.28)', border: '#fef08a' },
           chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(34, 211, 238, 0.28)', border: '#67e8f9' },
-          singularity: { text: '🌌 VORTEX', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' },
+          singularity: { text: '🧲 VACUUM', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' },
           catalyst: { text: '💎 CATALYST', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' }
         };
 
@@ -4178,7 +4168,7 @@
 
       } else {
         // RENDER HAZARD TRAPS & ANOMALIES
-        if (mode === 'dynamo') {
+        if (mode === 'dynamo' || mode === 'realm') {
           const gSpr = LayeredT4Assets.hazard.dynamoGlitch;
           if (gSpr && LayeredT4Assets.loaded.hazard.dynamoGlitch) {
             const numSlices = 7;
@@ -4204,59 +4194,82 @@
               }
               ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, -70 * scale + dxGlitch, dy, dw, dh);
             }
+          } else {
+            // High-fidelity procedural fallback: dark antimatter crimson hazard orb with glitch bands
+            const hazGrad = ctx.createRadialGradient(-targetR * 0.25, -targetR * 0.25, targetR * 0.1, 0, 0, targetR);
+            hazGrad.addColorStop(0.0, 'rgba(239, 68, 68, 0.95)');
+            hazGrad.addColorStop(0.40, 'rgba(185, 28, 28, 0.95)');
+            hazGrad.addColorStop(0.80, 'rgba(127, 29, 29, 0.98)');
+            hazGrad.addColorStop(1.0, 'rgba(69, 10, 10, 1.0)');
+            ctx.fillStyle = hazGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR, 0, Math.PI * 2);
+            ctx.fill();
 
-            // ─── DYNAMO HAZARD: 03 BROKEN ARC (Reference: media_1795121092469_9ce161e0.jpg) ───
-            // Jagged magenta discharge flickers above the banded crimson orb, breaking into short segments
+            // Glitch horizontal slice displacement lines
             ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            const arcSeed = Math.floor(now * 0.025 + animPhase * 5);
-            const arcH = targetR * (1.35 + 0.35 * Math.sin(now * 0.018 + animPhase));
-            const numSegs = 6;
-            let curX = 0;
-            let curY = -targetR * 0.92;
-
-            for (let seg = 1; seg <= numSegs; seg++) {
-              const t = seg / numSegs;
-              const nextY = -targetR * 0.92 - t * arcH;
-              const segJitter = Math.sin(arcSeed * 13 + seg * 29) * (targetR * 0.35) * (0.6 + t * 0.8);
-              const nextX = segJitter;
-
-              // Discontinuous / broken segment effect: skip rendering segment if random break occurs
-              const isBrokenGap = (seg === 3 && (arcSeed % 3 === 0)) || (seg === 5 && (arcSeed % 2 === 0));
-
-              if (!isBrokenGap) {
-                // Outer Vivid Magenta Stroke
-                ctx.beginPath();
-                ctx.moveTo(curX, curY);
-                ctx.lineTo(nextX, nextY);
-                ctx.strokeStyle = 'rgba(244, 63, 94, 0.92)';
-                ctx.lineWidth = 3.6 * scale;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-
-                // Inner White-Hot Core
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
-                ctx.lineWidth = 1.4 * scale;
-                ctx.stroke();
-
-                // Branching secondary twig on segment 2 or 4
-                if (seg === 2 || seg === 4) {
-                  const bAngle = (segJitter > 0 ? 0.6 : -0.6) + Math.sin(arcSeed) * 0.3;
-                  const bLen = targetR * 0.45;
-                  ctx.beginPath();
-                  ctx.moveTo(nextX, nextY);
-                  ctx.lineTo(nextX + Math.sin(bAngle) * bLen, nextY - Math.cos(bAngle) * bLen);
-                  ctx.strokeStyle = 'rgba(236, 72, 153, 0.80)';
-                  ctx.lineWidth = 1.8 * scale;
-                  ctx.stroke();
-                }
-              }
-
-              curX = nextX;
-              curY = nextY;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * 0.95, 0, Math.PI * 2);
+            ctx.clip();
+            for (let b = -3; b <= 3; b++) {
+              const by = b * (targetR * 0.26) + Math.sin(now * 0.01 + b) * 3;
+              ctx.fillStyle = (b % 2 === 0) ? 'rgba(0, 0, 0, 0.55)' : 'rgba(248, 113, 113, 0.45)';
+              ctx.fillRect(-targetR * 1.2, by - 2.5 * scale, targetR * 2.4, 5.0 * scale);
             }
             ctx.restore();
           }
+
+          // ─── DYNAMO HAZARD: 03 BROKEN ARC (Reference: media_1795121092469_9ce161e0.jpg) ───
+          // Jagged magenta discharge flickers above the banded crimson orb, breaking into short segments
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const arcSeed = Math.floor(now * 0.025 + animPhase * 5);
+          const arcH = targetR * (1.35 + 0.35 * Math.sin(now * 0.018 + animPhase));
+          const numSegs = 6;
+          let curX = 0;
+          let curY = -targetR * 0.92;
+
+          for (let seg = 1; seg <= numSegs; seg++) {
+            const t = seg / numSegs;
+            const nextY = -targetR * 0.92 - t * arcH;
+            const segJitter = Math.sin(arcSeed * 13 + seg * 29) * (targetR * 0.35) * (0.6 + t * 0.8);
+            const nextX = segJitter;
+
+            // Discontinuous / broken segment effect: skip rendering segment if random break occurs
+            const isBrokenGap = (seg === 3 && (arcSeed % 3 === 0)) || (seg === 5 && (arcSeed % 2 === 0));
+
+            if (!isBrokenGap) {
+              // Outer Vivid Magenta Stroke
+              ctx.beginPath();
+              ctx.moveTo(curX, curY);
+              ctx.lineTo(nextX, nextY);
+              ctx.strokeStyle = 'rgba(244, 63, 94, 0.92)';
+              ctx.lineWidth = 3.6 * scale;
+              ctx.lineCap = 'round';
+              ctx.stroke();
+
+              // Inner White-Hot Core
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+              ctx.lineWidth = 1.4 * scale;
+              ctx.stroke();
+
+              // Branching secondary twig on segment 2 or 4
+              if (seg === 2 || seg === 4) {
+                const bAngle = (segJitter > 0 ? 0.6 : -0.6) + Math.sin(arcSeed) * 0.3;
+                const bLen = targetR * 0.45;
+                ctx.beginPath();
+                ctx.moveTo(nextX, nextY);
+                ctx.lineTo(nextX + Math.sin(bAngle) * bLen, nextY - Math.cos(bAngle) * bLen);
+                ctx.strokeStyle = 'rgba(236, 72, 153, 0.80)';
+                ctx.lineWidth = 1.8 * scale;
+                ctx.stroke();
+              }
+            }
+
+            curX = nextX;
+            curY = nextY;
+          }
+          ctx.restore();
         } else if (mode === 'helix') {
           if (LayeredT4Assets.loaded.hazard.helixClean) {
             ctx.drawImage(LayeredT4Assets.hazard.helixClean, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
@@ -5113,7 +5126,9 @@
     state.catcherX = currentCatcherX;
     state.catcherY = currentCatcherY;
 
-    let catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
+    let catcherPixelX = (deviceInputMode === 'touch')
+      ? Math.max(20, Math.min(w - 20, currentCatcherX * w))
+      : Math.max(55, Math.min(w - 55, currentCatcherX * w));
     if (state.prevCatcherPixelX !== null) {
       state.catcherVelocity = catcherPixelX - state.prevCatcherPixelX;
     }
@@ -5124,7 +5139,9 @@
     const catcherBottomMargin = isCoarse ? Math.max(185, Math.round(h * 0.24)) : Math.max(160, Math.round(h * 0.26));
     const catcherPixelY = (state.gameType === 'reflex')
       ? (h - catcherBottomMargin)
-      : Math.max(70, Math.min(h - 75, currentCatcherY * h));
+      : (deviceInputMode === 'touch'
+          ? Math.max(20, Math.min(h - 20, currentCatcherY * h))
+          : Math.max(70, Math.min(h - 75, currentCatcherY * h)));
 
     // Dynamic Cursor State: In arcade mode, the Chrome Core IS the cursor itself (1:1 ratio)
     if (dom.canvasReflex) {
@@ -5383,32 +5400,36 @@
       // ─────────────────────────────────────────────────────────────
       function pickFairLaneX(isHazard = false) {
         const margin = 70;
-        const minSeparationSame = 75;
-        const minSeparationOpposite = 115; // Guaranteed 115px safe lateral clearance between hazards and rewards
+        const minSeparationSame = 85;      // 85px safe lateral clearance between same-type items
+        const minSeparationOpposite = 125;  // 125px guaranteed clearance between hazards & collectibles
         let bestX = Math.random() * (w - margin * 2) + margin;
-        let maxOppositeDist = 0;
+        let maxScore = -99999;
 
-        for (let att = 0; att < 24; att++) {
+        for (let att = 0; att < 32; att++) {
           const candidateX = Math.random() * (w - margin * 2) + margin;
           let isClear = true;
           let minOppDist = 9999;
+          let minSameDist = 9999;
 
           for (let pt of state.particles) {
-            if (pt.y < 380) {
+            if (pt.y < 520) {
               const ptIsHazard = isHazardNode(pt.nodeClass);
               const dx = Math.abs(pt.x - candidateX);
               const requiredSep = (isHazard !== ptIsHazard) ? minSeparationOpposite : minSeparationSame;
               if (dx < requiredSep) {
                 isClear = false;
               }
-              if (isHazard !== ptIsHazard && dx < minOppDist) {
-                minOppDist = dx;
+              if (isHazard !== ptIsHazard) {
+                if (dx < minOppDist) minOppDist = dx;
+              } else {
+                if (dx < minSameDist) minSameDist = dx;
               }
             }
           }
           if (isClear) return candidateX;
-          if (minOppDist > maxOppositeDist) {
-            maxOppositeDist = minOppDist;
+          const score = minOppDist * 1.6 + minSameDist;
+          if (score > maxScore) {
+            maxScore = score;
             bestX = candidateX;
           }
         }
@@ -5431,7 +5452,6 @@
         const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.5 && Math.random() < hazardChance);
 
         let nClass = 'standard';
-        let px = pickFairLaneX(canSpawnHazard);
 
         if (canSpawnHazard) {
           // Diverse Hazard Archetypes:
@@ -5447,9 +5467,6 @@
           } else {
             nClass = 'vortex'; // Vortex Null-Well (repels collectibles)
           }
-          // Hazards spawn across multiple playfield lanes (left, center, right)
-          const hazardLanes = [0.20, 0.38, 0.55, 0.72, 0.86];
-          px = w * hazardLanes[Math.floor(Math.random() * hazardLanes.length)];
         } else {
           // Dynamic Falling Node Archetypes & Awesome Power-Ups (Shield & Missiles Included!)
           const rNode = Math.random();
@@ -5470,8 +5487,10 @@
           } else {
             nClass = 'standard';
           }
-          px = pickFairLaneX();
         }
+
+        // Guaranteed fair lane selection based on final node archetype
+        const px = pickFairLaneX(canSpawnHazard);
 
         const headRadiusMap = {
           standard: 26.0,
@@ -5796,27 +5815,36 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // SOLUTION 1: DYNAMIC HAZARD ANTI-COLLISION & GRAZE CORRIDOR
-        // Hazards and good collectible nodes actively steer apart if
-        // their paths converge, guaranteeing they never touch or overlap!
+        // UNIVERSAL DYNAMIC ANTI-COLLISION & ANTI-OVERLAP ENGINE
+        // 1. Hazard vs Collectible: 115px safe corridor. Hazard steers away with high urgency!
+        // 2. Collectible vs Collectible: 82px comfort gap. Gently drift apart so neither overlaps or obscures the other!
+        // 3. Hazard vs Hazard: 82px comfort gap. Steer apart so they never stack into an unfair double-hit wall!
         // ─────────────────────────────────────────────────────────────
-        if (isHazard) {
-          for (let j = 0; j < state.particles.length; j++) {
-            if (i === j) continue;
-            const other = state.particles[j];
-            if (isHazardNode(other.nodeClass)) continue; // only repel opposite types
+        for (let j = 0; j < state.particles.length; j++) {
+          if (i === j) continue;
+          const other = state.particles[j];
+          const otherIsHazard = isHazardNode(other.nodeClass);
+          const isOpposite = (isHazard !== otherIsHazard);
 
-            const dx = p.x - other.x;
-            const dy = p.y - other.y;
-            const dist = Math.hypot(dx, dy);
-            const targetGap = 110; // 95px - 110px safe graze clearance corridor
+          const dx = p.x - other.x;
+          const dy = p.y - other.y;
+          const dist = Math.hypot(dx, dy);
+          const targetGap = isOpposite ? 115 : 82;
 
-            if (dist < targetGap && Math.abs(dy) < 130) {
-              const dir = (dx !== 0) ? Math.sign(dx) : (p.x > w * 0.5 ? 1 : -1);
-              const pushFactor = Math.pow(1.0 - (dist / targetGap), 1.4) * 3.8 * dtScale;
-              p.x += dir * pushFactor;
-              p.vx = (p.vx || 0) * 0.85 + dir * pushFactor * 0.45;
-              p.x = Math.max(48, Math.min(w - 48, p.x));
+          if (dist < targetGap && Math.abs(dy) < (isOpposite ? 130 : 95) && dist > 0.1) {
+            const dir = (dx !== 0) ? Math.sign(dx) : (i > j ? 1 : -1);
+            if (isOpposite) {
+              if (isHazard) {
+                const pushFactor = Math.pow(1.0 - (dist / targetGap), 1.3) * 4.2 * dtScale;
+                p.x += dir * pushFactor;
+                p.vx = (p.vx || 0) * 0.85 + dir * pushFactor * 0.50;
+                p.x = Math.max(48, Math.min(w - 48, p.x));
+              }
+            } else {
+              // Same-type nodes: gently nudge apart laterally so they never overlap or hide each other
+              const pushFactor = Math.pow(1.0 - (dist / targetGap), 1.2) * 2.0 * dtScale;
+              p.x += dir * pushFactor * 0.5;
+              p.x = Math.max(40, Math.min(w - 40, p.x));
             }
           }
         }
@@ -5955,10 +5983,14 @@
             const toAdd = [];
             for (let pt of state.particles) {
               if (!isHazardNode(pt.nodeClass) && pt !== p && !pt.isDuplicate) {
+                // Ensure duplicate spawns in a distinct, non-overlapping lane with at least 95px lateral offset
+                const side = (pt.x > w * 0.5) ? -1 : 1;
+                const dupX = Math.max(50, Math.min(w - 50, pt.x + side * 95));
+                const dupY = Math.max(-20, pt.y - 55);
                 toAdd.push({
                   ...pt,
-                  x: Math.max(30, Math.min(w - 30, pt.x + (Math.random() < 0.5 ? 45 : -45))),
-                  y: Math.max(0, pt.y - 30),
+                  x: dupX,
+                  y: dupY,
                   isDuplicate: true,
                   spine: []
                 });
@@ -5984,7 +6016,7 @@
             audio.playPhaseSwitch();
 
           } else if (p.nodeClass === 'singularity') {
-            state.applyBuff('singularity', 'GRAVITON VORTEX', '#38bdf8', '🌌', 3500, now);
+            state.applyBuff('singularity', 'GRAVITON VACUUM', '#38bdf8', '🧲', 3500, now);
             audio.playPulseCharged();
 
           } else if (p.nodeClass === 'catalyst') {
@@ -6466,8 +6498,8 @@
     const getCanvasCoords = (clientX, clientY) => {
       if (!dom.canvasReflex) return { x: clientX, y: clientY, normX: clientX / window.innerWidth, normY: clientY / window.innerHeight };
       const rect = dom.canvasReflex.getBoundingClientRect();
-      const normX = (rect.width > 0) ? Math.max(0.04, Math.min(0.96, (clientX - rect.left) / rect.width)) : (clientX / window.innerWidth);
-      const normY = (rect.height > 0) ? Math.max(0.06, Math.min(0.94, (clientY - rect.top) / rect.height)) : (clientY / window.innerHeight);
+      const normX = (rect.width > 0) ? Math.max(0.01, Math.min(0.99, (clientX - rect.left) / rect.width)) : (clientX / window.innerWidth);
+      const normY = (rect.height > 0) ? Math.max(0.01, Math.min(0.99, (clientY - rect.top) / rect.height)) : (clientY / window.innerHeight);
       return { x: clientX - rect.left, y: clientY - rect.top, normX, normY };
     };
 

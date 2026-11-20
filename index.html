@@ -677,6 +677,26 @@
         padding: 4px 6px !important;
       }
     }
+
+    /* 1:1 Instantaneous Mobile Touch & Pointer Direct Flight */
+    .reflex-view-container {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+    }
+    #cgCanvasReflex {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+    }
   </style>
 
   <!-- QUANTUM CHROMATIC MONOGRAM DESIGN SYSTEM (v311 AUTHORITATIVE THEME) -->
@@ -1702,7 +1722,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade361"></script>
+  <script src="game.js?v=arcade363"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 </body>
 </html>
