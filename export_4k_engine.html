@@ -81,7 +81,7 @@
 
       updateStatus('All in-game assets loaded! Preparing rendering routines...');
 
-      // Deep space starry cosmic background
+      // Deep space starry cosmic background - Pure, natural, zero fake HUD lines or brackets
       function drawCosmicBackground(theme = 'dynamo') {
         ctx.save();
         ctx.fillStyle = '#030308';
@@ -112,7 +112,7 @@
         ctx.fillRect(0, 0, 3840, 2160);
 
         // Precise mathematical procedural stars
-        const starCount = 380;
+        const starCount = 420;
         let seed = 1337;
         function rnd() {
           seed = (seed * 9301 + 49297) % 233280;
@@ -141,71 +141,6 @@
             ctx.stroke();
           }
         }
-
-        // Minimal HUD Corner Accents
-        ctx.globalAlpha = 0.55;
-        ctx.strokeStyle = (theme === 'meteor') ? '#f97316' : (theme === 'helix' ? '#38bdf8' : '#c084fc');
-        ctx.lineWidth = 2.0;
-        const cornerSize = 48;
-        const pad = 60;
-        // Top-left
-        ctx.beginPath();
-        ctx.moveTo(pad, pad + cornerSize); ctx.lineTo(pad, pad); ctx.lineTo(pad + cornerSize, pad);
-        ctx.stroke();
-        // Top-right
-        ctx.beginPath();
-        ctx.moveTo(3840 - pad - cornerSize, pad); ctx.lineTo(3840 - pad, pad); ctx.lineTo(3840 - pad, pad + cornerSize);
-        ctx.stroke();
-        // Bottom-left
-        ctx.beginPath();
-        ctx.moveTo(pad, 2160 - pad - cornerSize); ctx.lineTo(pad, 2160 - pad); ctx.lineTo(pad + cornerSize, 2160 - pad);
-        ctx.stroke();
-        // Bottom-right
-        ctx.beginPath();
-        ctx.moveTo(3840 - pad - cornerSize, 2160 - pad); ctx.lineTo(3840 - pad, 2160 - pad); ctx.lineTo(3840 - pad, 2160 - pad - cornerSize);
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      // Elegant cinematic titles matching official game aesthetic
-      function drawCinematicTypography(badgeText, titleText, subText, specCode, accentColor) {
-        ctx.save();
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Top Badge
-        ctx.font = 'bold 32px "SF Pro Display", -apple-system, system-ui, sans-serif';
-        ctx.fillStyle = accentColor;
-        ctx.letterSpacing = '6px';
-        ctx.fillText(badgeText, 1920, 150);
-
-        // Bottom Main Title
-        ctx.font = '900 84px "SF Pro Display", -apple-system, system-ui, sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.letterSpacing = '4px';
-        ctx.fillText(titleText, 1920, 1900);
-
-        // Bottom Subtitle
-        ctx.font = '600 32px "SF Pro Text", -apple-system, system-ui, sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-        ctx.letterSpacing = '3px';
-        ctx.fillText(subText, 1920, 1970);
-
-        // Bottom Left Spec
-        ctx.textAlign = 'left';
-        ctx.font = '500 24px "SF Pro Text", monospace';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-        ctx.letterSpacing = '2px';
-        ctx.fillText(specCode, 120, 2080);
-
-        // Bottom Right 4K badge
-        ctx.textAlign = 'right';
-        ctx.font = '600 24px "SF Pro Text", monospace';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-        ctx.letterSpacing = '2px';
-        ctx.fillText('ULTRA HD 4K • 3840 × 2160', 3720, 2080);
-
         ctx.restore();
       }
 
@@ -225,43 +160,32 @@
       const now = 24500.0; // stable, beautiful kinematic phase
 
       // ─────────────────────────────────────────────────────────────
-      // TASK A: 12 INDIVIDUAL TIER POSTERS (TIER I -> TIER IV)
+      // TASK A: 12 INDIVIDUAL TIER CORES (TIER I -> TIER IV)
+      // ZERO FAKE TEXT OVERLAYS, ZERO HUD BRACKETS, PURE 4K GAME ART
       // ─────────────────────────────────────────────────────────────
       const modes = [
         {
           id: 'dynamo',
-          name: 'CHROME DYNAMO',
+          name: 'Chrome Dynamo',
           titleName: 'Dynamo',
           theme: 'dynamo',
           color: '#c084fc',
-          t1Sub: 'PURE UNSHIELDED QUANTUM CORE SPHERE · QUANTUM ELECTROMAGNETIC',
-          t2Sub: 'HARMONIC DISCHARGE RESONATOR · DUAL ATOMIC PRECESSION RINGS',
-          t3Sub: 'HIGH-FREQUENCY IONIC PROPULSION · AMPLIFIED WINGS · PHOTONIC BLOOM',
-          t4Sub: 'QUANTUM ELECTROMAGNETIC HARMONIC CORE · PHOTONIC WINGS · RESONANCE DISCHARGE',
           render: (cx, cy, tier, u) => window.QuantumRenderer.drawDynamoCore(ctx, cx, cy, now, 0, tier, u)
         },
         {
           id: 'helix',
-          name: 'CHROME HELIX',
+          name: 'Chrome Helix',
           titleName: 'Helix',
           theme: 'helix',
           color: '#38bdf8',
-          t1Sub: 'PURE UNSHIELDED QUANTUM CORE SPHERE · BIOLOGICAL STARLIGHT LATTICE',
-          t2Sub: 'PRISMATIC CRYSTAL SHELL · DUAL STARLIGHT ORBITAL RINGS',
-          t3Sub: 'HIGH-ORDER HARMONIC BIO-LATTICE · CRYSTAL PRISM WINGS · DIFFRACTION RAYS',
-          t4Sub: 'BIOLOGICAL STARLIGHT LATTICE · CRYSTAL DNA DOUBLE HELIX · CROWN PEARL',
           render: (cx, cy, tier, u) => window.QuantumRenderer.drawHelixCore(ctx, cx, cy, now, 0, tier, u)
         },
         {
           id: 'meteor',
-          name: 'CHROME METEOR',
+          name: 'Chrome Meteor',
           titleName: 'Meteor',
           theme: 'meteor',
           color: '#f97316',
-          t1Sub: 'PURE UNSHIELDED QUANTUM CORE SPHERE · VOLCANIC BASALT CALDERA',
-          t2Sub: 'INCANDESCENT BASALT CORONA · MOLTEN ROTATING ORBITAL RING',
-          t3Sub: 'HIGH-HEAT SOLAR MAGMA FISSURES · OBSIDIAN FLAME WINGS · CORONAL PLUMES',
-          t4Sub: 'VOLCANIC BASALT CALDERA · INCANDESCENT MAGMA FISSURES · SOLAR PLUMES',
           render: (cx, cy, tier, u) => window.QuantumRenderer.drawMeteorAsteroid(ctx, cx, cy, now, 0, tier, u)
         }
       ];
@@ -282,32 +206,21 @@
             { radius: 210, alpha: 0.55, mode: m.id, tierReached: 4 }
           ] : [];
 
-          // Sizing tuned for 4K presentation:
-          // Tier 1: Prominent sphere radius ~218px (u = 3.2)
-          // Tier 2: u = 2.5
-          // Tier 3: u = 2.1
-          // Tier 4: u = 1.85 (wingspan ~2400px, halo radius ~420px with ZERO cut-off)
+          // Perfect geometric sizing centered in 4K (3840 x 2160)
+          // Mathematical center: cx = 1920, cy = 1080
           let u = 1.85;
-          let cy = 1040;
-          if (tier === 1) { u = 3.2; cy = 1040; }
-          else if (tier === 2) { u = 2.5; cy = 1040; }
-          else if (tier === 3) { u = 2.1; cy = 1040; }
-          else if (tier === 4) { u = 1.85; cy = 1050; }
+          let cy = 1080;
+          if (tier === 1) { u = 3.2; cy = 1080; }
+          else if (tier === 2) { u = 2.5; cy = 1080; }
+          else if (tier === 3) { u = 2.1; cy = 1080; }
+          else if (tier === 4) { u = 1.85; cy = 1080; }
 
           m.render(1920, cy, tier, u);
-
-          const tierRoman = ['I', 'II', 'III', 'IV'][tier - 1];
-          const badge = (tier === 4) ? '✦ SOVEREIGN OVERDRIVE · TIER IV ✦' : `✦ ${m.name} · TIER ${tierRoman} · CORE NUCLEUS ✦`;
-          const title = (tier === 4) ? m.name : `${m.name} (TIER ${tier})`;
-          const sub = (tier === 1) ? m.t1Sub : (tier === 2 ? m.t2Sub : (tier === 3 ? m.t3Sub : m.t4Sub));
-          const spec = `ORLANDOCHROME ARCHIVE // SPECIFICATION: ${m.id.toUpperCase()}-T${tier}`;
-
-          drawCinematicTypography(badge, title, sub, spec, m.color);
 
           const filename = `Chrome_${m.titleName}_Tier${tier}_4K.png`;
           await saveFrame(filename);
 
-          // For Tier 4, also save as the primary Core file name requested
+          // For Tier 4, also save as the primary Core file name
           if (tier === 4) {
             await saveFrame(`Chrome_${m.titleName}_Core_4K.png`);
           }
@@ -315,25 +228,21 @@
       }
 
       // ─────────────────────────────────────────────────────────────
-      // TASK B: 3 HORIZONTAL EVOLUTION POSTERS (TIERS I -> IV)
+      // TASK B: 3 HORIZONTAL EVOLUTION LINEUPS (TIERS I -> IV)
+      // Clean, uncrowded layout with subtle tier labels
       // ─────────────────────────────────────────────────────────────
       for (const m of modes) {
         updateStatus(`Rendering ${m.name} Evolution Lineup (Tiers I - IV)...`);
         drawCosmicBackground(m.theme);
 
-        // Header Title
+        // Header Title - Clean, elegant, no fake archive spec codes
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = 'bold 36px "SF Pro Display", sans-serif';
+        ctx.font = 'bold 42px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.fillStyle = m.color;
-        ctx.letterSpacing = '6px';
-        ctx.fillText(`✦ ${m.name} · COMPLETE FOUR-TIER EVOLUTION MATRIX ✦`, 1920, 160);
-
-        ctx.font = '900 68px "SF Pro Display", sans-serif';
-        ctx.fillStyle = '#ffffff';
         ctx.letterSpacing = '4px';
-        ctx.fillText(`FOUR PHASES OF QUANTUM ASCENSION`, 1920, 245);
+        ctx.fillText(`${m.name.toUpperCase()} · EVOLUTION MATRIX`, 1920, 160);
         ctx.restore();
 
         // 4 Columns: Tier 1, Tier 2, Tier 3, Tier 4
@@ -355,27 +264,12 @@
           // Column Caption
           ctx.save();
           ctx.textAlign = 'center';
-          ctx.font = 'bold 30px "SF Pro Display", sans-serif';
+          ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
           ctx.fillStyle = '#ffffff';
-          const tLabels = ['TIER I: CORE NUCLEUS', 'TIER II: TACTICAL RESONANCE', 'TIER III: HYPERION DRIVE', 'TIER IV: SOVEREIGN OVERDRIVE'];
-          ctx.fillText(tLabels[t - 1], colX[t - 1], 1720);
-
-          ctx.font = '500 20px "SF Pro Text", sans-serif';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-          const tSubs = ['Pure Unshielded Orb', 'Dual Precession Rings', 'Amplified Wings & Bloom', 'Sovereign Photonic Wings'];
-          ctx.fillText(tSubs[t - 1], colX[t - 1], 1765);
+          const tLabels = ['TIER I', 'TIER II', 'TIER III', 'TIER IV'];
+          ctx.fillText(tLabels[t - 1], colX[t - 1], 1750);
           ctx.restore();
         }
-
-        // Footer
-        ctx.save();
-        ctx.textAlign = 'left';
-        ctx.font = '500 24px "SF Pro Text", monospace';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-        ctx.fillText(`ORLANDOCHROME ARCHIVE // EVOLUTION SEQUENCE: ${m.id.toUpperCase()}-T1-THROUGH-T4`, 120, 2080);
-        ctx.textAlign = 'right';
-        ctx.fillText('ULTRA HD 4K • 3840 × 2160', 3720, 2080);
-        ctx.restore();
 
         await saveFrame(`Chrome_${m.titleName}_Evolution_Tiers_I_to_IV_4K.png`);
       }
@@ -388,19 +282,14 @@
 
       ctx.save();
       ctx.textAlign = 'center';
-      ctx.font = 'bold 34px "SF Pro Display", sans-serif';
-      ctx.fillStyle = '#38bdf8';
-      ctx.letterSpacing = '6px';
-      ctx.fillText('✦ ORLANDOCHROME UNIVERSE · MASTER ARCHITECTURE ✦', 1920, 120);
-
-      ctx.font = '900 64px "SF Pro Display", sans-serif';
+      ctx.font = 'bold 44px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
       ctx.fillStyle = '#ffffff';
-      ctx.letterSpacing = '3px';
-      ctx.fillText('ALL 12 CHROME CORE COMBAT ARCHETYPES', 1920, 195);
+      ctx.letterSpacing = '4px';
+      ctx.fillText('CHROME SYNAPSE · MASTER CHARACTER MATRIX', 1920, 140);
       ctx.restore();
 
-      const matX = [650, 1460, 2340, 3220];
-      const matY = [520, 1140, 1720];
+      const matX = [680, 1500, 2360, 3220];
+      const matY = [540, 1140, 1740];
       const matU = 1.05;
 
       for (let r = 0; r < 3; r++) {
@@ -408,9 +297,9 @@
         // Row label on the left
         ctx.save();
         ctx.textAlign = 'left';
-        ctx.font = 'bold 26px "SF Pro Display", sans-serif';
+        ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.fillStyle = m.color;
-        ctx.fillText(m.name, 120, matY[r] + 10);
+        ctx.fillText(m.name.toUpperCase(), 80, matY[r] + 10);
         ctx.restore();
 
         for (let c = 0; c < 4; c++) {
@@ -428,191 +317,226 @@
       // Column Header Labels at top
       ctx.save();
       ctx.textAlign = 'center';
-      ctx.font = 'bold 22px "SF Pro Display", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
       ctx.letterSpacing = '2px';
-      const colLabels = ['TIER I (NUCLEUS)', 'TIER II (TACTICAL)', 'TIER III (HYPERION)', 'TIER IV (SOVEREIGN)'];
+      const colLabels = ['TIER I', 'TIER II', 'TIER III', 'TIER IV'];
       for (let c = 0; c < 4; c++) {
-        ctx.fillText(colLabels[c], matX[c], 280);
+        ctx.fillText(colLabels[c], matX[c], 260);
       }
-      ctx.restore();
-
-      ctx.save();
-      ctx.textAlign = 'left';
-      ctx.font = '500 24px "SF Pro Text", monospace';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-      ctx.fillText('ORLANDOCHROME ARCHIVE // COMPLETE MATRIX SPECIFICATION', 120, 2080);
-      ctx.textAlign = 'right';
-      ctx.fillText('ULTRA HD 4K • 3840 × 2160', 3720, 2080);
       ctx.restore();
 
       await saveFrame('Chrome_All_Cores_12_Model_Master_Matrix_4K.png');
 
       // ─────────────────────────────────────────────────────────────
-      // TASK D: COLLECTIBLE FALLING NODES (DYNAMO, HELIX, METEOR)
+      // TASK D: AUTHENTIC FALLING COLLECTIBLE NODES
+      // EXACT 1:1 REPLICATION OF IN-GAME SCREENSHOTS (Images 1, 2, 8, 9, 10)
+      // ZERO BADGES, ZERO FAKE HUD TEXT
       // ─────────────────────────────────────────────────────────────
-      // 1. Dynamo Collectible Orb (Matching Images 1, 3, 4 exactly!)
+
+      // 1. Dynamo Collectible Orb (Matching Images 2 and 10 exactly!)
       updateStatus('Rendering Chrome Dynamo Collectible Orb 4K...');
       drawCosmicBackground('dynamo');
 
-      // Render the iconic Purple Glass Plasma Orb with "2X DUP" badge & speed trails
       const pDynamo = {
         x: 1920,
-        y: 1040,
-        headR: 240,
-        nodeClass: 'cluster',
+        y: 1180,
+        headR: 260,
         animPhase: 0.5
       };
 
-      // Speedline streaks behind the orb
+      // Exact in-game upward vertical cyan speedlines (Images 2 and 10)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      for (let s = 0; s < 12; s++) {
-        const offX = (s - 5.5) * 42;
-        const streakH = 140 + Math.sin(s * 1.5) * 60;
-        const grad = ctx.createLinearGradient(0, pDynamo.y - 260 - streakH, 0, pDynamo.y - 240);
-        grad.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
-        grad.addColorStop(0.7, 'rgba(56, 189, 248, 0.45)');
-        grad.addColorStop(1.0, 'rgba(255, 255, 255, 0.85)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(pDynamo.x + offX - 3, pDynamo.y - 260 - streakH, 6, streakH);
+      const speedlineOffsets = [-60, 0, 65];
+      const speedlineLengths = [180, 240, 190];
+      for (let s = 0; s < speedlineOffsets.length; s++) {
+        const sx = pDynamo.x + speedlineOffsets[s];
+        const bottomY = pDynamo.y - pDynamo.headR * 1.05;
+        const topY = bottomY - speedlineLengths[s];
+        const sGrad = ctx.createLinearGradient(0, topY, 0, bottomY);
+        sGrad.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
+        sGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.45)');
+        sGrad.addColorStop(1.0, 'rgba(186, 230, 253, 0.85)');
+        ctx.fillStyle = sGrad;
+        ctx.fillRect(sx - 3, topY, 6, speedlineLengths[s]);
       }
       ctx.restore();
 
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'dynamo', pDynamo, now, 240);
-
-      drawCinematicTypography(
-        '✦ CHROME DYNAMO · COLLECTIBLE ORB ✦',
-        'QUANTUM PLASMA ORB (2X DUP)',
-        'PURPLE COSMIC GLASS SPHERE · INTERNAL LIGHTNING · ORANGE ARC · TWIN RESONANCE MOTES',
-        'ORLANDOCHROME ARCHIVE // COLLECTIBLE: DYNAMO-CLUSTER-2X-DUP',
-        '#c084fc'
-      );
+      // Render the raw in-game Dynamo node (orb, lightning, smile arc, ring, twin motes)
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'dynamo', pDynamo, now, pDynamo.headR);
       await saveFrame('Chrome_Dynamo_Collectible_Orb_4K.png');
 
-      // 2. Helix Collectible Node
+      // 2. Helix Collectible Node (Matching Image 8 exactly!)
       updateStatus('Rendering Chrome Helix Collectible Node 4K...');
       drawCosmicBackground('helix');
+
       const pHelix = {
         x: 1920,
-        y: 1040,
-        headR: 240,
-        nodeClass: 'cluster',
+        y: 1180,
+        headR: 260,
         animPhase: 0.5
       };
-      // Starlight diamond sparkle trail
+
+      // Exact in-game floating circular cyan bubble trail (Image 8)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      for (let s = 0; s < 18; s++) {
-        const offX = (Math.random() - 0.5) * 360;
-        const offY = -280 - Math.random() * 260;
-        ctx.fillStyle = 'rgba(240, 171, 252, 0.75)';
+      const bubbleDefs = [
+        { dy: 30,  dx: -8,  r: 22, op: 0.85 },
+        { dy: 75,  dx: 12,  r: 16, op: 0.75 },
+        { dy: 120, dx: -18, r: 24, op: 0.80 },
+        { dy: 170, dx: 10,  r: 14, op: 0.65 },
+        { dy: 220, dx: -12, r: 20, op: 0.70 },
+        { dy: 275, dx: 15,  r: 12, op: 0.55 },
+        { dy: 330, dx: -6,  r: 18, op: 0.50 },
+        { dy: 390, dx: 8,   r: 10, op: 0.40 },
+        { dy: 440, dx: -14, r: 14, op: 0.35 }
+      ];
+      for (const b of bubbleDefs) {
+        const bx = pHelix.x + b.dx;
+        const by = pHelix.y - pHelix.headR - b.dy;
+        const bGrad = ctx.createRadialGradient(bx - b.r * 0.3, by - b.r * 0.3, 1, bx, by, b.r);
+        bGrad.addColorStop(0.0, `rgba(255, 255, 255, ${b.op * 0.9})`);
+        bGrad.addColorStop(0.35, `rgba(186, 230, 253, ${b.op * 0.8})`);
+        bGrad.addColorStop(0.75, `rgba(56, 189, 248, ${b.op * 0.55})`);
+        bGrad.addColorStop(1.0, `rgba(56, 189, 248, 0)`);
+        ctx.fillStyle = bGrad;
         ctx.beginPath();
-        ctx.arc(pHelix.x + offX, pHelix.y + offY, 4.5, 0, Math.PI * 2);
+        ctx.arc(bx, by, b.r, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
 
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'helix', pHelix, now, 240);
-      drawCinematicTypography(
-        '✦ CHROME HELIX · COLLECTIBLE NODE ✦',
-        'CRYSTAL DNA DOUBLE HELIX',
-        'PRISMATIC BIO-LATTICE GLASS · ROTATING 3D DOUBLE HELIX · DIAMOND STARLIGHT DUST',
-        'ORLANDOCHROME ARCHIVE // COLLECTIBLE: HELIX-DNA-LATTICE',
-        '#38bdf8'
-      );
+      // Render raw in-game Helix node (crystal bubble with 3D DNA double helix)
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'helix', pHelix, now, pHelix.headR);
       await saveFrame('Chrome_Helix_Collectible_Node_4K.png');
 
-      // 3. Meteor Collectible Node
+      // 3. Meteor Collectible Node (Matching Image 9 exactly!)
       updateStatus('Rendering Chrome Meteor Collectible Node 4K...');
       drawCosmicBackground('meteor');
+
       const pMeteor = {
         x: 1920,
-        y: 1040,
-        headR: 240,
-        nodeClass: 'cluster',
+        y: 1180,
+        headR: 260,
         animPhase: 0.5,
         tumbleDir: 1
       };
-      // Ember drift trail
+
+      // Exact in-game floating circular orange ember trail (Image 9)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      for (let s = 0; s < 18; s++) {
-        const offX = (Math.random() - 0.5) * 320;
-        const offY = -280 - Math.random() * 260;
-        ctx.fillStyle = 'rgba(249, 115, 22, 0.8)';
+      const emberDefs = [
+        { dy: 35,  dx: 10,  r: 22, op: 0.85 },
+        { dy: 80,  dx: -14, r: 16, op: 0.75 },
+        { dy: 130, dx: 16,  r: 24, op: 0.80 },
+        { dy: 180, dx: -10, r: 14, op: 0.65 },
+        { dy: 235, dx: 14,  r: 20, op: 0.70 },
+        { dy: 290, dx: -12, r: 12, op: 0.55 },
+        { dy: 345, dx: 8,   r: 18, op: 0.50 },
+        { dy: 400, dx: -15, r: 10, op: 0.40 },
+        { dy: 450, dx: 12,  r: 14, op: 0.35 }
+      ];
+      for (const e of emberDefs) {
+        const ex = pMeteor.x + e.dx;
+        const ey = pMeteor.y - pMeteor.headR - e.dy;
+        const eGrad = ctx.createRadialGradient(ex - e.r * 0.3, ey - e.r * 0.3, 1, ex, ey, e.r);
+        eGrad.addColorStop(0.0, `rgba(254, 240, 138, ${e.op * 0.95})`);
+        eGrad.addColorStop(0.35, `rgba(249, 115, 22, ${e.op * 0.85})`);
+        eGrad.addColorStop(0.75, `rgba(220, 38, 38, ${e.op * 0.55})`);
+        eGrad.addColorStop(1.0, `rgba(220, 38, 38, 0)`);
+        ctx.fillStyle = eGrad;
         ctx.beginPath();
-        ctx.arc(pMeteor.x + offX, pMeteor.y + offY, 5.0, 0, Math.PI * 2);
+        ctx.arc(ex, ey, e.r, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
 
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'meteor', pMeteor, now, 240);
-      drawCinematicTypography(
-        '✦ CHROME METEOR · COLLECTIBLE ASTEROID ✦',
-        'INCANDESCENT BASALT CALDERA',
-        'ROTATING VOLCANIC ROCK · HIGH-HEAT MAGMA FISSURES · DRIFTING SOLAR EMBERS',
-        'ORLANDOCHROME ARCHIVE // COLLECTIBLE: METEOR-BASALT-CORE',
-        '#f97316'
-      );
+      // Render raw in-game Meteor node (volcanic basalt rock with magma fissures)
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'meteor', pMeteor, now, pMeteor.headR);
       await saveFrame('Chrome_Meteor_Collectible_Node_4K.png');
 
       // 4. Showcase of all 3 collectible nodes side-by-side
       updateStatus('Rendering All Falling Nodes Showcase 4K...');
       drawCosmicBackground('all');
 
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 36px "SF Pro Display", sans-serif';
-      ctx.fillStyle = '#38bdf8';
-      ctx.letterSpacing = '6px';
-      ctx.fillText('✦ ORLANDOCHROME UNIVERSE · HARVEST MATRIX ✦', 1920, 160);
-
-      ctx.font = '900 68px "SF Pro Display", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.letterSpacing = '4px';
-      ctx.fillText('COLLECTIBLE QUANTUM NODES & ORBS', 1920, 245);
-      ctx.restore();
-
       const nodeX = [780, 1920, 3060];
-      const nodeY = 1060;
+      const nodeY = 1180;
       const nodeR = 210;
 
-      // Dynamo Node
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'dynamo', { x: nodeX[0], y: nodeY, headR: nodeR, nodeClass: 'cluster', animPhase: 0.5 }, now, nodeR);
-      // Helix Node
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'helix', { x: nodeX[1], y: nodeY, headR: nodeR, nodeClass: 'cluster', animPhase: 0.5 }, now, nodeR);
-      // Meteor Node
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'meteor', { x: nodeX[2], y: nodeY, headR: nodeR, nodeClass: 'cluster', animPhase: 0.5, tumbleDir: 1 }, now, nodeR);
+      // Dynamo Node with speedlines
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let s = 0; s < speedlineOffsets.length; s++) {
+        const sx = nodeX[0] + speedlineOffsets[s] * 0.8;
+        const bottomY = nodeY - nodeR * 1.05;
+        const topY = bottomY - speedlineLengths[s] * 0.8;
+        const sGrad = ctx.createLinearGradient(0, topY, 0, bottomY);
+        sGrad.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
+        sGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.45)');
+        sGrad.addColorStop(1.0, 'rgba(186, 230, 253, 0.85)');
+        ctx.fillStyle = sGrad;
+        ctx.fillRect(sx - 2.5, topY, 5, speedlineLengths[s] * 0.8);
+      }
+      ctx.restore();
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'dynamo', { x: nodeX[0], y: nodeY, headR: nodeR, animPhase: 0.5 }, now, nodeR);
 
-      // Labels below each node
+      // Helix Node with bubble trail
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (const b of bubbleDefs) {
+        const bx = nodeX[1] + b.dx * 0.8;
+        const by = nodeY - nodeR - b.dy * 0.8;
+        const br = b.r * 0.8;
+        const bGrad = ctx.createRadialGradient(bx - br * 0.3, by - br * 0.3, 1, bx, by, br);
+        bGrad.addColorStop(0.0, `rgba(255, 255, 255, ${b.op * 0.9})`);
+        bGrad.addColorStop(0.35, `rgba(186, 230, 253, ${b.op * 0.8})`);
+        bGrad.addColorStop(0.75, `rgba(56, 189, 248, ${b.op * 0.55})`);
+        bGrad.addColorStop(1.0, `rgba(56, 189, 248, 0)`);
+        ctx.fillStyle = bGrad;
+        ctx.beginPath();
+        ctx.arc(bx, by, br, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'helix', { x: nodeX[1], y: nodeY, headR: nodeR, animPhase: 0.5 }, now, nodeR);
+
+      // Meteor Node with ember trail
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (const e of emberDefs) {
+        const ex = nodeX[2] + e.dx * 0.8;
+        const ey = nodeY - nodeR - e.dy * 0.8;
+        const er = e.r * 0.8;
+        const eGrad = ctx.createRadialGradient(ex - er * 0.3, ey - er * 0.3, 1, ex, ey, er);
+        eGrad.addColorStop(0.0, `rgba(254, 240, 138, ${e.op * 0.95})`);
+        eGrad.addColorStop(0.35, `rgba(249, 115, 22, ${e.op * 0.85})`);
+        eGrad.addColorStop(0.75, `rgba(220, 38, 38, ${e.op * 0.55})`);
+        eGrad.addColorStop(1.0, `rgba(220, 38, 38, 0)`);
+        ctx.fillStyle = eGrad;
+        ctx.beginPath();
+        ctx.arc(ex, ey, er, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'meteor', { x: nodeX[2], y: nodeY, headR: nodeR, animPhase: 0.5, tumbleDir: 1 }, now, nodeR);
+
+      // Subtle labels below each node
       const nodeLabels = [
-        { title: 'CHROME DYNAMO ORB', sub: 'Purple Glass Plasma · Lightning Arcs · Twin Motes', col: '#c084fc' },
-        { title: 'CHROME HELIX NODE', sub: 'Prismatic Crystal Shell · Rotating 3D DNA Helix', col: '#38bdf8' },
-        { title: 'CHROME METEOR BOLIDE', sub: 'Tumbling Basalt Rock · Incandescent Magma Fissures', col: '#f97316' }
+        { title: 'CHROME DYNAMO', col: '#c084fc' },
+        { title: 'CHROME HELIX', col: '#38bdf8' },
+        { title: 'CHROME METEOR', col: '#f97316' }
       ];
 
       for (let i = 0; i < 3; i++) {
         ctx.save();
         ctx.textAlign = 'center';
-        ctx.font = 'bold 32px "SF Pro Display", sans-serif';
+        ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.fillStyle = nodeLabels[i].col;
-        ctx.fillText(nodeLabels[i].title, nodeX[i], 1650);
-
-        ctx.font = '500 22px "SF Pro Text", sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.fillText(nodeLabels[i].sub, nodeX[i], 1705);
+        ctx.letterSpacing = '3px';
+        ctx.fillText(nodeLabels[i].title, nodeX[i], 1680);
         ctx.restore();
       }
-
-      ctx.save();
-      ctx.textAlign = 'left';
-      ctx.font = '500 24px "SF Pro Text", monospace';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-      ctx.fillText('ORLANDOCHROME ARCHIVE // COLLECTIBLE NODES SHOWCASE', 120, 2080);
-      ctx.textAlign = 'right';
-      ctx.fillText('ULTRA HD 4K • 3840 × 2160', 3720, 2080);
-      ctx.restore();
 
       await saveFrame('Chrome_All_Falling_Nodes_Showcase_4K.png');
 
@@ -624,19 +548,12 @@
       drawCosmicBackground('hazard_dynamo');
       const hDynamo = {
         x: 1920,
-        y: 1040,
-        headR: 220,
+        y: 1080,
+        headR: 240,
         nodeClass: 'volatile',
         animPhase: 0.5
       };
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'dynamo', hDynamo, now, 220);
-      drawCinematicTypography(
-        '✦ DYNAMO ANOMALY · HAZARD ARCHETYPE ✦',
-        '03 BROKEN ARC HAZARD',
-        'BANDED CRIMSON DISPLACEMENT ORB · JAGGED MAGENTA DISCHARGE · AREA DENIAL',
-        'ORLANDOCHROME ARCHIVE // HAZARD: DYNAMO-BROKEN-ARC',
-        '#f43f5e'
-      );
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'dynamo', hDynamo, now, 240);
       await saveFrame('Chrome_Dynamo_Hazard_Broken_Arc_4K.png');
 
       // 2. Facet Dust (Helix Hazard)
@@ -644,19 +561,12 @@
       drawCosmicBackground('hazard_helix');
       const hHelix = {
         x: 1920,
-        y: 1040,
-        headR: 220,
+        y: 1080,
+        headR: 240,
         nodeClass: 'volatile',
         animPhase: 0.5
       };
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'helix', hHelix, now, 220);
-      drawCinematicTypography(
-        '✦ HELIX ANOMALY · HAZARD ARCHETYPE ✦',
-        'FACET DUST HAZARD',
-        'SLICED ANGULAR RUBY CRYSTAL · DIAGONAL AMBER LIGHT BEAM · TUMBLING FACET DUST',
-        'ORLANDOCHROME ARCHIVE // HAZARD: HELIX-FACET-DUST',
-        '#ef4444'
-      );
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'helix', hHelix, now, 240);
       await saveFrame('Chrome_Helix_Hazard_Facet_Dust_4K.png');
 
       // 3. Ash Flakes (Meteor Hazard)
@@ -664,19 +574,12 @@
       drawCosmicBackground('hazard_meteor');
       const hMeteor = {
         x: 1920,
-        y: 1040,
-        headR: 220,
+        y: 1080,
+        headR: 240,
         nodeClass: 'volatile',
         animPhase: 0.5
       };
-      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'meteor', hMeteor, now, 220);
-      drawCinematicTypography(
-        '✦ METEOR ANOMALY · HAZARD ARCHETYPE ✦',
-        'ASH FLAKES HAZARD',
-        'POROUS OBSIDIAN ROTATING SPIKES · EMERALD CALDERA CORE · SILVER ASH FLAKES',
-        'ORLANDOCHROME ARCHIVE // HAZARD: METEOR-ASH-FLAKES',
-        '#a855f7'
-      );
+      window.QuantumRenderer._drawLayeredNodeOrHazard(ctx, 'meteor', hMeteor, now, 240);
       await saveFrame('Chrome_Meteor_Hazard_Ash_Flakes_4K.png');
 
       // ─────────────────────────────────────────────────────────────
@@ -684,19 +587,6 @@
       // ─────────────────────────────────────────────────────────────
       updateStatus('Rendering Master Roster Panorama in 4K...');
       drawCosmicBackground('all');
-
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 36px "SF Pro Display", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.letterSpacing = '6px';
-      ctx.fillText('✦ ORLANDOCHROME UNIVERSE · CHARACTER ROSTER ✦', 1920, 160);
-
-      ctx.font = '900 76px "SF Pro Display", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.letterSpacing = '4px';
-      ctx.fillText('THE THREE SOVEREIGN CHROME CORES', 1920, 255);
-      ctx.restore();
 
       // Render the three Sovereign Overdrive Tier IV Cores with full wings & zero clipping
       // Left: Chrome Helix
@@ -707,7 +597,7 @@
       window.CoreKinematics.ascensionRings = [{ radius: 130, alpha: 0.7, mode: 'helix', tierReached: 4 }];
       window.QuantumRenderer.drawHelixCore(ctx, 920, 1080, now, 0, 4, 1.30);
 
-      // Center: Chrome Dynamo (slightly larger, elevated majesty)
+      // Center: Chrome Dynamo
       window.CoreKinematics.continuousTier = 4.0;
       window.CoreKinematics.bodyBank = 0.0;
       window.CoreKinematics.vx = 0.0;
@@ -730,38 +620,22 @@
       ctx.save();
       ctx.textAlign = 'center';
       // Helix
-      ctx.font = 'bold 32px "SF Pro Display", sans-serif';
+      ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
       ctx.fillStyle = '#38bdf8';
-      ctx.fillText('CHROME HELIX (TIER IV)', 920, 1680);
-      ctx.font = '500 20px "SF Pro Text", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.fillText('Biological Starlight Lattice · Crystal Wings', 920, 1725);
+      ctx.letterSpacing = '3px';
+      ctx.fillText('CHROME HELIX', 920, 1680);
 
       // Dynamo
-      ctx.font = 'bold 36px "SF Pro Display", sans-serif';
+      ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
       ctx.fillStyle = '#c084fc';
-      ctx.fillText('CHROME DYNAMO (TIER IV)', 1920, 1680);
-      ctx.font = '500 22px "SF Pro Text", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.fillText('Quantum Harmonic Core · Sovereign Photonic Wings', 1920, 1730);
+      ctx.letterSpacing = '3px';
+      ctx.fillText('CHROME DYNAMO', 1920, 1680);
 
       // Meteor
-      ctx.font = 'bold 32px "SF Pro Display", sans-serif';
+      ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
       ctx.fillStyle = '#f97316';
-      ctx.fillText('CHROME METEOR (TIER IV)', 2920, 1680);
-      ctx.font = '500 20px "SF Pro Text", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.fillText('Volcanic Basalt Caldera · Incandescent Solar Wings', 2920, 1725);
-      ctx.restore();
-
-      // Master Footer
-      ctx.save();
-      ctx.textAlign = 'left';
-      ctx.font = '500 24px "SF Pro Text", monospace';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-      ctx.fillText('ORLANDOCHROME REFLEX ARCADIA // COMPLETE CHARACTER ROSTER', 120, 2080);
-      ctx.textAlign = 'right';
-      ctx.fillText('ULTRA HD 4K • 3840 × 2160', 3720, 2080);
+      ctx.letterSpacing = '3px';
+      ctx.fillText('CHROME METEOR', 2920, 1680);
       ctx.restore();
 
       await saveFrame('Chrome_Arcade_All_Characters_4K.png');
