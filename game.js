@@ -3542,14 +3542,14 @@
     },
 
     // Master Multi-Layered Chrome Core Renderer (Dynamo, Helix, Meteor)
-    _drawLayeredWingedCore(ctx, mode, cx, cy, now, tier = 4) {
+    _drawLayeredWingedCore(ctx, mode, cx, cy, now, tier = 4, customScale = null) {
       const tierIdx = Math.min(4, Math.max(1, tier | 0));
-      const cTier = CoreKinematics.continuousTier;
+      const cTier = (CoreKinematics && CoreKinematics.continuousTier !== undefined && Math.abs(CoreKinematics.continuousTier - tierIdx) < 0.9) ? CoreKinematics.continuousTier : tierIdx;
       const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
       const isMobile = canvasW < 600;
 
-      const drawW = isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060);
-      const u = drawW / 1376.0;
+      const drawW = customScale ? (customScale * 1376.0) : (isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060));
+      const u = customScale || (drawW / 1376.0);
       const cySrc = (mode === 'meteor') ? 586.0 : (mode === 'helix' ? 568.0 : 590.0);
 
       ctx.save();
@@ -3752,24 +3752,24 @@
       }
     },
 
-    drawDynamoCore(ctx, cx, cy, now, progress = 0, tier = 1) {
-      this._drawLayeredWingedCore(ctx, 'dynamo', cx, cy, now, tier);
+    drawDynamoCore(ctx, cx, cy, now, progress = 0, tier = 1, customScale = null) {
+      this._drawLayeredWingedCore(ctx, 'dynamo', cx, cy, now, tier, customScale);
     },
 
-    drawHelixCore(ctx, cx, cy, now, progress = 0, tier = 1) {
-      this._drawLayeredWingedCore(ctx, 'helix', cx, cy, now, tier);
+    drawHelixCore(ctx, cx, cy, now, progress = 0, tier = 1, customScale = null) {
+      this._drawLayeredWingedCore(ctx, 'helix', cx, cy, now, tier, customScale);
     },
 
-    drawMeteorAsteroid(ctx, cx, cy, now, progress = 0, tier = 1) {
-      this._drawLayeredWingedCore(ctx, 'meteor', cx, cy, now, tier);
+    drawMeteorAsteroid(ctx, cx, cy, now, progress = 0, tier = 1, customScale = null) {
+      this._drawLayeredWingedCore(ctx, 'meteor', cx, cy, now, tier, customScale);
     },
 
-    _drawLayeredNodeOrHazard(ctx, mode, p, now) {
+    _drawLayeredNodeOrHazard(ctx, mode, p, now, customR = null) {
       const isHazard = isHazardNode(p.nodeClass);
       const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
       const isMobile = canvasW < 600;
-      const baseR = isMobile ? 26.0 : 36.0;
-      const targetR = p.headR ? (p.headR * (isMobile ? 0.72 : 1.0)) : baseR;
+      const baseR = customR || (isMobile ? 26.0 : 36.0);
+      const targetR = customR || (p.headR ? (p.headR * (isMobile ? 0.72 : 1.0)) : baseR);
       const scale = targetR / 48.0;
       const animPhase = p.animPhase || 0.0;
 
@@ -6746,6 +6746,11 @@
   } else {
     initEvents();
   }
+
+  // Expose Core Engines for Native 4K UHD Ultra-Fidelity Rendering & Verification
+  window.QuantumRenderer = QuantumRenderer;
+  window.LayeredT4Assets = LayeredT4Assets;
+  window.CoreKinematics = CoreKinematics;
 })();
 
 
