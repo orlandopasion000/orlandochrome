@@ -1,0 +1,103 @@
+import os
+import numpy as np
+from PIL import Image, ImageEnhance, ImageFilter
+
+base_dir = r"C:\Users\Orlando\.gemini\antigravity\scratch\chrome-taskbar-command-center"
+char_dir = os.path.join(base_dir, "assets", "characters")
+rig_dir = os.path.join(char_dir, "rigs")
+
+games = ["dynamo", "helix", "meteor"]
+tiers = ["vi", "vii", "viii", "ix", "x"]
+
+def create_radial_mask(w, h, cx, cy, rx, ry, feather=30):
+    x = np.arange(w)
+    y = np.arange(h)
+    xx, yy = np.meshgrid(x, y)
+    dist = np.sqrt(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2)
+    mask = np.clip(1.0 - (dist - 0.70) / (feather / 40.0), 0.0, 1.0)
+    return mask
+
+print("Rebuilding directional heads with pure seamless feathered blending (0 seams)...")
+
+for game in games:
+    for tier in tiers:
+        base_name = f"{game}_{tier}"
+        src_path = os.path.join(char_dir, f"{base_name}.png")
+        if not os.path.exists(src_path):
+            continue
+            
+        im = Image.open(src_path).convert("RGBA")
+        arr = np.array(im, dtype=np.float32)
+        h, w, _ = arr.shape
+        alpha = arr[:, :, 3]
+
+        # Detect Chest Core Center
+        lum = 0.299 * arr[:, :, 0] + 0.587 * arr[:, :, 1] + 0.114 * arr[:, :, 2]
+        center_mask = np.zeros_like(alpha, dtype=bool)
+        center_mask[int(h*0.25):int(h*0.75), int(w*0.35):int(w*0.65)] = True
+        valid = center_mask & (alpha > 120)
+
+        if np.any(valid):
+            sub_lum = lum * valid
+            thresh = np.percentile(sub_lum[valid], 98)
+            core_ys, core_xs = np.where((sub_lum >= thresh) & valid)
+            core_cx = int(np.mean(core_xs))
+            core_cy = int(np.mean(core_ys))
+        else:
+            core_cx = w // 2
+            core_cy = h // 2
+
+        y_grid, x_grid = np.mgrid[0:h, 0:w]
+
+        # Anatomical Head Center & Neck Cutoff
+        head_cx = core_cx
+        head_cy = core_cy - int(h * 0.21)
+        neck_cutoff_y = core_cy - int(h * 0.10)
+
+        rx_head = 130 if game != "meteor" else 145
+        ry_head = 120 if game != "meteor" else 125
+        
+        # Smooth 30px feathered elliptical mask
+        m_head = create_radial_mask(w, h, head_cx, head_cy, rx=rx_head, ry=ry_head, feather=30)
+        neck_fade = np.clip(1.0 - (y_grid - neck_cutoff_y) / 22.0, 0.0, 1.0)
+        m_head_final = m_head * neck_fade
+
+        # 1. Right 3/4 Head (Canonical)
+        arr_head_r = arr.copy()
+        arr_head_r[:, :, 3] = np.clip(arr_head_r[:, :, 3] * m_head_final, 0, 255)
+        img_head_r34 = Image.fromarray(arr_head_r.astype(np.uint8), "RGBA")
+        img_head_r34.save(os.path.join(rig_dir, f"{base_name}_head_r34.png"))
+        img_head_r34.save(os.path.join(rig_dir, f"{base_name}_head.png"))
+
+        # 2. Left 3/4 Head (Clean Full-Canvas Flip without rectangular cropping)
+        # Flip the raw image across w, then align head center back to head_cx
+        arr_flipped = np.fliplr(arr)
+        # Original head center was at head_cx, so in flipped array it's at (w - 1 - head_cx)
+        dx = head_cx - (w - 1 - head_cx)
+        
+        # Shift flipped array by dx horizontally
+        arr_shifted = np.zeros_like(arr_flipped)
+        if dx > 0:
+            arr_shifted[:, dx:] = arr_flipped[:, :-dx]
+        elif dx < 0:
+            arr_shifted[:, :dx] = arr_flipped[:, -dx:]
+        else:
+            arr_shifted = arr_flipped
+
+        # Apply the exact same feathered elliptical mask so edges are 100% invisible
+        arr_head_l = arr_shifted.copy()
+        arr_head_l[:, :, 3] = np.clip(arr_head_l[:, :, 3] * m_head_final, 0, 255)
+        img_head_l34 = Image.fromarray(arr_head_l.astype(np.uint8), "RGBA")
+        img_head_l34.save(os.path.join(rig_dir, f"{base_name}_head_l34.png"))
+        img_head_l34.save(os.path.join(rig_dir, f"{base_name}_head_left.png"))
+
+        # 3. Frontal Head (Symmetric Blend across facial centerline)
+        arr_front = (arr_head_r * 0.50 + arr_head_l * 0.50)
+        arr_front[:, :, 3] = np.clip(arr_front[:, :, 3] * 1.15, 0, 255) # restore full opacity
+        img_head_front = Image.fromarray(arr_front.astype(np.uint8), "RGBA")
+        img_head_front = ImageEnhance.Contrast(img_head_front).enhance(1.08)
+        img_head_front.save(os.path.join(rig_dir, f"{base_name}_head_front.png"))
+
+        print(f"  ✓ {base_name}: Seamless feathered directional heads built (R34, Front, L34)")
+
+print("All directional heads successfully rebuilt with 0 rectangular seams!")

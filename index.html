@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade365_surge_adaptive">
+  <link rel="stylesheet" href="styles.css?v=arcade370_tier5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1249,7 +1249,7 @@
 
       <!-- Unified 6-Game Futuristic Arcade Suite -->
       <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
-        <button type="button" class="qgame-btn-launch qgame-btn-dynamo qgame-btn-realm" id="btnLaunchGame" title="Chrome Dynamo: Profile Synapse Wave Catcher (10 Shields)" aria-label="Launch Chrome Dynamo">
+        <button type="button" class="qgame-btn-launch qgame-btn-dynamo qgame-btn-realm" id="btnLaunchGame" title="Chrome Dynamo: Profile Synapse Wave Catcher (Strict 3 Shields)" aria-label="Launch Chrome Dynamo">
           <svg class="game-btn-glyph game-btn-glyph-dynamo" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3" fill="#00f0ff"/>
             <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(-30 12 12)"/>
@@ -1258,14 +1258,14 @@
           <span class="game-btn-label">DYNAMO</span>
         </button>
 
-        <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Chrome Helix: Dual-Thread Task Synchronizer (10 Shields)" aria-label="Launch Chrome Helix">
+        <button type="button" class="qgame-btn-launch qgame-btn-helix" id="btnLaunchHelixGame" title="Chrome Helix: Dual-Thread Task Synchronizer (Strict 3 Shields)" aria-label="Launch Chrome Helix">
           <svg class="game-btn-glyph game-btn-glyph-helix" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M5 3c3 3 7 3 10 0M5 11c3 3 7 3 10 0M5 19c3 3 7 3 10 0M7 7l6 6M13 7L7 13M7 15l6 6"/>
           </svg>
           <span class="game-btn-label">HELIX</span>
         </button>
 
-        <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Chrome Meteor: Task Surge Asteroid Deflector (10 Shields)" aria-label="Launch Chrome Meteor">
+        <button type="button" class="qgame-btn-launch qgame-btn-meteor" id="btnLaunchMeteorGame" title="Chrome Meteor: Task Surge Asteroid Deflector (Strict 3 Shields)" aria-label="Launch Chrome Meteor">
           <svg class="game-btn-glyph game-btn-glyph-meteor" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="7" cy="17" r="3.5" fill="rgba(56,189,248,0.25)"/>
             <path d="M10 14L21 3M14 17l7-7M6 21l7-7"/>
@@ -1520,7 +1520,7 @@
             <span class="g-stat-label">COMBO</span>
             <span class="g-stat-val" id="cgComboVal">1x</span>
           </div>
-          <div class="game-stat-pill tier-pill" id="cgTierPill" title="Core Evolution Tier: Tier I (Combo 1-4x), Tier II (Combo 5-9x), Tier III (Combo 10x Overdrive)">
+          <div class="game-stat-pill tier-pill" id="cgTierPill" title="Core Evolution Tier: Tier I (0-6x Combo), Tier II (7-13x Combo), Tier III (14-20x Combo), Tier IV (21-27x Combo), Tier V (28x+ Combo Supreme Seraphic Archon)">
             <span class="g-stat-label">TIER</span>
             <span class="g-stat-val" id="cgTierVal" style="color:#00f0ff;font-weight:900;">I</span>
           </div>
@@ -1628,7 +1628,7 @@
               </div>
               
               <div class="reflex-start-tips">
-                <span class="tip-item">⚡ 10 Shield Units</span>
+                <span class="tip-item">⚡ 3 Shield Units (Strict 3 Lives)</span>
                 <span class="tip-item">🎯 Catch Multiples for Combos</span>
                 <span class="tip-item">⚠️ Avoid Non-Multiples</span>
               </div>
@@ -1656,7 +1656,7 @@
             <div class="transmute-badge" id="transmuteIndicator" style="display:none;">ACTIVE CORE: CHROME DYNAMO</div>
             
             <div class="shields-cluster">
-              <span class="shields-label">SHIELDS (10 LIVES):</span>
+              <span class="shields-label">SHIELDS (3 LIVES):</span>
               <div class="shields-cells" id="reflexShields"></div>
             </div>
           </div>
@@ -1693,7 +1693,7 @@
   <script src="assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade361"></script>
+  <script src="app.js?v=arcade370_tier5"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -1752,7 +1752,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade367_tier5_cataclysm_pulse"></script>
+  <script src="game.js?v=arcade370_tier5"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 
 </body>

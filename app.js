@@ -739,7 +739,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=arena212').then(reg => {
+      navigator.serviceWorker.register('sw.js?v=arena370_tier5').then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
@@ -11459,7 +11459,7 @@ const manualBtn = backdrop.querySelector('#btnCreateManualSnapshot');
       { id: 'act-quantum-helix', title: 'Quantum Helix (Game 2)', desc: 'Silky-smooth bi-chromatic cyan & violet DNA double-helix (Touch/hold 2.0s)', badge: 'HELIX 🧬', action: () => { if (window.quantumGame) window.quantumGame.launch('helix'); } },
       { id: 'act-quantum-meteor', title: 'Quantum Meteor (Game 3)', desc: 'High-fidelity 3D tumbling molten asteroid & solar dynamo rings (Touch/hold 2.0s)', badge: 'METEOR ☄️', action: () => { if (window.quantumGame) window.quantumGame.launch('meteor'); } },
       { id: 'act-math', title: 'Math Overdrive: Eight-Level Difficulty System', desc: 'Academically structured arithmetic progression (20 Qs · 10 Mistakes Max)', badge: 'MATH 🧮', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('math'); } },
-      { id: 'act-reflex', title: 'Reflex Blitz: Quantum Realm, Helix & Meteor Catcher', desc: 'Extra Big Tier 3 particles · Catcher transmutations (10 Lives)', badge: 'REFLEX ⚡', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('reflex'); } },
+      { id: 'act-reflex', title: 'Reflex Blitz: Quantum Realm, Helix & Meteor Catcher', desc: 'Extra Big Tier 3 particles · Catcher transmutations (Strict 3 Lives)', badge: 'REFLEX ⚡', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('reflex'); } },
       { id: 'act-memory', title: 'Memory Matrix: 16-Box Quantum Array', desc: 'Fullscreen 4x4 array · Musical harmonic sequence (1 Mistake Game Over)', badge: 'MATRIX 🧠', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.open('memory'); } },
       { id: 'act-fullscreen', title: 'Toggle True Fullscreen Arena Mode', desc: 'Expand Chrome and Arena to fill all display space', badge: 'SCREEN ⛶', action: () => { if (window.chromeSynapseGame) window.chromeSynapseGame.toggleFullscreen(); } },
       { id: 'act-sync', title: 'Cloud Sync Now (Laptop ↔ iPhone)', desc: 'Real-time bidirectional Firebase Firestore sync stream', badge: 'Action', action: () => { const b = $('#btnTopbarSyncNow'); if (b) b.click(); } },

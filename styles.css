@@ -13149,22 +13149,23 @@ body.netflix-messenger-theme {
 
 .shields-cells {
   display: flex;
-  gap: 3px;
+  gap: 6px;
 }
 
 .shield-cell {
-  width: 9px;
-  height: 14px;
-  border-radius: 2px;
+  width: 24px;
+  height: 16px;
+  border-radius: 4px;
   background: #38bdf8;
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
-  transition: all 0.2s ease;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.25s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .shield-cell.shield-lost {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.18);
   box-shadow: none;
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  border: 1px dashed rgba(239, 68, 68, 0.55);
 }
 
 .math-laser-track {

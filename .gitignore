@@ -4,3 +4,5 @@ Thumbs.db
 data/state.json
 dist/
 *.log
+__pycache__/
+recordings/

@@ -5,7 +5,7 @@
  * 
  * Games:
  * 1. 🧮 Math Overdrive: Professional Eight-Level Difficulty System (20 Qs/level, 10 Mistakes Max)
- * 2. ⚡ Reflex Blitz: Quantum Realm, Helix & Meteor Catcher with Tier 3 Extra Big Particles (10 Lives)
+ * 2. ⚡ Reflex Blitz: Quantum Realm, Helix & Meteor Catcher with Tier 3 Extra Big Particles (Strict 3 Lives)
  * 3. 🧠 Memory Matrix: 16-Box (4x4) Fullscreen Neural Array with Harmonic Synthesizer (1 Mistake Game Over)
  */
 
@@ -1163,8 +1163,10 @@
   const LayeredT4Assets = {
     halo: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     wingRight: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    wingRightT5: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     wingLeftCanvas: { dynamo: null, helix: null, meteor: null },
     coreBase: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    coreBaseT5: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     nodeShell: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     hazard: {
       dynamoCore: new Image(),
@@ -1176,7 +1178,9 @@
     loaded: {
       halo: { dynamo: false, helix: false, meteor: false },
       wingRight: { dynamo: false, helix: false, meteor: false },
+      wingRightT5: { dynamo: false, helix: false, meteor: false },
       coreBase: { dynamo: false, helix: false, meteor: false },
+      coreBaseT5: { dynamo: false, helix: false, meteor: false },
       nodeShell: { dynamo: false, helix: false, meteor: false },
       hazard: {
         dynamoCore: false,
@@ -1209,6 +1213,16 @@
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
     LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade363`;
+
+    LayeredT4Assets.wingRightT5[m].onload = () => {
+      LayeredT4Assets.loaded.wingRightT5[m] = true;
+    };
+    LayeredT4Assets.wingRightT5[m].src = `assets/layer-${m}-wing-t5.png?v=arcade363`;
+
+    LayeredT4Assets.coreBaseT5[m].onload = () => {
+      LayeredT4Assets.loaded.coreBaseT5[m] = true;
+    };
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade365`;
   });
 
   LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
@@ -1977,8 +1991,8 @@
             } else {
               const pts = 300 * state.combo;
               state.score += pts;
-              state.combo = Math.min(10, state.combo + 1);
-              if (state.combo === 10) state.isOverdrive = true;
+              state.combo = Math.min(50, state.combo + 1);
+              if (state.combo >= 21) state.isOverdrive = true;
               state.floatingTexts.push({
                 x: pt.x, y: pt.y,
                 text: `+${pts} CLAIMED!`,
@@ -1997,10 +2011,13 @@
               } else if (pt.nodeClass === 'singularity') {
                 state.applyBuff('singularity', 'GRAVITON VACUUM', '#38bdf8', '🧲', 3500, now);
               } else if (pt.nodeClass === 'catalyst') {
+                const targetTierCombo = { 2: 7, 3: 14, 4: 21, 5: 28 };
                 state.coreTier = Math.min(5, state.coreTier + 1);
-                state.reflexLives = Math.min(10, state.reflexLives + 1);
+                state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
+                state.isOverdrive = (state.coreTier >= 4);
+                state.reflexLives = Math.min(3, state.reflexLives + 1);
                 renderReflexShields();
-                state.applyBuff('catalyst', 'ASCENSION CATALYST', '#38bdf8', '💎', 6000, now);
+                state.applyBuff('catalyst', 'ASCENSION CATALYST', '#10b981', '💚', 6000, now);
               } else if (pt.nodeClass === 'shield') {
                 state.applyBuff('shield', 'AEGIS SHIELD', '#f59e0b', '🛡️', 5000, now);
               } else if (pt.nodeClass === 'missiles') {
@@ -2659,7 +2676,7 @@
     if (!wingR || !LayeredT4Assets.loaded.wingRight[mode]) return;
 
     // Continuous Morphing Proportional Span & Scale across Tiers
-    // Recommendation 3: Sleek, majestic, aerodynamic visual balance (reduced wingspan)
+    // Recommendation 3: Sleek, majestic, aerodynamic visual balance
     let spanScale = 0.0;
     let heightScale = 0.0;
     let wingAlpha = 1.0;
@@ -2674,10 +2691,15 @@
       const t23 = cTier - 2.0;
       spanScale = 0.25 + (0.35 - 0.25) * t23;
       heightScale = 0.27 + (0.37 - 0.27) * t23;
-    } else {
-      const t34 = Math.min(1.2, cTier - 3.0);
+    } else if (cTier < 4.0) {
+      const t34 = cTier - 3.0;
       spanScale = 0.35 + (0.46 - 0.35) * t34;
       heightScale = 0.37 + (0.48 - 0.37) * t34;
+    } else {
+      // Tier V Supreme Ascendant Seraphic Wing Expansion
+      const t45 = Math.min(1.0, cTier - 4.0);
+      spanScale = 0.46 + (0.58 - 0.46) * t45;
+      heightScale = 0.48 + (0.60 - 0.48) * t45;
     }
 
     const srcW = 688;
@@ -3622,7 +3644,7 @@
       if (cTier > 2.05 && LayeredT4Assets.loaded.halo[mode]) {
         const haloSpr = LayeredT4Assets.halo[mode];
         const haloMorph = Math.min(1.0, (cTier - 2.0) / 1.8);
-        const haloScale = (0.42 + 0.24 * haloMorph) * (1.0 + Math.sin(now * 0.003) * 0.02 + CoreKinematics.overdriveFlash * 0.08);
+        const haloScale = (0.42 + 0.24 * haloMorph + (cTier >= 4.5 ? 0.22 : 0)) * (1.0 + Math.sin(now * 0.003) * 0.02 + CoreKinematics.overdriveFlash * 0.08);
         ctx.save();
         ctx.globalAlpha = Math.min(1.0, (cTier - 2.0) * 0.85 + CoreKinematics.overdriveFlash * 0.25);
         ctx.globalCompositeOperation = 'lighter';
@@ -3663,7 +3685,11 @@
         if (LayeredT4Assets.loaded.coreBase.dynamo) {
           // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 56.0 * 1.2143 = 68.0)
           const dScale = 1.2143;
-          ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
+          if (cTier >= 4.05 && LayeredT4Assets.loaded.coreBaseT5 && LayeredT4Assets.loaded.coreBaseT5.dynamo) {
+            ctx.drawImage(LayeredT4Assets.coreBaseT5.dynamo, -170 * u * dScale, -170 * u * dScale, 340 * u * dScale, 340 * u * dScale);
+          } else {
+            ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
+          }
         }
 
         drawInternalPlasmaArcs(ctx, 0, 0, 59 * u, now, 0.0, true, tierIdx);
@@ -3759,7 +3785,11 @@
         // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 88.0 * 0.7727 = 68.0)
         const hScale = 0.7727;
         if (LayeredT4Assets.loaded.coreBase.helix) {
-          ctx.drawImage(LayeredT4Assets.coreBase.helix, -170 * u * hScale, -144 * u * hScale, 340 * u * hScale, 280 * u * hScale);
+          if (cTier >= 4.05 && LayeredT4Assets.loaded.coreBaseT5 && LayeredT4Assets.loaded.coreBaseT5.helix) {
+            ctx.drawImage(LayeredT4Assets.coreBaseT5.helix, -170 * u * hScale, -170 * u * hScale, 340 * u * hScale, 340 * u * hScale);
+          } else {
+            ctx.drawImage(LayeredT4Assets.coreBase.helix, -170 * u * hScale, -144 * u * hScale, 340 * u * hScale, 280 * u * hScale);
+          }
         }
 
         // Complete 3D Spherical Crystal Enclosure (Prismatic Bio-Lattice Horizon)
@@ -3857,7 +3887,11 @@
         // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 71.0 * 0.9577 = 68.0)
         const mScale = 0.9577;
         if (LayeredT4Assets.loaded.coreBase.meteor) {
-          ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, -140 * u * mScale, 340 * u * mScale, 280 * u * mScale);
+          if (cTier >= 4.05 && LayeredT4Assets.loaded.coreBaseT5 && LayeredT4Assets.loaded.coreBaseT5.meteor) {
+            ctx.drawImage(LayeredT4Assets.coreBaseT5.meteor, -170 * u * mScale, -170 * u * mScale, 340 * u * mScale, 340 * u * mScale);
+          } else {
+            ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, -140 * u * mScale, 340 * u * mScale, 280 * u * mScale);
+          }
         }
 
         drawMeteorMagmaFissuresAndPlates(ctx, 68 * u, now, 0.0, Math.sin(now * 0.0008) * 0.14, tierIdx);
@@ -4197,63 +4231,112 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'catalyst') {
-          // DELUXE PRISMATIC OCTAHEDRAL DIAMOND JEWEL (Pure Diamond Starlight White & Electric Cyan - Zero Stick Lines, Zero Pink/Purple!)
+          // SUPREME VITALITY LIFE RECOVERY NODE (+1 LIFE RESTORATION)
+          // 1. Sky-Spanning Vertical Light Pillar / Beacon (alerting player from top of screen)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const gemRot = now * 0.0026 + animPhase;
-          const gemR = targetR * 0.82;
+          const beaconGrad = ctx.createLinearGradient(0, -ctx.canvas.height, 0, ctx.canvas.height);
+          beaconGrad.addColorStop(0.0, 'rgba(52, 211, 153, 0.0)');
+          beaconGrad.addColorStop(0.4, 'rgba(16, 185, 129, 0.28)');
+          beaconGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.65)');
+          beaconGrad.addColorStop(0.6, 'rgba(52, 211, 153, 0.28)');
+          beaconGrad.addColorStop(1.0, 'rgba(16, 185, 129, 0.0)');
+          ctx.fillStyle = beaconGrad;
+          ctx.fillRect(-14 * scale, -ctx.canvas.height, 28 * scale, ctx.canvas.height * 2);
+
+          // 2. Dual Rhythmic Heartbeat Shockwave Rings
+          const heartPhase = (now * 0.007) % 1.0;
+          for (let hb = 0; hb < 2; hb++) {
+            const hPhase = (heartPhase + hb * 0.5) % 1.0;
+            const rRing = targetR * (1.0 + hPhase * 1.8);
+            const aRing = Math.max(0, 1.0 - hPhase) * 0.75;
+            ctx.beginPath();
+            ctx.arc(0, 0, rRing, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(52, 211, 153, ${aRing})`;
+            ctx.lineWidth = (3.0 * (1.0 - hPhase) + 1.0) * scale;
+            ctx.stroke();
+          }
+
+          // 3. Faceted Octahedral Emerald & Diamond Star Core
+          const gemRot = now * 0.0028 + animPhase;
+          const gemR = targetR * 0.95;
           ctx.save();
           ctx.rotate(gemRot);
 
-          // 1. Faceted Diamond Outer Pavilion & Crown
-          const numPts = 6;
+          // Outer Vitality Star
+          const numPts = 8;
           ctx.beginPath();
           for (let pt = 0; pt < numPts; pt++) {
             const a = (pt * Math.PI * 2) / numPts;
-            const r = (pt % 2 === 0) ? gemR : gemR * 0.64;
+            const r = (pt % 2 === 0) ? gemR : gemR * 0.58;
             const gx = Math.cos(a) * r;
             const gy = Math.sin(a) * r;
             if (pt === 0) ctx.moveTo(gx, gy); else ctx.lineTo(gx, gy);
           }
           ctx.closePath();
-          ctx.fillStyle = 'rgba(56, 189, 248, 0.20)';
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
           ctx.fill();
-          ctx.strokeStyle = 'rgba(224, 242, 254, 0.90)';
-          ctx.lineWidth = 1.6 * scale;
+          ctx.strokeStyle = 'rgba(240, 253, 244, 0.95)';
+          ctx.lineWidth = 2.4 * scale;
           ctx.stroke();
 
-          // 2. Internal Radiant Refraction Facets (Pure Diamond White & Ethereal Cyan)
+          // Internal Brilliant Facets (Emerald Green & Diamond White)
           for (let f = 0; f < numPts; f++) {
             const fa = (f * Math.PI * 2) / numPts;
-            const r = (f % 2 === 0) ? gemR : gemR * 0.64;
+            const r = (f % 2 === 0) ? gemR : gemR * 0.58;
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(Math.cos(fa) * r, Math.sin(fa) * r);
-            ctx.strokeStyle = (f % 2 === 0) ? 'rgba(56, 189, 248, 0.75)' : 'rgba(255, 255, 255, 0.80)';
-            ctx.lineWidth = 1.2 * scale;
+            ctx.strokeStyle = (f % 2 === 0) ? 'rgba(52, 211, 153, 0.90)' : 'rgba(255, 255, 255, 0.95)';
+            ctx.lineWidth = 1.6 * scale;
             ctx.stroke();
           }
 
-          // 3. Volumetric Diamond Core Glow
-          const diaGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, gemR * 0.52);
-          diaGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
-          diaGlow.addColorStop(0.45, 'rgba(56, 189, 248, 0.40)');
-          diaGlow.addColorStop(1.0, 'rgba(14, 165, 233, 0.0)');
-          ctx.fillStyle = diaGlow;
+          // Central Radiant Vitality Heart-Light Core
+          const heartGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, gemR * 0.65);
+          heartGlow.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+          heartGlow.addColorStop(0.35, 'rgba(52, 211, 153, 0.85)');
+          heartGlow.addColorStop(0.70, 'rgba(16, 185, 129, 0.45)');
+          heartGlow.addColorStop(1.0, 'rgba(5, 150, 105, 0.0)');
+          ctx.fillStyle = heartGlow;
           ctx.beginPath();
-          ctx.arc(0, 0, gemR * 0.52, 0, Math.PI * 2);
+          ctx.arc(0, 0, gemR * 0.65, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
-          // 4. Delicate orbiting diamond stardust facets
-          for (let s = 0; s < 3; s++) {
-            const sAngle = -now * 0.0035 + (s * Math.PI * 2 / 3);
-            const sDist = targetR * 1.15;
+          // 4. Floating Vitality Badge ("💚 +1 LIFE")
+          ctx.save();
+          const badgeText = '💚 +1 LIFE';
+          ctx.font = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
+          const textW = ctx.measureText(badgeText).width;
+          const padX = 8 * scale;
+          const padY = 4 * scale;
+          ctx.translate(0, -targetR * 1.38);
+          ctx.fillStyle = 'rgba(6, 78, 59, 0.85)';
+          ctx.strokeStyle = '#34d399';
+          ctx.lineWidth = 1.3 * scale;
+          ctx.beginPath();
+          ctx.roundRect(-textW / 2 - padX, -padY - 7 * scale, textW + padX * 2, 16 * scale, 7 * scale);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#6ee7b7';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(badgeText, 0, 0);
+          ctx.restore();
+
+          // 5. Orbiting Stardust Sparkles
+          for (let s = 0; s < 4; s++) {
+            const sAngle = -now * 0.0042 + (s * Math.PI * 2 / 4);
+            const sDist = targetR * 1.28;
             const sx = Math.cos(sAngle) * sDist;
-            const sy = Math.sin(sAngle) * sDist * 0.65;
+            const sy = Math.sin(sAngle) * sDist * 0.70;
             ctx.beginPath();
-            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
-            ctx.fillStyle = (s === 0) ? '#38bdf8' : (s === 1 ? '#ffffff' : '#fef08a');
+            ctx.arc(sx, sy, 3.2 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = (s % 2 === 0) ? '#34d399' : '#ffffff';
+            ctx.shadowColor = '#34d399';
+            ctx.shadowBlur = 8;
             ctx.fill();
           }
           ctx.restore();
@@ -4373,7 +4456,7 @@
           catalyst: { text: '💎 CATALYST', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' }
         };
 
-        if (badges[p.nodeClass]) {
+        if (badges[p.nodeClass] && p.nodeClass !== 'catalyst') {
           const b = badges[p.nodeClass];
           ctx.save();
           ctx.translate(0, -targetR * 1.38);
@@ -4746,8 +4829,8 @@
     mathTimer: null,
     mathTimeLeft: 100,
 
-    // Reflex Blitz State
-    reflexLives: 10,
+    // Reflex Blitz State (Strict 3 Lives)
+    reflexLives: 3,
     catcherX: 0.5,
     catcherType: 'realm',
     lastTransmuteTime: 0,
@@ -4936,14 +5019,20 @@
     if (!dom.gameTitle) return;
 
     if (state.gameType === 'dynamo' || state.gameType === 'realm') {
-      dom.gameTitle.textContent = 'CHROME DYNAMO';
-      dom.gameSub.textContent = `Faraday Singularity Core · Plasma Orbs · Tesla Wavepacket Hull · Wave ${state.currentWave}`;
+      dom.gameTitle.textContent = state.coreTier === 5 ? 'CHROME DYNAMO · SERAPHIC ARCHON' : 'CHROME DYNAMO';
+      dom.gameSub.textContent = state.coreTier === 5
+        ? `⭐ Tier V Supreme Ascendant · Faraday Singularity Core · Tachyon Satellites · Wave ${state.currentWave}`
+        : `Faraday Singularity Core · Plasma Orbs · Tesla Wavepacket Hull · Wave ${state.currentWave}`;
     } else if (state.gameType === 'helix') {
-      dom.gameTitle.textContent = 'CHROME HELIX';
-      dom.gameSub.textContent = `Harmonic Bio-Lattice Core · Nucleotide Pearls · 3D Aurora Ribbon · Wave ${state.currentWave}`;
+      dom.gameTitle.textContent = state.coreTier === 5 ? 'CHROME HELIX · PRISM ARCHON' : 'CHROME HELIX';
+      dom.gameSub.textContent = state.coreTier === 5
+        ? `⭐ Tier V Supreme Ascendant · Harmonic Bio-Lattice Core · Prismatic Refraction Rays · Wave ${state.currentWave}`
+        : `Harmonic Bio-Lattice Core · Nucleotide Pearls · 3D Aurora Ribbon · Wave ${state.currentWave}`;
     } else if (state.gameType === 'meteor') {
-      dom.gameTitle.textContent = 'CHROME METEOR';
-      dom.gameSub.textContent = `Aegis Caldera Core · Molten Bolides · Supersonic Combustion Trail · Wave ${state.currentWave}`;
+      dom.gameTitle.textContent = state.coreTier === 5 ? 'CHROME METEOR · MAGNETAR SERAPH' : 'CHROME METEOR';
+      dom.gameSub.textContent = state.coreTier === 5
+        ? `⭐ Tier V Supreme Ascendant · Aegis Caldera Core · Coronal Solar Flares · Wave ${state.currentWave}`
+        : `Aegis Caldera Core · Molten Bolides · Supersonic Combustion Trail · Wave ${state.currentWave}`;
     } else if (state.gameType === 'reflex') {
       dom.gameTitle.textContent = 'REFLEX BLITZ';
       dom.gameSub.textContent = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
@@ -4967,7 +5056,7 @@
       dom.tierVal.style.color = colorMap[state.coreTier] || '#00f0ff';
       const tierPillEl = document.getElementById('cgTierPill');
       if (tierPillEl) {
-        tierPillEl.title = `Core Evolution Tier: Tier I (Combo 1-3x), Tier II (Combo 4-6x), Tier III (Combo 7-9x), Tier IV (Combo 10-14x Sovereign Overdrive), Tier V (Combo 15x+ Supreme Seraphic Ascendant)`;
+        tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28x+ Supreme Seraphic Ascendant)`;
       }
     }
     if (dom.pulseVal) {
@@ -5180,7 +5269,7 @@
   // DEDICATED ARENA ENGINE: CHROME DYNAMO, CHROME HELIX, CHROME METEOR & REFLEX BLITZ
   // ══════════════════════════════════════════════════════════════════════════
   function startReflexGame() {
-    state.reflexLives = 10;
+    state.reflexLives = 3;
     state.catcherX = 0.5;
     state.catcherY = 0.82;
     targetCatcherX = 0.5;
@@ -5232,7 +5321,7 @@
     const startOverlay = document.getElementById('reflexStartOverlay');
 
     if (state.gameType === 'reflex') {
-      if (picker) picker.style.display = 'flex';
+      if (picker) picker.style.display = 'none'; // Hidden while choosing multiple on start overlay
       if (badge) badge.style.display = 'none';
       // Prompt player to choose 1, 2, 3, 4, 5, 6, 7, 8, 9 FIRST
       state.isChoosingMultiple = true;
@@ -5256,7 +5345,8 @@
   function renderReflexShields() {
     if (!dom.reflexShields) return;
     dom.reflexShields.innerHTML = '';
-    for (let i = 0; i < 10; i++) {
+    const maxShields = 3;
+    for (let i = 0; i < maxShields; i++) {
       const cell = document.createElement('span');
       cell.className = `shield-cell ${i < state.reflexLives ? 'shield-on' : 'shield-lost'}`;
       dom.reflexShields.appendChild(cell);
@@ -5570,7 +5660,8 @@
           if (isMultiple) {
             // CORRECT CATCH!
             state.score += 150 * state.combo;
-            state.combo = Math.min(10, state.combo + 1);
+            state.combo = Math.min(50, state.combo + 1);
+            if (state.combo >= 21) state.isOverdrive = true;
             audio.playCorrectChime(state.combo);
             state.floatingTexts.push({
               text: `+${150 * (state.combo - 1)} [MULTIPLE OF ${D}!]`,
@@ -5650,17 +5741,17 @@
       const elapsedSec = (now - state.gameStartTime) / 1000;
       const normFactor = Math.max(0.70, Math.min(1.20, h / 800));
 
-      // Calculate Core Evolution Tier (Tier I: 1-3x, Tier II: 4-6x, Tier III: 7-9x, Tier IV: 10-14x Sovereign Overdrive, Tier V: 15x+ Supreme Seraphic Ascendant)
-      if (state.combo >= 15) {
+      // Calculate Core Evolution Tier (New Rule: Tier II @ 7, Tier III @ 14, Tier IV @ 21, Tier V @ 28)
+      if (state.combo >= 28) {
         state.coreTier = 5;
         state.isOverdrive = true;
-      } else if (state.combo >= 10) {
+      } else if (state.combo >= 21) {
         state.coreTier = 4;
         state.isOverdrive = true;
-      } else if (state.combo >= 7) {
+      } else if (state.combo >= 14) {
         state.coreTier = 3;
         state.isOverdrive = false;
-      } else if (state.combo >= 4) {
+      } else if (state.combo >= 7) {
         state.coreTier = 2;
         state.isOverdrive = false;
       } else {
@@ -5743,7 +5834,10 @@
         } else {
           // Dynamic Falling Node Archetypes & Awesome Power-Ups (Shield & Missiles Included!)
           const rNode = Math.random();
-          if (rNode < 0.08) {
+          const isCriticalLife = (state.reflexLives <= 1);
+          if (isCriticalLife && rNode < 0.22) {
+            nClass = 'catalyst'; // Critical Pity: Emergency Life Recovery Node!
+          } else if (rNode < 0.08) {
             nClass = 'shield'; // 5-Second Aegis Forcefield Shield!
           } else if (rNode < 0.16) {
             nClass = 'missiles'; // Live Seeking Micro-Missiles!
@@ -5755,8 +5849,8 @@
             nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time)
           } else if (rNode < 0.41) {
             nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum)
-          } else if (rNode < 0.46 && (state.coreTier < 4 || state.combo >= 7)) {
-            nClass = 'catalyst'; // Ascension Catalyst Star (Overdrive / Extra Shield)
+          } else if (rNode < 0.48) {
+            nClass = 'catalyst'; // Ascension Catalyst Star (+1 Life / Tier Evolution)
           } else {
             nClass = 'standard';
           }
@@ -5773,7 +5867,7 @@
           supercharge: 30.0,
           chronos: 25.0,
           singularity: 27.0,
-          catalyst: 28.0,
+          catalyst: 38.0, // 40% Larger Silhouette for maximum visibility
           volatile: 28.0,
           seeker: 30.0,
           phantom: 26.0,
@@ -5869,7 +5963,7 @@
         state.combo = 10;
         state.coreTier = 4;
         state.isOverdrive = true;
-        state.reflexLives = 10;
+        state.reflexLives = 3;
         const modeName = (state.catcherType === 'realm') ? 'dynamo' : state.catcherType;
         if (!state._capState || state._capState.mode !== modeName) {
           CoreKinematics.reset();
@@ -6322,6 +6416,12 @@
         const dyToCore = catcherPixelY - p.y;
         const distToCore = Math.hypot(dxToCore, dyToCore);
 
+        // Emergency Life Recovery Magnetic Assist (Clutch Save)
+        if (p.nodeClass === 'catalyst' && state.reflexLives < 3 && distToCore < 190 && p.y < catcherPixelY + 30) {
+          const lifeMagnet = (1.0 - (distToCore / 190)) * 1.6;
+          p.x += Math.sign(dxToCore) * Math.min(Math.abs(dxToCore) * 0.20, lifeMagnet * 4.8 * dtScale);
+        }
+
         let speedFactor = 1.0;
         if (distToCore < gravRadius && p.y < catcherPixelY + 20 && !isHazardNode(p.nodeClass)) {
           speedFactor = 0.72; // Proximity tether dampening
@@ -6399,8 +6499,14 @@
               continue;
             }
 
-            state.combo = 1;
-            state.coreTier = Math.max(1, state.coreTier - 1);
+            if (state.coreTier > 1) {
+              state.coreTier--;
+              const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+              state.combo = tierFloorCombo[state.coreTier] || 0;
+            } else {
+              state.coreTier = 1;
+              state.combo = 0;
+            }
             state.reflexLives--;
             state.consecutivePerfects = 0;
             state.resonanceChain = 0;
@@ -6469,20 +6575,21 @@
             audio.playPulseCharged();
 
           } else if (p.nodeClass === 'catalyst') {
+            const targetTierCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
             state.coreTier = Math.min(5, state.coreTier + 1);
-            state.combo = (state.coreTier === 5 ? 15 : (state.coreTier === 4 ? 10 : (state.coreTier === 3 ? 7 : 4)));
+            state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
             state.isOverdrive = (state.coreTier >= 4);
             const prevLives = state.reflexLives;
-            state.reflexLives = Math.min(10, state.reflexLives + 1);
+            state.reflexLives = Math.min(3, state.reflexLives + 1);
             renderReflexShields();
-            state.applyBuff('catalyst', 'ASCENSION CATALYST', '#38bdf8', '💎', 6000, now);
+            state.applyBuff('catalyst', 'ASCENSION CATALYST', '#10b981', '💚', 6000, now);
             if (state.coreTier === 5) audio.playTier5Ascension();
             else audio.playOverdriveFanfare();
             state.floatingTexts.push({
               x: p.x,
               y: p.y - 20,
-              text: state.reflexLives > prevLives ? '💎 ASCENSION TIER +1 · SHIELD +1' : '💎 ASCENSION TIER +1 (OVERDRIVE)',
-              color: '#38bdf8',
+              text: state.reflexLives > prevLives ? '💚 +1 LIFE RESTORED! (TIER +1)' : '💎 ASCENSION TIER +1 (OVERDRIVE)',
+              color: '#34d399',
               alpha: 1.0,
               startTime: now
             });
@@ -6505,11 +6612,13 @@
           const finalCatchPoints = Math.floor(basePoints * state.combo * precisionMultiplier * classMultiplier * clusterBonus);
           state.score += finalCatchPoints;
           const prevCombo = state.combo;
-          state.combo = Math.min(10, state.combo + 1);
-          if (prevCombo < 10 && state.combo === 10) {
+          state.combo = Math.min(50, state.combo + 1);
+          if (prevCombo < 21 && state.combo >= 21) {
             state.isOverdrive = true;
-            state.overdriveEndTime = 0; // Stays active as long as 10x streak is held!
+            state.overdriveEndTime = 0; // Stays active as long as 21x streak is held!
             audio.playOverdriveFanfare();
+          } else if (prevCombo < 28 && state.combo >= 28) {
+            audio.playTier5Ascension();
           }
 
           // Perfect Catch Charging Flux Pulse (3 in a row fills meter!)
@@ -6555,6 +6664,13 @@
             continue;
           }
 
+          // Bonus Power-Ups and Cluster Duplicate Nodes do NOT penalize player if missed
+          if (p.isDuplicate || p.nodeClass !== 'standard') {
+            state.particles.splice(i, 1);
+            updateHeaderUI();
+            continue;
+          }
+
           state.particles.splice(i, 1);
           state.reflexLives--;
           state.consecutivePerfects = 0;
@@ -6562,10 +6678,10 @@
 
           if (state.coreTier > 1) {
             state.coreTier--;
-            const tierFloorCombo = { 1: 1, 2: 4, 3: 7, 4: 10 };
-            state.combo = tierFloorCombo[state.coreTier] || 1;
+            const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+            state.combo = tierFloorCombo[state.coreTier] || 0;
           } else {
-            state.combo = 1;
+            state.combo = 0;
           }
           state.isOverdrive = false;
 
@@ -6847,9 +6963,9 @@
     // Cycle Tier (I -> II -> III -> IV -> V) on clicking the TIER pill or pressing 'T'
     function cycleCoreTier() {
       if (!state.active) return;
-      const nextTierCombo = { 1: 4, 2: 7, 3: 10, 4: 15, 5: 1 };
-      state.combo = nextTierCombo[state.coreTier] || 15;
-      state.coreTier = state.combo >= 15 ? 5 : (state.combo >= 10 ? 4 : (state.combo >= 7 ? 3 : (state.combo >= 4 ? 2 : 1)));
+      const nextTierCombo = { 1: 7, 2: 14, 3: 21, 4: 28, 5: 0 };
+      state.combo = (nextTierCombo[state.coreTier] !== undefined) ? nextTierCombo[state.coreTier] : 0;
+      state.coreTier = state.combo >= 28 ? 5 : (state.combo >= 21 ? 4 : (state.combo >= 14 ? 3 : (state.combo >= 7 ? 2 : 1)));
       state.isOverdrive = (state.coreTier >= 4);
       CoreKinematics.continuousTier = state.coreTier;
       if (state.coreTier === 5) audio.playTier5Ascension();
@@ -6916,6 +7032,8 @@
           
           const overlay = document.getElementById('reflexStartOverlay');
           if (overlay) overlay.style.display = 'none';
+          const picker = document.getElementById('reflexMultiplePicker');
+          if (picker) picker.style.display = 'flex';
 
           // Sync topbar digit pills
           const pills = document.querySelectorAll('#reflexDigitBtns .digit-pill');
@@ -6945,6 +7063,8 @@
         state.particles = [];
         const overlay = document.getElementById('reflexStartOverlay');
         if (overlay) overlay.style.display = 'flex';
+        const picker = document.getElementById('reflexMultiplePicker');
+        if (picker) picker.style.display = 'none';
         updateHeaderUI();
       });
     }
@@ -7122,10 +7242,12 @@
     setPointerX: (nx) => { targetCatcherX = Math.max(0.04, Math.min(0.96, nx)); },
     setPointerY: (ny) => { targetCatcherY = Math.max(0.06, Math.min(0.94, ny)); },
     setTier: (t) => {
-      const nextCombo = { 1: 1, 2: 4, 3: 7, 4: 10, 5: 15 };
-      state.combo = nextCombo[t] || 15;
+      const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+      state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
       state.coreTier = t;
+      CoreKinematics.continuousTier = t;
       state.isOverdrive = (t >= 4);
+      if (t === 5) audio.playTier5Ascension();
       updateHeaderUI();
     }
   };
@@ -7137,7 +7259,8 @@
     close: closeGame,
     setTier: function(t) {
       if (!state.active) return;
-      state.combo = (t >= 5 ? 15 : (t === 4 ? 10 : (t === 3 ? 7 : (t === 2 ? 4 : 1))));
+      const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+      state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
       state.coreTier = t;
       CoreKinematics.continuousTier = t;
       state.isOverdrive = (t >= 4);
@@ -7157,7 +7280,8 @@
           const t = parseInt(p.get('tier') || '0', 10);
           if (t >= 1 && t <= 5) {
             setTimeout(() => {
-              state.combo = (t >= 5 ? 15 : (t === 4 ? 10 : (t === 3 ? 7 : (t === 2 ? 4 : 1))));
+              const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+              state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
               state.coreTier = t;
               CoreKinematics.continuousTier = t;
               state.isOverdrive = (t >= 4);

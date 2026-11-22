@@ -1,0 +1,2653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrome Arcade · Tier V Supreme Living Motion Studio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: #020408;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Top Command Center Bar */
+    #topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px;
+      background: rgba(10, 15, 28, 0.96);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+      z-index: 50;
+      gap: 8px;
+      flex-shrink: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #topbar::-webkit-scrollbar {
+      display: none;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-weight: 800;
+      font-size: 12.5px;
+      letter-spacing: 0.6px;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .brand-sub {
+      font-size: 9.5px;
+      color: #38bdf8;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 2px 6px;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      flex-shrink: 0;
+    }
+    .btn-pill {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .btn-pill:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .btn-pill-soon {
+      opacity: 0.65;
+      font-size: 10px;
+    }
+    .btn-pill-soon:hover {
+      opacity: 1;
+    }
+    .btn-pill.active {
+      background: rgba(14, 165, 233, 0.25);
+      color: #38bdf8;
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+    .btn-pill.active-dynamo {
+      background: rgba(168, 85, 247, 0.25);
+      color: #c084fc;
+      border-color: #c084fc;
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
+    }
+    .btn-pill.active-helix {
+      background: rgba(6, 182, 212, 0.25);
+      color: #22d3ee;
+      border-color: #22d3ee;
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+    }
+    .btn-pill.active-meteor {
+      background: rgba(249, 115, 22, 0.25);
+      color: #fb923c;
+      border-color: #fb923c;
+      box-shadow: 0 0 12px rgba(251, 146, 60, 0.3);
+    }
+
+    /* Main Viewport */
+    #viewport-container {
+      flex: 1;
+      position: relative;
+      background: #010204;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Floating Telemetry HUD */
+    #telemetry-panel {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(10, 14, 26, 0.94);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 10px;
+      font-family: monospace;
+      color: #cbd5e1;
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+      min-width: 440px;
+      max-width: 520px;
+      line-height: 1.6;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      z-index: 40;
+    }
+    #telemetry-panel > div:not(.title) {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      clear: both;
+    }
+    #telemetry-panel .val {
+      color: #38bdf8;
+      font-weight: 700;
+      text-align: right;
+    }
+    #telemetry-panel .title {
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+      padding-bottom: 3px;
+      font-size: 11.5px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Overlay Toggles Panel (Top-Right) */
+    #overlay-toggles {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 40;
+    }
+    .toggle-pill {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.40);
+      color: #f8fafc;
+      padding: 5px 12px;
+      border-radius: 14px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .toggle-pill:hover {
+      color: #fff;
+      background: rgba(30, 41, 59, 0.95);
+      border-color: #38bdf8;
+    }
+    .toggle-pill.active {
+      background: rgba(14, 165, 233, 0.25);
+      color: #38bdf8;
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+    .toggle-pill.active-pulse {
+      background: rgba(239, 68, 68, 0.35);
+      color: #f87171;
+      border-color: #ef4444;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+    }
+    .toggle-pill.active-green {
+      background: rgba(34, 197, 94, 0.35);
+      color: #4ade80;
+      border-color: #22c55e;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.5);
+    }
+
+    /* Bottom Sequencer Bar */
+    #sequence-bar {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 15, 28, 0.94);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 16px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      max-width: 95vw;
+      overflow-x: auto;
+    }
+    .seq-step-pill {
+      font-size: 10px;
+      font-family: monospace;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #64748b;
+      white-space: nowrap;
+    }
+    .seq-step-pill.current {
+      background: rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+      font-weight: 700;
+    }
+    .seq-play-btn {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      border: 1px solid #38bdf8;
+      color: #fff;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .seq-play-btn:hover {
+      background: linear-gradient(135deg, #0369a1, #075985);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Dedicated Two Views Mode Switcher */
+    #studio-mode-group .btn-pill {
+      font-size: 11.5px;
+      padding: 5px 12px;
+      font-weight: 700;
+    }
+    #studio-mode-group .btn-pill.active {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(56, 189, 248, 0.2));
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+    }
+
+    /* 360° Turntable Interactive Overlay Panel */
+    #turntable-panel {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 15, 28, 0.94);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 16px;
+      padding: 10px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 45;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+      min-width: 520px;
+      max-width: 620px;
+    }
+    .tt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tt-badge {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: #38bdf8;
+    }
+    .tt-angle-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fbbf24;
+      font-family: monospace;
+    }
+    .tt-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .tt-slider-row input[type="range"] {
+      flex: 1;
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
+    .tt-angles-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .tt-chip {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tt-chip:hover {
+      background: rgba(56, 189, 248, 0.2);
+      color: #fff;
+    }
+    .tt-chip.active-gold {
+      background: rgba(251, 191, 36, 0.25);
+      border-color: #fbbf24;
+      color: #fbbf24;
+      font-weight: 700;
+    }
+    .tt-actions-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .tt-act-btn {
+      background: rgba(14, 165, 233, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tt-act-btn:hover {
+      background: rgba(14, 165, 233, 0.35);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+    .tt-act-btn.active {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+    .tt-guide {
+      font-size: 10.5px;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.4;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="topbar">
+    <div class="brand">
+      <div>
+        <div class="brand-title">CHROME ARCADE · TIER V SUPREME LIVING MOTION STUDIO</div>
+        <div class="brand-sub">Tier V Master Chrome Cores · Seraphic Articulated Flight · Aerodynamic Banking</div>
+      </div>
+    </div>
+
+    <!-- View Mode Selector: 1. Steer Character vs 2. Rotate Character (360° Turntable) -->
+    <div class="controls-group" id="studio-mode-group">
+      <button class="btn-pill active" id="mode-btn-steer">🕹️ Steer Flight</button>
+      <button class="btn-pill" id="mode-btn-turntable">🔄 360° Turntable</button>
+    </div>
+
+    <!-- Realm Selector -->
+    <div class="controls-group" id="realm-group">
+      <button class="btn-pill active active-dynamo" data-realm="dynamo">⚡ Dynamo Princess</button>
+      <button class="btn-pill" data-realm="helix">🧬 Helix Unicorn</button>
+      <button class="btn-pill" data-realm="meteor">🔥 Meteor Dragon</button>
+    </div>
+
+    <!-- Tier Selector: Tier V is Active; Tiers VI-X Pending User's Next Phase Uploads -->
+    <div class="controls-group" id="tier-group">
+      <button class="btn-pill active" data-tier="V" title="Tier V Supreme Seraphic Ascendant (Active)">⭐ Tier V</button>
+      <button class="btn-pill btn-pill-soon" data-tier="VI" title="Tier VI (Coming Soon)">Tier VI</button>
+      <button class="btn-pill btn-pill-soon" data-tier="VII" title="Tier VII (Coming Soon)">Tier VII</button>
+      <button class="btn-pill btn-pill-soon" data-tier="VIII" title="Tier VIII (Coming Soon)">Tier VIII</button>
+      <button class="btn-pill btn-pill-soon" data-tier="IX" title="Tier IX (Coming Soon)">Tier IX</button>
+      <button class="btn-pill btn-pill-soon" data-tier="X" title="Tier X (Coming Soon)">Tier X</button>
+    </div>
+  </div>
+
+  <div id="viewport-container">
+    <canvas id="viewCanvas" width="1920" height="1080"></canvas>
+
+    <!-- 360° Turntable Interactive Overlay Panel (View 2) -->
+    <div id="turntable-panel" style="display: none;">
+      <div class="tt-header">
+        <span class="tt-badge">🔄 360° TURNTABLE ORBIT · TIER V CHROME DYNAMO (SERAPHIC ARCHON)</span>
+        <span class="tt-angle-text" id="tt-angle-text">45.0° · RIGHT 3/4 (45°) · Windward Leading Wing Lift & Aerodynamic Bank</span>
+      </div>
+      <div class="tt-slider-row">
+        <span>0° (Front)</span>
+        <input type="range" id="tt-slider" min="0" max="360" step="0.5" value="45">
+        <span>360°</span>
+      </div>
+      <div class="tt-angles-row">
+        <button class="tt-chip" data-ang="0">Front (0°)</button>
+        <button class="tt-chip active-gold" data-ang="45">★ Original (45°)</button>
+        <button class="tt-chip" data-ang="90">R-Profile (90°)</button>
+        <button class="tt-chip" data-ang="135">Rear 3/4 (135°)</button>
+        <button class="tt-chip" data-ang="180">Rear Dorsal (180°)</button>
+        <button class="tt-chip" data-ang="225">Rear-L 3/4 (225°)</button>
+        <button class="tt-chip" data-ang="270">L-Profile (270°)</button>
+        <button class="tt-chip" data-ang="315">Left 3/4 (315°)</button>
+      </div>
+      <div class="tt-actions-row">
+        <button class="tt-act-btn" id="tt-btn-reset">↺ Reset to Original View (45°)</button>
+        <button class="tt-act-btn" id="tt-btn-pause">⏸️ Pause Animation (Space)</button>
+        <button class="tt-act-btn" id="tt-btn-orbit">🔄 Auto Orbit</button>
+      </div>
+      <div class="tt-guide">
+        💡 <b>Turntable Interaction</b>: Click & drag horizontally on character (or touch swipe) to orbit 360° around her chest core. Pause halfway through a wingbeat to inspect any angle, then resume seamlessly!
+      </div>
+    </div>
+
+    <!-- Telemetry Panel -->
+    <div id="telemetry-panel">
+      <div class="title" id="tel-title">HELIX UNICORN · TIER VI [STEER CHARACTER VIEW]</div>
+      <div>Steering State: <span class="val" id="tel-state">HOVER IDLE</span></div>
+      <div>Kinetic Weight Shift: <span class="val" id="tel-facing">CENTER EQUILIBRIUM</span></div>
+      <div>Head Direction & Pose: <span class="val" id="tel-head-pose">R34 (RIGHT 3/4)</span></div>
+      <div>Gaze Lead & Blinking: <span class="val" id="tel-eyes">ATTENTIVE (OPEN)</span></div>
+      <div>Mouth & Expression: <span class="val" id="tel-mouth">RESTING HOVER (0%)</span></div>
+      <div>Aerodynamic Wing Banking: <span class="val" id="tel-wings">UNIFIED HARMONIC BEAT</span></div>
+      <div>Catch Point (X, Y): <span class="val" id="tel-pos">960, 780</span></div>
+      <div>Velocity & Accel: <span class="val" id="tel-vel">Vx 0.0, Ax 0.0</span></div>
+      <div>Bank & Head Tilt: <span class="val" id="tel-bank">0.0° / 0.0°</span></div>
+      <div>Weapon State & Aim: <span class="val" id="tel-weapon">AIM LOCKED (0°)</span></div>
+      <div>Gait & Limbs: <span class="val" id="tel-gait">ROYAL SUSPENSION</span></div>
+      <div>Collision Catch Radius: <span class="val" id="tel-catch" style="color:#22c55e;">28px ROCK-STEADY</span></div>
+    </div>
+
+    <!-- Overlay Toggles -->
+    <div id="overlay-toggles">
+      <button class="toggle-pill active" id="toggle-hud">👁️ Telemetry HUD (T)</button>
+      <button class="toggle-pill" id="toggle-recenter">🎯 Center Character (R)</button>
+      <button class="toggle-pill" id="toggle-closeup">🔍 2.5x Close-Up Inspection Mode</button>
+      <button class="toggle-pill active" id="toggle-t5-ghost">👻 Show Tier V Reference Ghost</button>
+      <button class="toggle-pill active" id="toggle-catch-point">🎯 Show Catch Point & 28px Radius</button>
+      <button class="toggle-pill" id="toggle-skeletal-mesh">📐 Show Skeletal Rig Pivots</button>
+      <button class="toggle-pill" id="toggle-silhouette">🖤 Silhouette Only Lightbox</button>
+      <button class="toggle-pill" id="toggle-hide-effects">✨ Hide Effects (Pure Anatomy Mode) (H)</button>
+      <button class="toggle-pill" id="btn-trigger-blink">👁️ Trigger Blink (B)</button>
+      <button class="toggle-pill" id="btn-toggle-canter">🐎 Toggle Slow Canter (K)</button>
+      <button class="toggle-pill active-green" id="btn-run-maneuver">🔄 Trigger Full Reversal (M)</button>
+      <button class="toggle-pill active-green" id="btn-run-course">🎯 Run Collectibles Intercept Sequence (C)</button>
+      <button class="toggle-pill active-pulse" id="btn-trigger-pulse">💥 Trigger Flux Pulse / Roar (P)</button>
+      <button class="toggle-pill" id="toggle-pause-turn">⏸️ Pause Turn Midpoint (Space)</button>
+    </div>
+
+    <!-- Canonical 7-Stage Benchmark Sequencer Bar -->
+    <div id="sequence-bar">
+      <button class="seq-play-btn" id="btn-run-benchmark">▶ Play Canonical Benchmark (23s)</button>
+      <div class="seq-step-pill" id="seq-step-hover">1. Stationary Hover (3s)</div>
+      <div class="seq-step-pill" id="seq-step-left-start">2. Leftward Start (2.5s)</div>
+      <div class="seq-step-pill" id="seq-step-left-sustained">3. Sustained Left Pass (5s)</div>
+      <div class="seq-step-pill" id="seq-step-reversal-right">4. Sharp Reversal Right (3s)</div>
+      <div class="seq-step-pill" id="seq-step-climb">5. Climb (2.5s)</div>
+      <div class="seq-step-pill" id="seq-step-descend-brake">6. Braking Descent (2.5s)</div>
+      <div class="seq-step-pill" id="seq-step-hover-hold">7. Return to Hover (4.5s)</div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      realm: 'dynamo',
+      tier: 'V',
+      studioMode: 'steer',       // 'steer' (1. Steer Character) or 'turntable' (2. Rotate Character 360°)
+      turntableAngle: 45.0,      // Degrees (0 to 360)
+      turntableAutoOrbit: false,
+      isTurntableDragging: false,
+      dragStartX: 0,
+      dragStartAngle: 45.0,
+      isAnimationPaused: false,  // Preserves exact frozen pose across modes!
+      showT5Ghost: true,
+      showCatchPoint: true,
+      showSkeletalMesh: false,
+      silhouetteMode: false,
+      hideEffects: false,
+      isPausedTurnMidpoint: false,
+      isCloseUpMode: false,
+      camZoom: 1.0,
+      
+      // Maneuver Course State
+      maneuverRunning: false,
+      maneuverTime: 0,
+      
+      // Course State
+      courseRunning: false,
+      courseTime: 0,
+      collectibles: [
+        { id: 1, x: 520, y: 260, caught: false },
+        { id: 2, x: 1400, y: 260, caught: false }
+      ],
+      hazard: { x: 960, y: 210, grazed: false },
+      
+      // Pulse Event
+      pulseRunning: false,
+      pulseTime: 0,
+      pulseWaveRadius: 0,
+
+      // Benchmark State
+      benchmarkRunning: false,
+      benchmarkTime: 0,
+      
+      // Kinematic Character Model
+      player: {
+        x: 960,
+        y: 780,
+        targetX: 960,
+        targetY: 780,
+        vx: 0,
+        vy: 0,
+        prevVx: 0,
+        ax: 0,
+        
+        // Directional Facing & 3D Turning (Problem 1 & 2)
+        yaw: 0.35,                // -1.0 (Left 3/4) to +1.0 (Right 3/4)
+        bodyBank: 0,              // Dynamic aerodynamic banking
+        headAngle: 0,             // Head turn leading the turn
+        shoulderBank: 0,          // Shoulder pitch and roll
+        weightShiftX: 0,          // Kinetic weight transfer across hips
+        
+        // Gaze, Eyes & Blinking (Problem 2)
+        eyeDx: 0,
+        eyeDy: 0,
+        gazeHoldTimer: 0,
+        blinkTimer: 0,
+        blinkClosed: 0.0,
+        isWinking: false,
+        
+        // Mouth & Expression System (Problem 3)
+        mouthState: 'rest',       // 'rest', 'smile', 'focus', 'roar'
+        mouthOpen: 0.0,
+        expressionTimer: 0,
+        
+        // Unified Harmonic Aerodynamic Wing Engine (Problem 4 - Tier II-IV Benchmark)
+        wingCycle: 0,             // Majestic, unified flap frequency (0.8 Hz)
+        leadWingLift: 0,          // Leading wing elevates into airflow
+        trailWingSweep: 0,        // Trailing wing sweeps down/back
+        wingFlapAngle: 0,         // Master wing stroke angle
+        brakeFlare: 0,            // Braking forward air-cushion flare
+        breathPhase: 0,
+        
+        // Secondary Elements Single Settling Lag
+        secondaryLag: 0,          // Hair, twintails, cape, tail mace lag
+        secondaryVel: 0,
+        
+        // Character-Specific Flight Mechanics (Problem 3 & 5)
+        cannonAim: 0,
+        recoilTimer: 0,
+        recoilKick: 0,
+        kneeFlex: 0,
+        bootDrift: 0,
+        footTimer: 0,
+        footShift: 0,
+        
+        canterPhase: 0,
+        canterLead: 1.0,          // +1.0 Right lead, -1.0 Left lead
+        canterGaitBeat: 0,
+        legFlap: [0, 0, 0, 0],
+        neckBob: 0,
+        
+        dragonStroke: 0,
+        clawsTucked: 0.0,
+        tailChain: [0, 0, 0, 0, 0],
+        flameParticles: []
+      },
+
+      keys: { left: false, right: false, up: false, down: false }
+    };
+
+    // Asset Manifest Loading
+    const images = {};
+    const assetManifest = {
+      'node_dynamo': 'assets/node-dynamo-t4.png',
+      'node_helix': 'assets/node-helix-t4.png',
+      'node_meteor': 'assets/node-meteor-t4.png',
+      'hazard_dynamo': 'assets/hazard-dynamo-t4.png',
+      'hazard_helix': 'assets/hazard-helix-t4.png',
+      'hazard_meteor': 'assets/hazard-meteor-t4.png',
+
+      'dynamo_v': 'assets/characters/dynamo_v.png',
+      'helix_v': 'assets/characters/helix_v.png',
+      'meteor_v': 'assets/characters/meteor_v.png',
+
+      'layer_dynamo_wing': 'assets/layer-dynamo-wing-right.png',
+      'layer_helix_wing': 'assets/layer-helix-wing-right.png',
+      'layer_meteor_wing': 'assets/layer-meteor-wing-right.png',
+      'core_dynamo_t5': 'assets/core-dynamo-t5.png',
+      'core_helix_t5': 'assets/core-helix-t5.png',
+      'core_meteor_t5': 'assets/core-meteor-t5.png',
+      'layer_dynamo_halo': 'assets/layer-dynamo-halo.png',
+      'layer_helix_halo': 'assets/layer-helix-halo.png',
+      'layer_meteor_halo': 'assets/layer-meteor-halo.png'
+    };
+
+    ['dynamo', 'helix', 'meteor'].forEach(game => {
+      ['vi', 'vii', 'viii', 'ix', 'x'].forEach(tier => {
+        const k = `${game}_${tier}`;
+        assetManifest[k] = `assets/characters/${k}.png`;
+        assetManifest[`${k}_body`] = `assets/characters/rigs/${k}_body.png`;
+        assetManifest[`${k}_head_r34`] = `assets/characters/rigs/${k}_head_r34.png`;
+        assetManifest[`${k}_head_front`] = `assets/characters/rigs/${k}_head_front.png`;
+        assetManifest[`${k}_head_l34`] = `assets/characters/rigs/${k}_head_l34.png`;
+        assetManifest[`${k}_wing_l`] = `assets/characters/rigs/${k}_wing_l.png`;
+        assetManifest[`${k}_wing_r`] = `assets/characters/rigs/${k}_wing_r.png`;
+      });
+    });
+
+    // Tier VI Helix Unicorn 360° Turntable Turnaround Views (View 2)
+    const ttAnglesList = [0, 45, 90, 135, 180, 225, 270, 315];
+    const ttSuffixMap = {
+      0: 'front', 45: 'r34', 90: 'profile_r', 135: 'rear_r34',
+      180: 'rear', 225: 'rear_l34', 270: 'profile_l', 315: 'l34'
+    };
+    ttAnglesList.forEach(ang => {
+      const padAng = String(ang).padStart(3, '0');
+      assetManifest[`helix_vi_turn_${padAng}`] = `assets/characters/rigs/helix_vi_turn_${padAng}_${ttSuffixMap[ang]}.png`;
+    });
+
+    let loadedCount = 0;
+    for (const [key, url] of Object.entries(assetManifest)) {
+      const img = new Image();
+      img.onload = () => loadedCount++;
+      img.src = url;
+      images[key] = img;
+    }
+
+    const canvas = document.getElementById('viewCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI Controls
+    document.getElementById('realm-group').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-pill');
+      if (!btn) return;
+      document.querySelectorAll('#realm-group .btn-pill').forEach(b => {
+        b.classList.remove('active', 'active-dynamo', 'active-helix', 'active-meteor');
+      });
+      state.realm = btn.dataset.realm;
+      btn.classList.add('active', `active-${state.realm}`);
+      updateTitles();
+    });
+
+    document.getElementById('tier-group').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-pill');
+      if (!btn) return;
+      document.querySelectorAll('#tier-group .btn-pill').forEach(b => b.classList.remove('active'));
+      state.tier = btn.dataset.tier;
+      btn.classList.add('active');
+      updateTitles();
+    });
+
+    // ─── DEDICATED VIEW MODES (1. Steer Character vs 2. Rotate Character 360° Turntable) ───
+    document.getElementById('mode-btn-steer').addEventListener('click', () => setStudioMode('steer'));
+    document.getElementById('mode-btn-turntable').addEventListener('click', () => setStudioMode('turntable'));
+
+    function setStudioMode(mode) {
+      state.studioMode = mode;
+      document.getElementById('mode-btn-steer').classList.toggle('active', mode === 'steer');
+      document.getElementById('mode-btn-turntable').classList.toggle('active', mode === 'turntable');
+      document.getElementById('turntable-panel').style.display = mode === 'turntable' ? 'flex' : 'none';
+      document.getElementById('overlay-toggles').style.display = mode === 'turntable' ? 'none' : 'flex';
+      document.getElementById('sequence-bar').style.display = mode === 'turntable' ? 'none' : 'flex';
+      
+      updateTitles();
+      updateTurntableAngle(state.turntableAngle);
+
+      if (mode === 'turntable') {
+        setTel('tel-state', '360° TURNTABLE ORBIT (DRAG TO ROTATE)');
+      } else {
+        setTel('tel-state', 'STEER CHARACTER (LIVE GAMEPLAY SCALE)');
+      }
+    }
+
+    // Turntable UI Controls
+    const ttSlider = document.getElementById('tt-slider');
+    const ttAngleText = document.getElementById('tt-angle-text');
+
+    function updateTurntableAngle(ang) {
+      state.turntableAngle = (ang % 360 + 360) % 360;
+      ttSlider.value = state.turntableAngle.toFixed(1);
+      
+      let angleDesc = '';
+      const a = state.turntableAngle;
+      if (state.tier === 'V') {
+        if (a >= 337.5 || a < 22.5) angleDesc = 'FRONT VIEW (0°) · Symmetrical Seraphic Core & Hexa-Wings';
+        else if (a >= 22.5 && a < 67.5) angleDesc = 'RIGHT 3/4 (45°) · Windward Leading Wing Lift & Aerodynamic Bank';
+        else if (a >= 67.5 && a < 112.5) angleDesc = 'RIGHT PROFILE (90°) · Lateral Chronometer Gimbal & Tachyon Orbiters';
+        else if (a >= 112.5 && a < 157.5) angleDesc = 'REAR-RIGHT 3/4 (135°) · Wing Root Socket Anchor & Slipstream Wake';
+        else if (a >= 157.5 && a < 202.5) angleDesc = 'REAR DORSAL (180°) · Backside Seraphic Plumage & Celestial Halo';
+        else if (a >= 202.5 && a < 247.5) angleDesc = 'REAR-LEFT 3/4 (225°) · Trailing Slipstream & Dynamic Vortex';
+        else if (a >= 247.5 && a < 292.5) angleDesc = 'LEFT PROFILE (270°) · Leeward Gear Ring Perspective & Orbit Plane';
+        else angleDesc = 'LEFT 3/4 VIEW (315°) · Balanced High-Speed Aerodynamic Banking';
+      } else {
+        if (a >= 337.5 || a < 22.5) angleDesc = 'FRONT VIEW (0°) · Symmetrical Core & Dual Wings';
+        else if (a >= 22.5 && a < 67.5) angleDesc = 'ORIGINAL APPROVED ART (45° R34) · Master Reference';
+        else if (a >= 67.5 && a < 112.5) angleDesc = 'RIGHT PROFILE VIEW (90°) · Muzzle in Profile · Far Legs Behind';
+        else if (a >= 112.5 && a < 157.5) angleDesc = 'REAR-RIGHT 3/4 (135°) · Wing Root Revealed at Withers';
+        else if (a >= 157.5 && a < 202.5) angleDesc = 'REAR DORSAL (180°) · Spine & Wing Scapulae · Cascading DNA Tail';
+        else if (a >= 202.5 && a < 247.5) angleDesc = 'REAR-LEFT 3/4 (225°) · Flank & Wing Root Perspective';
+        else if (a >= 247.5 && a < 292.5) angleDesc = 'LEFT PROFILE (270°) · Muzzle Profile · Near Left Legs';
+        else angleDesc = 'LEFT 3/4 VIEW (315°) · Balanced Aerodynamic Bank';
+      }
+
+      ttAngleText.textContent = `${state.turntableAngle.toFixed(1)}° · ${angleDesc}`;
+      
+      document.querySelectorAll('.tt-chip').forEach(chip => {
+        const cAng = parseFloat(chip.dataset.ang);
+        chip.classList.toggle('active-gold', Math.abs(cAng - state.turntableAngle) < 15);
+      });
+    }
+
+    ttSlider.addEventListener('input', (e) => updateTurntableAngle(parseFloat(e.target.value)));
+
+    document.querySelectorAll('.tt-chip').forEach(chip => {
+      chip.addEventListener('click', () => updateTurntableAngle(parseFloat(chip.dataset.ang)));
+    });
+
+    document.getElementById('tt-btn-reset').addEventListener('click', () => updateTurntableAngle(45.0));
+
+    document.getElementById('tt-btn-pause').addEventListener('click', function() {
+      state.isAnimationPaused = !state.isAnimationPaused;
+      this.classList.toggle('active', state.isAnimationPaused);
+      this.textContent = state.isAnimationPaused ? '▶ Resume Animation (Space)' : '⏸️ Pause Animation (Space)';
+    });
+
+    document.getElementById('tt-btn-orbit').addEventListener('click', function() {
+      state.turntableAutoOrbit = !state.turntableAutoOrbit;
+      this.classList.toggle('active', state.turntableAutoOrbit);
+    });
+
+    // Mouse Drag to Rotate Turntable
+    canvas.addEventListener('mousedown', (e) => {
+      if (state.studioMode === 'turntable') {
+        state.isTurntableDragging = true;
+        state.dragStartX = e.clientX;
+        state.dragStartAngle = state.turntableAngle;
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (state.isTurntableDragging && state.studioMode === 'turntable') {
+        const dx = e.clientX - state.dragStartX;
+        updateTurntableAngle(state.dragStartAngle - dx * 0.45);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.isTurntableDragging = false;
+    });
+
+    // Touch Support for Turntable Orbit
+    canvas.addEventListener('touchstart', (e) => {
+      if (state.studioMode === 'turntable' && e.touches.length > 0) {
+        state.isTurntableDragging = true;
+        state.dragStartX = e.touches[0].clientX;
+        state.dragStartAngle = state.turntableAngle;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (state.isTurntableDragging && state.studioMode === 'turntable' && e.touches.length > 0) {
+        const dx = e.touches[0].clientX - state.dragStartX;
+        updateTurntableAngle(state.dragStartAngle - dx * 0.45);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      state.isTurntableDragging = false;
+    });
+
+    document.getElementById('toggle-closeup').addEventListener('click', function() {
+      state.isCloseUpMode = !state.isCloseUpMode;
+      this.classList.toggle('active', state.isCloseUpMode);
+    });
+
+    document.getElementById('toggle-t5-ghost').addEventListener('click', function() {
+      state.showT5Ghost = !state.showT5Ghost;
+      this.classList.toggle('active', state.showT5Ghost);
+    });
+
+    document.getElementById('toggle-catch-point').addEventListener('click', function() {
+      state.showCatchPoint = !state.showCatchPoint;
+      this.classList.toggle('active', state.showCatchPoint);
+    });
+
+    document.getElementById('toggle-skeletal-mesh').addEventListener('click', function() {
+      state.showSkeletalMesh = !state.showSkeletalMesh;
+      this.classList.toggle('active', state.showSkeletalMesh);
+    });
+
+    document.getElementById('toggle-silhouette').addEventListener('click', function() {
+      state.silhouetteMode = !state.silhouetteMode;
+      this.classList.toggle('active', state.silhouetteMode);
+    });
+
+    document.getElementById('toggle-hide-effects').addEventListener('click', function() {
+      state.hideEffects = !state.hideEffects;
+      this.classList.toggle('active', state.hideEffects);
+    });
+
+    document.getElementById('btn-trigger-blink').addEventListener('click', triggerBlink);
+    document.getElementById('btn-toggle-canter').addEventListener('click', toggleSlowCanter);
+    document.getElementById('btn-run-maneuver').addEventListener('click', startReversalManeuverCourse);
+
+    function triggerBlink() {
+      state.player.blinkClosed = 1.0;
+      state.player.blinkTimer = 0.32;
+      setTel('tel-state', 'MANUAL EYELID BLINK TRIGGERED (100% CLOSURE)');
+      setTimeout(() => {
+        state.player.blinkClosed = 0.0;
+      }, 320);
+    }
+
+    function toggleSlowCanter() {
+      state.isSlowCanter = !state.isSlowCanter;
+      document.getElementById('btn-toggle-canter').classList.toggle('active', state.isSlowCanter);
+      setTel('tel-gait', state.isSlowCanter ? 'SLOW CANTER (AIRBORNE 4-LEG STRIDE)' : 'ROYAL SUSPENSION (HOVER)');
+    }
+
+    document.getElementById('toggle-pause-turn').addEventListener('click', function() {
+      state.isPausedTurnMidpoint = !state.isPausedTurnMidpoint;
+      this.classList.toggle('active', state.isPausedTurnMidpoint);
+      if (state.isPausedTurnMidpoint) {
+        setTel('tel-state', 'PAUSED TURN MIDPOINT (3/4 DEPTH)');
+      } else {
+        setTel('tel-state', 'MANUAL STEER');
+      }
+    });
+
+    document.getElementById('btn-run-course').addEventListener('click', startCollectiblesCourse);
+    document.getElementById('btn-trigger-pulse').addEventListener('click', triggerFluxPulse);
+    document.getElementById('btn-run-benchmark').addEventListener('click', () => {
+      if (state.benchmarkRunning) stopBenchmark();
+      else startBenchmark();
+    });
+
+    document.getElementById('toggle-hud').addEventListener('click', toggleHUD);
+    document.getElementById('toggle-recenter').addEventListener('click', resetPlayerPosition);
+
+    function toggleHUD() {
+      const tel = document.getElementById('telemetry-panel');
+      const isHidden = tel.style.display === 'none';
+      tel.style.display = isHidden ? 'block' : 'none';
+      document.getElementById('toggle-hud').classList.toggle('active', isHidden);
+    }
+
+    function resetPlayerPosition() {
+      state.player.x = 960;
+      state.player.y = 780;
+      state.player.vx = 0;
+      state.player.vy = 0;
+      state.player.targetX = 960;
+      state.player.targetY = 780;
+      state.player.yaw = 0.35;
+      state.player.bodyBank = 0;
+      state.player.headAngle = 0;
+      state.camZoom = 1.0;
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        state.isAnimationPaused = !state.isAnimationPaused;
+        state.isPausedTurnMidpoint = state.isAnimationPaused;
+        document.getElementById('toggle-pause-turn').classList.toggle('active', state.isAnimationPaused);
+        const pauseBtn = document.getElementById('tt-btn-pause');
+        if (pauseBtn) {
+          pauseBtn.classList.toggle('active', state.isAnimationPaused);
+          pauseBtn.textContent = state.isAnimationPaused ? '▶ Resume Animation (Space)' : '⏸️ Pause Animation (Space)';
+        }
+        if (state.isAnimationPaused) setTel('tel-state', 'PAUSED (FROZEN POSE ACROSS ALL 360° ANGLES)');
+        else setTel('tel-state', state.studioMode === 'turntable' ? '360° TURNTABLE ORBIT' : 'MANUAL STEER');
+      } else if (e.code === 'KeyP') triggerFluxPulse();
+      else if (e.code === 'KeyB') triggerBlink();
+      else if (e.code === 'KeyK') toggleSlowCanter();
+      else if (e.code === 'KeyC') startCollectiblesCourse();
+      else if (e.code === 'KeyM') startReversalManeuverCourse();
+      else if (e.code === 'KeyT') toggleHUD();
+      else if (e.code === 'KeyR') resetPlayerPosition();
+      else if (e.code === 'Digit1') setStudioMode('steer');
+      else if (e.code === 'Digit2') setStudioMode('turntable');
+      else if (e.code === 'KeyH') {
+        state.hideEffects = !state.hideEffects;
+        document.getElementById('toggle-hide-effects').classList.toggle('active', state.hideEffects);
+      }
+      else if (e.code === 'ArrowLeft' || e.code === 'KeyA') state.keys.left = true;
+      else if (e.code === 'ArrowRight' || e.code === 'KeyD') state.keys.right = true;
+      else if (e.code === 'ArrowUp' || e.code === 'KeyW') state.keys.up = true;
+      else if (e.code === 'ArrowDown' || e.code === 'KeyS') state.keys.down = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') state.keys.left = false;
+      else if (e.code === 'ArrowRight' || e.code === 'KeyD') state.keys.right = false;
+      else if (e.code === 'ArrowUp' || e.code === 'KeyW') state.keys.up = false;
+      else if (e.code === 'ArrowDown' || e.code === 'KeyS') state.keys.down = false;
+    });
+
+    function updateTitles() {
+      const isTierV = state.tier === 'V';
+      const realmNames = isTierV
+        ? { dynamo: 'CHROME DYNAMO (SERAPHIC ARCHON)', helix: 'CHROME HELIX (PRISM ARCHON)', meteor: 'CHROME METEOR (MAGNETAR SERAPH)' }
+        : { dynamo: 'DYNAMO PRINCESS', helix: 'HELIX UNICORN', meteor: 'METEOR DRAGON' };
+      const modeStr = state.studioMode === 'turntable' ? ' [360° TURNTABLE VIEW]' : ' [STEER CHARACTER VIEW]';
+      const statusSuffix = isTierV ? ' [IMPLEMENTED]' : ' [COMING SOON · FOCUS ON TIER V]';
+      setTel('tel-title', `${realmNames[state.realm]} · TIER ${state.tier}${modeStr}${statusSuffix}`);
+      const ttBadge = document.querySelector('.tt-badge');
+      if (ttBadge) {
+        ttBadge.textContent = `🔄 360° TURNTABLE ORBIT · TIER ${state.tier} ${realmNames[state.realm]}`;
+      }
+    }
+
+    function setTel(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    // ─── DECISIVE COLLECTIBLES COURSE ───
+    function startCollectiblesCourse() {
+      state.courseRunning = true;
+      state.courseTime = 0;
+      state.benchmarkRunning = false;
+      state.collectibles[0].caught = false;
+      state.collectibles[1].caught = false;
+      state.hazard.grazed = false;
+      document.getElementById('btn-run-course').classList.add('active');
+    }
+
+    function updateCollectiblesCourse(dt) {
+      if (!state.courseRunning) return;
+      state.courseTime += dt;
+      const ct = state.courseTime;
+      const p = state.player;
+
+      if (ct < 1.0) {
+        p.targetX = 960; p.targetY = 780;
+        setTel('tel-state', 'COURSE 1/6: ACQUIRING COLLECTIBLE 1 (LEFT)');
+      } else if (ct < 4.0) {
+        p.targetX = 520; p.targetY = 300;
+        setTel('tel-state', 'COURSE 2/6: STEERING LEFT TO INTERCEPT');
+        if (Math.abs(p.x - 520) < 60 && Math.abs(p.y - 300) < 60 && !state.collectibles[0].caught) {
+          state.collectibles[0].caught = true;
+          triggerCatchEvent();
+        }
+      } else if (ct < 7.5) {
+        p.targetX = 1400; p.targetY = 300;
+        if (Math.abs(p.x - 960) < 140 && !state.hazard.grazed) {
+          state.hazard.grazed = true;
+          triggerGrazeEvent();
+          setTel('tel-state', 'COURSE 3/6: HAZARD GRAZE (CAUTIOUS GLANCE)');
+        } else {
+          setTel('tel-state', 'COURSE 4/6: REVERSING RIGHT TO INTERCEPT 2');
+        }
+        if (Math.abs(p.x - 1400) < 60 && Math.abs(p.y - 300) < 60 && !state.collectibles[1].caught) {
+          state.collectibles[1].caught = true;
+          triggerCatchEvent();
+        }
+      } else if (ct < 10.5) {
+        p.targetX = 960; p.targetY = 780;
+        setTel('tel-state', 'COURSE 5/6: BRAKING FLARE & RETURNING TO HOVER');
+      } else {
+        state.courseRunning = false;
+        document.getElementById('btn-run-course').classList.remove('active');
+        setTel('tel-state', 'COURSE COMPLETE · PERFECT HOVER RESTORED');
+      }
+    }
+
+    function triggerCatchEvent() {
+      const p = state.player;
+      p.mouthState = 'smile';
+      p.mouthOpen = 0.85;
+      p.expressionTimer = 0;
+      if (state.realm === 'dynamo' && (state.tier === 'VI' || state.tier === 'VII')) {
+        p.isWinking = true;
+      }
+    }
+
+    function triggerGrazeEvent() {
+      const p = state.player;
+      p.mouthState = 'focus';
+      p.mouthOpen = 0.35;
+      p.expressionTimer = 0;
+    }
+
+    // ─── FULL REVERSAL MANEUVER COURSE (Fly Right -> Reverse Left -> Hover -> Fly Left -> Reverse Right -> Hover) ───
+    function startReversalManeuverCourse() {
+      state.maneuverRunning = true;
+      state.maneuverTime = 0;
+      state.player.x = 960;
+      state.player.y = 780;
+      state.player.vx = 0;
+      state.player.vy = 0;
+      document.getElementById('btn-run-maneuver').classList.add('active');
+    }
+
+    function updateReversalManeuverCourse(dt) {
+      if (!state.maneuverRunning) return;
+      state.maneuverTime += dt;
+      const mt = state.maneuverTime;
+      const p = state.player;
+
+      if (mt < 3.5) {
+        // Phase 1: Stationary Hover Equilibrium
+        p.targetX = 960; p.targetY = 780;
+        setTel('tel-state', 'PHASE 1/9: STATIONARY HOVER (BREATH 0.32Hz, BLINK, FOOT ADJUST)');
+      } else if (mt < 7.0) {
+        // Phase 2: Fly Right
+        p.targetX = 1520; p.targetY = 780;
+        setTel('tel-state', 'PHASE 2/9: FLY RIGHT (GAZE LEADS, SHOULDERS BANK, LEAD WING LIFTS)');
+      } else if (mt < 11.5) {
+        // Phase 3: Slow Reversal to the Left
+        p.targetX = 400; p.targetY = 780;
+        setTel('tel-state', 'PHASE 3/9: SLOW REVERSAL LEFT (FRONT VIEW DEPTH, NECK CONNECTED, WEIGHT SHIFT)');
+      } else if (mt < 15.0) {
+        // Phase 4: Hold Left Heading
+        p.targetX = 400; p.targetY = 780;
+        setTel('tel-state', 'PHASE 4/9: HOLD LEFT HEADING (SUSTAINED FLIGHT POSE)');
+      } else if (mt < 18.5) {
+        // Phase 5: Release into Stationary Hover
+        p.targetX = 960; p.targetY = 780;
+        setTel('tel-state', 'PHASE 5/9: RELEASE INTO STATIONARY HOVER (BRAKE FLARE & RESTORE EQUILIBRIUM)');
+      } else if (mt < 22.0) {
+        // Phase 6: Fly Left
+        p.targetX = 400; p.targetY = 780;
+        setTel('tel-state', 'PHASE 6/9: FLY LEFT (COMMITTED HEADING & LEAD WING LIFT)');
+      } else if (mt < 26.5) {
+        // Phase 7: Slow Reversal to the Right
+        p.targetX = 1520; p.targetY = 780;
+        setTel('tel-state', 'PHASE 7/9: SLOW REVERSAL RIGHT (FRONT VIEW DEPTH, WEIGHT SHIFT)');
+      } else if (mt < 30.0) {
+        // Phase 8: Hold Right Heading
+        p.targetX = 1520; p.targetY = 780;
+        setTel('tel-state', 'PHASE 8/9: HOLD RIGHT HEADING (SUSTAINED FLIGHT POSE)');
+      } else if (mt < 34.0) {
+        // Phase 9: Final Stationary Hover Rest
+        p.targetX = 960; p.targetY = 780;
+        setTel('tel-state', 'PHASE 9/9: STATIONARY HOVER RESTORED (PERFECT EQUILIBRIUM)');
+      } else {
+        state.maneuverRunning = false;
+        document.getElementById('btn-run-maneuver').classList.remove('active');
+        setTel('tel-state', 'MANEUVER COMPLETE · PERFECT HOVER RESTORED');
+      }
+    }
+
+    // ─── FLUX PULSE DESTROYER WAVE ───
+    function triggerFluxPulse() {
+      state.pulseRunning = true;
+      state.pulseTime = 0;
+      state.pulseWaveRadius = 0;
+      state.player.recoilKick = 1.8;
+      state.player.mouthState = 'roar';
+      state.player.mouthOpen = 1.0;
+      state.player.expressionTimer = 0;
+      document.getElementById('btn-trigger-pulse').classList.add('active');
+    }
+
+    function updateFluxPulse(dt) {
+      if (!state.pulseRunning) return;
+      state.pulseTime += dt;
+      const pt = state.pulseTime;
+      state.pulseWaveRadius += 950 * dt;
+
+      if (pt < 0.8) setTel('tel-state', 'FLUX PULSE: GATHERING COSMIC ENERGY');
+      else if (pt < 2.0) setTel('tel-state', 'FLUX PULSE: MAXIMUM DISCHARGE BLAST!');
+      else if (pt < 3.0) setTel('tel-state', 'FLUX PULSE: RECOVERY & SETTLING');
+      else {
+        state.pulseRunning = false;
+        document.getElementById('btn-trigger-pulse').classList.remove('active');
+      }
+    }
+
+    // ─── CANONICAL 7-STAGE BENCHMARK ───
+    function startBenchmark() {
+      state.benchmarkRunning = true;
+      state.benchmarkTime = 0;
+      state.courseRunning = false;
+      document.getElementById('btn-run-benchmark').textContent = '⏹ Stop Benchmark';
+      document.getElementById('btn-run-benchmark').classList.add('active-dynamo');
+    }
+
+    function stopBenchmark() {
+      state.benchmarkRunning = false;
+      state.benchmarkTime = 0;
+      document.getElementById('btn-run-benchmark').textContent = '▶ Play Canonical Benchmark (23s)';
+      document.getElementById('btn-run-benchmark').classList.remove('active-dynamo');
+      document.querySelectorAll('.seq-step-pill').forEach(p => p.classList.remove('current'));
+      setTel('tel-state', 'MANUAL STEER');
+    }
+
+    function updateBenchmark(dt) {
+      if (!state.benchmarkRunning) return;
+      state.benchmarkTime += dt;
+      const t = state.benchmarkTime;
+      const p = state.player;
+
+      const steps = [
+        { id: 'seq-step-hover', max: 3.0, name: '1. STATIONARY HOVER (BREATHING & EQUILIBRIUM)' },
+        { id: 'seq-step-left-start', max: 5.5, name: '2. LEFTWARD START (HEAD LEADS, WINGS BANK LEFT)' },
+        { id: 'seq-step-left-sustained', max: 10.5, name: '3. SUSTAINED LEFT PASS (5s STRIDE & MUZZLE LEFT)' },
+        { id: 'seq-step-reversal-right', max: 13.5, name: '4. SHARP REVERSAL RIGHT (DEPTH TURN & LEAD CHANGE)' },
+        { id: 'seq-step-climb', max: 16.0, name: '5. CLIMB (AERODYNAMIC COMPRESSION)' },
+        { id: 'seq-step-descend-brake', max: 18.5, name: '6. BRAKING DESCENT (BRAKE FLARE & CLAWS/BOOTS DRIFT)' },
+        { id: 'seq-step-hover-hold', max: 23.0, name: '7. RETURN TO HOVER (HELD 2 WINGBEATS)' }
+      ];
+
+      document.querySelectorAll('.seq-step-pill').forEach(el => el.classList.remove('current'));
+      let currentStep = steps[0];
+      for (let s of steps) {
+        if (t < s.max) {
+          currentStep = s;
+          break;
+        }
+      }
+      const activePill = document.getElementById(currentStep.id);
+      if (activePill) activePill.classList.add('current');
+      setTel('tel-state', currentStep.name);
+
+      if (t < 3.0) { p.targetX = 960; p.targetY = 780; }
+      else if (t < 5.5) { p.targetX = 680; p.targetY = 780; }
+      else if (t < 10.5) { p.targetX = 380; p.targetY = 780; }
+      else if (t < 13.5) { p.targetX = 1540; p.targetY = 780; }
+      else if (t < 16.0) { p.targetX = 1100; p.targetY = 520; }
+      else if (t < 18.5) { p.targetX = 960; p.targetY = 860; }
+      else if (t < 23.0) { p.targetX = 960; p.targetY = 780; }
+      else stopBenchmark();
+    }
+
+    // ─── REBUILT KINEMATICS, WEIGHT SHIFT & UNIFIED WING ENGINE ───
+    function updatePhysics(dt) {
+      const p = state.player;
+
+      // Camera Matrix Smoothing
+      const targetCam = state.isCloseUpMode ? 2.5 : 1.0;
+      state.camZoom += (targetCam - state.camZoom) * 8.0 * dt;
+
+      if (state.isPausedTurnMidpoint) return;
+
+      if (!state.benchmarkRunning && !state.courseRunning) {
+        const speed = 15.0;
+        if (state.keys.left) p.targetX -= speed * 48 * dt;
+        if (state.keys.right) p.targetX += speed * 48 * dt;
+        if (state.keys.up) p.targetY -= speed * 38 * dt;
+        if (state.keys.down) p.targetY += speed * 38 * dt;
+        p.targetX = Math.max(280, Math.min(1640, p.targetX));
+        p.targetY = Math.max(460, Math.min(940, p.targetY));
+      }
+
+      // Spring-damper position tracking (Chest core stays locked to catch point)
+      const dx = p.targetX - p.x;
+      const dy = p.targetY - p.y;
+      
+      const prevVx = p.vx;
+      p.vx = (p.vx + dx * 13.5 * dt) * Math.pow(0.74, dt * 60);
+      p.vy = (p.vy + dy * 13.5 * dt) * Math.pow(0.74, dt * 60);
+      p.ax = (p.vx - prevVx) / Math.max(0.001, dt);
+      
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      const normVx = Math.max(-1.0, Math.min(1.0, p.vx / 14.0));
+      const normVy = Math.max(-1.0, Math.min(1.0, p.vy / 12.0));
+      const normAx = Math.max(-1.0, Math.min(1.0, p.ax / 80.0));
+
+      // 1. Gaze Notice & Head Direction Lead (Problem 1 & 2)
+      // Eyes acquire direction first, head smoothly leads into turn
+      if (Math.abs(normVx) > 0.10) {
+        const targetYaw = normVx > 0 ? 1.0 : -1.0;
+        p.yaw += (targetYaw - p.yaw) * 6.5 * dt;
+        p.gazeHoldTimer = 0.50;
+      } else {
+        p.gazeHoldTimer -= dt;
+        if (p.gazeHoldTimer <= 0) {
+          const hoverYaw = p.yaw > 0 ? 0.35 : -0.35;
+          p.yaw += (hoverYaw - p.yaw) * 4.0 * dt;
+        }
+      }
+
+      // Eye Tracking
+      let targetEyeX = normVx * 12.0;
+      let targetEyeY = normVy * 8.0;
+      if (state.courseRunning) {
+        const targetColl = !state.collectibles[0].caught ? state.collectibles[0] : !state.collectibles[1].caught ? state.collectibles[1] : null;
+        if (targetColl) {
+          targetEyeX = Math.max(-14, Math.min(14, (targetColl.x - p.x) * 0.025));
+          targetEyeY = Math.max(-10, Math.min(10, (targetColl.y - p.y) * 0.020));
+        }
+      }
+      p.eyeDx += (targetEyeX - p.eyeDx) * 22.0 * dt;
+      p.eyeDy += (targetEyeY - p.eyeDy) * 18.0 * dt;
+
+      // Natural Eyelid Blinking (Every 4.2s, 150ms closure)
+      p.blinkTimer += dt;
+      if (p.blinkTimer > 4.2) {
+        if (p.blinkTimer > 4.2 + 0.15) {
+          p.blinkTimer = Math.random() * 0.8;
+          p.blinkClosed = 0.0;
+          p.isWinking = false;
+        } else {
+          p.blinkClosed = Math.sin(((p.blinkTimer - 4.2) / 0.15) * Math.PI);
+        }
+      } else {
+        p.blinkClosed = 0.0;
+      }
+
+      // Head angle smoothly leads turn on neck pivot
+      const targetHead = normVx * 0.32 + normAx * 0.18;
+      p.headAngle += (targetHead - p.headAngle) * 12.0 * dt;
+
+      // 2. Kinetic Weight Shift & Aerodynamic Bank (Problem 1 & 4)
+      // When reversing, body banks into the turn; weight shifts across hips
+      const targetBank = normVx * 0.22 + normAx * 0.24;
+      p.bodyBank += (targetBank - p.bodyBank) * 8.5 * dt;
+      p.shoulderBank = p.bodyBank * 0.90;
+      p.weightShiftX = normVx * 8.0;
+
+      // Aerodynamic Braking Flare
+      const targetBrake = Math.max(0, normVy * 0.25) + (Math.abs(p.vx) < 1.2 && Math.abs(dx) > 10 ? 0.25 : 0.0);
+      p.brakeFlare += (targetBrake - p.brakeFlare) * 8.0 * dt;
+
+      // 3. Unified Harmonic Wing Engine (Tier II–IV Benchmark)
+      // Single clear action! Wings beat in calm, majestic unison (0.8 Hz hover, 1.2 Hz speed)
+      const isHover = Math.abs(normVx) < 0.12 && Math.abs(normVy) < 0.12;
+      const flapFreq = isHover ? 4.8 : (5.6 + Math.abs(normVx) * 2.8);
+      p.wingCycle += dt * flapFreq;
+      
+      const strokePhase = p.wingCycle % (Math.PI * 2);
+      const isDownstroke = strokePhase < Math.PI * 0.85;
+      p.wingFlapAngle = isDownstroke ? (Math.cos((strokePhase / (Math.PI * 0.85)) * Math.PI) * 0.32 + 0.06) : (-Math.cos(((strokePhase - Math.PI * 0.85) / (Math.PI * 1.15)) * Math.PI) * 0.32 + 0.06);
+
+      // Leading wing lifts high into airflow; trailing wing sweeps back
+      p.leadWingLift = Math.abs(normVx) * 0.22;
+      p.trailWingSweep = Math.abs(normVx) * 0.16;
+
+      // 4. Single Settling Lag for Secondary Elements (Problem 4)
+      // Secondary elements (hair, cape, tail) follow with a short delay and settle ONCE!
+      const targetLag = -normVx * 0.28;
+      const lagForce = (targetLag - p.secondaryLag) * 28.0;
+      p.secondaryVel = (p.secondaryVel + lagForce * dt) * Math.pow(0.82, dt * 60); // Critically damped!
+      p.secondaryLag += p.secondaryVel * dt;
+
+      // 5. Quiet Breathing Rhythm (0.32 Hz)
+      p.breathPhase += dt * 2.0;
+      const breath = Math.sin(p.breathPhase) * 0.030;
+
+      // Expression Timer & Jaw Closure (e.g. after roar)
+      if (p.mouthState !== 'rest') {
+        p.expressionTimer += dt;
+        if (p.expressionTimer > 1.2) {
+          p.mouthOpen *= Math.pow(0.85, dt * 60);
+          if (p.mouthOpen < 0.02) {
+            p.mouthOpen = 0.0;
+            p.mouthState = 'rest';
+          }
+        }
+      }
+
+      // Subtle Poised Foot & Limb Adjustment in Stationary Hover
+      if (isHover) {
+        p.footTimer = (p.footTimer || 0) + dt;
+        if (p.footTimer > 3.6) {
+          if (p.footTimer > 4.2) {
+            p.footTimer = 0;
+            p.footShift = 0;
+          } else {
+            p.footShift = Math.sin(((p.footTimer - 3.6) / 0.6) * Math.PI) * 3.0;
+          }
+        } else {
+          p.footShift = 0;
+        }
+      } else {
+        p.footTimer = 0;
+        p.footShift = 0;
+      }
+
+      // 6. Character-Specific Performance
+      if (state.realm === 'dynamo') {
+        const isYoung = (state.tier === 'VI' || state.tier === 'VII');
+        const targetAim = normVx * 0.20;
+        p.cannonAim += (targetAim - p.cannonAim) * (isYoung ? 14.0 : 6.0) * dt;
+        p.kneeFlex = Math.sin(p.breathPhase) * (isYoung ? 5.5 : 3.5);
+        p.bootDrift = Math.cos(p.breathPhase) * 4.0 + (p.brakeFlare * 9.0) + p.footShift;
+
+        p.recoilTimer += dt;
+        if (p.recoilTimer > 2.8) {
+          p.recoilTimer = 0;
+          p.recoilKick = 1.0;
+        }
+        p.recoilKick *= Math.pow(isYoung ? 0.78 : 0.86, dt * 60);
+      } else if (state.realm === 'helix') {
+        const gaitSpeed = isHover ? 2.2 : (5.2 + Math.abs(normVx) * 4.0);
+        p.canterPhase += dt * gaitSpeed;
+        const cPhase = (p.canterPhase % (Math.PI * 2)) / (Math.PI * 2);
+
+        // Flying lead change during suspension phase
+        if (cPhase > 0.78 && cPhase < 0.98) {
+          p.canterLead = p.yaw >= 0 ? 1.0 : -1.0;
+        }
+
+        if (isHover) {
+          p.canterGaitBeat = 0;
+          const hFloat = Math.sin(p.canterPhase);
+          p.legFlap[0] = hFloat * 0.08 + (p.footShift * 0.04);
+          p.legFlap[1] = -hFloat * 0.06;
+          p.legFlap[2] = hFloat * 0.10 + (p.footShift * 0.03);
+          p.legFlap[3] = -hFloat * 0.08;
+          p.neckBob = Math.sin(p.canterPhase * 0.5) * 0.04;
+        } else {
+          if (cPhase < 0.25) p.canterGaitBeat = 1;
+          else if (cPhase < 0.55) p.canterGaitBeat = 2;
+          else if (cPhase < 0.80) p.canterGaitBeat = 3;
+          else p.canterGaitBeat = 4; // Suspension
+
+          const lead = p.canterLead;
+          p.legFlap[0] = Math.sin(p.canterPhase + (lead > 0 ? 0.0 : 1.2)) * 0.35;
+          p.legFlap[1] = Math.sin(p.canterPhase + (lead > 0 ? 1.2 : 0.0)) * 0.35;
+          p.legFlap[2] = Math.sin(p.canterPhase + 2.4) * 0.38;
+          p.legFlap[3] = Math.sin(p.canterPhase + 3.6) * 0.38;
+          p.neckBob = Math.sin(p.canterPhase) * 0.10;
+        }
+      } else {
+        // Meteor Dragon
+        p.clawsTucked += ((Math.abs(normVx) > 0.40 ? 1.0 : 0.0) - p.clawsTucked) * 6.5 * dt;
+
+        let prevTail = p.bodyBank;
+        for (let t = 0; t < 5; t++) {
+          p.tailChain[t] += (prevTail - p.tailChain[t]) * (10.0 - t * 1.5) * dt;
+          prevTail = p.tailChain[t];
+        }
+
+        updateContinuousFlameSystem(p, dt);
+      }
+
+      // Telemetry Updates
+      const weightDesc = Math.abs(p.weightShiftX) < 1.5 ? 'CENTER EQUILIBRIUM' : p.weightShiftX > 0 ? `BANK-RIGHT (+${p.weightShiftX.toFixed(1)}px)` : `BANK-LEFT (${p.weightShiftX.toFixed(1)}px)`;
+      setTel('tel-facing', weightDesc);
+      
+      const headPoseKey = p.yaw > 0.35 ? 'R34 (RIGHT 3/4)' : p.yaw < -0.35 ? 'L34 (LEFT 3/4)' : 'FRONT (CENTERED)';
+      setTel('tel-head-pose', headPoseKey);
+      
+      const eyeStatus = p.isWinking ? 'PLAYFUL WINK' : p.blinkClosed > 0.5 ? 'ATTENTIVE (BLINK)' : `TARGET ACQUIRED (${p.eyeDx > 0 ? 'R' : 'L'})`;
+      setTel('tel-eyes', eyeStatus);
+
+      const mouthDesc = p.mouthState === 'roar' ? 'ROAR / MAGMA PULSE' : p.mouthState === 'smile' ? 'JOYFUL SMILE' : p.mouthState === 'focus' ? 'FOCUSED AIM' : 'RESTING HOVER';
+      setTel('tel-mouth', `${mouthDesc} (${(p.mouthOpen * 100).toFixed(0)}%)`);
+
+      const strokeStr = isDownstroke ? 'DOWNSTROKE (POWER)' : 'UPSTROKE (RECOVERY)';
+      setTel('tel-wings', `${strokeStr} (${(p.wingFlapAngle * 180 / Math.PI).toFixed(1)}°)`);
+      setTel('tel-pos', `${Math.round(p.x)}, ${Math.round(p.y)}`);
+      setTel('tel-vel', `Vx ${p.vx.toFixed(1)}, Ax ${p.ax.toFixed(1)}`);
+      setTel('tel-bank', `${(p.bodyBank * 180 / Math.PI).toFixed(1)}° / ${(p.headAngle * 180 / Math.PI).toFixed(1)}°`);
+
+      if (state.realm === 'dynamo') {
+        let gripDesc = '';
+        if (state.tier === 'VI' || state.tier === 'VII') gripDesc = 'ONE-HANDED SCEPTER GRIP';
+        else if (state.tier === 'VIII') gripDesc = 'TWO-HANDED CANNON BRACE';
+        else if (state.tier === 'IX') gripDesc = 'REMOTELY COMMANDED (FLOATING)';
+        else gripDesc = 'REMOTELY COMMANDED (CHRONOCANNON)';
+
+        const stateStr = p.recoilKick > 0.2 ? 'RECOIL RECOVERY' : 'AIM LOCKED';
+        setTel('tel-weapon', `${gripDesc} · ${stateStr}`);
+        setTel('tel-gait', `AIRBORNE BALANCE (KNEE ${p.kneeFlex.toFixed(1)}px, BOOT ${p.bootDrift.toFixed(1)}px)`);
+      } else if (state.realm === 'helix') {
+        const leadStr = p.canterLead > 0 ? 'RIGHT LEAD' : 'LEFT LEAD';
+        const beatStr = p.canterGaitBeat === 0 ? 'HOVER ADJUST' : p.canterGaitBeat === 4 ? 'AIR SUSPENSION' : `CANTER BEAT ${p.canterGaitBeat}`;
+        setTel('tel-weapon', `STARDUST HORN (${leadStr})`);
+        setTel('tel-gait', `${beatStr} · ${leadStr}`);
+      } else {
+        const clawStr = p.clawsTucked > 0.5 ? 'CLAWS TUCKED (GLIDE)' : 'CLAWS SPREAD (HOVER)';
+        setTel('tel-weapon', `CALDERA CORE (${clawStr})`);
+        setTel('tel-gait', `5-JOINT SPINE TAIL LAG`);
+      }
+    }
+
+    // Flame System (Continuous Emission in Hover & Quiet Glide)
+    function updateContinuousFlameSystem(p, dt) {
+      if (state.silhouetteMode || state.hideEffects) return;
+      
+      const spawnChance = Math.abs(p.vx) > 3.0 ? 0.90 : 0.70;
+      if (Math.random() < spawnChance) {
+        const dirMult = p.yaw >= 0 ? 1.0 : -1.0;
+        p.flameParticles.push({
+          x: p.x - (dirMult * 35) + (Math.random() - 0.5) * 50,
+          y: p.y - 15 + (Math.random() - 0.5) * 25,
+          vx: -p.vx * 0.40 + (Math.random() - 0.5) * 20,
+          vy: -40 - Math.random() * 50,
+          size: 4 + Math.random() * 5.5,
+          life: 1.0,
+          decay: 0.70 + Math.random() * 0.50,
+          hue: Math.random() < 0.25 ? '#fde047' : Math.random() < 0.65 ? '#f97316' : '#ef4444'
+        });
+      }
+      for (let i = p.flameParticles.length - 1; i >= 0; i--) {
+        const pt = p.flameParticles[i];
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        pt.life -= pt.decay * dt;
+        pt.size *= 0.98;
+        if (pt.life <= 0) p.flameParticles.splice(i, 1);
+      }
+    }
+
+    // ─── STARFIELD & LIGHTBOX ───
+    function drawRealmStarfield(game) {
+      if (state.silhouetteMode) {
+        const studioGrad = ctx.createRadialGradient(960, 540, 60, 960, 540, 980);
+        studioGrad.addColorStop(0, '#f8fafc');
+        studioGrad.addColorStop(0.55, '#cbd5e1');
+        studioGrad.addColorStop(1, '#64748b');
+        ctx.fillStyle = studioGrad;
+        ctx.fillRect(0, 0, 1920, 1080);
+
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.10)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= 1920; x += 120) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1080); ctx.stroke();
+        }
+        for (let y = 0; y <= 1080; y += 120) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(1920, y); ctx.stroke();
+        }
+        return;
+      }
+
+      const grad = ctx.createLinearGradient(0, 0, 0, 1080);
+      if (game === 'dynamo') {
+        grad.addColorStop(0, '#06020e'); grad.addColorStop(0.5, '#0d061c'); grad.addColorStop(1, '#030107');
+      } else if (game === 'helix') {
+        grad.addColorStop(0, '#020814'); grad.addColorStop(0.5, '#041328'); grad.addColorStop(1, '#01040a');
+      } else {
+        grad.addColorStop(0, '#120402'); grad.addColorStop(0.5, '#200803'); grad.addColorStop(1, '#080201');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1920, 1080);
+
+      ctx.fillStyle = '#ffffff';
+      for (let s = 0; s < 65; s++) {
+        const sx = (s * 137.5) % 1920;
+        const sy = (s * 293.7 + state.player.breathPhase * 15) % 1080;
+        const sz = (s % 3) * 0.5 + 0.8;
+        ctx.globalAlpha = 0.35 + (s % 5) * 0.12;
+        ctx.fillRect(sx, sy, sz, sz);
+      }
+      ctx.globalAlpha = 1.0;
+
+      // Collectibles Nodes
+      drawCourseItems(game);
+    }
+
+    function drawCourseItems(game) {
+      const nodeImg = images[`node_${game}`];
+      const hazImg = images[`hazard_${game}`];
+
+      if (!state.collectibles[0].caught && nodeImg) {
+        ctx.save();
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 18;
+        ctx.drawImage(nodeImg, 520 - 55, 260 - 70, 110, 140);
+        ctx.restore();
+      }
+
+      if (!state.collectibles[1].caught && nodeImg) {
+        ctx.save();
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 18;
+        ctx.drawImage(nodeImg, 1400 - 55, 260 - 70, 110, 140);
+        ctx.restore();
+      }
+
+      if (hazImg) {
+        ctx.save();
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = state.hazard.grazed ? 28 : 12;
+        ctx.drawImage(hazImg, 960 - 55, 210 - 70, 110, 140);
+        ctx.restore();
+      }
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // TIER V SUPREME SERAPHIC LIVING MOTION ENGINE (2.5D AEROSPACE RIG)
+    // ─────────────────────────────────────────────────────────────
+    function drawTierVSupremeSeraph(ctx, game, px, py, isGhost) {
+      const p = state.player;
+      const now = performance.now();
+      const u = 1.35; // Studio scaling factor for 1920x1080 canvas
+
+      const normVx = Math.max(-1.0, Math.min(1.0, p.vx / 14.0));
+      const normVy = Math.max(-1.0, Math.min(1.0, p.vy / 12.0));
+      const normAx = Math.max(-1.0, Math.min(1.0, p.ax / 80.0));
+
+      // Aerodynamic Banking: body rolls into the turn
+      const bankAngle = (p.bodyBank || 0) * 0.45;
+      const pitchAngle = (p.vy || 0) * 0.022;
+
+      // Biological / Reactor Breathing Cycle & Vertical Hover Bob
+      const breathPhase = now * 0.0032;
+      const hoverBob = Math.sin(breathPhase) * 7.5;
+      const breathScale = 1.0 + Math.sin(breathPhase * 0.85) * 0.016;
+
+      // Ram-Air Factor & Dynamic Braking Flare
+      const ramAirFactor = 1.0 / (1.0 + 0.14 * Math.abs(p.vx));
+      const brakeFlare = p.brakeFlare || 0;
+      const flapAngle = (p.wingFlapAngle || 0) * 0.85;
+
+      ctx.save();
+      ctx.translate(px, py + hoverBob);
+
+      // Silhouette & Ghost Mode Filters
+      if (state.silhouetteMode) {
+        ctx.filter = 'brightness(0) contrast(1000%)';
+      } else if (isGhost) {
+        ctx.globalAlpha = 0.32;
+        ctx.filter = 'drop-shadow(0 0 16px rgba(56, 189, 248, 0.6)) contrast(1.2)';
+      }
+
+      // ─── 1. CELESTIAL STARBURST HALO & PHOTONIC RESONANCE CORONA (BACKGROUND) ───
+      const haloImg = images['layer_' + game + '_halo'];
+      if (haloImg && !state.hideEffects && !state.silhouetteMode) {
+        ctx.save();
+        ctx.rotate(-now * 0.00035 + bankAngle * 0.15);
+        const haloScale = (0.95 + Math.sin(breathPhase * 1.2) * 0.035 + brakeFlare * 0.08) * u;
+        ctx.scale(haloScale, haloScale);
+        ctx.globalAlpha = 0.85 + Math.sin(breathPhase) * 0.12;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.drawImage(haloImg, -344, -344, 688, 688);
+        ctx.restore();
+      }
+
+      // ─── 2. ARTICULATED SERAPHIC HEXA-WINGS (3 PAIRS PER SIDE = 6 WINGS) ───
+      const wingImg = images['layer_' + game + '_wing'];
+      const masterV = images[game + '_v'];
+      const rootSocketX = (game === 'helix' ? 18.0 : (game === 'dynamo' ? 16.0 : 18.0)) * u;
+      const rootSocketY = (game === 'meteor' ? 4.0 : 6.0) * u;
+      const srcW = 688;
+      const srcH = 768;
+      const cySrc = 384;
+
+      const baseSpanScale = (0.58 + brakeFlare * 0.18) * u;
+      const baseHeightScale = (0.60 + brakeFlare * 0.14) * u;
+
+      const wingSubLayers = [
+        { dyOff: -12.0 * u, pitchMod: +0.22, sSpan: 0.94, sH: 0.96, aMult: 0.88, isFar: true  },
+        { dyOff: -12.0 * u, pitchMod: +0.22, sSpan: 0.94, sH: 0.96, aMult: 0.95, isFar: false },
+        { dyOff: 0.0,       pitchMod: 0.00,  sSpan: 1.00, sH: 1.00, aMult: 0.92, isFar: true  },
+        { dyOff: 0.0,       pitchMod: 0.00,  sSpan: 1.00, sH: 1.00, aMult: 1.00, isFar: false },
+        { dyOff: +10.0 * u, pitchMod: -0.25, sSpan: 0.82, sH: 0.86, aMult: 0.85, isFar: true  },
+        { dyOff: +10.0 * u, pitchMod: -0.25, sSpan: 0.82, sH: 0.86, aMult: 0.92, isFar: false }
+      ];
+
+      function drawWingsPass(renderFar) {
+        if (!wingImg) {
+          if (!renderFar && masterV) {
+            ctx.drawImage(masterV, (-860 * u) / 2, (-484 * u) / 2, 860 * u, 484 * u);
+          }
+          return;
+        }
+
+        for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
+          const dir = (sideIdx === 0) ? 1 : -1;
+          const dirLead = dir * normVx;
+
+          const leadLift = Math.max(0, dirLead) * 0.095;
+          const trailSweep = Math.min(0, dirLead) * 0.075;
+          const asymmetricTilt = leadLift + trailSweep;
+          const flareAngle = dir * brakeFlare * 0.32;
+
+          const totalRotation = bankAngle + dir * flapAngle + asymmetricTilt + dir * pitchAngle * 0.18 + flareAngle;
+          const spanModifier = 1.0 + dirLead * 0.08;
+          const foreshortenX = (1.0 - dir * Math.sin(bankAngle) * 0.16) * Math.max(0.82, Math.min(1.15, spanModifier));
+          const pitch3D = Math.max(0.76, Math.cos(totalRotation * 0.45));
+
+          for (let w = 0; w < wingSubLayers.length; w++) {
+            const sub = wingSubLayers[w];
+            if (sub.isFar !== renderFar) continue;
+
+            ctx.save();
+            const sockX = dir * rootSocketX;
+            const sockY = rootSocketY + sub.dyOff;
+            ctx.translate(sockX, sockY);
+
+            const subRotation = totalRotation + dir * sub.pitchMod;
+            ctx.rotate(subRotation);
+
+            const layerBreath = breathScale * (1.0 + Math.sin(breathPhase + sideIdx * 0.5 + w * 0.4) * 0.015);
+            ctx.scale(dir * baseSpanScale * layerBreath * foreshortenX * sub.sSpan, baseHeightScale * layerBreath * pitch3D * sub.sH);
+
+            if (renderFar) {
+              if (!state.silhouetteMode) {
+                ctx.filter = 'brightness(0.76) saturate(0.86)';
+              }
+              ctx.globalAlpha = (isGhost ? 0.28 : 0.88) * sub.aMult;
+              ctx.drawImage(wingImg, 0, -cySrc, srcW, srcH);
+            } else {
+              ctx.globalAlpha = (isGhost ? 0.35 : 1.0) * sub.aMult;
+              ctx.drawImage(wingImg, 0, -cySrc, srcW, srcH);
+
+              // 3D Windward Leading-Edge Specular Glint
+              if (!state.silhouetteMode && !isGhost) {
+                const lightDot = Math.cos(subRotation * 1.3 - dir * 0.22 + dirLead * 0.40);
+                const specMultiplier = 1.0 + Math.max(0, dirLead) * 0.90;
+                const spec3D = Math.pow(Math.max(0, lightDot), 2.2) * specMultiplier;
+                if (spec3D > 0.05) {
+                  ctx.save();
+                  ctx.globalCompositeOperation = 'lighter';
+                  ctx.globalAlpha = Math.min(0.75, spec3D * 0.55 * sub.aMult);
+                  ctx.drawImage(wingImg, 0, -cySrc, srcW, srcH);
+                  ctx.restore();
+                }
+              }
+            }
+            ctx.restore();
+          }
+        }
+      }
+
+      // Draw Far Wing Plumes (behind core)
+      drawWingsPass(true);
+
+      // ─── 3. SOVEREIGN CORE NUCLEUS (LIVING SPHERE) ───
+      ctx.save();
+      ctx.rotate(bankAngle * 0.70);
+
+      const coreImg = images['core_' + game + '_t5'];
+      const coreScale = 1.05 * breathScale * u;
+
+      if (coreImg) {
+        ctx.save();
+        ctx.scale(coreScale, coreScale);
+        ctx.drawImage(coreImg, -170, -170, 340, 340);
+        ctx.restore();
+      }
+
+      // ─── 4. REALM-SPECIFIC 3D ORBITAL MECHANICS & PARTICLES ───
+      if (!state.hideEffects && !state.silhouetteMode) {
+        if (game === 'dynamo') {
+          drawDynamoChronometerGimbal(ctx, u, now, bankAngle, normVx);
+        } else if (game === 'helix') {
+          drawHelixPrismaticCrown(ctx, u, now, bankAngle, normVx);
+        } else if (game === 'meteor') {
+          drawMeteorCalderaCoronals(ctx, u, now, bankAngle, normVx);
+        }
+      }
+
+      ctx.restore(); // end core rotation
+
+      // Draw Near Wing Plumes (in front of core)
+      drawWingsPass(false);
+
+      // ─── 5. AERODYNAMIC SLIPSTREAM TRAILS & SPEEDLINES ───
+      if (!state.hideEffects && !state.silhouetteMode && !isGhost) {
+        drawAerodynamicSlipstream(ctx, game, u, now, p.vx, p.vy, bankAngle, brakeFlare);
+      }
+
+      ctx.restore(); // end master translate
+    }
+
+    // ─── DYNAMO: 3D GOLDEN CHRONOMETER GEAR RINGS & TACHYON SATELLITES ───
+    function drawDynamoChronometerGimbal(ctx, u, now, bankAngle, normVx) {
+      ctx.save();
+      const t = now * 0.002;
+      
+      // Outer Gimbal Ring (Gold Gear)
+      ctx.save();
+      ctx.rotate(t * 0.6);
+      ctx.scale(1.0, 0.42);
+      ctx.strokeStyle = 'rgba(234, 179, 8, 0.75)';
+      ctx.lineWidth = 3.5 * u;
+      ctx.shadowColor = '#facc15';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(0, 0, 115 * u, 0, Math.PI * 2);
+      ctx.stroke();
+      for (let i = 0; i < 8; i++) {
+        const ang = (i / 8) * Math.PI * 2;
+        const gx = Math.cos(ang) * 115 * u;
+        const gy = Math.sin(ang) * 115 * u;
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(gx - 3 * u, gy - 3 * u, 6 * u, 6 * u);
+      }
+      ctx.restore();
+
+      // Inner Counter-Rotating Gimbal Ring (Platinum/Violet)
+      ctx.save();
+      ctx.rotate(-t * 0.85);
+      ctx.scale(0.48, 1.0);
+      ctx.strokeStyle = 'rgba(192, 132, 252, 0.80)';
+      ctx.lineWidth = 2.5 * u;
+      ctx.shadowColor = '#c084fc';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(0, 0, 95 * u, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // 3 Tachyon Satellites Orbiting on 3D Inclined Path
+      for (let s = 0; s < 3; s++) {
+        const satAngle = t * 1.5 + (s * (Math.PI * 2 / 3));
+        const satX = Math.cos(satAngle) * 135 * u;
+        const satY = Math.sin(satAngle) * 45 * u;
+        const satZ = Math.sin(satAngle);
+        
+        ctx.save();
+        ctx.translate(satX, satY);
+        const satSize = (satZ > 0 ? 7.5 : 5.0) * u;
+        const satAlpha = satZ > 0 ? 0.95 : 0.60;
+        
+        ctx.fillStyle = `rgba(254, 240, 138, ${satAlpha})`;
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(0, 0, satSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, satSize * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // ─── HELIX: PRISMATIC STARLIGHT CROWN & HELICAL NUCLEOTIDE PEARLS ───
+    function drawHelixPrismaticCrown(ctx, u, now, bankAngle, normVx) {
+      ctx.save();
+      const t = now * 0.0018;
+
+      ctx.save();
+      ctx.rotate(t * 0.4);
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 8; i++) {
+        const ang = (i / 8) * Math.PI * 2;
+        const isCyan = (i % 2 === 0);
+        ctx.strokeStyle = isCyan ? 'rgba(56, 189, 248, 0.45)' : 'rgba(232, 121, 249, 0.45)';
+        ctx.lineWidth = 2.0 * u;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(ang) * 90 * u, Math.sin(ang) * 90 * u);
+        ctx.lineTo(Math.cos(ang) * 155 * u, Math.sin(ang) * 155 * u);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      for (let pIdx = 0; pIdx < 4; pIdx++) {
+        const pAng = t * 1.8 + (pIdx * Math.PI / 2);
+        const pX = Math.sin(pAng) * 125 * u;
+        const pY = Math.cos(pAng * 2.0) * 40 * u;
+        const pZ = Math.cos(pAng);
+
+        ctx.save();
+        ctx.translate(pX, pY);
+        const pColor = (pIdx % 2 === 0) ? '#38bdf8' : '#e879f9';
+        ctx.fillStyle = pColor;
+        ctx.shadowColor = pColor;
+        ctx.shadowBlur = 16;
+        ctx.globalAlpha = pZ > 0 ? 0.95 : 0.55;
+        ctx.beginPath();
+        ctx.arc(0, 0, (pZ > 0 ? 6.5 : 4.5) * u, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 2.5 * u, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // ─── METEOR: ASTEROID BELT & CORONAL SOLAR PROMINENCE FLARES ───
+    function drawMeteorCalderaCoronals(ctx, u, now, bankAngle, normVx) {
+      ctx.save();
+      const t = now * 0.0022;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let f = 0; f < 4; f++) {
+        const flareAng = (f / 4) * Math.PI * 2 + Math.sin(t * 1.2 + f) * 0.25;
+        const fLen = (115 + Math.sin(t * 3.5 + f * 1.5) * 22) * u;
+        const fx = Math.cos(flareAng) * fLen;
+        const fy = Math.sin(flareAng) * fLen;
+
+        const grad = ctx.createRadialGradient(fx * 0.7, fy * 0.7, 5 * u, fx, fy, 35 * u);
+        grad.addColorStop(0.0, 'rgba(254, 240, 138, 0.85)');
+        grad.addColorStop(0.5, 'rgba(249, 115, 22, 0.55)');
+        grad.addColorStop(1.0, 'rgba(239, 68, 68, 0)');
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(fx, fy, 28 * u, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      for (let a = 0; a < 6; a++) {
+        const aAng = t * 1.2 + (a * (Math.PI * 2 / 6));
+        const aX = Math.cos(aAng) * 140 * u;
+        const aY = Math.sin(aAng) * 42 * u;
+        const aZ = Math.sin(aAng);
+
+        ctx.save();
+        ctx.translate(aX, aY);
+        ctx.rotate(t * 2.0 + a);
+        const aSize = (aZ > 0 ? 8.5 : 5.5) * u;
+        ctx.globalAlpha = aZ > 0 ? 0.95 : 0.60;
+        ctx.shadowColor = '#ea580c';
+        ctx.shadowBlur = 14;
+
+        ctx.fillStyle = '#1c1917';
+        ctx.beginPath();
+        ctx.arc(0, 0, aSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(-1 * u, -1 * u, aSize * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // ─── AERODYNAMIC SLIPSTREAM SPEEDLINES & VAPOR TRAILS ───
+    function drawAerodynamicSlipstream(ctx, game, u, now, vx, vy, bankAngle, brakeFlare) {
+      const speed = Math.sqrt(vx * vx + vy * vy);
+      if (speed < 2.0 && brakeFlare < 0.08) return;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      const streamCol = game === 'dynamo'
+        ? 'rgba(56, 189, 248, 0.65)'
+        : (game === 'helix' ? 'rgba(232, 121, 249, 0.60)' : 'rgba(249, 115, 22, 0.65)');
+
+      const tipDist = 210 * u;
+      const trailLen = Math.min(180, speed * 12.0 + brakeFlare * 120.0);
+
+      [-1, 1].forEach(side => {
+        const tx = side * tipDist;
+        const grad = ctx.createLinearGradient(tx, 0, tx - vx * 4.0, trailLen);
+        grad.addColorStop(0.0, streamCol);
+        grad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = (2.2 + brakeFlare * 2.0) * u;
+        ctx.beginPath();
+        ctx.moveTo(tx, 0);
+        ctx.lineTo(tx - vx * 3.5, trailLen);
+        ctx.stroke();
+      });
+
+      if (brakeFlare > 0.08) {
+        ctx.strokeStyle = streamCol;
+        ctx.lineWidth = (3.5 * brakeFlare) * u;
+        ctx.beginPath();
+        ctx.arc(0, 30 * u, (160 + brakeFlare * 60) * u, Math.PI * 0.2, Math.PI * 0.8);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // ─── MASTER LIVING ARTICULATED CHARACTER RENDERER ───
+    function drawRiggedCharacter(game, tier, px, py, isGhost=false) {
+      const p = state.player;
+      const tierRank = tier === 'VI' ? 1 : tier === 'VII' ? 2 : tier === 'VIII' ? 3 : tier === 'IX' ? 4 : 5;
+      const targetW = 860 * (1.0 + (tierRank - 1) * 0.05);
+      const aspect = 576 / 1024;
+      const targetH = targetW * aspect;
+
+      ctx.save();
+      ctx.translate(px, py);
+
+      if (tier === 'V') {
+        drawTierVSupremeSeraph(ctx, game, 0, 0, isGhost);
+        ctx.restore();
+        return;
+      }
+
+      const baseKey = `${game}_${tier.toLowerCase()}`;
+      const imgBody = images[`${baseKey}_body`] || images[baseKey];
+      const imgHeadR34 = images[`${baseKey}_head_r34`] || images[baseKey];
+      const imgHeadFront = images[`${baseKey}_head_front`] || images[baseKey];
+      const imgHeadL34 = images[`${baseKey}_head_l34`] || images[baseKey];
+      const imgWingL = images[`${baseKey}_wing_l`];
+      const imgWingR = images[`${baseKey}_wing_r`];
+
+      if (state.silhouetteMode) {
+        ctx.filter = 'brightness(0) contrast(1000%)';
+      } else if (isGhost) {
+        ctx.globalAlpha = 0.32;
+        ctx.filter = 'drop-shadow(0 0 16px rgba(56, 189, 248, 0.6)) contrast(1.2)';
+      }
+
+      // Anatomical Shoulder & Neck Pivots
+      const shoulderX_L = -targetW * 0.15;
+      const shoulderX_R = +targetW * 0.15;
+      const shoulderY = -targetH * 0.10;
+      const neckY = -targetH * 0.22;
+
+      const isFacingRight = p.yaw >= 0;
+
+      // ─── 1. FAR WING (BEHIND TORSO) ───
+      ctx.save();
+      const farShoulderX = isFacingRight ? shoulderX_L : shoulderX_R;
+      const farSign = isFacingRight ? 1 : -1;
+      ctx.translate(farShoulderX, shoulderY);
+
+      // Trailing wing sweeps down/back during a bank
+      const farFlap = p.wingFlapAngle - (p.trailWingSweep * farSign);
+      // Guarantee wing clearance: clamped so feathers never obscure the face!
+      const clampedFarAngle = Math.max(-0.45, Math.min(0.55, farFlap + p.bodyBank * 0.15));
+      ctx.rotate(clampedFarAngle);
+
+      if (!state.silhouetteMode) ctx.filter = 'brightness(0.75) saturate(0.85)';
+      const farWingImg = isFacingRight ? imgWingL : imgWingR;
+      if (farWingImg) {
+        ctx.drawImage(farWingImg, (isFacingRight ? -targetW * 0.35 : -targetW * 0.65), -targetH * 0.40, targetW, targetH);
+      }
+      ctx.restore();
+
+      // ─── 2. TORSO & 28PX CATCH POINT (ROCK-STEADY CATCH POINT) ───
+      ctx.save();
+      // Kinetic weight shift carries through body bank
+      ctx.translate(p.weightShiftX, 0);
+      ctx.rotate(p.bodyBank * 0.32);
+
+      if (game === 'helix' && tier === 'VI') {
+        // Volumetric Directional Body Rig for Tier VI Helix Unicorn (Zero Ghosting)
+        if (imgBody) {
+          ctx.save();
+          if (!isFacingRight) {
+            ctx.scale(-1, 1);
+          }
+          ctx.drawImage(imgBody, -targetW / 2, -targetH / 2, targetW, targetH);
+          ctx.restore();
+        }
+      } else {
+        if (imgBody) {
+          ctx.drawImage(imgBody, -targetW / 2, -targetH / 2, targetW, targetH);
+        }
+      }
+      ctx.restore();
+
+      // ─── 3. ARTICULATED DIRECTIONAL HEAD & GAZE (Problem 1, 2, 3) ───
+      ctx.save();
+      ctx.translate(p.weightShiftX, neckY);
+      
+      // Cervical Neck Connection Locked: Head rotates on neck pivot without cervical slippage
+      ctx.rotate(p.headAngle * 0.65);
+      ctx.translate(p.eyeDx * 0.15, p.eyeDy * 0.10);
+
+      // Seamless Directional Head Transition (Discrete Solid Turning Zones - Zero Double Silhouettes)
+      let activeHead = imgHeadR34;
+      if (p.yaw > 0.25) activeHead = imgHeadR34;
+      else if (p.yaw < -0.25) activeHead = imgHeadL34;
+      else activeHead = imgHeadFront;
+
+      if (activeHead) {
+        ctx.drawImage(activeHead, -targetW / 2, -targetH / 2 - neckY, targetW, targetH);
+      }
+      ctx.restore();
+
+      // ─── 4. NEAR WING (IN FRONT OF TORSO, LEADING AIRFLOW) ───
+      ctx.save();
+      const nearShoulderX = isFacingRight ? shoulderX_R : shoulderX_L;
+      const nearSign = isFacingRight ? 1 : -1;
+      ctx.translate(nearShoulderX, shoulderY);
+
+      // Leading wing lifts high into airflow
+      const nearFlap = p.wingFlapAngle + (p.leadWingLift * nearSign);
+      // Guarantee wing clearance: clamped so feathers never obscure the face!
+      const clampedNearAngle = Math.max(-0.45, Math.min(0.60, nearFlap + p.bodyBank * 0.25));
+      ctx.rotate(clampedNearAngle);
+
+      if (!state.silhouetteMode) ctx.filter = 'brightness(1.15)';
+      const nearWingImg = isFacingRight ? imgWingR : imgWingL;
+      if (nearWingImg) {
+        ctx.drawImage(nearWingImg, (isFacingRight ? -targetW * 0.65 : -targetW * 0.35), -targetH * 0.40, targetW, targetH);
+      }
+      ctx.restore();
+
+      // ─── 5. CHARACTER-SPECIFIC WEAPONS & LIMBS ───
+      if (!state.silhouetteMode) {
+        if (game === 'dynamo') drawDynamoPrincessWeapon(targetW, targetH, tier, p);
+        else if (game === 'helix') drawHelixUnicornGait(targetW, targetH, p);
+        else if (game === 'meteor') drawMeteorDragonVFX(targetW, targetH, p);
+      }
+
+      // Shockwave Pulse (Hidden in Pure Anatomy Mode)
+      if (state.pulseRunning && !state.hideEffects) drawFluxPulseWave(game);
+
+      // Skeletal Mesh
+      if (state.showSkeletalMesh && !isGhost) drawEnhancedSkeletalRig(targetW, targetH, p);
+
+      ctx.restore();
+    }
+
+    // Eyes & Blinking
+    function drawArticulatedEyes(game, p) {
+      ctx.save();
+      const eyeL_x = -18 + (p.yaw * 10) + p.eyeDx * 0.2;
+      const eyeR_x = +18 + (p.yaw * 10) + p.eyeDx * 0.2;
+      const eye_y = -8 + p.eyeDy * 0.2;
+
+      // Iris highlight tracking
+      if (!p.isWinking && p.blinkClosed < 0.85) {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(eyeL_x + (p.eyeDx * 0.15), eye_y + (p.eyeDy * 0.15) - 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (p.blinkClosed < 0.85) {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(eyeR_x + (p.eyeDx * 0.15), eye_y + (p.eyeDy * 0.15) - 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Eyelids
+      if (p.blinkClosed > 0.08 || p.isWinking) {
+        const lashCol = game === 'dynamo' ? '#3b0764' : game === 'helix' ? '#083344' : '#1c1917';
+        const skinCol = game === 'dynamo' ? 'rgba(254, 240, 230, 0.92)' : game === 'helix' ? 'rgba(238, 242, 255, 0.92)' : 'rgba(40, 20, 10, 0.92)';
+        
+        ctx.fillStyle = skinCol;
+        ctx.strokeStyle = lashCol;
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        ctx.ellipse(eyeL_x, eye_y, 8, 4.5 * p.blinkClosed, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(eyeL_x, eye_y + 1, 8, 0.15 * Math.PI, 0.85 * Math.PI, false);
+        ctx.stroke();
+
+        const rClose = p.isWinking ? 1.0 : p.blinkClosed;
+        ctx.beginPath();
+        ctx.ellipse(eyeR_x, eye_y, 8, 4.5 * rClose, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(eyeR_x, eye_y + 1, 8, 0.15 * Math.PI, 0.85 * Math.PI, false);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Mouth
+    function drawArticulatedMouth(game, p) {
+      if (p.mouthOpen <= 0.05) return;
+      ctx.save();
+      const mouthX = p.yaw * 6.0;
+      const mouthY = 16.0;
+
+      if (game === 'meteor') {
+        const jawDrop = p.mouthOpen * 16.0;
+        ctx.fillStyle = '#7f1d1d';
+        ctx.beginPath();
+        ctx.ellipse(mouthX, mouthY + jawDrop * 0.5, 14, jawDrop * 0.7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#f97316';
+        ctx.shadowColor = '#fbbf24';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(mouthX, mouthY + jawDrop * 0.5, 6 * p.mouthOpen, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (game === 'dynamo') {
+        const smileW = 8.0 + p.mouthOpen * 6.0;
+        const smileH = p.mouthOpen * 7.0;
+        ctx.fillStyle = '#be185d';
+        ctx.beginPath();
+        ctx.ellipse(mouthX, mouthY, smileW, smileH, 0, 0, Math.PI);
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        ctx.arc(mouthX, mouthY, 7, 0.2 * Math.PI, 0.8 * Math.PI, false);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Dynamo Princess Weapon (Approved Grip Progression: 1-Hand VI/VII, 2-Hand VIII, Remote IX/X)
+    function drawDynamoPrincessWeapon(tw, th, tier, p) {
+      ctx.save();
+      const dirMult = p.yaw >= 0 ? 1.0 : -1.0;
+      const isFloating = (tier === 'IX' || tier === 'X');
+      const isTwoHanded = (tier === 'VIII');
+      const isOneHanded = (tier === 'VI' || tier === 'VII');
+
+      const gapOffset = isFloating ? 42.0 * dirMult : 0.0;
+      const muzzleX = (tw * 0.28 * dirMult) + gapOffset;
+      const muzzleY = -th * 0.12 - p.recoilKick * 14.0;
+
+      ctx.translate(muzzleX, muzzleY);
+      ctx.rotate(p.cannonAim * dirMult);
+
+      // Grip Progression Geometry
+      if (isOneHanded) {
+        // Tiers VI & VII: One-handed firm grip on astral scepter handle
+        ctx.save();
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.ellipse(-24 * dirMult, 8, 6, 9, 0.2 * dirMult, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      } else if (isTwoHanded) {
+        // Tier VIII: Two-handed heavy cannon brace (Primary trigger + Forward handguard)
+        ctx.save();
+        ctx.strokeStyle = '#93c5fd';
+        ctx.lineWidth = 4.0;
+        ctx.beginPath();
+        ctx.ellipse(-34 * dirMult, 12, 7, 10, 0.15 * dirMult, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(-12 * dirMult, 15, 6, 9, -0.15 * dirMult, 0, Math.PI * 2);
+        ctx.stroke();
+        // Shoulder stock brace
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.75)';
+        ctx.lineWidth = 3.0;
+        ctx.beginPath();
+        ctx.moveTo(-45 * dirMult, 10);
+        ctx.lineTo(-20 * dirMult, 10);
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        // Tiers IX & X: Remotely commanded floating cannon with rotating astral orbit rings
+        ctx.save();
+        ctx.strokeStyle = tier === 'X' ? 'rgba(244, 114, 182, 0.85)' : 'rgba(56, 189, 248, 0.85)';
+        ctx.lineWidth = 2.0;
+        ctx.save();
+        ctx.rotate(p.wingCycle * 2.5);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 16, 32, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        if (!state.hideEffects) {
+          // Dual ethereal plasma conduits connecting to Princess's outstretched hands
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+          ctx.lineWidth = 2.0;
+          ctx.beginPath();
+          ctx.moveTo(-gapOffset * 0.95, 18);
+          ctx.quadraticCurveTo(-gapOffset * 0.45, 30, 0, 0);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(-gapOffset * 0.85, -12);
+          ctx.quadraticCurveTo(-gapOffset * 0.35, -22, 0, 0);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // Energy Beams & Discharges (Hidden in Pure Anatomy Mode)
+      if (!state.hideEffects) {
+        ctx.save();
+        ctx.shadowColor = tier === 'X' ? '#f472b6' : '#38bdf8';
+        ctx.shadowBlur = tier === 'X' ? 32 : 24;
+
+        const beamLen = tier === 'X' ? 260 : tier === 'IX' ? 220 : tier === 'VIII' ? 190 : 150;
+        const beamWidth = tier === 'X' ? 14 : tier === 'VIII' ? 10 : 7;
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = beamWidth;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(beamLen * dirMult, -22);
+        ctx.stroke();
+
+        ctx.strokeStyle = tier === 'X' ? '#f472b6' : '#38bdf8';
+        ctx.lineWidth = beamWidth * 2.0;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo((beamLen + 18) * dirMult, -16);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 7 + p.recoilKick * 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    // Helix Unicorn Gait (Continuous 4-Leg Airborne Reach & Fold + Flying Lead Change + DNA Tail)
+    function drawHelixUnicornGait(tw, th, p) {
+      const dirMult = p.yaw >= 0 ? 1.0 : -1.0;
+      const scale = tw / 1024;
+      const speed = Math.abs(p.vx) > 0.05 || state.isSlowCanter ? 1.0 : 0.0;
+      const hover = 1.0 - speed;
+      const sp = p.wingCycle * 1.8;
+
+      // Limb rendering helper
+      function drawArticulatedLeg(p1, p2, p3, isFar) {
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        const colRim = isFar ? 'rgba(95, 155, 215, 0.75)' : 'rgba(135, 215, 255, 0.9)';
+        const colCore = isFar ? 'rgba(195, 205, 235, 0.85)' : 'rgba(245, 248, 255, 0.95)';
+
+        // Upper limb (shoulder to knee)
+        ctx.strokeStyle = colRim;
+        ctx.lineWidth = 14 * scale;
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+        ctx.strokeStyle = colCore;
+        ctx.lineWidth = 9 * scale;
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+
+        // Joint
+        ctx.fillStyle = colCore;
+        ctx.beginPath(); ctx.arc(p2.x, p2.y, 6 * scale, 0, Math.PI * 2); ctx.fill();
+
+        // Lower limb (knee to hoof)
+        ctx.strokeStyle = colRim;
+        ctx.lineWidth = 10 * scale;
+        ctx.beginPath(); ctx.moveTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.stroke();
+        ctx.strokeStyle = colCore;
+        ctx.lineWidth = 6 * scale;
+        ctx.beginPath(); ctx.moveTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.stroke();
+
+        // Silver-shod hoof
+        const angle = Math.atan2(p3.y - p2.y, p3.x - p2.x);
+        ctx.save();
+        ctx.translate(p3.x, p3.y);
+        ctx.rotate(angle);
+        ctx.fillStyle = isFar ? '#94a3b8' : '#e2e8f0';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2 * scale;
+        ctx.beginPath();
+        ctx.ellipse(6 * scale, 0, 10 * scale, 7 * scale, 0, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
+
+        ctx.restore();
+      }
+
+      // Foreleg and Hindleg Anchors
+      const shNear = { x: dirMult * 12 * scale, y: 28 * scale };
+      const shFar  = { x: -dirMult * 18 * scale, y: 24 * scale };
+
+      const reachF = (46.0 * speed + 14.0 * hover) * scale;
+      const liftF  = (22.0 * speed + 8.0 * hover) * scale;
+
+      // Forelegs
+      const phiLead = sp;
+      const leadHx = Math.cos(phiLead) * reachF * dirMult;
+      const leadHy = 64.0 * scale + Math.sin(phiLead) * liftF;
+      const foldK = Math.max(0, -Math.cos(phiLead)) * 26.0 * speed * scale;
+      const leadKx = leadHx * 0.45 + (16.0 * scale * dirMult);
+      const leadKy = 34.0 * scale + (Math.sin(phiLead) * liftF * 0.5) - foldK;
+
+      const phiTrail = sp + Math.PI;
+      const trailHx = Math.cos(phiTrail) * reachF * dirMult;
+      const trailHy = 60.0 * scale + Math.sin(phiTrail) * liftF;
+      const foldKt = Math.max(0, -Math.cos(phiTrail)) * 26.0 * speed * scale;
+      const trailKx = trailHx * 0.45 + (14.0 * scale * dirMult);
+      const trailKy = 32.0 * scale + (Math.sin(phiTrail) * liftF * 0.5) - foldKt;
+
+      // Far limbs
+      drawArticulatedLeg(shFar, { x: shFar.x + trailKx, y: shFar.y + trailKy }, { x: shFar.x + trailHx, y: shFar.y + trailHy }, true);
+      // Near limbs
+      drawArticulatedLeg(shNear, { x: shNear.x + leadKx, y: shNear.y + leadKy }, { x: shNear.x + leadHx, y: shNear.y + leadHy }, false);
+
+      // DNA Tail Wave
+      ctx.save();
+      const tailAnchorX = -tw * 0.22 * dirMult;
+      const tailAnchorY = th * 0.15;
+      ctx.translate(tailAnchorX, tailAnchorY);
+
+      const numPoints = 18;
+      for (let strand = 0; strand < 2; strand++) {
+        ctx.beginPath();
+        ctx.strokeStyle = strand === 0 ? 'rgba(56, 189, 248, 0.75)' : 'rgba(236, 72, 153, 0.75)';
+        ctx.lineWidth = 3.5;
+        ctx.shadowColor = strand === 0 ? '#38bdf8' : '#ec4899';
+        ctx.shadowBlur = 10;
+
+        for (let i = 0; i < numPoints; i++) {
+          const t = i / numPoints;
+          const x = -t * 130 * dirMult;
+          const phaseOffset = strand * Math.PI;
+          const y = Math.sin(p.secondaryLag * 3.0 + t * 5.0 + phaseOffset) * (16 * (1.0 - t * 0.4));
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Meteor Dragon VFX (Flame Embers & Core Radiance)
+    function drawMeteorDragonVFX(tw, th, p) {
+      if (state.hideEffects) return;
+      ctx.save();
+      for (let i = 0; i < p.flameParticles.length; i++) {
+        const pt = p.flameParticles[i];
+        const relX = pt.x - p.x;
+        const relY = pt.y - p.y;
+        ctx.fillStyle = pt.hue;
+        ctx.globalAlpha = Math.max(0, pt.life);
+        ctx.beginPath();
+        ctx.arc(relX, relY, pt.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+      ctx.restore();
+    }
+
+    // Shockwave
+    function drawFluxPulseWave(game) {
+      ctx.save();
+      const waveCol = game === 'dynamo' ? '#c084fc' : game === 'helix' ? '#22d3ee' : '#f97316';
+      ctx.strokeStyle = waveCol;
+      ctx.lineWidth = 7;
+      ctx.shadowColor = waveCol;
+      ctx.shadowBlur = 28;
+      ctx.beginPath();
+      ctx.arc(0, 0, state.pulseWaveRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Skeletal Rig Overlay
+    function drawEnhancedSkeletalRig(tw, th, p) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -th * 0.28); ctx.lineTo(0, 0); ctx.lineTo(0, th * 0.24);
+      ctx.moveTo(-tw * 0.16, -th * 0.12); ctx.lineTo(0, -th * 0.08); ctx.lineTo(tw * 0.16, -th * 0.12);
+      ctx.stroke();
+
+      const joints = [
+        [0, 0, 7, '#22c55e'],
+        [0, -th * 0.28, 6, '#38bdf8'],
+        [-tw * 0.16, -th * 0.12, 5, '#38bdf8'],
+        [tw * 0.16, -th * 0.12, 5, '#38bdf8'],
+        [0, th * 0.24, 5, '#38bdf8']
+      ];
+      joints.forEach(([jx, jy, jr, col]) => {
+        ctx.beginPath();
+        ctx.arc(jx, jy, jr, 0, Math.PI * 2);
+        ctx.fillStyle = col;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // Tier V Scale Ghost
+    function drawTier5ReferenceGhost(game, px, py) {
+      const t5Img = images[`${game}_v`];
+      if (!t5Img) return;
+
+      const targetW = 860;
+      const aspect = 576 / 1024;
+      const targetH = targetW * aspect;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.55;
+      ctx.filter = 'drop-shadow(0 0 18px rgba(251, 191, 36, 0.8)) contrast(1.25)';
+      ctx.drawImage(t5Img, -targetW / 2, -targetH / 2, targetW, targetH);
+
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([8, 6]);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, targetW * 0.32, targetH * 0.34, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // ─── 360° TURNTABLE STUDIO RENDERER (View 2) ───
+    function drawTurntableStudio() {
+      ctx.save();
+      ctx.clearRect(0, 0, 1920, 1080);
+
+      // Starfield Background with Isometric Turntable Grid
+      const grad = ctx.createRadialGradient(960, 540, 60, 960, 540, 980);
+      grad.addColorStop(0, '#041328');
+      grad.addColorStop(0.6, '#020814');
+      grad.addColorStop(1, '#010307');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1920, 1080);
+
+      // Star motes
+      ctx.fillStyle = '#ffffff';
+      for (let s = 0; s < 60; s++) {
+        const sx = (s * 137.5) % 1920;
+        const sy = (s * 293.7 + state.player.breathPhase * 15) % 1080;
+        const sz = (s % 3) * 0.5 + 0.8;
+        ctx.globalAlpha = 0.35 + (s % 5) * 0.12;
+        ctx.fillRect(sx, sy, sz, sz);
+      }
+      ctx.globalAlpha = 1.0;
+
+      // 3D Turntable Circular Floor
+      ctx.save();
+      ctx.translate(960, 780);
+      ctx.scale(1.0, 0.32);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.28)';
+      ctx.lineWidth = 2;
+      for (let r = 200; r <= 800; r += 200) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      for (let d = 0; d < 360; d += 45) {
+        const rad = d * Math.PI / 180;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(rad) * 160, Math.sin(rad) * 160);
+        ctx.lineTo(Math.cos(rad) * 800, Math.sin(rad) * 800);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Render Turntable Character (Target width = 960px for inspection)
+      const px = 960, py = 480;
+      const targetW = 960;
+      const targetH = targetW * (576 / 1024);
+
+      drawTurntableInterpolatedCharacter(px, py, targetW, targetH);
+
+      // 28px Catch Point Reticle (Rock-steady anchor from all 360° angles)
+      if (state.showCatchPoint) {
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, 28, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(34, 197, 94, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-42, 0); ctx.lineTo(42, 0);
+        ctx.moveTo(0, -42); ctx.lineTo(0, 42);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    // Smoothly Interpolated Turntable Character across 360°
+    function drawTurntableInterpolatedCharacter(px, py, targetW, targetH) {
+      if (state.tier === 'V') {
+        const ang = (state.turntableAngle % 360 + 360) % 360;
+        const rad = (ang * Math.PI) / 180;
+        const sinYaw = Math.sin(rad);
+        const cosYaw = Math.cos(rad);
+        const savedBank = state.player.bodyBank;
+        const savedVx = state.player.vx;
+        state.player.bodyBank = sinYaw * 0.45;
+        state.player.vx = -sinYaw * 12.0;
+        
+        ctx.save();
+        ctx.translate(px, py);
+        // Realistic 3D perspective turntable scale
+        ctx.scale(Math.abs(cosYaw) * 0.4 + 0.6, 1.0);
+        drawTierVSupremeSeraph(ctx, state.realm, 0, 0, false);
+        ctx.restore();
+        
+        state.player.bodyBank = savedBank;
+        state.player.vx = savedVx;
+        return;
+      }
+
+      const p = state.player;
+      const ang = (state.turntableAngle % 360 + 360) % 360;
+      const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+      const padAng = a => String(a).padStart(3, '0');
+
+      let idx = 0;
+      for (let i = 0; i < angles.length; i++) {
+        if (ang >= angles[i]) idx = i;
+      }
+      const a1 = angles[idx];
+      const a2 = (idx === angles.length - 1) ? 360 : angles[idx + 1];
+      const a2_key = (a2 === 360) ? 0 : a2;
+
+      const t = (ang - a1) / (a2 - a1);
+      const img1 = images[`helix_vi_turn_${padAng(a1)}`];
+      const img2 = images[`helix_vi_turn_${padAng(a2_key)}`];
+
+      ctx.save();
+      ctx.translate(px, py);
+
+      // Dynamic Wing Flap & Breath Scaling in Turntable
+      const breath = Math.sin(p.breathPhase) * 0.02;
+      ctx.scale(1.0 + breath, 1.0 + breath);
+
+      // Turntable Wing Animation overlay
+      const wingTilt = Math.sin(p.wingCycle) * 0.08;
+      ctx.rotate(wingTilt);
+
+      if (img1 && img2) {
+        // Discrete solid angular zone switching (Eliminates double ghosting across 360° turntable)
+        const activeImg = (t < 0.5) ? img1 : img2;
+        ctx.drawImage(activeImg, -targetW / 2, -targetH / 2, targetW, targetH);
+      } else if (img1) {
+        ctx.drawImage(img1, -targetW / 2, -targetH / 2, targetW, targetH);
+      } else {
+        const fallback = images[`${state.realm}_${state.tier.toLowerCase()}`] || images['helix_vi'] || images['helix_v'];
+        if (fallback) {
+          ctx.drawImage(fallback, -targetW / 2, -targetH / 2, targetW, targetH);
+        }
+      }
+
+      ctx.restore();
+    }
+
+    // Master Render Loop
+    let lastTime = performance.now();
+    function renderLoop(currentTime) {
+      const dt = Math.min(0.1, (currentTime - lastTime) / 1000);
+      lastTime = currentTime;
+
+      // Turntable Mode Branch (View 2)
+      if (state.studioMode === 'turntable') {
+        if (state.turntableAutoOrbit && !state.isAnimationPaused) {
+          updateTurntableAngle(state.turntableAngle + dt * 36.0);
+        }
+        if (!state.isAnimationPaused) {
+          updatePhysics(dt);
+        }
+        drawTurntableStudio();
+        requestAnimationFrame(renderLoop);
+        return;
+      }
+
+      updateBenchmark(dt);
+      updateCollectiblesCourse(dt);
+      updateReversalManeuverCourse(dt);
+      updateFluxPulse(dt);
+      if (!state.isAnimationPaused) {
+        updatePhysics(dt);
+      }
+
+      ctx.save();
+      ctx.clearRect(0, 0, 1920, 1080);
+
+      ctx.translate(960, 540);
+      ctx.scale(state.camZoom, state.camZoom);
+      ctx.translate(-state.player.x, -state.player.y);
+
+      drawRealmStarfield(state.realm);
+
+      if (state.showT5Ghost && !state.silhouetteMode) {
+        drawTier5ReferenceGhost(state.realm, state.player.x, state.player.y);
+      }
+
+      drawRiggedCharacter(state.realm, state.tier, state.player.x, state.player.y);
+
+      // Collision Catch Reticle & 28px Radius
+      if (state.showCatchPoint && !state.silhouetteMode) {
+        ctx.save();
+        ctx.translate(state.player.x, state.player.y);
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, 28, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(34, 197, 94, 0.6)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-38, 0); ctx.lineTo(38, 0);
+        ctx.moveTo(0, -38); ctx.lineTo(0, 38);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.restore();
+      requestAnimationFrame(renderLoop);
+    }
+
+    updateTitles();
+    requestAnimationFrame(renderLoop);
+  </script>
+</body>
+</html>
