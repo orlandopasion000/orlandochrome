@@ -1165,6 +1165,11 @@
     wingRight: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     wingRightT5: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     wingLeftCanvas: { dynamo: null, helix: null, meteor: null },
+    coreTiers: {
+      dynamo: [null, new Image(), new Image(), new Image(), new Image(), new Image()],
+      helix:  [null, new Image(), new Image(), new Image(), new Image(), new Image()],
+      meteor: [null, new Image(), new Image(), new Image(), new Image(), new Image()]
+    },
     coreBase: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     coreBaseT5: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     nodeShell: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
@@ -1179,6 +1184,11 @@
       halo: { dynamo: false, helix: false, meteor: false },
       wingRight: { dynamo: false, helix: false, meteor: false },
       wingRightT5: { dynamo: false, helix: false, meteor: false },
+      coreTiers: {
+        dynamo: [false, false, false, false, false, false],
+        helix:  [false, false, false, false, false, false],
+        meteor: [false, false, false, false, false, false]
+      },
       coreBase: { dynamo: false, helix: false, meteor: false },
       coreBaseT5: { dynamo: false, helix: false, meteor: false },
       nodeShell: { dynamo: false, helix: false, meteor: false },
@@ -1207,32 +1217,30 @@
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
-    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade363`;
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade366`;
 
     LayeredT4Assets.wingRight[m].onload = () => {
       LayeredT4Assets.loaded.wingRight[m] = true;
     };
-    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade363`;
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade366`;
 
     LayeredT4Assets.wingRightT5[m].onload = () => {
       LayeredT4Assets.loaded.wingRightT5[m] = true;
     };
-    LayeredT4Assets.wingRightT5[m].src = `assets/layer-${m}-wing-t5.png?v=arcade363`;
+    LayeredT4Assets.wingRightT5[m].src = `assets/layer-${m}-wing-t5.png?v=arcade366`;
 
-    LayeredT4Assets.coreBaseT5[m].onload = () => {
-      LayeredT4Assets.loaded.coreBaseT5[m] = true;
-    };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade365`;
+    for (let t = 1; t <= 5; t++) {
+      LayeredT4Assets.coreTiers[m][t].onload = () => {
+        LayeredT4Assets.loaded.coreTiers[m][t] = true;
+        if (t === 4) LayeredT4Assets.loaded.coreBase[m] = true;
+        if (t === 5) LayeredT4Assets.loaded.coreBaseT5[m] = true;
+      };
+      LayeredT4Assets.coreTiers[m][t].src = `assets/core-${m}-t${t}.png?v=arcade366`;
+    }
+
+    LayeredT4Assets.coreBaseT5[m] = LayeredT4Assets.coreTiers[m][5];
+    LayeredT4Assets.coreBase[m] = LayeredT4Assets.coreTiers[m][4];
   });
-
-  LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
-  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade363';
-
-  LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
-  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade363';
-
-  LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
-  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade363';
 
   LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
   LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade363';
@@ -3627,6 +3635,43 @@
     ctx.restore();
   }
 
+  // Master Continuous Core Tier Evolution Cross-Fader (Tier I -> II -> III -> IV -> V)
+  function drawEvolvingCoreBase(ctx, mode, u, scale, cTier) {
+    const tierFloor = Math.min(4, Math.max(1, Math.floor(cTier)));
+    const tierCeil = Math.min(5, tierFloor + 1);
+    const rawProg = Math.max(0.0, Math.min(1.0, cTier - tierFloor));
+    // Cubic Hermite smoothstep for velvet-smooth optical cross-fade:
+    const easeProg = rawProg * rawProg * (3.0 - 2.0 * rawProg);
+
+    const imgA = LayeredT4Assets.coreTiers[mode] ? LayeredT4Assets.coreTiers[mode][tierFloor] : null;
+    const imgB = LayeredT4Assets.coreTiers[mode] ? LayeredT4Assets.coreTiers[mode][tierCeil] : null;
+    const loadedA = LayeredT4Assets.loaded.coreTiers[mode] ? LayeredT4Assets.loaded.coreTiers[mode][tierFloor] : false;
+    const loadedB = LayeredT4Assets.loaded.coreTiers[mode] ? LayeredT4Assets.loaded.coreTiers[mode][tierCeil] : false;
+
+    const size = 340 * u * scale;
+    const half = -170 * u * scale;
+
+    if (rawProg <= 0.002 || !loadedB) {
+      if (loadedA && imgA) {
+        ctx.drawImage(imgA, half, half, size, size);
+      }
+    } else if (rawProg >= 0.998 || !loadedA) {
+      if (loadedB && imgB) {
+        ctx.drawImage(imgB, half, half, size, size);
+      }
+    } else {
+      ctx.save();
+      ctx.globalAlpha = 1.0 - easeProg;
+      if (loadedA && imgA) ctx.drawImage(imgA, half, half, size, size);
+      ctx.restore();
+
+      ctx.save();
+      ctx.globalAlpha = easeProg;
+      if (loadedB && imgB) ctx.drawImage(imgB, half, half, size, size);
+      ctx.restore();
+    }
+  }
+
   const QuantumRenderer = {
     drawQuantumAtomic(ctx, cx, cy, now, progress = 0) {
       this.drawDynamoCore(ctx, cx, cy, now, progress);
@@ -3649,14 +3694,14 @@
       // Render Procedural Ultra-Futuristic Photonic Resonance Aura
       drawFuturisticResonanceAura(ctx, mode, u, now, cTier);
 
-      // UPGRADE 1: Smoothly Morphing Background Starburst Halo (Blooms as continuousTier crosses 2.1 -> 4.0 -> 5.0)
-      if (cTier > 2.05 && LayeredT4Assets.loaded.halo[mode]) {
+      // UPGRADE 1: Concentric Outer Halo Ring (Blooms smoothly as continuousTier crosses 3.0 -> 4.0 -> 5.0)
+      if (cTier > 3.05 && LayeredT4Assets.loaded.halo[mode]) {
         const haloSpr = LayeredT4Assets.halo[mode];
-        const haloMorph = Math.min(1.0, Math.max(0.0, (cTier - 2.0) / 1.8));
+        const haloMorph = Math.min(1.0, Math.max(0.0, (cTier - 3.0) / 1.0));
         const t45Halo = Math.max(0.0, Math.min(1.0, cTier - 4.0));
-        const haloScale = (0.42 + 0.24 * haloMorph + 0.22 * t45Halo) * (1.0 + Math.sin(now * 0.003) * 0.02 + CoreKinematics.overdriveFlash * 0.08);
+        const haloScale = (0.44 + 0.22 * haloMorph + 0.22 * t45Halo) * (1.0 + Math.sin(now * 0.003) * 0.02 + CoreKinematics.overdriveFlash * 0.08);
         ctx.save();
-        ctx.globalAlpha = Math.min(1.0, (cTier - 2.0) * 0.85 + CoreKinematics.overdriveFlash * 0.25);
+        ctx.globalAlpha = Math.min(1.0, (cTier - 3.0) * 1.0 + CoreKinematics.overdriveFlash * 0.25);
         ctx.globalCompositeOperation = 'lighter';
         ctx.scale(haloScale, haloScale);
         ctx.drawImage(haloSpr, -344 * u, -344 * u, 688 * u, 688 * u);
@@ -3692,28 +3737,9 @@
       if (mode === 'dynamo') {
         drawDynamoRingsHalf(ctx, u, now, false, tierIdx);
 
-        if (LayeredT4Assets.loaded.coreBase.dynamo) {
-          // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 56.0 * 1.2143 = 68.0)
-          const dScale = 1.2143;
-          const t5Prog = Math.max(0.0, Math.min(1.0, cTier - 4.0));
-          const t5Ease = t5Prog * t5Prog * (3 - 2 * t5Prog);
-          if (t5Prog <= 0.001 || !LayeredT4Assets.loaded.coreBaseT5 || !LayeredT4Assets.loaded.coreBaseT5.dynamo) {
-            ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
-          } else if (t5Prog >= 0.999) {
-            ctx.drawImage(LayeredT4Assets.coreBaseT5.dynamo, -170 * u * dScale, -170 * u * dScale, 340 * u * dScale, 340 * u * dScale);
-          } else {
-            const curH = (280 + (340 - 280) * t5Ease) * u * dScale;
-            const curY = (-140 + (-170 - -140) * t5Ease) * u * dScale;
-            ctx.save();
-            ctx.globalAlpha = 1.0 - t5Ease;
-            ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, curY, 340 * u * dScale, curH);
-            ctx.restore();
-            ctx.save();
-            ctx.globalAlpha = t5Ease;
-            ctx.drawImage(LayeredT4Assets.coreBaseT5.dynamo, -170 * u * dScale, curY, 340 * u * dScale, curH);
-            ctx.restore();
-          }
-        }
+        // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 56.0 * 1.2143 = 68.0)
+        const dScale = 1.2143;
+        drawEvolvingCoreBase(ctx, 'dynamo', u, dScale, cTier);
 
         drawInternalPlasmaArcs(ctx, 0, 0, 59 * u, now, 0.0, true, tierIdx);
         drawDynamoRingsHalf(ctx, u, now, true, tierIdx);
@@ -3807,13 +3833,7 @@
 
         // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 88.0 * 0.7727 = 68.0)
         const hScale = 0.7727;
-        if (LayeredT4Assets.loaded.coreBase.helix) {
-          if (cTier >= 4.05 && LayeredT4Assets.loaded.coreBaseT5 && LayeredT4Assets.loaded.coreBaseT5.helix) {
-            ctx.drawImage(LayeredT4Assets.coreBaseT5.helix, -170 * u * hScale, -170 * u * hScale, 340 * u * hScale, 340 * u * hScale);
-          } else {
-            ctx.drawImage(LayeredT4Assets.coreBase.helix, -170 * u * hScale, -144 * u * hScale, 340 * u * hScale, 280 * u * hScale);
-          }
-        }
+        drawEvolvingCoreBase(ctx, 'helix', u, hScale, cTier);
 
         // Complete 3D Spherical Crystal Enclosure (Prismatic Bio-Lattice Horizon)
         ctx.save();
@@ -3909,26 +3929,7 @@
 
         // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 71.0 * 0.9577 = 68.0)
         const mScale = 0.9577;
-        if (LayeredT4Assets.loaded.coreBase.meteor) {
-          const t5Prog = Math.max(0.0, Math.min(1.0, cTier - 4.0));
-          const t5Ease = t5Prog * t5Prog * (3 - 2 * t5Prog);
-          if (t5Prog <= 0.001 || !LayeredT4Assets.loaded.coreBaseT5 || !LayeredT4Assets.loaded.coreBaseT5.meteor) {
-            ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, -140 * u * mScale, 340 * u * mScale, 280 * u * mScale);
-          } else if (t5Prog >= 0.999) {
-            ctx.drawImage(LayeredT4Assets.coreBaseT5.meteor, -170 * u * mScale, -170 * u * mScale, 340 * u * mScale, 340 * u * mScale);
-          } else {
-            const curH = (280 + (340 - 280) * t5Ease) * u * mScale;
-            const curY = (-140 + (-170 - -140) * t5Ease) * u * mScale;
-            ctx.save();
-            ctx.globalAlpha = 1.0 - t5Ease;
-            ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, curY, 340 * u * mScale, curH);
-            ctx.restore();
-            ctx.save();
-            ctx.globalAlpha = t5Ease;
-            ctx.drawImage(LayeredT4Assets.coreBaseT5.meteor, -170 * u * mScale, curY, 340 * u * mScale, curH);
-            ctx.restore();
-          }
-        }
+        drawEvolvingCoreBase(ctx, 'meteor', u, mScale, cTier);
 
         drawMeteorMagmaFissuresAndPlates(ctx, 68 * u, now, 0.0, Math.sin(now * 0.0008) * 0.14, tierIdx);
         drawMeteorMoltenRingsHalf(ctx, u, now, true, tierIdx);
