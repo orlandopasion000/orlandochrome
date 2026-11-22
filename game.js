@@ -1260,7 +1260,7 @@
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
-    return nodeClass === 'volatile' || nodeClass === 'seeker' || nodeClass === 'phantom' || nodeClass === 'fragmentation' || nodeClass === 'vortex' || nodeClass === 'broken_arc';
+    return nodeClass === 'volatile' || nodeClass === 'seeker' || nodeClass === 'phantom' || nodeClass === 'fragmentation' || nodeClass === 'vortex' || nodeClass === 'pulsar_mine' || nodeClass === 'broken_arc';
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -1375,25 +1375,34 @@
       this.pitchAngleVel = (this.pitchAngleVel + (targetPitch - this.pitchAngle) * 0.25 * dt) * Math.pow(0.72, dt);
       this.pitchAngle += this.pitchAngleVel * dt;
 
-      // UPGRADE 1: Real-Time Morphing "Ascension Unfurl" Spring (Tier I <-> II <-> III <-> IV)
+      // UPGRADE 1: Real-Time Morphing "Ascension Unfurl" Spring (Tier I <-> II <-> III <-> IV <-> V)
       if (targetTier > this.lastTargetTier) {
         // Trigger Ascension Unfurl Burst Ring!
         this.ascensionRings.push({
           tierReached: targetTier,
           radius: 36,
-          maxRadius: targetTier === 4 ? 250 : 185,
+          maxRadius: targetTier === 4 ? 250 : (targetTier === 5 ? 320 : 185),
           alpha: 1.0,
           mode: mode
         });
-        if (targetTier === 4) {
+        if (targetTier >= 4) {
           this.overdriveFlash = 1.0;
         }
       }
       this.lastTargetTier = targetTier;
 
+      // Smooth Monotonic Tier Progression (Guarantees zero spring-overshoot across tier thresholds)
+      const prevCTier = this.continuousTier;
       const tierDiff = targetTier - this.continuousTier;
-      this.continuousTierVel = (this.continuousTierVel + tierDiff * 0.12 * dt) * Math.pow(0.74, dt);
-      this.continuousTier = Math.max(1.0, Math.min(5.25, this.continuousTier + this.continuousTierVel * dt));
+      const easeRate = 1.0 - Math.pow(0.85, dt);
+      this.continuousTier += tierDiff * easeRate;
+      // Strict monotonic clamp: never overshoot target tier
+      if (prevCTier <= targetTier && this.continuousTier > targetTier) {
+        this.continuousTier = targetTier;
+      } else if (prevCTier >= targetTier && this.continuousTier < targetTier) {
+        this.continuousTier = targetTier;
+      }
+      this.continuousTier = Math.max(1.0, Math.min(5.0, this.continuousTier));
 
       for (let i = this.ascensionRings.length - 1; i >= 0; i--) {
         const ar = this.ascensionRings[i];
@@ -3643,8 +3652,9 @@
       // UPGRADE 1: Smoothly Morphing Background Starburst Halo (Blooms as continuousTier crosses 2.1 -> 4.0 -> 5.0)
       if (cTier > 2.05 && LayeredT4Assets.loaded.halo[mode]) {
         const haloSpr = LayeredT4Assets.halo[mode];
-        const haloMorph = Math.min(1.0, (cTier - 2.0) / 1.8);
-        const haloScale = (0.42 + 0.24 * haloMorph + (cTier >= 4.5 ? 0.22 : 0)) * (1.0 + Math.sin(now * 0.003) * 0.02 + CoreKinematics.overdriveFlash * 0.08);
+        const haloMorph = Math.min(1.0, Math.max(0.0, (cTier - 2.0) / 1.8));
+        const t45Halo = Math.max(0.0, Math.min(1.0, cTier - 4.0));
+        const haloScale = (0.42 + 0.24 * haloMorph + 0.22 * t45Halo) * (1.0 + Math.sin(now * 0.003) * 0.02 + CoreKinematics.overdriveFlash * 0.08);
         ctx.save();
         ctx.globalAlpha = Math.min(1.0, (cTier - 2.0) * 0.85 + CoreKinematics.overdriveFlash * 0.25);
         ctx.globalCompositeOperation = 'lighter';
@@ -3685,10 +3695,23 @@
         if (LayeredT4Assets.loaded.coreBase.dynamo) {
           // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 56.0 * 1.2143 = 68.0)
           const dScale = 1.2143;
-          if (cTier >= 4.05 && LayeredT4Assets.loaded.coreBaseT5 && LayeredT4Assets.loaded.coreBaseT5.dynamo) {
+          const t5Prog = Math.max(0.0, Math.min(1.0, cTier - 4.0));
+          const t5Ease = t5Prog * t5Prog * (3 - 2 * t5Prog);
+          if (t5Prog <= 0.001 || !LayeredT4Assets.loaded.coreBaseT5 || !LayeredT4Assets.loaded.coreBaseT5.dynamo) {
+            ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
+          } else if (t5Prog >= 0.999) {
             ctx.drawImage(LayeredT4Assets.coreBaseT5.dynamo, -170 * u * dScale, -170 * u * dScale, 340 * u * dScale, 340 * u * dScale);
           } else {
-            ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
+            const curH = (280 + (340 - 280) * t5Ease) * u * dScale;
+            const curY = (-140 + (-170 - -140) * t5Ease) * u * dScale;
+            ctx.save();
+            ctx.globalAlpha = 1.0 - t5Ease;
+            ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, curY, 340 * u * dScale, curH);
+            ctx.restore();
+            ctx.save();
+            ctx.globalAlpha = t5Ease;
+            ctx.drawImage(LayeredT4Assets.coreBaseT5.dynamo, -170 * u * dScale, curY, 340 * u * dScale, curH);
+            ctx.restore();
           }
         }
 
@@ -3719,8 +3742,8 @@
         }
 
         // ─── TIER V SERAPHIC EVOLUTION: Chronometer Gear Rings & Tachyon Satellites ───
-        if (cTier >= 4.05) {
-          const t5Alpha = Math.min(1.0, (cTier - 4.0) * 1.5);
+        if (cTier > 4.0) {
+          const t5Alpha = Math.min(1.0, (cTier - 4.0) * 1.0);
           ctx.save();
           ctx.globalAlpha = t5Alpha;
           ctx.globalCompositeOperation = 'lighter';
@@ -3830,8 +3853,8 @@
         }
 
         // ─── TIER V SERAPHIC EVOLUTION: Twin Starlight Crown & Prismatic Refraction Rays ───
-        if (cTier >= 4.05) {
-          const t5Alpha = Math.min(1.0, (cTier - 4.0) * 1.5);
+        if (cTier > 4.0) {
+          const t5Alpha = Math.min(1.0, (cTier - 4.0) * 1.0);
           ctx.save();
           ctx.globalAlpha = t5Alpha;
           ctx.globalCompositeOperation = 'lighter';
@@ -3887,10 +3910,23 @@
         // Unified Core Sphere Radius: exactly 68.0 * u (raw radius 71.0 * 0.9577 = 68.0)
         const mScale = 0.9577;
         if (LayeredT4Assets.loaded.coreBase.meteor) {
-          if (cTier >= 4.05 && LayeredT4Assets.loaded.coreBaseT5 && LayeredT4Assets.loaded.coreBaseT5.meteor) {
+          const t5Prog = Math.max(0.0, Math.min(1.0, cTier - 4.0));
+          const t5Ease = t5Prog * t5Prog * (3 - 2 * t5Prog);
+          if (t5Prog <= 0.001 || !LayeredT4Assets.loaded.coreBaseT5 || !LayeredT4Assets.loaded.coreBaseT5.meteor) {
+            ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, -140 * u * mScale, 340 * u * mScale, 280 * u * mScale);
+          } else if (t5Prog >= 0.999) {
             ctx.drawImage(LayeredT4Assets.coreBaseT5.meteor, -170 * u * mScale, -170 * u * mScale, 340 * u * mScale, 340 * u * mScale);
           } else {
-            ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, -140 * u * mScale, 340 * u * mScale, 280 * u * mScale);
+            const curH = (280 + (340 - 280) * t5Ease) * u * mScale;
+            const curY = (-140 + (-170 - -140) * t5Ease) * u * mScale;
+            ctx.save();
+            ctx.globalAlpha = 1.0 - t5Ease;
+            ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, curY, 340 * u * mScale, curH);
+            ctx.restore();
+            ctx.save();
+            ctx.globalAlpha = t5Ease;
+            ctx.drawImage(LayeredT4Assets.coreBaseT5.meteor, -170 * u * mScale, curY, 340 * u * mScale, curH);
+            ctx.restore();
           }
         }
 
@@ -3898,8 +3934,8 @@
         drawMeteorMoltenRingsHalf(ctx, u, now, true, tierIdx);
 
         // ─── TIER V SERAPHIC EVOLUTION: Equatorial Asteroid Belt & Solar Coronal Flares ───
-        if (cTier >= 4.05) {
-          const t5Alpha = Math.min(1.0, (cTier - 4.0) * 1.5);
+        if (cTier > 4.0) {
+          const t5Alpha = Math.min(1.0, (cTier - 4.0) * 1.0);
           ctx.save();
           ctx.globalAlpha = t5Alpha;
           ctx.globalCompositeOperation = 'lighter';
@@ -4232,32 +4268,19 @@
 
         } else if (p.nodeClass === 'catalyst') {
           // SUPREME VITALITY LIFE RECOVERY NODE (+1 LIFE RESTORATION)
-          // 1. Sky-Spanning Vertical Light Pillar / Beacon (alerting player from top of screen)
+          // 1. Refined Contained Heartbeat Pulse (Soft & Non-Distracting - ZERO Full-Screen Vertical Line!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const beaconGrad = ctx.createLinearGradient(0, -ctx.canvas.height, 0, ctx.canvas.height);
-          beaconGrad.addColorStop(0.0, 'rgba(52, 211, 153, 0.0)');
-          beaconGrad.addColorStop(0.4, 'rgba(16, 185, 129, 0.28)');
-          beaconGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.65)');
-          beaconGrad.addColorStop(0.6, 'rgba(52, 211, 153, 0.28)');
-          beaconGrad.addColorStop(1.0, 'rgba(16, 185, 129, 0.0)');
-          ctx.fillStyle = beaconGrad;
-          ctx.fillRect(-14 * scale, -ctx.canvas.height, 28 * scale, ctx.canvas.height * 2);
+          const heartPhase = (now * 0.005) % 1.0;
+          const rRing = targetR * (1.02 + heartPhase * 0.30);
+          const aRing = (1.0 - heartPhase) * 0.35;
+          ctx.beginPath();
+          ctx.arc(0, 0, rRing, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(52, 211, 153, ${aRing})`;
+          ctx.lineWidth = 1.2 * scale;
+          ctx.stroke();
 
-          // 2. Dual Rhythmic Heartbeat Shockwave Rings
-          const heartPhase = (now * 0.007) % 1.0;
-          for (let hb = 0; hb < 2; hb++) {
-            const hPhase = (heartPhase + hb * 0.5) % 1.0;
-            const rRing = targetR * (1.0 + hPhase * 1.8);
-            const aRing = Math.max(0, 1.0 - hPhase) * 0.75;
-            ctx.beginPath();
-            ctx.arc(0, 0, rRing, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(52, 211, 153, ${aRing})`;
-            ctx.lineWidth = (3.0 * (1.0 - hPhase) + 1.0) * scale;
-            ctx.stroke();
-          }
-
-          // 3. Faceted Octahedral Emerald & Diamond Star Core
+          // 2. Faceted Octahedral Emerald & Diamond Star Core
           const gemRot = now * 0.0028 + animPhase;
           const gemR = targetR * 0.95;
           ctx.save();
@@ -4277,7 +4300,7 @@
           ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
           ctx.fill();
           ctx.strokeStyle = 'rgba(240, 253, 244, 0.95)';
-          ctx.lineWidth = 2.4 * scale;
+          ctx.lineWidth = 2.0 * scale;
           ctx.stroke();
 
           // Internal Brilliant Facets (Emerald Green & Diamond White)
@@ -4288,15 +4311,15 @@
             ctx.moveTo(0, 0);
             ctx.lineTo(Math.cos(fa) * r, Math.sin(fa) * r);
             ctx.strokeStyle = (f % 2 === 0) ? 'rgba(52, 211, 153, 0.90)' : 'rgba(255, 255, 255, 0.95)';
-            ctx.lineWidth = 1.6 * scale;
+            ctx.lineWidth = 1.4 * scale;
             ctx.stroke();
           }
 
           // Central Radiant Vitality Heart-Light Core
           const heartGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, gemR * 0.65);
-          heartGlow.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
-          heartGlow.addColorStop(0.35, 'rgba(52, 211, 153, 0.85)');
-          heartGlow.addColorStop(0.70, 'rgba(16, 185, 129, 0.45)');
+          heartGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+          heartGlow.addColorStop(0.40, 'rgba(52, 211, 153, 0.75)');
+          heartGlow.addColorStop(0.75, 'rgba(16, 185, 129, 0.35)');
           heartGlow.addColorStop(1.0, 'rgba(5, 150, 105, 0.0)');
           ctx.fillStyle = heartGlow;
           ctx.beginPath();
@@ -4304,17 +4327,17 @@
           ctx.fill();
           ctx.restore();
 
-          // 4. Floating Vitality Badge ("💚 +1 LIFE")
+          // 3. Floating Vitality Badge ("💚 +1 LIFE")
           ctx.save();
           const badgeText = '💚 +1 LIFE';
           ctx.font = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
           const textW = ctx.measureText(badgeText).width;
-          const padX = 8 * scale;
-          const padY = 4 * scale;
-          ctx.translate(0, -targetR * 1.38);
+          const padX = 7 * scale;
+          const padY = 3.5 * scale;
+          ctx.translate(0, -targetR * 1.35);
           ctx.fillStyle = 'rgba(6, 78, 59, 0.85)';
           ctx.strokeStyle = '#34d399';
-          ctx.lineWidth = 1.3 * scale;
+          ctx.lineWidth = 1.2 * scale;
           ctx.beginPath();
           ctx.roundRect(-textW / 2 - padX, -padY - 7 * scale, textW + padX * 2, 16 * scale, 7 * scale);
           ctx.fill();
@@ -4326,17 +4349,15 @@
           ctx.fillText(badgeText, 0, 0);
           ctx.restore();
 
-          // 5. Orbiting Stardust Sparkles
-          for (let s = 0; s < 4; s++) {
-            const sAngle = -now * 0.0042 + (s * Math.PI * 2 / 4);
-            const sDist = targetR * 1.28;
+          // 4. Subtle Ambient Motes (Crisp & Non-Distracting)
+          for (let s = 0; s < 3; s++) {
+            const sAngle = -now * 0.0035 + (s * Math.PI * 2 / 3);
+            const sDist = targetR * 1.18;
             const sx = Math.cos(sAngle) * sDist;
             const sy = Math.sin(sAngle) * sDist * 0.70;
             ctx.beginPath();
-            ctx.arc(sx, sy, 3.2 * scale, 0, Math.PI * 2);
+            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
             ctx.fillStyle = (s % 2 === 0) ? '#34d399' : '#ffffff';
-            ctx.shadowColor = '#34d399';
-            ctx.shadowBlur = 8;
             ctx.fill();
           }
           ctx.restore();
@@ -4745,6 +4766,59 @@
             ctx.lineCap = 'round';
             ctx.stroke();
           }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'pulsar_mine') {
+          // TACHYON PULSAR MINE: Obsidian Crystalline Octahedron & Electrostatic Threat Beacon
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const pPhase = ((now * 0.0035 + (p.animPhase || 0)) % 1.0);
+          const pulseR = targetR * (0.95 + pPhase * 0.65);
+          const pulseAlpha = Math.max(0, 1.0 - pPhase) * 0.75;
+
+          // 1. Expanding Ionized Electrostatic Threat Ring
+          ctx.beginPath();
+          ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(239, 68, 68, ${pulseAlpha})`;
+          ctx.lineWidth = 1.6 * scale;
+          ctx.stroke();
+
+          // 2. 4 Counter-Rotating Electromagnetic Arc Spikes
+          const arcAngle = now * 0.003;
+          for (let sp = 0; sp < 4; sp++) {
+            const aSp = arcAngle + sp * (Math.PI / 2);
+            const rInner = targetR * 0.75;
+            const rOuter = targetR * 1.25;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(aSp) * rInner, Math.sin(aSp) * rInner);
+            ctx.lineTo(Math.cos(aSp) * rOuter, Math.sin(aSp) * rOuter);
+            ctx.strokeStyle = 'rgba(244, 63, 94, 0.85)';
+            ctx.lineWidth = 2.0 * scale;
+            ctx.stroke();
+
+            // Diamond tip pip
+            ctx.beginPath();
+            ctx.arc(Math.cos(aSp) * rOuter, Math.sin(aSp) * rOuter, 2.2 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = '#fecdd3';
+            ctx.fill();
+          }
+
+          // 3. Central Dark Hazard Diamond
+          ctx.save();
+          ctx.rotate(-arcAngle * 0.5);
+          ctx.beginPath();
+          ctx.moveTo(0, -targetR * 0.55);
+          ctx.lineTo(targetR * 0.55, 0);
+          ctx.lineTo(0, targetR * 0.55);
+          ctx.lineTo(-targetR * 0.55, 0);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+          ctx.fill();
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 1.8 * scale;
+          ctx.stroke();
+          ctx.restore();
+
           ctx.restore();
         }
       }
@@ -5820,39 +5894,41 @@
         if (canSpawnHazard) {
           // Diverse Hazard Archetypes:
           const rHaz = Math.random();
-          if (rHaz < 0.35) {
+          if (rHaz < 0.22) {
             nClass = 'volatile'; // Standard Antimatter Core
-          } else if (rHaz < 0.60) {
+          } else if (rHaz < 0.42) {
             nClass = 'seeker'; // Orbital Homing Harbinger (tracks player)
-          } else if (rHaz < 0.75) {
+          } else if (rHaz < 0.58) {
             nClass = 'phantom'; // Stealth Phase-Glitch Trap (cloaks)
-          } else if (rHaz < 0.90) {
+          } else if (rHaz < 0.74) {
             nClass = 'fragmentation'; // Fragmentation Bolide (splits into 3 shards)
-          } else {
+          } else if (rHaz < 0.88) {
             nClass = 'vortex'; // Vortex Null-Well (repels collectibles)
+          } else {
+            nClass = 'pulsar_mine'; // Tachyon Pulsar Mine (periodic electrostatic pulse)
           }
         } else {
-          // Dynamic Falling Node Archetypes & Awesome Power-Ups (Shield & Missiles Included!)
+          // Balanced Falling Node Archetypes (84% Standard Nodes, 16% Power-Ups)
           const rNode = Math.random();
           const isCriticalLife = (state.reflexLives <= 1);
-          if (isCriticalLife && rNode < 0.22) {
-            nClass = 'catalyst'; // Critical Pity: Emergency Life Recovery Node!
-          } else if (rNode < 0.08) {
-            nClass = 'shield'; // 5-Second Aegis Forcefield Shield!
-          } else if (rNode < 0.16) {
-            nClass = 'missiles'; // Live Seeking Micro-Missiles!
-          } else if (rNode < 0.23) {
-            nClass = 'cluster'; // Bifurcation Flux Node ("Cluster Doubler")
-          } else if (rNode < 0.30) {
-            nClass = 'supercharge'; // Supercharged Hyper-Node (Supernova)
-          } else if (rNode < 0.36) {
-            nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time)
-          } else if (rNode < 0.41) {
-            nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum)
-          } else if (rNode < 0.48) {
-            nClass = 'catalyst'; // Ascension Catalyst Star (+1 Life / Tier Evolution)
+          if (isCriticalLife && rNode < 0.10) {
+            nClass = 'catalyst'; // Critical Pity: Emergency Life Recovery Node (10% when on last life)
+          } else if (rNode < 0.025) {
+            nClass = 'shield'; // 5-Second Aegis Forcefield Shield (2.5%)
+          } else if (rNode < 0.050) {
+            nClass = 'missiles'; // Live Seeking Micro-Missiles (2.5%)
+          } else if (rNode < 0.075) {
+            nClass = 'cluster'; // Bifurcation Flux Node ("Cluster Doubler") (2.5%)
+          } else if (rNode < 0.100) {
+            nClass = 'supercharge'; // Supercharged Hyper-Node (Supernova) (2.5%)
+          } else if (rNode < 0.120) {
+            nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time) (2.0%)
+          } else if (rNode < 0.140) {
+            nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum) (2.0%)
+          } else if (rNode < 0.160) {
+            nClass = (state.reflexLives >= 3) ? 'standard' : 'catalyst'; // Ascension Catalyst Star (+1 Life) (2.0% - only if lives < 3)
           } else {
-            nClass = 'standard';
+            nClass = 'standard'; // Dominant Standard Multiple Target Nodes (84.0%)
           }
         }
 
@@ -5867,12 +5943,13 @@
           supercharge: 30.0,
           chronos: 25.0,
           singularity: 27.0,
-          catalyst: 38.0, // 40% Larger Silhouette for maximum visibility
+          catalyst: 32.0, // Clean, proportional silhouette
           volatile: 28.0,
           seeker: 30.0,
           phantom: 26.0,
           fragmentation: 32.0,
-          vortex: 34.0
+          vortex: 34.0,
+          pulsar_mine: 30.0
         };
 
         const p = {
