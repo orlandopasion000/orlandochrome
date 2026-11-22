@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v375_badnodes_missiles';
+const CACHE_NAME = 'orlandochrome-arcade-v376_volumetric_hazards';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade375_badnodes_missiles',
-  './game.js?v=arcade375_badnodes_missiles',
+  './styles.css?v=arcade376_volumetric_hazards',
+  './game.js?v=arcade376_volumetric_hazards',
   './qrcode.min.js',
-  './app.js?v=arcade375_badnodes_missiles',
+  './app.js?v=arcade376_volumetric_hazards',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',
