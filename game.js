@@ -1260,7 +1260,7 @@
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
-    return nodeClass === 'volatile' || nodeClass === 'seeker' || nodeClass === 'phantom' || nodeClass === 'fragmentation' || nodeClass === 'vortex' || nodeClass === 'pulsar_mine' || nodeClass === 'broken_arc';
+    return nodeClass === 'volatile' || nodeClass === 'seeker' || nodeClass === 'phantom' || nodeClass === 'fragmentation' || nodeClass === 'vortex' || nodeClass === 'pulsar_mine' || nodeClass === 'tachyon_fracture' || nodeClass === 'emp_glitch' || nodeClass === 'plasma_flare' || nodeClass === 'broken_arc';
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -1987,6 +1987,7 @@
             });
 
             if (isHazardNode(pt.nodeClass)) {
+              // Bad node vaporized by tactical missile: disappears cleanly with zero harm to player core!
               state.score += 200;
               this.triggerGraze(pt.x, pt.y, now);
               state.floatingTexts.push({
@@ -1998,18 +1999,47 @@
               });
               audio.playMissileHit();
             } else {
+              // Good node intercepted by missile: immediately counts as an authentic combo addition!
               const pts = 300 * state.combo;
               state.score += pts;
+              const prevCombo = state.combo;
               state.combo = Math.min(50, state.combo + 1);
-              if (state.combo >= 21) state.isOverdrive = true;
+
+              // Recalculate Core Evolution Tier immediately based on updated combo
+              if (state.combo >= 28) {
+                state.coreTier = 5;
+                state.isOverdrive = true;
+              } else if (state.combo >= 21) {
+                state.coreTier = 4;
+                state.isOverdrive = true;
+              } else if (state.combo >= 14) {
+                state.coreTier = 3;
+                state.isOverdrive = false;
+              } else if (state.combo >= 7) {
+                state.coreTier = 2;
+                state.isOverdrive = false;
+              } else {
+                state.coreTier = 1;
+                state.isOverdrive = false;
+              }
+              CoreKinematics.continuousTier = state.coreTier;
+
+              // Sound cue for combo/tier advance
+              if (prevCombo < 21 && state.combo >= 21) {
+                audio.playOverdriveFanfare();
+              } else if (prevCombo < 28 && state.combo >= 28) {
+                audio.playTier5Ascension();
+              } else {
+                audio.playCorrectChime(state.combo);
+              }
+
               state.floatingTexts.push({
                 x: pt.x, y: pt.y,
-                text: `+${pts} CLAIMED!`,
+                text: `COMBO ${state.combo}x (+${pts})`,
                 color: blastColor,
                 alpha: 1.0,
                 startTime: now
               });
-              audio.playMissileHit();
 
               if (pt.nodeClass === 'cluster') {
                 state.applyBuff('cluster', '2X CLUSTER', '#38bdf8', '✨', 5000, now);
@@ -2027,12 +2057,16 @@
                 state.reflexLives = Math.min(3, state.reflexLives + 1);
                 renderReflexShields();
                 state.applyBuff('catalyst', 'ASCENSION CATALYST', '#10b981', '💚', 6000, now);
+                if (state.coreTier === 5) audio.playTier5Ascension();
+                else audio.playOverdriveFanfare();
               } else if (pt.nodeClass === 'shield') {
                 state.applyBuff('shield', 'AEGIS SHIELD', '#f59e0b', '🛡️', 5000, now);
               } else if (pt.nodeClass === 'missiles') {
                 state.applyBuff('missiles', 'ALLIED MISSILES', '#38bdf8', '🚀', 4000, now);
                 this.fireMissiles(m.x, m.y, now, state.particles, mMode);
               }
+
+              updateHeaderUI();
             }
 
             state.particles.splice(pIdx, 1);
@@ -4833,6 +4867,153 @@
           ctx.restore();
 
           ctx.restore();
+
+        } else if (p.nodeClass === 'tachyon_fracture') {
+          // TACHYON DIMENSIONAL RIFT: Vertical Lightning Slit & Prismatic Fractured Shards
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const fPhase = now * 0.005 + (p.animPhase || 0);
+
+          // 1. Vertical Tachyon Fissure Slit with Lateral Quantum Jitter
+          ctx.beginPath();
+          const jitterX = (Math.sin(now * 0.02) + Math.cos(now * 0.035)) * 2.2 * scale;
+          ctx.moveTo(jitterX, -targetR * 1.35);
+          ctx.lineTo(-jitterX * 0.5, -targetR * 0.4);
+          ctx.lineTo(jitterX * 0.8, targetR * 0.4);
+          ctx.lineTo(-jitterX, targetR * 1.35);
+          ctx.strokeStyle = '#c084fc';
+          ctx.lineWidth = 3.2 * scale;
+          ctx.stroke();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.2 * scale;
+          ctx.stroke();
+
+          // 2. 6 Floating Crystalline Spacetime Shards
+          for (let s = 0; s < 6; s++) {
+            const sAngle = fPhase + s * (Math.PI / 3);
+            const sDist = targetR * (0.85 + 0.25 * Math.sin(fPhase * 1.5 + s));
+            const sx = Math.cos(sAngle) * sDist;
+            const sy = Math.sin(sAngle) * sDist * 0.65;
+            ctx.save();
+            ctx.translate(sx, sy);
+            ctx.rotate(sAngle * 2);
+            ctx.beginPath();
+            ctx.moveTo(0, -3.5 * scale);
+            ctx.lineTo(2.5 * scale, 0);
+            ctx.lineTo(0, 3.5 * scale);
+            ctx.lineTo(-2.5 * scale, 0);
+            ctx.closePath();
+            ctx.fillStyle = (s % 2 === 0) ? 'rgba(239, 68, 68, 0.85)' : 'rgba(192, 132, 252, 0.85)';
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 0.8 * scale;
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // 3. Central Dark Dimensional Eye
+          ctx.beginPath();
+          ctx.ellipse(0, 0, targetR * 0.28, targetR * 0.65, jitterX * 0.05, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f172a';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(244, 63, 94, 0.9)';
+          ctx.lineWidth = 1.5 * scale;
+          ctx.stroke();
+
+          ctx.restore();
+
+        } else if (p.nodeClass === 'emp_glitch') {
+          // EMP CYBER-OVERLOAD BEACON: Hexagonal Chassis, Scanline Waves & Static Wireframe
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const hexAngle = now * 0.0025;
+
+          // 1. Rotating Hexagonal Cyber-Boundary
+          ctx.save();
+          ctx.rotate(hexAngle);
+          ctx.beginPath();
+          for (let h = 0; h < 6; h++) {
+            const ha = h * (Math.PI / 3);
+            const hx = Math.cos(ha) * targetR * 1.15;
+            const hy = Math.sin(ha) * targetR * 1.15;
+            if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = 'rgba(244, 63, 94, 0.85)';
+          ctx.lineWidth = 1.8 * scale;
+          ctx.stroke();
+
+          // Hex vertex corner pips
+          for (let h = 0; h < 6; h++) {
+            const ha = h * (Math.PI / 3);
+            ctx.beginPath();
+            ctx.arc(Math.cos(ha) * targetR * 1.15, Math.sin(ha) * targetR * 1.15, 2.0 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = '#fef08a';
+            ctx.fill();
+          }
+          ctx.restore();
+
+          // 2. Horizontal CRT Digital Scanlines
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.85, 0, Math.PI * 2);
+          ctx.clip();
+          const scanY = ((now * 0.08) % (targetR * 2)) - targetR;
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+          ctx.fillRect(-targetR, scanY, targetR * 2, 3.5 * scale);
+
+          // Digital hazard glitch cross
+          ctx.beginPath();
+          ctx.moveTo(-targetR * 0.5, 0); ctx.lineTo(targetR * 0.5, 0);
+          ctx.moveTo(0, -targetR * 0.5); ctx.lineTo(0, targetR * 0.5);
+          ctx.strokeStyle = 'rgba(254, 240, 138, 0.9)';
+          ctx.lineWidth = 2.2 * scale;
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.restore();
+
+        } else if (p.nodeClass === 'plasma_flare') {
+          // CORONAL PLASMA FLARE: Boiling Solar Prominence Loops & Ejecta Arcs
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+
+          // 1. Dual Parabolic Coronal Prominence Arcs (whips outward left & right)
+          const flareCycle = now * 0.0035;
+          for (let side = -1; side <= 1; side += 2) {
+            const flareReach = targetR * (1.2 + 0.35 * Math.sin(flareCycle + side));
+            ctx.beginPath();
+            ctx.moveTo(0, -targetR * 0.5);
+            ctx.quadraticCurveTo(side * flareReach, 0, 0, targetR * 0.5);
+            ctx.strokeStyle = 'rgba(249, 115, 22, 0.85)';
+            ctx.lineWidth = 2.5 * scale;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Inner hot core arc
+            ctx.beginPath();
+            ctx.moveTo(0, -targetR * 0.35);
+            ctx.quadraticCurveTo(side * flareReach * 0.7, 0, 0, targetR * 0.35);
+            ctx.strokeStyle = 'rgba(254, 240, 138, 0.95)';
+            ctx.lineWidth = 1.2 * scale;
+            ctx.stroke();
+          }
+
+          // 2. 8 Radiating Thermal Flare Spikes
+          const spRot = now * 0.002;
+          for (let r = 0; r < 8; r++) {
+            const ra = spRot + r * (Math.PI / 4);
+            const rLen = targetR * (1.05 + 0.20 * Math.sin(now * 0.008 + r));
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(ra) * targetR * 0.6, Math.sin(ra) * targetR * 0.6);
+            ctx.lineTo(Math.cos(ra) * rLen, Math.sin(ra) * rLen);
+            ctx.strokeStyle = (r % 2 === 0) ? 'rgba(249, 115, 22, 0.75)' : 'rgba(239, 68, 68, 0.65)';
+            ctx.lineWidth = 1.4 * scale;
+            ctx.stroke();
+          }
+
+          ctx.restore();
         }
       }
 
@@ -5905,20 +6086,26 @@
         let nClass = 'standard';
 
         if (canSpawnHazard) {
-          // Diverse Hazard Archetypes:
+          // Diverse Hazard Archetypes across 9 distinct threat classes:
           const rHaz = Math.random();
-          if (rHaz < 0.22) {
+          if (rHaz < 0.15) {
             nClass = 'volatile'; // Standard Antimatter Core
-          } else if (rHaz < 0.42) {
+          } else if (rHaz < 0.28) {
             nClass = 'seeker'; // Orbital Homing Harbinger (tracks player)
-          } else if (rHaz < 0.58) {
+          } else if (rHaz < 0.40) {
             nClass = 'phantom'; // Stealth Phase-Glitch Trap (cloaks)
-          } else if (rHaz < 0.74) {
+          } else if (rHaz < 0.52) {
             nClass = 'fragmentation'; // Fragmentation Bolide (splits into 3 shards)
-          } else if (rHaz < 0.88) {
+          } else if (rHaz < 0.64) {
             nClass = 'vortex'; // Vortex Null-Well (repels collectibles)
-          } else {
+          } else if (rHaz < 0.76) {
             nClass = 'pulsar_mine'; // Tachyon Pulsar Mine (periodic electrostatic pulse)
+          } else if (rHaz < 0.85) {
+            nClass = 'tachyon_fracture'; // Tachyon Dimensional Rift (jittering quantum fissure)
+          } else if (rHaz < 0.93) {
+            nClass = 'emp_glitch'; // EMP Cyber-Overload Beacon (hex scanline pulse)
+          } else {
+            nClass = 'plasma_flare'; // Coronal Solar Prominence (boiling solar flare arcs)
           }
         } else {
           // Balanced Falling Node Archetypes (84% Standard Nodes, 16% Power-Ups)
@@ -5962,7 +6149,10 @@
           phantom: 26.0,
           fragmentation: 32.0,
           vortex: 34.0,
-          pulsar_mine: 30.0
+          pulsar_mine: 30.0,
+          tachyon_fracture: 32.0,
+          emp_glitch: 30.0,
+          plasma_flare: 32.0
         };
 
         const p = {
