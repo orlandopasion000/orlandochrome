@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v382_rounds_boss_offense';
+const CACHE_NAME = 'orlandochrome-arcade-v383_realm_gameover';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade382_rounds_boss_offense',
-  './game.js?v=arcade382_rounds_boss_offense',
+  './styles.css?v=arcade383_realm_gameover',
+  './game.js?v=arcade383_realm_gameover',
   './qrcode.min.js',
-  './app.js?v=arcade382_rounds_boss_offense',
+  './app.js?v=arcade383_realm_gameover',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',

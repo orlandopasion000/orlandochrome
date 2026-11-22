@@ -5817,6 +5817,10 @@
       state.roundQuota = spec.quota;
       state.coreAmmo = 12; // Starter tactical reserve so player can test Offense Mode immediately!
       state.maxCoreAmmo = 150;
+      state.maxComboReached = 1;
+      state.maxTierReached = 1;
+      state.bossesDefeated = 0;
+      state.nodesCaughtTotal = 0;
       state.offenseMode = false;
       state.pointerFiring = false;
       state.lastShotTime = 0;
@@ -5863,6 +5867,9 @@
       const isPowered = (nodeClass && nodeClass !== 'standard');
       const gain = isPowered ? 6 : (isPerfect ? 4 : 3);
       this.addAmmo(gain);
+      state.nodesCaughtTotal = (state.nodesCaughtTotal || 0) + 1;
+      state.maxComboReached = Math.max(state.maxComboReached || 1, state.combo || 1);
+      state.maxTierReached = Math.max(state.maxTierReached || 1, state.coreTier || 1);
 
       if (state.roundPhase === 'gauntlet') {
         state.roundNodesCaught = (state.roundNodesCaught || 0) + 1;
@@ -6080,6 +6087,7 @@
 
       const roundBonus = 5000 * boss.round;
       state.score += roundBonus;
+      state.bossesDefeated = (state.bossesDefeated || 0) + 1;
       const prevLives = state.reflexLives;
       state.reflexLives = Math.min(3, state.reflexLives + 1);
       renderReflexShields();
@@ -7248,6 +7256,7 @@
 
   function closeGame() {
     state.active = false;
+    if (typeof OverlayRealmFX !== 'undefined') OverlayRealmFX.stop();
     document.body.classList.remove('arcade-active');
     clearInterval(state.mathTimer);
     if (animFrameId) {
@@ -7429,13 +7438,178 @@
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // v383 PERSONALIZED REALM GAME-OVER FX ENGINE (Runs ONLY when overlay open!)
+  // Translucent Holographic Glass Card Ambient Micro-Physics (0% CPU in-game!)
+  // ─────────────────────────────────────────────────────────────────────────
+  const OverlayRealmFX = {
+    rafId: null,
+    realm: null,
+    motes: Array.from({ length: 24 }, (_, i) => ({
+      x: ((i * 53 + 17) % 100) / 100,
+      y: ((i * 71 + 29) % 100) / 100,
+      r: 1.0 + (i % 3) * 0.7,
+      spd: 0.0025 + (i % 4) * 0.0014,
+      phase: i * 1.43
+    })),
+
+    stop() {
+      if (this.rafId) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+      }
+      this.realm = null;
+    },
+
+    start(realm) {
+      this.stop();
+      const canvas = document.getElementById('cgOverlayFxCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      this.realm = realm;
+
+      const tick = (now) => {
+        if (!this.realm) return;
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.max(200, Math.round(rect.width || 460));
+        const h = Math.max(200, Math.round(rect.height || 440));
+        const dpr = Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+        const tw = Math.round(w * dpr);
+        const th = Math.round(h * dpr);
+        if (canvas.width !== tw || canvas.height !== th) {
+          canvas.width = tw;
+          canvas.height = th;
+        }
+
+        ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (this.realm === 'dynamo') {
+          // Subtle Faraday Lichtenberg arcs along top/bottom perimeter + electric cyan/violet sparks
+          const stepTick = Math.floor(now / 95);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let rail = 0; rail < 2; rail++) {
+            const baseY = rail === 0 ? 18 : (h - 18);
+            const segs = 12;
+            ctx.beginPath();
+            for (let s = 0; s <= segs; s++) {
+              const f = s / segs;
+              const px = 28 + (w - 56) * f;
+              const jag = (s === 0 || s === segs) ? 0 : (Math.sin(stepTick * 2.9 + rail * 5.1 + s * 2.13) * 6.5);
+              const py = baseY + jag;
+              if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = rail === 0 ? 'rgba(56, 189, 248, 0.34)' : 'rgba(168, 85, 247, 0.28)';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(224, 242, 254, 0.30)';
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+          }
+          for (let i = 0; i < this.motes.length; i++) {
+            const m = this.motes[i];
+            const mx = ((m.x + Math.sin(now * 0.0007 + m.phase) * 0.04) * w + w) % w;
+            const my = (((m.y - now * 0.00004 * (1 + i % 3)) % 1) + 1) % 1 * h;
+            ctx.globalAlpha = 0.22 + 0.35 * (0.5 + 0.5 * Math.sin(now * 0.005 + m.phase));
+            ctx.fillStyle = (i % 3 === 0) ? '#fde047' : (i % 2 === 0 ? '#38bdf8' : '#c084fc');
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+        } else if (this.realm === 'helix') {
+          // Live Translucent 3D Cyan & Magenta DNA Double-Helix Wave Undulating Across Card Backdrop
+          const steps = 28;
+          const speed = now * 0.0024;
+          const cy = h * 0.30;
+          const amp = 22;
+          ctx.lineCap = 'round';
+          // Subtle base-pair rungs
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (let s = 2; s < steps; s += 3) {
+            const f = s / steps;
+            const x = 16 + (w - 32) * f;
+            const yOff = Math.sin(speed + f * Math.PI * 3.6) * amp;
+            ctx.moveTo(x, cy + yOff);
+            ctx.lineTo(x, cy - yOff);
+          }
+          ctx.stroke();
+          for (let strand = -1; strand <= 1; strand += 2) {
+            ctx.beginPath();
+            for (let s = 0; s <= steps; s++) {
+              const f = s / steps;
+              const x = 16 + (w - 32) * f;
+              const y = cy + Math.sin(speed + f * Math.PI * 3.6) * amp * strand;
+              if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = strand > 0 ? 'rgba(34, 211, 238, 0.32)' : 'rgba(232, 121, 249, 0.32)';
+            ctx.lineWidth = 2.0;
+            ctx.stroke();
+          }
+          for (let i = 0; i < this.motes.length; i++) {
+            const m = this.motes[i];
+            const mx = ((m.x + Math.cos(now * 0.0006 + m.phase) * 0.05) * w + w) % w;
+            const my = (((m.y - now * 0.00003 * (1 + i % 3)) % 1) + 1) % 1 * h;
+            ctx.globalAlpha = 0.24 + 0.32 * (0.5 + 0.5 * Math.sin(now * 0.004 + m.phase));
+            ctx.fillStyle = (i % 2 === 0) ? '#22d3ee' : '#e879f9';
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+        } else if (this.realm === 'meteor') {
+          // Rising Incandescent Molten Solar Embers + Subtle Bottom Thermal Glow
+          const g = ctx.createLinearGradient(0, h, 0, h * 0.55);
+          g.addColorStop(0.0, 'rgba(234, 88, 12, 0.26)');
+          g.addColorStop(0.5, 'rgba(249, 115, 22, 0.10)');
+          g.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, h * 0.55, w, h * 0.45);
+
+          for (let i = 0; i < this.motes.length; i++) {
+            const m = this.motes[i];
+            const progress = (((m.y - now * 0.00008 * (1 + (i % 4) * 0.45)) % 1) + 1) % 1;
+            const mx = (m.x * w) + Math.sin(now * 0.0025 + m.phase) * 14;
+            const my = progress * h;
+            const fade = Math.sin(progress * Math.PI);
+            ctx.globalAlpha = fade * 0.45;
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r * 2.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = fade * 0.85;
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r * 0.95, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        ctx.restore();
+        this.rafId = requestAnimationFrame(tick);
+      };
+      this.rafId = requestAnimationFrame(tick);
+    }
+  };
+
   function startGame(type) {
+    OverlayRealmFX.stop();
     state.active = true;
     state.score = 0;
     state.combo = 1;
     updateHeaderUI();
 
-    if (dom.screenOverlay) dom.screenOverlay.style.display = 'none';
+    if (dom.screenOverlay) {
+      dom.screenOverlay.style.display = 'none';
+      dom.screenOverlay.classList.remove('oc-realm-overlay');
+      dom.screenOverlay.removeAttribute('data-realm');
+    }
 
     if (type === 'math') {
       startMathGame();
@@ -7455,8 +7629,10 @@
       animFrameId = null;
     }
 
-    // Save best score
-    if (state.score > (state.bestScores[state.gameType] || 0)) {
+    // Track whether player beat their Personal Best before overwriting!
+    const prevBest = state.bestScores[state.gameType] || 0;
+    const isNewRecord = (state.score > prevBest && state.score > 0);
+    if (isNewRecord) {
       state.bestScores[state.gameType] = state.score;
       localStorage.setItem(`oc_best_${state.gameType}`, state.score.toString());
       audio.playVictoryFanfare();
@@ -7464,7 +7640,137 @@
 
     updateHeaderUI();
 
-    if (dom.screenOverlay) {
+    if (!dom.screenOverlay) return;
+
+    const isCoreRealm = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+    const statusChip = document.getElementById('cgGoStatusChip');
+    const statusText = document.getElementById('cgGoStatusText');
+    const defGlyph = document.getElementById('cgDefaultGlyph');
+    const realmEmbWrap = document.getElementById('cgRealmEmblemWrap');
+    const realmEmbImg = document.getElementById('cgRealmEmblemImg');
+    const recBadge = document.getElementById('cgGoRecordBadge');
+    const telemetry = document.getElementById('cgGoTelemetry');
+    const tipEl = document.getElementById('cgGoTip');
+    const quickRow = document.getElementById('cgGoQuickRow');
+    const kbdHint = document.getElementById('cgGoKbdHint');
+
+    if (isCoreRealm) {
+      const rKey = (state.gameType === 'helix') ? 'helix' : (state.gameType === 'meteor' ? 'meteor' : 'dynamo');
+      const REALM_DEBRIEF = {
+        dynamo: {
+          status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
+          title: 'FARADAY SHIELDS DEPLETED',
+          emblem: 'assets/core-dynamo-t5.png?v=arcade374',
+          cta: '⚡ RE-IGNITE CHROME DYNAMO',
+          scienceTip: 'Chain catches trigger Faraday Induction arcs that pull nearby Plasma Orbs closer — hold Click or press [F] to fire your Rail-Arc Cannon!'
+        },
+        helix: {
+          status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
+          title: 'HELIX SHIELDS DEPLETED',
+          emblem: 'assets/core-helix-t5.png?v=arcade374',
+          cta: '🧬 RE-SEQUENCE CHROME HELIX',
+          scienceTip: 'Consecutive clean Nucleotide catches stabilize Base-Pair Resonance — unload your Twin-Helix Photonic Lance [F] during Boss telegraph gaps!'
+        },
+        meteor: {
+          status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
+          title: 'CALDERA SHIELDS DEPLETED',
+          emblem: 'assets/core-meteor-t5.png?v=arcade374',
+          cta: '☄️ RE-LAUNCH CHROME METEOR',
+          scienceTip: 'Solar Mass-Driver shots splash adjacent Boss Shield Pylons — graze incoming hazards to charge Flux Pulse [Space] for 15-dmg Boss burst!'
+        }
+      };
+      const cfg = REALM_DEBRIEF[rKey];
+      const rnd = state.currentRound || 1;
+      const peakTier = Math.max(state.maxTierReached || 1, state.coreTier || 1);
+      const peakCombo = Math.max(state.maxComboReached || 1, state.combo || 1);
+      const tierRoman = { 1: 'TIER I', 2: 'TIER II', 3: 'TIER III', 4: 'TIER IV', 5: 'TIER V' }[peakTier] || 'TIER I';
+      const nodesCaught = state.nodesCaughtTotal || 0;
+      const bossesSlain = state.bossesDefeated || 0;
+
+      // Calculate Combat Sortie Rank (S+ / S / A / B / C)
+      let grade = 'C', gradeCls = 'oc-go-grade-c';
+      if (rnd >= 5 || state.score >= 50000 || bossesSlain >= 4) { grade = 'S+'; gradeCls = 'oc-go-grade-splus'; }
+      else if (rnd >= 3 || state.score >= 22000 || peakTier >= 5 || bossesSlain >= 2) { grade = 'S'; gradeCls = 'oc-go-grade-s'; }
+      else if (rnd >= 2 || state.score >= 9000 || peakTier >= 4 || bossesSlain >= 1) { grade = 'A'; gradeCls = 'oc-go-grade-a'; }
+      else if (state.score >= 3000 || peakTier >= 2 || nodesCaught >= 10) { grade = 'B'; gradeCls = 'oc-go-grade-b'; }
+
+      // Contextual Boss Near-Miss / Tactical Debrief Message
+      let debriefSub = desc;
+      let bossSubTxt = bossesSlain > 0 ? `${bossesSlain} BOSS${bossesSlain > 1 ? 'ES' : ''} SLAIN` : `GAUNTLET ${state.roundNodesCaught || 0}/${state.roundQuota || 18}`;
+      let tacticalTipHtml = `<strong>TACTICAL DEBRIEF:</strong> ${cfg.scienceTip}`;
+
+      if (state.boss && state.boss.phase !== 'defeated') {
+        const remHp = Math.ceil(state.boss.hp);
+        const maxHp = state.boss.maxHp;
+        debriefSub = `Overwhelmed by Round ${rnd} Boss ${state.boss.name} with ${remHp} / ${maxHp} HP remaining.`;
+        bossSubTxt = `BOSS ${remHp}/${maxHp} HP`;
+        if (remHp <= Math.ceil(maxHp * 0.30)) {
+          tacticalTipHtml = `<strong>SO CLOSE!</strong> Only <strong>${remHp} HP</strong> left on ${state.boss.name} — save Flux Pulse <strong>[SPACE]</strong> to clear bullets &amp; deal 15 burst damage!`;
+        } else if ((state.coreAmmo || 0) >= 12) {
+          tacticalTipHtml = `<strong>UNUSED ARSENAL:</strong> You fell with <strong>${state.coreAmmo} shots</strong> loaded — press <strong>[F]</strong> or Hold Click immediately when the Boss arrives!`;
+        } else if (state.boss.pylons && state.boss.pylons.some(p => p.hp > 0)) {
+          tacticalTipHtml = `<strong>ARMOR BREAK TIP:</strong> Destroy ${state.boss.name}'s orbiting hexagonal Shield Pylons first for <strong>1.5× Crit</strong> + <strong>+8 Bonus Ammo</strong>!`;
+        }
+      } else {
+        debriefSub = `Containment lost during Round ${rnd} Gauntlet (${state.roundNodesCaught || 0}/${state.roundQuota || 18} nodes to Boss).`;
+      }
+
+      dom.screenOverlay.classList.add('oc-realm-overlay');
+      dom.screenOverlay.setAttribute('data-realm', rKey);
+      if (statusChip) statusChip.style.display = 'inline-flex';
+      if (statusText) statusText.textContent = cfg.status;
+      if (defGlyph) defGlyph.style.display = 'none';
+      if (realmEmbWrap) realmEmbWrap.style.display = 'flex';
+      if (realmEmbImg) realmEmbImg.src = cfg.emblem;
+      if (recBadge) recBadge.classList.toggle('show', isNewRecord);
+      if (telemetry) telemetry.style.display = 'grid';
+      if (tipEl) { tipEl.style.display = 'block'; tipEl.innerHTML = tacticalTipHtml; }
+      if (quickRow) {
+        quickRow.style.display = 'flex';
+        quickRow.querySelectorAll('[data-switch-realm]').forEach((btn) => {
+          const targetR = btn.getAttribute('data-switch-realm');
+          btn.style.display = (targetR === rKey) ? 'none' : 'inline-flex';
+          btn.onclick = () => openGame(targetR);
+        });
+        const exitBtn = document.getElementById('cgGoExitBtn');
+        if (exitBtn) exitBtn.onclick = closeGame;
+      }
+      if (kbdHint) kbdHint.style.display = 'block';
+
+      const setEl = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+      setEl('cgGoScore', state.score.toLocaleString());
+      setEl('cgGoBestSub', `BEST ${(state.bestScores[state.gameType] || 0).toLocaleString()}`);
+      setEl('cgGoRound', `R${rnd}`);
+      setEl('cgGoBossSub', bossSubTxt);
+      setEl('cgGoTier', tierRoman);
+      setEl('cgGoComboSub', `MAX ${peakCombo}x`);
+      const gradeEl = document.getElementById('cgGoGrade');
+      if (gradeEl) {
+        gradeEl.textContent = grade;
+        gradeEl.className = `oc-go-stat-val ${gradeCls}`;
+      }
+      setEl('cgGoNodesSub', `${nodesCaught} NODES`);
+
+      dom.screenTitle.textContent = cfg.title;
+      dom.screenDesc.textContent = debriefSub;
+      dom.btnStartAction.textContent = cfg.cta;
+      dom.btnStartAction.onclick = () => startGame(state.gameType);
+      dom.screenOverlay.style.display = 'flex';
+      OverlayRealmFX.start(rKey);
+    } else {
+      // Standard clean overlay for Math Overdrive, Reflex Blitz, and Memory Matrix
+      OverlayRealmFX.stop();
+      dom.screenOverlay.classList.remove('oc-realm-overlay');
+      dom.screenOverlay.removeAttribute('data-realm');
+      if (statusChip) statusChip.style.display = 'none';
+      if (defGlyph) defGlyph.style.display = 'block';
+      if (realmEmbWrap) realmEmbWrap.style.display = 'none';
+      if (recBadge) recBadge.classList.remove('show');
+      if (telemetry) telemetry.style.display = 'none';
+      if (tipEl) tipEl.style.display = 'none';
+      if (quickRow) quickRow.style.display = 'none';
+      if (kbdHint) kbdHint.style.display = 'none';
+
       dom.screenTitle.textContent = title;
       dom.screenDesc.textContent = desc;
       dom.screenOverlay.style.display = 'flex';
@@ -7635,6 +7941,7 @@
     }
     RoundBossEngine.reset(performance.now());
     state._testedBoss = false;
+    state._testedGameOver = false;
 
     const picker = document.getElementById('reflexMultiplePicker');
     const badge = document.getElementById('transmuteIndicator');
@@ -8402,6 +8709,24 @@
           state.roundBanner = null;
           RoundBossEngine.spawnBoss(bRound, now, w, h, true);
           spawnBossSupplyNode(w * 0.5);
+        }
+      }
+
+      // TEST HARNESS: PERSONALIZED TRANSLUCENT GAME OVER MODAL (?test_gameover=1)
+      if (window.location.search.includes('test_gameover=1')) {
+        if (!state._testedGameOver) {
+          state._testedGameOver = true;
+          state.score = 18450;
+          state.maxComboReached = 24;
+          state.maxTierReached = 4;
+          state.nodesCaughtTotal = 39;
+          state.bossesDefeated = (state.currentRound || 1) > 1 ? ((state.currentRound || 1) - 1) : 1;
+          setTimeout(() => {
+            if (state.active) {
+              if (state.boss) state.boss.hp = Math.max(12, Math.round(state.boss.maxHp * 0.18));
+              handleGameOver('SHIELDS DEPLETED', 'Simulated containment breach for visual QA.');
+            }
+          }, 950);
         }
       }
 
@@ -10315,9 +10640,20 @@
       tierPillEl.onclick = cycleCoreTier;
     }
 
-    // Keyboard bindings for Flux Pulse (Space), Offense Cannon Toggle (F / E), and Tier Cycle (T)
+    // Keyboard bindings for Flux Pulse (Space), Offense Cannon Toggle (F / E), Tier Cycle (T) & Instant Re-Deploy (Enter / R)
     window.addEventListener('keydown', (e) => {
-      if (!state.active) return;
+      if (!state.active) {
+        if (dom.screenOverlay && dom.screenOverlay.style.display === 'flex' && dom.modal && dom.modal.classList.contains('active')) {
+          if (e.key === 'Enter' || e.key === 'r' || e.key === 'R') {
+            e.preventDefault();
+            startGame(state.gameType);
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeGame();
+          }
+        }
+        return;
+      }
       if (e.code === 'Space') {
         e.preventDefault();
         triggerFluxPulse();

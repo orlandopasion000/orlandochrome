@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade382_rounds_boss_offense">
+  <link rel="stylesheet" href="styles.css?v=arcade383_realm_gameover">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1590,6 +1590,373 @@
       box-shadow: 0 0 16px rgba(249, 115, 22, 0.65), inset 0 0 10px rgba(253, 224, 71, 0.28) !important;
     }
 
+    /* ══════════════════════════════════════════════════════════════════════════
+       v383 FUTURISTIC TRANSLUCENT REALM-PERSONALIZED "SHIELDS DEPLETED" MODAL
+       Bespoke Holographic Glassmorphism for DYNAMO, HELIX & METEOR
+       ══════════════════════════════════════════════════════════════════════════ */
+    #cgScreenOverlay.oc-realm-overlay {
+      background: radial-gradient(circle at 50% 48%, rgba(4, 8, 22, 0.34) 0%, rgba(2, 4, 12, 0.56) 100%) !important;
+      backdrop-filter: blur(5px) !important;
+      -webkit-backdrop-filter: blur(5px) !important;
+      animation: ocOverlayFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+    @keyframes ocOverlayFadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes ocCardSlideIn {
+      0% { opacity: 0; transform: translateY(14px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes ocHoloscan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(220%); }
+    }
+
+    #cgScreenOverlay.oc-realm-overlay .screen-card {
+      position: relative !important;
+      max-width: 472px !important;
+      width: 100% !important;
+      padding: 24px 26px 22px !important;
+      border-radius: 22px !important;
+      overflow: hidden !important;
+      backdrop-filter: blur(18px) saturate(155%) !important;
+      -webkit-backdrop-filter: blur(18px) saturate(155%) !important;
+      animation: ocCardSlideIn 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      isolation: isolate !important;
+    }
+    /* Subtle translucent scanline shimmer sweep */
+    #cgScreenOverlay.oc-realm-overlay .screen-card::before {
+      content: '' !important;
+      position: absolute !important;
+      inset: 0 !important;
+      background: repeating-linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.018) 0px,
+        rgba(255, 255, 255, 0.018) 1px,
+        transparent 1px,
+        transparent 4px
+      ) !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-card::after {
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      top: 0 !important;
+      height: 44% !important;
+      background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.055) 50%, transparent 100%) !important;
+      animation: ocHoloscan 5.2s linear infinite !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+
+    /* Live Ambient Realm FX Canvas behind Card Content */
+    .oc-go-fx-canvas {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      pointer-events: none !important;
+      z-index: 0 !important;
+      opacity: 0.82 !important;
+    }
+    .oc-go-content {
+      position: relative !important;
+      z-index: 3 !important;
+    }
+    /* Illuminated Sci-Fi Corner Brackets */
+    .oc-go-corner {
+      position: absolute !important;
+      width: 18px !important;
+      height: 18px !important;
+      pointer-events: none !important;
+      z-index: 4 !important;
+      opacity: 0.85 !important;
+    }
+    .oc-go-c-tl { top: 10px !important; left: 10px !important; border-top: 2px solid currentColor !important; border-left: 2px solid currentColor !important; border-top-left-radius: 6px !important; }
+    .oc-go-c-tr { top: 10px !important; right: 10px !important; border-top: 2px solid currentColor !important; border-right: 2px solid currentColor !important; border-top-right-radius: 6px !important; }
+    .oc-go-c-bl { bottom: 10px !important; left: 10px !important; border-bottom: 2px solid currentColor !important; border-left: 2px solid currentColor !important; border-bottom-left-radius: 6px !important; }
+    .oc-go-c-br { bottom: 10px !important; right: 10px !important; border-bottom: 2px solid currentColor !important; border-right: 2px solid currentColor !important; border-bottom-right-radius: 6px !important; }
+
+    /* Top Telemetry Status Pill */
+    .oc-go-status-chip {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      padding: 4px 12px !important;
+      border-radius: 999px !important;
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 9.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.14em !important;
+      text-transform: uppercase !important;
+      margin-bottom: 12px !important;
+      background: rgba(6, 10, 24, 0.58) !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    }
+    .oc-go-status-dot {
+      width: 6px !important;
+      height: 6px !important;
+      border-radius: 50% !important;
+      background: #f43f5e !important;
+      box-shadow: 0 0 8px #f43f5e !important;
+    }
+
+    /* Bespoke Animated Core Medallion Emblem (Replaces Plain Clock Icon!) */
+    .oc-go-emblem-wrap {
+      position: relative !important;
+      width: 74px !important;
+      height: 74px !important;
+      margin: 0 auto 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .oc-go-emblem-ring {
+      position: absolute !important;
+      inset: -4px !important;
+      border-radius: 50% !important;
+      border: 1.8px dashed rgba(255, 255, 255, 0.35) !important;
+      animation: ocOrbSpinSlow 11s linear infinite !important;
+    }
+    .oc-go-emblem-ring-inner {
+      position: absolute !important;
+      inset: 3px !important;
+      border-radius: 50% !important;
+      border: 1.5px solid transparent !important;
+      animation: ocOrbSpinSlow 6s linear infinite reverse !important;
+    }
+    .oc-go-emblem-clip {
+      width: 58px !important;
+      height: 58px !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: radial-gradient(circle, rgba(12, 16, 32, 0.9) 40%, rgba(0, 0, 0, 0.7) 100%) !important;
+    }
+    .oc-go-emblem-img {
+      width: 138% !important;
+      height: 138% !important;
+      max-width: none !important;
+      object-fit: cover !important;
+      filter: saturate(1.12) contrast(1.06) !important;
+    }
+
+    /* Record Badge & Boss Near-Miss Callout */
+    .oc-go-record-badge {
+      display: none !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      margin: 0 auto 10px !important;
+      padding: 4px 12px !important;
+      border-radius: 999px !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.10em !important;
+      color: #fef08a !important;
+      background: linear-gradient(90deg, rgba(234, 179, 8, 0.24), rgba(249, 115, 22, 0.28)) !important;
+      border: 1px solid rgba(253, 224, 71, 0.65) !important;
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.28) !important;
+    }
+    .oc-go-record-badge.show { display: inline-flex !important; }
+
+    /* 4-Cell Futuristic Combat Telemetry Grid */
+    .oc-go-telemetry {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 8px !important;
+      margin: 14px 0 12px !important;
+    }
+    .oc-go-stat {
+      padding: 9px 6px 8px !important;
+      border-radius: 12px !important;
+      background: rgba(6, 10, 22, 0.54) !important;
+      border: 1px solid rgba(255, 255, 255, 0.10) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 2px !important;
+    }
+    .oc-go-stat-lbl {
+      font-size: 8.5px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.10em !important;
+      color: #94a3b8 !important;
+      text-transform: uppercase !important;
+    }
+    .oc-go-stat-val {
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      color: #f8fafc !important;
+      line-height: 1.15 !important;
+    }
+    .oc-go-stat-sub {
+      font-size: 8.5px !important;
+      color: #cbd5e1 !important;
+      opacity: 0.8 !important;
+    }
+    .oc-go-grade-splus { color: #fde047 !important; text-shadow: 0 0 12px rgba(253, 224, 71, 0.75) !important; }
+    .oc-go-grade-s { color: #38bdf8 !important; text-shadow: 0 0 12px rgba(56, 189, 248, 0.75) !important; }
+    .oc-go-grade-a { color: #c084fc !important; }
+    .oc-go-grade-b { color: #34d399 !important; }
+    .oc-go-grade-c { color: #fb923c !important; }
+
+    /* Contextual Tactical Diagnostic Tip */
+    .oc-go-tip {
+      margin: 0 0 16px !important;
+      padding: 8px 12px !important;
+      border-radius: 10px !important;
+      background: rgba(4, 8, 20, 0.50) !important;
+      border-left: 2.5px solid rgba(56, 189, 248, 0.75) !important;
+      font-size: 10.5px !important;
+      color: #cbd5e1 !important;
+      text-align: left !important;
+      line-height: 1.4 !important;
+    }
+    .oc-go-tip strong {
+      color: #f8fafc !important;
+      letter-spacing: 0.04em !important;
+    }
+
+    /* Primary & Secondary Quick-Action Controls */
+    .oc-go-btn-row {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      align-items: center !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary {
+      width: 100% !important;
+      padding: 13px 26px !important;
+      font-size: 13px !important;
+      letter-spacing: 0.08em !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    }
+    .oc-go-quick-row {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-wrap: wrap !important;
+      gap: 7px !important;
+      width: 100% !important;
+    }
+    .oc-go-sec-btn {
+      padding: 6px 12px !important;
+      border-radius: 999px !important;
+      background: rgba(8, 14, 30, 0.60) !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      color: #cbd5e1 !important;
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.05em !important;
+      cursor: pointer !important;
+      transition: all 0.18s ease !important;
+    }
+    .oc-go-sec-btn:hover {
+      color: #ffffff !important;
+      border-color: rgba(255, 255, 255, 0.42) !important;
+      background: rgba(24, 34, 64, 0.78) !important;
+      transform: translateY(-1px) !important;
+    }
+    .oc-go-kbd-hint {
+      margin-top: 8px !important;
+      font-size: 9.5px !important;
+      color: #94a3b8 !important;
+      letter-spacing: 0.06em !important;
+    }
+    .oc-go-kbd-hint kbd {
+      display: inline-block !important;
+      padding: 1px 5px !important;
+      border-radius: 4px !important;
+      background: rgba(255, 255, 255, 0.10) !important;
+      border: 1px solid rgba(255, 255, 255, 0.20) !important;
+      color: #e2e8f0 !important;
+      font-family: inherit !important;
+      font-size: 9px !important;
+    }
+
+    /* ─── THEME 1: CHROME DYNAMO (Translucent Faraday Violet · Electric Cyan · Anode Gold) ─── */
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-card {
+      background: linear-gradient(160deg, rgba(24, 12, 58, 0.62) 0%, rgba(8, 12, 32, 0.68) 55%, rgba(10, 26, 52, 0.62) 100%) !important;
+      border: 1.5px solid rgba(139, 92, 246, 0.65) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.68), 0 0 38px rgba(56, 189, 248, 0.24), inset 0 0 28px rgba(139, 92, 246, 0.18) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-corner { color: #38bdf8 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-status-chip { color: #bae6fd !important; border-color: rgba(56, 189, 248, 0.45) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-emblem-ring { border-color: rgba(168, 85, 247, 0.68) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-emblem-ring-inner { border-top-color: #38bdf8 !important; border-bottom-color: #fbbf24 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-emblem-clip { box-shadow: 0 0 22px rgba(139, 92, 246, 0.65), 0 0 12px rgba(56, 189, 248, 0.55) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-title {
+      background: linear-gradient(90deg, #e0f2fe 0%, #38bdf8 48%, #c084fc 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.42)) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-tip { border-left-color: #38bdf8 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #6366f1 52%, #9333ea 100%) !important;
+      box-shadow: 0 8px 26px rgba(56, 189, 248, 0.38), 0 0 18px rgba(139, 92, 246, 0.35) !important;
+    }
+
+    /* ─── THEME 2: CHROME HELIX (Translucent Sapphire Aqua · Bioluminescent Cyan & Magenta) ─── */
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-card {
+      background: linear-gradient(160deg, rgba(6, 30, 48, 0.60) 0%, rgba(14, 10, 34, 0.68) 55%, rgba(34, 12, 46, 0.60) 100%) !important;
+      border: 1.5px solid rgba(34, 211, 238, 0.64) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.68), 0 0 38px rgba(232, 121, 249, 0.24), inset 0 0 28px rgba(34, 211, 238, 0.16) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-corner { color: #22d3ee !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-status-chip { color: #f5d0fe !important; border-color: rgba(232, 121, 249, 0.48) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-emblem-ring { border-color: rgba(34, 211, 238, 0.68) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-emblem-ring-inner { border-left-color: #22d3ee !important; border-right-color: #e879f9 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-emblem-clip { box-shadow: 0 0 22px rgba(34, 211, 238, 0.62), 0 0 14px rgba(232, 121, 249, 0.55) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-title {
+      background: linear-gradient(90deg, #cffafe 0%, #22d3ee 45%, #f0abfc 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.42)) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-tip { border-left-color: #e879f9 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-btn-primary {
+      background: linear-gradient(135deg, #0891b2 0%, #7c3aed 50%, #d946ef 100%) !important;
+      box-shadow: 0 8px 26px rgba(34, 211, 238, 0.35), 0 0 18px rgba(232, 121, 249, 0.38) !important;
+    }
+
+    /* ─── THEME 3: CHROME METEOR (Translucent Volcanic Basalt · Molten Gold · Solar Crimson) ─── */
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-card {
+      background: linear-gradient(160deg, rgba(46, 16, 6, 0.64) 0%, rgba(16, 8, 6, 0.70) 55%, rgba(44, 12, 8, 0.62) 100%) !important;
+      border: 1.5px solid rgba(251, 146, 60, 0.70) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.72), 0 0 38px rgba(249, 115, 22, 0.30), inset 0 0 28px rgba(234, 88, 12, 0.20) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-corner { color: #fb923c !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-status-chip { color: #fef08a !important; border-color: rgba(251, 146, 60, 0.55) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-emblem-ring { border-color: rgba(249, 115, 22, 0.72) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-emblem-ring-inner { border-top-color: #fde047 !important; border-left-color: #f97316 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-emblem-clip { box-shadow: 0 0 24px rgba(249, 115, 22, 0.72), 0 0 14px rgba(253, 224, 71, 0.52) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-title {
+      background: linear-gradient(90deg, #fef9c3 0%, #fbbf24 46%, #f97316 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 14px rgba(249, 115, 22, 0.48)) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-tip { border-left-color: #f97316 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-btn-primary {
+      background: linear-gradient(135deg, #ea580c 0%, #f59e0b 52%, #dc2626 100%) !important;
+      box-shadow: 0 8px 26px rgba(249, 115, 22, 0.44), 0 0 18px rgba(253, 224, 71, 0.30) !important;
+    }
+
+    @media (max-width: 520px) {
+      .oc-go-telemetry { grid-template-columns: repeat(2, 1fr) !important; }
+      #cgScreenOverlay.oc-realm-overlay .screen-card { padding: 18px 16px 16px !important; }
+    }
+
     svg, svg path, svg line, svg circle, svg polyline, svg rect {
       vector-effect: non-scaling-stroke;
     }
@@ -2045,19 +2412,77 @@
           <div class="memory-grid-16" id="memoryGrid"></div>
         </div>
 
-        <!-- Overlay: Ready / Game Over / Victory -->
+        <!-- Overlay: Ready / Game Over / Victory (v383 Personalized Realm Glassmorphism) -->
         <div class="game-screen-overlay" id="cgScreenOverlay" style="display:none;">
-          <div class="screen-card">
-            <div class="screen-glyph">
-              <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
-                <circle cx="12" cy="12" r="10" stroke="#00f0ff" stroke-width="2"/>
-                <path d="M12 6v6l4 2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <h2 class="screen-title" id="cgScreenTitle">SIMULATION READY</h2>
-            <p class="screen-desc" id="cgScreenDesc">Challenge your computational speed, reflexes, or cognitive pattern recall.</p>
-            <div class="screen-actions">
-              <button type="button" class="screen-btn-primary" id="cgBtnStartAction">ENGAGE</button>
+          <div class="screen-card" id="cgScreenCard">
+            <canvas class="oc-go-fx-canvas" id="cgOverlayFxCanvas" aria-hidden="true"></canvas>
+            <span class="oc-go-corner oc-go-c-tl" aria-hidden="true"></span>
+            <span class="oc-go-corner oc-go-c-tr" aria-hidden="true"></span>
+            <span class="oc-go-corner oc-go-c-bl" aria-hidden="true"></span>
+            <span class="oc-go-corner oc-go-c-br" aria-hidden="true"></span>
+
+            <div class="oc-go-content">
+              <div class="oc-go-status-chip" id="cgGoStatusChip" style="display:none;">
+                <span class="oc-go-status-dot"></span>
+                <span id="cgGoStatusText">SYSTEM ALERT</span>
+              </div>
+
+              <div class="screen-glyph" id="cgDefaultGlyph">
+                <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
+                  <circle cx="12" cy="12" r="10" stroke="#00f0ff" stroke-width="2"/>
+                  <path d="M12 6v6l4 2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+
+              <div class="oc-go-emblem-wrap" id="cgRealmEmblemWrap" style="display:none;">
+                <span class="oc-go-emblem-ring"></span>
+                <span class="oc-go-emblem-ring-inner"></span>
+                <span class="oc-go-emblem-clip">
+                  <img id="cgRealmEmblemImg" class="oc-go-emblem-img" src="assets/core-dynamo-t5.png?v=arcade374" alt="" />
+                </span>
+              </div>
+
+              <h2 class="screen-title" id="cgScreenTitle">SIMULATION READY</h2>
+              <div class="oc-go-record-badge" id="cgGoRecordBadge">★ NEW PERSONAL RECORD ★</div>
+              <p class="screen-desc" id="cgScreenDesc">Challenge your computational speed, reflexes, or cognitive pattern recall.</p>
+
+              <div class="oc-go-telemetry" id="cgGoTelemetry" style="display:none;">
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">SCORE</span>
+                  <span class="oc-go-stat-val" id="cgGoScore">0</span>
+                  <span class="oc-go-stat-sub" id="cgGoBestSub">BEST 0</span>
+                </div>
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">ROUND</span>
+                  <span class="oc-go-stat-val" id="cgGoRound">R1</span>
+                  <span class="oc-go-stat-sub" id="cgGoBossSub">GAUNTLET</span>
+                </div>
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">PEAK TIER</span>
+                  <span class="oc-go-stat-val" id="cgGoTier">TIER I</span>
+                  <span class="oc-go-stat-sub" id="cgGoComboSub">MAX 1x</span>
+                </div>
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">RANK</span>
+                  <span class="oc-go-stat-val" id="cgGoGrade">A</span>
+                  <span class="oc-go-stat-sub" id="cgGoNodesSub">0 NODES</span>
+                </div>
+              </div>
+
+              <div class="oc-go-tip" id="cgGoTip" style="display:none;"></div>
+
+              <div class="screen-actions oc-go-btn-row">
+                <button type="button" class="screen-btn-primary" id="cgBtnStartAction">ENGAGE</button>
+                <div class="oc-go-quick-row" id="cgGoQuickRow" style="display:none;">
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="dynamo">⚡ DYNAMO</button>
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="helix">🧬 HELIX</button>
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="meteor">☄️ METEOR</button>
+                  <button type="button" class="oc-go-sec-btn" id="cgGoExitBtn">WORKSPACE</button>
+                </div>
+              </div>
+              <div class="oc-go-kbd-hint" id="cgGoKbdHint" style="display:none;">
+                Press <kbd>ENTER</kbd> or <kbd>R</kbd> to Instant Re-Deploy · <kbd>ESC</kbd> to Exit
+              </div>
             </div>
           </div>
         </div>
@@ -2069,7 +2494,7 @@
   <script src="assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade382_rounds_boss_offense"></script>
+  <script src="app.js?v=arcade383_realm_gameover"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -2128,7 +2553,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade382_rounds_boss_offense"></script>
+  <script src="game.js?v=arcade383_realm_gameover"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 
 </body>
