@@ -2094,14 +2094,19 @@
 
             if (isHazardNode(pt.nodeClass)) {
               // Bad node vaporized by tactical missile: disappears cleanly with zero harm to player core!
+              const wasChargingCorruptor = (pt.nodeClass === 'corruptor_laser' && pt.laserState === 'charging');
               const isApex = (pt.nodeClass === 'corruptor_laser' || pt.nodeClass === 'hyper_comet');
-              const bonusPts = isApex ? 300 : 200;
+              const bonusPts = wasChargingCorruptor ? 450 : (isApex ? 300 : 200);
               state.score += bonusPts;
+              if (wasChargingCorruptor) {
+                state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
+                if (state.pulseMeter >= 100) state.isPulseReady = true;
+              }
               this.triggerGraze(pt.x, pt.y, now);
               state.floatingTexts.push({
                 x: pt.x, y: pt.y,
-                text: isApex ? `+${bonusPts} THREAT VAPORIZED` : '+200 NEUTRALIZED',
-                color: blastColor,
+                text: wasChargingCorruptor ? '+450 SALVO INTERRUPTED!' : (isApex ? `+${bonusPts} THREAT VAPORIZED` : '+200 NEUTRALIZED'),
+                color: wasChargingCorruptor ? '#fbbf24' : blastColor,
                 alpha: 1.0,
                 startTime: now
               });
@@ -4221,8 +4226,427 @@
       this._drawLayeredWingedCore(ctx, 'meteor', cx, cy, now, tier, customScale);
     },
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // SCIENTIFIC REALM WAKE ENGINE (Aligned to Origin, Story & 6 Concept References)
+    // Dynamo: Faraday Lichtenberg Dielectric Lightning (Good) / Short-Circuit Crimson Static (Bad)
+    // Helix:  3D Rotating Cyan-Magenta DNA Double Helix (Good) / Severed Unraveled Prion Strand (Bad)
+    // Meteor: Turbulent Solar-Gold Atmospheric Ablation Fire (Good) / Abyssal-Emerald Isotope Vapor (Bad)
+    // ─────────────────────────────────────────────────────────────────────────
+    _drawScientificNodeWake(ctx, mode, p, targetR, scale, now, isHazard, isPowered) {
+      const animPhase = p.animPhase || 0.0;
+      const modeKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
+      const powerBoost = isPowered ? 1.24 : 1.0;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      if (!isHazard) {
+        if (modeKey === 'dynamo') {
+          // ═══ DYNAMO GOOD WAKE: Ionized Cobalt-Violet Mist + Forked Lichtenberg Dielectric Lightning (Images #3 & #4!) ═══
+          const wakeLen = targetR * 3.55 * powerBoost;
+          // 1. Rich ionized cobalt-violet plasma sheath (scaled circle -> pure alpha=0 inside bounds!)
+          ctx.save();
+          ctx.translate(0, -wakeLen * 0.44);
+          ctx.scale(0.46, 1.0);
+          const hazeGrad = ctx.createRadialGradient(0, wakeLen * 0.24, targetR * 0.14, 0, 0, wakeLen * 0.74);
+          hazeGrad.addColorStop(0.0, isPowered ? 'rgba(125, 211, 252, 0.44)' : 'rgba(99, 102, 241, 0.40)');
+          hazeGrad.addColorStop(0.42, 'rgba(79, 70, 229, 0.24)');
+          hazeGrad.addColorStop(0.75, 'rgba(67, 56, 202, 0.08)');
+          hazeGrad.addColorStop(1.0, 'rgba(49, 46, 129, 0)');
+          ctx.fillStyle = hazeGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, wakeLen * 0.74, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2. Crisp branching high-voltage Lichtenberg lightning anchored at orb's ionized plasma stem!
+          //    (Non-2*PI irrational step frequencies ensure genuine sharp jagged dielectric zig-zags — ZERO parallel waves!)
+          const tick = Math.floor(now / 45) + Math.floor(animPhase * 17);
+          const boltCount = isPowered ? 3 : 2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let b = 0; b < boltCount; b++) {
+            const pts = [];
+            const segs = 9;
+            const fanDir = (boltCount === 2) ? (b === 0 ? -0.55 : 0.55) : (b - 1) * 0.72;
+            for (let s = 0; s <= segs; s++) {
+              const frac = s / segs;
+              // Irrational frequencies (2.17, 3.83) produce authentic sharp alternating lightning kinks
+              const jag = Math.sin(tick * 2.71 + b * 4.19 + s * 2.17 + animPhase * 3.1) * 0.62
+                        + Math.cos(tick * 4.33 + b * 2.87 + s * 3.83) * 0.38;
+              const amp = targetR * (0.34 + frac * 0.30) * (s === 0 ? 0.0 : Math.min(1.0, frac * 2.2));
+              const px = fanDir * targetR * (0.14 + frac * 0.55) + jag * amp;
+              const py = -targetR * 0.72 - frac * wakeLen;
+              pts.push({ x: px, y: py });
+            }
+
+            // Outer electric-blue / violet plasma glow
+            const bGrad = ctx.createLinearGradient(0, -targetR * 0.6, 0, -targetR * 0.7 - wakeLen);
+            bGrad.addColorStop(0.0, isPowered ? 'rgba(250, 204, 21, 0.88)' : 'rgba(56, 189, 248, 0.92)');
+            bGrad.addColorStop(0.40, 'rgba(99, 102, 241, 0.75)');
+            bGrad.addColorStop(1.0, 'rgba(139, 92, 246, 0)');
+            ctx.strokeStyle = bGrad;
+            ctx.lineWidth = (isPowered ? 4.6 : 3.8) * scale;
+            ctx.beginPath();
+            for (let s = 0; s < pts.length; s++) {
+              if (s === 0) ctx.moveTo(pts[s].x, pts[s].y);
+              else ctx.lineTo(pts[s].x, pts[s].y);
+            }
+            ctx.stroke();
+
+            // Blinding ice-white high-voltage filament core
+            const cGrad = ctx.createLinearGradient(0, -targetR * 0.6, 0, -targetR * 0.7 - wakeLen);
+            cGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.98)');
+            cGrad.addColorStop(0.55, isPowered ? 'rgba(254, 240, 138, 0.80)' : 'rgba(186, 230, 253, 0.80)');
+            cGrad.addColorStop(1.0, 'rgba(165, 180, 252, 0)');
+            ctx.strokeStyle = cGrad;
+            ctx.lineWidth = 1.45 * scale;
+            ctx.stroke();
+
+            // Twin Lichtenberg crackling side-forks fanning off segments 2 and 5
+            const forkIdxs = [2, 5];
+            for (let fi = 0; fi < forkIdxs.length; fi++) {
+              const fRoot = pts[forkIdxs[fi]];
+              const forkDir = (((tick + b + fi) % 2 === 0) ? 1 : -1);
+              const fmX = fRoot.x + forkDir * targetR * (0.28 + fi * 0.08);
+              const fmY = fRoot.y - targetR * 0.36;
+              const feX = fmX + forkDir * targetR * 0.24 + Math.sin(tick * 3.1 + fi) * targetR * 0.14;
+              const feY = fmY - targetR * 0.34;
+              ctx.strokeStyle = isPowered ? 'rgba(253, 224, 71, 0.60)' : 'rgba(125, 211, 252, 0.65)';
+              ctx.lineWidth = 1.45 * scale;
+              ctx.beginPath();
+              ctx.moveTo(fRoot.x, fRoot.y);
+              ctx.lineTo(fmX, fmY);
+              ctx.lineTo(feX, feY);
+              ctx.stroke();
+            }
+          }
+
+        } else if (modeKey === 'helix') {
+          // ═══ HELIX GOOD WAKE: 3D Rotating Cyan-Magenta Double-Helix DNA Ribbon + Base-Pair Rungs! ═══
+          const wakeLen = targetR * 3.85 * powerBoost;
+          const twistBase = now * 0.0052 + animPhase;
+          const samples = 22;
+
+          // 1. Ethereal bioluminescent cyan-magenta mist enveloping the trailing helix
+          ctx.save();
+          ctx.translate(0, -wakeLen * 0.48);
+          ctx.scale(0.38, 1.0);
+          const mGrad = ctx.createRadialGradient(0, wakeLen * 0.20, targetR * 0.12, 0, 0, wakeLen * 0.70);
+          mGrad.addColorStop(0.0, 'rgba(34, 211, 238, 0.26)');
+          mGrad.addColorStop(0.45, 'rgba(232, 121, 249, 0.16)');
+          mGrad.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
+          ctx.fillStyle = mGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, wakeLen * 0.70, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // Compute 3D sinusoidal double-strand coordinates tapering cleanly toward tail tip
+          const strandA = [];
+          const strandB = [];
+          for (let s = 0; s <= samples; s++) {
+            const frac = s / samples;
+            const y = -targetR * 0.62 - frac * wakeLen;
+            const env = (1.0 - frac * 0.72) * (0.78 + 0.22 * Math.sin(frac * Math.PI));
+            const amp = targetR * (isPowered ? 0.54 : 0.46) * env;
+            const ang = twistBase + frac * Math.PI * 3.4;
+            const xA = Math.sin(ang) * amp;
+            const zA = Math.cos(ang);
+            strandA.push({ x: xA, y, z: zA, frac });
+            strandB.push({ x: -xA, y, z: -zA, frac });
+          }
+
+          // 2. Hydrogen-Bonded Base-Pair Rungs (A-T / C-G) connecting twin strands
+          ctx.lineCap = 'round';
+          for (let s = 1; s < samples; s += 2) {
+            const pA = strandA[s];
+            const pB = strandB[s];
+            const fade = Math.pow(1.0 - pA.frac, 1.15);
+            const rGrad = ctx.createLinearGradient(pA.x, pA.y, pB.x, pB.y);
+            rGrad.addColorStop(0.0, `rgba(34, 211, 238, ${0.72 * fade})`);
+            rGrad.addColorStop(0.5, `rgba(255, 255, 255, ${0.65 * fade})`);
+            rGrad.addColorStop(1.0, `rgba(232, 121, 249, ${0.72 * fade})`);
+            ctx.strokeStyle = rGrad;
+            ctx.lineWidth = Math.max(0.8, 1.35 * scale * (1.0 - pA.frac * 0.4));
+            ctx.beginPath();
+            ctx.moveTo(pA.x, pA.y);
+            ctx.lineTo(pB.x, pB.y);
+            ctx.stroke();
+          }
+
+          // 3. Twin Luminous Sugar-Phosphate Backbones (Cyan Strand + Magenta Strand with Specular Core)
+          const drawHelixStrand = (pts, outerCol, innerCol) => {
+            for (let s = 0; s < pts.length - 1; s++) {
+              const a = pts[s];
+              const b = pts[s + 1];
+              const fade = Math.pow(1.0 - a.frac, 1.05);
+              const depthBoost = 0.72 + 0.28 * ((a.z + 1) * 0.5);
+              const wBase = (isPowered ? 4.2 : 3.5) * scale * (1.0 - a.frac * 0.55) * depthBoost;
+
+              ctx.strokeStyle = `${outerCol}${0.72 * fade * depthBoost})`;
+              ctx.lineWidth = wBase;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+
+              ctx.strokeStyle = `${innerCol}${0.90 * fade * depthBoost})`;
+              ctx.lineWidth = Math.max(0.7, wBase * 0.36);
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          };
+          drawHelixStrand(strandA, 'rgba(34, 211, 238, ', 'rgba(224, 242, 254, ');
+          drawHelixStrand(strandB, isPowered ? 'rgba(251, 191, 36, ' : 'rgba(232, 121, 249, ', 'rgba(253, 242, 248, ');
+
+        } else {
+          // ═══ METEOR GOOD WAKE: Cohesive Turbulent Atmospheric Re-Entry Fire & Spallation Embers (Images #2 & #5!) ═══
+          const wakeLen = targetR * 3.15 * powerBoost;
+
+          // 1. Soft atmospheric ablation heat glow (scaled circle -> pure alpha=0 inside bounds, ZERO oval edge!)
+          ctx.save();
+          ctx.translate(0, -wakeLen * 0.36);
+          ctx.scale(0.56, 1.0);
+          const hRad = wakeLen * 0.78;
+          const mHaze = ctx.createRadialGradient(0, hRad * 0.26, targetR * 0.18, 0, 0, hRad);
+          mHaze.addColorStop(0.0, isPowered ? 'rgba(254, 240, 138, 0.44)' : 'rgba(251, 191, 36, 0.38)');
+          mHaze.addColorStop(0.38, 'rgba(249, 115, 22, 0.24)');
+          mHaze.addColorStop(0.74, 'rgba(194, 65, 12, 0.08)');
+          mHaze.addColorStop(1.0, 'rgba(154, 52, 18, 0)');
+          ctx.fillStyle = mHaze;
+          ctx.beginPath();
+          ctx.arc(0, 0, hRad, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2. Cohesive unified sinuous atmospheric fire plume hugging the bolide (NO separated crown spikes!)
+          const plumes = [
+            { ox: 0.00, w: 1.02, h: 1.00, spd: 0.020, ph: 0.0, curl: 0.28 },
+            { ox: -0.28, w: 0.72, h: 0.74, spd: 0.026, ph: 1.6, curl: -0.32 },
+            { ox: 0.28, w: 0.72, h: 0.74, spd: 0.024, ph: 3.1, curl: 0.32 }
+          ];
+          for (let pl = 0; pl < plumes.length; pl++) {
+            const pg = plumes[pl];
+            const w1 = Math.sin(now * pg.spd + pg.ph + animPhase);
+            const w2 = Math.cos(now * pg.spd * 1.4 + pg.ph + animPhase);
+            const tipSway = (w1 * 0.26 + pg.curl * 0.20) * targetR;
+            const midSway = (-w1 * 0.16 + pg.curl * 0.14) * targetR;
+            const tipY = -targetR * 0.55 - wakeLen * pg.h * (0.86 + 0.14 * w2);
+            const baseW = targetR * pg.w;
+            const baseX = targetR * pg.ox;
+
+            const pGrad = ctx.createLinearGradient(baseX, targetR * 0.28, baseX + tipSway, tipY);
+            pGrad.addColorStop(0.0, 'rgba(255, 251, 214, 0.68)');
+            pGrad.addColorStop(0.32, isPowered ? 'rgba(250, 204, 21, 0.64)' : 'rgba(251, 146, 60, 0.60)');
+            pGrad.addColorStop(0.68, 'rgba(234, 88, 12, 0.28)');
+            pGrad.addColorStop(1.0, 'rgba(180, 40, 12, 0)');
+            ctx.fillStyle = pGrad;
+            ctx.beginPath();
+            ctx.moveTo(baseX - baseW * 0.88, targetR * 0.08);
+            ctx.bezierCurveTo(baseX - baseW * 0.96 + midSway, tipY * 0.30, baseX + tipSway - baseW * 0.36, tipY * 0.72, baseX + tipSway, tipY);
+            ctx.bezierCurveTo(baseX + tipSway + baseW * 0.36, tipY * 0.72, baseX + baseW * 0.96 + midSway, tipY * 0.30, baseX + baseW * 0.88, targetR * 0.08);
+            ctx.quadraticCurveTo(baseX, targetR * 0.66, baseX - baseW * 0.88, targetR * 0.08);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // 2b. Rolling Turbulent Atmospheric Fire Billows Rising Continuously From the Crust!
+          for (let fb = 0; fb < 5; fb++) {
+            const fp = ((now * 0.0026 + fb * 0.20 + animPhase) % 1.0);
+            const fx = Math.sin(now * 0.009 + fb * 2.4 + animPhase) * targetR * (0.46 - fp * 0.26);
+            const fy = -targetR * 0.10 - fp * wakeLen * 0.88;
+            const fr = targetR * (0.58 * (1.0 - fp * 0.56));
+            const fa = Math.sin(fp * Math.PI) * 0.56;
+            const fbg = ctx.createRadialGradient(fx, fy, 0, fx, fy, fr);
+            fbg.addColorStop(0.0, `rgba(255, 248, 210, ${fa})`);
+            fbg.addColorStop(0.45, `rgba(251, 146, 60, ${fa * 0.82})`);
+            fbg.addColorStop(0.80, `rgba(220, 38, 38, ${fa * 0.30})`);
+            fbg.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
+            ctx.fillStyle = fbg;
+            ctx.beginPath();
+            ctx.arc(fx, fy, fr, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 3. Incandescent spallation ember sparks flaking off into the re-entry wake
+          for (let em = 0; em < 6; em++) {
+            const eProg = ((now * 0.0024 + em * 0.167 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.007 + em * 2.5 + animPhase) * targetR * (0.62 - eProg * 0.22);
+            const ey = -targetR * 0.35 - eProg * wakeLen * 1.05;
+            const er = Math.max(0.8, (2.6 - eProg * 1.5) * scale);
+            const ea = Math.sin(eProg * Math.PI) * 0.92;
+            const eg = ctx.createRadialGradient(ex, ey, 0, ex, ey, er * 2.4);
+            eg.addColorStop(0.0, `rgba(255, 255, 230, ${ea})`);
+            eg.addColorStop(0.45, `rgba(251, 146, 60, ${ea * 0.82})`);
+            eg.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
+            ctx.fillStyle = eg;
+            ctx.beginPath();
+            ctx.arc(ex, ey, er * 2.4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else if (!isPowered) {
+        // ═══ REGULAR BAD NODE SCIENTIFIC CORRUPTION WAKES (Antimatter Inversion of Each Realm!) ═══
+        if (modeKey === 'dynamo') {
+          // Inverted Blood-Crimson / Dark-Magenta Short-Circuit Fractured Lightning Wake (Irrational zig-zag freq — ZERO straight sticks!)
+          const wakeLen = targetR * 2.65;
+          ctx.save();
+          ctx.translate(0, -wakeLen * 0.42);
+          ctx.scale(0.45, 1.0);
+          const chGrad = ctx.createRadialGradient(0, wakeLen * 0.22, targetR * 0.12, 0, 0, wakeLen * 0.72);
+          chGrad.addColorStop(0.0, 'rgba(244, 63, 94, 0.36)');
+          chGrad.addColorStop(0.50, 'rgba(159, 18, 57, 0.16)');
+          chGrad.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
+          ctx.fillStyle = chGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, wakeLen * 0.72, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          const tick = Math.floor(now / 52) + Math.floor(animPhase * 13);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let b = 0; b < 2; b++) {
+            const fan = (b === 0 ? -0.45 : 0.45);
+            const pts = [];
+            for (let s = 0; s <= 7; s++) {
+              const f = s / 7;
+              // Irrational frequencies (2.37, 3.91) guarantee sharp erratic short-circuit zig-zags!
+              const j = (Math.sin(tick * 3.13 + b * 4.71 + s * 2.37 + animPhase) * 0.65
+                       + Math.cos(tick * 5.21 + b * 2.19 + s * 3.91) * 0.35) * targetR * (0.42 + f * 0.22);
+              pts.push({
+                x: fan * targetR * (0.12 + f * 0.55) + j * (s === 0 ? 0.0 : 1.0),
+                y: -targetR * 0.55 - f * wakeLen
+              });
+            }
+            const cGrad = ctx.createLinearGradient(0, -targetR * 0.45, 0, -targetR * 0.55 - wakeLen);
+            cGrad.addColorStop(0.0, 'rgba(244, 63, 94, 0.88)');
+            cGrad.addColorStop(0.55, 'rgba(190, 18, 60, 0.48)');
+            cGrad.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
+            ctx.strokeStyle = cGrad;
+            ctx.lineWidth = 3.4 * scale;
+            ctx.beginPath();
+            for (let s = 0; s < pts.length; s++) {
+              if (s === 0) ctx.moveTo(pts[s].x, pts[s].y);
+              else ctx.lineTo(pts[s].x, pts[s].y);
+            }
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(254, 205, 211, 0.78)';
+            ctx.lineWidth = 1.15 * scale;
+            ctx.stroke();
+
+            // Short crackling red static side-arc
+            const sr = pts[3];
+            const sDir = (b === 0 ? -1 : 1);
+            ctx.strokeStyle = 'rgba(251, 113, 133, 0.62)';
+            ctx.lineWidth = 1.3 * scale;
+            ctx.beginPath();
+            ctx.moveTo(sr.x, sr.y);
+            ctx.lineTo(sr.x + sDir * targetR * 0.34, sr.y - targetR * 0.28);
+            ctx.stroke();
+          }
+
+        } else if (modeKey === 'helix') {
+          // Severed, Frayed, Unraveling Dark-Crimson & Shadow-Violet Mutated Prion DNA Wake!
+          const wakeLen = targetR * 2.95;
+          ctx.save();
+          ctx.translate(0, -wakeLen * 0.45);
+          ctx.scale(0.42, 1.0);
+          const pmGrad = ctx.createRadialGradient(0, wakeLen * 0.22, targetR * 0.12, 0, 0, wakeLen * 0.72);
+          pmGrad.addColorStop(0.0, 'rgba(225, 29, 72, 0.34)');
+          pmGrad.addColorStop(0.52, 'rgba(147, 51, 234, 0.16)');
+          pmGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+          ctx.fillStyle = pmGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, wakeLen * 0.72, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          const twist = now * 0.0044 + animPhase;
+          ctx.lineCap = 'round';
+          for (let strand = -1; strand <= 1; strand += 2) {
+            ctx.beginPath();
+            const segs = 12;
+            for (let s = 0; s <= segs; s++) {
+              const f = s / segs;
+              const fray = (1.0 + f * 0.70);
+              const jag = Math.sin(s * 2.41 + animPhase * 5.0) * targetR * 0.14 * f;
+              const sx = Math.sin(twist + f * Math.PI * 2.3) * targetR * 0.38 * strand * fray + jag;
+              const sy = -targetR * 0.55 - f * wakeLen;
+              if (s === 0) ctx.moveTo(sx, sy);
+              else ctx.lineTo(sx, sy);
+            }
+            const uGrad = ctx.createLinearGradient(0, -targetR * 0.5, 0, -targetR * 0.55 - wakeLen);
+            uGrad.addColorStop(0.0, strand < 0 ? 'rgba(244, 63, 94, 0.88)' : 'rgba(192, 132, 252, 0.78)');
+            uGrad.addColorStop(0.60, 'rgba(190, 18, 60, 0.42)');
+            uGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+            ctx.strokeStyle = uGrad;
+            ctx.lineWidth = 3.0 * scale;
+            ctx.stroke();
+          }
+          // Snapped half-rungs jutting brokenly inward
+          for (let r = 1; r <= 5; r++) {
+            const f = r / 6.0;
+            const sy = -targetR * 0.62 - f * wakeLen;
+            const sx = Math.sin(twist + f * Math.PI * 2.3) * targetR * 0.40;
+            ctx.strokeStyle = `rgba(253, 164, 175, ${0.72 * (1.0 - f)})`;
+            ctx.lineWidth = 1.4 * scale;
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(sx * 0.22, sy - 3.5 * scale);
+            ctx.stroke();
+          }
+
+        } else {
+          // Blighted Cryo-Obsidian Radioactive Abyssal-Emerald & Amethyst Vapor Wake!
+          const wakeLen = targetR * 2.65;
+          ctx.save();
+          ctx.translate(0, -wakeLen * 0.42);
+          ctx.scale(0.48, 1.0);
+          const vRad = wakeLen * 0.74;
+          const vGrad = ctx.createRadialGradient(0, vRad * 0.22, targetR * 0.15, 0, 0, vRad);
+          vGrad.addColorStop(0.0, 'rgba(16, 185, 129, 0.36)');
+          vGrad.addColorStop(0.45, 'rgba(147, 51, 234, 0.22)');
+          vGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+          ctx.fillStyle = vGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, vRad, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // Floating radioactive emerald-amethyst crystal decay motes
+          for (let m = 0; m < 4; m++) {
+            const mp = ((now * 0.0022 + m * 0.25 + animPhase) % 1.0);
+            const mx = Math.sin(now * 0.005 + m * 2.1 + animPhase) * targetR * 0.48;
+            const my = -targetR * 0.45 - mp * wakeLen * 0.90;
+            const ma = Math.sin(mp * Math.PI) * 0.85;
+            const mg = ctx.createRadialGradient(mx, my, 0, mx, my, 4.5 * scale);
+            mg.addColorStop(0.0, `rgba(255, 255, 255, ${ma})`);
+            mg.addColorStop(0.45, m % 2 === 0 ? `rgba(16, 185, 129, ${ma * 0.85})` : `rgba(192, 132, 252, ${ma * 0.85})`);
+            mg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = mg;
+            ctx.beginPath();
+            ctx.arc(mx, my, 4.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      ctx.restore();
+    },
+
     _drawLayeredNodeOrHazard(ctx, mode, p, now, customR = null) {
       const isHazard = isHazardNode(p.nodeClass);
+      const isPoweredGood = (!isHazard && p.nodeClass !== 'standard');
+      const isPoweredBad = (isHazard && (
+        p.nodeClass === 'hyper_comet' || p.nodeClass === 'plasma_flare' ||
+        p.nodeClass === 'corruptor_laser' || p.nodeClass === 'gravity_well' || p.nodeClass === 'vortex' ||
+        p.nodeClass === 'emp_detonator' || p.nodeClass === 'emp_glitch' || p.nodeClass === 'pulsar_mine' ||
+        p.nodeClass === 'phase_stalker' || p.nodeClass === 'tachyon_fracture'
+      ));
       const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
       const isMobile = canvasW < 600;
       const baseR = customR || (isMobile ? 26.0 : 36.0);
@@ -4240,37 +4664,48 @@
         ctx.globalAlpha = (p.phantomAlpha !== undefined) ? p.phantomAlpha : 1.0;
       }
 
+      // Render Scientific Game-Aligned Trailing Wake behind every Good, Powered-Good, and Regular-Bad node!
+      this._drawScientificNodeWake(ctx, mode, p, targetR, scale, now, isHazard, isHazard ? isPoweredBad : isPoweredGood);
+
       if (!isHazard) {
         if (mode === 'dynamo' || mode === 'realm') {
-          // Iconic Quantum Plasma Purple Glass Orb (matching user reference images)
+          // Iconic Quantum Plasma Purple Glass Orb (enhanced with Dual-Polarity Anode-Gold / Cathode-Cyan Rim!)
           if (LayeredT4Assets.loaded.nodeShell.dynamo) {
             ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
           } else {
             // High-fidelity procedural fallback: deep cosmic purple glass plasma sphere
             const pOrb = ctx.createRadialGradient(-targetR * 0.28, -targetR * 0.32, targetR * 0.05, 0, 0, targetR);
-            pOrb.addColorStop(0.0, 'rgba(216, 180, 254, 0.95)'); // soft lilac highlight
-            pOrb.addColorStop(0.28, 'rgba(147, 51, 234, 0.92)'); // electric royal purple
-            pOrb.addColorStop(0.68, 'rgba(88, 28, 135, 0.95)');  // deep cosmic violet
-            pOrb.addColorStop(0.95, 'rgba(59, 7, 100, 1.0)');    // dark obsidian violet edge
+            pOrb.addColorStop(0.0, 'rgba(216, 180, 254, 0.95)');
+            pOrb.addColorStop(0.28, 'rgba(147, 51, 234, 0.92)');
+            pOrb.addColorStop(0.68, 'rgba(88, 28, 135, 0.95)');
+            pOrb.addColorStop(0.95, 'rgba(59, 7, 100, 1.0)');
             pOrb.addColorStop(1.0, 'rgba(30, 4, 55, 0.85)');
             ctx.fillStyle = pOrb;
             ctx.beginPath();
             ctx.arc(0, 0, targetR, 0, Math.PI * 2);
             ctx.fill();
-
-            // Glass specular dome highlight
-            const specGrad = ctx.createRadialGradient(-targetR * 0.30, -targetR * 0.38, 1, -targetR * 0.30, -targetR * 0.38, targetR * 0.52);
-            specGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.78)');
-            specGrad.addColorStop(0.40, 'rgba(255, 255, 255, 0.22)');
-            specGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = specGrad;
-            ctx.beginPath();
-            ctx.arc(0, 0, targetR * 0.95, 0, Math.PI * 2);
-            ctx.fill();
           }
           drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.86, now, animPhase, false, 4);
 
-          // Outer Resonance Ring & Twin Satellite Motes (matches user reference close-up exactly!)
+          // Dual-Polarity Fresnel Rim Polarization (Matches uploaded Dynamo concept images #3 & #4!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.lineCap = 'round';
+          // Left-bottom Warm Gold Anode Rim
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.96, Math.PI * 0.62, Math.PI * 1.48);
+          ctx.strokeStyle = 'rgba(251, 146, 60, 0.58)';
+          ctx.lineWidth = 2.4 * scale;
+          ctx.stroke();
+          // Right-top Cool Electric-Cyan Cathode Rim
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.96, -Math.PI * 0.38, Math.PI * 0.45);
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.62)';
+          ctx.lineWidth = 2.4 * scale;
+          ctx.stroke();
+          ctx.restore();
+
+          // Outer Resonance Ring & Twin Satellite Motes
           const ringR = targetR * 1.16;
           ctx.beginPath();
           ctx.arc(0, 0, ringR, 0, Math.PI * 2);
@@ -4281,7 +4716,6 @@
           const moteAngle = now * 0.0035 + animPhase;
           const mx1 = Math.cos(moteAngle) * ringR;
           const my1 = Math.sin(moteAngle) * ringR * 0.55;
-          // Mote 1: Electric Cyan
           ctx.beginPath();
           ctx.arc(mx1, my1, 4.2 * scale, 0, Math.PI * 2);
           ctx.fillStyle = '#00f0ff';
@@ -4291,7 +4725,6 @@
           ctx.fillStyle = '#ffffff';
           ctx.fill();
 
-          // Mote 2: Lilac
           const mx2 = -mx1;
           const my2 = -my1;
           ctx.beginPath();
@@ -4307,6 +4740,20 @@
             ctx.drawImage(LayeredT4Assets.nodeShell.helix, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
           }
           drawRotating3DDNAInsideGlass(ctx, 0, 0, targetR * 0.36, targetR * 0.78, now, animPhase, false, 4);
+
+          // Bioluminescent Quartz Glass Rim & Swirling Core Highlight (Matches uploaded Helix images #1 & #6!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const hRim = ctx.createRadialGradient(-targetR * 0.25, -targetR * 0.30, targetR * 0.08, 0, 0, targetR * 1.04);
+          hRim.addColorStop(0.0, 'rgba(255, 255, 255, 0.28)');
+          hRim.addColorStop(0.55, 'rgba(232, 121, 249, 0.14)');
+          hRim.addColorStop(0.88, 'rgba(34, 211, 238, 0.34)');
+          hRim.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
+          ctx.fillStyle = hRim;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.04, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
         } else {
           const tumbleDir = p.tumbleDir || 1;
           const rockAngle = now * 0.00145 * tumbleDir + animPhase;
@@ -4319,20 +4766,47 @@
           ctx.restore();
 
           drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4);
+
+          // Incandescent Atmospheric Bow-Shock Plasma Rim hugging leading lower edge (Matches uploaded Meteor images #2 & #5!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const bowGlow = ctx.createRadialGradient(0, targetR * 0.35, targetR * 0.12, 0, targetR * 0.25, targetR * 1.18);
+          bowGlow.addColorStop(0.0, 'rgba(254, 249, 195, 0.42)');
+          bowGlow.addColorStop(0.45, 'rgba(251, 146, 60, 0.28)');
+          bowGlow.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
+          ctx.fillStyle = bowGlow;
+          ctx.beginPath();
+          ctx.arc(0, targetR * 0.25, targetR * 1.18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
         }
 
-        // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHETYPES:
+        // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHETYPES (Enhanced with Scientific Visual Metaphors):
         if (p.nodeClass === 'cluster') {
-          // BIFURCATION FLUX NODE (CLUSTER DOUBLER / 2X DUP - Reference: Image 4):
-          // Delicate harmonic shimmer halo (Zero redundant text clutter, matches Image 4 exactly!)
+          // BIFURCATION FLUX NODE (CLUSTER DOUBLER / 2X DUP — Mitotic/Quantum Split Satellites!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           const pulseR = targetR * (1.18 + 0.06 * Math.sin(now * 0.006 + animPhase));
           ctx.beginPath();
           ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(192, 132, 252, 0.40)';
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.44)';
           ctx.lineWidth = 1.4 * scale;
           ctx.stroke();
+
+          // Twin phase-locked bifurcation twin orbs orbiting 180° apart
+          const bAng = now * 0.0042 + animPhase;
+          for (let bSide = -1; bSide <= 1; bSide += 2) {
+            const bx = Math.cos(bAng) * pulseR * bSide;
+            const by = Math.sin(bAng) * pulseR * 0.62 * bSide;
+            const bGlow = ctx.createRadialGradient(bx, by, 0, bx, by, 7.5 * scale);
+            bGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+            bGlow.addColorStop(0.45, bSide > 0 ? 'rgba(56, 189, 248, 0.85)' : 'rgba(232, 121, 249, 0.85)');
+            bGlow.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
+            ctx.fillStyle = bGlow;
+            ctx.beginPath();
+            ctx.arc(bx, by, 7.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
           ctx.restore();
 
         } else if (p.nodeClass === 'supercharge') {
@@ -4382,9 +4856,20 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'chronos') {
-          // CHRONOS STASIS PEARL: Crystalline teal chronometer reticle & ticking tickmarks
+          // CHRONOS STASIS PEARL: Frosted Relativistic Time-Dilation Ripple + Crystalline Chronometer Reticle
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
+          const dilPhase = (now * 0.0022 + animPhase) % 1.0;
+          const dilR = targetR * (1.05 + dilPhase * 0.50);
+          const dilG = ctx.createRadialGradient(0, 0, dilR * 0.65, 0, 0, dilR);
+          dilG.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
+          dilG.addColorStop(0.75, `rgba(103, 232, 249, ${(1.0 - dilPhase) * 0.36})`);
+          dilG.addColorStop(1.0, 'rgba(6, 182, 212, 0)');
+          ctx.fillStyle = dilG;
+          ctx.beginPath();
+          ctx.arc(0, 0, dilR, 0, Math.PI * 2);
+          ctx.fill();
+
           const reticleR = targetR * 1.28;
           ctx.beginPath();
           ctx.arc(0, 0, reticleR, 0, Math.PI * 2);
@@ -4408,7 +4893,7 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'singularity') {
-          // GRAVITON SINGULARITY NODE: Celestial Gold & Starlight Cyan Accretion Discs (Zero Purple!)
+          // GRAVITON SINGULARITY NODE: Celestial Gold & Starlight Cyan Accretion Discs + Inward Geodesic Motes
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           const vortexAngle = -now * 0.008;
@@ -4419,6 +4904,17 @@
             ctx.strokeStyle = (v % 2 === 0) ? `rgba(56, 189, 248, ${0.85 - v * 0.20})` : `rgba(254, 240, 138, ${0.85 - v * 0.20})`;
             ctx.lineWidth = 2.4;
             ctx.stroke();
+          }
+          for (let gm = 0; gm < 4; gm++) {
+            const gp = ((now * 0.0020 + gm * 0.25 + animPhase) % 1.0);
+            const ga = vortexAngle * 1.4 + gm * (Math.PI / 2) + gp * 1.8;
+            const gr = targetR * (1.65 * (1.0 - gp * 0.65));
+            const gx = Math.cos(ga) * gr;
+            const gy = Math.sin(ga) * gr;
+            ctx.fillStyle = gm % 2 === 0 ? `rgba(125, 211, 252, ${Math.sin(gp * Math.PI) * 0.9})` : `rgba(254, 240, 138, ${Math.sin(gp * Math.PI) * 0.9})`;
+            ctx.beginPath();
+            ctx.arc(gx, gy, 2.2 * scale, 0, Math.PI * 2);
+            ctx.fill();
           }
           ctx.restore();
 
@@ -4483,15 +4979,16 @@
           ctx.fill();
           ctx.restore();
 
-          // 3. Floating Vitality Badge ("💚 +1 LIFE")
+          // 3. Floating Vitality Badge ("💚 +1 LIFE") — render in source-over so pill pops cleanly over bright flames!
           ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
           const badgeText = '💚 +1 LIFE';
           ctx.font = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
           const textW = ctx.measureText(badgeText).width;
           const padX = 7 * scale;
           const padY = 3.5 * scale;
           ctx.translate(0, -targetR * 1.35);
-          ctx.fillStyle = 'rgba(6, 78, 59, 0.85)';
+          ctx.fillStyle = 'rgba(4, 34, 26, 0.90)';
           ctx.strokeStyle = '#34d399';
           ctx.lineWidth = 1.2 * scale;
           ctx.beginPath();
@@ -4622,15 +5119,15 @@
           ctx.restore();
         }
 
-        // Floating Holographic Badges for Power-Ups (Friendly, Distinct, High-Contrast, Zero Purple!)
+        // Floating Holographic Badges for Power-Ups (High-Contrast Dark Obsidian Pill Backdrop so Text Pops Over Bright Flames/Lightning!)
         const badges = {
-          shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.28)', border: '#fbbf24' },
-          missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(14, 165, 233, 0.28)', border: '#38bdf8' },
-          cluster: { text: '✨ 2X DUP', color: '#ffffff', bg: 'rgba(192, 132, 252, 0.28)', border: '#c084fc' },
-          supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.28)', border: '#fef08a' },
-          chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(34, 211, 238, 0.28)', border: '#67e8f9' },
-          singularity: { text: '🧲 VACUUM', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' },
-          catalyst: { text: '💎 CATALYST', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.28)', border: '#7dd3fc' }
+          shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(10, 14, 28, 0.88)', border: '#fbbf24' },
+          missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#38bdf8' },
+          cluster: { text: '✨ 2X DUP', color: '#ffffff', bg: 'rgba(10, 14, 28, 0.88)', border: '#c084fc' },
+          supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(10, 14, 28, 0.88)', border: '#fef08a' },
+          chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(10, 14, 28, 0.88)', border: '#67e8f9' },
+          singularity: { text: '🧲 VACUUM', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#7dd3fc' },
+          catalyst: { text: '💎 CATALYST', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#7dd3fc' }
         };
 
         if (badges[p.nodeClass] && p.nodeClass !== 'catalyst') {
@@ -5088,18 +5585,19 @@
 
         } else {
           // ═══ CLASSIC MODE-SPECIFIC HAZARDS (volatile, seeker, fragmentation, phantom) ═══
+          const proxHeat = Math.max(0, Math.min(1, p._proxHeat || 0));
           if (mode === 'dynamo' || mode === 'realm') {
             const gSpr = LayeredT4Assets.hazard.dynamoGlitch;
             if (gSpr && LayeredT4Assets.loaded.hazard.dynamoGlitch) {
               const numSlices = 7;
               const srcSize = 140;
               const sliceH = srcSize / numSlices;
-              const glitchTick = Math.floor(now * 0.022 + animPhase * 3.0);
+              const glitchTick = Math.floor(now * (0.022 + proxHeat * 0.014) + animPhase * 3.0);
 
               for (let s = 0; s < numSlices; s++) {
                 const wave = Math.sin(glitchTick * 1.9 + s * 2.4 + animPhase);
-                const isGlitchBand = (Math.abs(wave) > 0.42) || (s === 2 || s === 4);
-                const dxGlitch = isGlitchBand ? (wave * 8.5 * scale) : 0;
+                const isGlitchBand = (Math.abs(wave) > (0.42 - proxHeat * 0.14)) || (s === 2 || s === 4);
+                const dxGlitch = isGlitchBand ? (wave * (8.5 + proxHeat * 4.5) * scale) : 0;
 
                 const sy = s * sliceH;
                 const dy = (-70 + s * sliceH) * scale;
@@ -5108,7 +5606,7 @@
 
                 if (Math.abs(dxGlitch) > 3.2 * scale) {
                   ctx.save();
-                  ctx.globalAlpha = 0.48;
+                  ctx.globalAlpha = 0.48 + proxHeat * 0.20;
                   ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, -70 * scale - dxGlitch * 0.65, dy, dw, dh);
                   ctx.restore();
                 }
@@ -5125,26 +5623,6 @@
               ctx.arc(0, 0, targetR, 0, Math.PI * 2);
               ctx.fill();
             }
-
-            // Sleek Tapered Volumetric Crimson Plasma Wake (No scratchy stationary thin lines!)
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            const spine = p.spine || [];
-            if (spine.length > 2) {
-              const tailEnd = spine[spine.length - 1];
-              const relY = Math.min(-targetR * 0.8, tailEnd.y - p.y);
-              const wakeGrad = ctx.createLinearGradient(0, -targetR * 0.3, 0, relY);
-              wakeGrad.addColorStop(0.0, 'rgba(244, 63, 94, 0.55)');
-              wakeGrad.addColorStop(0.5, 'rgba(225, 29, 72, 0.22)');
-              wakeGrad.addColorStop(1.0, 'rgba(159, 18, 57, 0)');
-              ctx.fillStyle = wakeGrad;
-              ctx.beginPath();
-              ctx.moveTo(-targetR * 0.42, -targetR * 0.2);
-              ctx.quadraticCurveTo(0, relY, targetR * 0.42, -targetR * 0.2);
-              ctx.closePath();
-              ctx.fill();
-            }
-            ctx.restore();
           } else if (mode === 'helix') {
             if (LayeredT4Assets.loaded.hazard.helixClean) {
               ctx.drawImage(LayeredT4Assets.hazard.helixClean, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
@@ -5155,7 +5633,7 @@
             ctx.clip();
             const numFacets = 6;
             for (let f = 0; f < numFacets; f++) {
-              const fPhase = now * 0.0042 + f * 1.35 + animPhase;
+              const fPhase = now * (0.0042 + proxHeat * 0.004) + f * 1.35 + animPhase;
               const glint = Math.pow(0.5 + 0.5 * Math.sin(fPhase), 3.0);
               const fAng = (f / numFacets) * Math.PI * 2 + Math.sin(now * 0.002 + f) * 0.18;
               const rMid = targetR * (0.35 + 0.22 * (f % 2));
@@ -5171,13 +5649,14 @@
                 else ctx.lineTo(vx, vy);
               }
               ctx.closePath();
-              ctx.fillStyle = `rgba(255, 100, 110, ${0.14 + glint * 0.48})`;
+              ctx.fillStyle = `rgba(255, 100, 110, ${0.14 + glint * (0.48 + proxHeat * 0.28)})`;
               ctx.fill();
             }
             ctx.restore();
           } else {
-            const bladeAngle = now * 0.0032 + animPhase;
-            const counterAngle = -now * 0.0022 - animPhase * 0.7;
+            const bladeSpinBoost = 1.0 + proxHeat * 0.55;
+            const bladeAngle = now * 0.0032 * bladeSpinBoost + animPhase;
+            const counterAngle = -now * 0.0022 * bladeSpinBoost - animPhase * 0.7;
             if (LayeredT4Assets.loaded.hazard.meteorBlades) {
               ctx.save();
               ctx.rotate(counterAngle);
@@ -5194,14 +5673,14 @@
             if (LayeredT4Assets.loaded.hazard.meteorCenter) {
               ctx.drawImage(LayeredT4Assets.hazard.meteorCenter, -80 * scale, -80 * scale, 160 * scale, 160 * scale);
             }
-            const eyePulse = 0.65 + 0.35 * Math.sin(now * 0.007 + animPhase);
-            const eg = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * 0.34);
-            eg.addColorStop(0.0, `rgba(254, 202, 202, ${0.92 * eyePulse})`);
-            eg.addColorStop(0.5, `rgba(239, 68, 68, ${0.58 * eyePulse})`);
+            const eyePulse = 0.65 + 0.35 * Math.sin(now * 0.007 + animPhase) + proxHeat * 0.22;
+            const eg = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (0.34 + proxHeat * 0.12));
+            eg.addColorStop(0.0, `rgba(254, 202, 202, ${Math.min(1, 0.92 * eyePulse)})`);
+            eg.addColorStop(0.5, `rgba(239, 68, 68, ${Math.min(1, 0.58 * eyePulse)})`);
             eg.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
             ctx.fillStyle = eg;
             ctx.beginPath();
-            ctx.arc(0, 0, targetR * 0.34, 0, Math.PI * 2);
+            ctx.arc(0, 0, targetR * (0.34 + proxHeat * 0.12), 0, Math.PI * 2);
             ctx.fill();
           }
 
@@ -5313,6 +5792,8 @@
     empShockwaves: [],
     blinkGhosts: [],
     corruptionBursts: [],
+    scienceArcs: [],
+    scienceRipples: [],
     empSlowUntil: 0,
     activeBuffs: {}, // Simultaneous active buffs: { [type]: { type, name, color, icon, expiresAt } }
     activeBuff: null,
@@ -5816,6 +6297,8 @@
     state.empShockwaves = [];
     state.blinkGhosts = [];
     state.corruptionBursts = [];
+    state.scienceArcs = [];
+    state.scienceRipples = [];
     state.empSlowUntil = 0;
 
     // Session Opening Choreography & Advanced Mechanics
@@ -6549,6 +7032,23 @@
       // ─────────────────────────────────────────────────────────────
       // TEST HARNESS: LIVE 5 FEATURE BAD NODES, CORRUPTOR LASER & MISSILE SHOWCASE
       // ─────────────────────────────────────────────────────────────
+      if (window.location.search.includes('test_nodes=1')) {
+        if (!state._testedNodes) {
+          state._testedNodes = true;
+          const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+          state.particles = [
+            { type: pMode, nodeClass: 'standard', x: w * 0.10, y: h * 0.46, vx: 0, speed: 0, headR: 26, spine: [], stardust: [], animPhase: 0.2, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'shield', x: w * 0.23, y: h * 0.46, vx: 0, speed: 0, headR: 29, spine: [], stardust: [], animPhase: 0.9, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'missiles', x: w * 0.36, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 1.6, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'supercharge', x: w * 0.49, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 2.3, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'catalyst', x: w * 0.62, y: h * 0.46, vx: 0, speed: 0, headR: 32, spine: [], stardust: [], animPhase: 3.0, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'volatile', x: w * 0.76, y: h * 0.46, vx: 0, speed: 0, headR: 28, spine: [], stardust: [], animPhase: 3.7, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'corruptor_laser', x: w * 0.90, y: h * 0.46, vx: 0, speed: 0, headR: 32, laserState: 'idle', laserCharge: 0, laserSalvosLeft: 0, laserTargets: [], spine: [], stardust: [], animPhase: 4.4, tumbleDir: 1 }
+          ];
+          state.lastSpawnTime = now + 999999;
+        }
+      }
+
       if (window.location.search.includes('test_hazards=1')) {
         if (!state._testedHazards) {
           state._testedHazards = true;
@@ -7010,9 +7510,82 @@
           ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
           ctx.fill();
 
+          // Crawling Mode-Matched Plasma Crest Filaments riding the shockwave perimeter!
+          ctx.lineCap = 'round';
+          const crestR = sw.r * 0.85;
+          for (let ca = 0; ca < 4; ca++) {
+            const a0 = now * 0.004 + ca * (Math.PI * 0.5) + sw.r * 0.02;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.58 * sw.alpha})`;
+            ctx.lineWidth = 2.0;
+            ctx.beginPath();
+            ctx.arc(sw.x, sw.y, crestR, a0, a0 + 0.48);
+            ctx.stroke();
+          }
+
           if (sw.r >= sw.maxR || sw.alpha <= 0.01) {
             state.empShockwaves.splice(swIdx, 1);
           }
+        }
+        ctx.restore();
+      }
+
+      // Render Scientific Passive Resonance Effects (Dynamo Faraday Induction Arcs & Helix Base-Pair Ripples)
+      if (state.scienceArcs && state.scienceArcs.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        for (let aIdx = state.scienceArcs.length - 1; aIdx >= 0; aIdx--) {
+          const arc = state.scienceArcs[aIdx];
+          arc.life += dtScale;
+          const al = Math.max(0, 1.0 - arc.life / arc.maxLife);
+          if (al <= 0.01) {
+            state.scienceArcs.splice(aIdx, 1);
+            continue;
+          }
+          const dx = arc.x2 - arc.x1;
+          const dy = arc.y2 - arc.y1;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy / len;
+          const ny = dx / len;
+          const segs = 6;
+          ctx.beginPath();
+          for (let s = 0; s <= segs; s++) {
+            const f = s / segs;
+            const jag = (s === 0 || s === segs) ? 0 : Math.sin(now * 0.05 + s * 4.3 + aIdx * 7) * 12;
+            const px = arc.x1 + dx * f + nx * jag;
+            const py = arc.y1 + dy * f + ny * jag;
+            if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.strokeStyle = `rgba(56, 189, 248, ${0.82 * al})`;
+          ctx.lineWidth = 4.2;
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.95 * al})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      if (state.scienceRipples && state.scienceRipples.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let rIdx = state.scienceRipples.length - 1; rIdx >= 0; rIdx--) {
+          const rp = state.scienceRipples[rIdx];
+          rp.r += 5.2 * dtScale;
+          const al = Math.max(0, 1.0 - rp.r / rp.maxR);
+          if (al <= 0.01) {
+            state.scienceRipples.splice(rIdx, 1);
+            continue;
+          }
+          const rg = ctx.createRadialGradient(rp.x, rp.y, rp.r * 0.65, rp.x, rp.y, rp.r);
+          rg.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
+          rg.addColorStop(0.75, `rgba(34, 211, 238, ${0.32 * al})`);
+          rg.addColorStop(0.90, `rgba(232, 121, 249, ${0.42 * al})`);
+          rg.addColorStop(1.0, 'rgba(232, 121, 249, 0)');
+          ctx.fillStyle = rg;
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+          ctx.fill();
         }
         ctx.restore();
       }
@@ -7261,6 +7834,7 @@
                 const swirlX = -ny * pullFactor * 2.1 * dtScale;
                 const pullX = nx * pullFactor * 1.85 * dtScale;
                 other.x = Math.max(30, Math.min(w - 30, other.x + pullX + swirlX));
+                other.gravityTuggedUntil = now + 1500;
               }
             }
           }
@@ -7311,13 +7885,40 @@
           } else if (p.blinkState === 'telegraphing') {
             p.blinkProgress = Math.min(1.0, (now - (p.blinkStartTime || now)) / 650);
 
-            // Render Sculpted Mode-Matched 3D Event-Horizon Exit Wormhole Portal at Destination!
+            // Render Sculpted Mode-Matched 3D Event-Horizon Exit Wormhole Portal + Quantum Entanglement Tether!
             const wPal = _getHazVfxPal(p.type || state.catcherType);
+            const pAlpha = 0.45 + 0.55 * p.blinkProgress;
+
+            // 0. Shimmering Quantum-Entanglement Vector Tether connecting Stalker -> Exit Portal (clear telegraph!)
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const tGrad = ctx.createLinearGradient(p.x, p.y, p.blinkTargetX, p.blinkTargetY);
+            tGrad.addColorStop(0.0, `${wPal.p}${0.22 * pAlpha})`);
+            tGrad.addColorStop(0.5, `${wPal.s}${0.52 * pAlpha})`);
+            tGrad.addColorStop(1.0, `rgba(255, 255, 255, ${0.65 * pAlpha})`);
+            const dtx = p.blinkTargetX - p.x;
+            const dty = p.blinkTargetY - p.y;
+            const dlen = Math.hypot(dtx, dty) || 1;
+            const tnx = -dty / dlen;
+            const tny = dtx / dlen;
+            ctx.strokeStyle = tGrad;
+            ctx.lineWidth = 2.6;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            for (let ts = 0; ts <= 8; ts++) {
+              const tf = ts / 8;
+              const wave = (ts === 0 || ts === 8) ? 0 : Math.sin(now * 0.025 + tf * Math.PI * 3.0) * 6.5;
+              const qx = p.x + dtx * tf + tnx * wave;
+              const qy = p.y + dty * tf + tny * wave;
+              if (ts === 0) ctx.moveTo(qx, qy); else ctx.lineTo(qx, qy);
+            }
+            ctx.stroke();
+            ctx.restore();
+
             ctx.save();
             ctx.translate(p.blinkTargetX, p.blinkTargetY);
             const portalR = (20 + 20 * p.blinkProgress);
             const pRot = now * 0.0065;
-            const pAlpha = 0.45 + 0.55 * p.blinkProgress;
 
             // 1. Outer Dimensional Halo Bloom
             ctx.save();
@@ -7503,9 +8104,17 @@
           p.x += Math.sign(dxToCore) * Math.min(Math.abs(dxToCore) * 0.20, lifeMagnet * 4.8 * dtScale);
         }
 
+        // Regular Hazard Proximity Escalation (Dynamic Telegraph when approaching Core within 230px!)
+        if (isHazard) {
+          p._proxHeat = (distToCore < 230) ? Math.max(0, Math.min(1, 1.0 - distToCore / 230)) : 0;
+        }
+
         let speedFactor = 1.0;
+        if (!isHazard && p.helixStabilizedUntil && now < p.helixStabilizedUntil) {
+          speedFactor *= 0.82; // Helix Chiral Base-Pair Stabilization (-18% gentle fall speed!)
+        }
         if (distToCore < gravRadius && p.y < catcherPixelY + 20 && !isHazardNode(p.nodeClass)) {
-          speedFactor = 0.72; // Proximity tether dampening
+          speedFactor *= 0.72; // Proximity tether dampening
           const gravStrength = (1.0 - (distToCore / gravRadius)) * 0.95;
           p.x += Math.sign(dxToCore) * Math.min(Math.abs(dxToCore) * 0.14, gravStrength * 4.2 * dtScale);
 
@@ -7546,9 +8155,13 @@
           p.hasGrazed = true;
           const grazeBonus = isComet ? 400
             : ((p.nodeClass === 'corruptor_laser' || p.nodeClass === 'gravity_well' || p.nodeClass === 'phase_stalker') ? 350 : 250);
-          const grazeLabel = isComet ? '🔥 INFERNO GRAZE +400'
+          const grazeLabel = isComet ? '🔥 THERMAL GRAZE +400 (+15% PULSE)'
             : (grazeBonus === 350 ? '⚡ APEX GRAZE +350' : 'GRAZE +250');
           state.score += grazeBonus;
+          if (isComet) {
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
+            if (state.pulseMeter >= 100) { state.isPulseReady = true; audio.playPulseCharged(); }
+          }
           CoreKinematics.triggerGraze(p.x, p.y, now);
           state.floatingTexts.push({
             x: p.x,
@@ -7566,12 +8179,18 @@
           if (isHazard) {
             // Check if 5-Second Aegis Shield is active (independent of any simultaneous power-ups!)
             if (state.hasBuff('shield', now)) {
-              state.score += 300;
+              const wasChargingCorruptor = (p.nodeClass === 'corruptor_laser' && p.laserState === 'charging');
+              const defPts = wasChargingCorruptor ? 450 : 300;
+              state.score += defPts;
+              if (wasChargingCorruptor) {
+                state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
+                if (state.pulseMeter >= 100) state.isPulseReady = true;
+              }
               CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
               state.floatingTexts.push({
                 x: p.x,
                 y: p.y,
-                text: 'SHIELD DEFLECT +300',
+                text: wasChargingCorruptor ? '🛡️ SALVO INTERRUPTED +450!' : 'SHIELD DEFLECT +300',
                 color: '#fbbf24',
                 alpha: 1.0,
                 startTime: now
@@ -7723,6 +8342,61 @@
             audio.playGrazeCatch(state.combo);
           }
 
+          // ─── SCIENTIFIC REALM-SPECIFIC GOOD-NODE PASSIVE RESONANCES & SLINGSHOT RESCUES ───
+          const catchMode = (p.type === 'helix') ? 'helix' : (p.type === 'meteor' ? 'meteor' : 'dynamo');
+          if (p.gravityTuggedUntil && now < p.gravityTuggedUntil) {
+            state.score += 200;
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 10);
+            if (state.pulseMeter >= 100) state.isPulseReady = true;
+            state.floatingTexts.push({
+              x: p.x, y: p.y - 34,
+              text: '🌌 GRAVITY SLINGSHOT +200!',
+              color: '#38bdf8',
+              alpha: 1.0,
+              startTime: now
+            });
+          } else if (catchMode === 'dynamo') {
+            // DYNAMO SCIENCE: Faraday Chain Induction — arc jumps to nearest good orb within 220px & pulls it toward player!
+            let nearestGood = null;
+            let bestArcDist = 220;
+            for (let k = 0; k < state.particles.length; k++) {
+              const other = state.particles[k];
+              if (other !== p && !isHazardNode(other.nodeClass)) {
+                const dArc = Math.hypot(other.x - p.x, other.y - p.y);
+                if (dArc < bestArcDist) {
+                  bestArcDist = dArc;
+                  nearestGood = other;
+                }
+              }
+            }
+            if (nearestGood) {
+              nearestGood.x += Math.sign(catcherPixelX - nearestGood.x) * Math.min(24, Math.abs(catcherPixelX - nearestGood.x) * 0.25);
+              state.score += 50;
+              state.scienceArcs.push({ x1: p.x, y1: p.y, x2: nearestGood.x, y2: nearestGood.y, life: 0, maxLife: 14 });
+            }
+          } else if (catchMode === 'helix' && isPerfect) {
+            // HELIX SCIENCE: Chiral Base-Pair Stabilization — precision catch slows other falling good pearls by 18% for 1.4s!
+            state.scienceRipples.push({ x: catcherPixelX, y: catcherPixelY, r: 24, maxR: 260 });
+            for (let k = 0; k < state.particles.length; k++) {
+              const other = state.particles[k];
+              if (other !== p && !isHazardNode(other.nodeClass)) {
+                other.helixStabilizedUntil = now + 1400;
+              }
+            }
+          } else if (catchMode === 'meteor' && Math.abs(state.catcherVelocity || 0) > 3.2) {
+            // METEOR SCIENCE: Kinetic Ablation Slingshot — banking swiftly into a molten bolide yields +120 & +6% Pulse!
+            state.score += 120;
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 6);
+            if (state.pulseMeter >= 100) state.isPulseReady = true;
+            state.floatingTexts.push({
+              x: p.x, y: p.y - 30,
+              text: '☄️ KINETIC DEFLECT +120',
+              color: '#fbbf24',
+              alpha: 1.0,
+              startTime: now
+            });
+          }
+
           // Trigger Mode-Specific Layered Capture Physics
           CoreKinematics.triggerCaptureEffect(p.type, catcherPixelX, catcherPixelY, p.x, p.y, now);
 
@@ -7847,7 +8521,40 @@
           ctx.closePath();
           ctx.fill();
 
-          // Layer 4: Traveling Plasma Energy Pulses along Beam
+          // Layer 4: Mode-Aligned Scientific Beam Signature (Dynamo Lightning / Helix Double-Strand / Meteor Isotope Pulses!)
+          const lbMode = (lb.mode === 'helix') ? 'helix' : (lb.mode === 'meteor' ? 'meteor' : 'dynamo');
+          if (lbMode === 'helix') {
+            // Corrupted Helix Beam: Twin twisting ruby-gold double-helix strands coiling down the laser!
+            ctx.lineCap = 'round';
+            for (let hs = -1; hs <= 1; hs += 2) {
+              ctx.beginPath();
+              for (let s = 0; s <= 14; s++) {
+                const f = s / 14;
+                const off = Math.sin(f * Math.PI * 4.5 - frac * 10.0) * 11.0 * widthScale * hs;
+                const hx = lb.x1 + dxL * f + nxL * off;
+                const hy = lb.y1 + dyL * f + nyL * off;
+                if (s === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+              }
+              ctx.strokeStyle = hs > 0 ? `rgba(251, 191, 36, ${0.82 * alpha})` : `rgba(244, 63, 94, ${0.82 * alpha})`;
+              ctx.lineWidth = 2.4 * widthScale;
+              ctx.stroke();
+            }
+          } else if (lbMode === 'dynamo') {
+            // Corrupted Dynamo Beam: Forked crackling crimson-violet dielectric arc wrapping the laser!
+            ctx.beginPath();
+            for (let s = 0; s <= 10; s++) {
+              const f = s / 10;
+              const jag = (s === 0 || s === 10) ? 0 : Math.sin(now * 0.06 + s * 5.7 + lIdx * 3) * 14.0 * widthScale;
+              const lx = lb.x1 + dxL * f + nxL * jag;
+              const ly = lb.y1 + dyL * f + nyL * jag;
+              if (s === 0) ctx.moveTo(lx, ly); else ctx.lineTo(lx, ly);
+            }
+            ctx.strokeStyle = `rgba(192, 132, 252, ${0.85 * alpha})`;
+            ctx.lineWidth = 2.6 * widthScale;
+            ctx.stroke();
+          }
+
+          // Traveling Plasma / Isotope Energy Pulses along Beam
           for (let pStep = 0; pStep < 3; pStep++) {
             const tPos = ((frac * 2.2 + pStep * 0.33) % 1.0);
             const pxB = lb.x1 + dxL * tPos;
