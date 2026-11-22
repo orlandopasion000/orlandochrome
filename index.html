@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade381_zero_lag_studio">
+  <link rel="stylesheet" href="styles.css?v=arcade382_rounds_boss_offense">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1564,6 +1564,32 @@
     #ocRealmPortalCard[data-realm="helix"] .oc-portal-cta { color: #f0abfc !important; }
     #ocRealmPortalCard[data-realm="meteor"] .oc-portal-cta { color: #fbbf24 !important; }
 
+    /* ROUND PROGRESSION & CHROME CORE OFFENSE MODE HUD PILLS (v382) */
+    .round-pill {
+      border-color: rgba(168, 85, 247, 0.45) !important;
+      background: linear-gradient(180deg, rgba(30, 16, 58, 0.85), rgba(10, 12, 26, 0.92)) !important;
+    }
+    .round-pill.boss-alert {
+      border-color: rgba(244, 63, 94, 0.92) !important;
+      background: linear-gradient(180deg, rgba(127, 29, 29, 0.82), rgba(28, 7, 14, 0.95)) !important;
+      box-shadow: 0 0 14px rgba(244, 63, 94, 0.55) !important;
+    }
+    .offense-pill {
+      cursor: pointer !important;
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      background: linear-gradient(180deg, rgba(14, 28, 52, 0.88), rgba(8, 12, 24, 0.94)) !important;
+      transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+    }
+    .offense-pill:hover {
+      border-color: rgba(251, 191, 36, 0.85) !important;
+      transform: translateY(-1px) !important;
+    }
+    .offense-pill.offense-active {
+      border-color: #fbbf24 !important;
+      background: linear-gradient(180deg, rgba(124, 45, 18, 0.90), rgba(45, 10, 16, 0.96)) !important;
+      box-shadow: 0 0 16px rgba(249, 115, 22, 0.65), inset 0 0 10px rgba(253, 224, 71, 0.28) !important;
+    }
+
     svg, svg path, svg line, svg circle, svg polyline, svg rect {
       vector-effect: non-scaling-stroke;
     }
@@ -1852,8 +1878,16 @@
           </div>
         </div>
 
-        <!-- Live Score Cluster & Advanced HUD (Tier, Pulse, Phase) -->
+        <!-- Live Score Cluster & Advanced HUD (Round, Offense Cannon, Tier, Pulse, Surge) -->
         <div class="game-stats-cluster">
+          <div class="game-stat-pill round-pill" id="cgRoundPill" title="Current Round & Boss Stage — Clear each Round Boss to advance!">
+            <span class="g-stat-label">ROUND</span>
+            <span class="g-stat-val" id="cgRoundVal" style="color:#c084fc;font-weight:900;">R1</span>
+          </div>
+          <div class="game-stat-pill offense-pill" id="cgOffensePill" title="Chrome Core Offense Mode: Catch Good Nodes to load Ammo, then Click/Hold or press [F] to blast Bosses & Hazards!">
+            <span class="g-stat-label">OFFENSE [F]</span>
+            <span class="g-stat-val" id="cgOffenseVal" style="color:#38bdf8;font-weight:900;">0</span>
+          </div>
           <div class="game-stat-pill score-pill">
             <span class="g-stat-label">SCORE</span>
             <span class="g-stat-val" id="cgScoreVal">0</span>
@@ -2035,7 +2069,7 @@
   <script src="assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade381_zero_lag_studio"></script>
+  <script src="app.js?v=arcade382_rounds_boss_offense"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -2094,7 +2128,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade381_zero_lag_studio"></script>
+  <script src="game.js?v=arcade382_rounds_boss_offense"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 
 </body>

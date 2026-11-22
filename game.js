@@ -365,6 +365,114 @@
       } catch (e) {}
       this._vibrate(14);
     }
+
+    playCoreCannonShot(mode = 'dynamo', tier = 1) {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const pitchBoost = 1 + (Math.min(5, tier) - 1) * 0.055;
+        if (mode === 'helix') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(980 * pitchBoost, t0);
+          osc.frequency.exponentialRampToValueAtTime(420 * pitchBoost, t0 + 0.065);
+          gain.gain.setValueAtTime(0.085, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.07);
+        } else if (mode === 'meteor') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(340 * pitchBoost, t0);
+          osc.frequency.exponentialRampToValueAtTime(110, t0 + 0.075);
+          gain.gain.setValueAtTime(0.11, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.08);
+        } else {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(760 * pitchBoost, t0);
+          osc.frequency.exponentialRampToValueAtTime(240, t0 + 0.06);
+          gain.gain.setValueAtTime(0.075, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.065);
+        }
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.085);
+      } catch (e) {}
+    }
+
+    playBossHit(isCrit = false) {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = isCrit ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(isCrit ? 1280 : 620, t0);
+        osc.frequency.exponentialRampToValueAtTime(isCrit ? 520 : 210, t0 + 0.055);
+        gain.gain.setValueAtTime(isCrit ? 0.11 : 0.065, t0);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.06);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.065);
+      } catch (e) {}
+    }
+
+    playBossWarningSiren() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        for (let k = 0; k < 3; k++) {
+          setTimeout(() => {
+            if (!this.ctx || this.isMuted) return;
+            const t0 = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(520, t0);
+            osc.frequency.exponentialRampToValueAtTime(290, t0 + 0.34);
+            gain.gain.setValueAtTime(0.16, t0);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.38);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + 0.40);
+          }, k * 460);
+        }
+      } catch (e) {}
+      this._vibrate([45, 70, 45, 70, 65]);
+    }
+
+    playArmorBreak() {
+      if (this.isMuted) return;
+      this.init();
+      const notes = [880, 1174.66, 1567.98];
+      notes.forEach((f, idx) => setTimeout(() => this.playTone(f, 'triangle', 0.24, 0.20), idx * 35));
+      this._vibrate([30, 20, 45]);
+    }
+
+    playBossDefeated() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const sub = this.ctx.createOscillator();
+        const sg = this.ctx.createGain();
+        sub.type = 'sawtooth';
+        sub.frequency.setValueAtTime(160, t0);
+        sub.frequency.exponentialRampToValueAtTime(28, t0 + 0.95);
+        sg.gain.setValueAtTime(0.45, t0);
+        sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.98);
+        sub.connect(sg);
+        sg.connect(this.ctx.destination);
+        sub.start(t0);
+        sub.stop(t0 + 1.0);
+        const fanfare = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+        fanfare.forEach((f, idx) => setTimeout(() => this.playTone(f, 'sine', 0.32, 0.22), 180 + idx * 65));
+      } catch (e) {}
+      this._vibrate([60, 40, 80, 40, 120]);
+    }
   }
 
   const audio = new CyberAudioEngine();
@@ -1259,6 +1367,7 @@
       meteorCenter: new Image()
     },
     poweredHazard: { dynamo: {}, helix: {}, meteor: {} },
+    bosses: {},
     loaded: {
       halo: { dynamo: false, helix: false, meteor: false },
       wingRight: { dynamo: false, helix: false, meteor: false },
@@ -1273,7 +1382,8 @@
         meteorBlades: false,
         meteorCenter: false
       },
-      poweredHazard: { dynamo: {}, helix: {}, meteor: {} }
+      poweredHazard: { dynamo: {}, helix: {}, meteor: {} },
+      bosses: {}
     }
   };
 
@@ -1353,6 +1463,22 @@
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
       img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade378`;
     });
+  });
+
+  // Preload all 5 Bespoke Sovereign Round Boss Sprites (Rounds 1 -> 5+)
+  const BOSS_SPRITE_FILES = {
+    1: 'assets/boss-r1-sentinel.png?v=arcade382',
+    2: 'assets/boss-r2-corruptor.png?v=arcade382',
+    3: 'assets/boss-r3-singularity.png?v=arcade382',
+    4: 'assets/boss-r4-tempest.png?v=arcade382',
+    5: 'assets/boss-r5-omega.png?v=arcade382'
+  };
+  Object.keys(BOSS_SPRITE_FILES).forEach((bKey) => {
+    const img = new Image();
+    LayeredT4Assets.bosses[bKey] = img;
+    LayeredT4Assets.loaded.bosses[bKey] = false;
+    img.onload = () => { LayeredT4Assets.loaded.bosses[bKey] = true; };
+    img.src = BOSS_SPRITE_FILES[bKey];
   });
 
   // Helper: Identifies any hazard trap or anomaly archetype
@@ -1843,9 +1969,23 @@
           });
         }
 
-        // Target Acquisition & Proportional Navigation (Prioritize Hazards to Protect Core!)
+        // Target Acquisition & Proportional Navigation (Prioritize Active Boss Pylons/Boss & Hazards!)
         let bestDist = 9999;
         let bestTarget = null;
+        if (state.boss && state.boss.phase === 'fighting') {
+          const bossRef = state.boss;
+          if (bossRef.pylons && bossRef.pylons.length > 0) {
+            for (let pyIdx = 0; pyIdx < bossRef.pylons.length; pyIdx++) {
+              const pyl = bossRef.pylons[pyIdx];
+              if (pyl.hp > 0) {
+                const dP = Math.hypot(pyl.x - m.x, pyl.y - m.y) * 0.25;
+                if (dP < bestDist) { bestDist = dP; bestTarget = pyl; }
+              }
+            }
+          }
+          const dB = Math.hypot(bossRef.x - m.x, bossRef.y - m.y) * 0.30;
+          if (dB < bestDist) { bestDist = dB; bestTarget = bossRef; }
+        }
         for (let p of state.particles) {
           if (p.hasDetonated) continue;
           const d = Math.hypot(p.x - m.x, p.y - m.y);
@@ -2071,9 +2211,32 @@
 
         ctx.restore();
 
-        // Check Impact with Falling Targets (Neutralize Hazards & Auto-Claim Collectibles)
+        // Check Impact with Active Round Boss / Shield Pylons first (3 damage per missile!)
         let hit = false;
-        for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+        if (state.boss && state.boss.phase === 'fighting' && typeof RoundBossEngine !== 'undefined') {
+          const bossRef = state.boss;
+          if (bossRef.pylons) {
+            for (let pyIdx = 0; pyIdx < bossRef.pylons.length; pyIdx++) {
+              const pyl = bossRef.pylons[pyIdx];
+              if (pyl.hp > 0 && Math.hypot(pyl.x - m.x, pyl.y - m.y) < 32) {
+                hit = true;
+                RoundBossEngine.damagePylon(pyl, 3, now, m.x, m.y);
+                this.launchFlashes.push({ x: m.x, y: m.y, r: 10, maxR: 46, alpha: 1.0, color: '#fbbf24' });
+                audio.playMissileHit();
+                break;
+              }
+            }
+          }
+          if (!hit && Math.hypot(bossRef.x - m.x, bossRef.y - m.y) < (bossRef.hitR || 72)) {
+            hit = true;
+            RoundBossEngine.damageBoss(3, now, true, m.x, m.y);
+            this.launchFlashes.push({ x: m.x, y: m.y, r: 12, maxR: 52, alpha: 1.0, color: '#fbbf24' });
+            audio.playMissileHit();
+          }
+        }
+
+        // Check Impact with Falling Targets (Neutralize Hazards & Auto-Claim Collectibles)
+        for (let pIdx = state.particles.length - 1; !hit && pIdx >= 0; pIdx--) {
           const pt = state.particles[pIdx];
           if (pt.hasDetonated) continue;
           const hitDist = Math.hypot(pt.x - m.x, pt.y - m.y);
@@ -2113,9 +2276,12 @@
               audio.playMissileHit();
               updateHeaderUI();
             } else {
-              // Good node intercepted by missile: immediately counts as an authentic combo addition!
+              // Good node intercepted by missile: immediately counts as an authentic combo addition + reloads Core Cannon!
               const pts = 300 * state.combo;
               state.score += pts;
+              if (typeof RoundBossEngine !== 'undefined') {
+                RoundBossEngine.onGoodNodeCaught(pt.nodeClass, false, now, (cachedCanvasRect.width || 800));
+              }
               const prevCombo = state.combo;
               state.combo = Math.min(50, state.combo + 1);
 
@@ -5561,9 +5727,1290 @@
     }
   };
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // ROUND PROGRESSION, 5 SOVEREIGN BOSSES & CHROME CORE OFFENSE ENGINE (v382)
+  // Zero-Lag GPU Sprite Blits · Realm-Unique Weapons · Multi-Phase Boss AI
+  // ══════════════════════════════════════════════════════════════════════════
+  const ROUND_BOSS_SPECS = {
+    1: {
+      bossId: 1,
+      quota: 18,
+      baseHp: 50,
+      drawW: 248,
+      hitR: 72,
+      pylonCount: 0,
+      subtitle: 'AEGIS ORBITAL SENTINEL · ROUND 1 BOSS',
+      names: { dynamo: 'VOLTAIC WARDEN', helix: 'RIBOSOME GUARDIAN', meteor: 'OBSIDIAN BASALT TITAN' },
+      accent: '#f43f5e'
+    },
+    2: {
+      bossId: 2,
+      quota: 22,
+      baseHp: 85,
+      drawW: 228,
+      hitR: 74,
+      pylonCount: 0,
+      subtitle: 'CORRUPTOR PRISM SOVEREIGN · ROUND 2 BOSS',
+      names: { dynamo: 'TESLA ANNIHILATOR', helix: 'MUTAGEN HYDRA', meteor: 'MAGMA RAIL-CARRIER' },
+      accent: '#e879f9'
+    },
+    3: {
+      bossId: 3,
+      quota: 26,
+      baseHp: 125,
+      drawW: 218,
+      hitR: 78,
+      pylonCount: 2,
+      subtitle: 'SINGULARITY LEVIATHAN · ROUND 3 BOSS',
+      names: { dynamo: 'MAGNETAR VORTEX', helix: 'CHIRAL ABYSSAL COIL', meteor: 'ACCRETION DEVOURER' },
+      accent: '#fb923c'
+    },
+    4: {
+      bossId: 4,
+      quota: 30,
+      baseHp: 175,
+      drawW: 256,
+      hitR: 76,
+      pylonCount: 2,
+      subtitle: 'TEMPEST ARCH-HYDRA · ROUND 4 BOSS',
+      names: { dynamo: 'ARCVOLT EMPEROR', helix: 'PRION SERAPH', meteor: 'HYPERNOVA COLOSSUS' },
+      accent: '#f97316'
+    },
+    5: {
+      bossId: 5,
+      quota: 34,
+      baseHp: 240,
+      drawW: 300,
+      hitR: 84,
+      pylonCount: 3,
+      subtitle: 'OMEGA ANTICORE · FALLEN CHROME ARCHON',
+      names: { dynamo: 'ANTIMATTER SERAPH · OMEGA', helix: 'ENTROPY ARCHON · OMEGA', meteor: 'ECLIPSE MAGNETAR · OMEGA' },
+      accent: '#fbbf24'
+    }
+  };
+
+  const RoundBossEngine = {
+    getSpec(roundNum, mode) {
+      const r = Math.max(1, roundNum | 0);
+      const base = ROUND_BOSS_SPECS[Math.min(5, r)] || ROUND_BOSS_SPECS[5];
+      const extraRounds = Math.max(0, r - 5);
+      const mKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
+      return {
+        round: r,
+        bossId: base.bossId,
+        quota: base.quota + extraRounds * 4,
+        maxHp: base.baseHp + extraRounds * 70,
+        drawW: base.drawW,
+        hitR: base.hitR,
+        pylonCount: base.pylonCount,
+        name: extraRounds > 0 ? `${base.names[mKey]} MK.${extraRounds + 1}` : base.names[mKey],
+        subtitle: extraRounds > 0 ? `ENDLESS APEX SOVEREIGN · ROUND ${r} BOSS` : base.subtitle,
+        accent: base.accent
+      };
+    },
+
+    reset(now) {
+      state.currentRound = 1;
+      state.roundPhase = 'gauntlet'; // 'gauntlet' | 'warning' | 'boss' | 'cleared'
+      state.roundNodesCaught = 0;
+      const spec = this.getSpec(1, state.catcherType);
+      state.roundQuota = spec.quota;
+      state.coreAmmo = 12; // Starter tactical reserve so player can test Offense Mode immediately!
+      state.maxCoreAmmo = 150;
+      state.offenseMode = false;
+      state.pointerFiring = false;
+      state.lastShotTime = 0;
+      state.shotCounter = 0;
+      state.muzzleFlashUntil = 0;
+      state.playerInvulnUntil = 0;
+      state.boss = null;
+      state.bossBullets = [];
+      state.bossBeams = [];
+      state.bossShockRings = [];
+      state.playerShots = [];
+      state.bossHitSparks = [];
+      state.roundBanner = {
+        title: 'ROUND 1 · ENGAGE',
+        sub: 'Catch Good Nodes to Load Cannon · Defeat the Round 1 Boss (50 Shots)',
+        color: '#38bdf8',
+        startTime: now || performance.now(),
+        duration: 2400
+      };
+    },
+
+    toggleOffense(now) {
+      if (!state.active || state.gameType === 'reflex' || state.gameType === 'math' || state.gameType === 'memory') return;
+      state.offenseMode = !state.offenseMode;
+      audio.playPhaseSwitch();
+      if (state.offenseMode && state.coreAmmo <= 0) {
+        state.floatingTexts.push({
+          x: (cachedCanvasRect.width || 800) * (state.catcherX || 0.5),
+          y: (cachedCanvasRect.height || 600) * (state.catcherY || 0.8) - 54,
+          text: '⚡ CATCH GOOD NODES TO RELOAD CANNON!',
+          color: '#fbbf24',
+          alpha: 1.0,
+          startTime: now || performance.now()
+        });
+      }
+      updateHeaderUI();
+    },
+
+    addAmmo(amount) {
+      state.coreAmmo = Math.min(state.maxCoreAmmo || 150, (state.coreAmmo || 0) + amount);
+    },
+
+    onGoodNodeCaught(nodeClass, isPerfect, now, w) {
+      const isPowered = (nodeClass && nodeClass !== 'standard');
+      const gain = isPowered ? 6 : (isPerfect ? 4 : 3);
+      this.addAmmo(gain);
+
+      if (state.roundPhase === 'gauntlet') {
+        state.roundNodesCaught = (state.roundNodesCaught || 0) + 1;
+        if (state.roundNodesCaught >= state.roundQuota) {
+          this.startBossWarning(now, w);
+        }
+      }
+    },
+
+    startBossWarning(now, w) {
+      const spec = this.getSpec(state.currentRound, state.catcherType);
+      state.roundPhase = 'warning';
+      state.bossWarningUntil = now + 2300;
+      // Clear lingering hazards cleanly so player enters Boss Arena fairly
+      state.particles = state.particles.filter(pt => !isHazardNode(pt.nodeClass));
+      state.hazardLasers = [];
+      state.empShockwaves = [];
+      state.roundBanner = {
+        title: `⚠ WARNING · ROUND ${spec.round} BOSS`,
+        sub: `${spec.name} · ${spec.maxHp} HP — Activate OFFENSE [F] or Hold Click!`,
+        color: '#f43f5e',
+        startTime: now,
+        duration: 2300
+      };
+      audio.playBossWarningSiren();
+      updateHeaderUI();
+    },
+
+    spawnBoss(roundNum, now, w, h, skipIntro = false) {
+      const mode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+      const spec = this.getSpec(roundNum, mode);
+      const isMob = w < 600;
+      const scaleM = isMob ? 0.72 : 1.0;
+      const targetY = Math.max(122, Math.min(195, h * 0.21));
+
+      const boss = {
+        round: spec.round,
+        bossId: spec.bossId,
+        name: spec.name,
+        subtitle: spec.subtitle,
+        accent: spec.accent,
+        mode: mode,
+        x: w * 0.5,
+        y: skipIntro ? targetY : -140,
+        targetY: targetY,
+        vx: 0,
+        drawW: spec.drawW * scaleM,
+        hitR: spec.hitR * scaleM,
+        hp: spec.maxHp,
+        maxHp: spec.maxHp,
+        phase: skipIntro ? 'fighting' : 'entering', // 'entering' | 'fighting' | 'defeated'
+        enraged: false,
+        finalEclipse: false,
+        enterStart: now,
+        hitFlashUntil: 0,
+        armorBreakUntil: 0,
+        recoilY: 0,
+        movePhase: 0,
+        nextAttackAt: now + (skipIntro ? 900 : 1900),
+        nextSupplyAt: now + 2800,
+        spiralAngle: 0,
+        attackStep: 0,
+        dashState: null,
+        pylons: [],
+        pylonsSpawnedP2: false
+      };
+
+      // Round 3 starts with 2 Orbiting Shield Pylons immediately!
+      if (spec.bossId === 3 && spec.pylonCount > 0) {
+        this._spawnPylons(boss, spec.pylonCount, 12 + (spec.round - 3) * 3);
+      }
+
+      state.boss = boss;
+      state.roundPhase = 'boss';
+      state.bossBullets = [];
+      state.bossBeams = [];
+      state.bossShockRings = [];
+      updateHeaderUI();
+    },
+
+    _spawnPylons(boss, count, hpEach) {
+      boss.pylons = [];
+      const orbitR = boss.hitR * 1.66;
+      for (let i = 0; i < count; i++) {
+        boss.pylons.push({
+          angle: (i * Math.PI * 2) / count,
+          orbitR: orbitR,
+          x: boss.x + Math.cos((i * Math.PI * 2) / count) * orbitR,
+          y: boss.y + Math.sin((i * Math.PI * 2) / count) * (orbitR * 0.65),
+          hp: hpEach,
+          maxHp: hpEach,
+          hitFlashUntil: 0
+        });
+      }
+    },
+
+    _spawnHitSparks(x, y, color, count = 5) {
+      if (!state.bossHitSparks) state.bossHitSparks = [];
+      for (let i = 0; i < count; i++) {
+        if (state.bossHitSparks.length >= 90) break;
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2.2 + Math.random() * 5.2;
+        state.bossHitSparks.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 2.5 + Math.random() * 3.0,
+          color: color,
+          life: 0,
+          maxLife: 16 + Math.floor(Math.random() * 12)
+        });
+      }
+    },
+
+    damagePylon(pyl, dmg, now, hx, hy) {
+      if (!pyl || pyl.hp <= 0) return;
+      pyl.hp -= dmg;
+      pyl.hitFlashUntil = now + 70;
+      this._spawnHitSparks(hx || pyl.x, hy || pyl.y, '#38bdf8', 5);
+      audio.playBossHit(false);
+      if (pyl.hp <= 0) {
+        pyl.hp = 0;
+        state.score += 800;
+        this.addAmmo(8);
+        if (state.boss) {
+          state.boss.armorBreakUntil = now + 2600;
+        }
+        this._spawnHitSparks(pyl.x, pyl.y, '#fbbf24', 16);
+        audio.playArmorBreak();
+        state.floatingTexts.push({
+          x: pyl.x, y: pyl.y - 10,
+          text: '💥 PYLON SHATTERED! ARMOR BREAK 1.5X (+8 AMMO)',
+          color: '#fbbf24',
+          alpha: 1.0,
+          startTime: now
+        });
+        updateHeaderUI();
+      }
+    },
+
+    damageBoss(rawDmg, now, isSpecial = false, hx = null, hy = null) {
+      const boss = state.boss;
+      if (!boss || boss.phase !== 'fighting') return;
+
+      const isArmorBroken = (boss.armorBreakUntil && now < boss.armorBreakUntil);
+      const tierCritChance = (state.coreTier >= 5) ? 0.30 : (state.coreTier === 4 ? 0.20 : 0.06);
+      const isCrit = isSpecial || isArmorBroken || (Math.random() < tierCritChance);
+      let finalDmg = rawDmg * (isArmorBroken ? 1.5 : (isCrit && !isSpecial ? 1.5 : 1.0));
+      boss.hp = Math.max(0, boss.hp - finalDmg);
+      boss.hitFlashUntil = now + 68;
+      boss.recoilY = Math.max(-9, boss.recoilY - 3.8);
+
+      const hitX = hx !== null ? hx : boss.x;
+      const hitY = hy !== null ? hy : boss.y;
+      this._spawnHitSparks(hitX, hitY, isCrit ? '#fde047' : '#38bdf8', isCrit ? 6 : 3);
+      audio.playBossHit(isCrit);
+
+      // Award crisp score tick per hit
+      state.score += Math.round(finalDmg * 45);
+      if (isCrit || isSpecial) {
+        state.floatingTexts.push({
+          x: hitX + (Math.random() - 0.5) * 26,
+          y: hitY - 12,
+          text: isSpecial ? `⚡ -${Math.round(finalDmg)} BLAST!` : `CRIT -${finalDmg.toFixed(1)}`,
+          color: '#fde047',
+          alpha: 1.0,
+          startTime: now
+        });
+      }
+
+      // Check Phase 2 Enrage (<50% HP) & Phase 3 Final Eclipse (<33% HP on Round 5+)
+      const hpRatio = boss.hp / boss.maxHp;
+      if (!boss.enraged && hpRatio <= 0.50 && boss.hp > 0) {
+        boss.enraged = true;
+        boss.hitFlashUntil = now + 220;
+        audio.playHyperCometRoar();
+        state.floatingTexts.push({
+          x: boss.x, y: boss.y + boss.hitR * 0.55,
+          text: '🔥 PHASE 2 ENRAGE!',
+          color: '#f43f5e',
+          alpha: 1.0,
+          startTime: now
+        });
+        if ((boss.bossId === 4 || boss.bossId === 5) && !boss.pylonsSpawnedP2) {
+          boss.pylonsSpawnedP2 = true;
+          this._spawnPylons(boss, boss.bossId === 5 ? 3 : 2, 14 + (boss.round - 4) * 3);
+        }
+      }
+      if (boss.bossId === 5 && !boss.finalEclipse && hpRatio <= 0.33 && boss.hp > 0) {
+        boss.finalEclipse = true;
+        audio.playTier5Ascension();
+        state.floatingTexts.push({
+          x: boss.x, y: boss.y + boss.hitR * 0.72,
+          text: '☄️ PHASE 3 · FINAL ECLIPSE!',
+          color: '#fbbf24',
+          alpha: 1.0,
+          startTime: now
+        });
+      }
+
+      // Check Boss Defeat!
+      if (boss.hp <= 0) {
+        this.defeatBoss(now);
+      }
+    },
+
+    defeatBoss(now) {
+      const boss = state.boss;
+      if (!boss || boss.phase === 'defeated') return;
+      boss.phase = 'defeated';
+      boss.defeatedAt = now;
+      state.bossBullets = [];
+      state.bossBeams = [];
+      state.bossShockRings = [];
+
+      const roundBonus = 5000 * boss.round;
+      state.score += roundBonus;
+      const prevLives = state.reflexLives;
+      state.reflexLives = Math.min(3, state.reflexLives + 1);
+      renderReflexShields();
+      state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 25);
+      if (state.pulseMeter >= 100) state.isPulseReady = true;
+      this.addAmmo(15);
+
+      // Massive Supernova Shatter Burst (36 Shards)
+      if (!state.vaporizedShards) state.vaporizedShards = [];
+      for (let i = 0; i < 36; i++) {
+        const ang = (i / 36) * Math.PI * 2 + Math.random() * 0.2;
+        const spd = 4.5 + Math.random() * 10.5;
+        state.vaporizedShards.push({
+          x: boss.x, y: boss.y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3.5 + Math.random() * 4.5,
+          color: (i % 3 === 0) ? '#fde047' : (i % 3 === 1 ? '#f43f5e' : '#38bdf8'),
+          life: 0,
+          maxLife: 34 + Math.floor(Math.random() * 20)
+        });
+      }
+      state.bossShockRings.push({ x: boss.x, y: boss.y, r: 16, maxR: 340, alpha: 1.0, color: '#fde047', harmless: true });
+      state.bossShockRings.push({ x: boss.x, y: boss.y, r: 8, maxR: 250, alpha: 0.9, color: '#38bdf8', harmless: true });
+
+      audio.playBossDefeated();
+      state.roundPhase = 'cleared';
+      state.nextRoundAt = now + 2700;
+      const lifeTxt = state.reflexLives > prevLives ? ' · +1 SHIELD' : '';
+      state.roundBanner = {
+        title: `⭐ ROUND ${boss.round} CLEARED!`,
+        sub: `+${roundBonus.toLocaleString()} BONUS${lifeTxt} · +15 AMMO → ADVANCING TO ROUND ${boss.round + 1}`,
+        color: '#34d399',
+        startTime: now,
+        duration: 2700
+      };
+      updateHeaderUI();
+    },
+
+    // ─── CHROME CORE OFFENSE WEAPON: ACCUMULATED GOOD-NODE CANNON ───
+    updateAndDrawPlayerWeapon(ctx, cx, cy, u, dtScale, now, w, h) {
+      const mode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+      const wantsFire = (state.offenseMode || state.pointerFiring) && state.coreAmmo > 0 && state.roundPhase !== 'cleared';
+      const tier = state.coreTier || 1;
+      const fireInterval = (tier >= 5) ? 88 : (tier === 4 ? 98 : (tier >= 2 ? 108 : 122));
+
+      if (wantsFire && (now - (state.lastShotTime || 0)) >= fireInterval) {
+        state.lastShotTime = now;
+        state.coreAmmo = Math.max(0, state.coreAmmo - 1);
+        state.shotCounter = (state.shotCounter || 0) + 1;
+        state.muzzleFlashUntil = now + 55;
+        audio.playCoreCannonShot(mode, tier);
+
+        const muzzleY = cy - 42 * u;
+        const speed = (mode === 'dynamo') ? 19.5 : (mode === 'helix' ? 18.2 : 16.8);
+        const pushShot = (ox, vx, dmg, heavy, phaseOff = 0) => {
+          if (state.playerShots.length >= 64) state.playerShots.shift();
+          state.playerShots.push({
+            x: cx + ox,
+            y: muzzleY,
+            vx: vx,
+            vy: -speed,
+            dmg: dmg,
+            mode: mode,
+            heavy: heavy,
+            bornAt: now,
+            phase: phaseOff + state.shotCounter * 0.7,
+            isFifth: (state.shotCounter % 5 === 0)
+          });
+        };
+
+        if (tier <= 1) {
+          pushShot(0, 0, 1.0, true, 0);
+        } else if (tier <= 3) {
+          pushShot(-14 * u, 0, 0.58, true, 0);
+          pushShot(14 * u, 0, 0.58, true, Math.PI);
+        } else if (tier === 4) {
+          pushShot(0, 0, 0.75, true, 0);
+          pushShot(-22 * u, -1.15, 0.32, false, 1.0);
+          pushShot(22 * u, 1.15, 0.32, false, 2.0);
+        } else {
+          pushShot(-12 * u, 0, 0.56, true, 0);
+          pushShot(12 * u, 0, 0.56, true, Math.PI);
+          pushShot(-30 * u, -1.55, 0.26, false, 1.2);
+          pushShot(30 * u, 1.55, 0.26, false, 2.4);
+        }
+        updateHeaderUI();
+      }
+
+      // Draw Sleek Core-Hugging Offense Stance & Ammo Arc Gauge
+      const showGauge = state.offenseMode || state.pointerFiring || (state.boss && state.boss.phase !== 'defeated');
+      if (showGauge) {
+        const arcR = 64 * u;
+        const ammoFrac = Math.min(1, (state.coreAmmo || 0) / (state.maxCoreAmmo || 150));
+        const lowAmmo = (state.coreAmmo || 0) < 6;
+        const gaugeCol = lowAmmo ? '#f43f5e' : (mode === 'meteor' ? '#fb923c' : (mode === 'helix' ? '#22d3ee' : '#38bdf8'));
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.globalCompositeOperation = 'lighter';
+
+        // Lower Hemisphere Curved Ammo Track
+        const startA = Math.PI * 0.22;
+        const endA = Math.PI * 0.78;
+        ctx.beginPath();
+        ctx.arc(0, 0, arcR, startA, endA);
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+        ctx.lineWidth = Math.max(2.5, 4.0 * u);
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        if (ammoFrac > 0.005) {
+          ctx.beginPath();
+          ctx.arc(0, 0, arcR, startA, startA + (endA - startA) * ammoFrac);
+          ctx.strokeStyle = gaugeCol;
+          ctx.lineWidth = Math.max(2.8, 4.5 * u);
+          ctx.stroke();
+        }
+
+        // Active Combat Stance Forward Muzzle Chevron + Subtle Laser Aim Sightline
+        if (state.offenseMode || state.pointerFiring) {
+          const chevY = -58 * u;
+          ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.55)' : 'rgba(253, 224, 71, 0.75)';
+          ctx.lineWidth = Math.max(1.6, 2.2 * u);
+          ctx.beginPath();
+          ctx.moveTo(-12 * u, chevY + 8 * u);
+          ctx.lineTo(0, chevY);
+          ctx.lineTo(12 * u, chevY + 8 * u);
+          ctx.stroke();
+
+          // Muzzle Flash Burst on Shot
+          if (state.muzzleFlashUntil && now < state.muzzleFlashUntil) {
+            const mSpr = QuantumRenderer._getGlowSprite(mode === 'meteor' ? 'amber' : (mode === 'helix' ? 'helix' : 'cyan'));
+            const mfR = 26 * u;
+            ctx.globalAlpha = 0.85;
+            ctx.drawImage(mSpr, -mfR, chevY - mfR * 0.8, mfR * 2, mfR * 2);
+          }
+        }
+        ctx.restore();
+      }
+
+      // Update & Render All Player Accumulated-Node Bolts (Zero shadowBlur, Pure GPU Blits!)
+      if (!state.playerShots || state.playerShots.length === 0) return;
+      const boss = state.boss;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = state.playerShots.length - 1; i >= 0; i--) {
+        const s = state.playerShots[i];
+        s.x += s.vx * dtScale;
+        s.y += s.vy * dtScale;
+
+        if (s.y < -30 || s.x < -30 || s.x > w + 30) {
+          state.playerShots.splice(i, 1);
+          continue;
+        }
+
+        let consumed = false;
+
+        // 1. Check Hit on Boss Shield Pylons First
+        if (boss && boss.phase === 'fighting' && boss.pylons && boss.pylons.length > 0) {
+          for (let pIdx = 0; pIdx < boss.pylons.length; pIdx++) {
+            const pyl = boss.pylons[pIdx];
+            if (pyl.hp > 0 && Math.hypot(s.x - pyl.x, s.y - pyl.y) < 28) {
+              this.damagePylon(pyl, s.dmg, now, s.x, s.y);
+              consumed = true;
+              break;
+            }
+          }
+        }
+
+        // 2. Check Hit on Active Boss Body
+        if (!consumed && boss && boss.phase === 'fighting') {
+          const dx = s.x - boss.x;
+          const dy = s.y - boss.y;
+          // Elliptical hitbox matching wide winged bosses cleanly
+          const rx = boss.hitR * 1.18;
+          const ry = boss.hitR * 0.82;
+          if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1.0) {
+            this.damageBoss(s.dmg, now, false, s.x, s.y);
+            // Meteor Mass-Driver splash nudges nearby Pylon if close
+            if (s.mode === 'meteor' && boss.pylons) {
+              for (let pIdx = 0; pIdx < boss.pylons.length; pIdx++) {
+                const pyl = boss.pylons[pIdx];
+                if (pyl.hp > 0 && Math.hypot(s.x - pyl.x, s.y - pyl.y) < 75) {
+                  this.damagePylon(pyl, 0.35, now, pyl.x, pyl.y);
+                }
+              }
+            }
+            consumed = true;
+          }
+        }
+
+        // 3. Tactical Defense: Bolts Shatter Falling Bad Nodes (NEVER Harm Good Nodes!)
+        if (!consumed && state.particles.length > 0) {
+          for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+            const pt = state.particles[pIdx];
+            if (!isHazardNode(pt.nodeClass)) continue;
+            const hr = (pt.headR || 28) + 10;
+            if (Math.hypot(s.x - pt.x, s.y - pt.y) < hr) {
+              if (pt.shotHp === undefined) {
+                pt.shotHp = (pt.nodeClass === 'volatile') ? 3 : 5;
+              }
+              pt.shotHp -= s.dmg;
+              this._spawnHitSparks(s.x, s.y, '#f43f5e', 3);
+              consumed = true;
+              if (pt.shotHp <= 0) {
+                state.score += 250;
+                this._spawnHitSparks(pt.x, pt.y, '#fbbf24', 10);
+                audio.playMissileHit();
+                state.floatingTexts.push({
+                  x: pt.x, y: pt.y - 10,
+                  text: '💥 HAZARD SHATTERED +250',
+                  color: '#38bdf8',
+                  alpha: 1.0,
+                  startTime: now
+                });
+                state.particles.splice(pIdx, 1);
+                updateHeaderUI();
+              } else {
+                audio.playBossHit(false);
+              }
+              break;
+            }
+          }
+        }
+
+        if (consumed) {
+          state.playerShots.splice(i, 1);
+          continue;
+        }
+
+        // Render Realm-Unique Bolt (Pure GPU Glow Blit + Crisp Vector Core!)
+        const age = (now - s.bornAt) * 0.025;
+        if (s.mode === 'helix') {
+          const spr = QuantumRenderer._getGlowSprite('helix');
+          const r = s.heavy ? 15 : 11;
+          const sw = Math.sin(age + s.phase) * 4.5;
+          ctx.globalAlpha = 0.85;
+          ctx.drawImage(spr, s.x - r, s.y - r, r * 2, r * 2);
+          ctx.globalAlpha = 1.0;
+          ctx.lineWidth = s.heavy ? 2.4 : 1.7;
+          ctx.strokeStyle = '#22d3ee';
+          ctx.beginPath();
+          ctx.moveTo(s.x + sw, s.y - 8);
+          ctx.lineTo(s.x - sw, s.y + 12);
+          ctx.stroke();
+          ctx.strokeStyle = '#e879f9';
+          ctx.beginPath();
+          ctx.moveTo(s.x - sw, s.y - 8);
+          ctx.lineTo(s.x + sw, s.y + 12);
+          ctx.stroke();
+        } else if (s.mode === 'meteor') {
+          const spr = QuantumRenderer._getGlowSprite(s.heavy ? 'amber' : 'gold');
+          const r = s.heavy ? 16 : 12;
+          ctx.globalAlpha = 0.92;
+          ctx.drawImage(spr, s.x - r, s.y - r, r * 2, r * 2.3);
+          ctx.globalAlpha = 1.0;
+          ctx.fillStyle = '#fef9c3';
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.heavy ? 4.2 : 3.0, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          const spr = QuantumRenderer._getGlowSprite(s.isFifth ? 'gold' : 'cyan');
+          const r = s.heavy ? 15 : 11;
+          ctx.globalAlpha = 0.88;
+          ctx.drawImage(spr, s.x - r, s.y - r, r * 2, r * 2.2);
+          ctx.globalAlpha = 1.0;
+          ctx.strokeStyle = s.isFifth ? '#fde047' : '#38bdf8';
+          ctx.lineWidth = s.heavy ? 3.2 : 2.1;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y - 10);
+          ctx.lineTo(s.x, s.y + 12);
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = s.heavy ? 1.4 : 0.9;
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y - 8);
+          ctx.lineTo(s.x, s.y + 8);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    },
+
+    // ─── BOSS AI, ATTACK PATTERNS, BULLETS, BEAMS & RENDERING ───
+    updateAndDrawBossSystem(ctx, cx, cy, u, dtScale, now, w, h, spawnSupplyNodeFn) {
+      // 1. Check Transitions (Warning -> Spawn Boss; Cleared -> Advance Round!)
+      if (state.roundPhase === 'warning' && now >= (state.bossWarningUntil || 0)) {
+        this.spawnBoss(state.currentRound, now, w, h, false);
+      } else if (state.roundPhase === 'cleared' && now >= (state.nextRoundAt || 0)) {
+        state.currentRound++;
+        state.currentWave = Math.min(10, state.currentRound);
+        const nextSpec = this.getSpec(state.currentRound, state.catcherType);
+        state.roundPhase = 'gauntlet';
+        state.roundNodesCaught = 0;
+        state.roundQuota = nextSpec.quota;
+        state.boss = null;
+        state.roundBanner = {
+          title: `ROUND ${nextSpec.round} · ${nextSpec.name} SECTOR`,
+          sub: `Difficulty Escalated! Catch ${nextSpec.quota} Good Nodes to Challenge Boss (${nextSpec.maxHp} HP)`,
+          color: '#c084fc',
+          startTime: now,
+          duration: 2400
+        };
+        audio.playPhaseSwitch();
+        updateHeaderUI();
+      }
+
+      const boss = state.boss;
+      const coreHitR = 46 * u;
+
+      if (boss && boss.phase !== 'defeated') {
+        // Boss Movement & Entrance
+        boss.recoilY *= 0.84;
+        if (boss.phase === 'entering') {
+          const p = Math.min(1, (now - boss.enterStart) / 1450);
+          const ease = 1 - Math.pow(1 - p, 3);
+          boss.y = -140 + (boss.targetY + 140) * ease;
+          if (p >= 1) {
+            boss.phase = 'fighting';
+            boss.nextAttackAt = now + 750;
+          }
+        } else if (boss.phase === 'fighting') {
+          const speedMult = (boss.enraged ? 1.32 : 1.0) * (1 + (boss.round - 1) * 0.08);
+          boss.movePhase += 0.015 * dtScale * speedMult;
+
+          // Boss 4 Tempest Dash-Strafe Logic
+          if (boss.dashState) {
+            const ds = boss.dashState;
+            if (now < ds.telegraphEnd) {
+              // Brief pause telegraphing dash target
+            } else {
+              const dp = Math.min(1, (now - ds.telegraphEnd) / 360);
+              boss.x = ds.startX + (ds.endX - ds.startX) * (1 - Math.pow(1 - dp, 2));
+              if (dp >= 1) boss.dashState = null;
+            }
+          } else {
+            const margin = Math.max(boss.drawW * 0.52, w * 0.16);
+            const span = Math.max(40, (w - margin * 2) * 0.5);
+            boss.x = w * 0.5 + Math.sin(boss.movePhase) * span;
+            boss.y = boss.targetY + Math.sin(boss.movePhase * 1.9) * 14 + boss.recoilY;
+          }
+
+          // Update Orbiting Shield Pylons
+          if (boss.pylons && boss.pylons.length > 0) {
+            const pSpin = (boss.enraged ? 0.026 : 0.018) * dtScale;
+            for (let i = 0; i < boss.pylons.length; i++) {
+              const pyl = boss.pylons[i];
+              if (pyl.hp <= 0) continue;
+              pyl.angle += pSpin;
+              pyl.x = boss.x + Math.cos(pyl.angle) * pyl.orbitR;
+              pyl.y = boss.y + Math.sin(pyl.angle) * (pyl.orbitR * 0.58);
+            }
+          }
+
+          // Periodic Boss-Phase Good-Node Ammo Supply Drops (Keeps Catch-to-Reload Loop Alive!)
+          if (now >= boss.nextSupplyAt && typeof spawnSupplyNodeFn === 'function') {
+            boss.nextSupplyAt = now + (state.coreAmmo < 18 ? 1900 : 3200);
+            spawnSupplyNodeFn(boss.x);
+          }
+
+          // Execute Round-Specific Boss Attack Choreography
+          if (now >= boss.nextAttackAt) {
+            this._executeBossAttack(boss, cx, cy, now, w, h);
+          }
+        }
+
+        // ─── RENDER BOSS BODY & EFFECTS ───
+        const bSpr = LayeredT4Assets.bosses[boss.bossId];
+        const bLoaded = LayeredT4Assets.loaded.bosses[boss.bossId];
+        ctx.save();
+        ctx.translate(boss.x, boss.y);
+
+        // Ambient Boss Aura Glow (Pre-baked GPU Sprite!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const auraSpr = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : (boss.bossId === 5 ? 'amber' : 'crimson'));
+        const aR = boss.drawW * (boss.enraged ? 0.72 : 0.60);
+        ctx.globalAlpha = boss.enraged ? (0.58 + 0.14 * Math.sin(now * 0.012)) : 0.42;
+        ctx.drawImage(auraSpr, -aR, -aR * 0.78, aR * 2, aR * 1.56);
+        ctx.restore();
+
+        // Armor Break Stagger Ring
+        if (boss.armorBreakUntil && now < boss.armorBreakUntil) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
+          ctx.lineWidth = 3;
+          ctx.setLineDash([10, 8]);
+          ctx.beginPath();
+          ctx.arc(0, 0, boss.hitR * 1.15, now * 0.006, now * 0.006 + Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Boss 4 Ghost Dash Telegraph Marker
+        if (boss.dashState && now < boss.dashState.telegraphEnd) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.strokeStyle = 'rgba(249, 115, 22, 0.75)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 6]);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(boss.dashState.endX - boss.x, 0);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(boss.dashState.endX - boss.x, 0, 26, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Draw High-Fidelity Bespoke Boss Sprite
+        const breath = 1.0 + Math.sin(now * 0.0042) * 0.022;
+        if (bSpr && bLoaded && bSpr.naturalWidth > 0) {
+          const aspect = bSpr.naturalHeight / bSpr.naturalWidth;
+          const dw = boss.drawW * breath;
+          const dh = dw * aspect;
+          const bank = Math.sin(boss.movePhase) * 0.045;
+          ctx.rotate(bank);
+          ctx.drawImage(bSpr, -dw * 0.5, -dh * 0.5, dw, dh);
+
+          // Crisp Zero-Lag Hit-Flash Overlay (Additive second pass for 68ms!)
+          if (now < boss.hitFlashUntil) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = 0.72;
+            ctx.drawImage(bSpr, -dw * 0.5, -dh * 0.5, dw, dh);
+            ctx.restore();
+          }
+        } else {
+          ctx.fillStyle = '#991b1b';
+          ctx.beginPath();
+          ctx.arc(0, 0, boss.hitR * 0.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Render Orbiting Destructible Shield Pylons
+        if (boss.pylons && boss.pylons.length > 0) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          for (let i = 0; i < boss.pylons.length; i++) {
+            const pyl = boss.pylons[i];
+            if (pyl.hp <= 0) continue;
+            // Energy tether to Boss
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+            ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.moveTo(boss.x, boss.y);
+            ctx.lineTo(pyl.x, pyl.y);
+            ctx.stroke();
+
+            // Hexagonal Shield Pylon Node
+            const pGlow = QuantumRenderer._getGlowSprite(now < pyl.hitFlashUntil ? 'gold' : 'cyan');
+            ctx.drawImage(pGlow, pyl.x - 24, pyl.y - 24, 48, 48);
+            ctx.fillStyle = now < pyl.hitFlashUntil ? '#ffffff' : '#0f172a';
+            ctx.strokeStyle = now < pyl.hitFlashUntil ? '#fde047' : '#38bdf8';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            for (let k = 0; k < 6; k++) {
+              const a = (k * Math.PI) / 3 + now * 0.003;
+              const px = pyl.x + Math.cos(a) * 15;
+              const py = pyl.y + Math.sin(a) * 15;
+              if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Tiny Pylon HP Bar
+            const frac = Math.max(0, pyl.hp / pyl.maxHp);
+            ctx.fillStyle = 'rgba(15,23,42,0.85)';
+            ctx.fillRect(pyl.x - 14, pyl.y - 24, 28, 3.5);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(pyl.x - 14, pyl.y - 24, 28 * frac, 3.5);
+          }
+          ctx.restore();
+        }
+      }
+
+      // 2. Update & Render Telegraphed Boss Laser Beams
+      if (state.bossBeams && state.bossBeams.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossBeams.length - 1; i >= 0; i--) {
+          const bm = state.bossBeams[i];
+          if (now >= bm.endAt) {
+            state.bossBeams.splice(i, 1);
+            continue;
+          }
+          if (boss && bm.followBoss) {
+            bm.x = boss.x + (bm.offsetX || 0);
+            bm.y = boss.y + 22;
+          }
+          const isFiring = now >= bm.fireAt;
+          const x2 = bm.x + Math.sin(bm.angle || 0) * (h + 100);
+          const y2 = bm.y + Math.cos(bm.angle || 0) * (h + 100);
+
+          if (!isFiring) {
+            // Clear 1.0s Dashed Warning Telegraph Sightline (Zero Cheap Hits!)
+            const prog = Math.min(1, (now - bm.startAt) / Math.max(1, bm.fireAt - bm.startAt));
+            ctx.strokeStyle = `rgba(244, 63, 94, ${0.32 + 0.52 * prog})`;
+            ctx.lineWidth = 1.6 + prog * 1.4;
+            ctx.setLineDash([10, 8]);
+            ctx.beginPath();
+            ctx.moveTo(bm.x, bm.y);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          } else {
+            // Blazing Active Beam Lance!
+            const halfW = bm.width || 16;
+            ctx.strokeStyle = bm.color || 'rgba(244, 63, 94, 0.82)';
+            ctx.lineWidth = halfW * 2;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(bm.x, bm.y);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = halfW * 0.65;
+            ctx.stroke();
+
+            // Distance from Player Core to Beam Line Segment
+            const ldx = x2 - bm.x;
+            const ldy = y2 - bm.y;
+            const lenSq = ldx * ldx + ldy * ldy || 1;
+            const tProj = Math.max(0, Math.min(1, ((cx - bm.x) * ldx + (cy - bm.y) * ldy) / lenSq));
+            const closestX = bm.x + tProj * ldx;
+            const closestY = bm.y + tProj * ldy;
+            const distBeam = Math.hypot(cx - closestX, cy - closestY);
+            if (distBeam < coreHitR * 0.72 + halfW) {
+              this._onPlayerHitByBoss(cx, cy, now);
+            }
+          }
+        }
+        ctx.restore();
+      }
+
+      // 3. Update & Render Boss Projectiles (Pure GPU Blit — Zero Lag!)
+      if (state.bossBullets && state.bossBullets.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossBullets.length - 1; i >= 0; i--) {
+          const b = state.bossBullets[i];
+          b.x += b.vx * dtScale;
+          b.y += b.vy * dtScale;
+          if (b.y > h + 40 || b.y < -60 || b.x < -50 || b.x > w + 50) {
+            state.bossBullets.splice(i, 1);
+            continue;
+          }
+
+          const spr = QuantumRenderer._getGlowSprite(b.glowKey || 'crimson');
+          const r = b.r || 9;
+          ctx.drawImage(spr, b.x - r * 2.1, b.y - r * 2.1, r * 4.2, r * 4.2);
+          ctx.fillStyle = b.coreColor || '#ffe4e6';
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, r * 0.58, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Player Collision Check
+          const dist = Math.hypot(cx - b.x, cy - b.y);
+          if (dist < coreHitR * 0.75 + r) {
+            state.bossBullets.splice(i, 1);
+            this._onPlayerHitByBoss(cx, cy, now);
+          }
+        }
+        ctx.restore();
+      }
+
+      // 4. Update & Render Boss Shock-Rings (Victory Supernova & EMP Rings)
+      if (state.bossShockRings && state.bossShockRings.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossShockRings.length - 1; i >= 0; i--) {
+          const sr = state.bossShockRings[i];
+          sr.r += (sr.speed || 7.5) * dtScale;
+          sr.alpha = Math.max(0, 1 - sr.r / sr.maxR);
+          if (sr.alpha <= 0.02) {
+            state.bossShockRings.splice(i, 1);
+            continue;
+          }
+          ctx.strokeStyle = sr.color || '#f43f5e';
+          ctx.globalAlpha = sr.alpha * 0.85;
+          ctx.lineWidth = sr.harmless ? 5 : 3;
+          ctx.beginPath();
+          ctx.arc(sr.x, sr.y, sr.r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // 5. Update & Render Crisp GPU Hit Sparks
+      if (state.bossHitSparks && state.bossHitSparks.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossHitSparks.length - 1; i >= 0; i--) {
+          const sp = state.bossHitSparks[i];
+          sp.x += sp.vx * dtScale;
+          sp.y += sp.vy * dtScale;
+          sp.vx *= 0.94;
+          sp.vy *= 0.94;
+          sp.life += dtScale;
+          if (sp.life >= sp.maxLife) {
+            state.bossHitSparks.splice(i, 1);
+            continue;
+          }
+          ctx.globalAlpha = 1 - sp.life / sp.maxLife;
+          ctx.fillStyle = sp.color;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.size * (1 - sp.life / sp.maxLife * 0.5), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 6. Render On-Canvas Telemetry HUD (Round Progress Bar / Boss HP Bar / Banners)
+      this._drawArenaOverlays(ctx, w, h, now);
+    },
+
+    _executeBossAttack(boss, cx, cy, now, w, h) {
+      boss.attackStep++;
+      const enr = boss.enraged;
+      const spdScale = 1 + (boss.round - 1) * 0.08 + (enr ? 0.14 : 0);
+      const aimAng = Math.atan2(cy - boss.y, cx - boss.x);
+      const pushBullet = (x, y, ang, spd, r, glowKey, coreColor) => {
+        if (state.bossBullets.length >= 90) return;
+        state.bossBullets.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          r: r || 8.5,
+          glowKey: glowKey || 'crimson',
+          coreColor: coreColor || '#ffe4e6'
+        });
+      };
+
+      if (boss.bossId === 1) {
+        // ROUND 1: AEGIS SENTINEL — Aimed 3-way (P1) -> 5-way (P2) + telegraphed center beam!
+        const count = enr ? 5 : 3;
+        const spread = enr ? 0.22 : 0.26;
+        for (let k = 0; k < count; k++) {
+          const a = aimAng + (k - (count - 1) / 2) * spread;
+          pushBullet(boss.x, boss.y + 28, a, 5.2 * spdScale, 9, 'crimson', '#fecdd3');
+        }
+        if (enr && boss.attackStep % 2 === 0) {
+          state.bossBeams.push({
+            x: boss.x, y: boss.y + 24, offsetX: 0, angle: 0, width: 15, followBoss: true,
+            color: 'rgba(244, 63, 94, 0.78)', startAt: now, fireAt: now + 950, endAt: now + 1550
+          });
+        }
+        boss.nextAttackAt = now + (enr ? 1450 : 1850);
+
+      } else if (boss.bossId === 2) {
+        // ROUND 2: CORRUPTOR PRISM SOVEREIGN — Twin/Triple Telegraphed Crimson Beam Lances + Flank Darts!
+        if (boss.attackStep % 2 === 1) {
+          const offsets = enr ? [-64, 0, 64] : [-52, 52];
+          offsets.forEach((ox) => {
+            state.bossBeams.push({
+              x: boss.x + ox, y: boss.y + 28, offsetX: ox, angle: 0, width: 14, followBoss: true,
+              color: 'rgba(232, 121, 249, 0.80)', startAt: now, fireAt: now + 1000, endAt: now + 1650
+            });
+          });
+        } else {
+          for (let side = -1; side <= 1; side += 2) {
+            const ox = boss.x + side * 56;
+            const ang = Math.atan2(cy - boss.y, cx - ox);
+            pushBullet(ox, boss.y + 22, ang - 0.14, 5.8 * spdScale, 8.5, 'crimson', '#f5d0fe');
+            pushBullet(ox, boss.y + 22, ang + 0.14, 5.8 * spdScale, 8.5, 'crimson', '#f5d0fe');
+          }
+        }
+        boss.nextAttackAt = now + (enr ? 1450 : 1750);
+
+      } else if (boss.bossId === 3) {
+        // ROUND 3: SINGULARITY LEVIATHAN — Rotating Spiral Curtain + Gravity Ring Pulse!
+        const spokes = enr ? 10 : 8;
+        boss.spiralAngle += 0.38;
+        for (let s = 0; s < spokes; s++) {
+          const a = boss.spiralAngle + (s * Math.PI * 2) / spokes;
+          pushBullet(boss.x, boss.y, a, 4.4 * spdScale, 8.5, (s % 2 === 0) ? 'amber' : 'crimson', '#fef08a');
+        }
+        if (boss.attackStep % 3 === 0) {
+          state.bossShockRings.push({ x: boss.x, y: boss.y, r: 22, maxR: 260, alpha: 0.9, speed: 5.5, color: '#a855f7', harmless: true });
+        }
+        boss.nextAttackAt = now + (enr ? 1150 : 1450);
+
+      } else if (boss.bossId === 4) {
+        // ROUND 4: TEMPEST ARCH-HYDRA — Telegraphed Ghost-Dash Strafe + Tri-Turbine Volleys!
+        if (boss.attackStep % 3 === 0 && !boss.dashState) {
+          const targetX = (boss.x < w * 0.5) ? (w * 0.76) : (w * 0.24);
+          boss.dashState = { startX: boss.x, endX: targetX, telegraphEnd: now + 520 };
+        }
+        const guns = [-68, 0, 68];
+        guns.forEach((gx) => {
+          const sx = boss.x + gx;
+          const a = Math.atan2(cy - boss.y, cx - sx);
+          pushBullet(sx, boss.y + 20, a, 6.2 * spdScale, 8.5, 'amber', '#fef08a');
+          if (enr) {
+            pushBullet(sx, boss.y + 20, a + 0.24, 5.4 * spdScale, 8, 'crimson', '#fed7aa');
+            pushBullet(sx, boss.y + 20, a - 0.24, 5.4 * spdScale, 8, 'crimson', '#fed7aa');
+          }
+        });
+        boss.nextAttackAt = now + (enr ? 1200 : 1500);
+
+      } else {
+        // ROUND 5+: OMEGA ANTICORE · FALLEN CHROME ARCHON — 3-Phase Grand Finale!
+        const pat = boss.attackStep % 3;
+        if (pat === 0) {
+          const count = boss.finalEclipse ? 7 : 5;
+          for (let k = 0; k < count; k++) {
+            const a = aimAng + (k - (count - 1) / 2) * 0.21;
+            pushBullet(boss.x, boss.y + 26, a, 5.6 * spdScale, 9, 'amber', '#fef08a');
+          }
+        } else if (pat === 1) {
+          const offs = boss.finalEclipse ? [-92, 0, 92] : [-72, 72];
+          offs.forEach((ox) => {
+            state.bossBeams.push({
+              x: boss.x + ox, y: boss.y + 26, offsetX: ox, angle: 0, width: 15, followBoss: true,
+              color: 'rgba(249, 115, 22, 0.82)', startAt: now, fireAt: now + 950, endAt: now + 1580
+            });
+          });
+        } else {
+          const spokes = boss.finalEclipse ? 12 : 8;
+          boss.spiralAngle += 0.42;
+          for (let s = 0; s < spokes; s++) {
+            const a = boss.spiralAngle + (s * Math.PI * 2) / spokes;
+            pushBullet(boss.x, boss.y, a, 4.7 * spdScale, 8.5, (s % 2 === 0) ? 'amber' : 'crimson', '#fde047');
+          }
+        }
+        boss.nextAttackAt = now + (boss.finalEclipse ? 1050 : (enr ? 1220 : 1480));
+      }
+    },
+
+    _onPlayerHitByBoss(cx, cy, now) {
+      if (state.hasBuff('shield', now)) {
+        state.score += 150;
+        CoreKinematics.triggerShieldDeflect(cx, cy, now);
+        audio.playPerfectCatch(state.combo);
+        return;
+      }
+      if (state.playerInvulnUntil && now < state.playerInvulnUntil) return;
+      state.playerInvulnUntil = now + 1350;
+
+      if (state.coreTier > 1) {
+        state.coreTier--;
+        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+        state.combo = tierFloorCombo[state.coreTier] || 0;
+      } else {
+        state.coreTier = 1;
+        state.combo = 0;
+      }
+      state.reflexLives--;
+      state.consecutivePerfects = 0;
+      audio.playHazardExplosion();
+      renderReflexShields();
+      state.floatingTexts.push({
+        x: cx, y: cy - 36,
+        text: '⚠ HULL BREACH! -1 SHIELD',
+        color: '#f43f5e',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+
+      if (state.reflexLives <= 0) {
+        const gameNames = { dynamo: 'CHROME DYNAMO', realm: 'CHROME DYNAMO', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
+        handleGameOver('SHIELDS DEPLETED', `${gameNames[state.gameType]} fell in Round ${state.currentRound}. Final Score: ${state.score.toLocaleString()} points.`);
+      }
+    },
+
+    _drawArenaOverlays(ctx, w, h, now) {
+      const boss = state.boss;
+      ctx.save();
+
+      // A. GAUNTLET PHASE: Sleek Minimal Round Progress Bar at Top-Center
+      if (state.roundPhase === 'gauntlet' && state.roundQuota > 0) {
+        const bw = Math.min(280, w * 0.36);
+        const bx = (w - bw) * 0.5;
+        const by = 14;
+        const pct = Math.min(1, (state.roundNodesCaught || 0) / state.roundQuota);
+
+        ctx.fillStyle = 'rgba(8, 12, 26, 0.72)';
+        ctx.strokeStyle = 'rgba(139, 92, 246, 0.42)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(bx, by, bw, 22, 11); else ctx.rect(bx, by, bw, 22);
+        ctx.fill();
+        ctx.stroke();
+
+        // Fill bar
+        const fillW = Math.max(0, (bw - 6) * pct);
+        if (fillW > 2) {
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx + 3, by + 3, fillW, 16, 8); else ctx.rect(bx + 3, by + 3, fillW, 16);
+          ctx.fill();
+        }
+        ctx.font = '800 10.5px "Lexend", sans-serif';
+        ctx.fillStyle = '#e2e8f0';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`ROUND ${state.currentRound} · ${state.roundNodesCaught || 0}/${state.roundQuota} TO BOSS`, w * 0.5, by + 11.5);
+      }
+
+      // B. BOSS FIGHT PHASE: Luxury Segmented Boss Health Bar + Phase Markers (Zero HUD Collision on All Viewports!)
+      if (boss && boss.phase !== 'defeated') {
+        const bw = Math.min(390, w * 0.44);
+        const bx = (w - bw) * 0.5;
+        const by = (w < 1220) ? 46 : 12;
+        const bh = 16;
+        const hpFrac = Math.max(0, Math.min(1, boss.hp / boss.maxHp));
+        const isBroken = boss.armorBreakUntil && now < boss.armorBreakUntil;
+
+        // Title + Live Shot Counter Row
+        ctx.font = '800 11px "Lexend", sans-serif';
+        ctx.fillStyle = isBroken ? '#fde047' : '#f8fafc';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`ROUND ${boss.round} BOSS · ${boss.name}${boss.enraged ? ' [ENRAGED]' : ''}`, bx, by + 11);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#fda4af';
+        ctx.fillText(`${Math.ceil(boss.hp)} / ${boss.maxHp} HP`, bx + bw, by + 11);
+
+        // Bar Track
+        const barY = by + 15;
+        ctx.fillStyle = 'rgba(10, 12, 24, 0.88)';
+        ctx.strokeStyle = isBroken ? '#fde047' : 'rgba(244, 63, 94, 0.72)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(bx, barY, bw, bh, 8); else ctx.rect(bx, barY, bw, bh);
+        ctx.fill();
+        ctx.stroke();
+
+        // HP Fill
+        const fillW = Math.max(0, (bw - 4) * hpFrac);
+        if (fillW > 2) {
+          ctx.fillStyle = isBroken ? '#facc15' : (boss.enraged ? '#ef4444' : '#f43f5e');
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx + 2, barY + 2, fillW, bh - 4, 6); else ctx.rect(bx + 2, barY + 2, fillW, bh - 4);
+          ctx.fill();
+          // Gloss highlight strip
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+          ctx.fillRect(bx + 4, barY + 3, Math.max(0, fillW - 4), 4);
+        }
+
+        // Phase 2 Enrage Notch (50%) & Phase 3 Notch (33% for R5)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.fillRect(bx + bw * 0.50, barY + 1, 2, bh - 2);
+        if (boss.bossId === 5) ctx.fillRect(bx + bw * 0.33, barY + 1, 2, bh - 2);
+
+        // Compact Control Hint right below Boss Bar
+        ctx.font = '700 10px "Lexend", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        if (state.coreAmmo <= 0) {
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('⚡ AMMO EMPTY — CATCH FALLING GOOD NODES TO RELOAD!', w * 0.5, barY + bh + 5);
+        } else if (!state.offenseMode && !state.pointerFiring) {
+          ctx.fillStyle = '#7dd3fc';
+          ctx.fillText(`🔫 ${state.coreAmmo} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS!`, w * 0.5, barY + bh + 5);
+        } else {
+          ctx.fillStyle = '#fde68a';
+          ctx.fillText(`🔥 OFFENSE CANNON ACTIVE · ${state.coreAmmo} SHOTS REMAINING`, w * 0.5, barY + bh + 5);
+        }
+      }
+
+      // C. DRAMATIC ROUND / WARNING / VICTORY TELEMETRY BANNER
+      if (state.roundBanner) {
+        const bn = state.roundBanner;
+        const elapsed = now - bn.startTime;
+        if (elapsed >= bn.duration) {
+          state.roundBanner = null;
+        } else {
+          const fadeIn = Math.min(1, elapsed / 260);
+          const fadeOut = Math.min(1, (bn.duration - elapsed) / 360);
+          const alpha = fadeIn * fadeOut;
+          const bannerY = h * 0.36;
+          const bw = Math.min(540, w * 0.86);
+          const bx = (w - bw) * 0.5;
+
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = 'rgba(6, 10, 24, 0.88)';
+          ctx.strokeStyle = bn.color || '#38bdf8';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx, bannerY - 34, bw, 68, 14); else ctx.rect(bx, bannerY - 34, bw, 68);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.font = '900 19px "Lexend", sans-serif';
+          ctx.fillStyle = bn.color || '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(bn.title, w * 0.5, bannerY - 8);
+
+          ctx.font = '600 11.5px "Lexend", sans-serif';
+          ctx.fillStyle = '#e2e8f0';
+          ctx.fillText(bn.sub, w * 0.5, bannerY + 16);
+        }
+      }
+      ctx.restore();
+    }
+  };
+
   // --- Main Application State ---
   const state = {
     currentWave: 1,
+    currentRound: 1,
+    roundPhase: 'gauntlet',
+    roundNodesCaught: 0,
+    roundQuota: 18,
+    coreAmmo: 12,
+    maxCoreAmmo: 150,
+    offenseMode: false,
+    pointerFiring: false,
+    lastShotTime: 0,
+    shotCounter: 0,
+    muzzleFlashUntil: 0,
+    playerInvulnUntil: 0,
+    boss: null,
+    bossBullets: [],
+    bossBeams: [],
+    bossShockRings: [],
+    playerShots: [],
+    bossHitSparks: [],
+    roundBanner: null,
     active: false,
     gameType: 'math',
     score: 0,
@@ -5714,6 +7161,10 @@
       pulsePill: document.getElementById('cgPulsePill'),
       buffVal: document.getElementById('cgBuffVal') || document.getElementById('cgPhaseVal'),
       buffPill: document.getElementById('cgBuffPill') || document.getElementById('cgPhasePill'),
+      roundPill: document.getElementById('cgRoundPill'),
+      roundVal: document.getElementById('cgRoundVal'),
+      offensePill: document.getElementById('cgOffensePill'),
+      offenseVal: document.getElementById('cgOffenseVal'),
       scoreVal: document.getElementById('cgScoreVal'),
       comboVal: document.getElementById('cgComboVal'),
       bestVal: document.getElementById('cgBestVal'),
@@ -5826,18 +7277,18 @@
     if (state.gameType === 'dynamo' || state.gameType === 'realm') {
       nextTitle = state.coreTier === 5 ? 'CHROME DYNAMO · SERAPHIC ARCHON' : 'CHROME DYNAMO';
       nextSub = state.coreTier === 5
-        ? `⭐ Tier V Supreme Ascendant · Faraday Singularity Core · Tachyon Satellites · Wave ${state.currentWave}`
-        : `Faraday Singularity Core · Plasma Orbs · Tesla Wavepacket Hull · Wave ${state.currentWave}`;
+        ? `⭐ Tier V Supreme Ascendant · Faraday Rail-Arc Core · Round ${state.currentRound || 1}`
+        : `Faraday Singularity Core · Plasma Orbs · Offense Cannon [F] · Round ${state.currentRound || 1}`;
     } else if (state.gameType === 'helix') {
       nextTitle = state.coreTier === 5 ? 'CHROME HELIX · PRISM ARCHON' : 'CHROME HELIX';
       nextSub = state.coreTier === 5
-        ? `⭐ Tier V Supreme Ascendant · Harmonic Bio-Lattice Core · Prismatic Refraction Rays · Wave ${state.currentWave}`
-        : `Harmonic Bio-Lattice Core · Nucleotide Pearls · 3D Aurora Ribbon · Wave ${state.currentWave}`;
+        ? `⭐ Tier V Supreme Ascendant · Twin-Helix Photonic Lance · Round ${state.currentRound || 1}`
+        : `Harmonic Bio-Lattice Core · Nucleotide Pearls · Offense Cannon [F] · Round ${state.currentRound || 1}`;
     } else if (state.gameType === 'meteor') {
       nextTitle = state.coreTier === 5 ? 'CHROME METEOR · MAGNETAR SERAPH' : 'CHROME METEOR';
       nextSub = state.coreTier === 5
-        ? `⭐ Tier V Supreme Ascendant · Aegis Caldera Core · Coronal Solar Flares · Wave ${state.currentWave}`
-        : `Aegis Caldera Core · Molten Bolides · Supersonic Combustion Trail · Wave ${state.currentWave}`;
+        ? `⭐ Tier V Supreme Ascendant · Solar Mass-Driver Core · Round ${state.currentRound || 1}`
+        : `Aegis Caldera Core · Molten Bolides · Offense Cannon [F] · Round ${state.currentRound || 1}`;
     } else if (state.gameType === 'reflex') {
       nextTitle = 'REFLEX BLITZ';
       nextSub = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
@@ -5864,6 +7315,34 @@
     if (dom.bestVal && c.bestRaw !== bestRaw) {
       c.bestRaw = bestRaw;
       dom.bestVal.textContent = bestRaw.toLocaleString();
+    }
+
+    // Round Progression & Chrome Core Offense Cannon Pills (Memoized — Zero DOM Churn!)
+    const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+    if (dom.roundPill) {
+      const showR = isCoreArcade ? '' : 'none';
+      if (c.roundDisp !== showR) { c.roundDisp = showR; dom.roundPill.style.display = showR; }
+      const isBossAlert = (state.roundPhase === 'warning' || state.roundPhase === 'boss');
+      if (c.roundAlert !== isBossAlert) {
+        c.roundAlert = isBossAlert;
+        dom.roundPill.classList.toggle('boss-alert', isBossAlert);
+      }
+      const rTxt = isBossAlert ? `R${state.currentRound || 1} BOSS` : `R${state.currentRound || 1}`;
+      setText('roundTxt', dom.roundVal, rTxt);
+      setColor('roundCol', dom.roundVal, isBossAlert ? '#fda4af' : '#c084fc');
+    }
+    if (dom.offensePill) {
+      const showO = isCoreArcade ? '' : 'none';
+      if (c.offDisp !== showO) { c.offDisp = showO; dom.offensePill.style.display = showO; }
+      const isActive = !!(state.offenseMode || state.pointerFiring);
+      if (c.offAct !== isActive) {
+        c.offAct = isActive;
+        dom.offensePill.classList.toggle('offense-active', isActive);
+      }
+      const ammoCnt = state.coreAmmo || 0;
+      const oTxt = isActive ? `🔥 ${ammoCnt}` : `${ammoCnt}`;
+      setText('offTxt', dom.offenseVal, oTxt);
+      setColor('offCol', dom.offenseVal, isActive ? '#fde047' : (ammoCnt > 0 ? '#38bdf8' : '#64748b'));
     }
 
     // Advanced HUD: Tier, Pulse & Phase
@@ -6154,6 +7633,8 @@
     } else {
       state.catcherType = 'dynamo';
     }
+    RoundBossEngine.reset(performance.now());
+    state._testedBoss = false;
 
     const picker = document.getElementById('reflexMultiplePicker');
     const badge = document.getElementById('transmuteIndicator');
@@ -6676,39 +8157,46 @@
       function spawnNode(baseSpeed) {
         let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
 
-        // Tuned Dynamic Speed Escalation: Capped gently at +25% max (preventing excessive difficulty)
-        const speedComboBonus = 1.0 + Math.min(0.25, (state.combo - 1) * 0.020 + (state.currentWave - 1) * 0.016);
+        // Multi-Axis Round Escalation: Smoothly intensifies speed & hazard depth every Round!
+        const rnd = state.currentRound || 1;
+        const speedComboBonus = 1.0 + Math.min(0.45, (state.combo - 1) * 0.018 + (rnd - 1) * 0.11);
         const actualSpeed = baseSpeed * normFactor * speedComboBonus;
 
-        // Balanced Hazard Spawning: Max 2 hazards from Wave 2+ (or combo >= 5) so Corruptor & Combos interact richly
-        const maxHazards = (state.currentWave >= 2 || state.combo >= 5) ? 2 : 1;
+        // Balanced Hazard Spawning: Max 2 hazards from Round 2+ (or combo >= 5), max 3 in Round 4+
+        const maxHazards = (rnd >= 4) ? 3 : ((rnd >= 2 || state.combo >= 5) ? 2 : 1);
         const currentHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
 
-        // Dynamic hazard chance tuned to a fair 15% - 22%
-        const hazardChance = Math.min(0.22, 0.15 + (state.currentWave - 1) * 0.015);
+        // Dynamic hazard chance scales cleanly with Round (16% R1 -> 26% R5+)
+        const hazardChance = Math.min(0.26, 0.16 + (rnd - 1) * 0.025);
         const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.2 && Math.random() < hazardChance);
 
         let nClass = 'standard';
 
         if (canSpawnHazard) {
-          // Balanced Hazard Ratio: 60% Regular Bad Nodes ('volatile') vs 40% Powered Feature Bad Nodes
+          // Balanced Hazard Ratio: 60% Regular Bad Nodes ('volatile') vs 40% Powered Feature Bad Nodes (Progressive Unlock Per Round!)
           const rHaz = Math.random();
           if (rHaz < 0.60) {
             nClass = 'volatile'; // Classic Normal Bad Node (60% — clearly outnumbers powered hazards)
+          } else if (rnd === 1) {
+            // Round 1 introduces Hyper-Comet & Corruptor Laser cleanly!
+            nClass = (rHaz < 0.82) ? 'hyper_comet' : 'corruptor_laser';
+          } else if (rnd === 2) {
+            // Round 2 unlocks Gravity Well alongside Hyper-Comet & Corruptor!
+            nClass = (rHaz < 0.74) ? 'hyper_comet' : (rHaz < 0.88 ? 'corruptor_laser' : 'gravity_well');
           } else if (rHaz < 0.68) {
-            nClass = 'hyper_comet'; // Feature #1: Inferno Hyper-Comet (8% — Ultra-Fast Flaming Dive!)
+            nClass = 'hyper_comet'; // Feature #1: Inferno Hyper-Comet
           } else if (rHaz < 0.76) {
-            nClass = 'corruptor_laser'; // Feature #2: Corruptor Overlord (8% — Lasers Good Nodes -> Bad Nodes!)
+            nClass = 'corruptor_laser'; // Feature #2: Corruptor Overlord
           } else if (rHaz < 0.83) {
-            nClass = 'gravity_well'; // Feature #3: Event-Horizon Singularity (7% — Black Hole Orbital Pull)
+            nClass = 'gravity_well'; // Feature #3: Event-Horizon Singularity
           } else if (rHaz < 0.90) {
-            nClass = 'emp_detonator'; // Feature #4: Overload EMP Shock-Mine (7% — Expanding Volumetric EMP Dome)
+            nClass = 'emp_detonator'; // Feature #4: Overload EMP Shock-Mine
           } else if (rHaz < 0.96) {
-            nClass = 'phase_stalker'; // Feature #5: Quantum Blink Stalker (6% — Telegraphed Wormhole Teleport)
+            nClass = 'phase_stalker'; // Feature #5: Quantum Blink Stalker
           } else if (rHaz < 0.98) {
-            nClass = 'seeker'; // Orbital Homing Harbinger (2% — tracks player)
+            nClass = 'seeker';
           } else {
-            nClass = 'fragmentation'; // Fragmentation Bolide (2% — splits into 3 molten shards)
+            nClass = 'fragmentation';
           }
           if (!state._hazardStats) state._hazardStats = { regular: 0, powered: 0, byClass: {} };
           if (nClass === 'volatile') state._hazardStats.regular++;
@@ -6867,8 +8355,54 @@
         }
       }
 
-      if (shouldSpawn) {
+      // Boss-Phase Flank Ammo Supply Dropper (Guarantees Player Can Always Catch Good Nodes to Reload!)
+      function spawnBossSupplyNode(bossX) {
+        const pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
+        const leftSpace = bossX > w * 0.5;
+        const laneX = leftSpace
+          ? (w * 0.14 + Math.random() * (w * 0.24))
+          : (w * 0.62 + Math.random() * (w * 0.24));
+        const rPow = Math.random();
+        let supClass = 'standard';
+        if (state.reflexLives <= 1 && rPow < 0.14) supClass = 'catalyst';
+        else if (rPow < 0.08) supClass = 'shield';
+        else if (rPow < 0.15) supClass = 'missiles';
+        else if (rPow < 0.21) supClass = 'supercharge';
+        const headR = supClass === 'standard' ? 26 : 30;
+        const sp = [];
+        for (let j = 0; j < 6; j++) sp.push({ x: laneX, y: -30 - j * 8 });
+        state.particles.push({
+          type: pType,
+          nodeClass: supClass,
+          x: laneX,
+          y: -30,
+          vx: 0,
+          speed: 2.35 * normFactor,
+          headR: headR,
+          spine: sp,
+          stardust: [],
+          animPhase: Math.random() * Math.PI * 2,
+          tumbleDir: Math.random() < 0.5 ? 1 : -1
+        });
+      }
+
+      if (shouldSpawn && state.roundPhase === 'gauntlet') {
         spawnNode(nextBaseSpeed);
+      }
+
+      // TEST HARNESS: DIRECT BOSS SHOWDOWN (?test_boss=1 .. ?test_boss=5)
+      if (window.location.search.includes('test_boss=')) {
+        if (!state._testedBoss) {
+          state._testedBoss = true;
+          const mBoss = window.location.search.match(/test_boss=(\d+)/);
+          const bRound = mBoss ? Math.max(1, Math.min(5, parseInt(mBoss[1], 10) || 1)) : 1;
+          state.currentRound = bRound;
+          state.coreAmmo = 72;
+          state.offenseMode = true;
+          state.roundBanner = null;
+          RoundBossEngine.spawnBoss(bRound, now, w, h, true);
+          spawnBossSupplyNode(w * 0.5);
+        }
       }
 
       // Check if any non-volatile node is inside the magnetic horizon for Iris Lock-On
@@ -7063,7 +8597,8 @@
       CoreKinematics.updateAndDrawWorldStreaks(ctx, dtScale);
 
       // Render Reactive Ion Thruster Exhaust & Graze Sparks in World Coordinates
-      const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
+      const effDprLoop = cachedCanvasDpr || getRenderDpr();
+      const canvasW = ctx.canvas.width / effDprLoop;
       const isMobile = canvasW < 600;
       const drawW = isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060);
       const u = drawW / 1376.0;
@@ -7072,6 +8607,10 @@
 
       // Update & Render Live Seeking Micro-Missiles
       CoreKinematics.updateAndDrawMissiles(ctx, dtScale, now, state);
+
+      // Update & Render Round Progression, Sovereign Bosses & Chrome Core Offense Cannon!
+      RoundBossEngine.updateAndDrawPlayerWeapon(ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h);
+      RoundBossEngine.updateAndDrawBossSystem(ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h, spawnBossSupplyNode);
 
       // ─────────────────────────────────────────────────────────────
       // DRAW LAYERED CHROME CORE WITH INDEPENDENT INTERNAL ANIMATION
@@ -7168,6 +8707,23 @@
 
             // Remove node completely - does NOT grant power-ups/buffs!
             state.particles.splice(pIdx, 1);
+          }
+        }
+
+        // Smart-Bomb Synergy: Flux Pulse vaporizes Boss Bullets AND slams Active Boss for 15 Damage!
+        if (state.bossBullets && state.bossBullets.length > 0) {
+          for (let bIdx = state.bossBullets.length - 1; bIdx >= 0; bIdx--) {
+            const bb = state.bossBullets[bIdx];
+            if (Math.hypot(bb.x - fp.x, bb.y - fp.y) <= fp.radius + 24) {
+              state.bossBullets.splice(bIdx, 1);
+            }
+          }
+        }
+        if (state.boss && state.boss.phase === 'fighting' && !fp.hitBoss) {
+          const distBoss = Math.hypot(state.boss.x - fp.x, state.boss.y - fp.y);
+          if (distBoss <= fp.radius + (state.boss.hitR || 72)) {
+            fp.hitBoss = true;
+            RoundBossEngine.damageBoss(15, now, true, state.boss.x, state.boss.y);
           }
         }
 
@@ -8184,6 +9740,8 @@
           const basePoints = 300;
           const finalCatchPoints = Math.floor(basePoints * state.combo * precisionMultiplier * classMultiplier * clusterBonus);
           state.score += finalCatchPoints;
+          // Load Accumulated Good-Node Ammo into Chrome Core Offense Cannon & Advance Round Quota!
+          RoundBossEngine.onGoodNodeCaught(p.nodeClass, isPerfect, now, w);
           const prevCombo = state.combo;
           state.combo = Math.min(50, state.combo + 1);
           if (prevCombo < 21 && state.combo >= 21) {
@@ -8731,6 +10289,10 @@
     }
 
     if (dom.pulsePill) dom.pulsePill.onclick = () => triggerFluxPulse(false);
+    if (dom.offensePill) dom.offensePill.onclick = (e) => {
+      e.stopPropagation();
+      RoundBossEngine.toggleOffense(performance.now());
+    };
     window.triggerFluxPulse = (force = false) => triggerFluxPulse(force);
     if (window.ReflexArcade) window.ReflexArcade.triggerPulse = (force = false) => triggerFluxPulse(force);
 
@@ -8753,12 +10315,15 @@
       tierPillEl.onclick = cycleCoreTier;
     }
 
-    // Keyboard bindings for Flux Pulse (Space) and Tier Cycle (T)
+    // Keyboard bindings for Flux Pulse (Space), Offense Cannon Toggle (F / E), and Tier Cycle (T)
     window.addEventListener('keydown', (e) => {
       if (!state.active) return;
       if (e.code === 'Space') {
         e.preventDefault();
         triggerFluxPulse();
+      } else if (e.key === 'f' || e.key === 'F' || e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        RoundBossEngine.toggleOffense(performance.now());
       } else if (e.key === 't' || e.key === 'T') {
         cycleCoreTier();
       }
@@ -8905,6 +10470,15 @@
         touchGuidePos.active = false;
         targetCatcherX = coords.normX;
         targetCatcherY = coords.normY;
+        // Desktop Left-Click Hold = Instant Fire; Right-Click on Arena = Toggle Continuous Offense Mode!
+        if (dom.canvasReflex && e.target === dom.canvasReflex) {
+          if (e.button === 2) {
+            RoundBossEngine.toggleOffense(performance.now());
+          } else if (e.button === 0) {
+            state.pointerFiring = true;
+            updateHeaderUI();
+          }
+        }
       }
 
       if (e.cancelable && deviceInputMode === 'touch') e.preventDefault();
@@ -8945,7 +10519,17 @@
     const onPointerUp = (e) => {
       isPointerDown = false;
       touchGuidePos.active = false;
+      if (state.pointerFiring) {
+        state.pointerFiring = false;
+        updateHeaderUI();
+      }
     };
+
+    if (dom.canvasReflex) {
+      dom.canvasReflex.addEventListener('contextmenu', (e) => {
+        if (state.active) e.preventDefault();
+      });
+    }
 
     window.addEventListener('pointerdown', onPointerDown, { passive: false });
     window.addEventListener('pointermove', onPointerMove, { passive: false });
@@ -9136,6 +10720,7 @@
   window.QuantumRenderer = QuantumRenderer;
   window.LayeredT4Assets = LayeredT4Assets;
   window.CoreKinematics = CoreKinematics;
+  window.RoundBossEngine = RoundBossEngine;
 })();
 
 
