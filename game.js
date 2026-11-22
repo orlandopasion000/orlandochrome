@@ -1258,6 +1258,7 @@
       meteorBlades: new Image(),
       meteorCenter: new Image()
     },
+    poweredHazard: { dynamo: {}, helix: {}, meteor: {} },
     loaded: {
       halo: { dynamo: false, helix: false, meteor: false },
       wingRight: { dynamo: false, helix: false, meteor: false },
@@ -1271,7 +1272,8 @@
         helixClean: false,
         meteorBlades: false,
         meteorCenter: false
-      }
+      },
+      poweredHazard: { dynamo: {}, helix: {}, meteor: {} }
     }
   };
 
@@ -1340,6 +1342,18 @@
 
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
   LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade374';
+
+  // Preload all 15 Bespoke Luxury Raytraced Powered Bad Chrome Core Sprites (3 Games x 5 Powered Hazards)
+  const POWERED_HAZARD_KEYS = ['hyper_comet', 'corruptor_laser', 'gravity_well', 'emp_detonator', 'phase_stalker'];
+  ['dynamo', 'helix', 'meteor'].forEach((m) => {
+    POWERED_HAZARD_KEYS.forEach((hk) => {
+      const img = new Image();
+      LayeredT4Assets.poweredHazard[m][hk] = img;
+      LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
+      img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade378`;
+    });
+  });
 
   // Helper: Identifies any hazard trap or anomaly archetype
   function isHazardNode(nodeClass) {
@@ -1788,14 +1802,22 @@
         }
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
+        const lfR = Math.max(2, lf.r);
+        const lfCol = lf.color || '#38bdf8';
+        const lfRgb = (lfCol === '#f97316') ? '249, 115, 22'
+          : (lfCol === '#22d3ee') ? '34, 211, 238'
+          : (lfCol === '#fbbf24') ? '251, 191, 36'
+          : '56, 189, 248';
+        const lfGrad = ctx.createRadialGradient(lf.x, lf.y, lfR * 0.15, lf.x, lf.y, lfR);
+        lfGrad.addColorStop(0.0, `rgba(255, 255, 255, ${lf.alpha * 0.32})`);
+        lfGrad.addColorStop(0.45, `rgba(${lfRgb}, ${lf.alpha * 0.55})`);
+        lfGrad.addColorStop(0.76, `rgba(255, 255, 255, ${lf.alpha * 0.78})`);
+        lfGrad.addColorStop(0.90, `rgba(${lfRgb}, ${lf.alpha * 0.35})`);
+        lfGrad.addColorStop(1.0, `rgba(${lfRgb}, 0)`);
+        ctx.fillStyle = lfGrad;
         ctx.beginPath();
-        ctx.arc(lf.x, lf.y, lf.r, 0, Math.PI * 2);
-        ctx.fillStyle = lf.color || 'rgba(56, 189, 248, 0.65)';
-        ctx.globalAlpha = lf.alpha * 0.70;
+        ctx.arc(lf.x, lf.y, lfR, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = `rgba(255, 255, 255, ${lf.alpha})`;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
         ctx.restore();
       }
 
@@ -4637,23 +4659,31 @@
 
       } else {
         // ─────────────────────────────────────────────────────────────
-        // RENDER HAZARD TRAPS & 5 TOP-TIER VOLUMETRIC FEATURE BAD NODES
-        // (ZERO thin wireframe lines — full 3D shaded volumetric sci-fi art!)
+        // RENDER HAZARD TRAPS & 15 BESPOKE LUXURY RAYTRACED BAD CHROME CORES
+        // (3 Games x 5 Powered Feature Hazards — ZERO thin wireframe lines!)
         // ─────────────────────────────────────────────────────────────
         const hClass = p.nodeClass;
+        const modeKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
         const isHyperComet = (hClass === 'hyper_comet' || hClass === 'plasma_flare');
         const isCorruptor = (hClass === 'corruptor_laser');
         const isGravityWell = (hClass === 'gravity_well' || hClass === 'vortex');
         const isEmpDetonator = (hClass === 'emp_detonator' || hClass === 'emp_glitch' || hClass === 'pulsar_mine');
         const isPhaseStalker = (hClass === 'phase_stalker' || hClass === 'tachyon_fracture');
 
-        if (isHyperComet) {
-          // ═══ FEATURE BAD NODE #1: INFERNO HYPER-COMET (Ultra-Fast Flaming Meteorite) ═══
-          const isCharging = (p.cometPhase === 'charging');
-          const flicker = 0.85 + 0.15 * Math.sin(now * 0.045 + animPhase * 7);
-          const diveIntensity = isCharging ? 0.55 : 1.0;
+        // Mode-Specific Luxury VFX Color Palettes matching each game's Chrome Core aesthetic
+        const mPal = (modeKey === 'meteor')
+          ? { primary: 'rgba(16, 185, 129, ', secondary: 'rgba(168, 85, 247, ', accent: 'rgba(249, 115, 22, ', hex: '#10b981' }
+          : (modeKey === 'helix'
+              ? { primary: 'rgba(225, 29, 72, ', secondary: 'rgba(251, 191, 36, ', accent: 'rgba(232, 121, 249, ', hex: '#f43f5e' }
+              : { primary: 'rgba(244, 63, 94, ', secondary: 'rgba(192, 132, 252, ', accent: 'rgba(56, 189, 248, ', hex: '#f43f5e' });
 
-          // 1. Pre-Dive Telegraph Atmospheric Heat Plume (Soft volumetric lane shimmer, zero harsh lines!)
+        if (isHyperComet) {
+          // ═══ FEATURE BAD NODE #1: INFERNO HYPER-COMET (Game-Matched Luxury Raytraced Core + Live Roaring Flames!) ═══
+          const isCharging = (p.cometPhase === 'charging');
+          const flicker = 0.86 + 0.14 * Math.sin(now * 0.045 + animPhase * 7);
+          const diveIntensity = isCharging ? 0.60 : 1.0;
+
+          // 1. Pre-Dive Telegraph Volumetric Lane Heat-Shimmer (fair 0.85s dodge telegraph!)
           if (isCharging) {
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
@@ -4672,11 +4702,10 @@
             ctx.closePath();
             ctx.fill();
 
-            // Expanding molten ignition corona rings (soft radial glow)
             const ignGrad = ctx.createRadialGradient(0, 0, targetR * 0.3, 0, 0, targetR * (2.2 + 0.35 * chargePulse));
-            ignGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.85)');
-            ignGrad.addColorStop(0.35, 'rgba(251, 146, 60, 0.55)');
-            ignGrad.addColorStop(0.7, 'rgba(239, 68, 68, 0.22)');
+            ignGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.80)');
+            ignGrad.addColorStop(0.35, 'rgba(251, 146, 60, 0.52)');
+            ignGrad.addColorStop(0.7, 'rgba(239, 68, 68, 0.20)');
             ignGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
             ctx.fillStyle = ignGrad;
             ctx.beginPath();
@@ -4685,72 +4714,110 @@
             ctx.restore();
           }
 
-          // 2. Sculpted Multi-Layer Volumetric Flame Envelope Streaming Upward
+          // 2. Realistic Multi-Layered Turbulent Plasma Fire Plume Hugging the Hyper-Comet Core
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const tailStretch = isCharging ? 1.55 : 4.25;
+          const tailStretch = isCharging ? 1.35 : 3.65;
 
-          // Outer Deep Crimson-Orange Turbulent Flame Plume (5 sculpted undulating tongues)
-          const outerTongues = [
-            { ox: 0, w: 1.25, h: 1.0, spd: 0.032, ph: 0 },
-            { ox: -0.58, w: 0.72, h: 0.78, spd: 0.041, ph: 1.4 },
-            { ox: 0.58, w: 0.72, h: 0.78, spd: 0.038, ph: 2.7 },
-            { ox: -0.92, w: 0.48, h: 0.54, spd: 0.048, ph: 4.1 },
-            { ox: 0.92, w: 0.48, h: 0.54, spd: 0.045, ph: 5.3 }
+          // 2a. Deep Atmospheric Heat Wash (scaled circle so radial gradient hits pure alpha=0 well inside bounds — ZERO oval outline!)
+          ctx.save();
+          const heatLen = targetR * (1.80 + tailStretch * 0.65);
+          ctx.translate(0, -heatLen * 0.32);
+          ctx.scale(0.58, 1.0);
+          const heatGrad = ctx.createRadialGradient(0, heatLen * 0.22, targetR * 0.25, 0, 0, heatLen);
+          heatGrad.addColorStop(0.0, `rgba(255, 224, 165, ${0.42 * diveIntensity})`);
+          heatGrad.addColorStop(0.32, `rgba(249, 115, 22, ${0.26 * diveIntensity})`);
+          heatGrad.addColorStop(0.66, `rgba(185, 28, 28, ${0.09 * diveIntensity})`);
+          heatGrad.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
+          ctx.fillStyle = heatGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, heatLen, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2b. Organic Sinuous S-Curve Flame Billows (wrapping smoothly around the sphere — zero rigid triangles!)
+          const flameLicks = [
+            { ox: 0.00, w: 1.02, h: 1.04, spd: 0.022, ph: 0.0, curl: 0.38 },
+            { ox: -0.46, w: 0.64, h: 0.84, spd: 0.028, ph: 1.3, curl: -0.46 },
+            { ox: 0.46, w: 0.64, h: 0.84, spd: 0.026, ph: 2.6, curl: 0.46 },
+            { ox: -0.82, w: 0.44, h: 0.60, spd: 0.034, ph: 4.0, curl: -0.42 },
+            { ox: 0.82, w: 0.44, h: 0.60, spd: 0.032, ph: 5.2, curl: 0.42 }
           ];
-          for (let tIdx = 0; tIdx < outerTongues.length; tIdx++) {
-            const tg = outerTongues[tIdx];
-            const sway = Math.sin(now * tg.spd + tg.ph + animPhase) * targetR * 0.24;
-            const tipY = -targetR * (1.2 + tailStretch * tg.h * (0.88 + 0.14 * Math.cos(now * tg.spd * 1.3 + tg.ph)));
+          for (let tIdx = 0; tIdx < flameLicks.length; tIdx++) {
+            const tg = flameLicks[tIdx];
+            const wave1 = Math.sin(now * tg.spd + tg.ph + animPhase);
+            const wave2 = Math.cos(now * tg.spd * 1.45 + tg.ph * 1.7 + animPhase);
+            const tipSway = (wave1 * 0.28 + wave2 * 0.14 + tg.curl * 0.25) * targetR;
+            const midSway = (-wave1 * 0.18 + tg.curl * 0.16) * targetR;
+            const tipY = -targetR * (1.05 + tailStretch * tg.h * (0.86 + 0.16 * wave2));
             const baseW = targetR * tg.w;
             const baseX = targetR * tg.ox;
 
-            const fGrad = ctx.createLinearGradient(baseX, targetR * 0.65, baseX + sway, tipY);
-            fGrad.addColorStop(0.0, `rgba(255, 237, 213, ${0.88 * diveIntensity})`);
-            fGrad.addColorStop(0.22, `rgba(251, 146, 60, ${0.82 * diveIntensity})`);
-            fGrad.addColorStop(0.58, `rgba(220, 38, 38, ${0.55 * diveIntensity})`);
+            const fGrad = ctx.createLinearGradient(baseX, targetR * 0.45, baseX + tipSway, tipY);
+            fGrad.addColorStop(0.0, `rgba(255, 245, 214, ${0.72 * diveIntensity})`);
+            fGrad.addColorStop(0.28, `rgba(251, 146, 60, ${0.68 * diveIntensity})`);
+            fGrad.addColorStop(0.62, `rgba(220, 38, 38, ${0.42 * diveIntensity})`);
             fGrad.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
 
             ctx.fillStyle = fGrad;
             ctx.beginPath();
-            ctx.moveTo(baseX - baseW, targetR * 0.25);
+            ctx.moveTo(baseX - baseW * 0.92, targetR * 0.12);
             ctx.bezierCurveTo(
-              baseX - baseW * 1.05, tipY * 0.35,
-              baseX + sway - baseW * 0.28, tipY * 0.75,
-              baseX + sway, tipY
+              baseX - baseW * 1.06 + midSway, tipY * 0.28,
+              baseX + tipSway - baseW * 0.42, tipY * 0.72,
+              baseX + tipSway, tipY
             );
             ctx.bezierCurveTo(
-              baseX + sway + baseW * 0.28, tipY * 0.75,
-              baseX + baseW * 1.05, tipY * 0.35,
-              baseX + baseW, targetR * 0.25
+              baseX + tipSway + baseW * 0.42, tipY * 0.72,
+              baseX + baseW * 1.06 + midSway, tipY * 0.28,
+              baseX + baseW * 0.92, targetR * 0.12
             );
-            ctx.quadraticCurveTo(baseX, targetR * 0.95, baseX - baseW, targetR * 0.25);
+            ctx.quadraticCurveTo(baseX, targetR * 0.78, baseX - baseW * 0.92, targetR * 0.12);
             ctx.closePath();
             ctx.fill();
           }
 
-          // Inner White-Gold Superheated Core Flame (3 tight scorching tongues)
+          // 2c. Rolling Volumetric Fire Billows Rising Off the Leading Rim (gives organic plasma turbulence)
+          for (let bIdx = 0; bIdx < 5; bIdx++) {
+            const bPhase = ((now * 0.0028 + bIdx * 0.2 + animPhase) % 1.0);
+            const bAngle = Math.sin(now * 0.008 + bIdx * 2.3 + animPhase) * 0.65;
+            const bx = Math.sin(bAngle) * targetR * (0.55 - bPhase * 0.32);
+            const by = targetR * 0.15 - bPhase * targetR * (1.35 + tailStretch * 0.68);
+            const bRad = targetR * (0.52 * (1.0 - bPhase * 0.58));
+            const bAlpha = Math.sin(bPhase * Math.PI) * 0.62 * diveIntensity;
+            const bg = ctx.createRadialGradient(bx, by, 0, bx, by, bRad);
+            bg.addColorStop(0.0, `rgba(255, 250, 225, ${bAlpha})`);
+            bg.addColorStop(0.42, `rgba(251, 146, 60, ${bAlpha * 0.85})`);
+            bg.addColorStop(0.78, `rgba(220, 38, 38, ${bAlpha * 0.38})`);
+            bg.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
+            ctx.fillStyle = bg;
+            ctx.beginPath();
+            ctx.arc(bx, by, bRad, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 2d. Inner Incandescent White-Gold Core Slipstream
           for (let k = -1; k <= 1; k++) {
-            const kSway = Math.sin(now * 0.055 + k * 2.1 + animPhase) * targetR * 0.15;
-            const kTipY = -targetR * (0.95 + tailStretch * (k === 0 ? 0.62 : 0.40));
-            const kW = targetR * (k === 0 ? 0.78 : 0.45);
-            const kX = k * targetR * 0.38;
-            const inGrad = ctx.createLinearGradient(kX, targetR * 0.5, kX + kSway, kTipY);
-            inGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
-            inGrad.addColorStop(0.32, 'rgba(254, 240, 138, 0.85)');
-            inGrad.addColorStop(0.72, 'rgba(249, 115, 22, 0.40)');
+            const kSway = Math.sin(now * 0.038 + k * 2.1 + animPhase) * targetR * 0.18;
+            const kTipY = -targetR * (0.78 + tailStretch * (k === 0 ? 0.46 : 0.30));
+            const kW = targetR * (k === 0 ? 0.68 : 0.40);
+            const kX = k * targetR * 0.32;
+            const inGrad = ctx.createLinearGradient(kX, targetR * 0.35, kX + kSway, kTipY);
+            inGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.82)');
+            inGrad.addColorStop(0.36, 'rgba(254, 240, 138, 0.72)');
+            inGrad.addColorStop(0.75, 'rgba(249, 115, 22, 0.28)');
             inGrad.addColorStop(1.0, 'rgba(249, 115, 22, 0)');
             ctx.fillStyle = inGrad;
             ctx.beginPath();
-            ctx.moveTo(kX - kW, targetR * 0.25);
-            ctx.quadraticCurveTo(kX - kW * 0.65, kTipY * 0.55, kX + kSway, kTipY);
-            ctx.quadraticCurveTo(kX + kW * 0.65, kTipY * 0.55, kX + kW, targetR * 0.25);
-            ctx.quadraticCurveTo(kX, targetR * 0.85, kX - kW, targetR * 0.25);
+            ctx.moveTo(kX - kW, targetR * 0.18);
+            ctx.quadraticCurveTo(kX - kW * 0.72 + kSway * 0.4, kTipY * 0.55, kX + kSway, kTipY);
+            ctx.quadraticCurveTo(kX + kW * 0.72 + kSway * 0.4, kTipY * 0.55, kX + kW, targetR * 0.18);
+            ctx.quadraticCurveTo(kX, targetR * 0.65, kX - kW, targetR * 0.18);
             ctx.closePath();
             ctx.fill();
           }
 
-          // Live Trailing Molten Embers (stored on node)
+          // Live Trailing Molten Embers
           if (p.flameEmbers && p.flameEmbers.length > 0) {
             for (let eIdx = 0; eIdx < p.flameEmbers.length; eIdx++) {
               const em = p.flameEmbers[eIdx];
@@ -4772,523 +4839,250 @@
           }
           ctx.restore();
 
-          // 3. Seamless Blazing Re-Entry Plasma Aura Wrapping Around Bottom & Sides (No Hard Edges!)
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          const wrapGlow = ctx.createRadialGradient(0, targetR * 0.22, targetR * 0.35, 0, targetR * 0.10, targetR * 1.65);
-          wrapGlow.addColorStop(0.0, `rgba(255, 255, 255, ${0.92 * flicker})`);
-          wrapGlow.addColorStop(0.35, `rgba(254, 240, 138, ${0.78 * flicker})`);
-          wrapGlow.addColorStop(0.62, `rgba(249, 115, 22, ${0.52 * flicker})`);
-          wrapGlow.addColorStop(0.85, `rgba(220, 38, 38, ${0.24 * flicker})`);
-          wrapGlow.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
-          ctx.fillStyle = wrapGlow;
-          ctx.beginPath();
-          ctx.arc(0, targetR * 0.12, targetR * 1.65, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          // 4. Molten Incandescent Magma Heart Beneath Cracked Dark Volcanic Basalt Plates
-          const magmaBase = ctx.createRadialGradient(0, targetR * 0.15, targetR * 0.08, 0, 0, targetR * 0.94);
-          magmaBase.addColorStop(0.0, '#ffffff');
-          magmaBase.addColorStop(0.32, '#fef08a');
-          magmaBase.addColorStop(0.68, '#f97316');
-          magmaBase.addColorStop(1.0, '#dc2626');
-          ctx.fillStyle = magmaBase;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.94, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Jagged Fractured Volcanic Obsidian-Basalt Plates clipped inside sphere (molten lava shines through angular cracks!)
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.93, 0, Math.PI * 2);
-          ctx.clip();
-          const plateAngle = now * 0.0022 + animPhase;
-          const crustShards = [
-            { a: 0.15, r: 0.46, pts: [[-0.45, -0.25], [0.12, -0.44], [0.46, -0.10], [0.34, 0.36], [-0.28, 0.32]] },
-            { a: 1.42, r: 0.48, pts: [[-0.38, -0.34], [0.26, -0.38], [0.44, 0.08], [0.16, 0.42], [-0.36, 0.22]] },
-            { a: 2.68, r: 0.45, pts: [[-0.42, -0.20], [0.08, -0.46], [0.42, -0.18], [0.38, 0.30], [-0.18, 0.38]] },
-            { a: 3.95, r: 0.47, pts: [[-0.40, -0.32], [0.20, -0.40], [0.48, 0.05], [0.22, 0.38], [-0.32, 0.28]] },
-            { a: 5.20, r: 0.44, pts: [[-0.36, -0.28], [0.18, -0.42], [0.44, -0.04], [0.28, 0.34], [-0.26, 0.36]] }
-          ];
-          for (let cp = 0; cp < crustShards.length; cp++) {
-            const sh = crustShards[cp];
-            const pa = sh.a + plateAngle;
-            const px = Math.cos(pa) * targetR * sh.r;
-            const py = Math.sin(pa) * targetR * sh.r;
+          // 3. Game-Matched Luxury Raytraced Hyper-Comet Bad Chrome Core Sprite!
+          const cometSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].hyper_comet;
+          const cometLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].hyper_comet;
+          if (cometSpr && cometLoaded) {
+            const sprSize = 158 * scale;
+            const microVibX = isCharging ? (Math.sin(now * 0.08) * 1.4 * scale) : 0;
+            const microTilt = (modeKey === 'meteor') ? (now * 0.0025 + animPhase) : Math.sin(now * 0.006 + animPhase) * 0.07;
             ctx.save();
-            ctx.translate(px, py);
-            ctx.rotate(pa);
-            const cGrad = ctx.createLinearGradient(-targetR * 0.42, -targetR * 0.42, targetR * 0.42, targetR * 0.42);
-            cGrad.addColorStop(0.0, '#57534e');
-            cGrad.addColorStop(0.38, '#292524');
-            cGrad.addColorStop(0.78, '#141110');
-            cGrad.addColorStop(1.0, '#090707');
-            ctx.fillStyle = cGrad;
-            ctx.beginPath();
-            for (let v = 0; v < sh.pts.length; v++) {
-              const vx = sh.pts[v][0] * targetR;
-              const vy = sh.pts[v][1] * targetR;
-              if (v === 0) ctx.moveTo(vx, vy); else ctx.lineTo(vx, vy);
-            }
-            ctx.closePath();
-            ctx.fill();
+            ctx.translate(microVibX, 0);
+            ctx.rotate(microTilt);
+            ctx.drawImage(cometSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
             ctx.restore();
           }
-          // Glowing Hot Leading-Edge Thermal Compression Sheen inside Sphere Bottom
+
+          // Subtle Re-Entry Heat Sheen hugging leading bottom edge
+          ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const leadGlow = ctx.createRadialGradient(0, targetR * 0.55, 0, 0, targetR * 0.55, targetR * 0.85);
-          leadGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.92)');
-          leadGlow.addColorStop(0.45, 'rgba(254, 240, 138, 0.65)');
-          leadGlow.addColorStop(1.0, 'rgba(249, 115, 22, 0)');
+          const leadGlow = ctx.createRadialGradient(0, targetR * 0.45, 0, 0, targetR * 0.35, targetR * 1.25);
+          leadGlow.addColorStop(0.0, `rgba(255, 245, 210, ${0.42 * flicker})`);
+          leadGlow.addColorStop(0.48, `rgba(249, 115, 22, ${0.26 * flicker})`);
+          leadGlow.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
           ctx.fillStyle = leadGlow;
           ctx.beginPath();
-          ctx.arc(0, targetR * 0.55, targetR * 0.85, 0, Math.PI * 2);
+          ctx.arc(0, targetR * 0.35, targetR * 1.25, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
         } else if (isCorruptor) {
-          // ═══ FEATURE BAD NODE #2: CORRUPTOR OVERLORD (3D Armored Laser Dreadnought — ZERO Wireframes!) ═══
+          // ═══ FEATURE BAD NODE #2: CORRUPTOR OVERLORD (Game-Matched Luxury Raytraced Dreadnought + Live Optical Flare) ═══
           const charge = Math.max(0, Math.min(1, p.laserCharge || 0));
           const isFiring = (p.laserState === 'firing');
-          const rotOuter = now * 0.0018 + animPhase;
+          const rotOuter = now * (modeKey === 'meteor' ? 0.0014 : 0.00085) + animPhase;
+          const swell = 1.0 + charge * 0.14 + (isFiring ? 0.08 : 0);
 
-          // 1. Soft Volumetric Crimson-Magenta Singularity Field Halo
+          // 1. Mode-Matched Volumetric Singularity Energy Halo
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const auraR = targetR * (1.60 + charge * 0.55 + (isFiring ? 0.35 : 0));
+          const auraR = targetR * (1.72 + charge * 0.62 + (isFiring ? 0.38 : 0));
           const auraG = ctx.createRadialGradient(0, 0, targetR * 0.35, 0, 0, auraR);
-          auraG.addColorStop(0.0, `rgba(244, 63, 94, ${0.46 + charge * 0.45})`);
-          auraG.addColorStop(0.50, `rgba(192, 38, 211, ${0.26 + charge * 0.32})`);
-          auraG.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
+          auraG.addColorStop(0.0, `${mPal.primary}${0.42 + charge * 0.45})`);
+          auraG.addColorStop(0.50, `${mPal.secondary}${0.24 + charge * 0.32})`);
+          auraG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = auraG;
           ctx.beginPath();
           ctx.arc(0, 0, auraR, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
-          // 2. 4 Articulated 3D Sculpted Dual-Bevel Metallic Armor Claws (ZERO thin outline strokes!)
-          const spread = targetR * (0.12 + charge * 0.26 + (isFiring ? 0.14 : 0));
-          for (let m = 0; m < 4; m++) {
-            const mAng = rotOuter + m * (Math.PI / 2) + Math.PI / 4;
+          // 2. Game-Matched Luxury Raytraced Corruptor Overlord Sprite!
+          const corSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].corruptor_laser;
+          const corLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].corruptor_laser;
+          if (corSpr && corLoaded) {
+            const baseCorSize = (modeKey === 'meteor') ? 186 : (modeKey === 'helix' ? 178 : 166);
+            const sprSize = baseCorSize * scale * swell;
             ctx.save();
-            ctx.rotate(mAng);
-            ctx.translate(spread, 0);
-
-            // Upper Lit Metallic Bevel Facet
-            const upperFacet = ctx.createLinearGradient(targetR * 0.2, -targetR * 0.46, targetR * 1.25, 0);
-            upperFacet.addColorStop(0.0, '#9f1239');
-            upperFacet.addColorStop(0.45, '#be123c');
-            upperFacet.addColorStop(0.82, '#4c0519');
-            upperFacet.addColorStop(1.0, '#fb7185');
-            ctx.fillStyle = upperFacet;
-            ctx.beginPath();
-            ctx.moveTo(targetR * 0.22, -targetR * 0.44);
-            ctx.lineTo(targetR * 1.10, -targetR * 0.20);
-            ctx.lineTo(targetR * 1.28, 0);
-            ctx.lineTo(targetR * 0.44, 0);
-            ctx.closePath();
-            ctx.fill();
-
-            // Lower Shaded Obsidian-Steel Bevel Facet
-            const lowerFacet = ctx.createLinearGradient(targetR * 0.2, 0, targetR * 1.25, targetR * 0.46);
-            lowerFacet.addColorStop(0.0, '#1e1b2e');
-            lowerFacet.addColorStop(0.55, '#3b0724');
-            lowerFacet.addColorStop(1.0, '#09090b');
-            ctx.fillStyle = lowerFacet;
-            ctx.beginPath();
-            ctx.moveTo(targetR * 0.44, 0);
-            ctx.lineTo(targetR * 1.28, 0);
-            ctx.lineTo(targetR * 1.10, targetR * 0.20);
-            ctx.lineTo(targetR * 0.22, targetR * 0.44);
-            ctx.closePath();
-            ctx.fill();
-
-            // Recessed glowing volumetric plasma emitter core on each claw
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            const ventGrad = ctx.createRadialGradient(targetR * 0.80, 0, 0, targetR * 0.80, 0, targetR * 0.28);
-            ventGrad.addColorStop(0.0, '#ffffff');
-            ventGrad.addColorStop(0.38, '#fb7185');
-            ventGrad.addColorStop(0.75, 'rgba(225, 29, 72, 0.55)');
-            ventGrad.addColorStop(1.0, 'rgba(244, 63, 94, 0)');
-            ctx.fillStyle = ventGrad;
-            ctx.beginPath();
-            ctx.arc(targetR * 0.80, 0, targetR * 0.28, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
+            ctx.rotate(rotOuter);
+            ctx.drawImage(corSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
             ctx.restore();
           }
 
-          // 3. Sculpted Chrome-Obsidian Dreadnought Core Sphere with Metallic Collar
-          const collarGrad = ctx.createLinearGradient(-targetR * 0.88, -targetR * 0.88, targetR * 0.88, targetR * 0.88);
-          collarGrad.addColorStop(0.0, '#94a3b8');
-          collarGrad.addColorStop(0.35, '#4c1d95');
-          collarGrad.addColorStop(0.70, '#1e1b4b');
-          collarGrad.addColorStop(1.0, '#090412');
-          ctx.fillStyle = collarGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.88, 0, Math.PI * 2);
-          ctx.fill();
-
-          const hullGrad = ctx.createRadialGradient(-targetR * 0.24, -targetR * 0.24, targetR * 0.08, 0, 0, targetR * 0.78);
-          hullGrad.addColorStop(0.0, '#701a75');
-          hullGrad.addColorStop(0.36, '#3b0724');
-          hullGrad.addColorStop(0.78, '#160314');
-          hullGrad.addColorStop(1.0, '#060108');
-          ctx.fillStyle = hullGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.78, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 4. Blinding Crimson-Magenta Singularity Emitter Eye (Intensifies on target lock!)
+          // 3. Blinding Live Optical Emitter Pulse & Anamorphic Lens Flare on Charge / Laser Fire
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const eyePulse = 0.78 + 0.22 * Math.sin(now * 0.012 + animPhase);
-          const eyeR = targetR * (0.44 + charge * 0.28 + (isFiring ? 0.20 : 0));
+          const eyePulse = 0.78 + 0.22 * Math.sin(now * 0.014 + animPhase);
+          const eyeR = targetR * (0.36 + charge * 0.38 + (isFiring ? 0.26 : 0));
           const eyeGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, eyeR);
-          eyeGrad.addColorStop(0.0, '#ffffff');
-          eyeGrad.addColorStop(0.28, `rgba(255, 228, 230, ${0.95 * eyePulse})`);
-          eyeGrad.addColorStop(0.58, `rgba(244, 63, 94, ${0.92 * eyePulse})`);
-          eyeGrad.addColorStop(0.85, `rgba(217, 70, 239, ${0.55 * eyePulse})`);
-          eyeGrad.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
+          eyeGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.65 + charge * 0.35})`);
+          eyeGrad.addColorStop(0.45, `${mPal.primary}${0.68 * eyePulse + charge * 0.25})`);
+          eyeGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = eyeGrad;
           ctx.beginPath();
           ctx.arc(0, 0, eyeR, 0, Math.PI * 2);
           ctx.fill();
 
-          // Anamorphic Crimson Optical Lens Flare when charging or firing
-          if (charge > 0.1 || isFiring) {
-            const flareLen = targetR * (1.2 + charge * 1.4 + (isFiring ? 0.8 : 0));
+          if (charge > 0.12 || isFiring) {
+            const flareLen = targetR * (1.35 + charge * 1.55 + (isFiring ? 0.90 : 0));
             const flGrad = ctx.createLinearGradient(-flareLen, 0, flareLen, 0);
-            flGrad.addColorStop(0.0, 'rgba(244, 63, 94, 0)');
-            flGrad.addColorStop(0.38, 'rgba(244, 63, 94, 0.55)');
-            flGrad.addColorStop(0.50, 'rgba(255, 255, 255, 0.95)');
-            flGrad.addColorStop(0.62, 'rgba(244, 63, 94, 0.55)');
-            flGrad.addColorStop(1.0, 'rgba(244, 63, 94, 0)');
+            flGrad.addColorStop(0.0, `${mPal.primary}0)`);
+            flGrad.addColorStop(0.38, `${mPal.primary}0.60)`);
+            flGrad.addColorStop(0.50, 'rgba(255, 255, 255, 0.96)');
+            flGrad.addColorStop(0.62, `${mPal.primary}0.60)`);
+            flGrad.addColorStop(1.0, `${mPal.primary}0)`);
             ctx.fillStyle = flGrad;
             ctx.beginPath();
-            ctx.ellipse(0, 0, flareLen, targetR * 0.12, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 0, flareLen, targetR * 0.13, 0, 0, Math.PI * 2);
             ctx.fill();
           }
           ctx.restore();
 
         } else if (isGravityWell) {
-          // ═══ FEATURE BAD NODE #3: EVENT-HORIZON SINGULARITY (Volumetric Black Hole) ═══
-          const diskTilt = -0.26;
-          const swirlRot = now * 0.0045 + animPhase;
+          // ═══ FEATURE BAD NODE #3: EVENT-HORIZON SINGULARITY (Game-Matched Luxury Raytraced Black Hole + Tidal Swirl) ═══
+          const swirlRot = now * 0.0022 + animPhase;
 
-          // 1. Subtle Volumetric Tidal Gravity Distortion Sheen
+          // 1. Soft Volumetric Tidal Gravity Distortion Aura
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const tidalR = targetR * (1.85 + 0.12 * Math.sin(now * 0.006));
-          const tidalGrad = ctx.createRadialGradient(0, 0, targetR * 0.65, 0, 0, tidalR);
-          tidalGrad.addColorStop(0.0, 'rgba(159, 18, 57, 0.35)');
-          tidalGrad.addColorStop(0.45, 'rgba(126, 34, 206, 0.22)');
-          tidalGrad.addColorStop(0.80, 'rgba(88, 28, 135, 0.08)');
-          tidalGrad.addColorStop(1.0, 'rgba(59, 7, 100, 0)');
+          const tidalR = targetR * (2.05 + 0.16 * Math.sin(now * 0.006));
+          const tidalGrad = ctx.createRadialGradient(0, 0, targetR * 0.55, 0, 0, tidalR);
+          tidalGrad.addColorStop(0.0, `${mPal.primary}0.32)`);
+          tidalGrad.addColorStop(0.50, `${mPal.secondary}0.22)`);
+          tidalGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = tidalGrad;
           ctx.beginPath();
           ctx.arc(0, 0, tidalR, 0, Math.PI * 2);
           ctx.fill();
-
-          // 2. Back Half of 3D Tilted Volumetric Accretion Disk
-          ctx.save();
-          ctx.rotate(diskTilt);
-          ctx.scale(1.0, 0.36);
-          const backDisk = ctx.createRadialGradient(0, 0, targetR * 0.68, 0, 0, targetR * 1.92);
-          backDisk.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
-          backDisk.addColorStop(0.18, 'rgba(254, 215, 170, 0.88)');
-          backDisk.addColorStop(0.42, 'rgba(244, 63, 94, 0.72)');
-          backDisk.addColorStop(0.75, 'rgba(147, 51, 234, 0.38)');
-          backDisk.addColorStop(1.0, 'rgba(59, 7, 100, 0)');
-          ctx.fillStyle = backDisk;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.92, Math.PI, Math.PI * 2);
-          ctx.fill();
           ctx.restore();
 
-          // 3. Bent Gravitational Lensing Upper & Lower Photon Halo
-          const lensGrad = ctx.createRadialGradient(0, 0, targetR * 0.58, 0, 0, targetR * 1.18);
-          lensGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
-          lensGrad.addColorStop(0.42, 'rgba(254, 240, 138, 0.92)');
-          lensGrad.addColorStop(0.65, 'rgba(239, 68, 68, 0.65)');
-          lensGrad.addColorStop(1.0, 'rgba(126, 34, 206, 0)');
-          ctx.fillStyle = lensGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.18, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          // 2. Game-Matched Luxury Raytraced Black Hole / Singularity Sprite!
+          const gravSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].gravity_well;
+          const gravLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].gravity_well;
+          if (gravSpr && gravLoaded) {
+            const sprSize = 172 * scale;
+            const spinAng = (modeKey === 'helix') ? (-now * 0.0028 + animPhase) : (Math.sin(now * 0.0018 + animPhase) * 0.22);
+            ctx.save();
+            ctx.rotate(spinAng);
+            ctx.drawImage(gravSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+          }
 
-          // 4. Pitch-Black Event Horizon Void Core (Occludes stars & back accretion disk!)
-          ctx.fillStyle = '#020006';
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.68, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Razor-Crisp Incandescent Inner Photon Ring
+          // 3. Tilted Relativistic Accretion Streaks Spiraling Inward Into Event Horizon
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const photonGrad = ctx.createRadialGradient(0, 0, targetR * 0.62, 0, 0, targetR * 0.80);
-          photonGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
-          photonGrad.addColorStop(0.48, 'rgba(255, 251, 235, 0.96)');
-          photonGrad.addColorStop(0.75, 'rgba(251, 146, 60, 0.65)');
-          photonGrad.addColorStop(1.0, 'rgba(225, 29, 72, 0)');
-          ctx.fillStyle = photonGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.80, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 5. Front Half of 3D Tilted Accretion Disk arcing IN FRONT of Event Horizon + Swirling Plasma Clumps
-          ctx.save();
-          ctx.rotate(diskTilt);
-          ctx.scale(1.0, 0.36);
-          const frontDisk = ctx.createRadialGradient(0, 0, targetR * 0.72, 0, 0, targetR * 1.95);
-          frontDisk.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
-          frontDisk.addColorStop(0.20, 'rgba(254, 240, 138, 0.95)');
-          frontDisk.addColorStop(0.48, 'rgba(239, 68, 68, 0.78)');
-          frontDisk.addColorStop(0.80, 'rgba(168, 85, 247, 0.35)');
-          frontDisk.addColorStop(1.0, 'rgba(59, 7, 100, 0)');
-          ctx.fillStyle = frontDisk;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.95, 0, Math.PI);
-          ctx.fill();
-
-          // Orbiting Luminous Plasma Knots being dragged into Event Horizon
+          const tiltAngle = (modeKey === 'dynamo') ? -0.30 : (modeKey === 'meteor' ? -0.18 : 0);
+          ctx.rotate(tiltAngle);
           for (let knot = 0; knot < 6; knot++) {
-            const ka = swirlRot + knot * (Math.PI / 3);
-            const kr = targetR * (0.95 + 0.55 * ((knot * 0.37 + (now * 0.0008)) % 1.0));
+            const kProg = ((now * 0.00095 + knot * 0.167 + animPhase) % 1.0);
+            const ka = swirlRot * 2.2 + knot * (Math.PI / 3) + kProg * 2.4;
+            const kr = targetR * (1.72 * (1.0 - kProg * 0.62));
+            const flatY = (modeKey === 'helix') ? 0.92 : 0.56;
             const kx = Math.cos(ka) * kr;
-            const ky = Math.sin(ka) * kr;
-            const kGrad = ctx.createRadialGradient(kx, ky, 0, kx, ky, targetR * 0.24);
-            kGrad.addColorStop(0.0, '#ffffff');
-            kGrad.addColorStop(0.45, (knot % 2 === 0) ? '#fb923c' : '#e879f9');
-            kGrad.addColorStop(1.0, 'rgba(244, 63, 94, 0)');
-            ctx.fillStyle = kGrad;
+            const ky = Math.sin(ka) * kr * flatY;
+            const kPrevA = ka - 0.34;
+            const kpx = Math.cos(kPrevA) * (kr * 1.06);
+            const kpy = Math.sin(kPrevA) * (kr * 1.06) * flatY;
+            const kAlpha = Math.sin(kProg * Math.PI) * 0.85;
+
+            const sGrad = ctx.createLinearGradient(kpx, kpy, kx, ky);
+            sGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+            sGrad.addColorStop(0.65, `${(knot % 2 === 0) ? mPal.primary : mPal.secondary}${kAlpha * 0.78})`);
+            sGrad.addColorStop(1.0, `rgba(255, 255, 255, ${kAlpha})`);
+            ctx.strokeStyle = sGrad;
+            ctx.lineWidth = Math.max(1.5, targetR * 0.11 * (1.0 - kProg * 0.35));
+            ctx.lineCap = 'round';
             ctx.beginPath();
-            ctx.arc(kx, ky, targetR * 0.24, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(kpx, kpy);
+            ctx.lineTo(kx, ky);
+            ctx.stroke();
           }
-          ctx.restore();
           ctx.restore();
 
         } else if (isEmpDetonator) {
-          // ═══ FEATURE BAD NODE #4: OVERLOAD EMP SHOCK-MINE (Shaded Titanium Octagonal Mine) ═══
+          // ═══ FEATURE BAD NODE #4: OVERLOAD EMP SHOCK-MINE (Game-Matched Luxury Raytraced Mine + Reactor Surge) ═══
           const empCharge = Math.max(0, Math.min(1, p.empCharge || 0));
-          const mineRot = now * 0.0014 + animPhase;
+          const mineRot = now * 0.0011 + animPhase;
 
-          // 1. Subtle Volumetric Electromagnetic Field Corona (Swells brightly right before pulse!)
+          // 1. Surging Electromagnetic Field Corona right before EMP Dome Detonation
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const fRad = targetR * (1.38 + empCharge * 0.75);
+          const fRad = targetR * (1.48 + empCharge * 0.88);
           const fGrad = ctx.createRadialGradient(0, 0, targetR * 0.45, 0, 0, fRad);
-          fGrad.addColorStop(0.0, `rgba(239, 68, 68, ${0.28 + empCharge * 0.55})`);
-          fGrad.addColorStop(0.55, `rgba(56, 189, 248, ${0.14 + empCharge * 0.42})`);
-          fGrad.addColorStop(1.0, 'rgba(15, 23, 42, 0)');
+          const empOuterCol = (modeKey === 'meteor') ? mPal.secondary : mPal.accent;
+          fGrad.addColorStop(0.0, `${mPal.primary}${0.30 + empCharge * 0.55})`);
+          fGrad.addColorStop(0.55, `${empOuterCol}${0.18 + empCharge * 0.46})`);
+          fGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = fGrad;
           ctx.beginPath();
           ctx.arc(0, 0, fRad, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
-          // 2. Heavy Dual-Bevel 3D Sculpted Titanium-Steel Octagonal Armor Chassis (ZERO thin strokes!)
-          ctx.save();
-          ctx.rotate(mineRot);
-          const octR = targetR * 1.08;
-          const bevelGrad = ctx.createLinearGradient(-octR, -octR, octR, octR);
-          bevelGrad.addColorStop(0.0, '#cbd5e1');
-          bevelGrad.addColorStop(0.26, '#64748b');
-          bevelGrad.addColorStop(0.65, '#334155');
-          bevelGrad.addColorStop(1.0, '#0f172a');
-          ctx.fillStyle = bevelGrad;
-          ctx.beginPath();
-          for (let s = 0; s < 8; s++) {
-            const sa = s * (Math.PI / 4) + Math.PI / 8;
-            const sx = Math.cos(sa) * octR;
-            const sy = Math.sin(sa) * octR;
-            if (s === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
-          }
-          ctx.closePath();
-          ctx.fill();
-
-          // Recessed Inner Gunmetal Armor Plate
-          const innerOctR = targetR * 0.92;
-          const metalGrad = ctx.createLinearGradient(-innerOctR, -innerOctR, innerOctR, innerOctR);
-          metalGrad.addColorStop(0.0, '#334155');
-          metalGrad.addColorStop(0.45, '#1e293b');
-          metalGrad.addColorStop(1.0, '#090d16');
-          ctx.fillStyle = metalGrad;
-          ctx.beginPath();
-          for (let s = 0; s < 8; s++) {
-            const sa = s * (Math.PI / 4) + Math.PI / 8;
-            const sx = Math.cos(sa) * innerOctR;
-            const sy = Math.sin(sa) * innerOctR;
-            if (s === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
-          }
-          ctx.closePath();
-          ctx.fill();
-
-          // 3. 4 Solid Armored Titanium Capacitor Blocks Mounted Around Perimeter with Glowing Lenses
-          for (let c = 0; c < 4; c++) {
-            const ca = c * (Math.PI / 2);
+          // 2. Game-Matched Luxury Raytraced EMP Shock-Mine Sprite!
+          const empSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].emp_detonator;
+          const empLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].emp_detonator;
+          if (empSpr && empLoaded) {
+            const sprSize = 160 * scale * (1.0 + empCharge * 0.10);
             ctx.save();
-            ctx.rotate(ca);
-            const podGrad = ctx.createLinearGradient(targetR * 0.62, -targetR * 0.24, targetR * 1.18, targetR * 0.24);
-            podGrad.addColorStop(0.0, '#94a3b8');
-            podGrad.addColorStop(0.45, '#334155');
-            podGrad.addColorStop(1.0, '#0f172a');
-            ctx.fillStyle = podGrad;
-            ctx.beginPath();
-            ctx.roundRect(targetR * 0.66, -targetR * 0.24, targetR * 0.50, targetR * 0.48, 5 * scale);
-            ctx.fill();
+            ctx.rotate(mineRot);
+            ctx.drawImage(empSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+          }
 
-            // Glowing Reactor Capacitor Lens inside Pod
+          // 3. Central Pressurized Reactor Surge Flash when approaching 100% charge
+          if (empCharge > 0.15) {
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
-            const podGlow = ctx.createRadialGradient(targetR * 0.94, 0, 0, targetR * 0.94, 0, targetR * 0.28);
-            podGlow.addColorStop(0.0, '#ffffff');
-            podGlow.addColorStop(0.42, empCharge > 0.55 ? '#38bdf8' : '#f43f5e');
-            podGlow.addColorStop(1.0, 'rgba(239, 68, 68, 0)');
-            ctx.fillStyle = podGlow;
+            const coreR = targetR * (0.48 + empCharge * 0.36);
+            const rGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreR);
+            rGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.88 * empCharge})`);
+            rGrad.addColorStop(0.45, `${mPal.accent}${0.75 * empCharge})`);
+            rGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = rGrad;
             ctx.beginPath();
-            ctx.arc(targetR * 0.94, 0, targetR * 0.28, 0, Math.PI * 2);
+            ctx.arc(0, 0, coreR, 0, Math.PI * 2);
             ctx.fill();
-            ctx.restore();
             ctx.restore();
           }
 
-          // Dark Recessed Reactor Well
-          ctx.fillStyle = '#090b14';
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.62, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 4. Pulsing Volumetric Plasma Reactor Dome Core
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          const coreR = targetR * (0.50 + empCharge * 0.22 + 0.05 * Math.sin(now * 0.015));
-          const rGrad = ctx.createRadialGradient(-targetR * 0.12, -targetR * 0.12, 0, 0, 0, coreR);
-          rGrad.addColorStop(0.0, '#ffffff');
-          rGrad.addColorStop(0.32, empCharge > 0.5 ? '#bae6fd' : '#fecaca');
-          rGrad.addColorStop(0.65, empCharge > 0.5 ? '#0ea5e9' : '#ef4444');
-          rGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
-          ctx.fillStyle = rGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, coreR, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-          ctx.restore();
-
         } else if (isPhaseStalker) {
-          // ═══ FEATURE BAD NODE #5: QUANTUM BLINK STALKER (Sculpted Dimensional Rift Orb) ═══
+          // ═══ FEATURE BAD NODE #5: QUANTUM BLINK STALKER (Game-Matched Luxury Split-Core Rift Sprite + Phase Shimmer) ═══
           const isTelegraphing = (p.blinkState === 'telegraphing');
           const blinkProg = isTelegraphing ? Math.max(0, Math.min(1, p.blinkProgress || 0)) : 0;
           const orbPulse = 0.85 + 0.15 * Math.sin(now * 0.011 + animPhase);
 
-          // 1. Volumetric Dimensional Phase Corona
+          // 1. Subtle Volumetric Dimensional Phase Corona (preserves full razor-sharp split-core artwork!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const phaseR = targetR * (1.58 + blinkProg * 0.45);
-          const phaseGrad = ctx.createRadialGradient(0, 0, targetR * 0.35, 0, 0, phaseR);
-          phaseGrad.addColorStop(0.0, `rgba(217, 70, 239, ${0.45 + blinkProg * 0.42})`);
-          phaseGrad.addColorStop(0.50, `rgba(244, 63, 94, ${0.26 + blinkProg * 0.28})`);
-          phaseGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+          const phaseR = targetR * (1.58 + blinkProg * 0.42);
+          const phaseGrad = ctx.createRadialGradient(0, 0, targetR * 0.50, 0, 0, phaseR);
+          phaseGrad.addColorStop(0.0, `${mPal.secondary}${0.22 + blinkProg * 0.25})`);
+          phaseGrad.addColorStop(0.55, `${mPal.primary}${0.18 + blinkProg * 0.20})`);
+          phaseGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = phaseGrad;
           ctx.beginPath();
           ctx.arc(0, 0, phaseR, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
-          // 2. Sculpted Obsidian-Amethyst Dimensional Containment Sphere
-          const bodyGrad = ctx.createRadialGradient(-targetR * 0.25, -targetR * 0.28, targetR * 0.1, 0, 0, targetR * 0.94);
-          bodyGrad.addColorStop(0.0, '#6b21a8');
-          bodyGrad.addColorStop(0.38, '#3b0764');
-          bodyGrad.addColorStop(0.76, '#170426');
-          bodyGrad.addColorStop(1.0, '#07010f');
-          ctx.fillStyle = bodyGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.92, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 3. Swirling Volumetric Internal Rift Nebula (Clipped cleanly inside glossy dark orb!)
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.86, 0, Math.PI * 2);
-          ctx.clip();
-          ctx.globalCompositeOperation = 'lighter';
-          const nebRot = now * 0.0055 + animPhase;
-          for (let lob = 0; lob < 3; lob++) {
-            const la = nebRot + lob * (Math.PI * 2 / 3);
-            const lx = Math.cos(la) * targetR * 0.34;
-            const ly = Math.sin(la) * targetR * 0.34;
-            const lGrad = ctx.createRadialGradient(lx, ly, 0, lx, ly, targetR * 0.72);
-            lGrad.addColorStop(0.0, (lob === 0) ? 'rgba(255, 255, 255, 0.85)' : ((lob === 1) ? 'rgba(244, 63, 94, 0.80)' : 'rgba(217, 70, 239, 0.82)'));
-            lGrad.addColorStop(0.55, 'rgba(147, 51, 234, 0.35)');
-            lGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
-            ctx.fillStyle = lGrad;
-            ctx.beginPath();
-            ctx.arc(lx, ly, targetR * 0.72, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          // Glossy Spherical Specular Rim Highlight
-          const specGrad = ctx.createRadialGradient(-targetR * 0.34, -targetR * 0.36, 0, -targetR * 0.34, -targetR * 0.36, targetR * 0.55);
-          specGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.65)');
-          specGrad.addColorStop(0.45, 'rgba(245, 208, 254, 0.18)');
-          specGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
-          ctx.fillStyle = specGrad;
-          ctx.beginPath();
-          ctx.arc(-targetR * 0.34, -targetR * 0.36, targetR * 0.55, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          // 4. 4 Floating Dual-Facet 3D Shaded Amethyst-Crimson Dimensional Crystals Orbiting in 3D Perspective
-          for (let pr = 0; pr < 4; pr++) {
-            const pAng = now * 0.0042 + pr * (Math.PI / 2) + animPhase;
-            const px = Math.cos(pAng) * targetR * 1.24;
-            const py = Math.sin(pAng) * targetR * 0.62;
-            const depthScale = 0.80 + 0.35 * Math.sin(pAng);
+          // 2. Game-Matched Luxury Raytraced Split Rift Core Sprite with Quantum Phase Breathing!
+          const phSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].phase_stalker;
+          const phLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].phase_stalker;
+          if (phSpr && phLoaded) {
+            const basePhSize = (modeKey === 'helix' || modeKey === 'meteor') ? 178 : 166;
+            const sprSize = basePhSize * scale * (1.0 + Math.sin(now * 0.008 + animPhase) * 0.035);
+            const swayAng = Math.sin(now * 0.0025 + animPhase) * 0.14;
             ctx.save();
-            ctx.translate(px, py);
-            ctx.rotate(pAng * 0.6 + Math.PI * 0.15);
-            ctx.scale(depthScale, depthScale);
-            // Lit Left Crystal Facet
-            const leftFacet = ctx.createLinearGradient(-7 * scale, -11 * scale, 0, 11 * scale);
-            leftFacet.addColorStop(0.0, '#ffffff');
-            leftFacet.addColorStop(0.45, (pr % 2 === 0) ? '#fb7185' : '#f0abfc');
-            leftFacet.addColorStop(1.0, '#a21caf');
-            ctx.fillStyle = leftFacet;
-            ctx.beginPath();
-            ctx.moveTo(0, -11.5 * scale);
-            ctx.lineTo(-6.8 * scale, 0);
-            ctx.lineTo(0, 11.5 * scale);
-            ctx.closePath();
-            ctx.fill();
-            // Shaded Right Crystal Facet
-            const rightFacet = ctx.createLinearGradient(0, -11 * scale, 7 * scale, 11 * scale);
-            rightFacet.addColorStop(0.0, (pr % 2 === 0) ? '#e11d48' : '#c026d3');
-            rightFacet.addColorStop(1.0, '#3b0764');
-            ctx.fillStyle = rightFacet;
-            ctx.beginPath();
-            ctx.moveTo(0, -11.5 * scale);
-            ctx.lineTo(6.8 * scale, 0);
-            ctx.lineTo(0, 11.5 * scale);
-            ctx.closePath();
-            ctx.fill();
+            // Subtle phase-flicker while keeping luxury split-core silhouette sharp & legible!
+            if (isTelegraphing) {
+              ctx.globalAlpha = Math.max(0.74, 1.0 - blinkProg * 0.22 + Math.sin(now * 0.045) * 0.08);
+            }
+            ctx.rotate(swayAng);
+            ctx.drawImage(phSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
             ctx.restore();
           }
 
-          // Bright Center Singularity Heart
+          // 3. Precision Dimensional Rift Core Glint (delicate so it enhances instead of washing out the split shell!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const hG = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (0.42 + blinkProg * 0.30));
-          hG.addColorStop(0.0, `rgba(255, 255, 255, ${0.95 * orbPulse})`);
-          hG.addColorStop(0.45, `rgba(232, 121, 249, ${0.75 * orbPulse})`);
-          hG.addColorStop(1.0, 'rgba(192, 38, 211, 0)');
+          const hG = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (0.28 + blinkProg * 0.18));
+          hG.addColorStop(0.0, `rgba(255, 255, 255, ${(0.36 + blinkProg * 0.28) * orbPulse})`);
+          hG.addColorStop(0.48, `${mPal.secondary}${(0.28 + blinkProg * 0.26) * orbPulse})`);
+          hG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = hG;
           ctx.beginPath();
-          ctx.arc(0, 0, targetR * (0.42 + blinkProg * 0.30), 0, Math.PI * 2);
+          ctx.arc(0, 0, targetR * (0.28 + blinkProg * 0.18), 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
@@ -6567,25 +6361,30 @@
         let nClass = 'standard';
 
         if (canSpawnHazard) {
-          // Diverse Hazard Archetypes featuring the 5 Top-Tier Active Feature Bad Nodes:
+          // Balanced Hazard Ratio: 60% Regular Bad Nodes ('volatile') vs 40% Powered Feature Bad Nodes
           const rHaz = Math.random();
-          if (rHaz < 0.17) {
-            nClass = 'hyper_comet'; // Feature #1: Inferno Hyper-Comet (Ultra-Fast Flaming Dive!)
-          } else if (rHaz < 0.34) {
-            nClass = 'corruptor_laser'; // Feature #2: Corruptor Overlord (Lasers Good Nodes -> Bad Nodes!)
-          } else if (rHaz < 0.47) {
-            nClass = 'gravity_well'; // Feature #3: Event-Horizon Singularity (Black Hole Orbital Pull)
-          } else if (rHaz < 0.60) {
-            nClass = 'emp_detonator'; // Feature #4: Overload EMP Shock-Mine (Expanding Volumetric EMP Dome)
-          } else if (rHaz < 0.72) {
-            nClass = 'phase_stalker'; // Feature #5: Quantum Blink Stalker (Telegraphed Wormhole Teleport)
-          } else if (rHaz < 0.85) {
-            nClass = 'volatile'; // Classic Normal Bad Node (Antimatter Core)
-          } else if (rHaz < 0.93) {
-            nClass = 'seeker'; // Orbital Homing Harbinger (tracks player)
+          if (rHaz < 0.60) {
+            nClass = 'volatile'; // Classic Normal Bad Node (60% — clearly outnumbers powered hazards)
+          } else if (rHaz < 0.68) {
+            nClass = 'hyper_comet'; // Feature #1: Inferno Hyper-Comet (8% — Ultra-Fast Flaming Dive!)
+          } else if (rHaz < 0.76) {
+            nClass = 'corruptor_laser'; // Feature #2: Corruptor Overlord (8% — Lasers Good Nodes -> Bad Nodes!)
+          } else if (rHaz < 0.83) {
+            nClass = 'gravity_well'; // Feature #3: Event-Horizon Singularity (7% — Black Hole Orbital Pull)
+          } else if (rHaz < 0.90) {
+            nClass = 'emp_detonator'; // Feature #4: Overload EMP Shock-Mine (7% — Expanding Volumetric EMP Dome)
+          } else if (rHaz < 0.96) {
+            nClass = 'phase_stalker'; // Feature #5: Quantum Blink Stalker (6% — Telegraphed Wormhole Teleport)
+          } else if (rHaz < 0.98) {
+            nClass = 'seeker'; // Orbital Homing Harbinger (2% — tracks player)
           } else {
-            nClass = 'fragmentation'; // Fragmentation Bolide (splits into 3 molten shards)
+            nClass = 'fragmentation'; // Fragmentation Bolide (2% — splits into 3 molten shards)
           }
+          if (!state._hazardStats) state._hazardStats = { regular: 0, powered: 0, byClass: {} };
+          if (nClass === 'volatile') state._hazardStats.regular++;
+          else state._hazardStats.powered++;
+          state._hazardStats.byClass[nClass] = (state._hazardStats.byClass[nClass] || 0) + 1;
+          window.__CHROME_ARCADE_HAZARD_STATS__ = state._hazardStats;
         } else {
           // Balanced Falling Node Archetypes (84% Standard Nodes, 16% Power-Ups)
           const rNode = Math.random();
@@ -6755,13 +6554,14 @@
           state._testedHazards = true;
           const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
           state.particles = [
-            { type: pMode, nodeClass: 'hyper_comet', x: w * 0.14, y: h * 0.44, vx: 0, speed: 0, headR: 29, cometPhase: 'diving', flameEmbers: [], spine: [], stardust: [], animPhase: 0.4 },
-            { type: pMode, nodeClass: 'corruptor_laser', x: w * 0.32, y: h * 0.44, vx: 0, speed: 0, headR: 32, laserState: 'charging', laserCharge: 0.82, laserSalvosLeft: 0, laserTargets: [], spine: [], stardust: [], animPhase: 1.1 },
-            { type: pMode, nodeClass: 'gravity_well', x: w * 0.50, y: h * 0.44, vx: 0, speed: 0, headR: 33, spine: [], stardust: [], animPhase: 2.0 },
-            { type: pMode, nodeClass: 'emp_detonator', x: w * 0.68, y: h * 0.44, vx: 0, speed: 0, headR: 31, empCharge: 0.85, empNextPulse: now + 600, spine: [], stardust: [], animPhase: 3.1 },
-            { type: pMode, nodeClass: 'phase_stalker', x: w * 0.86, y: h * 0.44, vx: 0, speed: 0, headR: 30, blinkState: 'telegraphing', blinkProgress: 0.75, blinkStartTime: now - 300, blinkTargetX: w * 0.86, blinkTargetY: h * 0.22, blinksLeft: 0, spine: [], stardust: [], animPhase: 4.2 }
+            { type: pMode, nodeClass: 'volatile', x: w * 0.09, y: h * 0.44, vx: 0, speed: 0, headR: 28, spine: [{x: w * 0.09, y: h * 0.44}, {x: w * 0.09, y: h * 0.44 - 30}, {x: w * 0.09, y: h * 0.44 - 55}], stardust: [], animPhase: 0.1 },
+            { type: pMode, nodeClass: 'hyper_comet', x: w * 0.25, y: h * 0.44, vx: 0, speed: 0, headR: 29, cometPhase: 'diving', flameEmbers: [], spine: [], stardust: [], animPhase: 0.4 },
+            { type: pMode, nodeClass: 'corruptor_laser', x: w * 0.41, y: h * 0.44, vx: 0, speed: 0, headR: 32, laserState: 'charging', laserCharge: 0.82, laserSalvosLeft: 0, laserTargets: [], spine: [], stardust: [], animPhase: 1.1 },
+            { type: pMode, nodeClass: 'gravity_well', x: w * 0.58, y: h * 0.44, vx: 0, speed: 0, headR: 33, spine: [], stardust: [], animPhase: 2.0 },
+            { type: pMode, nodeClass: 'emp_detonator', x: w * 0.74, y: h * 0.44, vx: 0, speed: 0, headR: 31, empCharge: 0.85, empNextPulse: now + 600, spine: [], stardust: [], animPhase: 3.1 },
+            { type: pMode, nodeClass: 'phase_stalker', x: w * 0.90, y: h * 0.44, vx: 0, speed: 0, headR: 30, blinkState: 'telegraphing', blinkProgress: 0.75, blinkStartTime: now - 300, blinkTargetX: w * 0.90, blinkTargetY: h * 0.21, blinksLeft: 0, spine: [], stardust: [], animPhase: 4.2 }
           ];
-          state.empShockwaves.push({ x: w * 0.68, y: h * 0.44, r: 42, maxR: 138, alpha: 0.88, hitPlayer: true });
+          state.empShockwaves.push({ x: w * 0.74, y: h * 0.44, r: 44, maxR: 138, alpha: 0.88, hitPlayer: true, mode: pMode });
           state.lastSpawnTime = now + 999999;
         }
       }
@@ -7120,13 +6920,45 @@
       }
 
       // ─────────────────────────────────────────────────────────────
-      // UPDATE & RENDER WORLD-SPACE FEATURE HAZARD VFX (EMP DOMES, BLINK GHOSTS, CORRUPTION BURSTS)
+      // UPDATE & RENDER WORLD-SPACE FEATURE HAZARD VFX (MODE-MATCHED EMP DOMES, BLINK GHOSTS, CORRUPTION BURSTS)
       // ─────────────────────────────────────────────────────────────
+      const _getHazVfxPal = (m) => {
+        if (m === 'meteor') {
+          return {
+            p: 'rgba(16, 185, 129, ',   // Abyssal emerald
+            s: 'rgba(168, 85, 247, ',   // Void amethyst
+            a: 'rgba(249, 115, 22, ',   // Magma flare
+            mid: 'rgba(52, 211, 153, ', // Luminous emerald filament
+            hex: '#10b981',
+            empHex: '#34d399'
+          };
+        }
+        if (m === 'helix') {
+          return {
+            p: 'rgba(225, 29, 72, ',    // Blood ruby
+            s: 'rgba(251, 191, 36, ',   // Molten rose-gold
+            a: 'rgba(232, 121, 249, ',  // Bio-magenta
+            mid: 'rgba(253, 164, 175, ', // Ruby-gold filament
+            hex: '#fb7185',
+            empHex: '#e879f9'
+          };
+        }
+        return {
+          p: 'rgba(244, 63, 94, ',      // Dynamo crimson
+          s: 'rgba(192, 132, 252, ',    // Plasma violet
+          a: 'rgba(56, 189, 248, ',     // High-voltage cyan
+          mid: 'rgba(251, 113, 133, ',  // Crimson-rose filament
+          hex: '#f43f5e',
+          empHex: '#38bdf8'
+        };
+      };
+
       if (state.empShockwaves && state.empShockwaves.length > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         for (let swIdx = state.empShockwaves.length - 1; swIdx >= 0; swIdx--) {
           const sw = state.empShockwaves[swIdx];
+          const swPal = _getHazVfxPal(sw.mode || state.catcherType);
           sw.r += 4.4 * dtScale;
           const prog = Math.min(1.0, sw.r / sw.maxR);
           sw.alpha = Math.max(0, 1.0 - Math.pow(prog, 1.4));
@@ -7157,7 +6989,7 @@
                 x: catcherPixelX,
                 y: catcherPixelY - 64,
                 text: '⚡ EMP SHOCK! -30% PULSE',
-                color: '#38bdf8',
+                color: swPal.empHex,
                 alpha: 1.0,
                 startTime: now
               });
@@ -7165,13 +6997,14 @@
             }
           }
 
-          // Render Thick 3D Volumetric Translucent EMP Plasma Dome (ZERO thin wireframe strokes!)
-          const domeGrad = ctx.createRadialGradient(sw.x, sw.y, Math.max(0, sw.r * 0.62), sw.x, sw.y, sw.r);
-          domeGrad.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
-          domeGrad.addColorStop(0.60, `rgba(239, 68, 68, ${0.14 * sw.alpha})`);
-          domeGrad.addColorStop(0.84, `rgba(56, 189, 248, ${0.58 * sw.alpha})`);
-          domeGrad.addColorStop(0.95, `rgba(255, 255, 255, ${0.72 * sw.alpha})`);
-          domeGrad.addColorStop(1.0, 'rgba(244, 63, 94, 0)');
+          // Render Thick 3D Volumetric Feathered Mode-Matched EMP Plasma Dome (smooth outer falloff — zero hard edge!)
+          const domeGrad = ctx.createRadialGradient(sw.x, sw.y, Math.max(0, sw.r * 0.48), sw.x, sw.y, sw.r);
+          domeGrad.addColorStop(0.0, `${swPal.a}0)`);
+          domeGrad.addColorStop(0.55, `${swPal.p}${0.18 * sw.alpha})`);
+          domeGrad.addColorStop(0.78, `${swPal.a}${0.54 * sw.alpha})`);
+          domeGrad.addColorStop(0.86, `rgba(255, 255, 255, ${0.68 * sw.alpha})`);
+          domeGrad.addColorStop(0.93, `${swPal.a}${0.26 * sw.alpha})`);
+          domeGrad.addColorStop(1.0, `${swPal.s}0)`);
           ctx.fillStyle = domeGrad;
           ctx.beginPath();
           ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
@@ -7189,6 +7022,7 @@
         ctx.globalCompositeOperation = 'lighter';
         for (let gIdx = state.blinkGhosts.length - 1; gIdx >= 0; gIdx--) {
           const g = state.blinkGhosts[gIdx];
+          const gPal = _getHazVfxPal(g.mode || state.catcherType);
           g.life += dtScale;
           const ga = Math.max(0, 1.0 - g.life / g.maxLife) * g.initAlpha;
           if (ga <= 0.01) {
@@ -7197,9 +7031,9 @@
           }
           const gg = ctx.createRadialGradient(g.x, g.y, 0, g.x, g.y, g.r);
           gg.addColorStop(0.0, `rgba(255, 255, 255, ${ga * 0.85})`);
-          gg.addColorStop(0.45, `rgba(217, 70, 239, ${ga * 0.72})`);
-          gg.addColorStop(0.80, `rgba(244, 63, 94, ${ga * 0.35})`);
-          gg.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+          gg.addColorStop(0.45, `${gPal.s}${ga * 0.72})`);
+          gg.addColorStop(0.80, `${gPal.p}${ga * 0.35})`);
+          gg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = gg;
           ctx.beginPath();
           ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2);
@@ -7213,17 +7047,19 @@
         ctx.globalCompositeOperation = 'lighter';
         for (let cbIdx = state.corruptionBursts.length - 1; cbIdx >= 0; cbIdx--) {
           const cb = state.corruptionBursts[cbIdx];
+          const cbPal = _getHazVfxPal(cb.mode || state.catcherType);
           cb.r += 3.8 * dtScale;
           cb.alpha -= 0.048 * dtScale;
           if (cb.alpha <= 0.01) {
             state.corruptionBursts.splice(cbIdx, 1);
             continue;
           }
-          const cbg = ctx.createRadialGradient(cb.x, cb.y, cb.r * 0.45, cb.x, cb.y, cb.r);
+          const cbg = ctx.createRadialGradient(cb.x, cb.y, cb.r * 0.35, cb.x, cb.y, cb.r);
           cbg.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
-          cbg.addColorStop(0.58, `rgba(244, 63, 94, ${cb.alpha * 0.85})`);
-          cbg.addColorStop(0.82, `rgba(255, 228, 230, ${cb.alpha * 0.92})`);
-          cbg.addColorStop(1.0, 'rgba(192, 38, 211, 0)');
+          cbg.addColorStop(0.50, `${cbPal.p}${cb.alpha * 0.72})`);
+          cbg.addColorStop(0.68, `rgba(255, 255, 255, ${cb.alpha * 0.85})`);
+          cbg.addColorStop(0.84, `${cbPal.s}${cb.alpha * 0.34})`);
+          cbg.addColorStop(1.0, `${cbPal.s}0)`);
           ctx.fillStyle = cbg;
           ctx.beginPath();
           ctx.arc(cb.x, cb.y, cb.r, 0, Math.PI * 2);
@@ -7331,7 +7167,8 @@
             } else {
               p.laserCharge = Math.min(1.0, (now - p.laserChargeStart) / 550);
 
-              // Render Volumetric Lock-On Focus Cones & Target Corruption Halos during Charge!
+              // Render Mode-Matched Volumetric Lock-On Focus Cones & Target Corruption Halos during Charge!
+              const cPal = _getHazVfxPal(p.type || state.catcherType);
               ctx.save();
               ctx.globalCompositeOperation = 'lighter';
               for (let tIdx = 0; tIdx < p.laserTargets.length; tIdx++) {
@@ -7345,8 +7182,8 @@
 
                 const focusGrad = ctx.createLinearGradient(p.x, p.y, tn.x, tn.y);
                 focusGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.45 + p.laserCharge * 0.50})`);
-                focusGrad.addColorStop(0.45, `rgba(244, 63, 94, ${0.35 + p.laserCharge * 0.45})`);
-                focusGrad.addColorStop(1.0, `rgba(217, 70, 239, ${0.40 + p.laserCharge * 0.45})`);
+                focusGrad.addColorStop(0.45, `${cPal.p}${0.38 + p.laserCharge * 0.45})`);
+                focusGrad.addColorStop(1.0, `${cPal.s}${0.42 + p.laserCharge * 0.45})`);
                 ctx.fillStyle = focusGrad;
                 ctx.beginPath();
                 ctx.moveTo(p.x + nx * coneW * 0.6, p.y + ny * coneW * 0.6);
@@ -7356,12 +7193,12 @@
                 ctx.closePath();
                 ctx.fill();
 
-                // Swirling crimson corruption lock halo around targeted good node
+                // Swirling mode-matched corruption lock halo around targeted good node
                 const tHaloR = (tn.headR || 26) * (1.35 + 0.35 * p.laserCharge);
                 const thg = ctx.createRadialGradient(tn.x, tn.y, tHaloR * 0.3, tn.x, tn.y, tHaloR);
-                thg.addColorStop(0.0, 'rgba(244, 63, 94, 0)');
-                thg.addColorStop(0.65, `rgba(244, 63, 94, ${0.48 * p.laserCharge})`);
-                thg.addColorStop(1.0, 'rgba(192, 38, 211, 0)');
+                thg.addColorStop(0.0, `${cPal.p}0)`);
+                thg.addColorStop(0.65, `${cPal.p}${0.50 * p.laserCharge})`);
+                thg.addColorStop(1.0, `${cPal.s}0)`);
                 ctx.fillStyle = thg;
                 ctx.beginPath();
                 ctx.arc(tn.x, tn.y, tHaloR, 0, Math.PI * 2);
@@ -7378,18 +7215,19 @@
                     x1: p.x, y1: p.y,
                     x2: tn.x, y2: tn.y,
                     life: 0,
-                    maxLife: 28
+                    maxLife: 28,
+                    mode: p.type
                   });
                   // Instant Conversion to Normal Bad Node ('volatile')!
                   tn.nodeClass = 'volatile';
                   tn.headR = 28.0;
                   tn.justCorruptedUntil = now + 900;
                   tn.hasGrazed = false;
-                  state.corruptionBursts.push({ x: tn.x, y: tn.y, r: 16, alpha: 1.0 });
+                  state.corruptionBursts.push({ x: tn.x, y: tn.y, r: 16, alpha: 1.0, mode: p.type });
                   state.floatingTexts.push({
                     x: tn.x, y: tn.y - 24,
                     text: '⚡ CORRUPTED!',
-                    color: '#f43f5e',
+                    color: cPal.hex,
                     alpha: 1.0,
                     startTime: now
                   });
@@ -7449,7 +7287,8 @@
               r: 26,
               maxR: 148,
               alpha: 1.0,
-              hitPlayer: false
+              hitPlayer: false,
+              mode: p.type
             });
           } else {
             p.empCharge = 0;
@@ -7472,36 +7311,57 @@
           } else if (p.blinkState === 'telegraphing') {
             p.blinkProgress = Math.min(1.0, (now - (p.blinkStartTime || now)) / 650);
 
-            // Render Swirling 3D Volumetric Exit Wormhole Portal at Destination!
+            // Render Sculpted Mode-Matched 3D Event-Horizon Exit Wormhole Portal at Destination!
+            const wPal = _getHazVfxPal(p.type || state.catcherType);
             ctx.save();
             ctx.translate(p.blinkTargetX, p.blinkTargetY);
+            const portalR = (20 + 20 * p.blinkProgress);
+            const pRot = now * 0.0065;
+            const pAlpha = 0.45 + 0.55 * p.blinkProgress;
+
+            // 1. Outer Dimensional Halo Bloom
+            ctx.save();
             ctx.globalCompositeOperation = 'lighter';
-            const portalR = (22 + 22 * p.blinkProgress);
-            const pRot = now * 0.008;
-            const pGlow = ctx.createRadialGradient(0, 0, portalR * 0.15, 0, 0, portalR * 1.45);
-            pGlow.addColorStop(0.0, 'rgba(15, 3, 28, 0.92)');
-            pGlow.addColorStop(0.42, `rgba(217, 70, 239, ${0.75 * (0.4 + 0.6 * p.blinkProgress)})`);
-            pGlow.addColorStop(0.72, `rgba(244, 63, 94, ${0.55 * (0.4 + 0.6 * p.blinkProgress)})`);
-            pGlow.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+            const pGlow = ctx.createRadialGradient(0, 0, portalR * 0.45, 0, 0, portalR * 1.55);
+            pGlow.addColorStop(0.0, `${wPal.s}${0.48 * pAlpha})`);
+            pGlow.addColorStop(0.45, `${wPal.p}${0.38 * pAlpha})`);
+            pGlow.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
             ctx.fillStyle = pGlow;
             ctx.beginPath();
-            ctx.arc(0, 0, portalR * 1.45, 0, Math.PI * 2);
+            ctx.arc(0, 0, portalR * 1.55, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // 2. Pitch-Black Obsidian Dimensional Void Center
+            const voidGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, portalR * 0.78);
+            voidGrad.addColorStop(0.0, 'rgba(3, 2, 8, 0.98)');
+            voidGrad.addColorStop(0.68, 'rgba(10, 4, 22, 0.92)');
+            voidGrad.addColorStop(1.0, 'rgba(10, 4, 22, 0)');
+            ctx.fillStyle = voidGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, portalR * 0.78, 0, Math.PI * 2);
             ctx.fill();
 
-            // 3 Rotating Volumetric Wormhole Swirl Lobes
+            // 3. Sculpted Sweeping Vortex Plasma Crescent Arcs Wrapping the Event Rim
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.lineCap = 'round';
             for (let wl = 0; wl < 3; wl++) {
-              const wa = pRot + wl * (Math.PI * 2 / 3);
-              const wx = Math.cos(wa) * portalR * 0.45;
-              const wy = Math.sin(wa) * portalR * 0.45;
-              const wg = ctx.createRadialGradient(wx, wy, 0, wx, wy, portalR * 0.62);
-              wg.addColorStop(0.0, 'rgba(255, 255, 255, 0.85)');
-              wg.addColorStop(0.5, 'rgba(232, 121, 249, 0.55)');
-              wg.addColorStop(1.0, 'rgba(244, 63, 94, 0)');
-              ctx.fillStyle = wg;
+              const startA = pRot + wl * (Math.PI * 2 / 3);
+              const endA = startA + 1.38;
+              ctx.strokeStyle = (wl % 2 === 0) ? `${wPal.s}${0.82 * pAlpha})` : `${wPal.p}${0.78 * pAlpha})`;
+              ctx.lineWidth = 4.2;
               ctx.beginPath();
-              ctx.arc(wx, wy, portalR * 0.62, 0, Math.PI * 2);
-              ctx.fill();
+              ctx.arc(0, 0, portalR * 0.78, startA, endA);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.88 * pAlpha})`;
+              ctx.lineWidth = 1.8;
+              ctx.beginPath();
+              ctx.arc(0, 0, portalR * 0.78, startA + 0.25, endA - 0.15);
+              ctx.stroke();
             }
+            ctx.restore();
             ctx.restore();
 
             if (p.blinkProgress >= 1.0 && (p.blinksLeft || 0) > 0) {
@@ -7514,7 +7374,8 @@
                   r: 28 * (0.75 + 0.35 * frac),
                   initAlpha: 0.45 + 0.40 * frac,
                   life: 0,
-                  maxLife: 18 + gStep * 3
+                  maxLife: 18 + gStep * 3,
+                  mode: p.type
                 });
               }
               audio.playQuantumBlink();
@@ -7948,12 +7809,13 @@
           const nyL = dxL / lenL;
           const widthScale = 1.0 - frac * 0.45;
 
+          const lbPal = _getHazVfxPal(lb.mode || state.catcherType);
           // Layer 1: Wide Volumetric Outer Plasma Bloom Sheath (22px tapering gradient)
           const outerW = 13.0 * widthScale;
           const outerGrad = ctx.createLinearGradient(lb.x1, lb.y1, lb.x2, lb.y2);
-          outerGrad.addColorStop(0.0, `rgba(244, 63, 94, ${0.72 * alpha})`);
-          outerGrad.addColorStop(0.5, `rgba(217, 70, 239, ${0.58 * alpha})`);
-          outerGrad.addColorStop(1.0, `rgba(244, 63, 94, ${0.78 * alpha})`);
+          outerGrad.addColorStop(0.0, `${lbPal.p}${0.74 * alpha})`);
+          outerGrad.addColorStop(0.5, `${lbPal.s}${0.60 * alpha})`);
+          outerGrad.addColorStop(1.0, `${lbPal.p}${0.80 * alpha})`);
           ctx.fillStyle = outerGrad;
           ctx.beginPath();
           ctx.moveTo(lb.x1 + nxL * outerW, lb.y1 + nyL * outerW);
@@ -7963,9 +7825,9 @@
           ctx.closePath();
           ctx.fill();
 
-          // Layer 2: High-Energy Mid Crimson-Magenta Beam Core (9px)
+          // Layer 2: High-Energy Mid Mode-Matched Beam Core (9px)
           const midW = 5.5 * widthScale;
-          ctx.fillStyle = `rgba(251, 113, 133, ${0.92 * alpha})`;
+          ctx.fillStyle = `${lbPal.mid}${0.92 * alpha})`;
           ctx.beginPath();
           ctx.moveTo(lb.x1 + nxL * midW, lb.y1 + nyL * midW);
           ctx.lineTo(lb.x2 + nxL * midW, lb.y2 + nyL * midW);
@@ -7992,8 +7854,8 @@
             const pyB = lb.y1 + dyL * tPos;
             const pulseG = ctx.createRadialGradient(pxB, pyB, 0, pxB, pyB, 14 * widthScale);
             pulseG.addColorStop(0.0, `rgba(255, 255, 255, ${0.90 * alpha})`);
-            pulseG.addColorStop(0.45, `rgba(244, 63, 94, ${0.65 * alpha})`);
-            pulseG.addColorStop(1.0, 'rgba(217, 70, 239, 0)');
+            pulseG.addColorStop(0.45, `${lbPal.p}${0.68 * alpha})`);
+            pulseG.addColorStop(1.0, `${lbPal.s}0)`);
             ctx.fillStyle = pulseG;
             ctx.beginPath();
             ctx.arc(pxB, pyB, 14 * widthScale, 0, Math.PI * 2);
@@ -8006,9 +7868,9 @@
             const ep = endPts[eI];
             const eg = ctx.createRadialGradient(ep.x, ep.y, 0, ep.x, ep.y, ep.r * widthScale);
             eg.addColorStop(0.0, `rgba(255, 255, 255, ${0.95 * alpha})`);
-            eg.addColorStop(0.35, `rgba(244, 63, 94, ${0.82 * alpha})`);
-            eg.addColorStop(0.75, `rgba(217, 70, 239, ${0.38 * alpha})`);
-            eg.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
+            eg.addColorStop(0.35, `${lbPal.p}${0.82 * alpha})`);
+            eg.addColorStop(0.75, `${lbPal.s}${0.38 * alpha})`);
+            eg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
             ctx.fillStyle = eg;
             ctx.beginPath();
             ctx.arc(ep.x, ep.y, ep.r * widthScale, 0, Math.PI * 2);
