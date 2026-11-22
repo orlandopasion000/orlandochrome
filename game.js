@@ -5132,18 +5132,20 @@
 
         if (badges[p.nodeClass] && p.nodeClass !== 'catalyst') {
           const b = badges[p.nodeClass];
+          const bScale = Math.max(0.65, scale);
           ctx.save();
-          ctx.translate(0, -targetR * 1.38);
-          ctx.font = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.translate(0, -targetR * 1.46 - 3);
+          ctx.font = `bold ${Math.round(11 * bScale)}px system-ui, -apple-system, sans-serif`;
           const textW = ctx.measureText(b.text).width;
-          const padX = 8 * scale;
-          const padY = 4 * scale;
+          const padX = 7.5 * bScale;
+          const padY = 4 * bScale;
 
           ctx.fillStyle = b.bg;
           ctx.strokeStyle = b.border;
-          ctx.lineWidth = 1.3 * scale;
+          ctx.lineWidth = 1.3 * bScale;
           ctx.beginPath();
-          ctx.roundRect(-textW / 2 - padX, -padY - 7 * scale, textW + padX * 2, 16 * scale, 7 * scale);
+          ctx.roundRect(-textW / 2 - padX, -padY - 7 * bScale, textW + padX * 2, 16 * bScale, 7 * bScale);
           ctx.fill();
           ctx.stroke();
 
@@ -5719,15 +5721,22 @@
             ctx.restore();
 
           } else if (p.nodeClass === 'fragmentation') {
-            // FRAGMENTATION BOLIDE: Swelling Superheated Volcanic Pressure Bloom
+            // FRAGMENTATION BOLIDE: Mode-Aligned Swelling Critical Pressure Bloom (Meteor: Radioactive Emerald/Amethyst vs Crimson!)
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
             const fragPulse = 0.65 + 0.35 * Math.sin(now * 0.022 + animPhase);
             const pGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (1.18 + 0.18 * fragPulse));
-            pGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.85 * fragPulse})`);
-            pGrad.addColorStop(0.35, `rgba(251, 191, 36, ${0.72 * fragPulse})`);
-            pGrad.addColorStop(0.70, `rgba(234, 88, 12, ${0.38 * fragPulse})`);
-            pGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+            if (modeKey === 'meteor') {
+              pGrad.addColorStop(0.0, `rgba(240, 255, 248, ${0.85 * fragPulse})`);
+              pGrad.addColorStop(0.35, `rgba(16, 185, 129, ${0.72 * fragPulse})`);
+              pGrad.addColorStop(0.70, `rgba(168, 85, 247, ${0.42 * fragPulse})`);
+              pGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+            } else {
+              pGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.85 * fragPulse})`);
+              pGrad.addColorStop(0.35, `rgba(244, 63, 94, ${0.72 * fragPulse})`);
+              pGrad.addColorStop(0.70, `rgba(234, 88, 12, ${0.38 * fragPulse})`);
+              pGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+            }
             ctx.fillStyle = pGrad;
             ctx.beginPath();
             ctx.arc(0, 0, targetR * (1.18 + 0.18 * fragPulse), 0, Math.PI * 2);
@@ -7032,6 +7041,25 @@
       // ─────────────────────────────────────────────────────────────
       // TEST HARNESS: LIVE 5 FEATURE BAD NODES, CORRUPTOR LASER & MISSILE SHOWCASE
       // ─────────────────────────────────────────────────────────────
+      if (window.location.search.includes('test_powerups=1')) {
+        if (!state._testedPowerups) {
+          state._testedPowerups = true;
+          const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+          state.particles = [
+            { type: pMode, nodeClass: 'shield', x: w * 0.08, y: h * 0.46, vx: 0, speed: 0, headR: 29, spine: [], stardust: [], animPhase: 0.2, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'missiles', x: w * 0.19, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 0.8, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'cluster', x: w * 0.30, y: h * 0.46, vx: 0, speed: 0, headR: 28, spine: [], stardust: [], animPhase: 1.4, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'supercharge', x: w * 0.41, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 2.0, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'chronos', x: w * 0.52, y: h * 0.46, vx: 0, speed: 0, headR: 25, spine: [], stardust: [], animPhase: 2.6, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'singularity', x: w * 0.63, y: h * 0.46, vx: 0, speed: 0, headR: 27, spine: [], stardust: [], animPhase: 3.2, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'catalyst', x: w * 0.74, y: h * 0.46, vx: 0, speed: 0, headR: 32, spine: [], stardust: [], animPhase: 3.8, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'seeker', x: w * 0.85, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 4.4, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'fragmentation', x: w * 0.94, y: h * 0.46, vx: 0, speed: 0, headR: 32, hasDetonated: true, spine: [], stardust: [], animPhase: 5.0, tumbleDir: 1 }
+          ];
+          state.lastSpawnTime = now + 999999;
+        }
+      }
+
       if (window.location.search.includes('test_nodes=1')) {
         if (!state._testedNodes) {
           state._testedNodes = true;
@@ -9312,4 +9340,294 @@
   window.stopSong = stopSong;
   window.nextSong = nextSong;
   window.getIsMusicPlaying = function() { return isPlaying; };
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LUXURY REALM LAUNCHER ENGINE (DYNAMO · HELIX · METEOR)
+   Live 60FPS Micro-Physics Canvases + Floating Holographic Tier V Portal Card
+   ══════════════════════════════════════════════════════════════════════════ */
+(function initLuxuryRealmLauncherButtons() {
+  const REALM_META = {
+    dynamo: {
+      title: 'CHROME DYNAMO · SERAPHIC ARCHON',
+      tierTag: '⚡ TIER V SUPREME ASCENDANT',
+      science: 'Faraday–Maxwell Plasma Physics · Branching Lichtenberg Lightning & Chain Induction',
+      bestKey: 'oc_best_realm',
+      coreImg: 'assets/core-dynamo-t5.png?v=arcade374',
+      wingImg: 'assets/layer-dynamo-wing-t5.png?v=arcade374',
+      haloImg: 'assets/layer-dynamo-halo.png?v=arcade374'
+    },
+    helix: {
+      title: 'CHROME HELIX · PRISM ARCHON',
+      tierTag: '🧬 TIER V SUPREME ASCENDANT',
+      science: 'Quantum Molecular Biogenesis · 3D Photonic DNA Double-Helix & Base-Pair Resonance',
+      bestKey: 'oc_best_helix',
+      coreImg: 'assets/core-helix-t5.png?v=arcade374',
+      wingImg: 'assets/layer-helix-wing-t5.png?v=arcade374',
+      haloImg: 'assets/layer-helix-halo.png?v=arcade374'
+    },
+    meteor: {
+      title: 'CHROME METEOR · MAGNETAR SERAPH',
+      tierTag: '☄️ TIER V SUPREME ASCENDANT',
+      science: 'Hypervelocity Chondritic Ablation · Solar Bow-Shock Fire & Kinetic Slingshot Deflection',
+      bestKey: 'oc_best_meteor',
+      coreImg: 'assets/core-meteor-t5.png?v=arcade374',
+      wingImg: 'assets/layer-meteor-wing-t5.png?v=arcade374',
+      haloImg: 'assets/layer-meteor-halo.png?v=arcade374'
+    }
+  };
+
+  function setup() {
+    const buttons = Array.from(document.querySelectorAll('.oc-realm-btn[data-realm]'));
+    if (!buttons.length) return;
+
+    // 1. Create Reusable Floating Holographic Tier V Portal Card directly on document.body (ZERO topbar clipping!)
+    let portal = document.getElementById('ocRealmPortalCard');
+    if (!portal) {
+      portal = document.createElement('div');
+      portal.id = 'ocRealmPortalCard';
+      portal.setAttribute('aria-hidden', 'true');
+      portal.innerHTML = `
+        <div class="oc-portal-stage">
+          <span class="oc-portal-tier-tag" id="ocPortalTierTag"></span>
+          <img class="oc-portal-halo" id="ocPortalHalo" alt="" />
+          <img class="oc-portal-wing oc-portal-wing-left" id="ocPortalWingL" alt="" />
+          <img class="oc-portal-wing oc-portal-wing-right" id="ocPortalWingR" alt="" />
+          <img class="oc-portal-core" id="ocPortalCore" alt="" />
+        </div>
+        <div class="oc-portal-title" id="ocPortalTitle"></div>
+        <div class="oc-portal-science" id="ocPortalScience"></div>
+        <div class="oc-portal-footer">
+          <span class="oc-portal-best">BEST SCORE<strong id="ocPortalBest">0</strong></span>
+          <span class="oc-portal-cta">ENTER ARENA →</span>
+        </div>
+      `;
+      document.body.appendChild(portal);
+    }
+
+    const pTag = document.getElementById('ocPortalTierTag');
+    const pHalo = document.getElementById('ocPortalHalo');
+    const pWingL = document.getElementById('ocPortalWingL');
+    const pWingR = document.getElementById('ocPortalWingR');
+    const pCore = document.getElementById('ocPortalCore');
+    const pTitle = document.getElementById('ocPortalTitle');
+    const pSci = document.getElementById('ocPortalScience');
+    const pBest = document.getElementById('ocPortalBest');
+
+    let activeHoverRealm = null;
+    const fxControllers = [];
+
+    function showPortalFor(btn, realm) {
+      const meta = REALM_META[realm];
+      if (!meta) return;
+      activeHoverRealm = realm;
+      portal.setAttribute('data-realm', realm);
+      if (pTag) pTag.textContent = meta.tierTag;
+      if (pHalo) pHalo.src = meta.haloImg;
+      if (pWingL) pWingL.src = meta.wingImg;
+      if (pWingR) pWingR.src = meta.wingImg;
+      if (pCore) pCore.src = meta.coreImg;
+      if (pTitle) pTitle.textContent = meta.title;
+      if (pSci) pSci.textContent = meta.science;
+      const bestVal = parseInt(localStorage.getItem(meta.bestKey) || '0', 10) || 0;
+      if (pBest) pBest.textContent = bestVal.toLocaleString();
+
+      const rect = btn.getBoundingClientRect();
+      const cardW = 286;
+      const desiredLeft = rect.left + rect.width * 0.5 - cardW * 0.5;
+      const clampedLeft = Math.max(10, Math.min(window.innerWidth - cardW - 10, desiredLeft));
+      portal.style.left = `${Math.round(clampedLeft)}px`;
+      portal.style.top = `${Math.round(rect.bottom + 8)}px`;
+      portal.classList.add('visible');
+    }
+
+    function hidePortal() {
+      activeHoverRealm = null;
+      portal.classList.remove('visible');
+    }
+
+    // 2. Wire Per-Button Live Micro-Physics Canvas + Hover Events
+    buttons.forEach((btn) => {
+      const realm = btn.getAttribute('data-realm');
+      const canvas = btn.querySelector('.oc-realm-btn-fx');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const embers = [];
+      for (let i = 0; i < 9; i++) {
+        embers.push({
+          x: Math.random(),
+          y: Math.random(),
+          spd: 0.008 + Math.random() * 0.014,
+          size: 0.9 + Math.random() * 1.5,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      const ctrl = { btn, realm, canvas, ctx, embers, hovered: false, w: 96, h: 30 };
+      fxControllers.push(ctrl);
+
+      btn.addEventListener('mouseenter', () => {
+        ctrl.hovered = true;
+        showPortalFor(btn, realm);
+      });
+      btn.addEventListener('mouseleave', () => {
+        ctrl.hovered = false;
+        hidePortal();
+      });
+      btn.addEventListener('focus', () => {
+        ctrl.hovered = true;
+        showPortalFor(btn, realm);
+      });
+      btn.addEventListener('blur', () => {
+        ctrl.hovered = false;
+        hidePortal();
+      });
+      btn.addEventListener('click', () => {
+        ctrl.hovered = false;
+        hidePortal();
+      });
+    });
+
+    // 3. Lightweight 60FPS Animation Loop (Auto-Pauses when Arcade Modal is Open or Tab Hidden!)
+    function isArcadeOpen() {
+      const modal = document.getElementById('chromeGameModal');
+      if (!modal) return false;
+      return modal.classList.contains('active') || modal.classList.contains('open') || modal.style.display === 'flex' || modal.style.display === 'block';
+    }
+
+    function renderLoop(now) {
+      requestAnimationFrame(renderLoop);
+      if (document.hidden || isArcadeOpen()) return;
+
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      for (let i = 0; i < fxControllers.length; i++) {
+        const c = fxControllers[i];
+        const rect = c.btn.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) continue;
+        const tw = Math.round(rect.width * dpr);
+        const th = Math.round(rect.height * dpr);
+        if (c.canvas.width !== tw || c.canvas.height !== th) {
+          c.canvas.width = tw;
+          c.canvas.height = th;
+        }
+        const ctx = c.ctx;
+        const w = rect.width;
+        const h = rect.height;
+        const boost = c.hovered ? 1.65 : 1.0;
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (c.realm === 'dynamo') {
+          // Live branching electric-blue & violet Lichtenberg micro-lightning arcing right from the Faraday Orb!
+          const tick = Math.floor(now / (c.hovered ? 48 : 78));
+          const bolts = c.hovered ? 2 : 1;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let b = 0; b < bolts; b++) {
+            const startX = 22;
+            const endX = w - 6;
+            const segs = 7;
+            ctx.beginPath();
+            for (let s = 0; s <= segs; s++) {
+              const f = s / segs;
+              const px = startX + (endX - startX) * f;
+              const jag = (s === 0) ? 0 : (Math.sin(tick * 3.17 + b * 4.3 + s * 2.29) * 5.2 + Math.cos(tick * 5.1 + s * 3.71) * 2.4);
+              const py = h * 0.5 + jag * (c.hovered ? 1.15 : 0.85);
+              if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            const g = ctx.createLinearGradient(startX, 0, endX, 0);
+            g.addColorStop(0.0, `rgba(251, 191, 36, ${0.42 * boost})`);
+            g.addColorStop(0.35, `rgba(56, 189, 248, ${0.52 * boost})`);
+            g.addColorStop(1.0, `rgba(139, 92, 246, ${0.18 * boost})`);
+            ctx.strokeStyle = g;
+            ctx.lineWidth = c.hovered ? 2.4 : 1.8;
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(224, 242, 254, ${0.45 * boost})`;
+            ctx.lineWidth = 0.85;
+            ctx.stroke();
+          }
+
+        } else if (c.realm === 'helix') {
+          // Live flowing 3D cyan-and-magenta DNA double-helix ribbon rippling smoothly behind HELIX!
+          const startX = 20;
+          const endX = w - 4;
+          const speed = now * (c.hovered ? 0.0052 : 0.0030);
+          const steps = 18;
+          ctx.lineCap = 'round';
+
+          // Subtle base-pair rungs
+          for (let s = 2; s < steps; s += 3) {
+            const f = s / steps;
+            const x = startX + (endX - startX) * f;
+            const yOff = Math.sin(speed + f * Math.PI * 3.2) * (h * 0.30);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.18 * boost})`;
+            ctx.lineWidth = 0.9;
+            ctx.beginPath();
+            ctx.moveTo(x, h * 0.5 + yOff);
+            ctx.lineTo(x, h * 0.5 - yOff);
+            ctx.stroke();
+          }
+          // Twin cyan & magenta sugar-phosphate strands
+          for (let strand = -1; strand <= 1; strand += 2) {
+            ctx.beginPath();
+            for (let s = 0; s <= steps; s++) {
+              const f = s / steps;
+              const x = startX + (endX - startX) * f;
+              const y = h * 0.5 + Math.sin(speed + f * Math.PI * 3.2) * (h * 0.30) * strand;
+              if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = strand > 0
+              ? `rgba(34, 211, 238, ${0.48 * boost})`
+              : `rgba(232, 121, 249, ${0.48 * boost})`;
+            ctx.lineWidth = c.hovered ? 2.1 : 1.5;
+            ctx.stroke();
+          }
+
+        } else if (c.realm === 'meteor') {
+          // Live atmospheric ablation fire glow + drifting incandescent molten embers!
+          const flameG = ctx.createLinearGradient(16, h * 0.5, w, h * 0.5);
+          flameG.addColorStop(0.0, `rgba(254, 240, 138, ${0.34 * boost})`);
+          flameG.addColorStop(0.35, `rgba(249, 115, 22, ${0.26 * boost})`);
+          flameG.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+          ctx.fillStyle = flameG;
+          ctx.fillRect(0, 0, w, h);
+
+          for (let e = 0; e < c.embers.length; e++) {
+            const em = c.embers[e];
+            em.x += em.spd * (c.hovered ? 1.8 : 1.0);
+            em.y -= em.spd * 0.35;
+            if (em.x > 1.05 || em.y < -0.1) {
+              em.x = 0.16 + Math.random() * 0.14;
+              em.y = 0.25 + Math.random() * 0.65;
+            }
+            const ex = em.x * w;
+            const ey = em.y * h + Math.sin(now * 0.008 + em.phase) * 2.2;
+            const ea = Math.sin(Math.min(1, em.x) * Math.PI) * 0.85 * boost;
+            const eg = ctx.createRadialGradient(ex, ey, 0, ex, ey, em.size * 2.4);
+            eg.addColorStop(0.0, `rgba(255, 252, 220, ${Math.min(1, ea)})`);
+            eg.addColorStop(0.45, `rgba(251, 146, 60, ${Math.min(1, ea * 0.82)})`);
+            eg.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
+            ctx.fillStyle = eg;
+            ctx.beginPath();
+            ctx.arc(ex, ey, em.size * 2.4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+      }
+    }
+    requestAnimationFrame(renderLoop);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
 })();
