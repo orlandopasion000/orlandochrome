@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v380_realm_portals';
+const CACHE_NAME = 'orlandochrome-arcade-v381_zero_lag_studio';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade380_realm_portals',
-  './game.js?v=arcade380_realm_portals',
+  './styles.css?v=arcade381_zero_lag_studio',
+  './game.js?v=arcade381_zero_lag_studio',
   './qrcode.min.js',
-  './app.js?v=arcade380_realm_portals',
+  './app.js?v=arcade381_zero_lag_studio',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',

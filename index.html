@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade380_realm_portals">
+  <link rel="stylesheet" href="styles.css?v=arcade381_zero_lag_studio">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1280,8 +1280,8 @@
     }
     .oc-realm-orb {
       position: relative !important;
-      width: 21px !important;
-      height: 21px !important;
+      width: 22px !important;
+      height: 22px !important;
       border-radius: 50% !important;
       display: inline-flex !important;
       align-items: center !important;
@@ -1289,15 +1289,27 @@
       flex-shrink: 0 !important;
       z-index: 4 !important;
       pointer-events: none !important;
-      background: radial-gradient(circle, rgba(8, 12, 26, 0.96) 55%, rgba(0, 0, 0, 0.85) 100%) !important;
+      background: radial-gradient(circle, rgba(10, 14, 30, 0.96) 55%, rgba(0, 0, 0, 0.85) 100%) !important;
     }
-    .oc-realm-orb-img {
-      width: 19px !important;
-      height: 19px !important;
-      object-fit: contain !important;
+    .oc-realm-orb-clip {
+      width: 100% !important;
+      height: 100% !important;
       border-radius: 50% !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       position: relative !important;
       z-index: 2 !important;
+      pointer-events: none !important;
+    }
+    .oc-realm-orb-img {
+      width: 140% !important;
+      height: 140% !important;
+      max-width: none !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      position: relative !important;
       pointer-events: none !important;
     }
     .oc-realm-orb-ring {
@@ -1418,10 +1430,15 @@
     @media (max-width: 1180px) {
       .qgame-btn-launch.oc-realm-btn {
         padding: 0 !important;
-        width: 30px !important;
-        min-width: 30px !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        height: 32px !important;
         justify-content: center !important;
         gap: 0 !important;
+      }
+      .qgame-btn-launch.oc-realm-btn .oc-realm-orb {
+        width: 25px !important;
+        height: 25px !important;
       }
     }
 
@@ -1438,12 +1455,12 @@
       50% { transform: scale(1.06); filter: brightness(1.18); }
     }
 
-    /* FLOATING HOLOGRAPHIC TIER V REALM TELEMETRY PREVIEW PORTAL (Direct Child of Body — ZERO Clipping!) */
+    /* FLOATING HOLOGRAPHIC TIER V REALM TELEMETRY PREVIEW PORTAL (Live QuantumRenderer Canvas — ZERO Seam, ZERO Clipping!) */
     #ocRealmPortalCard {
       position: fixed !important;
       top: 52px !important;
       left: 0 !important;
-      width: 286px !important;
+      width: 294px !important;
       padding: 13px 14px 12px !important;
       border-radius: 16px !important;
       background: radial-gradient(circle at 50% 24%, rgba(24, 18, 52, 0.96) 0%, rgba(7, 10, 22, 0.97) 100%) !important;
@@ -1480,63 +1497,20 @@
     }
     .oc-portal-stage {
       position: relative !important;
-      height: 116px !important;
-      margin-bottom: 8px !important;
+      height: 140px !important;
+      margin-bottom: 9px !important;
       overflow: hidden !important;
       border-radius: 12px !important;
-      background: radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.08) 0%, rgba(2, 4, 12, 0.94) 70%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.10) !important;
+      background: radial-gradient(circle at 50% 56%, rgba(255, 255, 255, 0.06) 0%, rgba(2, 4, 12, 0.96) 72%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.11) !important;
     }
-    .oc-portal-halo {
-      position: absolute !important;
-      left: 50% !important;
-      top: 52% !important;
-      width: 106px !important;
-      height: 106px !important;
-      margin-left: -53px !important;
-      margin-top: -53px !important;
-      object-fit: contain !important;
-      opacity: 0.80 !important;
-      z-index: 1 !important;
-      animation: ocOrbSpinSlow 16s linear infinite !important;
-    }
-    .oc-portal-wing {
-      position: absolute !important;
-      left: 50% !important;
-      top: 52% !important;
-      width: 96px !important;
-      height: auto !important;
-      transform-origin: 0% 56% !important;
-      pointer-events: none !important;
+    .oc-portal-canvas {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
       z-index: 2 !important;
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.35)) !important;
-    }
-    .oc-portal-wing-right {
-      animation: ocPortalFlapR 1.9s ease-in-out infinite !important;
-    }
-    .oc-portal-wing-left {
-      animation: ocPortalFlapL 1.9s ease-in-out infinite !important;
-    }
-    @keyframes ocPortalFlapR {
-      0%, 100% { transform: translate(12px, -56%) rotate(-5deg); }
-      50% { transform: translate(12px, -60%) rotate(6deg); }
-    }
-    @keyframes ocPortalFlapL {
-      0%, 100% { transform: scaleX(-1) translate(12px, -56%) rotate(-5deg); }
-      50% { transform: scaleX(-1) translate(12px, -60%) rotate(6deg); }
-    }
-    .oc-portal-core {
-      position: absolute !important;
-      left: 50% !important;
-      top: 52% !important;
-      width: 60px !important;
-      height: 60px !important;
-      margin-left: -30px !important;
-      margin-top: -30px !important;
-      object-fit: contain !important;
-      z-index: 3 !important;
-      filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.42)) !important;
-      animation: ocHelixBreath 2.6s ease-in-out infinite !important;
+      pointer-events: none !important;
     }
     .oc-portal-tier-tag {
       position: absolute !important;
@@ -1614,29 +1588,29 @@
 
       <!-- Unified 6-Game Futuristic Arcade Suite -->
       <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
-        <button type="button" class="qgame-btn-launch qgame-btn-dynamo qgame-btn-realm oc-realm-btn" id="btnLaunchGame" data-realm="dynamo" title="Chrome Dynamo: Faraday Singularity Core · Lichtenberg Plasma Catcher" aria-label="Launch Chrome Dynamo">
+        <button type="button" class="qgame-btn-launch qgame-btn-dynamo qgame-btn-realm oc-realm-btn" id="btnLaunchGame" data-realm="dynamo" aria-label="Launch Chrome Dynamo: Faraday Singularity Core">
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-dynamo" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <img src="assets/layer-dynamo-nucleus.png?v=arcade374" alt="" class="oc-realm-orb-img" />
+            <span class="oc-realm-orb-clip"><img src="assets/core-dynamo-t5.png?v=arcade374" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">DYNAMO</span>
         </button>
 
-        <button type="button" class="qgame-btn-launch qgame-btn-helix oc-realm-btn" id="btnLaunchHelixGame" data-realm="helix" title="Chrome Helix: Harmonic Bio-Lattice Core · 3D Photonic DNA Synchronizer" aria-label="Launch Chrome Helix">
+        <button type="button" class="qgame-btn-launch qgame-btn-helix oc-realm-btn" id="btnLaunchHelixGame" data-realm="helix" aria-label="Launch Chrome Helix: Harmonic Bio-Lattice Core">
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-helix" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <img src="assets/layer-helix-shell.png?v=arcade374" alt="" class="oc-realm-orb-img" />
+            <span class="oc-realm-orb-clip"><img src="assets/core-helix-t5.png?v=arcade374" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">HELIX</span>
         </button>
 
-        <button type="button" class="qgame-btn-launch qgame-btn-meteor oc-realm-btn" id="btnLaunchMeteorGame" data-realm="meteor" title="Chrome Meteor: Aegis Caldera Core · Hypervelocity Ablation Deflector" aria-label="Launch Chrome Meteor">
+        <button type="button" class="qgame-btn-launch qgame-btn-meteor oc-realm-btn" id="btnLaunchMeteorGame" data-realm="meteor" aria-label="Launch Chrome Meteor: Aegis Caldera Core">
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-meteor" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <img src="assets/layer-meteor-caldera.png?v=arcade374" alt="" class="oc-realm-orb-img" />
+            <span class="oc-realm-orb-clip"><img src="assets/core-meteor-t5.png?v=arcade374" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">METEOR</span>
         </button>
@@ -2061,7 +2035,7 @@
   <script src="assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade380_realm_portals"></script>
+  <script src="app.js?v=arcade381_zero_lag_studio"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -2120,7 +2094,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade380_realm_portals"></script>
+  <script src="game.js?v=arcade381_zero_lag_studio"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 
 </body>

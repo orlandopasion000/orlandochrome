@@ -2611,24 +2611,8 @@
         p.lastStreakEmit = now;
 
         if (mode === 'dynamo' || mode === 'realm') {
-          // Chrome Dynamo: Vertical Warp Speedlines trailing above falling node (matches user reference image!)
-          p.streakSide = (p.streakSide === 1) ? -1 : 1;
-          const side = p.streakSide;
-          const flankFrac = 0.35 + Math.random() * 0.45;
-          const sx = p.x + side * flankFrac * targetR;
-          const sy = p.y - (0.35 + Math.random() * 0.35) * targetR;
-          const len = (0.65 + Math.random() * 0.45) * targetR;
-
-          this.worldStreaks.push({
-            type: 'speedline',
-            kind: 'dynamoSpeedline',
-            x: sx,
-            y: sy,
-            vy: p.speed * 0.12,
-            len: len,
-            life: 0,
-            maxLife: 14 + Math.random() * 6
-          });
+          // Zero redundant vertical ticks — compact Lichtenberg micro-crown handles Dynamo's wake smoothly!
+          return;
         } else if (mode === 'helix') {
           // Chrome Helix: Micro cyan/lilac fleck turning above the glass DNA orb
           const spawnX = p.x + (Math.random() - 0.5) * targetR * 0.45;
@@ -2825,8 +2809,8 @@
   // - Recommendation 3: Proportional Sleek Wingspan (reduced max span to 0.46 for majestic, balanced aerospace silhouette)
   // - Intact 4K feathers, real-3D perspective foreshortening, and zero-slice seams
   // ─────────────────────────────────────────────────────────────
-  function drawArticulatedWings(ctx, mode, u, cySrc, tier, now) {
-    const cTier = CoreKinematics.continuousTier;
+  function drawArticulatedWings(ctx, mode, u, cySrc, tier, now, isPortalPreview = false) {
+    const cTier = isPortalPreview ? 5.0 : CoreKinematics.continuousTier;
     if (cTier <= 1.03) return; // Tier I has no wings until morphing toward Tier II begins!
 
     const wingR = LayeredT4Assets.wingRight[mode];
@@ -2864,25 +2848,20 @@
     const rootSocketX = (mode === 'helix') ? 12.0 : (mode === 'dynamo' ? 10.0 : 12.0);
     const breathPhase = now * 0.0032;
 
-    // Horizontal Strafe Velocity & Ram-Air Aerodynamic Stabilization
-    const vx = CoreKinematics.vx || 0;
+    // Horizontal Strafe Velocity & Ram-Air Aerodynamic Stabilization (Isolated gentle flight wave in Portal Preview!)
+    const vx = isPortalPreview ? 0 : (CoreKinematics.vx || 0);
     const ramAirFactor = 1.0 / (1.0 + 0.12 * Math.abs(vx));
 
-    // Recommendation 1: Damped Base Flap with Angular Convergence Limiter
-    // Strict clamp ensures wingtips never touch or converge inward above the sphere
-    const tipInertia = (CoreKinematics.tipY * 0.0045 - CoreKinematics.bodyBank * 0.10) * ramAirFactor;
-    const breathOsc = Math.sin(breathPhase) * 0.008;
-    const lockLiftAngle = -CoreKinematics.lockOnProximity * 0.035;
+    const tipInertia = isPortalPreview ? 0 : ((CoreKinematics.tipY * 0.0045 - CoreKinematics.bodyBank * 0.10) * ramAirFactor);
+    const breathOsc = isPortalPreview ? (Math.sin(now * 0.0038) * 0.055) : (Math.sin(breathPhase) * 0.008);
+    const lockLiftAngle = isPortalPreview ? 0 : (-CoreKinematics.lockOnProximity * 0.035);
 
-    // Flap angle strictly clamped: max inward rotation 0.045 rad (~2.5 deg), max outward 0.12 rad (~6.8 deg)
-    // Vertical Pitch Dynamics: Moving UP compresses wings aerodynamically; moving DOWN flares them
-    const pitchAngle = CoreKinematics.pitchAngle || 0;
+    const pitchAngle = isPortalPreview ? (Math.sin(now * 0.0022) * 0.03) : (CoreKinematics.pitchAngle || 0);
     const pitchFlapMod = -pitchAngle * 0.35;
     const rawFlap = tipInertia + breathOsc + lockLiftAngle + pitchFlapMod;
     const clampedFlap = Math.max(-0.045, Math.min(0.12, rawFlap));
 
-    // Body Bank Angle into turn
-    const bankAngle = CoreKinematics.bodyBank * 0.32;
+    const bankAngle = isPortalPreview ? (Math.sin(now * 0.0019) * 0.035) : (CoreKinematics.bodyBank * 0.32);
     const normVx = Math.max(-1.0, Math.min(1.0, vx / 14.0));
 
     for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
@@ -3781,10 +3760,13 @@
     },
 
     // Master Multi-Layered Chrome Core Renderer (Dynamo, Helix, Meteor)
-    _drawLayeredWingedCore(ctx, mode, cx, cy, now, tier = 4, customScale = null) {
+    _drawLayeredWingedCore(ctx, mode, cx, cy, now, tier = 4, customScale = null, isPortalPreview = false) {
       const tierIdx = Math.min(5, Math.max(1, tier | 0));
-      const cTier = (CoreKinematics && CoreKinematics.continuousTier !== undefined && Math.abs(CoreKinematics.continuousTier - tierIdx) < 1.2) ? CoreKinematics.continuousTier : tierIdx;
-      const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
+      const cTier = isPortalPreview
+        ? tierIdx
+        : ((CoreKinematics && CoreKinematics.continuousTier !== undefined && Math.abs(CoreKinematics.continuousTier - tierIdx) < 1.2) ? CoreKinematics.continuousTier : tierIdx);
+      const effDpr = (ctx.canvas && ctx.canvas._renderDpr) ? ctx.canvas._renderDpr : Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+      const canvasW = ctx.canvas.width / effDpr;
       const isMobile = canvasW < 600;
 
       const drawW = customScale ? (customScale * 1376.0) : (isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060));
@@ -3802,9 +3784,9 @@
         const haloSpr = LayeredT4Assets.halo[mode];
         const haloMorph = Math.min(1.0, Math.max(0.0, (cTier - 2.0) / 1.8));
         const t45Halo = Math.max(0.0, Math.min(1.0, cTier - 4.0));
-        const haloScale = (0.42 + 0.24 * haloMorph + 0.05 * t45Halo) * (1.0 + Math.sin(now * 0.003) * 0.02 + CoreKinematics.overdriveFlash * 0.08);
+        const haloScale = (0.42 + 0.24 * haloMorph + 0.05 * t45Halo) * (1.0 + Math.sin(now * 0.003) * 0.02 + (isPortalPreview ? 0 : CoreKinematics.overdriveFlash * 0.08));
         ctx.save();
-        ctx.globalAlpha = Math.min(1.0, (cTier - 2.0) * 0.85 + CoreKinematics.overdriveFlash * 0.25);
+        ctx.globalAlpha = Math.min(1.0, (cTier - 2.0) * 0.85 + (isPortalPreview ? 0 : CoreKinematics.overdriveFlash * 0.25));
         ctx.globalCompositeOperation = 'lighter';
         ctx.scale(haloScale, haloScale);
         ctx.drawImage(haloSpr, -344 * u, -344 * u, 688 * u, 688 * u);
@@ -3812,7 +3794,7 @@
       }
 
       // UPGRADE 1 & 5: Render Expanding Ascension Shock-Rings & Tier IV/V Harmonic Resonance Rings!
-      if (CoreKinematics.ascensionRings.length > 0) {
+      if (!isPortalPreview && CoreKinematics.ascensionRings.length > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         for (let i = 0; i < CoreKinematics.ascensionRings.length; i++) {
@@ -3829,13 +3811,14 @@
       }
 
       // LAYER 2 & 3: Banking Central Core Body + Directly-Connected Proportional Wings!
+      const previewBank = isPortalPreview ? (Math.sin(now * 0.0019) * 0.04) : CoreKinematics.bodyBank;
       ctx.save();
-      ctx.rotate(CoreKinematics.bodyBank * 0.55);
+      ctx.rotate(previewBank * 0.55);
 
       // Draw Proportional Articulated Wings FIRST (anchored inside the core sphere at rootSocketX so zero gap exists!)
-      drawArticulatedWings(ctx, mode, u, cySrc, tierIdx, now);
+      drawArticulatedWings(ctx, mode, u, cySrc, tierIdx, now, isPortalPreview);
 
-      ctx.rotate(CoreKinematics.bodyBank * 0.45);
+      ctx.rotate(previewBank * 0.45);
 
       if (mode === 'dynamo') {
         drawDynamoRingsHalf(ctx, u, now, false, tierIdx);
@@ -4161,7 +4144,7 @@
       }
 
       // UPGRADE 5: Magnetic Lock-On Anticipation Rim Arc when a node enters the horizon
-      if (CoreKinematics.lockOnProximity > 0.15) {
+      if (!isPortalPreview && CoreKinematics.lockOnProximity > 0.15) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         const aimAngle = -Math.PI * 0.5 + Math.max(-0.45, Math.min(0.45, CoreKinematics.lockOnDX * 0.0045));
@@ -4177,18 +4160,20 @@
 
       ctx.restore(); // End shared core/wing bank
 
-      // 1:1 Tactical Crosshair Reticle around Core Cursor
-      CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
+      if (!isPortalPreview) {
+        // 1:1 Tactical Crosshair Reticle around Core Cursor
+        CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
 
-      // Mode-Specific 5-Second Aegis Spherical Geodesic Forcefield (Simultaneous with all active power-ups!)
-      const activeShield = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
-      if (activeShield && activeShield.expiresAt > now) {
-        CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, activeShield.expiresAt - now, mode);
+        // Mode-Specific 5-Second Aegis Spherical Geodesic Forcefield (Simultaneous with all active power-ups!)
+        const activeShield = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
+        if (activeShield && activeShield.expiresAt > now) {
+          CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, activeShield.expiresAt - now, mode);
+        }
       }
 
       ctx.restore(); // End core translate
 
-      if (mode === 'meteor' && CoreKinematics.impactCinders.length > 0) {
+      if (!isPortalPreview && mode === 'meteor' && CoreKinematics.impactCinders.length > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         for (let i = 0; i < CoreKinematics.impactCinders.length; i++) {
@@ -4227,412 +4212,201 @@
     },
 
     // ─────────────────────────────────────────────────────────────────────────
-    // SCIENTIFIC REALM WAKE ENGINE (Aligned to Origin, Story & 6 Concept References)
-    // Dynamo: Faraday Lichtenberg Dielectric Lightning (Good) / Short-Circuit Crimson Static (Bad)
-    // Helix:  3D Rotating Cyan-Magenta DNA Double Helix (Good) / Severed Unraveled Prion Strand (Bad)
-    // Meteor: Turbulent Solar-Gold Atmospheric Ablation Fire (Good) / Abyssal-Emerald Isotope Vapor (Bad)
+    // PRE-BAKED GPU GLOW SPRITE CACHE (Role #6 & #7: ZERO per-frame gradient allocations!)
+    // ─────────────────────────────────────────────────────────────────────────
+    _glowSprites: null,
+    _getGlowSprite(key) {
+      if (!this._glowSprites) {
+        const makeGlow = (stops) => {
+          const c = document.createElement('canvas');
+          c.width = 64; c.height = 64;
+          const gctx = c.getContext('2d');
+          const g = gctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+          for (let i = 0; i < stops.length; i++) g.addColorStop(stops[i][0], stops[i][1]);
+          gctx.fillStyle = g;
+          gctx.fillRect(0, 0, 64, 64);
+          return c;
+        };
+        this._glowSprites = {
+          indigo:  makeGlow([[0, 'rgba(99,102,241,0.58)'], [0.45, 'rgba(79,70,229,0.24)'], [1, 'rgba(49,46,129,0)']]),
+          cyan:    makeGlow([[0, 'rgba(125,211,252,0.62)'], [0.45, 'rgba(34,211,238,0.26)'], [1, 'rgba(14,165,233,0)']]),
+          helix:   makeGlow([[0, 'rgba(34,211,238,0.48)'], [0.48, 'rgba(232,121,249,0.24)'], [1, 'rgba(168,85,247,0)']]),
+          amber:   makeGlow([[0, 'rgba(255,250,210,0.92)'], [0.38, 'rgba(251,146,60,0.65)'], [0.75, 'rgba(220,38,38,0.20)'], [1, 'rgba(153,27,27,0)']]),
+          gold:    makeGlow([[0, 'rgba(255,253,225,0.95)'], [0.40, 'rgba(250,204,21,0.65)'], [0.78, 'rgba(234,88,12,0.22)'], [1, 'rgba(154,52,18,0)']]),
+          crimson: makeGlow([[0, 'rgba(244,63,94,0.54)'], [0.50, 'rgba(159,18,57,0.22)'], [1, 'rgba(136,19,55,0)']]),
+          emerald: makeGlow([[0, 'rgba(16,185,129,0.52)'], [0.48, 'rgba(147,51,234,0.24)'], [1, 'rgba(88,28,135,0)']]),
+          emberPt: makeGlow([[0, 'rgba(255,255,235,0.98)'], [0.42, 'rgba(251,146,60,0.78)'], [1, 'rgba(220,38,38,0)']]),
+          cyanPt:  makeGlow([[0, 'rgba(240,253,255,0.98)'], [0.42, 'rgba(56,189,248,0.82)'], [1, 'rgba(59,130,246,0)']]),
+          magPt:   makeGlow([[0, 'rgba(255,245,255,0.96)'], [0.42, 'rgba(232,121,249,0.80)'], [1, 'rgba(168,85,247,0)']]),
+          crimPt:  makeGlow([[0, 'rgba(255,228,230,0.96)'], [0.45, 'rgba(244,63,94,0.82)'], [1, 'rgba(159,18,57,0)']]),
+          emPt:    makeGlow([[0, 'rgba(240,255,248,0.95)'], [0.45, 'rgba(16,185,129,0.78)'], [1, 'rgba(88,28,135,0)']])
+        };
+      }
+      return this._glowSprites[key] || this._glowSprites.cyan;
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // COMPACT, ZERO-LAG REALM MICRO-AURA WAKE ENGINE (Roles #3 & #6)
+    // Natural, hugging upper-hemisphere atmospheric/plasma/bioluminescent slipstreams
+    // Uses pure pre-baked GPU GlowSprites & soft rim micro-arcs — ZERO antennae, ZERO lag!
     // ─────────────────────────────────────────────────────────────────────────
     _drawScientificNodeWake(ctx, mode, p, targetR, scale, now, isHazard, isPowered) {
       const animPhase = p.animPhase || 0.0;
       const modeKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
-      const powerBoost = isPowered ? 1.24 : 1.0;
+      const powerMult = isPowered ? 1.16 : 1.0;
 
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
 
       if (!isHazard) {
         if (modeKey === 'dynamo') {
-          // ═══ DYNAMO GOOD WAKE: Ionized Cobalt-Violet Mist + Forked Lichtenberg Dielectric Lightning (Images #3 & #4!) ═══
-          const wakeLen = targetR * 3.55 * powerBoost;
-          // 1. Rich ionized cobalt-violet plasma sheath (scaled circle -> pure alpha=0 inside bounds!)
-          ctx.save();
-          ctx.translate(0, -wakeLen * 0.44);
-          ctx.scale(0.46, 1.0);
-          const hazeGrad = ctx.createRadialGradient(0, wakeLen * 0.24, targetR * 0.14, 0, 0, wakeLen * 0.74);
-          hazeGrad.addColorStop(0.0, isPowered ? 'rgba(125, 211, 252, 0.44)' : 'rgba(99, 102, 241, 0.40)');
-          hazeGrad.addColorStop(0.42, 'rgba(79, 70, 229, 0.24)');
-          hazeGrad.addColorStop(0.75, 'rgba(67, 56, 202, 0.08)');
-          hazeGrad.addColorStop(1.0, 'rgba(49, 46, 129, 0)');
-          ctx.fillStyle = hazeGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, wakeLen * 0.74, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          // ═══ DYNAMO GOOD: Hugging Ionized Plasma Slipstream + Tangential Tesla Rim Micro-Arcs + Ion Sparks ═══
+          const wakeLen = targetR * 1.05 * powerMult;
+          const spr = this._getGlowSprite(isPowered ? 'cyan' : 'indigo');
+          const sway = Math.sin(now * 0.012 + animPhase) * targetR * 0.08;
+          ctx.globalAlpha = isPowered ? 0.72 : 0.62;
+          ctx.drawImage(spr, -targetR * 1.06 + sway * 0.3, -targetR * 1.12 - wakeLen * 0.45, targetR * 2.12, targetR * 1.75 + wakeLen * 0.55);
+          ctx.globalAlpha = 0.46;
+          ctx.drawImage(this._getGlowSprite('cyan'), -targetR * 0.65 + sway, -targetR * 1.05 - wakeLen * 0.78, targetR * 1.30, wakeLen * 1.05);
 
-          // 2. Crisp branching high-voltage Lichtenberg lightning anchored at orb's ionized plasma stem!
-          //    (Non-2*PI irrational step frequencies ensure genuine sharp jagged dielectric zig-zags — ZERO parallel waves!)
-          const tick = Math.floor(now / 45) + Math.floor(animPhase * 17);
-          const boltCount = isPowered ? 3 : 2;
+          // Tangential Tesla-globe surface corona arcs hugging the left/right shoulders (NEVER poking above pill!)
+          const tick = Math.floor(now / 65) + Math.floor(animPhase * 17);
+          ctx.globalAlpha = 1.0;
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
-          for (let b = 0; b < boltCount; b++) {
-            const pts = [];
-            const segs = 9;
-            const fanDir = (boltCount === 2) ? (b === 0 ? -0.55 : 0.55) : (b - 1) * 0.72;
+          const arcSides = isPowered ? 2 : 1;
+          for (let a = 0; a < arcSides; a++) {
+            const sideDir = (arcSides === 1) ? ((tick % 2 === 0) ? 1 : -1) : (a === 0 ? -1 : 1);
+            const baseAng = -Math.PI * 0.5 + sideDir * (0.48 + (Math.sin(tick * 1.9 + a) * 0.14));
+            const arcSpan = 0.46;
+            const segs = 4;
+            ctx.beginPath();
             for (let s = 0; s <= segs; s++) {
               const frac = s / segs;
-              // Irrational frequencies (2.17, 3.83) produce authentic sharp alternating lightning kinks
-              const jag = Math.sin(tick * 2.71 + b * 4.19 + s * 2.17 + animPhase * 3.1) * 0.62
-                        + Math.cos(tick * 4.33 + b * 2.87 + s * 3.83) * 0.38;
-              const amp = targetR * (0.34 + frac * 0.30) * (s === 0 ? 0.0 : Math.min(1.0, frac * 2.2));
-              const px = fanDir * targetR * (0.14 + frac * 0.55) + jag * amp;
-              const py = -targetR * 0.72 - frac * wakeLen;
-              pts.push({ x: px, y: py });
+              const ang = baseAng + sideDir * (frac - 0.5) * arcSpan;
+              const jitter = (s === 0 || s === segs) ? 0 : Math.sin(tick * 3.7 + s * 2.9 + a * 4.1) * targetR * 0.11;
+              const r = targetR * 1.06 + jitter;
+              const px = Math.cos(ang) * r;
+              const py = Math.sin(ang) * r;
+              if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
-
-            // Outer electric-blue / violet plasma glow
-            const bGrad = ctx.createLinearGradient(0, -targetR * 0.6, 0, -targetR * 0.7 - wakeLen);
-            bGrad.addColorStop(0.0, isPowered ? 'rgba(250, 204, 21, 0.88)' : 'rgba(56, 189, 248, 0.92)');
-            bGrad.addColorStop(0.40, 'rgba(99, 102, 241, 0.75)');
-            bGrad.addColorStop(1.0, 'rgba(139, 92, 246, 0)');
-            ctx.strokeStyle = bGrad;
-            ctx.lineWidth = (isPowered ? 4.6 : 3.8) * scale;
-            ctx.beginPath();
-            for (let s = 0; s < pts.length; s++) {
-              if (s === 0) ctx.moveTo(pts[s].x, pts[s].y);
-              else ctx.lineTo(pts[s].x, pts[s].y);
-            }
+            ctx.strokeStyle = isPowered ? 'rgba(250, 204, 21, 0.72)' : 'rgba(56, 189, 248, 0.76)';
+            ctx.lineWidth = 2.0 * scale;
             ctx.stroke();
-
-            // Blinding ice-white high-voltage filament core
-            const cGrad = ctx.createLinearGradient(0, -targetR * 0.6, 0, -targetR * 0.7 - wakeLen);
-            cGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.98)');
-            cGrad.addColorStop(0.55, isPowered ? 'rgba(254, 240, 138, 0.80)' : 'rgba(186, 230, 253, 0.80)');
-            cGrad.addColorStop(1.0, 'rgba(165, 180, 252, 0)');
-            ctx.strokeStyle = cGrad;
-            ctx.lineWidth = 1.45 * scale;
+            ctx.strokeStyle = 'rgba(240, 249, 255, 0.85)';
+            ctx.lineWidth = 0.85 * scale;
             ctx.stroke();
-
-            // Twin Lichtenberg crackling side-forks fanning off segments 2 and 5
-            const forkIdxs = [2, 5];
-            for (let fi = 0; fi < forkIdxs.length; fi++) {
-              const fRoot = pts[forkIdxs[fi]];
-              const forkDir = (((tick + b + fi) % 2 === 0) ? 1 : -1);
-              const fmX = fRoot.x + forkDir * targetR * (0.28 + fi * 0.08);
-              const fmY = fRoot.y - targetR * 0.36;
-              const feX = fmX + forkDir * targetR * 0.24 + Math.sin(tick * 3.1 + fi) * targetR * 0.14;
-              const feY = fmY - targetR * 0.34;
-              ctx.strokeStyle = isPowered ? 'rgba(253, 224, 71, 0.60)' : 'rgba(125, 211, 252, 0.65)';
-              ctx.lineWidth = 1.45 * scale;
-              ctx.beginPath();
-              ctx.moveTo(fRoot.x, fRoot.y);
-              ctx.lineTo(fmX, fmY);
-              ctx.lineTo(feX, feY);
-              ctx.stroke();
-            }
           }
+
+          // 3 Delicate GPU-blitted electric ion sparks drifting softly upward in slipstream
+          const ptSpr = this._getGlowSprite(isPowered ? 'emberPt' : 'cyanPt');
+          for (let em = 0; em < 3; em++) {
+            const ep = ((now * 0.0024 + em * 0.333 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.009 + em * 2.7 + animPhase) * targetR * (0.58 - ep * 0.22);
+            const ey = -targetR * 0.60 - ep * wakeLen * 1.05;
+            const es = (4.8 - ep * 2.4) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.88;
+            ctx.drawImage(ptSpr, ex - es, ey - es, es * 2, es * 2);
+          }
+          ctx.globalAlpha = 1.0;
 
         } else if (modeKey === 'helix') {
-          // ═══ HELIX GOOD WAKE: 3D Rotating Cyan-Magenta Double-Helix DNA Ribbon + Base-Pair Rungs! ═══
-          const wakeLen = targetR * 3.85 * powerBoost;
-          const twistBase = now * 0.0052 + animPhase;
-          const samples = 22;
+          // ═══ HELIX GOOD: Silky Bioluminescent Photonic Slipstream + Spiraling Cyan/Magenta Nucleotide Stardust ═══
+          const wakeLen = targetR * 1.08 * powerMult;
+          const spr = this._getGlowSprite('helix');
+          const sway = Math.sin(now * 0.010 + animPhase) * targetR * 0.08;
+          ctx.globalAlpha = isPowered ? 0.72 : 0.58;
+          ctx.drawImage(spr, -targetR * 1.05 + sway * 0.3, -targetR * 1.10 - wakeLen * 0.45, targetR * 2.10, targetR * 1.72 + wakeLen * 0.58);
+          ctx.globalAlpha = 0.42;
+          ctx.drawImage(this._getGlowSprite('cyan'), -targetR * 0.62 - sway * 0.5, -targetR * 1.02 - wakeLen * 0.78, targetR * 1.24, wakeLen * 1.00);
 
-          // 1. Ethereal bioluminescent cyan-magenta mist enveloping the trailing helix
-          ctx.save();
-          ctx.translate(0, -wakeLen * 0.48);
-          ctx.scale(0.38, 1.0);
-          const mGrad = ctx.createRadialGradient(0, wakeLen * 0.20, targetR * 0.12, 0, 0, wakeLen * 0.70);
-          mGrad.addColorStop(0.0, 'rgba(34, 211, 238, 0.26)');
-          mGrad.addColorStop(0.45, 'rgba(232, 121, 249, 0.16)');
-          mGrad.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
-          ctx.fillStyle = mGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, wakeLen * 0.70, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          // Compute 3D sinusoidal double-strand coordinates tapering cleanly toward tail tip
-          const strandA = [];
-          const strandB = [];
-          for (let s = 0; s <= samples; s++) {
-            const frac = s / samples;
-            const y = -targetR * 0.62 - frac * wakeLen;
-            const env = (1.0 - frac * 0.72) * (0.78 + 0.22 * Math.sin(frac * Math.PI));
-            const amp = targetR * (isPowered ? 0.54 : 0.46) * env;
-            const ang = twistBase + frac * Math.PI * 3.4;
-            const xA = Math.sin(ang) * amp;
-            const zA = Math.cos(ang);
-            strandA.push({ x: xA, y, z: zA, frac });
-            strandB.push({ x: -xA, y, z: -zA, frac });
+          // 4 Delicate GPU-blitted nucleotide stardust motes orbiting in a soft twin-helix slipstream (ZERO rigid bow/antennae!)
+          const cSpr = this._getGlowSprite('cyanPt');
+          const mSpr = this._getGlowSprite(isPowered ? 'emberPt' : 'magPt');
+          const twist = now * 0.0048 + animPhase;
+          for (let em = 0; em < 4; em++) {
+            const ep = ((now * 0.0021 + em * 0.25 + animPhase) % 1.0);
+            const strandSign = (em % 2 === 0) ? 1 : -1;
+            const ex = Math.sin(twist + ep * Math.PI * 2.2) * targetR * (0.56 - ep * 0.26) * strandSign;
+            const ey = -targetR * 0.55 - ep * wakeLen * 1.08;
+            const es = (4.6 - ep * 2.2) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.90;
+            ctx.drawImage(strandSign > 0 ? cSpr : mSpr, ex - es, ey - es, es * 2, es * 2);
           }
-
-          // 2. Hydrogen-Bonded Base-Pair Rungs (A-T / C-G) connecting twin strands
-          ctx.lineCap = 'round';
-          for (let s = 1; s < samples; s += 2) {
-            const pA = strandA[s];
-            const pB = strandB[s];
-            const fade = Math.pow(1.0 - pA.frac, 1.15);
-            const rGrad = ctx.createLinearGradient(pA.x, pA.y, pB.x, pB.y);
-            rGrad.addColorStop(0.0, `rgba(34, 211, 238, ${0.72 * fade})`);
-            rGrad.addColorStop(0.5, `rgba(255, 255, 255, ${0.65 * fade})`);
-            rGrad.addColorStop(1.0, `rgba(232, 121, 249, ${0.72 * fade})`);
-            ctx.strokeStyle = rGrad;
-            ctx.lineWidth = Math.max(0.8, 1.35 * scale * (1.0 - pA.frac * 0.4));
-            ctx.beginPath();
-            ctx.moveTo(pA.x, pA.y);
-            ctx.lineTo(pB.x, pB.y);
-            ctx.stroke();
-          }
-
-          // 3. Twin Luminous Sugar-Phosphate Backbones (Cyan Strand + Magenta Strand with Specular Core)
-          const drawHelixStrand = (pts, outerCol, innerCol) => {
-            for (let s = 0; s < pts.length - 1; s++) {
-              const a = pts[s];
-              const b = pts[s + 1];
-              const fade = Math.pow(1.0 - a.frac, 1.05);
-              const depthBoost = 0.72 + 0.28 * ((a.z + 1) * 0.5);
-              const wBase = (isPowered ? 4.2 : 3.5) * scale * (1.0 - a.frac * 0.55) * depthBoost;
-
-              ctx.strokeStyle = `${outerCol}${0.72 * fade * depthBoost})`;
-              ctx.lineWidth = wBase;
-              ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
-              ctx.stroke();
-
-              ctx.strokeStyle = `${innerCol}${0.90 * fade * depthBoost})`;
-              ctx.lineWidth = Math.max(0.7, wBase * 0.36);
-              ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
-              ctx.stroke();
-            }
-          };
-          drawHelixStrand(strandA, 'rgba(34, 211, 238, ', 'rgba(224, 242, 254, ');
-          drawHelixStrand(strandB, isPowered ? 'rgba(251, 191, 36, ' : 'rgba(232, 121, 249, ', 'rgba(253, 242, 248, ');
+          ctx.globalAlpha = 1.0;
 
         } else {
-          // ═══ METEOR GOOD WAKE: Cohesive Turbulent Atmospheric Re-Entry Fire & Spallation Embers (Images #2 & #5!) ═══
-          const wakeLen = targetR * 3.15 * powerBoost;
+          // ═══ METEOR GOOD: Intimate Hugging Ablation Flame Collar + 3 GPU-Blitted Molten Embers (~1.12x R) ═══
+          const wakeLen = targetR * 1.12 * powerMult;
+          const spr = this._getGlowSprite(isPowered ? 'gold' : 'amber');
+          const sway = Math.sin(now * 0.018 + animPhase) * targetR * 0.12;
+          // 1. Hugging re-entry fire crown wrapping smoothly off upper basalt crust (pure GPU blit!)
+          ctx.globalAlpha = isPowered ? 0.78 : 0.68;
+          ctx.drawImage(spr, -targetR * 1.05 + sway * 0.4, -targetR * 1.18 - wakeLen * 0.55, targetR * 2.10, targetR * 1.75 + wakeLen * 0.75);
+          ctx.globalAlpha = 0.52;
+          ctx.drawImage(spr, -targetR * 0.62 + sway, -targetR * 1.10 - wakeLen * 0.92, targetR * 1.24, wakeLen * 1.15);
 
-          // 1. Soft atmospheric ablation heat glow (scaled circle -> pure alpha=0 inside bounds, ZERO oval edge!)
-          ctx.save();
-          ctx.translate(0, -wakeLen * 0.36);
-          ctx.scale(0.56, 1.0);
-          const hRad = wakeLen * 0.78;
-          const mHaze = ctx.createRadialGradient(0, hRad * 0.26, targetR * 0.18, 0, 0, hRad);
-          mHaze.addColorStop(0.0, isPowered ? 'rgba(254, 240, 138, 0.44)' : 'rgba(251, 191, 36, 0.38)');
-          mHaze.addColorStop(0.38, 'rgba(249, 115, 22, 0.24)');
-          mHaze.addColorStop(0.74, 'rgba(194, 65, 12, 0.08)');
-          mHaze.addColorStop(1.0, 'rgba(154, 52, 18, 0)');
-          ctx.fillStyle = mHaze;
-          ctx.beginPath();
-          ctx.arc(0, 0, hRad, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          // 2. Cohesive unified sinuous atmospheric fire plume hugging the bolide (NO separated crown spikes!)
-          const plumes = [
-            { ox: 0.00, w: 1.02, h: 1.00, spd: 0.020, ph: 0.0, curl: 0.28 },
-            { ox: -0.28, w: 0.72, h: 0.74, spd: 0.026, ph: 1.6, curl: -0.32 },
-            { ox: 0.28, w: 0.72, h: 0.74, spd: 0.024, ph: 3.1, curl: 0.32 }
-          ];
-          for (let pl = 0; pl < plumes.length; pl++) {
-            const pg = plumes[pl];
-            const w1 = Math.sin(now * pg.spd + pg.ph + animPhase);
-            const w2 = Math.cos(now * pg.spd * 1.4 + pg.ph + animPhase);
-            const tipSway = (w1 * 0.26 + pg.curl * 0.20) * targetR;
-            const midSway = (-w1 * 0.16 + pg.curl * 0.14) * targetR;
-            const tipY = -targetR * 0.55 - wakeLen * pg.h * (0.86 + 0.14 * w2);
-            const baseW = targetR * pg.w;
-            const baseX = targetR * pg.ox;
-
-            const pGrad = ctx.createLinearGradient(baseX, targetR * 0.28, baseX + tipSway, tipY);
-            pGrad.addColorStop(0.0, 'rgba(255, 251, 214, 0.68)');
-            pGrad.addColorStop(0.32, isPowered ? 'rgba(250, 204, 21, 0.64)' : 'rgba(251, 146, 60, 0.60)');
-            pGrad.addColorStop(0.68, 'rgba(234, 88, 12, 0.28)');
-            pGrad.addColorStop(1.0, 'rgba(180, 40, 12, 0)');
-            ctx.fillStyle = pGrad;
-            ctx.beginPath();
-            ctx.moveTo(baseX - baseW * 0.88, targetR * 0.08);
-            ctx.bezierCurveTo(baseX - baseW * 0.96 + midSway, tipY * 0.30, baseX + tipSway - baseW * 0.36, tipY * 0.72, baseX + tipSway, tipY);
-            ctx.bezierCurveTo(baseX + tipSway + baseW * 0.36, tipY * 0.72, baseX + baseW * 0.96 + midSway, tipY * 0.30, baseX + baseW * 0.88, targetR * 0.08);
-            ctx.quadraticCurveTo(baseX, targetR * 0.66, baseX - baseW * 0.88, targetR * 0.08);
-            ctx.closePath();
-            ctx.fill();
+          // 2. Three delicate rising incandescent spallation embers (pure GPU blit — ZERO gradients!)
+          const eSpr = this._getGlowSprite('emberPt');
+          for (let em = 0; em < 3; em++) {
+            const ep = ((now * 0.0026 + em * 0.333 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.008 + em * 2.4 + animPhase) * targetR * (0.52 - ep * 0.18);
+            const ey = -targetR * 0.65 - ep * wakeLen * 1.18;
+            const es = (5.5 - ep * 2.8) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.90;
+            ctx.drawImage(eSpr, ex - es, ey - es, es * 2, es * 2);
           }
-
-          // 2b. Rolling Turbulent Atmospheric Fire Billows Rising Continuously From the Crust!
-          for (let fb = 0; fb < 5; fb++) {
-            const fp = ((now * 0.0026 + fb * 0.20 + animPhase) % 1.0);
-            const fx = Math.sin(now * 0.009 + fb * 2.4 + animPhase) * targetR * (0.46 - fp * 0.26);
-            const fy = -targetR * 0.10 - fp * wakeLen * 0.88;
-            const fr = targetR * (0.58 * (1.0 - fp * 0.56));
-            const fa = Math.sin(fp * Math.PI) * 0.56;
-            const fbg = ctx.createRadialGradient(fx, fy, 0, fx, fy, fr);
-            fbg.addColorStop(0.0, `rgba(255, 248, 210, ${fa})`);
-            fbg.addColorStop(0.45, `rgba(251, 146, 60, ${fa * 0.82})`);
-            fbg.addColorStop(0.80, `rgba(220, 38, 38, ${fa * 0.30})`);
-            fbg.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
-            ctx.fillStyle = fbg;
-            ctx.beginPath();
-            ctx.arc(fx, fy, fr, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          // 3. Incandescent spallation ember sparks flaking off into the re-entry wake
-          for (let em = 0; em < 6; em++) {
-            const eProg = ((now * 0.0024 + em * 0.167 + animPhase) % 1.0);
-            const ex = Math.sin(now * 0.007 + em * 2.5 + animPhase) * targetR * (0.62 - eProg * 0.22);
-            const ey = -targetR * 0.35 - eProg * wakeLen * 1.05;
-            const er = Math.max(0.8, (2.6 - eProg * 1.5) * scale);
-            const ea = Math.sin(eProg * Math.PI) * 0.92;
-            const eg = ctx.createRadialGradient(ex, ey, 0, ex, ey, er * 2.4);
-            eg.addColorStop(0.0, `rgba(255, 255, 230, ${ea})`);
-            eg.addColorStop(0.45, `rgba(251, 146, 60, ${ea * 0.82})`);
-            eg.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
-            ctx.fillStyle = eg;
-            ctx.beginPath();
-            ctx.arc(ex, ey, er * 2.4, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          ctx.globalAlpha = 1.0;
         }
       } else if (!isPowered) {
-        // ═══ REGULAR BAD NODE SCIENTIFIC CORRUPTION WAKES (Antimatter Inversion of Each Realm!) ═══
+        // ═══ REGULAR BAD NODES: Compact Hugging Antimatter Slipstreams (Pure GPU Blit — ZERO Antennae!) ═══
+        const wakeLen = targetR * 0.85;
         if (modeKey === 'dynamo') {
-          // Inverted Blood-Crimson / Dark-Magenta Short-Circuit Fractured Lightning Wake (Irrational zig-zag freq — ZERO straight sticks!)
-          const wakeLen = targetR * 2.65;
-          ctx.save();
-          ctx.translate(0, -wakeLen * 0.42);
-          ctx.scale(0.45, 1.0);
-          const chGrad = ctx.createRadialGradient(0, wakeLen * 0.22, targetR * 0.12, 0, 0, wakeLen * 0.72);
-          chGrad.addColorStop(0.0, 'rgba(244, 63, 94, 0.36)');
-          chGrad.addColorStop(0.50, 'rgba(159, 18, 57, 0.16)');
-          chGrad.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
-          ctx.fillStyle = chGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, wakeLen * 0.72, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          const tick = Math.floor(now / 52) + Math.floor(animPhase * 13);
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-          for (let b = 0; b < 2; b++) {
-            const fan = (b === 0 ? -0.45 : 0.45);
-            const pts = [];
-            for (let s = 0; s <= 7; s++) {
-              const f = s / 7;
-              // Irrational frequencies (2.37, 3.91) guarantee sharp erratic short-circuit zig-zags!
-              const j = (Math.sin(tick * 3.13 + b * 4.71 + s * 2.37 + animPhase) * 0.65
-                       + Math.cos(tick * 5.21 + b * 2.19 + s * 3.91) * 0.35) * targetR * (0.42 + f * 0.22);
-              pts.push({
-                x: fan * targetR * (0.12 + f * 0.55) + j * (s === 0 ? 0.0 : 1.0),
-                y: -targetR * 0.55 - f * wakeLen
-              });
-            }
-            const cGrad = ctx.createLinearGradient(0, -targetR * 0.45, 0, -targetR * 0.55 - wakeLen);
-            cGrad.addColorStop(0.0, 'rgba(244, 63, 94, 0.88)');
-            cGrad.addColorStop(0.55, 'rgba(190, 18, 60, 0.48)');
-            cGrad.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
-            ctx.strokeStyle = cGrad;
-            ctx.lineWidth = 3.4 * scale;
-            ctx.beginPath();
-            for (let s = 0; s < pts.length; s++) {
-              if (s === 0) ctx.moveTo(pts[s].x, pts[s].y);
-              else ctx.lineTo(pts[s].x, pts[s].y);
-            }
-            ctx.stroke();
-
-            ctx.strokeStyle = 'rgba(254, 205, 211, 0.78)';
-            ctx.lineWidth = 1.15 * scale;
-            ctx.stroke();
-
-            // Short crackling red static side-arc
-            const sr = pts[3];
-            const sDir = (b === 0 ? -1 : 1);
-            ctx.strokeStyle = 'rgba(251, 113, 133, 0.62)';
-            ctx.lineWidth = 1.3 * scale;
-            ctx.beginPath();
-            ctx.moveTo(sr.x, sr.y);
-            ctx.lineTo(sr.x + sDir * targetR * 0.34, sr.y - targetR * 0.28);
-            ctx.stroke();
+          const spr = this._getGlowSprite('crimson');
+          ctx.globalAlpha = 0.58;
+          ctx.drawImage(spr, -targetR * 1.00, -targetR * 1.15 - wakeLen * 0.35, targetR * 2.00, targetR * 1.70);
+          const cpSpr = this._getGlowSprite('crimPt');
+          for (let em = 0; em < 2; em++) {
+            const ep = ((now * 0.0025 + em * 0.5 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.011 + em * 3.1 + animPhase) * targetR * 0.48;
+            const ey = -targetR * 0.58 - ep * wakeLen * 0.98;
+            const es = (4.2 - ep * 2.0) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.85;
+            ctx.drawImage(cpSpr, ex - es, ey - es, es * 2, es * 2);
           }
+          ctx.globalAlpha = 1.0;
 
         } else if (modeKey === 'helix') {
-          // Severed, Frayed, Unraveling Dark-Crimson & Shadow-Violet Mutated Prion DNA Wake!
-          const wakeLen = targetR * 2.95;
-          ctx.save();
-          ctx.translate(0, -wakeLen * 0.45);
-          ctx.scale(0.42, 1.0);
-          const pmGrad = ctx.createRadialGradient(0, wakeLen * 0.22, targetR * 0.12, 0, 0, wakeLen * 0.72);
-          pmGrad.addColorStop(0.0, 'rgba(225, 29, 72, 0.34)');
-          pmGrad.addColorStop(0.52, 'rgba(147, 51, 234, 0.16)');
-          pmGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
-          ctx.fillStyle = pmGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, wakeLen * 0.72, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          const twist = now * 0.0044 + animPhase;
-          ctx.lineCap = 'round';
-          for (let strand = -1; strand <= 1; strand += 2) {
-            ctx.beginPath();
-            const segs = 12;
-            for (let s = 0; s <= segs; s++) {
-              const f = s / segs;
-              const fray = (1.0 + f * 0.70);
-              const jag = Math.sin(s * 2.41 + animPhase * 5.0) * targetR * 0.14 * f;
-              const sx = Math.sin(twist + f * Math.PI * 2.3) * targetR * 0.38 * strand * fray + jag;
-              const sy = -targetR * 0.55 - f * wakeLen;
-              if (s === 0) ctx.moveTo(sx, sy);
-              else ctx.lineTo(sx, sy);
-            }
-            const uGrad = ctx.createLinearGradient(0, -targetR * 0.5, 0, -targetR * 0.55 - wakeLen);
-            uGrad.addColorStop(0.0, strand < 0 ? 'rgba(244, 63, 94, 0.88)' : 'rgba(192, 132, 252, 0.78)');
-            uGrad.addColorStop(0.60, 'rgba(190, 18, 60, 0.42)');
-            uGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
-            ctx.strokeStyle = uGrad;
-            ctx.lineWidth = 3.0 * scale;
-            ctx.stroke();
+          const spr = this._getGlowSprite('crimson');
+          ctx.globalAlpha = 0.52;
+          ctx.drawImage(spr, -targetR * 0.98, -targetR * 1.12 - wakeLen * 0.35, targetR * 1.96, targetR * 1.66);
+          const cpSpr = this._getGlowSprite('crimPt');
+          const mpSpr = this._getGlowSprite('magPt');
+          for (let em = 0; em < 3; em++) {
+            const ep = ((now * 0.0022 + em * 0.333 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.006 + em * 2.5 + animPhase) * targetR * 0.46;
+            const ey = -targetR * 0.56 - ep * wakeLen * 0.96;
+            const es = (4.0 - ep * 1.9) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.82;
+            ctx.drawImage(em % 2 === 0 ? cpSpr : mpSpr, ex - es, ey - es, es * 2, es * 2);
           }
-          // Snapped half-rungs jutting brokenly inward
-          for (let r = 1; r <= 5; r++) {
-            const f = r / 6.0;
-            const sy = -targetR * 0.62 - f * wakeLen;
-            const sx = Math.sin(twist + f * Math.PI * 2.3) * targetR * 0.40;
-            ctx.strokeStyle = `rgba(253, 164, 175, ${0.72 * (1.0 - f)})`;
-            ctx.lineWidth = 1.4 * scale;
-            ctx.beginPath();
-            ctx.moveTo(sx, sy);
-            ctx.lineTo(sx * 0.22, sy - 3.5 * scale);
-            ctx.stroke();
-          }
+          ctx.globalAlpha = 1.0;
 
         } else {
-          // Blighted Cryo-Obsidian Radioactive Abyssal-Emerald & Amethyst Vapor Wake!
-          const wakeLen = targetR * 2.65;
-          ctx.save();
-          ctx.translate(0, -wakeLen * 0.42);
-          ctx.scale(0.48, 1.0);
-          const vRad = wakeLen * 0.74;
-          const vGrad = ctx.createRadialGradient(0, vRad * 0.22, targetR * 0.15, 0, 0, vRad);
-          vGrad.addColorStop(0.0, 'rgba(16, 185, 129, 0.36)');
-          vGrad.addColorStop(0.45, 'rgba(147, 51, 234, 0.22)');
-          vGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
-          ctx.fillStyle = vGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, vRad, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          // Floating radioactive emerald-amethyst crystal decay motes
-          for (let m = 0; m < 4; m++) {
-            const mp = ((now * 0.0022 + m * 0.25 + animPhase) % 1.0);
-            const mx = Math.sin(now * 0.005 + m * 2.1 + animPhase) * targetR * 0.48;
-            const my = -targetR * 0.45 - mp * wakeLen * 0.90;
-            const ma = Math.sin(mp * Math.PI) * 0.85;
-            const mg = ctx.createRadialGradient(mx, my, 0, mx, my, 4.5 * scale);
-            mg.addColorStop(0.0, `rgba(255, 255, 255, ${ma})`);
-            mg.addColorStop(0.45, m % 2 === 0 ? `rgba(16, 185, 129, ${ma * 0.85})` : `rgba(192, 132, 252, ${ma * 0.85})`);
-            mg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-            ctx.fillStyle = mg;
-            ctx.beginPath();
-            ctx.arc(mx, my, 4.5 * scale, 0, Math.PI * 2);
-            ctx.fill();
+          // Meteor Regular Bad: Compact Abyssal-Emerald & Amethyst Isotope Whisper + 2 GPU-blitted motes
+          const spr = this._getGlowSprite('emerald');
+          ctx.globalAlpha = 0.56;
+          ctx.drawImage(spr, -targetR * 1.05, -targetR * 1.25 - wakeLen * 0.40, targetR * 2.10, targetR * 1.85);
+          const mpSpr = this._getGlowSprite('emPt');
+          for (let m = 0; m < 2; m++) {
+            const mp = ((now * 0.0024 + m * 0.5 + animPhase) % 1.0);
+            const mx = Math.sin(now * 0.006 + m * 2.5 + animPhase) * targetR * 0.42;
+            const my = -targetR * 0.65 - mp * wakeLen * 1.1;
+            const ms = 4.6 * scale;
+            ctx.globalAlpha = Math.sin(mp * Math.PI) * 0.85;
+            ctx.drawImage(mpSpr, mx - ms, my - ms, ms * 2, ms * 2);
           }
+          ctx.globalAlpha = 1.0;
         }
       }
       ctx.restore();
@@ -6038,54 +5812,83 @@
 
   function updateHeaderUI() {
     if (!dom.gameTitle) return;
+    if (!state._uiCache) state._uiCache = {};
+    const c = state._uiCache;
+    const setText = (key, el, val) => {
+      if (el && c[key] !== val) { c[key] = val; el.textContent = val; }
+    };
+    const setColor = (key, el, val) => {
+      if (el && c[key] !== val) { c[key] = val; el.style.color = val; }
+    };
 
+    let nextTitle = '';
+    let nextSub = '';
     if (state.gameType === 'dynamo' || state.gameType === 'realm') {
-      dom.gameTitle.textContent = state.coreTier === 5 ? 'CHROME DYNAMO · SERAPHIC ARCHON' : 'CHROME DYNAMO';
-      dom.gameSub.textContent = state.coreTier === 5
+      nextTitle = state.coreTier === 5 ? 'CHROME DYNAMO · SERAPHIC ARCHON' : 'CHROME DYNAMO';
+      nextSub = state.coreTier === 5
         ? `⭐ Tier V Supreme Ascendant · Faraday Singularity Core · Tachyon Satellites · Wave ${state.currentWave}`
         : `Faraday Singularity Core · Plasma Orbs · Tesla Wavepacket Hull · Wave ${state.currentWave}`;
     } else if (state.gameType === 'helix') {
-      dom.gameTitle.textContent = state.coreTier === 5 ? 'CHROME HELIX · PRISM ARCHON' : 'CHROME HELIX';
-      dom.gameSub.textContent = state.coreTier === 5
+      nextTitle = state.coreTier === 5 ? 'CHROME HELIX · PRISM ARCHON' : 'CHROME HELIX';
+      nextSub = state.coreTier === 5
         ? `⭐ Tier V Supreme Ascendant · Harmonic Bio-Lattice Core · Prismatic Refraction Rays · Wave ${state.currentWave}`
         : `Harmonic Bio-Lattice Core · Nucleotide Pearls · 3D Aurora Ribbon · Wave ${state.currentWave}`;
     } else if (state.gameType === 'meteor') {
-      dom.gameTitle.textContent = state.coreTier === 5 ? 'CHROME METEOR · MAGNETAR SERAPH' : 'CHROME METEOR';
-      dom.gameSub.textContent = state.coreTier === 5
+      nextTitle = state.coreTier === 5 ? 'CHROME METEOR · MAGNETAR SERAPH' : 'CHROME METEOR';
+      nextSub = state.coreTier === 5
         ? `⭐ Tier V Supreme Ascendant · Aegis Caldera Core · Coronal Solar Flares · Wave ${state.currentWave}`
         : `Aegis Caldera Core · Molten Bolides · Supersonic Combustion Trail · Wave ${state.currentWave}`;
     } else if (state.gameType === 'reflex') {
-      dom.gameTitle.textContent = 'REFLEX BLITZ';
-      dom.gameSub.textContent = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
+      nextTitle = 'REFLEX BLITZ';
+      nextSub = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
     } else if (state.gameType === 'math') {
-      dom.gameTitle.textContent = 'MATH OVERDRIVE';
-      dom.gameSub.textContent = `Level ${state.mathLevel} · 20 Questions · 10 Mistakes Max`;
+      nextTitle = 'MATH OVERDRIVE';
+      nextSub = `Level ${state.mathLevel} · 20 Questions · 10 Mistakes Max`;
     } else if (state.gameType === 'memory') {
-      dom.gameTitle.textContent = 'MEMORY MATRIX';
-      dom.gameSub.textContent = '16 Radiant Pure Numbers · Sequence Reproduction (1 Mistake = Game Over)';
+      nextTitle = 'MEMORY MATRIX';
+      nextSub = '16 Radiant Pure Numbers · Sequence Reproduction (1 Mistake = Game Over)';
     }
 
-    if (dom.scoreVal) dom.scoreVal.textContent = state.score.toLocaleString();
-    if (dom.comboVal) dom.comboVal.textContent = `${state.combo}x`;
-    if (dom.bestVal) dom.bestVal.textContent = (state.bestScores[state.gameType] || 0).toLocaleString();
+    if (nextTitle) setText('title', dom.gameTitle, nextTitle);
+    if (nextSub) setText('sub', dom.gameSub, nextSub);
+
+    if (dom.scoreVal && c.scoreRaw !== state.score) {
+      c.scoreRaw = state.score;
+      dom.scoreVal.textContent = state.score.toLocaleString();
+    }
+    if (dom.comboVal && c.comboRaw !== state.combo) {
+      c.comboRaw = state.combo;
+      dom.comboVal.textContent = `${state.combo}x`;
+    }
+    const bestRaw = state.bestScores[state.gameType] || 0;
+    if (dom.bestVal && c.bestRaw !== bestRaw) {
+      c.bestRaw = bestRaw;
+      dom.bestVal.textContent = bestRaw.toLocaleString();
+    }
 
     // Advanced HUD: Tier, Pulse & Phase
-    if (dom.tierVal) {
+    if (dom.tierVal && c.tierRaw !== state.coreTier) {
+      c.tierRaw = state.coreTier;
       const tierMap = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V' };
       const colorMap = { 1: '#00f0ff', 2: '#38bdf8', 3: '#c084fc', 4: '#fef08a', 5: '#f43f5e' };
       dom.tierVal.textContent = tierMap[state.coreTier] || 'I';
       dom.tierVal.style.color = colorMap[state.coreTier] || '#00f0ff';
-      const tierPillEl = document.getElementById('cgTierPill');
-      if (tierPillEl) {
-        tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28x+ Supreme Seraphic Ascendant)`;
+      if (!c.tierTitleSet) {
+        c.tierTitleSet = true;
+        const tierPillEl = document.getElementById('cgTierPill');
+        if (tierPillEl) {
+          tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28x+ Supreme Seraphic Ascendant)`;
+        }
       }
     }
     if (dom.pulseVal) {
-      dom.pulseVal.textContent = state.isPulseReady ? 'READY!' : `${Math.min(100, Math.floor(state.pulseMeter || 0))}%`;
-      dom.pulseVal.style.color = state.isPulseReady ? '#fef08a' : '#94a3b8';
+      const pulseStr = state.isPulseReady ? 'READY!' : `${Math.min(100, Math.floor(state.pulseMeter || 0))}%`;
+      setText('pulseStr', dom.pulseVal, pulseStr);
+      setColor('pulseColor', dom.pulseVal, state.isPulseReady ? '#fef08a' : '#94a3b8');
     }
-    if (dom.pulsePill) {
-      dom.pulsePill.classList.toggle('pulse-ready', !!state.isPulseReady);
+    if (dom.pulsePill && c.pulseReady !== !!state.isPulseReady) {
+      c.pulseReady = !!state.isPulseReady;
+      dom.pulsePill.classList.toggle('pulse-ready', c.pulseReady);
     }
     const activeBuffEl = dom.buffVal;
     const activeBuffPillEl = dom.buffPill;
@@ -6093,46 +5896,54 @@
       const curNow = performance.now();
       const activeBuffs = state.getAllActiveBuffs ? state.getAllActiveBuffs(curNow) : [];
       if (activeBuffs.length > 0) {
-        // Compressed, non-distracting formatting for active surges
+        let buffText = '';
         if (activeBuffs.length === 1) {
           const b = activeBuffs[0];
           const rem = Math.max(0, (b.expiresAt - curNow) / 1000).toFixed(1);
-          activeBuffEl.textContent = `${b.icon || ''}${rem}s`;
+          buffText = `${b.icon || ''}${rem}s`;
         } else if (activeBuffs.length === 2) {
           const b1 = activeBuffs[0];
           const b2 = activeBuffs[1];
           const rem1 = Math.max(0, Math.ceil((b1.expiresAt - curNow) / 1000));
           const rem2 = Math.max(0, Math.ceil((b2.expiresAt - curNow) / 1000));
-          activeBuffEl.textContent = `${b1.icon || ''}${rem1}s ${b2.icon || ''}${rem2}s`;
+          buffText = `${b1.icon || ''}${rem1}s ${b2.icon || ''}${rem2}s`;
         } else {
           const b1 = activeBuffs[0];
           const rem1 = Math.max(0, Math.ceil((b1.expiresAt - curNow) / 1000));
-          activeBuffEl.textContent = `${b1.icon || ''}${rem1}s +${activeBuffs.length - 1}`;
+          buffText = `${b1.icon || ''}${rem1}s +${activeBuffs.length - 1}`;
         }
-        if (activeBuffPillEl) {
-          activeBuffPillEl.title = 'Active Surges:\n' + activeBuffs.map(b => `${b.icon || ''} ${b.name}: ${Math.max(0, (b.expiresAt - curNow) / 1000).toFixed(1)}s`).join('\n');
+        setText('buffText', activeBuffEl, buffText);
+        if (activeBuffPillEl && (!c.buffTitleTs || curNow - c.buffTitleTs > 250)) {
+          c.buffTitleTs = curNow;
+          const nextBuffTitle = 'Active Surges:\n' + activeBuffs.map(b => `${b.icon || ''} ${b.name}: ${Math.max(0, (b.expiresAt - curNow) / 1000).toFixed(1)}s`).join('\n');
+          if (c.buffTitle !== nextBuffTitle) { c.buffTitle = nextBuffTitle; activeBuffPillEl.title = nextBuffTitle; }
         }
         const primary = activeBuffs[0];
-        activeBuffEl.style.color = primary.color || '#38bdf8';
-        if (activeBuffPillEl) {
-          activeBuffPillEl.className = `game-stat-pill buff-pill buff-active buff-${primary.type}`;
+        setColor('buffColor', activeBuffEl, primary.color || '#38bdf8');
+        const nextCls = `game-stat-pill buff-pill buff-active buff-${primary.type}`;
+        if (activeBuffPillEl && c.buffCls !== nextCls) {
+          c.buffCls = nextCls;
+          activeBuffPillEl.className = nextCls;
         }
       } else {
         state.activeBuff = null;
-        if (activeBuffPillEl) {
-          activeBuffPillEl.title = 'Active Celestial Surge / Node Buff';
+        if (activeBuffPillEl && c.buffTitle !== 'Active Celestial Surge / Node Buff') {
+          c.buffTitle = 'Active Celestial Surge / Node Buff';
+          activeBuffPillEl.title = c.buffTitle;
         }
         if (state.isOverdrive) {
-          activeBuffEl.textContent = '10X';
-          activeBuffEl.style.color = '#fef08a';
-          if (activeBuffPillEl) {
-            activeBuffPillEl.className = 'game-stat-pill buff-pill buff-active buff-hyper';
+          setText('buffText', activeBuffEl, '10X');
+          setColor('buffColor', activeBuffEl, '#fef08a');
+          if (activeBuffPillEl && c.buffCls !== 'game-stat-pill buff-pill buff-active buff-hyper') {
+            c.buffCls = 'game-stat-pill buff-pill buff-active buff-hyper';
+            activeBuffPillEl.className = c.buffCls;
           }
         } else {
-          activeBuffEl.textContent = 'READY';
-          activeBuffEl.style.color = '#64748b';
-          if (activeBuffPillEl) {
-            activeBuffPillEl.className = 'game-stat-pill buff-pill';
+          setText('buffText', activeBuffEl, 'READY');
+          setColor('buffColor', activeBuffEl, '#64748b');
+          if (activeBuffPillEl && c.buffCls !== 'game-stat-pill buff-pill') {
+            c.buffCls = 'game-stat-pill buff-pill';
+            activeBuffPillEl.className = c.buffCls;
           }
         }
       }
@@ -6404,20 +6215,32 @@
     dom.transmuteIndicator.className = `transmute-badge transmute-${state.catcherType}`;
   }
 
-  function resizeCanvas() {
-    if (!dom.canvasReflex) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = dom.canvasReflex.getBoundingClientRect();
-    const w = rect.width > 0 ? rect.width : window.innerWidth;
-    const h = rect.height > 0 ? rect.height : (window.innerHeight - 56);
-    dom.canvasReflex.width = Math.floor(w * dpr);
-    dom.canvasReflex.height = Math.floor(h * dpr);
+  let cachedCanvasRect = { left: 0, top: 0, width: 0, height: 0 };
+  let cachedCanvasDpr = 1;
+  function getRenderDpr() {
+    return Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
   }
 
-  
+  function resizeCanvas() {
+    if (!dom.canvasReflex) return;
+    const dpr = getRenderDpr();
+    cachedCanvasDpr = dpr;
+    dom.canvasReflex._renderDpr = dpr;
+    const rect = dom.canvasReflex.getBoundingClientRect();
+    const w = rect.width > 10 ? rect.width : window.innerWidth;
+    const h = rect.height > 10 ? rect.height : (window.innerHeight - 56);
+    cachedCanvasRect = { left: rect.left, top: rect.top, width: w, height: h };
+    const targetW = Math.max(320, Math.round(w * dpr));
+    const targetH = Math.max(240, Math.round(h * dpr));
+    if (dom.canvasReflex.width !== targetW || dom.canvasReflex.height !== targetH) {
+      dom.canvasReflex.width = targetW;
+      dom.canvasReflex.height = targetH;
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────
-  // LUXURY OLED COSMIC SPACE ATMOSPHERE (v343)
-  // Pure OLED True-Black Space, Zero Gridlines, Soft Organic Nebulas
+  // LUXURY OLED COSMIC SPACE ATMOSPHERE (v381 ZERO-LAG GPU CACHE)
+  // Pre-baked 256×256 Offscreen Nebula Blit + Zero-Alloc Starfield
   // ─────────────────────────────────────────────────────────────
   const COSMIC_STARS = Array.from({ length: 48 }, (_, i) => ({
     x: ((i * 73 + 19) % 1000) / 1000,
@@ -6427,40 +6250,59 @@
     phase: i * 1.37
   }));
 
+  const CosmicNebulaCache = {};
+  function _getCosmicNebulaSprite(mode) {
+    const key = mode === 'helix' ? 'helix' : (mode === 'dynamo' ? 'dynamo' : 'meteor');
+    if (CosmicNebulaCache[key]) return CosmicNebulaCache[key];
+    const sz = 256;
+    const c = document.createElement('canvas');
+    c.width = sz;
+    c.height = sz;
+    const gctx = c.getContext('2d');
+    if (gctx) {
+      const half = sz * 0.5;
+      const g1 = gctx.createRadialGradient(half, half, 4, half, half, half);
+      if (key === 'helix') {
+        g1.addColorStop(0.0, 'rgba(34, 211, 238, 0.042)');
+        g1.addColorStop(0.45, 'rgba(232, 121, 249, 0.024)');
+        g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+      } else if (key === 'dynamo') {
+        g1.addColorStop(0.0, 'rgba(56, 189, 248, 0.042)');
+        g1.addColorStop(0.45, 'rgba(168, 85, 247, 0.024)');
+        g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+      } else {
+        g1.addColorStop(0.0, 'rgba(249, 115, 22, 0.042)');
+        g1.addColorStop(0.45, 'rgba(234, 88, 12, 0.024)');
+        g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+      }
+      gctx.fillStyle = g1;
+      gctx.fillRect(0, 0, sz, sz);
+    }
+    CosmicNebulaCache[key] = c;
+    return c;
+  }
+
   function renderLuxuryCosmicBackground(ctx, w, h, mode, now) {
-    // 1. Organic drifting celestial nebular bloom (Zero geometry, zero gridlines)
+    // 1. Pre-baked GPU Nebula Blit (Zero per-frame radial gradient allocation!)
     const driftX = Math.sin(now * 0.0004) * 45;
     const driftY = Math.cos(now * 0.0003) * 35;
     const nebR = Math.max(w, h) * 0.65;
-    
-    ctx.save();
-    const g1 = ctx.createRadialGradient(w * 0.5 + driftX, h * 0.35 + driftY, 20, w * 0.5 + driftX, h * 0.35 + driftY, nebR);
-    if (mode === 'helix') {
-      g1.addColorStop(0.0, 'rgba(34, 211, 238, 0.038)');
-      g1.addColorStop(0.45, 'rgba(232, 121, 249, 0.022)');
-      g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
-    } else if (mode === 'dynamo') {
-      g1.addColorStop(0.0, 'rgba(56, 189, 248, 0.038)');
-      g1.addColorStop(0.45, 'rgba(168, 85, 247, 0.022)');
-      g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
-    } else {
-      g1.addColorStop(0.0, 'rgba(249, 115, 22, 0.038)');
-      g1.addColorStop(0.45, 'rgba(234, 88, 12, 0.022)');
-      g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
-    }
-    ctx.fillStyle = g1;
-    ctx.fillRect(0, 0, w, h);
+    const nebSpr = _getCosmicNebulaSprite(mode);
 
-    // 2. Anti-aliased micro-stars & diamond stardust (Subtle, silky twinkle)
+    ctx.save();
+    ctx.drawImage(nebSpr, (w * 0.5 + driftX) - nebR, (h * 0.35 + driftY) - nebR, nebR * 2, nebR * 2);
+
+    // 2. Anti-aliased micro-stars & diamond stardust (Zero string allocations!)
     ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = '#ffffff';
     for (let i = 0; i < COSMIC_STARS.length; i++) {
       const s = COSMIC_STARS[i];
       const sx = s.x * w;
       const sy = s.y * h;
-      const tw = Math.pow(0.5 + 0.5 * Math.sin(now * s.freq + s.phase), 2.0);
-      const alpha = 0.15 + 0.55 * tw;
+      const sinV = 0.5 + 0.5 * Math.sin(now * s.freq + s.phase);
+      const tw = sinV * sinV;
+      ctx.globalAlpha = 0.15 + 0.55 * tw;
       const r = s.baseR * (0.85 + 0.35 * tw);
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
       ctx.beginPath();
       ctx.arc(sx, sy, r, 0, Math.PI * 2);
       ctx.fill();
@@ -6474,24 +6316,17 @@
     const ctx = dom.canvasReflex?.getContext('2d');
     if (!ctx) return;
 
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-    if (dom.canvasReflex) {
-      const rect = dom.canvasReflex.getBoundingClientRect();
-      const targetW = Math.max(320, Math.round(rect.width * dpr));
-      const targetH = Math.max(240, Math.round(rect.height * dpr));
-      if (dom.canvasReflex.width !== targetW || dom.canvasReflex.height !== targetH) {
-        dom.canvasReflex.width = targetW;
-        dom.canvasReflex.height = targetH;
-      }
+    if (cachedCanvasRect.width < 10 || dom.canvasReflex.width < 10) {
+      resizeCanvas();
     }
-
+    const dpr = cachedCanvasDpr || getRenderDpr();
     const w = dom.canvasReflex.width / dpr;
     const h = dom.canvasReflex.height / dpr;
 
     ctx.save();
     ctx.scale(dpr, dpr);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = 'medium';
     ctx.clearRect(0, 0, w, h);
 
     // ZERO GRIDLINES: Pure OLED True-Black Space with Silky Organic Ambient Nebulas
@@ -6627,12 +6462,14 @@
       const paddleX = catcherPixelX - paddleW / 2;
       const paddleY = catcherPixelY - paddleH / 2;
 
-      // Outer Glow
-      ctx.shadowColor = '#a855f7';
-      ctx.shadowBlur = 18;
+      // Outer Glow (Zero-Lag Double-Stroke — Zero shadowBlur!)
+      ctx.beginPath();
+      ctx.roundRect(paddleX - 3, paddleY - 3, paddleW + 6, paddleH + 6, 16);
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.18)';
+      ctx.fill();
       ctx.beginPath();
       ctx.roundRect(paddleX, paddleY, paddleW, paddleH, 13);
-      ctx.fillStyle = 'rgba(168, 85, 247, 0.28)';
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.30)';
       ctx.fill();
 
       // Core Glass Paddle
@@ -6645,7 +6482,6 @@
       ctx.stroke();
 
       // Target Multiple Indicator on Paddle
-      ctx.shadowBlur = 0;
       ctx.font = '800 11px "Lexend", sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
@@ -6662,11 +6498,14 @@
         ctx.save();
         ctx.translate(p.x, p.y);
 
-        // Cyber Capsule Outer Glow
+        // Cyber Capsule Outer Glow (Zero-Lag Halo — Zero shadowBlur!)
         const capsuleW = 58;
         const capsuleH = 38;
-        ctx.shadowColor = (p.num % D === 0) ? '#38bdf8' : '#a855f7';
-        ctx.shadowBlur = 12;
+        const isValidMult = (p.num % D === 0);
+        ctx.beginPath();
+        ctx.roundRect(-capsuleW / 2 - 3, -capsuleH / 2 - 3, capsuleW + 6, capsuleH + 6, 15);
+        ctx.fillStyle = isValidMult ? 'rgba(56, 189, 248, 0.22)' : 'rgba(168, 85, 247, 0.18)';
+        ctx.fill();
 
         ctx.beginPath();
         ctx.roundRect(-capsuleW / 2, -capsuleH / 2, capsuleW, capsuleH, 12);
@@ -6674,11 +6513,10 @@
         ctx.fill();
 
         ctx.lineWidth = 2;
-        ctx.strokeStyle = (p.num % D === 0) ? '#38bdf8' : 'rgba(192, 132, 252, 0.7)';
+        ctx.strokeStyle = isValidMult ? '#38bdf8' : 'rgba(192, 132, 252, 0.7)';
         ctx.stroke();
 
         // 2-Digit Number Text
-        ctx.shadowBlur = 0;
         ctx.font = '800 21px "Lexend", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -8853,8 +8691,9 @@
       audio.playFluxPulseUnleashed(mode);
 
       const pColor = mode === 'helix' ? '#22d3ee' : (mode === 'meteor' ? '#f97316' : '#00f0ff');
-      const canvasW = dom.canvasReflex ? (dom.canvasReflex.width / (window.devicePixelRatio || 1)) : 800;
-      const canvasH = dom.canvasReflex ? (dom.canvasReflex.height / (window.devicePixelRatio || 1)) : 600;
+      const effDpr = cachedCanvasDpr || getRenderDpr();
+      const canvasW = dom.canvasReflex ? (dom.canvasReflex.width / effDpr) : 800;
+      const canvasH = dom.canvasReflex ? (dom.canvasReflex.height / effDpr) : 600;
       const coreX = (state.catcherX !== undefined ? state.catcherX : 0.5) * canvasW;
       const coreY = (state.catcherY !== undefined ? state.catcherY : 0.82) * canvasH;
       
@@ -8925,9 +8764,15 @@
       }
     });
 
-    // Window Resize Handler to guarantee pixel-perfect resolution on all screens
+    // Window Resize & ResizeObserver Handler to guarantee pixel-perfect resolution with ZERO per-frame reflow!
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('orientationchange', resizeCanvas);
+    if (typeof ResizeObserver !== 'undefined' && dom.canvasReflex) {
+      try {
+        const ro = new ResizeObserver(() => resizeCanvas());
+        ro.observe(dom.canvasReflex);
+      } catch (_) {}
+    }
 
     // Mute toggle
     if (dom.btnMute) {
@@ -8977,10 +8822,11 @@
           audio.playTone(523.25, 'sine', 0.25, 0.25);
           updateHeaderUI();
 
+          const effDpr = cachedCanvasDpr || getRenderDpr();
           state.floatingTexts.push({
             text: `TARGET: MULTIPLES OF ${choice} · ENGAGE!`,
-            x: (dom.canvasReflex?.width || 800) / (2 * (window.devicePixelRatio || 1)),
-            y: (dom.canvasReflex?.height || 600) / (2 * (window.devicePixelRatio || 1)),
+            x: (dom.canvasReflex?.width || 800) / (2 * effDpr),
+            y: (dom.canvasReflex?.height || 600) / (2 * effDpr),
             color: '#c084fc',
             alpha: 1.0,
             vy: -1.0
@@ -9026,7 +8872,11 @@
     // ─────────────────────────────────────────────────────────────
     const getCanvasCoords = (clientX, clientY) => {
       if (!dom.canvasReflex) return { x: clientX, y: clientY, normX: clientX / window.innerWidth, normY: clientY / window.innerHeight };
-      const rect = dom.canvasReflex.getBoundingClientRect();
+      let rect = cachedCanvasRect;
+      if (!rect || rect.width < 10) {
+        resizeCanvas();
+        rect = cachedCanvasRect;
+      }
       const normX = (rect.width > 0) ? Math.max(0.01, Math.min(0.99, (clientX - rect.left) / rect.width)) : (clientX / window.innerWidth);
       const normY = (rect.height > 0) ? Math.max(0.01, Math.min(0.99, (clientY - rect.top) / rect.height)) : (clientY / window.innerHeight);
       return { x: clientX - rect.left, y: clientY - rect.top, normX, normY };
@@ -9343,8 +9193,9 @@
 })();
 
 /* ══════════════════════════════════════════════════════════════════════════
-   LUXURY REALM LAUNCHER ENGINE (DYNAMO · HELIX · METEOR)
-   Live 60FPS Micro-Physics Canvases + Floating Holographic Tier V Portal Card
+   LUXURY REALM LAUNCHER ENGINE v381 (DYNAMO · HELIX · METEOR)
+   10-Role Studio Upgrade: Live 60FPS QuantumRenderer Tier V Hexa-Wing Portal
+   + Zero-Reflow Cached Topbar Button Micro-Physics (0% CPU when idle/in-game)
    ══════════════════════════════════════════════════════════════════════════ */
 (function initLuxuryRealmLauncherButtons() {
   const REALM_META = {
@@ -9353,29 +9204,39 @@
       tierTag: '⚡ TIER V SUPREME ASCENDANT',
       science: 'Faraday–Maxwell Plasma Physics · Branching Lichtenberg Lightning & Chain Induction',
       bestKey: 'oc_best_realm',
-      coreImg: 'assets/core-dynamo-t5.png?v=arcade374',
-      wingImg: 'assets/layer-dynamo-wing-t5.png?v=arcade374',
-      haloImg: 'assets/layer-dynamo-halo.png?v=arcade374'
+      portalScale: 0.295,
+      portalCy: 0.64,
+      moteColors: ['#38bdf8', '#c084fc', '#fde68a']
     },
     helix: {
       title: 'CHROME HELIX · PRISM ARCHON',
       tierTag: '🧬 TIER V SUPREME ASCENDANT',
       science: 'Quantum Molecular Biogenesis · 3D Photonic DNA Double-Helix & Base-Pair Resonance',
       bestKey: 'oc_best_helix',
-      coreImg: 'assets/core-helix-t5.png?v=arcade374',
-      wingImg: 'assets/layer-helix-wing-t5.png?v=arcade374',
-      haloImg: 'assets/layer-helix-halo.png?v=arcade374'
+      portalScale: 0.315,
+      portalCy: 0.61,
+      moteColors: ['#22d3ee', '#e879f9', '#f0f9ff']
     },
     meteor: {
       title: 'CHROME METEOR · MAGNETAR SERAPH',
       tierTag: '☄️ TIER V SUPREME ASCENDANT',
       science: 'Hypervelocity Chondritic Ablation · Solar Bow-Shock Fire & Kinetic Slingshot Deflection',
       bestKey: 'oc_best_meteor',
-      coreImg: 'assets/core-meteor-t5.png?v=arcade374',
-      wingImg: 'assets/layer-meteor-wing-t5.png?v=arcade374',
-      haloImg: 'assets/layer-meteor-halo.png?v=arcade374'
+      portalScale: 0.35,
+      portalCy: 0.60,
+      moteColors: ['#fde047', '#fb923c', '#f97316']
     }
   };
+
+  // Pre-seeded ambient micro-particles for the live Tier V Portal Viewport (Zero runtime allocations)
+  const PORTAL_MOTES = Array.from({ length: 20 }, (_, i) => ({
+    x: ((i * 67 + 23) % 100) / 100,
+    y: ((i * 43 + 17) % 100) / 100,
+    r: 0.8 + (i % 3) * 0.55,
+    spdY: 0.012 + (i % 4) * 0.006,
+    phase: i * 1.19,
+    ci: i % 3
+  }));
 
   function setup() {
     const buttons = Array.from(document.querySelectorAll('.oc-realm-btn[data-realm]'));
@@ -9390,10 +9251,7 @@
       portal.innerHTML = `
         <div class="oc-portal-stage">
           <span class="oc-portal-tier-tag" id="ocPortalTierTag"></span>
-          <img class="oc-portal-halo" id="ocPortalHalo" alt="" />
-          <img class="oc-portal-wing oc-portal-wing-left" id="ocPortalWingL" alt="" />
-          <img class="oc-portal-wing oc-portal-wing-right" id="ocPortalWingR" alt="" />
-          <img class="oc-portal-core" id="ocPortalCore" alt="" />
+          <canvas id="ocPortalCanvas" class="oc-portal-canvas" aria-hidden="true"></canvas>
         </div>
         <div class="oc-portal-title" id="ocPortalTitle"></div>
         <div class="oc-portal-science" id="ocPortalScience"></div>
@@ -9406,16 +9264,79 @@
     }
 
     const pTag = document.getElementById('ocPortalTierTag');
-    const pHalo = document.getElementById('ocPortalHalo');
-    const pWingL = document.getElementById('ocPortalWingL');
-    const pWingR = document.getElementById('ocPortalWingR');
-    const pCore = document.getElementById('ocPortalCore');
+    const pCanvas = document.getElementById('ocPortalCanvas');
+    const pCtx = pCanvas ? pCanvas.getContext('2d') : null;
     const pTitle = document.getElementById('ocPortalTitle');
     const pSci = document.getElementById('ocPortalScience');
     const pBest = document.getElementById('ocPortalBest');
 
+    const PORTAL_W = 266;
+    const PORTAL_H = 140;
+    let portalDpr = 1;
+    function syncPortalCanvasSize() {
+      if (!pCanvas) return;
+      portalDpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+      const tw = Math.round(PORTAL_W * portalDpr);
+      const th = Math.round(PORTAL_H * portalDpr);
+      if (pCanvas.width !== tw || pCanvas.height !== th) {
+        pCanvas.width = tw;
+        pCanvas.height = th;
+      }
+      pCanvas._renderDpr = portalDpr;
+    }
+    syncPortalCanvasSize();
+
     let activeHoverRealm = null;
     const fxControllers = [];
+
+    function renderPortalFrame(now) {
+      if (!activeHoverRealm || !pCtx || !pCanvas) return;
+      const meta = REALM_META[activeHoverRealm];
+      if (!meta) return;
+
+      const dpr = portalDpr || 1;
+      const w = PORTAL_W;
+      const h = PORTAL_H;
+
+      pCtx.save();
+      pCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      pCtx.clearRect(0, 0, w, h);
+      pCtx.imageSmoothingEnabled = true;
+      pCtx.imageSmoothingQuality = 'medium';
+
+      // Subtle animated cosmic starlight / realm motes behind the Tier V Archon
+      pCtx.save();
+      pCtx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < PORTAL_MOTES.length; i++) {
+        const m = PORTAL_MOTES[i];
+        const drift = (now * 0.001 * m.spdY);
+        const mx = ((m.x + Math.sin(now * 0.0009 + m.phase) * 0.04) * w + w) % w;
+        const my = ((m.y - drift) % 1 + 1) % 1 * h;
+        const tw = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(now * 0.004 + m.phase));
+        pCtx.globalAlpha = tw * 0.65;
+        pCtx.fillStyle = meta.moteColors[m.ci];
+        pCtx.beginPath();
+        pCtx.arc(mx, my, m.r, 0, Math.PI * 2);
+        pCtx.fill();
+      }
+      pCtx.restore();
+
+      // Render the REAL Seamless Tier V Hexa-Wing Supreme Ascendant Archon (ZERO vertical seam!)
+      if (window.QuantumRenderer && typeof window.QuantumRenderer._drawLayeredWingedCore === 'function') {
+        const levY = Math.sin(now * 0.0028) * 2.4;
+        window.QuantumRenderer._drawLayeredWingedCore(
+          pCtx,
+          activeHoverRealm,
+          w * 0.5,
+          h * (meta.portalCy || 0.60) + levY,
+          now,
+          5,
+          meta.portalScale,
+          true
+        );
+      }
+      pCtx.restore();
+    }
 
     function showPortalFor(btn, realm) {
       const meta = REALM_META[realm];
@@ -9423,21 +9344,19 @@
       activeHoverRealm = realm;
       portal.setAttribute('data-realm', realm);
       if (pTag) pTag.textContent = meta.tierTag;
-      if (pHalo) pHalo.src = meta.haloImg;
-      if (pWingL) pWingL.src = meta.wingImg;
-      if (pWingR) pWingR.src = meta.wingImg;
-      if (pCore) pCore.src = meta.coreImg;
       if (pTitle) pTitle.textContent = meta.title;
       if (pSci) pSci.textContent = meta.science;
       const bestVal = parseInt(localStorage.getItem(meta.bestKey) || '0', 10) || 0;
       if (pBest) pBest.textContent = bestVal.toLocaleString();
 
       const rect = btn.getBoundingClientRect();
-      const cardW = 286;
+      const cardW = 294;
       const desiredLeft = rect.left + rect.width * 0.5 - cardW * 0.5;
       const clampedLeft = Math.max(10, Math.min(window.innerWidth - cardW - 10, desiredLeft));
       portal.style.left = `${Math.round(clampedLeft)}px`;
       portal.style.top = `${Math.round(rect.bottom + 8)}px`;
+      syncPortalCanvasSize();
+      renderPortalFrame(performance.now());
       portal.classList.add('visible');
     }
 
@@ -9446,7 +9365,25 @@
       portal.classList.remove('visible');
     }
 
-    // 2. Wire Per-Button Live Micro-Physics Canvas + Hover Events
+    // 2. Wire Per-Button Live Micro-Physics Canvas + Cached Dimensions (Zero per-frame reflow!)
+    function syncButtonSizes() {
+      const dpr = Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+      for (let i = 0; i < fxControllers.length; i++) {
+        const c = fxControllers[i];
+        const rect = c.btn.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) continue;
+        c.w = rect.width;
+        c.h = rect.height;
+        c.dpr = dpr;
+        const tw = Math.round(rect.width * dpr);
+        const th = Math.round(rect.height * dpr);
+        if (c.canvas.width !== tw || c.canvas.height !== th) {
+          c.canvas.width = tw;
+          c.canvas.height = th;
+        }
+      }
+    }
+
     buttons.forEach((btn) => {
       const realm = btn.getAttribute('data-realm');
       const canvas = btn.querySelector('.oc-realm-btn-fx');
@@ -9455,17 +9392,17 @@
       if (!ctx) return;
 
       const embers = [];
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < 8; i++) {
         embers.push({
           x: Math.random(),
           y: Math.random(),
-          spd: 0.008 + Math.random() * 0.014,
-          size: 0.9 + Math.random() * 1.5,
+          spd: 0.008 + Math.random() * 0.013,
+          size: 0.9 + Math.random() * 1.4,
           phase: Math.random() * Math.PI * 2
         });
       }
 
-      const ctrl = { btn, realm, canvas, ctx, embers, hovered: false, w: 96, h: 30 };
+      const ctrl = { btn, realm, canvas, ctx, embers, hovered: false, w: 0, h: 0, dpr: 1 };
       fxControllers.push(ctrl);
 
       btn.addEventListener('mouseenter', () => {
@@ -9490,132 +9427,135 @@
       });
     });
 
-    // 3. Lightweight 60FPS Animation Loop (Auto-Pauses when Arcade Modal is Open or Tab Hidden!)
+    syncButtonSizes();
+    window.addEventListener('resize', () => {
+      syncButtonSizes();
+      syncPortalCanvasSize();
+    });
+
+    // 3. Lightweight Adaptive Loop (Auto-Pauses when Arcade Modal is Open or Tab Hidden; 30FPS idle / 60FPS hovered!)
+    const modalEl = document.getElementById('chromeGameModal');
     function isArcadeOpen() {
-      const modal = document.getElementById('chromeGameModal');
-      if (!modal) return false;
-      return modal.classList.contains('active') || modal.classList.contains('open') || modal.style.display === 'flex' || modal.style.display === 'block';
+      if (!modalEl) return false;
+      return modalEl.classList.contains('active') || modalEl.classList.contains('open') || modalEl.style.display === 'flex' || modalEl.style.display === 'block';
     }
 
+    let lastBtnDraw = 0;
     function renderLoop(now) {
       requestAnimationFrame(renderLoop);
       if (document.hidden || isArcadeOpen()) return;
 
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      // Render Live Tier V Portal Viewport at full 60FPS ONLY while hovered!
+      if (activeHoverRealm) {
+        renderPortalFrame(now);
+      }
+
+      // Throttle idle topbar micro-physics to ~30FPS (full 60FPS when hovering any realm button)
+      const minInterval = activeHoverRealm ? 15 : 33;
+      if (now - lastBtnDraw < minInterval) return;
+      lastBtnDraw = now;
+
       for (let i = 0; i < fxControllers.length; i++) {
         const c = fxControllers[i];
-        const rect = c.btn.getBoundingClientRect();
-        if (rect.width < 10 || rect.height < 10) continue;
-        const tw = Math.round(rect.width * dpr);
-        const th = Math.round(rect.height * dpr);
-        if (c.canvas.width !== tw || c.canvas.height !== th) {
-          c.canvas.width = tw;
-          c.canvas.height = th;
+        if (c.w < 10 || c.h < 10) {
+          syncButtonSizes();
+          if (c.w < 10 || c.h < 10) continue;
         }
         const ctx = c.ctx;
-        const w = rect.width;
-        const h = rect.height;
+        const w = c.w;
+        const h = c.h;
+        const dpr = c.dpr || 1;
         const boost = c.hovered ? 1.65 : 1.0;
 
         ctx.save();
-        ctx.scale(dpr, dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, w, h);
         ctx.globalCompositeOperation = 'lighter';
 
         if (c.realm === 'dynamo') {
-          // Live branching electric-blue & violet Lichtenberg micro-lightning arcing right from the Faraday Orb!
-          const tick = Math.floor(now / (c.hovered ? 48 : 78));
+          const tick = Math.floor(now / (c.hovered ? 48 : 82));
           const bolts = c.hovered ? 2 : 1;
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
+          const startX = w > 50 ? 24 : 6;
+          const endX = w - 6;
           for (let b = 0; b < bolts; b++) {
-            const startX = 22;
-            const endX = w - 6;
-            const segs = 7;
+            const segs = 6;
             ctx.beginPath();
             for (let s = 0; s <= segs; s++) {
               const f = s / segs;
               const px = startX + (endX - startX) * f;
-              const jag = (s === 0) ? 0 : (Math.sin(tick * 3.17 + b * 4.3 + s * 2.29) * 5.2 + Math.cos(tick * 5.1 + s * 3.71) * 2.4);
-              const py = h * 0.5 + jag * (c.hovered ? 1.15 : 0.85);
+              const jag = (s === 0) ? 0 : (Math.sin(tick * 3.17 + b * 4.3 + s * 2.29) * 4.8 + Math.cos(tick * 5.1 + s * 3.71) * 2.1);
+              const py = h * 0.5 + jag * (c.hovered ? 1.1 : 0.8);
               if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
-            const g = ctx.createLinearGradient(startX, 0, endX, 0);
-            g.addColorStop(0.0, `rgba(251, 191, 36, ${0.42 * boost})`);
-            g.addColorStop(0.35, `rgba(56, 189, 248, ${0.52 * boost})`);
-            g.addColorStop(1.0, `rgba(139, 92, 246, ${0.18 * boost})`);
-            ctx.strokeStyle = g;
-            ctx.lineWidth = c.hovered ? 2.4 : 1.8;
+            ctx.strokeStyle = `rgba(56, 189, 248, ${Math.min(0.9, 0.48 * boost)})`;
+            ctx.lineWidth = c.hovered ? 2.2 : 1.6;
             ctx.stroke();
 
-            ctx.strokeStyle = `rgba(224, 242, 254, ${0.45 * boost})`;
-            ctx.lineWidth = 0.85;
+            ctx.strokeStyle = `rgba(224, 242, 254, ${Math.min(0.95, 0.42 * boost)})`;
+            ctx.lineWidth = 0.8;
             ctx.stroke();
           }
 
         } else if (c.realm === 'helix') {
-          // Live flowing 3D cyan-and-magenta DNA double-helix ribbon rippling smoothly behind HELIX!
-          const startX = 20;
+          const startX = w > 50 ? 22 : 4;
           const endX = w - 4;
           const speed = now * (c.hovered ? 0.0052 : 0.0030);
-          const steps = 18;
+          const steps = 14;
           ctx.lineCap = 'round';
 
-          // Subtle base-pair rungs
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.18 * boost})`;
+          ctx.lineWidth = 0.9;
+          ctx.beginPath();
           for (let s = 2; s < steps; s += 3) {
             const f = s / steps;
             const x = startX + (endX - startX) * f;
-            const yOff = Math.sin(speed + f * Math.PI * 3.2) * (h * 0.30);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.18 * boost})`;
-            ctx.lineWidth = 0.9;
-            ctx.beginPath();
+            const yOff = Math.sin(speed + f * Math.PI * 3.2) * (h * 0.28);
             ctx.moveTo(x, h * 0.5 + yOff);
             ctx.lineTo(x, h * 0.5 - yOff);
-            ctx.stroke();
           }
-          // Twin cyan & magenta sugar-phosphate strands
+          ctx.stroke();
+
           for (let strand = -1; strand <= 1; strand += 2) {
             ctx.beginPath();
             for (let s = 0; s <= steps; s++) {
               const f = s / steps;
               const x = startX + (endX - startX) * f;
-              const y = h * 0.5 + Math.sin(speed + f * Math.PI * 3.2) * (h * 0.30) * strand;
+              const y = h * 0.5 + Math.sin(speed + f * Math.PI * 3.2) * (h * 0.28) * strand;
               if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
             }
             ctx.strokeStyle = strand > 0
-              ? `rgba(34, 211, 238, ${0.48 * boost})`
-              : `rgba(232, 121, 249, ${0.48 * boost})`;
-            ctx.lineWidth = c.hovered ? 2.1 : 1.5;
+              ? `rgba(34, 211, 238, ${Math.min(0.9, 0.46 * boost)})`
+              : `rgba(232, 121, 249, ${Math.min(0.9, 0.46 * boost)})`;
+            ctx.lineWidth = c.hovered ? 2.0 : 1.45;
             ctx.stroke();
           }
 
         } else if (c.realm === 'meteor') {
-          // Live atmospheric ablation fire glow + drifting incandescent molten embers!
-          const flameG = ctx.createLinearGradient(16, h * 0.5, w, h * 0.5);
-          flameG.addColorStop(0.0, `rgba(254, 240, 138, ${0.34 * boost})`);
-          flameG.addColorStop(0.35, `rgba(249, 115, 22, ${0.26 * boost})`);
-          flameG.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
-          ctx.fillStyle = flameG;
+          ctx.fillStyle = `rgba(249, 115, 22, ${0.14 * boost})`;
           ctx.fillRect(0, 0, w, h);
 
           for (let e = 0; e < c.embers.length; e++) {
             const em = c.embers[e];
             em.x += em.spd * (c.hovered ? 1.8 : 1.0);
-            em.y -= em.spd * 0.35;
+            em.y -= em.spd * 0.32;
             if (em.x > 1.05 || em.y < -0.1) {
               em.x = 0.16 + Math.random() * 0.14;
               em.y = 0.25 + Math.random() * 0.65;
             }
             const ex = em.x * w;
-            const ey = em.y * h + Math.sin(now * 0.008 + em.phase) * 2.2;
-            const ea = Math.sin(Math.min(1, em.x) * Math.PI) * 0.85 * boost;
-            const eg = ctx.createRadialGradient(ex, ey, 0, ex, ey, em.size * 2.4);
-            eg.addColorStop(0.0, `rgba(255, 252, 220, ${Math.min(1, ea)})`);
-            eg.addColorStop(0.45, `rgba(251, 146, 60, ${Math.min(1, ea * 0.82)})`);
-            eg.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
-            ctx.fillStyle = eg;
+            const ey = em.y * h + Math.sin(now * 0.008 + em.phase) * 2.0;
+            const ea = Math.min(1, Math.sin(Math.min(1, em.x) * Math.PI) * 0.85 * boost);
+            ctx.globalAlpha = ea * 0.55;
+            ctx.fillStyle = '#fb923c';
             ctx.beginPath();
-            ctx.arc(ex, ey, em.size * 2.4, 0, Math.PI * 2);
+            ctx.arc(ex, ey, em.size * 2.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = ea;
+            ctx.fillStyle = '#fef9c3';
+            ctx.beginPath();
+            ctx.arc(ex, ey, em.size * 0.9, 0, Math.PI * 2);
             ctx.fill();
           }
         }
