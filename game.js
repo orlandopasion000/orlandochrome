@@ -7389,8 +7389,10 @@
           const fadeOut = Math.min(1, (bn.duration - elapsed) / 360);
           const alpha = fadeIn * fadeOut;
           const bannerY = h * 0.36;
-          const bw = Math.min(540, w * 0.86);
+          const isNarrow = w < 520;
+          const bw = Math.min(540, w * (isNarrow ? 0.92 : 0.86));
           const bx = (w - bw) * 0.5;
+          const maxTxtW = Math.max(120, bw - 26);
 
           ctx.globalAlpha = alpha;
           ctx.fillStyle = 'rgba(6, 10, 24, 0.88)';
@@ -7401,15 +7403,15 @@
           ctx.fill();
           ctx.stroke();
 
-          ctx.font = '900 19px "Lexend", sans-serif';
+          ctx.font = `900 ${isNarrow ? 15 : 19}px "Lexend", sans-serif`;
           ctx.fillStyle = bn.color || '#ffffff';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(bn.title, w * 0.5, bannerY - 8);
+          ctx.fillText(bn.title, w * 0.5, bannerY - 9, maxTxtW);
 
-          ctx.font = '600 11.5px "Lexend", sans-serif';
+          ctx.font = `600 ${isNarrow ? 10.5 : 11.5}px "Lexend", sans-serif`;
           ctx.fillStyle = '#e2e8f0';
-          ctx.fillText(bn.sub, w * 0.5, bannerY + 16);
+          ctx.fillText(bn.sub, w * 0.5, bannerY + 15, maxTxtW);
         }
       }
       ctx.restore();
