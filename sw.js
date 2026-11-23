@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v386b_wave_pacing';
+const CACHE_NAME = 'orlandochrome-arcade-v387_kimmy_music';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade386b_wave_pacing',
-  './game.js?v=arcade386b_wave_pacing',
+  './styles.css?v=arcade387_kimmy_music',
+  './game.js?v=arcade387_kimmy_music',
   './qrcode.min.js',
-  './app.js?v=arcade386b_wave_pacing',
+  './app.js?v=arcade387_kimmy_music',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',

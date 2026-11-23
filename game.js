@@ -473,9 +473,405 @@
       } catch (e) {}
       this._vibrate([60, 40, 80, 40, 120]);
     }
+
+    // === CHANGED (v387): Skill & Voidbloom Procedural SFX ===
+    playSeekerLockOn() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(1180, 'sine', 0.06, 0.14);
+      setTimeout(() => this.playTone(1560, 'triangle', 0.08, 0.14), 55);
+      this._vibrate(10);
+    }
+
+    playSeekerLaunch() {
+      if (this.isMuted) return;
+      this.init();
+      const pitches = [420, 560, 720, 920];
+      pitches.forEach((f, idx) => {
+        setTimeout(() => this.playTone(f, 'sawtooth', 0.11, 0.12), idx * 28);
+      });
+      this._vibrate([12, 16, 12]);
+    }
+
+    playCalderaNova() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const sub = this.ctx.createOscillator();
+        const sg = this.ctx.createGain();
+        sub.type = 'sawtooth';
+        sub.frequency.setValueAtTime(190, t0);
+        sub.frequency.exponentialRampToValueAtTime(26, t0 + 0.95);
+        sg.gain.setValueAtTime(0.55, t0);
+        sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.0);
+        sub.connect(sg);
+        sg.connect(this.ctx.destination);
+        sub.start(t0);
+        sub.stop(t0 + 1.02);
+
+        const shimmer = [523.25, 659.25, 987.77, 1318.51];
+        shimmer.forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.42, 0.18), 40 + idx * 45);
+        });
+      } catch (e) {}
+      this._vibrate([55, 30, 70, 30, 110]);
+    }
+
+    playSkillReady() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(880, 'sine', 0.11, 0.13);
+      setTimeout(() => this.playTone(1318.51, 'triangle', 0.18, 0.14), 65);
+    }
+
+    playCooldownReject() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(165, 'triangle', 0.08, 0.12);
+    }
+
+    playVoidbloomWarning() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        for (let k = 0; k < 2; k++) {
+          setTimeout(() => {
+            if (!this.ctx || this.isMuted) return;
+            const t0 = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(310, t0);
+            osc.frequency.exponentialRampToValueAtTime(145, t0 + 0.28);
+            g.gain.setValueAtTime(0.14, t0);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.30);
+            osc.connect(g);
+            g.connect(this.ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + 0.32);
+          }, k * 340);
+        }
+      } catch (e) {}
+    }
+
+    playVoidbloomDestroy(scale = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const huge = scale >= 3.2;
+      const chord = huge ? [261.63, 392.0, 523.25, 783.99, 1046.5] : [329.63, 493.88, 659.25];
+      chord.forEach((f, idx) => setTimeout(() => this.playTone(f, 'triangle', huge ? 0.36 : 0.22, huge ? 0.20 : 0.16), idx * 35));
+      this._vibrate(huge ? [40, 25, 65] : [18, 15, 24]);
+    }
+
+    playVoidbloomDrain() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(240, t0);
+        osc.frequency.exponentialRampToValueAtTime(52, t0 + 0.45);
+        g.gain.setValueAtTime(0.32, t0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.48);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.50);
+      } catch (e) {}
+      this._vibrate([55, 35, 75]);
+    }
   }
 
   const audio = new CyberAudioEngine();
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): FUTURISTIC PROCEDURAL REALM MUSIC ENGINE ===
+  // Distinct Sci-Fi Themes: Dynamo (Faraday Pulse), Helix (Quantum Biome),
+  // Meteor (Solar Caldera) — Zero external assets, iOS-safe Web Audio synth!
+  // ══════════════════════════════════════════════════════════════════════════
+  const RealmMusicEngine = {
+    enabled: (() => {
+      try { return localStorage.getItem('oc_bgm_enabled') !== '0'; } catch (_) { return true; }
+    })(),
+    currentRealm: null,
+    isPlaying: false,
+    stepIdx: 0,
+    timerId: null,
+    nextNoteTime: 0,
+    masterGain: null,
+    filterNode: null,
+    noiseBuffer: null,
+
+    // Note frequency table (Hz)
+    N: {
+      E1: 41.20, F1: 43.65, G1: 49.00, Gs1: 51.91, A1: 55.00, Bb1: 58.27, B1: 61.74,
+      C2: 65.41, D2: 73.42, E2: 82.41, F2: 87.31, G2: 98.00, Gs2: 103.83, A2: 110.00, Bb2: 116.54, B2: 123.47,
+      C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, Fs3: 185.00, G3: 196.00, Gs3: 207.65, A3: 220.00, B3: 246.94,
+      C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, Fs4: 369.99, G4: 392.00, Gs4: 415.30, A4: 440.00, Bb4: 466.16, B4: 493.88,
+      C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, Fs5: 739.99, G5: 783.99, Gs5: 830.61, A5: 880.00, B5: 987.77, C6: 1046.50
+    },
+
+    _ensureBus() {
+      audio.init();
+      if (!audio.ctx) return false;
+      if (!this.masterGain) {
+        this.filterNode = audio.ctx.createBiquadFilter();
+        this.filterNode.type = 'lowpass';
+        this.filterNode.frequency.value = 3400;
+        this.filterNode.Q.value = 0.8;
+
+        this.masterGain = audio.ctx.createGain();
+        this.masterGain.gain.value = (this.enabled && !audio.isMuted) ? 0.14 : 0.0001;
+        this.filterNode.connect(this.masterGain);
+        this.masterGain.connect(audio.ctx.destination);
+
+        // Pre-bake 80ms crisp hi-hat / snare noise buffer once (zero per-step alloc)
+        const sr = audio.ctx.sampleRate || 44100;
+        const len = Math.floor(sr * 0.08);
+        this.noiseBuffer = audio.ctx.createBuffer(1, len, sr);
+        const ch = this.noiseBuffer.getChannelData(0);
+        for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      }
+      return true;
+    },
+
+    _syncGain() {
+      if (!this.masterGain || !audio.ctx) return;
+      const target = (this.enabled && !audio.isMuted && this.isPlaying) ? 0.14 : 0.0001;
+      try {
+        this.masterGain.gain.cancelScheduledValues(audio.ctx.currentTime);
+        this.masterGain.gain.setTargetAtTime(target, audio.ctx.currentTime, 0.06);
+      } catch (_) {}
+    },
+
+    setEnabled(val) {
+      this.enabled = !!val;
+      try { localStorage.setItem('oc_bgm_enabled', this.enabled ? '1' : '0'); } catch (_) {}
+      this._syncGain();
+      if (this.enabled && !audio.isMuted && state.active && this.currentRealm && !this.isPlaying) {
+        this.start(this.currentRealm);
+      }
+      this.syncBtnUI();
+    },
+
+    toggle() {
+      this.setEnabled(!this.enabled);
+    },
+
+    syncBtnUI() {
+      const btn = document.getElementById('cgMusicBtn');
+      if (!btn) return;
+      const active = this.enabled && !audio.isMuted;
+      btn.classList.toggle('oc-btn-off', !active);
+      btn.classList.toggle('oc-btn-active', active && this.isPlaying);
+      const tMap = { dynamo: 'FARADAY PULSE', helix: 'QUANTUM BIOME', meteor: 'SOLAR CALDERA' };
+      const tName = tMap[this.currentRealm] || 'REALM SYNTH';
+      btn.title = active ? `Music ON (${tName}) — Click to Mute BGM` : 'Music OFF — Click to Enable Futuristic BGM';
+    },
+
+    start(realm) {
+      const rKey = (realm === 'helix') ? 'helix' : (realm === 'meteor' ? 'meteor' : 'dynamo');
+      this.currentRealm = rKey;
+      if (!this.enabled || audio.isMuted) {
+        this.syncBtnUI();
+        return;
+      }
+      if (!this._ensureBus()) return;
+      if (audio.ctx.state === 'suspended') {
+        audio.ctx.resume().catch(() => {});
+      }
+      if (this.isPlaying) {
+        this._syncGain();
+        this.syncBtnUI();
+        return;
+      }
+      this.isPlaying = true;
+      this.stepIdx = 0;
+      this.nextNoteTime = audio.ctx.currentTime + 0.05;
+      this._syncGain();
+      this.syncBtnUI();
+      if (this.timerId) clearInterval(this.timerId);
+      this.timerId = setInterval(() => this._scheduler(), 32);
+    },
+
+    stop() {
+      this.isPlaying = false;
+      if (this.timerId) {
+        clearInterval(this.timerId);
+        this.timerId = null;
+      }
+      this._syncGain();
+      this.syncBtnUI();
+    },
+
+    unlockOnGesture() {
+      if (!state.active) return;
+      const isCore = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      if (!isCore) return;
+      const rKey = (state.gameType === 'helix') ? 'helix' : (state.gameType === 'meteor' ? 'meteor' : 'dynamo');
+      if (this.enabled && !audio.isMuted) {
+        if (!this.isPlaying || this.currentRealm !== rKey) {
+          this.start(rKey);
+        } else if (audio.ctx && audio.ctx.state === 'suspended') {
+          audio.ctx.resume().catch(() => {});
+        }
+      }
+    },
+
+    _playNote(freq, time, dur, type, vol, detune = 0) {
+      if (!freq || !audio.ctx || !this.filterNode) return;
+      try {
+        const osc = audio.ctx.createOscillator();
+        const g = audio.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, time);
+        if (detune) osc.detune.setValueAtTime(detune, time);
+        g.gain.setValueAtTime(0.0001, time);
+        g.gain.linearRampToValueAtTime(vol, time + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+        osc.connect(g);
+        g.connect(this.filterNode);
+        osc.start(time);
+        osc.stop(time + dur + 0.02);
+      } catch (_) {}
+    },
+
+    _playKick(time, startHz, endHz, vol) {
+      if (!audio.ctx || !this.masterGain) return;
+      try {
+        const osc = audio.ctx.createOscillator();
+        const g = audio.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startHz, time);
+        osc.frequency.exponentialRampToValueAtTime(endHz, time + 0.13);
+        g.gain.setValueAtTime(vol, time);
+        g.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start(time);
+        osc.stop(time + 0.18);
+      } catch (_) {}
+    },
+
+    _playHat(time, vol, hpHz = 6800) {
+      if (!audio.ctx || !this.noiseBuffer || !this.masterGain) return;
+      try {
+        const src = audio.ctx.createBufferSource();
+        src.buffer = this.noiseBuffer;
+        const hp = audio.ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.value = hpHz;
+        const g = audio.ctx.createGain();
+        g.gain.setValueAtTime(vol, time);
+        g.gain.exponentialRampToValueAtTime(0.0001, time + 0.055);
+        src.connect(hp);
+        hp.connect(g);
+        g.connect(this.masterGain);
+        src.start(time);
+        src.stop(time + 0.07);
+      } catch (_) {}
+    },
+
+    _scheduler() {
+      if (!this.isPlaying || !audio.ctx || !this.enabled || audio.isMuted || document.hidden) return;
+      if (audio.ctx.state !== 'running') return;
+      const isBoss = (state.roundPhase === 'boss' || state.roundPhase === 'warning');
+      const bpmMap = { dynamo: 128, helix: 116, meteor: 134 };
+      const bpm = (bpmMap[this.currentRealm] || 128) + (isBoss ? 8 : 0);
+      const stepDur = 60 / bpm / 4; // 16th note
+      const horizon = audio.ctx.currentTime + 0.12;
+
+      if (this.nextNoteTime < audio.ctx.currentTime - 0.15) {
+        this.nextNoteTime = audio.ctx.currentTime + 0.03;
+      }
+
+      while (this.nextNoteTime < horizon) {
+        this._scheduleStep(this.stepIdx, this.nextNoteTime, stepDur, isBoss);
+        this.nextNoteTime += stepDur;
+        this.stepIdx = (this.stepIdx + 1) % 32;
+      }
+    },
+
+    _scheduleStep(step, t, sd, isBoss) {
+      const N = this.N;
+      const r = this.currentRealm;
+      const bar = Math.floor(step / 16);
+      const s = step % 16;
+
+      if (r === 'dynamo') {
+        // CHROME DYNAMO: "FARADAY PULSE" — High-Voltage Cyber-Electro Synthwave (D Minor)
+        const bassSeq = [
+          N.D2, 0, N.D2, N.D2, N.F2, 0, N.D2, 0, N.A1, 0, N.C2, 0, N.D2, 0, N.G2, N.F2,
+          N.Bb1, 0, N.Bb1, N.Bb1, N.C2, 0, N.C2, 0, N.A1, 0, N.A1, N.C2, N.D2, 0, N.F2, N.E2
+        ];
+        const arpSeq = [
+          N.D4, N.A4, N.F4, N.A4, N.C5, N.A4, N.F4, N.E4, N.D4, N.F4, N.A4, N.D5, N.E5, N.D5, N.A4, N.F4,
+          N.Bb4, N.F4, N.D4, N.F4, N.C5, N.G4, N.E4, N.G4, N.A4, N.E4, N.C5, N.A4, N.D5, N.A4, N.F4, N.E4
+        ];
+        if (bassSeq[step]) this._playNote(bassSeq[step], t, sd * 1.4, 'sawtooth', 0.34);
+        if (arpSeq[step] && (s % 2 === 0 || isBoss)) {
+          this._playNote(arpSeq[step], t, sd * 1.15, 'square', isBoss ? 0.14 : 0.11, 5);
+        }
+        if (s === 0 || s === 8) this._playKick(t, 138, 38, 0.42);
+        if (s === 4 || s === 12) this._playHat(t, 0.20, 4200);
+        if (s % 2 === 1) this._playHat(t, isBoss ? 0.10 : 0.06, 7800);
+        if (step === 0 || step === 16) {
+          this._playNote(bar === 0 ? N.D3 : N.Bb2, t, sd * 14, 'triangle', 0.13);
+          this._playNote(bar === 0 ? N.A3 : N.F3, t, sd * 14, 'sine', 0.11);
+        }
+      } else if (r === 'helix') {
+        // CHROME HELIX: "QUANTUM BIOME" — Ethereal Twin-Strand Sci-Fi Trance (A Minor / C Lydian)
+        const strandA = [
+          N.A4, 0, N.C5, 0, N.E5, 0, N.G5, 0, N.E5, 0, N.C5, 0, N.B4, 0, N.G4, 0,
+          N.F4, 0, N.A4, 0, N.C5, 0, N.Fs5, 0, N.E5, 0, N.C5, 0, N.B4, 0, N.E5, 0
+        ];
+        const strandB = [
+          0, N.E4, 0, N.G4, 0, N.B4, 0, N.D5, 0, N.C5, 0, N.A4, 0, N.G4, 0, N.E4,
+          0, N.C4, 0, N.E4, 0, N.A4, 0, N.C5, 0, N.B4, 0, N.G4, 0, N.E4, 0, N.B4
+        ];
+        if (strandA[step]) this._playNote(strandA[step], t, sd * 2.4, 'sine', 0.18);
+        if (strandB[step]) this._playNote(strandB[step], t, sd * 2.1, 'triangle', 0.13, -4);
+        if (s === 0 || s === 6 || s === 12) {
+          const bRoot = bar === 0 ? (s === 12 ? N.G2 : N.A2) : (s === 12 ? N.G2 : N.F2);
+          this._playNote(bRoot, t, sd * 3.5, 'sine', 0.36);
+        }
+        if (s === 0 || (isBoss && s === 8)) this._playKick(t, 108, 42, 0.30);
+        if (s === 4 || s === 12) this._playHat(t, 0.08, 8600);
+        if (step === 0 || step === 16) {
+          this._playNote(bar === 0 ? N.A3 : N.F3, t, sd * 15, 'sine', 0.15);
+          this._playNote(bar === 0 ? N.E4 : N.C4, t, sd * 15, 'sine', 0.11, 6);
+        }
+      } else {
+        // CHROME METEOR: "SOLAR CALDERA" — Epic Dark-Synth Industrial Space-Metal (E Phrygian Dominant)
+        const magmaBass = [
+          N.E1, N.E1, 0, N.E1, N.F1, 0, N.E1, N.G1, N.E1, 0, N.Gs1, 0, N.B1, 0, N.Gs1, N.F1,
+          N.E1, N.E1, 0, N.E1, N.C2, 0, N.B1, 0, N.Gs1, 0, N.F1, N.E1, N.G1, 0, N.F1, N.E1
+        ];
+        const solarLead = [
+          N.E4, 0, N.F4, 0, N.Gs4, 0, N.B4, N.Gs4, N.E4, 0, N.B4, 0, N.C5, 0, N.B4, N.Gs4,
+          N.E5, 0, N.C5, 0, N.B4, 0, N.Gs4, N.F4, N.E4, 0, N.Gs4, 0, N.B4, 0, N.E5, 0
+        ];
+        if (magmaBass[step]) {
+          this._playNote(magmaBass[step], t, sd * 1.35, 'sawtooth', 0.44);
+          this._playNote(magmaBass[step] * 2, t, sd * 0.9, 'sawtooth', 0.18, -7);
+        }
+        if (solarLead[step]) {
+          this._playNote(solarLead[step], t, sd * 1.5, 'sawtooth', isBoss ? 0.16 : 0.12, 7);
+        }
+        if (s === 0 || s === 6 || s === 10 || (isBoss && s === 14)) this._playKick(t, 152, 32, 0.50);
+        if (s === 4 || s === 12) this._playHat(t, 0.24, 3400);
+        if (s % 2 === 1) this._playHat(t, isBoss ? 0.11 : 0.07, 7200);
+        if (step === 0 || step === 16) {
+          this._playNote(bar === 0 ? N.E3 : N.F3, t, sd * 14, 'sawtooth', 0.10, -5);
+          this._playNote(bar === 0 ? N.B3 : N.C4, t, sd * 14, 'triangle', 0.12);
+        }
+      }
+    }
+  };
+  window.RealmMusicEngine = RealmMusicEngine;
 
   // --- Eight-Level Mathematics Engine ---
   const MathEngine = {
@@ -5728,11 +6124,94 @@
   };
 
   // ══════════════════════════════════════════════════════════════════════════
-  // === CHANGED (v385): STEP 1 & STEP 2 — TOUCH-ONLY FIRE CONTROLS ENGINE ===
-  // Desktop/laptop mouse & keyboard paths are completely untouched.
+  // === CHANGED (v387): AUTHORITATIVE COMBAT, SKILLS, VOIDBLOOM & UI CONFIG ===
+  // All names, cooldowns, sizes, damage multipliers, and Voidbloom stats live here.
   // ══════════════════════════════════════════════════════════════════════════
-  const FIRE_DELAY = 120; // ms between shots on touch (~8.3 shots/sec max, gated inside requestAnimationFrame)
+  const CONFIG = {
+    names: {
+      gun: 'EMBER CANNON',
+      skill2: 'SEEKER COMETS',
+      ult: 'CALDERA NOVA',
+      voidbloom: 'VOIDBLOOM NODE'
+    },
+    ui: {
+      gunBtnSize: 96,
+      skill2BtnSize: 68,
+      ultBtnSize: 76,
+      btnOpacity: 0.85,
+      pressedScale: 0.92,
+      leftHandedKey: 'oc_left_handed_controls'
+    },
+    gun: {
+      fireDelayMs: 120,      // FIRE_DELAY = 120 ms (requestAnimationFrame gated, never setInterval)
+      ammoPerShot: 1,
+      emptyFlashMs: 320
+    },
+    skill2: {
+      cooldownMs: 8000,      // SKILL2_CD = 8 s
+      missileCount: 4,       // Volley of 4 homing missiles
+      lockOnMs: 300,         // ~0.3 s target lock-on reticles before launch
+      damageMultiplier: 3.0, // ~3x normal shot damage each
+      speed: 14.5,
+      turnRate: 0.24,
+      poolSize: 24
+    },
+    ult: {
+      cooldownMs: 35000,     // ULT_CD = 35 s
+      bossMaxHpPct: 0.15,    // Deals 15% of boss max HP
+      invulnMs: 1500,        // 1.5 s invulnerability on cast
+      killChargeMs: 1200,    // Optional bonus cooldown charge per destroyed hazard/Voidbloom
+      durationMs: 950,       // Piercing solar beam + shockwave animation duration
+      screenShake: 28
+    },
+    voidbloom: {
+      firstSpawnSec: 12,
+      spawnIntervalMs: 18000,
+      maxAlive: 2,
+      telegraphMs: 1000,     // ~1 s spawn warning + sound cue before appearing
+      minScale: 1.0,
+      maxScale: 6.0,         // Grows from 1x to 6x over growDurationSec
+      growDurationSec: 15,
+      baseRadius: 18,
+      maxViewportFrac: 0.20, // Capped so it never covers the whole screen or blocks HUD/boss bar
+      baseHp: 4,
+      maxHp: 28,
+      baseSpeed: 1.55,
+      minSpeedMult: 0.28,    // Slows dramatically as it grows huge
+      ammoDrainPct: 0.25,    // Drains 25% of current ammo on contact (never below 0)
+      smallRewardScore: 450,
+      smallRewardAmmo: 14,
+      hugeRewardScore: 3600,
+      hugeRewardAmmo: 95,
+      particlePoolSize: 96
+    }
+  };
 
+  const FIRE_DELAY = CONFIG.gun.fireDelayMs;
+
+  // === CHANGED (v387): STEP 5 — UNLIMITED AMMO SAFE FORMATTER ===
+  // Exact comma-formatted integer up to 9,999; compact 12.4K / 1.2M / 1.2B above; never NaN or scientific notation.
+  function formatAmmoCount(rawVal) {
+    if (!Number.isFinite(rawVal) || rawVal <= 0) return '0';
+    const n = Math.floor(rawVal);
+    if (n <= 9999) return n.toLocaleString('en-US');
+    const units = [
+      { v: 1e12, s: 'T' },
+      { v: 1e9,  s: 'B' },
+      { v: 1e6,  s: 'M' },
+      { v: 1e3,  s: 'K' }
+    ];
+    for (let i = 0; i < units.length; i++) {
+      if (n >= units[i].v) {
+        const scaled = n / units[i].v;
+        const txt = scaled >= 100 ? Math.floor(scaled).toString() : scaled.toFixed(1).replace(/\.0$/, '');
+        return `${txt}${units[i].s}`;
+      }
+    }
+    return String(n);
+  }
+
+  // === CHANGED (v387): STEP 2 — TOUCH-PRIMARY DEVICE DETECTION ===
   function detectTouchPrimary() {
     try {
       // Explicit QA preview flag (?touch_preview=1) for automated visual verification only; never set in normal play
@@ -5743,32 +6222,54 @@
       const mqHoverNone = window.matchMedia('(hover: none)');
       const mqFine = window.matchMedia('(pointer: fine)');
       if (mqCoarse.matches && mqHoverNone.matches) return true;
-      // If pointer media queries are supported and report a fine/desktop pointer, do NOT treat as touch-primary
       if (mqFine.matches || mqCoarse.matches) return false;
     }
-    // Fallback when pointer/hover media queries are unavailable
     return (navigator.maxTouchPoints > 0) && ('ontouchstart' in window);
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): STEP 3 & STEP 4 — TRUE MULTI-TOUCH ENGINE & KIMMY ARC ===
+  // Tracks every active pointer by pointerId in a Map (MOVE | GUN | SKILL2 | ULT).
+  // Supports 5+ simultaneous touches, iOS long-press hardening (30s+ steady hold),
+  // left-handed mirror toggle, and desktop [A]/[S]/[D] key tracking & HUD strip.
+  // ══════════════════════════════════════════════════════════════════════════
   const TouchFireControls = {
     isTouch: false,
-    btn: null,
+    leftHanded: (() => {
+      try { return localStorage.getItem(CONFIG.ui.leftHandedKey) === '1'; } catch (_) { return false; }
+    })(),
+    activePointers: new Map(), // pointerId -> { role: 'MOVE'|'GUN'|'SKILL2'|'ULT', el }
+    heldKeys: new Set(),       // Desktop held keyboard codes ('KeyA', etc.)
+    clusterEl: null,
+    gunBtn: null,
+    skill2Btn: null,
+    ultBtn: null,
     ammoEl: null,
-    activeFirePointerId: null,
+    skill2SweepEl: null,
+    skill2CdTextEl: null,
+    ultSweepEl: null,
+    ultCdTextEl: null,
+    deskHudEl: null,
+    deskGunChip: null,
+    deskGunStatus: null,
+    deskSkill2Chip: null,
+    deskSkill2Status: null,
+    deskUltChip: null,
+    deskUltStatus: null,
     _emptyFlashTimer: null,
+    _lastEmptyFlashAt: 0,
     _initialized: false,
-    _cachedAmmo: null,
-    _cachedRealm: null,
+    _cachedAmmoStr: null,
     _cachedHidden: null,
+    _cachedDeskHidden: null,
 
     init() {
       if (this._initialized) return;
       this._initialized = true;
 
-      // STEP 1: Detect touch-primary device on load
       this.isTouch = detectTouchPrimary();
 
-      // Re-check automatically whenever pointer/hover media queries change (e.g. tablet keyboard dock/undock)
+      // Re-check automatically on matchMedia change events (e.g. tablet keyboard dock/undock)
       if (typeof window.matchMedia === 'function') {
         const mqCoarse = window.matchMedia('(pointer: coarse)');
         const mqHoverNone = window.matchMedia('(hover: none)');
@@ -5782,23 +6283,82 @@
         }
       }
 
-      // Prevent iOS Safari pinch-zoom gestures during active touch play
+      // iOS Safari Hardening: block pinch-zoom gestures, selection, and callouts during active touch play
       const preventIosGesture = (e) => {
-        if (this.isTouch && state.active && e.cancelable) {
-          e.preventDefault();
-        }
+        if (this.isTouch && state.active && e.cancelable) e.preventDefault();
       };
       document.addEventListener('gesturestart', preventIosGesture, { passive: false });
       document.addEventListener('gesturechange', preventIosGesture, { passive: false });
       document.addEventListener('gestureend', preventIosGesture, { passive: false });
-
-      // Always stop firing if focus/visibility is interrupted (incoming call, swipe home, alert)
-      window.addEventListener('blur', () => this.releaseFire());
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) this.releaseFire();
+      document.addEventListener('selectstart', (e) => {
+        if (state.active && document.body.classList.contains('arcade-active')) e.preventDefault();
       });
 
+      // Clear all active pointers & held keyboard keys on window blur or tab switch so gun NEVER sticks!
+      const clearAllInputs = () => {
+        this.releaseAllPointers();
+        this.clearHeldKeys();
+      };
+      window.addEventListener('blur', clearAllInputs);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          clearAllInputs();
+          RealmMusicEngine.stop();
+        } else if (state.active) {
+          RealmMusicEngine.unlockOnGesture();
+        }
+      });
+
+      // Wire Left-Handed layout toggle button (visible on touch only)
+      const leftBtn = document.getElementById('cgLeftHandBtn');
+      if (leftBtn) {
+        leftBtn.onclick = (e) => {
+          e.stopPropagation();
+          this.toggleLeftHanded();
+        };
+      }
+
       this.syncUI();
+    },
+
+    hasRole(role) {
+      for (const entry of this.activePointers.values()) {
+        if (entry.role === role) return true;
+      }
+      return false;
+    },
+
+    isGunHeld() {
+      return this.hasRole('GUN');
+    },
+
+    isDesktopKeyGunHeld() {
+      return !this.isTouch && this.heldKeys.has('KeyA');
+    },
+
+    getMovePointerId() {
+      for (const [pid, entry] of this.activePointers.entries()) {
+        if (entry.role === 'MOVE') return pid;
+      }
+      return null;
+    },
+
+    toggleLeftHanded() {
+      this.leftHanded = !this.leftHanded;
+      try { localStorage.setItem(CONFIG.ui.leftHandedKey, this.leftHanded ? '1' : '0'); } catch (_) {}
+      if (this.clusterEl) {
+        this.clusterEl.classList.toggle('left-handed', this.leftHanded);
+      }
+      this._syncLeftHandBtn();
+    },
+
+    _syncLeftHandBtn() {
+      const leftBtn = document.getElementById('cgLeftHandBtn');
+      if (!leftBtn) return;
+      const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      leftBtn.style.display = (this.isTouch && isCoreArcade) ? '' : 'none';
+      leftBtn.classList.toggle('oc-btn-active', this.leftHanded);
+      leftBtn.title = this.leftHanded ? 'Left-Handed Layout ON (Tap for Right-Handed)' : 'Right-Handed Layout (Tap for Left-Handed)';
     },
 
     refreshMode() {
@@ -5808,12 +6368,12 @@
         return;
       }
       this.isTouch = nextIsTouch;
+      this.releaseAllPointers();
+      this.clearHeldKeys();
       if (!this.isTouch) {
-        // Switched to non-touch (laptop/desktop): stop touch fire and remove FIRE button from DOM completely
-        this.releaseFire();
-        this.destroyButton();
+        this.destroyTouchCluster();
       } else {
-        // Switched to touch-primary: ensure no auto-fire states carry over from desktop
+        this.destroyDesktopHud();
         state.offenseMode = false;
         state.pointerFiring = false;
       }
@@ -5821,167 +6381,1334 @@
       if (typeof updateHeaderUI === 'function') updateHeaderUI();
     },
 
-    ensureButton() {
-      // Strictly never create the FIRE button on non-touch devices
+    _bindPadPointerEvents(el, role, onDownAction) {
+      // Prevent iOS Safari native touchstart/touchmove long-press cancellation, callout, scroll & double-tap zoom
+      el.addEventListener('touchstart', (e) => {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }, { passive: false });
+      el.addEventListener('touchmove', (e) => {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }, { passive: false });
+      el.addEventListener('touchend', (e) => {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }, { passive: false });
+      el.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
+      el.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
+
+      el.addEventListener('pointerdown', (e) => {
+        if (!this.isTouch || !state.active) return;
+        e.preventDefault();
+        e.stopPropagation();
+        RealmMusicEngine.unlockOnGesture();
+
+        // Store strictly by pointerId — never interferes with any other finger or role!
+        this.activePointers.set(e.pointerId, { role, el });
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+        el.classList.add('is-held');
+
+        if (typeof onDownAction === 'function') onDownAction(e);
+        if (role === 'GUN') {
+          state.touchFireHeld = true;
+          if ((state.coreAmmo || 0) <= 0) this.flashEmpty();
+          if (typeof updateHeaderUI === 'function') updateHeaderUI();
+        }
+      }, { passive: false });
+
+      const releaseThisPointer = (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (e && e.pointerId !== undefined) {
+          this.releasePointer(e.pointerId);
+        }
+      };
+
+      el.addEventListener('pointerup', releaseThisPointer, { passive: true });
+      el.addEventListener('pointercancel', releaseThisPointer, { passive: true });
+      el.addEventListener('lostpointercapture', releaseThisPointer, { passive: true });
+    },
+
+    ensureTouchCluster() {
+      // Strictly never create touch buttons on non-touch desktop/laptop devices!
       if (!this.isTouch) return null;
-      if (this.btn && this.btn.isConnected) return this.btn;
+      if (this.clusterEl && this.clusterEl.isConnected) return this.clusterEl;
 
       const host = dom.viewReflex || document.getElementById('cgViewReflex');
       if (!host) return null;
 
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.id = 'ocTouchFireBtn';
-      btn.className = 'oc-fire-hidden';
-      btn.setAttribute('aria-label', 'Hold to fire cannon');
-      btn.innerHTML =
-        '<span class="oc-fire-label">FIRE</span>' +
-        '<span class="oc-fire-ammo" id="ocTouchFireAmmo">0</span>' +
-        '<span class="oc-fire-sub">HOLD</span>';
+      const cluster = document.createElement('div');
+      cluster.id = 'ocTouchControlCluster';
+      cluster.className = 'oc-touch-hidden' + (this.leftHanded ? ' left-handed' : '');
+      cluster.setAttribute('aria-label', 'Touch Combat Controls');
 
-      // Pointer Events with setPointerCapture so holding FIRE works simultaneously with dragging the ship
-      btn.addEventListener('pointerdown', (e) => {
-        if (!this.isTouch || !state.active) return;
-        e.preventDefault();
-        e.stopPropagation();
+      cluster.innerHTML =
+        '<div class="oc-touch-pad-wrap oc-pad-wrap-ult">' +
+          '<div role="button" tabindex="-1" id="ocTouchUltBtn" class="oc-touch-pad" aria-label="' + CONFIG.names.ult + '">' +
+            '<span class="oc-pad-icon">☄️</span>' +
+            '<span class="oc-fire-sub">ULT</span>' +
+            '<div class="oc-cd-sweep" id="ocTouchUltSweep"></div>' +
+            '<div class="oc-cd-text" id="ocTouchUltCdText"></div>' +
+          '</div>' +
+          '<span class="oc-pad-caption">' + CONFIG.names.ult + '</span>' +
+        '</div>' +
+        '<div class="oc-touch-pad-wrap oc-pad-wrap-skill2">' +
+          '<div role="button" tabindex="-1" id="ocTouchSkill2Btn" class="oc-touch-pad" aria-label="' + CONFIG.names.skill2 + '">' +
+            '<span class="oc-pad-icon">🚀</span>' +
+            '<span class="oc-fire-sub">4×</span>' +
+            '<div class="oc-cd-sweep" id="ocTouchSkill2Sweep"></div>' +
+            '<div class="oc-cd-text" id="ocTouchSkill2CdText"></div>' +
+          '</div>' +
+          '<span class="oc-pad-caption">' + CONFIG.names.skill2 + '</span>' +
+        '</div>' +
+        '<div class="oc-touch-pad-wrap oc-pad-wrap-gun">' +
+          '<div role="button" tabindex="-1" id="ocTouchGunBtn" class="oc-touch-pad" aria-label="' + CONFIG.names.gun + '">' +
+            '<span class="oc-fire-label">FIRE</span>' +
+            '<span class="oc-fire-ammo" id="ocTouchFireAmmo">0</span>' +
+            '<span class="oc-fire-sub">HOLD</span>' +
+          '</div>' +
+          '<span class="oc-pad-caption">' + CONFIG.names.gun + '</span>' +
+        '</div>';
 
-        // At 0 ammo: do NOT fire, flash the button red immediately
-        if ((state.coreAmmo || 0) <= 0) {
-          this.flashEmpty();
-          return;
-        }
+      host.appendChild(cluster);
+      this.clusterEl = cluster;
+      this.gunBtn = cluster.querySelector('#ocTouchGunBtn');
+      this.skill2Btn = cluster.querySelector('#ocTouchSkill2Btn');
+      this.ultBtn = cluster.querySelector('#ocTouchUltBtn');
+      this.ammoEl = cluster.querySelector('#ocTouchFireAmmo');
+      this.skill2SweepEl = cluster.querySelector('#ocTouchSkill2Sweep');
+      this.skill2CdTextEl = cluster.querySelector('#ocTouchSkill2CdText');
+      this.ultSweepEl = cluster.querySelector('#ocTouchUltSweep');
+      this.ultCdTextEl = cluster.querySelector('#ocTouchUltCdText');
 
-        // Ignore secondary pointer if button is already captured by a firing thumb
-        if (this.activeFirePointerId !== null && this.activeFirePointerId !== e.pointerId) return;
+      // Apply configurable button sizes from CONFIG
+      if (this.gunBtn) {
+        this.gunBtn.style.setProperty('width', `${CONFIG.ui.gunBtnSize}px`, 'important');
+        this.gunBtn.style.setProperty('height', `${CONFIG.ui.gunBtnSize}px`, 'important');
+      }
+      if (this.skill2Btn) {
+        this.skill2Btn.style.setProperty('width', `${CONFIG.ui.skill2BtnSize}px`, 'important');
+        this.skill2Btn.style.setProperty('height', `${CONFIG.ui.skill2BtnSize}px`, 'important');
+      }
+      if (this.ultBtn) {
+        this.ultBtn.style.setProperty('width', `${CONFIG.ui.ultBtnSize}px`, 'important');
+        this.ultBtn.style.setProperty('height', `${CONFIG.ui.ultBtnSize}px`, 'important');
+      }
 
-        this.activeFirePointerId = e.pointerId;
-        try { btn.setPointerCapture(e.pointerId); } catch (_) {}
-        state.touchFireHeld = true;
-        btn.classList.remove('oc-fire-empty-flash');
-        btn.classList.add('is-held');
-        if (typeof updateHeaderUI === 'function') updateHeaderUI();
-      }, { passive: false });
-
-      const stopFirePointer = (e) => {
-        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
-        if (this.activeFirePointerId !== null && e && e.pointerId !== undefined && e.pointerId !== this.activeFirePointerId) {
-          return;
-        }
-        this.releaseFire(e && e.pointerId !== undefined ? e.pointerId : null);
-      };
-
-      btn.addEventListener('pointerup', stopFirePointer, { passive: true });
-      btn.addEventListener('pointercancel', stopFirePointer, { passive: true });
-      btn.addEventListener('lostpointercapture', stopFirePointer, { passive: true });
-      btn.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      // Bind true multi-touch independent roles via pointerId Map
+      this._bindPadPointerEvents(this.gunBtn, 'GUN');
+      this._bindPadPointerEvents(this.skill2Btn, 'SKILL2', () => {
+        SkillSystem.castSeekerComets(performance.now());
       });
-      btn.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
-      btn.addEventListener('touchmove', (e) => { e.stopPropagation(); }, { passive: true });
+      this._bindPadPointerEvents(this.ultBtn, 'ULT', () => {
+        SkillSystem.castCalderaNova(performance.now());
+      });
 
-      host.appendChild(btn);
-      this.btn = btn;
-      this.ammoEl = btn.querySelector('#ocTouchFireAmmo');
-      this._cachedAmmo = null;
-      this._cachedRealm = null;
+      this._cachedAmmoStr = null;
       this._cachedHidden = true;
-      return btn;
+      return cluster;
     },
 
-    destroyButton() {
+    ensureDesktopHud() {
+      // Strictly non-touch desktop/laptop ONLY — displays A/S/D keycap hints & skill cooldowns (not touch buttons!)
+      if (this.isTouch) return null;
+      if (this.deskHudEl && this.deskHudEl.isConnected) return this.deskHudEl;
+
+      const host = dom.viewReflex || document.getElementById('cgViewReflex');
+      if (!host) return null;
+
+      const hud = document.createElement('div');
+      hud.id = 'ocDesktopSkillHud';
+      hud.className = 'oc-desk-hidden';
+      hud.innerHTML =
+        '<div class="oc-desk-chip" data-skill="gun" id="ocDeskGunChip">' +
+          '<span class="oc-desk-keycap">A</span>' +
+          '<div class="oc-desk-meta">' +
+            '<span class="oc-desk-name">' + CONFIG.names.gun + '</span>' +
+            '<span class="oc-desk-status" id="ocDeskGunStatus">HOLD</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="oc-desk-chip" data-skill="skill2" id="ocDeskSkill2Chip">' +
+          '<span class="oc-desk-keycap">S</span>' +
+          '<div class="oc-desk-meta">' +
+            '<span class="oc-desk-name">' + CONFIG.names.skill2 + '</span>' +
+            '<span class="oc-desk-status" id="ocDeskSkill2Status">READY</span>' +
+          '</div>' +
+          '<div class="oc-desk-cdbar" id="ocDeskSkill2Bar"></div>' +
+        '</div>' +
+        '<div class="oc-desk-chip" data-skill="ult" id="ocDeskUltChip">' +
+          '<span class="oc-desk-keycap">D</span>' +
+          '<div class="oc-desk-meta">' +
+            '<span class="oc-desk-name">' + CONFIG.names.ult + '</span>' +
+            '<span class="oc-desk-status" id="ocDeskUltStatus">READY</span>' +
+          '</div>' +
+          '<div class="oc-desk-cdbar" id="ocDeskUltBar"></div>' +
+        '</div>';
+
+      host.appendChild(hud);
+      this.deskHudEl = hud;
+      this.deskGunChip = hud.querySelector('#ocDeskGunChip');
+      this.deskGunStatus = hud.querySelector('#ocDeskGunStatus');
+      this.deskSkill2Chip = hud.querySelector('#ocDeskSkill2Chip');
+      this.deskSkill2Status = hud.querySelector('#ocDeskSkill2Status');
+      this.deskSkill2Bar = hud.querySelector('#ocDeskSkill2Bar');
+      this.deskUltChip = hud.querySelector('#ocDeskUltChip');
+      this.deskUltStatus = hud.querySelector('#ocDeskUltStatus');
+      this.deskUltBar = hud.querySelector('#ocDeskUltBar');
+      this._cachedDeskHidden = true;
+      return hud;
+    },
+
+    destroyTouchCluster() {
       if (this._emptyFlashTimer) {
         clearTimeout(this._emptyFlashTimer);
         this._emptyFlashTimer = null;
       }
-      if (this.btn && this.btn.parentNode) {
-        this.btn.parentNode.removeChild(this.btn);
+      if (this.clusterEl && this.clusterEl.parentNode) {
+        this.clusterEl.parentNode.removeChild(this.clusterEl);
       }
-      this.btn = null;
+      this.clusterEl = null;
+      this.gunBtn = null;
+      this.skill2Btn = null;
+      this.ultBtn = null;
       this.ammoEl = null;
-      this.activeFirePointerId = null;
-      this._cachedAmmo = null;
-      this._cachedRealm = null;
+      this.skill2SweepEl = null;
+      this.skill2CdTextEl = null;
+      this.ultSweepEl = null;
+      this.ultCdTextEl = null;
+      this._cachedAmmoStr = null;
       this._cachedHidden = null;
     },
 
-    releaseFire(pointerId = null) {
-      const pid = (pointerId !== null) ? pointerId : this.activeFirePointerId;
-      if (this.btn && pid !== null) {
+    destroyDesktopHud() {
+      if (this.deskHudEl && this.deskHudEl.parentNode) {
+        this.deskHudEl.parentNode.removeChild(this.deskHudEl);
+      }
+      this.deskHudEl = null;
+      this.deskGunChip = null;
+      this.deskGunStatus = null;
+      this.deskSkill2Chip = null;
+      this.deskSkill2Status = null;
+      this.deskSkill2Bar = null;
+      this.deskUltChip = null;
+      this.deskUltStatus = null;
+      this.deskUltBar = null;
+      this._cachedDeskHidden = null;
+    },
+
+    releasePointer(pointerId) {
+      const entry = this.activePointers.get(pointerId);
+      if (!entry) return;
+      this.activePointers.delete(pointerId);
+      if (entry.el) {
         try {
-          if (this.btn.hasPointerCapture && this.btn.hasPointerCapture(pid)) {
-            this.btn.releasePointerCapture(pid);
+          if (entry.el.hasPointerCapture && entry.el.hasPointerCapture(pointerId)) {
+            entry.el.releasePointerCapture(pointerId);
           }
         } catch (_) {}
+        if (!this.hasRole(entry.role)) {
+          entry.el.classList.remove('is-held');
+        }
       }
-      const wasHeld = !!state.touchFireHeld || this.activeFirePointerId !== null;
-      this.activeFirePointerId = null;
+      if (entry.role === 'GUN') {
+        const stillHeld = this.hasRole('GUN');
+        state.touchFireHeld = stillHeld;
+        if (!stillHeld && typeof updateHeaderUI === 'function') updateHeaderUI();
+      } else if (entry.role === 'MOVE') {
+        if (!this.hasRole('MOVE')) {
+          isPointerDown = false;
+          touchGuidePos.active = false;
+        }
+      }
+    },
+
+    releaseAllPointers() {
+      const pids = Array.from(this.activePointers.keys());
+      for (let i = 0; i < pids.length; i++) {
+        this.releasePointer(pids[i]);
+      }
+      this.activePointers.clear();
       state.touchFireHeld = false;
-      if (this.btn) {
-        this.btn.classList.remove('is-held');
+      isPointerDown = false;
+      touchGuidePos.active = false;
+      if (this.gunBtn) this.gunBtn.classList.remove('is-held');
+      if (this.skill2Btn) this.skill2Btn.classList.remove('is-held');
+      if (this.ultBtn) this.ultBtn.classList.remove('is-held');
+    },
+
+    releaseFire() {
+      const gunPids = [];
+      for (const [pid, entry] of this.activePointers.entries()) {
+        if (entry.role === 'GUN') gunPids.push(pid);
       }
-      if (wasHeld && typeof updateHeaderUI === 'function') {
-        updateHeaderUI();
+      for (let i = 0; i < gunPids.length; i++) {
+        this.releasePointer(gunPids[i]);
       }
+      state.touchFireHeld = false;
+      if (this.gunBtn) this.gunBtn.classList.remove('is-held');
+    },
+
+    clearHeldKeys() {
+      const hadA = this.heldKeys.has('KeyA');
+      this.heldKeys.clear();
+      if (hadA && typeof updateHeaderUI === 'function') updateHeaderUI();
     },
 
     flashEmpty() {
-      if (!this.isTouch || !this.btn) return;
-      state.touchFireHeld = false;
-      this.btn.classList.remove('is-held');
-      this.btn.classList.add('oc-fire-empty-flash');
-      if (this._emptyFlashTimer) clearTimeout(this._emptyFlashTimer);
-      this._emptyFlashTimer = setTimeout(() => {
-        if (this.btn) this.btn.classList.remove('oc-fire-empty-flash');
-        this._emptyFlashTimer = null;
-      }, 320);
+      const now = performance.now();
+      if (now - this._lastEmptyFlashAt < 260) return;
+      this._lastEmptyFlashAt = now;
+      if (this.gunBtn) {
+        this.gunBtn.classList.add('oc-fire-empty-flash');
+        if (this._emptyFlashTimer) clearTimeout(this._emptyFlashTimer);
+        this._emptyFlashTimer = setTimeout(() => {
+          if (this.gunBtn) this.gunBtn.classList.remove('oc-fire-empty-flash');
+          this._emptyFlashTimer = null;
+        }, CONFIG.gun.emptyFlashMs);
+      }
+      if (this.deskGunChip) {
+        this.deskGunChip.classList.add('oc-cd-shake');
+        setTimeout(() => { if (this.deskGunChip) this.deskGunChip.classList.remove('oc-cd-shake'); }, 260);
+      }
+      audio.playCooldownReject();
+    },
+
+    triggerSkillFeedback(skillKey, kind) {
+      const el = this.isTouch
+        ? (skillKey === 'ult' ? this.ultBtn : this.skill2Btn)
+        : (skillKey === 'ult' ? this.deskUltChip : this.deskSkill2Chip);
+      if (!el) return;
+      const cls = kind === 'ready' ? 'oc-ready-pulse' : 'oc-cd-shake';
+      el.classList.remove(cls);
+      void el.offsetWidth;
+      el.classList.add(cls);
+      setTimeout(() => { if (el) el.classList.remove(cls); }, kind === 'ready' ? 440 : 280);
+    },
+
+    syncSkillCooldownUI() {
+      const s2Rem = Math.max(0, SkillSystem.skill2CdMs || 0);
+      const s2Max = CONFIG.skill2.cooldownMs;
+      const uRem = Math.max(0, SkillSystem.ultCdMs || 0);
+      const uMax = CONFIG.ult.cooldownMs;
+
+      if (this.isTouch) {
+        if (this.skill2Btn) {
+          const onCd = s2Rem > 0;
+          this.skill2Btn.classList.toggle('on-cooldown', onCd);
+          if (this.skill2SweepEl) {
+            const deg = onCd ? Math.round((s2Rem / s2Max) * 360) : 0;
+            this.skill2SweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+          }
+          if (this.skill2CdTextEl) {
+            const txt = onCd ? String(Math.ceil(s2Rem / 1000)) : '';
+            if (this.skill2CdTextEl.textContent !== txt) this.skill2CdTextEl.textContent = txt;
+          }
+        }
+        if (this.ultBtn) {
+          const onCd = uRem > 0;
+          this.ultBtn.classList.toggle('on-cooldown', onCd);
+          if (this.ultSweepEl) {
+            const deg = onCd ? Math.round((uRem / uMax) * 360) : 0;
+            this.ultSweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+          }
+          if (this.ultCdTextEl) {
+            const txt = onCd ? String(Math.ceil(uRem / 1000)) : '';
+            if (this.ultCdTextEl.textContent !== txt) this.ultCdTextEl.textContent = txt;
+          }
+        }
+      } else if (this.deskHudEl) {
+        if (this.deskGunChip) {
+          const activeGun = this.isDesktopKeyGunHeld() || !!state.offenseMode || !!state.pointerFiring;
+          this.deskGunChip.classList.toggle('is-active', activeGun && (state.coreAmmo || 0) > 0);
+          if (this.deskGunStatus) {
+            const gTxt = (state.coreAmmo || 0) <= 0 ? 'EMPTY' : formatAmmoCount(state.coreAmmo);
+            if (this.deskGunStatus.textContent !== gTxt) this.deskGunStatus.textContent = gTxt;
+          }
+        }
+        if (this.deskSkill2Chip) {
+          const onCd = s2Rem > 0;
+          this.deskSkill2Chip.classList.toggle('on-cooldown', onCd);
+          const txt = onCd ? `${Math.ceil(s2Rem / 1000)}s` : 'READY';
+          if (this.deskSkill2Status && this.deskSkill2Status.textContent !== txt) this.deskSkill2Status.textContent = txt;
+          if (this.deskSkill2Bar) this.deskSkill2Bar.style.setProperty('--cd-pct', onCd ? `${Math.round((s2Rem / s2Max) * 100)}%` : '0%');
+        }
+        if (this.deskUltChip) {
+          const onCd = uRem > 0;
+          this.deskUltChip.classList.toggle('on-cooldown', onCd);
+          const txt = onCd ? `${Math.ceil(uRem / 1000)}s` : 'READY';
+          if (this.deskUltStatus && this.deskUltStatus.textContent !== txt) this.deskUltStatus.textContent = txt;
+          if (this.deskUltBar) this.deskUltBar.style.setProperty('--cd-pct', onCd ? `${Math.round((uRem / uMax) * 100)}%` : '0%');
+        }
+      }
     },
 
     syncUI() {
-      if (!this.isTouch) {
-        if (this.btn) this.destroyButton();
-        return;
-      }
       const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
       const overlayVisible = !!(dom.screenOverlay && dom.screenOverlay.style.display === 'flex');
       const shouldShow = !!(state.active && isCoreArcade && !overlayVisible);
+      this._syncLeftHandBtn();
+
+      if (!this.isTouch) {
+        if (this.clusterEl) this.destroyTouchCluster();
+        if (!shouldShow) {
+          if (this.deskHudEl && !this._cachedDeskHidden) {
+            this._cachedDeskHidden = true;
+            this.deskHudEl.classList.add('oc-desk-hidden');
+          }
+          return;
+        }
+        const dh = this.ensureDesktopHud();
+        if (dh && this._cachedDeskHidden !== false) {
+          this._cachedDeskHidden = false;
+          dh.classList.remove('oc-desk-hidden');
+        }
+        this.syncSkillCooldownUI();
+        return;
+      }
+
+      // Touch mode: remove desktop HUD if present
+      if (this.deskHudEl) this.destroyDesktopHud();
 
       if (!shouldShow) {
-        if (state.touchFireHeld || this.activeFirePointerId !== null) {
-          this.activeFirePointerId = null;
-          state.touchFireHeld = false;
-          if (this.btn) this.btn.classList.remove('is-held');
-        }
-        if (this.btn && !this._cachedHidden) {
+        if (this.activePointers.size > 0) this.releaseAllPointers();
+        if (this.clusterEl && !this._cachedHidden) {
           this._cachedHidden = true;
-          this.btn.classList.add('oc-fire-hidden');
+          this.clusterEl.classList.add('oc-touch-hidden');
         }
         return;
       }
 
-      const btn = this.ensureButton();
-      if (!btn) return;
+      const cluster = this.ensureTouchCluster();
+      if (!cluster) return;
 
       if (this._cachedHidden !== false) {
         this._cachedHidden = false;
-        btn.classList.remove('oc-fire-hidden');
+        cluster.classList.remove('oc-touch-hidden');
       }
 
-      const realmKey = (state.catcherType === 'helix') ? 'helix' : (state.catcherType === 'meteor' ? 'meteor' : 'dynamo');
-      if (this._cachedRealm !== realmKey) {
-        this._cachedRealm = realmKey;
-        btn.setAttribute('data-realm', realmKey);
+      const ammoCnt = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      const ammoStr = formatAmmoCount(ammoCnt);
+      if (this._cachedAmmoStr !== ammoStr) {
+        this._cachedAmmoStr = ammoStr;
+        if (this.ammoEl) this.ammoEl.textContent = ammoStr;
+        if (this.gunBtn) this.gunBtn.classList.toggle('is-empty', ammoCnt <= 0);
+      }
+      if (this.gunBtn) {
+        this.gunBtn.classList.toggle('is-held', this.isGunHeld() && ammoCnt > 0);
+      }
+      this.syncSkillCooldownUI();
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): STEP 4 — ACTIVE SKILLS ENGINE (POOLED 60 FPS) ===
+  // 2nd Skill: SEEKER COMETS (4 homing missiles + 0.3s lock-on reticles, 8s CD)
+  // Ultimate:  CALDERA NOVA (piercing beam + shockwave + 15% Boss HP + 1.5s invuln, 35s CD)
+  // ══════════════════════════════════════════════════════════════════════════
+  const SkillSystem = {
+    skill2CdMs: 0,
+    ultCdMs: 0,
+    pendingVolleys: [],   // Active 0.3s lock-on reticle telegraphs before missile launch
+    activeNova: null,     // Active Caldera Nova beam + expanding shockwave
+    missilePool: Array.from({ length: CONFIG.skill2.poolSize }, () => ({
+      active: false, x: 0, y: 0, vx: 0, vy: 0, dmg: 3.0,
+      targetKind: null, targetRef: null, ageMs: 0, maxAgeMs: 2800,
+      trail: []
+    })),
+
+    reset() {
+      this.skill2CdMs = 0;
+      this.ultCdMs = 0;
+      this.pendingVolleys = [];
+      this.activeNova = null;
+      for (let i = 0; i < this.missilePool.length; i++) {
+        this.missilePool[i].active = false;
+        this.missilePool[i].targetRef = null;
+        this.missilePool[i].trail.length = 0;
+      }
+      TouchFireControls.syncSkillCooldownUI();
+    },
+
+    onEnemyDestroyed() {
+      // Optional ultimate charge from kills (base cooldown always works independently)
+      if (this.ultCdMs > 0) {
+        const prev = this.ultCdMs;
+        this.ultCdMs = Math.max(0, this.ultCdMs - CONFIG.ult.killChargeMs);
+        if (prev > 0 && this.ultCdMs === 0) {
+          audio.playSkillReady();
+          TouchFireControls.triggerSkillFeedback('ult', 'ready');
+        }
+      }
+    },
+
+    _acquireTargets(cx, cy, count) {
+      const targets = [];
+      // Priority 1: Nearest hostile falling bolides / hazard nodes
+      const hazards = [];
+      for (let i = 0; i < state.particles.length; i++) {
+        const pt = state.particles[i];
+        if (isHazardNode(pt.nodeClass) && pt.y > -40) {
+          hazards.push({ kind: 'hazard', ref: pt, dist: Math.hypot(pt.x - cx, pt.y - cy) });
+        }
+      }
+      hazards.sort((a, b) => a.dist - b.dist);
+      for (let i = 0; i < hazards.length && targets.length < count; i++) {
+        targets.push({ kind: 'hazard', ref: hazards[i].ref });
       }
 
-      const ammoCnt = Math.max(0, state.coreAmmo || 0);
-      if (this._cachedAmmo !== ammoCnt) {
-        this._cachedAmmo = ammoCnt;
-        if (this.ammoEl) this.ammoEl.textContent = String(ammoCnt);
-        btn.classList.toggle('is-empty', ammoCnt <= 0);
+      // Priority 2: Active Voidbloom Nodes
+      if (targets.length < count && VoidbloomEngine.nodes.length > 0) {
+        const vbs = VoidbloomEngine.nodes
+          .filter(v => v.active)
+          .map(v => ({ kind: 'voidbloom', ref: v, dist: Math.hypot(v.x - cx, v.y - cy) }))
+          .sort((a, b) => a.dist - b.dist);
+        for (let i = 0; i < vbs.length && targets.length < count; i++) {
+          targets.push({ kind: 'voidbloom', ref: vbs[i].ref });
+        }
       }
 
-      const showHeld = !!(state.touchFireHeld && ammoCnt > 0);
-      btn.classList.toggle('is-held', showHeld);
+      // Priority 3: Active Boss Pylons or Boss Body
+      if (targets.length < count && state.boss && state.boss.phase === 'fighting') {
+        if (state.boss.pylons) {
+          for (let i = 0; i < state.boss.pylons.length && targets.length < count; i++) {
+            if (state.boss.pylons[i].hp > 0) {
+              targets.push({ kind: 'pylon', ref: state.boss.pylons[i] });
+            }
+          }
+        }
+        while (targets.length < count) {
+          targets.push({ kind: 'boss', ref: state.boss });
+        }
+      }
+
+      // If fewer than 4 distinct targets exist (e.g. 1 Voidbloom or 2 hazards), cycle acquired targets so all 4 missiles lock cleanly!
+      if (targets.length > 0) {
+        let idx = 0;
+        while (targets.length < count) {
+          targets.push({ kind: targets[idx % targets.length].kind, ref: targets[idx % targets.length].ref });
+          idx++;
+        }
+      } else {
+        // Empty sky fallback: forward-fan free-flight interceptors
+        for (let i = 0; i < count; i++) {
+          targets.push({ kind: 'none', ref: null });
+        }
+      }
+      return targets;
+    },
+
+    castSeekerComets(now) {
+      if (!state.active) return false;
+      const isCore = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      if (!isCore) return false;
+      if (this.skill2CdMs > 0) {
+        audio.playCooldownReject();
+        TouchFireControls.triggerSkillFeedback('skill2', 'shake');
+        return false;
+      }
+
+      const w = cachedCanvasRect.width || window.innerWidth;
+      const h = cachedCanvasRect.height || window.innerHeight;
+      const cx = (state.catcherX || 0.5) * w;
+      const cy = (state.catcherY || 0.82) * h;
+
+      this.skill2CdMs = CONFIG.skill2.cooldownMs;
+      const targets = this._acquireTargets(cx, cy, CONFIG.skill2.missileCount);
+      this.pendingVolleys.push({
+        startAt: now,
+        launchAt: now + CONFIG.skill2.lockOnMs,
+        targets
+      });
+      audio.playSeekerLockOn();
+      TouchFireControls.syncSkillCooldownUI();
+      return true;
+    },
+
+    _launchVolley(volley, cx, cy, now) {
+      const n = volley.targets.length;
+      const baseDmg = CONFIG.skill2.damageMultiplier;
+      for (let i = 0; i < n; i++) {
+        // Grab free slot from pre-allocated pool
+        let slot = null;
+        for (let k = 0; k < this.missilePool.length; k++) {
+          if (!this.missilePool[k].active) { slot = this.missilePool[k]; break; }
+        }
+        if (!slot) slot = this.missilePool[i % this.missilePool.length];
+        const fanAngle = -Math.PI * 0.5 + (i - (n - 1) * 0.5) * 0.42;
+        slot.active = true;
+        slot.x = cx + (i - (n - 1) * 0.5) * 16;
+        slot.y = cy - 26;
+        slot.vx = Math.cos(fanAngle) * (CONFIG.skill2.speed * 0.65);
+        slot.vy = Math.sin(fanAngle) * (CONFIG.skill2.speed * 0.65);
+        slot.dmg = baseDmg;
+        slot.targetKind = volley.targets[i].kind;
+        slot.targetRef = volley.targets[i].ref;
+        slot.ageMs = 0;
+        slot.maxAgeMs = 3000;
+        slot.trail.length = 0;
+      }
+      audio.playSeekerLaunch();
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, 7);
+    },
+
+    castCalderaNova(now) {
+      if (!state.active) return false;
+      const isCore = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      if (!isCore) return false;
+      if (this.ultCdMs > 0) {
+        audio.playCooldownReject();
+        TouchFireControls.triggerSkillFeedback('ult', 'shake');
+        return false;
+      }
+
+      const w = cachedCanvasRect.width || window.innerWidth;
+      const h = cachedCanvasRect.height || window.innerHeight;
+      const cx = (state.catcherX || 0.5) * w;
+      const cy = (state.catcherY || 0.82) * h;
+
+      this.ultCdMs = CONFIG.ult.cooldownMs;
+      // Grant 1.5 s invulnerability
+      state.playerInvulnUntil = Math.max(state.playerInvulnUntil || 0, now + CONFIG.ult.invulnMs);
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, CONFIG.ult.screenShake);
+
+      this.activeNova = {
+        x: cx,
+        y: cy,
+        startAt: now,
+        durationMs: CONFIG.ult.durationMs,
+        maxRadius: Math.hypot(w, h)
+      };
+
+      // 1. Clear ALL incoming hostile bolides/hazards on screen (never destroys good collectible nodes!)
+      let clearedHazards = 0;
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const pt = state.particles[i];
+        if (isHazardNode(pt.nodeClass)) {
+          RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fbbf24', 8);
+          state.score += 300;
+          clearedHazards++;
+          state.particles.splice(i, 1);
+        }
+      }
+      // Clear active boss projectiles & hazard lasers/shockwaves
+      state.bossBullets = [];
+      state.bossBeams = [];
+      state.hazardLasers = [];
+      state.empShockwaves = [];
+
+      // 2. Destroy EVERY Voidbloom Node on screen instantly with full size-scaled rewards!
+      const vbDestroyed = VoidbloomEngine.destroyAllByNova(now);
+
+      // 3. Deal heavy Boss Damage (15% of boss max HP) & shatter active Shield Pylons!
+      let bossDmgDealt = 0;
+      if (state.boss && state.boss.phase === 'fighting') {
+        if (state.boss.pylons) {
+          for (let i = 0; i < state.boss.pylons.length; i++) {
+            if (state.boss.pylons[i].hp > 0) {
+              RoundBossEngine.damagePylon(state.boss.pylons[i], 999, now, state.boss.pylons[i].x, state.boss.pylons[i].y);
+            }
+          }
+        }
+        bossDmgDealt = Math.max(8, Math.round(state.boss.maxHp * CONFIG.ult.bossMaxHpPct));
+        RoundBossEngine.damageBoss(bossDmgDealt, now, true, state.boss.x, state.boss.y);
+      }
+
+      audio.playCalderaNova();
+      const summaryParts = [];
+      if (bossDmgDealt > 0) summaryParts.push(`-${bossDmgDealt} BOSS HP`);
+      if (vbDestroyed > 0) summaryParts.push(`${vbDestroyed} VOIDBLOOM VAPORIZED`);
+      if (clearedHazards > 0) summaryParts.push(`${clearedHazards} HAZARDS CLEARED`);
+      state.floatingTexts.push({
+        x: cx,
+        y: Math.max(120, cy - 72),
+        text: `☄️ ${CONFIG.names.ult}!` + (summaryParts.length ? ` · ${summaryParts.join(' · ')}` : ' · INVULNERABLE 1.5s'),
+        color: '#fde047',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+      TouchFireControls.syncSkillCooldownUI();
+      return true;
+    },
+
+    _getLiveTargetPos(m) {
+      if (m.targetKind === 'hazard' && m.targetRef && state.particles.includes(m.targetRef)) {
+        return { x: m.targetRef.x, y: m.targetRef.y };
+      }
+      if (m.targetKind === 'voidbloom' && m.targetRef && m.targetRef.active) {
+        return { x: m.targetRef.x, y: m.targetRef.y };
+      }
+      if (m.targetKind === 'pylon' && m.targetRef && m.targetRef.hp > 0 && state.boss && state.boss.phase === 'fighting') {
+        return { x: m.targetRef.x, y: m.targetRef.y };
+      }
+      if (m.targetKind === 'boss' && state.boss && state.boss.phase === 'fighting') {
+        return { x: state.boss.x, y: state.boss.y };
+      }
+      // Target was already destroyed: auto-reacquire next highest priority live target!
+      const re = this._acquireTargets(m.x, m.y, 1)[0];
+      if (re && re.kind !== 'none') {
+        m.targetKind = re.kind;
+        m.targetRef = re.ref;
+        if (re.kind === 'hazard') return { x: re.ref.x, y: re.ref.y };
+        if (re.kind === 'voidbloom') return { x: re.ref.x, y: re.ref.y };
+        if (re.kind === 'pylon') return { x: re.ref.x, y: re.ref.y };
+        if (re.kind === 'boss') return { x: re.ref.x, y: re.ref.y };
+      }
+      return null;
+    },
+
+    tick(dt, ctx, cx, cy, u, dtScale, now, w, h) {
+      // 1. Tick Cooldowns cleanly using clamped frame dt (auto-pauses on tab hide / pause!)
+      if (this.skill2CdMs > 0) {
+        this.skill2CdMs = Math.max(0, this.skill2CdMs - dt);
+        if (this.skill2CdMs === 0) {
+          audio.playSkillReady();
+          TouchFireControls.triggerSkillFeedback('skill2', 'ready');
+        }
+      }
+      if (this.ultCdMs > 0) {
+        this.ultCdMs = Math.max(0, this.ultCdMs - dt);
+        if (this.ultCdMs === 0) {
+          audio.playSkillReady();
+          TouchFireControls.triggerSkillFeedback('ult', 'ready');
+        }
+      }
+      TouchFireControls.syncSkillCooldownUI();
+
+      // 2. Render & Launch 0.3s Seeker Comet Lock-On Reticles
+      for (let i = this.pendingVolleys.length - 1; i >= 0; i--) {
+        const v = this.pendingVolleys[i];
+        if (now >= v.launchAt) {
+          this._launchVolley(v, cx, cy, now);
+          this.pendingVolleys.splice(i, 1);
+          continue;
+        }
+        const prog = Math.min(1, (now - v.startAt) / CONFIG.skill2.lockOnMs);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let t = 0; t < v.targets.length; t++) {
+          const trg = v.targets[t];
+          if (!trg.ref) continue;
+          const tx = trg.ref.x;
+          const ty = trg.ref.y;
+          if (!Number.isFinite(tx) || !Number.isFinite(ty)) continue;
+          const r = 38 - prog * 14;
+          const rot = prog * Math.PI * 0.85;
+          ctx.save();
+          ctx.translate(tx, ty);
+          ctx.rotate(rot);
+          ctx.strokeStyle = prog > 0.7 ? '#fde047' : '#22d3ee';
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.stroke();
+          // 4 target lock brackets
+          for (let b = 0; b < 4; b++) {
+            const a = (b * Math.PI) / 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * (r + 7), Math.sin(a) * (r + 7));
+            ctx.lineTo(Math.cos(a) * (r - 6), Math.sin(a) * (r - 6));
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      // 3. Update & Draw Pooled Homing Seeker Comets
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.missilePool.length; i++) {
+        const m = this.missilePool[i];
+        if (!m.active) continue;
+        m.ageMs += dt;
+        if (m.ageMs >= m.maxAgeMs || m.y < -80 || m.y > h + 80 || m.x < -80 || m.x > w + 80) {
+          m.active = false;
+          continue;
+        }
+
+        const tPos = this._getLiveTargetPos(m);
+        if (tPos) {
+          const desiredAngle = Math.atan2(tPos.y - m.y, tPos.x - m.x);
+          const curAngle = Math.atan2(m.vy, m.vx);
+          let diff = desiredAngle - curAngle;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          const nextAngle = curAngle + diff * Math.min(1, CONFIG.skill2.turnRate * dtScale);
+          m.vx = Math.cos(nextAngle) * CONFIG.skill2.speed;
+          m.vy = Math.sin(nextAngle) * CONFIG.skill2.speed;
+        } else {
+          // Fly straight upward if sky is clear
+          m.vy = Math.min(m.vy - 0.5 * dtScale, -CONFIG.skill2.speed);
+        }
+
+        m.x += m.vx * dtScale;
+        m.y += m.vy * dtScale;
+        m.trail.push({ x: m.x, y: m.y });
+        if (m.trail.length > 7) m.trail.shift();
+
+        // Check Hit Detection (Hazards, Voidbloom, Boss Pylons, Boss)
+        let hit = false;
+        // A. Voidbloom Nodes
+        if (VoidbloomEngine.hitByShot(m.x, m.y, m.dmg, now, 'seeker')) {
+          hit = true;
+        }
+        // B. Falling Hazard Nodes
+        if (!hit) {
+          for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+            const pt = state.particles[pIdx];
+            if (!isHazardNode(pt.nodeClass)) continue;
+            if (Math.hypot(m.x - pt.x, m.y - pt.y) < (pt.headR || 28) + 18) {
+              if (pt.shotHp === undefined) pt.shotHp = (pt.nodeClass === 'volatile') ? 3 : 5;
+              pt.shotHp -= m.dmg;
+              RoundBossEngine._spawnHitSparks(m.x, m.y, '#22d3ee', 6);
+              if (pt.shotHp <= 0) {
+                state.score += 320;
+                RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fde047', 12);
+                audio.playMissileHit();
+                state.particles.splice(pIdx, 1);
+                this.onEnemyDestroyed();
+                updateHeaderUI();
+              } else {
+                audio.playBossHit(false);
+              }
+              hit = true;
+              break;
+            }
+          }
+        }
+        // C. Boss Pylons & Boss Body
+        if (!hit && state.boss && state.boss.phase === 'fighting') {
+          if (state.boss.pylons) {
+            for (let pIdx = 0; pIdx < state.boss.pylons.length; pIdx++) {
+              const pyl = state.boss.pylons[pIdx];
+              if (pyl.hp > 0 && Math.hypot(m.x - pyl.x, m.y - pyl.y) < 32) {
+                RoundBossEngine.damagePylon(pyl, m.dmg, now, m.x, m.y);
+                hit = true;
+                break;
+              }
+            }
+          }
+          if (!hit) {
+            const dx = m.x - state.boss.x;
+            const dy = m.y - state.boss.y;
+            const rx = state.boss.hitR * 1.22;
+            const ry = state.boss.hitR * 0.88;
+            if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1.0) {
+              RoundBossEngine.damageBoss(m.dmg, now, true, m.x, m.y);
+              hit = true;
+            }
+          }
+        }
+
+        if (hit) {
+          m.active = false;
+          continue;
+        }
+
+        // Draw Homing Seeker Comet
+        if (m.trail.length > 1) {
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.72)';
+          ctx.lineWidth = 3.2;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(m.trail[0].x, m.trail[0].y);
+          for (let ti = 1; ti < m.trail.length; ti++) ctx.lineTo(m.trail[ti].x, m.trail[ti].y);
+          ctx.stroke();
+        }
+        const mSpr = QuantumRenderer._getGlowSprite('cyan');
+        ctx.drawImage(mSpr, m.x - 16, m.y - 16, 32, 32);
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 4.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 4. Render Active CALDERA NOVA Piercing Beam + Shockwave + Radiant Flash
+      if (this.activeNova) {
+        const nv = this.activeNova;
+        const elapsed = now - nv.startAt;
+        if (elapsed >= nv.durationMs) {
+          this.activeNova = null;
+        } else {
+          const p = elapsed / nv.durationMs;
+          const fade = 1 - p;
+          const beamW = Math.max(24, (130 * (1 - p * 0.55)));
+          const ringR = nv.maxRadius * Math.pow(p, 0.65);
+
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+
+          // Full-screen Solar Flash
+          if (p < 0.35) {
+            const fAlpha = (1 - p / 0.35) * 0.42;
+            ctx.fillStyle = `rgba(253, 224, 71, ${fAlpha})`;
+            ctx.fillRect(0, 0, w, h);
+          }
+
+          // Massive Piercing Vertical Solar-Caldera Beam
+          const beamGrad = ctx.createLinearGradient(nv.x - beamW, 0, nv.x + beamW, 0);
+          beamGrad.addColorStop(0.0, 'rgba(234, 88, 12, 0)');
+          beamGrad.addColorStop(0.25, `rgba(249, 115, 22, ${fade * 0.75})`);
+          beamGrad.addColorStop(0.50, `rgba(255, 255, 255, ${fade * 0.95})`);
+          beamGrad.addColorStop(0.75, `rgba(250, 204, 21, ${fade * 0.75})`);
+          beamGrad.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
+          ctx.fillStyle = beamGrad;
+          ctx.fillRect(nv.x - beamW, 0, beamW * 2, nv.y + 40);
+
+          // Expanding Piercing Caldera Shockwave Ring
+          ctx.strokeStyle = `rgba(253, 224, 71, ${fade * 0.92})`;
+          ctx.lineWidth = Math.max(3, 18 * fade);
+          ctx.beginPath();
+          ctx.arc(nv.x, nv.y, ringR, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(244, 63, 94, ${fade * 0.65})`;
+          ctx.lineWidth = Math.max(2, 10 * fade);
+          ctx.beginPath();
+          ctx.arc(nv.x, nv.y, ringR * 0.78, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+      }
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): STEP 6 — VOIDBLOOM NODE (GROWING HOSTILE HAZARD) ===
+  // Dark obsidian-violet core + pulsing toxic-green aura + jagged thorny petals.
+  // Telegraphed 1s spawn, grows 1x -> 6x over 15s, slows down as it grows,
+  // drains 1 shield + 25% ammo on ship contact, scaling rewards on destruction!
+  // ══════════════════════════════════════════════════════════════════════════
+  const VoidbloomEngine = {
+    nodes: [],
+    telegraphs: [],
+    nextSpawnInMs: CONFIG.voidbloom.firstSpawnSec * 1000,
+    particlePool: Array.from({ length: CONFIG.voidbloom.particlePoolSize }, () => ({
+      active: false, x: 0, y: 0, vx: 0, vy: 0, r: 3, color: '#a3e635', life: 0, maxLife: 24
+    })),
+
+    reset() {
+      this.nodes = [];
+      this.telegraphs = [];
+      this.nextSpawnInMs = CONFIG.voidbloom.firstSpawnSec * 1000;
+      for (let i = 0; i < this.particlePool.length; i++) {
+        this.particlePool[i].active = false;
+      }
+    },
+
+    _emitParticles(x, y, color, count, spdMax = 5.5) {
+      let emitted = 0;
+      for (let i = 0; i < this.particlePool.length && emitted < count; i++) {
+        const pt = this.particlePool[i];
+        if (!pt.active) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 1.0 + Math.random() * spdMax;
+          pt.active = true;
+          pt.x = x;
+          pt.y = y;
+          pt.vx = Math.cos(ang) * spd;
+          pt.vy = Math.sin(ang) * spd;
+          pt.r = 2.2 + Math.random() * 3.4;
+          pt.color = color;
+          pt.life = 0;
+          pt.maxLife = 18 + Math.floor(Math.random() * 18);
+          emitted++;
+        }
+      }
+    },
+
+    _pickSafeX(w, shipX) {
+      const pad = Math.max(70, w * 0.14);
+      let bestX = w * 0.5;
+      let bestDist = -1;
+      for (let att = 0; att < 14; att++) {
+        const cand = pad + Math.random() * Math.max(40, w - pad * 2);
+        const dist = Math.abs(cand - shipX);
+        if (dist >= 145) return cand;
+        if (dist > bestDist) { bestDist = dist; bestX = cand; }
+      }
+      return bestX;
+    },
+
+    scheduleTelegraph(w, h, shipX, now, forcedX = null) {
+      const tx = forcedX !== null ? forcedX : this._pickSafeX(w, shipX);
+      const spawnY = Math.max(114, Math.min(160, h * 0.16));
+      this.telegraphs.push({
+        x: tx,
+        y: spawnY,
+        startAt: now,
+        spawnAt: now + CONFIG.voidbloom.telegraphMs
+      });
+      audio.playVoidbloomWarning();
+    },
+
+    spawnDirect(x, y, initialScale = 1.0, w = 800, h = 600) {
+      const cfg = CONFIG.voidbloom;
+      const sc = Math.max(cfg.minScale, Math.min(cfg.maxScale, initialScale));
+      const growT = (sc - cfg.minScale) / Math.max(0.01, cfg.maxScale - cfg.minScale);
+      const maxR = Math.min(w, h) * cfg.maxViewportFrac;
+      const r = Math.min(maxR, cfg.baseRadius * sc);
+      const hp = Math.round(cfg.baseHp + (cfg.maxHp - cfg.baseHp) * growT);
+      const node = {
+        active: true,
+        x, y,
+        scale: sc,
+        radius: r,
+        hp,
+        maxHp: hp,
+        ageSec: growT * cfg.growDurationSec,
+        rot: Math.random() * Math.PI * 2,
+        hitFlashUntil: 0,
+        sporeAccum: 0
+      };
+      this.nodes.push(node);
+      this._emitParticles(x, y, '#a3e635', 10, 3.8);
+      return node;
+    },
+
+    destroyNode(vb, now, source = 'shot') {
+      if (!vb || !vb.active) return;
+      vb.active = false;
+      const cfg = CONFIG.voidbloom;
+      const sizeT = Math.max(0, Math.min(1, (vb.scale - cfg.minScale) / Math.max(0.01, cfg.maxScale - cfg.minScale)));
+      const scoreGain = Math.round(cfg.smallRewardScore + (cfg.hugeRewardScore - cfg.smallRewardScore) * sizeT);
+      const ammoGain = Math.round(cfg.smallRewardAmmo + (cfg.hugeRewardAmmo - cfg.smallRewardAmmo) * sizeT);
+
+      state.score += scoreGain;
+      RoundBossEngine.addAmmo(ammoGain);
+      if (sizeT >= 0.5) {
+        state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 18);
+        if (state.pulseMeter >= 100) state.isPulseReady = true;
+      }
+      SkillSystem.onEnemyDestroyed();
+      audio.playVoidbloomDestroy(vb.scale);
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, sizeT >= 0.5 ? 14 : 6);
+
+      this._emitParticles(vb.x, vb.y, '#a3e635', 16, 6.5);
+      this._emitParticles(vb.x, vb.y, '#a855f7', 14, 5.5);
+      this._emitParticles(vb.x, vb.y, '#fde047', sizeT >= 0.5 ? 14 : 6, 7.2);
+
+      const tierTag = sizeT >= 0.65 ? 'HUGE VOIDBLOOM PURGED!' : (sizeT >= 0.3 ? 'VOIDBLOOM SHATTERED!' : 'VOIDBLOOM CLEARED!');
+      state.floatingTexts.push({
+        x: vb.x,
+        y: vb.y - 12,
+        text: `☠ ${tierTag} +${scoreGain.toLocaleString()} · +${ammoGain} AMMO`,
+        color: sizeT >= 0.5 ? '#fde047' : '#a3e635',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+    },
+
+    destroyAllByNova(now) {
+      let count = 0;
+      for (let i = this.nodes.length - 1; i >= 0; i--) {
+        if (this.nodes[i].active) {
+          this.destroyNode(this.nodes[i], now, 'nova');
+          count++;
+        }
+      }
+      this.nodes = this.nodes.filter(n => n.active);
+      return count;
+    },
+
+    hitByShot(sx, sy, dmg, now, source = 'shot') {
+      for (let i = this.nodes.length - 1; i >= 0; i--) {
+        const vb = this.nodes[i];
+        if (!vb.active) continue;
+        if (Math.hypot(sx - vb.x, sy - vb.y) <= vb.radius + 12) {
+          vb.hp -= dmg;
+          vb.hitFlashUntil = now + 75;
+          this._emitParticles(sx, sy, '#a3e635', 4, 3.6);
+          if (vb.hp <= 0) {
+            this.destroyNode(vb, now, source);
+            this.nodes.splice(i, 1);
+          } else {
+            audio.playBossHit(false);
+          }
+          return true;
+        }
+      }
+      return false;
+    },
+
+    _onShipContact(vb, cx, cy, now) {
+      vb.active = false;
+      this._emitParticles(vb.x, vb.y, '#9333ea', 18, 6.2);
+      this._emitParticles(vb.x, vb.y, '#84cc16', 14, 5.4);
+
+      // Respect Aegis Forcefield Shield Buff & Invulnerability (e.g. Caldera Nova 1.5s invuln)
+      if (state.hasBuff('shield', now) || (state.playerInvulnUntil && now < state.playerInvulnUntil)) {
+        state.score += 200;
+        CoreKinematics.triggerShieldDeflect(cx, cy, now);
+        audio.playPerfectCatch(state.combo);
+        return;
+      }
+
+      state.playerInvulnUntil = now + 1350;
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, 18);
+
+      // Deduct 1 Shield + drain configurable % of current ammo (never below 0!)
+      const curAmmo = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      const drained = Math.floor(curAmmo * CONFIG.voidbloom.ammoDrainPct);
+      state.coreAmmo = Math.max(0, curAmmo - drained);
+
+      if (state.coreTier > 1) {
+        state.coreTier--;
+        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+        state.combo = tierFloorCombo[state.coreTier] || 0;
+      } else {
+        state.coreTier = 1;
+        state.combo = 0;
+      }
+      state.reflexLives--;
+      state.consecutivePerfects = 0;
+      audio.playVoidbloomDrain();
+      renderReflexShields();
+
+      state.floatingTexts.push({
+        x: cx,
+        y: cy - 42,
+        text: `☠ VOIDBLOOM BREACH! -1 SHIELD` + (drained > 0 ? ` · -${formatAmmoCount(drained)} AMMO` : ''),
+        color: '#a3e635',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+
+      if (state.reflexLives <= 0) {
+        const gameNames = { dynamo: 'CHROME DYNAMO', realm: 'CHROME DYNAMO', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
+        handleGameOver('SHIELDS DEPLETED', `${gameNames[state.gameType]} was consumed by a ${CONFIG.names.voidbloom} in Round ${state.currentRound}. Final Score: ${state.score.toLocaleString()} points.`);
+      }
+    },
+
+    tick(dt, ctx, cx, cy, u, dtScale, now, w, h) {
+      const cfg = CONFIG.voidbloom;
+
+      // 1. Periodic Telegraphed Spawner (respects maxAlive and never spawns during cleared/warning transition)
+      if (state.roundPhase === 'gauntlet' || state.roundPhase === 'boss') {
+        const totalAlive = this.nodes.length + this.telegraphs.length;
+        if (totalAlive < cfg.maxAlive) {
+          this.nextSpawnInMs -= dt;
+          if (this.nextSpawnInMs <= 0) {
+            this.nextSpawnInMs = cfg.spawnIntervalMs;
+            this.scheduleTelegraph(w, h, cx, now);
+          }
+        }
+      }
+
+      // 2. Render & Promote 1.0s Spawn Telegraphs
+      for (let i = this.telegraphs.length - 1; i >= 0; i--) {
+        const tg = this.telegraphs[i];
+        if (now >= tg.spawnAt) {
+          this.spawnDirect(tg.x, tg.y, cfg.minScale, w, h);
+          this.telegraphs.splice(i, 1);
+          continue;
+        }
+        const prog = Math.min(1, (now - tg.startAt) / cfg.telegraphMs);
+        const pulse = 0.55 + 0.45 * Math.sin(now * 0.025);
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        // Subtle vertical toxic warning beam
+        ctx.strokeStyle = `rgba(163, 230, 53, ${0.22 * pulse})`;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(tg.x, tg.y - 30);
+        ctx.lineTo(tg.x, Math.min(h - 90, tg.y + 180));
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Pulsing toxic-violet warning reticle
+        const r = 34 - prog * 12;
+        ctx.strokeStyle = `rgba(163, 230, 53, ${0.88 * pulse})`;
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(tg.x, tg.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = `rgba(147, 51, 234, ${0.82 * pulse})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(tg.x, tg.y - r - 8);
+        ctx.lineTo(tg.x + r + 8, tg.y);
+        ctx.lineTo(tg.x, tg.y + r + 8);
+        ctx.lineTo(tg.x - r - 8, tg.y);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.font = '900 10px "Lexend", sans-serif';
+        ctx.fillStyle = '#bef264';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('⚠ VOIDBLOOM', tg.x, tg.y - r - 11);
+        ctx.restore();
+      }
+
+      // 3. Update & Draw Active Voidbloom Nodes (Continuous 1x -> 6x Growth, Slowing Drift, Scaling HP & Radius!)
+      const maxR = Math.min(w, h) * cfg.maxViewportFrac;
+      const shipHitR = 40 * u;
+
+      for (let i = this.nodes.length - 1; i >= 0; i--) {
+        const vb = this.nodes[i];
+        if (!vb.active) { this.nodes.splice(i, 1); continue; }
+
+        const prevMaxHp = vb.maxHp;
+        vb.ageSec += dt / 1000;
+        const growT = Math.min(1, vb.ageSec / cfg.growDurationSec);
+        vb.scale = cfg.minScale + (cfg.maxScale - cfg.minScale) * growT;
+        vb.radius = Math.min(maxR, cfg.baseRadius * vb.scale);
+
+        // Scale HP smoothly with growth (preserves damage already dealt!)
+        const nextMaxHp = Math.round(cfg.baseHp + (cfg.maxHp - cfg.baseHp) * growT);
+        if (nextMaxHp > prevMaxHp) {
+          vb.hp += (nextMaxHp - prevMaxHp);
+          vb.maxHp = nextMaxHp;
+        }
+
+        // Slow downward drift as it grows huge
+        const speedMult = 1.0 - (1.0 - cfg.minSpeedMult) * growT;
+        vb.y += cfg.baseSpeed * speedMult * dtScale;
+        vb.rot += (0.018 + 0.012 * (1 - growT)) * dtScale;
+
+        // Ambient pooled toxic spore emission
+        vb.sporeAccum += dt;
+        if (vb.sporeAccum >= (growT > 0.5 ? 110 : 210)) {
+          vb.sporeAccum = 0;
+          const a = Math.random() * Math.PI * 2;
+          this._emitParticles(vb.x + Math.cos(a) * vb.radius * 0.85, vb.y + Math.sin(a) * vb.radius * 0.85, Math.random() < 0.55 ? '#84cc16' : '#9333ea', 1, 1.4);
+        }
+
+        // Despawn safely past bottom
+        if (vb.y - vb.radius > h + 40) {
+          vb.active = false;
+          this.nodes.splice(i, 1);
+          continue;
+        }
+
+        // Ship Collision Check
+        if (Math.hypot(vb.x - cx, vb.y - cy) < vb.radius * 0.86 + shipHitR) {
+          this._onShipContact(vb, cx, cy, now);
+          this.nodes.splice(i, 1);
+          continue;
+        }
+
+        // Render Hostile Voidbloom Node (Dark Obsidian-Purple Core + Sickly Toxic-Green Aura + Jagged Petals + "!")
+        const r = vb.radius;
+        const pulse = 0.78 + 0.22 * Math.sin(now * 0.011 + i);
+        const isFlashing = vb.hitFlashUntil && now < vb.hitFlashUntil;
+
+        ctx.save();
+        ctx.translate(vb.x, vb.y);
+
+        // Outer Sickly Toxic-Green & Ultraviolet Warning Aura (intensifies with scale!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const auraR = r * (1.42 + growT * 0.25);
+        const ag = ctx.createRadialGradient(0, 0, r * 0.45, 0, 0, auraR);
+        ag.addColorStop(0.0, `rgba(147, 51, 234, ${(0.36 + growT * 0.26) * pulse})`);
+        ag.addColorStop(0.55, `rgba(132, 204, 22, ${(0.28 + growT * 0.24) * pulse})`);
+        ag.addColorStop(1.0, 'rgba(132, 204, 22, 0)');
+        ctx.fillStyle = ag;
+        ctx.beginPath();
+        ctx.arc(0, 0, auraR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Jagged Rotating Thorny Corona (10 razor-tooth spikes)
+        ctx.save();
+        ctx.rotate(vb.rot);
+        const spikes = 10;
+        ctx.beginPath();
+        for (let s = 0; s < spikes * 2; s++) {
+          const ang = (s * Math.PI) / spikes;
+          const rad = (s % 2 === 0) ? r * 1.18 : r * 0.84;
+          const px = Math.cos(ang) * rad;
+          const py = Math.sin(ang) * rad;
+          if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = isFlashing ? '#3b0764' : '#120520';
+        ctx.fill();
+        ctx.strokeStyle = isFlashing ? '#fef08a' : '#a3e635';
+        ctx.lineWidth = Math.max(2.0, 2.8 * (0.7 + growT * 0.6));
+        ctx.stroke();
+        ctx.restore();
+
+        // Inner Abyssal Core
+        const cg = ctx.createRadialGradient(-r * 0.18, -r * 0.18, r * 0.08, 0, 0, r * 0.85);
+        cg.addColorStop(0.0, isFlashing ? '#a855f7' : '#3b0764');
+        cg.addColorStop(0.55, '#140624');
+        cg.addColorStop(1.0, '#05020a');
+        ctx.fillStyle = cg;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.84, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(168, 85, 247, 0.85)';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        // Distinct Center Warning Emblem ("!") so it is impossible to mistake for a Good Node
+        const triR = Math.max(8, Math.min(24, r * 0.36));
+        ctx.strokeStyle = '#bef264';
+        ctx.fillStyle = 'rgba(132, 204, 22, 0.22)';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(0, -triR);
+        ctx.lineTo(triR * 0.92, triR * 0.72);
+        ctx.lineTo(-triR * 0.92, triR * 0.72);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ecfccb';
+        ctx.font = `900 ${Math.max(10, Math.round(triR * 1.15))}px "Lexend", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', 0, triR * 0.16);
+
+        // Outer HP Ring (always visible when damaged or > 2x size)
+        if (vb.hp < vb.maxHp || vb.scale >= 2.0) {
+          const hpFrac = Math.max(0, Math.min(1, vb.hp / Math.max(1, vb.maxHp)));
+          const ringR = r + 7;
+          ctx.strokeStyle = 'rgba(15, 23, 42, 0.75)';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.strokeStyle = hpFrac > 0.45 ? '#a3e635' : '#f43f5e';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, ringR, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * hpFrac);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      // 4. Update & Draw Pooled Voidbloom Spores / Destruction Shards
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.particlePool.length; i++) {
+        const pt = this.particlePool[i];
+        if (!pt.active) continue;
+        pt.life += dtScale;
+        if (pt.life >= pt.maxLife) { pt.active = false; continue; }
+        pt.x += pt.vx * dtScale;
+        pt.y += pt.vy * dtScale;
+        pt.vx *= 0.96;
+        pt.vy *= 0.96;
+        ctx.globalAlpha = Math.max(0, 1 - pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     }
   };
 
@@ -6083,16 +7810,21 @@
       state.roundMinDurationMs = spec.minDurationSec * 1000;
       state.roundSubWave = 1; // 1 = Vanguard (0-33%), 2 = Surge (33-66%), 3 = Apex Assault (66-100%)
       state.roundOverchargeBonusCount = 0;
-      state.coreAmmo = 12; // Starter tactical reserve so player can test Offense Mode immediately!
-      state.maxCoreAmmo = 150;
+      state.coreAmmo = 12; // Starter tactical reserve
+      // === CHANGED (v387): STEP 5 — Unlimited ammo collection (no 150 cap!) ===
+      state.maxCoreAmmo = Infinity;
+      state.globalScreenShake = 0;
       state.maxComboReached = 1;
       state.maxTierReached = 1;
       state.bossesDefeated = 0;
       state.nodesCaughtTotal = 0;
       state.offenseMode = false;
       state.pointerFiring = false;
-      state.touchFireHeld = false; // === CHANGED (v385): Touch manual-hold state ===
-      TouchFireControls.releaseFire();
+      state.touchFireHeld = false;
+      TouchFireControls.releaseAllPointers();
+      TouchFireControls.clearHeldKeys();
+      SkillSystem.reset();
+      VoidbloomEngine.reset();
       state.lastShotTime = 0;
       state.shotCounter = 0;
       state.muzzleFlashUntil = 0;
@@ -6131,8 +7863,11 @@
       updateHeaderUI();
     },
 
+    // === CHANGED (v387): STEP 5 — Unlimited ammo accumulation (no 150 cap, safe integer handling) ===
     addAmmo(amount) {
-      state.coreAmmo = Math.min(state.maxCoreAmmo || 150, (state.coreAmmo || 0) + amount);
+      const add = Number.isFinite(amount) ? Math.max(0, Math.floor(amount)) : 0;
+      const cur = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      state.coreAmmo = Math.min(Number.MAX_SAFE_INTEGER, cur + add);
     },
 
     onGoodNodeCaught(nodeClass, isPerfect, now, w) {
@@ -6228,10 +7963,10 @@
       state.empShockwaves = [];
       state.roundBanner = {
         title: `⚠ WARNING · ROUND ${spec.round} BOSS`,
-        // === CHANGED (v385): Touch-only prompt text vs untouched desktop prompt ===
+        // === CHANGED (v387): Theme-aligned skill prompts for touch vs desktop ===
         sub: TouchFireControls.isTouch
-          ? `${spec.name} · ${spec.maxHp} HP — HOLD FIRE TO BLAST BOSS!`
-          : `${spec.name} · ${spec.maxHp} HP — Activate OFFENSE [F] or Hold Click!`,
+          ? `${spec.name} · ${spec.maxHp} HP — HOLD ${CONFIG.names.gun} · TAP SKILLS`
+          : `${spec.name} · ${spec.maxHp} HP — Hold Click/[F]/[A] · [S] ${CONFIG.names.skill2} · [D] ${CONFIG.names.ult}`,
         color: '#f43f5e',
         startTime: now,
         duration: 2300
@@ -6469,25 +8204,31 @@
       updateHeaderUI();
     },
 
-    // ─── CHROME CORE OFFENSE WEAPON: ACCUMULATED GOOD-NODE CANNON ───
+    // ─── CHROME CORE OFFENSE WEAPON: EMBER CANNON (ACCUMULATED GOOD-NODE CANNON) ───
     updateAndDrawPlayerWeapon(ctx, cx, cy, u, dtScale, now, w, h) {
       const mode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
-      // === CHANGED (v385): Touch-only manual hold fire with 120ms FIRE_DELAY; desktop path untouched ===
+      // === CHANGED (v387): Multi-touch GUN role + Desktop [A] hold (FIRE_DELAY=120ms) + untouched click/[F] ===
       const isTouchMode = TouchFireControls.isTouch;
-      if (isTouchMode && state.touchFireHeld && (state.coreAmmo || 0) <= 0) {
-        TouchFireControls.releaseFire();
+      const isGunTouchHeld = isTouchMode && TouchFireControls.isGunHeld();
+      const isKeyAHeld = TouchFireControls.isDesktopKeyGunHeld();
+      const isFiringActive = isTouchMode
+        ? isGunTouchHeld
+        : !!(state.offenseMode || state.pointerFiring || isKeyAHeld);
+
+      // Flash red when holding gun at 0 ammo WITHOUT dropping the held touch pointer!
+      if ((isGunTouchHeld || isKeyAHeld) && (state.coreAmmo || 0) <= 0) {
         TouchFireControls.flashEmpty();
       }
-      const isFiringActive = isTouchMode ? !!state.touchFireHeld : !!(state.offenseMode || state.pointerFiring);
-      const wantsFire = isFiringActive && state.coreAmmo > 0 && state.roundPhase !== 'cleared';
+
+      const wantsFire = isFiringActive && (state.coreAmmo || 0) > 0 && state.roundPhase !== 'cleared';
       const tier = state.coreTier || 1;
-      const fireInterval = isTouchMode
+      const fireInterval = (isTouchMode || isKeyAHeld)
         ? FIRE_DELAY
         : ((tier >= 5) ? 88 : (tier === 4 ? 98 : (tier >= 2 ? 108 : 122)));
 
       if (wantsFire && (now - (state.lastShotTime || 0)) >= fireInterval) {
         state.lastShotTime = now;
-        state.coreAmmo = Math.max(0, state.coreAmmo - 1);
+        state.coreAmmo = Math.max(0, (Number.isFinite(state.coreAmmo) ? Math.floor(state.coreAmmo) : 0) - CONFIG.gun.ammoPerShot);
         state.shotCounter = (state.shotCounter || 0) + 1;
         state.muzzleFlashUntil = now + 55;
         audio.playCoreCannonShot(mode, tier);
@@ -6525,19 +8266,18 @@
           pushShot(-30 * u, -1.55, 0.26, false, 1.2);
           pushShot(30 * u, 1.55, 0.26, false, 2.4);
         }
-        // === CHANGED (v385): On touch, stop firing & flash button red when hitting 0 ammo ===
-        if (isTouchMode && state.coreAmmo <= 0) {
-          TouchFireControls.releaseFire();
+        // === CHANGED (v387): At 0 ammo, stop shots and flash button red (keep pointer tracked if still physically held!) ===
+        if ((isTouchMode || isKeyAHeld) && state.coreAmmo <= 0) {
           TouchFireControls.flashEmpty();
         }
         updateHeaderUI();
       }
 
-      // Draw Sleek Core-Hugging Offense Stance & Ammo Arc Gauge
+      // Draw Sleek Core-Hugging Offense Stance & Ammo Arc Gauge (visual fill scale only; ammo is unlimited!)
       const showGauge = isFiringActive || (state.boss && state.boss.phase !== 'defeated');
       if (showGauge) {
         const arcR = 64 * u;
-        const ammoFrac = Math.min(1, (state.coreAmmo || 0) / (state.maxCoreAmmo || 150));
+        const ammoFrac = Math.min(1, (state.coreAmmo || 0) / 150);
         const lowAmmo = (state.coreAmmo || 0) < 6;
         const gaugeCol = lowAmmo ? '#f43f5e' : (mode === 'meteor' ? '#fb923c' : (mode === 'helix' ? '#22d3ee' : '#38bdf8'));
 
@@ -6637,6 +8377,11 @@
           }
         }
 
+        // 2.5. === CHANGED (v387): Check Hit on Hostile Voidbloom Nodes ===
+        if (!consumed && VoidbloomEngine.hitByShot(s.x, s.y, s.dmg, now, 'shot')) {
+          consumed = true;
+        }
+
         // 3. Tactical Defense: Bolts Shatter Falling Bad Nodes (NEVER Harm Good Nodes!)
         if (!consumed && state.particles.length > 0) {
           for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
@@ -6662,6 +8407,7 @@
                   startTime: now
                 });
                 state.particles.splice(pIdx, 1);
+                SkillSystem.onEnemyDestroyed();
                 updateHeaderUI();
               } else {
                 audio.playBossHit(false);
@@ -7308,23 +9054,23 @@
 
       // B. BOSS FIGHT PHASE: Luxury Segmented Boss Health Bar + Phase Markers (Zero HUD Collision on All Viewports!)
       if (boss && boss.phase !== 'defeated') {
-        const bw = Math.min(390, w * 0.44);
+        const bw = (w < 640) ? Math.min(344, w - 24) : Math.min(390, w * 0.44);
         const bx = (w - bw) * 0.5;
-        const by = (w < 1220) ? 46 : 12;
+        const by = (w < 640) ? 62 : ((w < 1220) ? 46 : 12);
         const bh = 16;
         const hpFrac = Math.max(0, Math.min(1, boss.hp / boss.maxHp));
         const isBroken = boss.armorBreakUntil && now < boss.armorBreakUntil;
 
-        // Title + Live Shot Counter Row
-        ctx.font = '800 11px "Lexend", sans-serif';
+        // Title + Live Shot Counter Row (auto-fitted so title & HP never overlap on 390px iPhones)
+        ctx.font = `800 ${w < 640 ? 10 : 11}px "Lexend", sans-serif`;
         ctx.fillStyle = isBroken ? '#fde047' : '#f8fafc';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(`ROUND ${boss.round} BOSS · ${boss.name}${boss.enraged ? ' [ENRAGED]' : ''}`, bx, by + 11);
+        ctx.fillText(`ROUND ${boss.round} BOSS · ${boss.name}${boss.enraged ? ' [ENRAGED]' : ''}`, bx, by + 11, Math.max(120, bw - 84));
 
         ctx.textAlign = 'right';
         ctx.fillStyle = '#fda4af';
-        ctx.fillText(`${Math.ceil(boss.hp)} / ${boss.maxHp} HP`, bx + bw, by + 11);
+        ctx.fillText(`${Math.ceil(boss.hp)} / ${boss.maxHp} HP`, bx + bw, by + 11, 78);
 
         // Bar Track
         const barY = by + 15;
@@ -7357,24 +9103,27 @@
         ctx.font = '700 10px "Lexend", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        if (state.coreAmmo <= 0) {
+        const ammoDisp = formatAmmoCount(state.coreAmmo || 0);
+        const promptMaxW = Math.max(220, w - 24);
+        if ((state.coreAmmo || 0) <= 0) {
           ctx.fillStyle = '#fbbf24';
-          ctx.fillText('⚡ AMMO EMPTY — CATCH FALLING GOOD NODES TO RELOAD!', w * 0.5, barY + bh + 5);
+          ctx.fillText('⚡ AMMO EMPTY — CATCH FALLING GOOD NODES TO RELOAD!', w * 0.5, barY + bh + 5, promptMaxW);
         } else if (TouchFireControls.isTouch) {
-          // === CHANGED (v385): Touch-only boss prompt text (laptop prompt below untouched) ===
-          if (!state.touchFireHeld) {
+          // === CHANGED (v387): Touch-only Kimmy combat prompt text ===
+          if (!TouchFireControls.isGunHeld()) {
             ctx.fillStyle = '#7dd3fc';
-            ctx.fillText('HOLD FIRE TO BLAST BOSS!', w * 0.5, barY + bh + 5);
+            ctx.fillText(`HOLD ${CONFIG.names.gun} · TAP SKILLS`, w * 0.5, barY + bh + 5, promptMaxW);
           } else {
             ctx.fillStyle = '#fde68a';
-            ctx.fillText(`🔥 OFFENSE CANNON ACTIVE · ${state.coreAmmo} SHOTS REMAINING`, w * 0.5, barY + bh + 5);
+            ctx.fillText(`🔥 ${CONFIG.names.gun} ACTIVE · ${ammoDisp} SHOTS`, w * 0.5, barY + bh + 5, promptMaxW);
           }
-        } else if (!state.offenseMode && !state.pointerFiring) {
+        } else if (!state.offenseMode && !state.pointerFiring && !TouchFireControls.isDesktopKeyGunHeld()) {
+          // === CHANGED (v387): Keep original click/[F] prompt + add A/S/D skill hints ===
           ctx.fillStyle = '#7dd3fc';
-          ctx.fillText(`🔫 ${state.coreAmmo} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS!`, w * 0.5, barY + bh + 5);
+          ctx.fillText(`🔫 ${ammoDisp} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS! · [A] ${CONFIG.names.gun} · [S] ${CONFIG.names.skill2} · [D] ${CONFIG.names.ult}`, w * 0.5, barY + bh + 5, promptMaxW);
         } else {
           ctx.fillStyle = '#fde68a';
-          ctx.fillText(`🔥 OFFENSE CANNON ACTIVE · ${state.coreAmmo} SHOTS REMAINING`, w * 0.5, barY + bh + 5);
+          ctx.fillText(`🔥 ${CONFIG.names.gun} ACTIVE · ${ammoDisp} SHOTS REMAINING`, w * 0.5, barY + bh + 5, promptMaxW);
         }
       }
 
@@ -7430,7 +9179,8 @@
     roundSubWave: 1,
     roundOverchargeBonusCount: 0,
     coreAmmo: 12,
-    maxCoreAmmo: 150,
+    maxCoreAmmo: Infinity, // === CHANGED (v387): STEP 5 — Unlimited ammo collection ===
+    globalScreenShake: 0,
     offenseMode: false,
     pointerFiring: false,
     touchFireHeld: false, // === CHANGED (v385): Touch-only manual fire hold state ===
@@ -7682,8 +9432,10 @@
 
   function closeGame() {
     state.active = false;
-    // === CHANGED (v385): Always stop touch firing & hide FIRE button on close ===
-    TouchFireControls.releaseFire();
+    // === CHANGED (v387): Stop music, release all pointers & held keys, hide controls ===
+    RealmMusicEngine.stop();
+    TouchFireControls.releaseAllPointers();
+    TouchFireControls.clearHeldKeys();
     TouchFireControls.syncUI();
     if (typeof OverlayRealmFX !== 'undefined') OverlayRealmFX.stop();
     document.body.classList.remove('arcade-active');
@@ -7772,18 +9524,21 @@
     if (dom.offensePill) {
       const showO = isCoreArcade ? '' : 'none';
       if (c.offDisp !== showO) { c.offDisp = showO; dom.offensePill.style.display = showO; }
-      // === CHANGED (v385): Reflect touch manual hold on touch devices; desktop unchanged ===
-      const isActive = TouchFireControls.isTouch ? !!state.touchFireHeld : !!(state.offenseMode || state.pointerFiring);
+      // === CHANGED (v387): Reflect touch GUN role & desktop [A]/click/[F], format unlimited ammo safely ===
+      const isActive = TouchFireControls.isTouch
+        ? TouchFireControls.isGunHeld()
+        : !!(state.offenseMode || state.pointerFiring || TouchFireControls.isDesktopKeyGunHeld());
       if (c.offAct !== isActive) {
         c.offAct = isActive;
         dom.offensePill.classList.toggle('offense-active', isActive);
       }
-      const ammoCnt = state.coreAmmo || 0;
-      const oTxt = isActive ? `🔥 ${ammoCnt}` : `${ammoCnt}`;
+      const ammoCnt = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      const ammoStr = formatAmmoCount(ammoCnt);
+      const oTxt = isActive ? `🔥 ${ammoStr}` : ammoStr;
       setText('offTxt', dom.offenseVal, oTxt);
       setColor('offCol', dom.offenseVal, isActive ? '#fde047' : (ammoCnt > 0 ? '#38bdf8' : '#64748b'));
     }
-    // === CHANGED (v385): Keep touch-only FIRE button ammo & visibility synced ===
+    // === CHANGED (v387): Keep touch Kimmy arc & desktop A/S/D skill HUD synced ===
     TouchFireControls.syncUI();
 
     // Advanced HUD: Tier, Pulse & Phase
@@ -8032,10 +9787,19 @@
 
   function startGame(type) {
     OverlayRealmFX.stop();
+    TouchFireControls.releaseAllPointers();
+    TouchFireControls.clearHeldKeys();
     state.active = true;
     state.score = 0;
     state.combo = 1;
     updateHeaderUI();
+
+    // === CHANGED (v387): Start realm-specific futuristic music theme for Dynamo / Helix / Meteor ===
+    if (type === 'dynamo' || type === 'realm' || type === 'helix' || type === 'meteor') {
+      RealmMusicEngine.start(type === 'helix' ? 'helix' : (type === 'meteor' ? 'meteor' : 'dynamo'));
+    } else {
+      RealmMusicEngine.stop();
+    }
 
     if (dom.screenOverlay) {
       dom.screenOverlay.style.display = 'none';
@@ -8055,8 +9819,10 @@
 
   function handleGameOver(title, desc) {
     state.active = false;
-    // === CHANGED (v385): Always stop touch firing & hide FIRE button on Game Over ===
-    TouchFireControls.releaseFire();
+    // === CHANGED (v387): Stop music, release all pointers & held keys, hide controls on Game Over ===
+    RealmMusicEngine.stop();
+    TouchFireControls.releaseAllPointers();
+    TouchFireControls.clearHeldKeys();
     TouchFireControls.syncUI();
     clearInterval(state.mathTimer);
     if (animFrameId) {
@@ -8154,7 +9920,7 @@
         if (remHp <= Math.ceil(maxHp * 0.30)) {
           tacticalTipHtml = `<strong>SO CLOSE!</strong> Only <strong>${remHp} HP</strong> left on ${state.boss.name} — save Flux Pulse <strong>[SPACE]</strong> to clear bullets &amp; deal 15 burst damage!`;
         } else if ((state.coreAmmo || 0) >= 12) {
-          tacticalTipHtml = `<strong>UNUSED ARSENAL:</strong> You fell with <strong>${state.coreAmmo} shots</strong> loaded — press <strong>[F]</strong> or Hold Click immediately when the Boss arrives!`;
+          tacticalTipHtml = `<strong>UNUSED ARSENAL:</strong> You fell with <strong>${formatAmmoCount(state.coreAmmo)} shots</strong> loaded — fire <strong>${CONFIG.names.gun}</strong> and unleash <strong>${CONFIG.names.skill2}</strong> / <strong>${CONFIG.names.ult}</strong>!`;
         } else if (state.boss.pylons && state.boss.pylons.some(p => p.hp > 0)) {
           tacticalTipHtml = `<strong>ARMOR BREAK TIP:</strong> Destroy ${state.boss.name}'s orbiting hexagonal Shield Pylons first for <strong>1.5× Crit</strong> + <strong>+8 Bonus Ammo</strong>!`;
         }
@@ -8405,6 +10171,8 @@
     TouchFireControls.syncUI();
     state._testedBoss = false;
     state._testedWave = false;
+    state._testedAmmoStandalone = false;
+    state._testedVoidbloom = false;
     state._testedGameOver = false;
 
     const picker = document.getElementById('reflexMultiplePicker');
@@ -9208,7 +10976,7 @@
         }
       }
 
-      // TEST HARNESS: DIRECT BOSS SHOWDOWN (?test_boss=1 .. ?test_boss=5)
+      // TEST HARNESS: DIRECT BOSS SHOWDOWN (?test_boss=1 .. ?test_boss=5) + UNLIMITED AMMO (?test_ammo=N)
       if (window.location.search.includes('test_boss=')) {
         if (!state._testedBoss) {
           state._testedBoss = true;
@@ -9216,12 +10984,31 @@
           const bRound = mBoss ? Math.max(1, Math.min(5, parseInt(mBoss[1], 10) || 1)) : 1;
           const mAmmo = window.location.search.match(/test_ammo=(\d+)/);
           state.currentRound = bRound;
-          state.coreAmmo = mAmmo ? Math.max(0, Math.min(150, parseInt(mAmmo[1], 10))) : 72;
-          // === CHANGED (v385): Touch mode never auto-fires even in test harness; desktop untouched ===
+          // === CHANGED (v387): No 150 cap on ammo even in QA harness (supports >1,000 and >100,000 tests!) ===
+          state.coreAmmo = mAmmo ? Math.max(0, parseInt(mAmmo[1], 10)) : 72;
           state.offenseMode = !TouchFireControls.isTouch;
           state.roundBanner = null;
           RoundBossEngine.spawnBoss(bRound, now, w, h, true);
           spawnBossSupplyNode(w * 0.5);
+          updateHeaderUI();
+        }
+      } else if (window.location.search.includes('test_ammo=')) {
+        if (!state._testedAmmoStandalone) {
+          state._testedAmmoStandalone = true;
+          const mAmmo = window.location.search.match(/test_ammo=(\d+)/);
+          if (mAmmo) {
+            state.coreAmmo = Math.max(0, parseInt(mAmmo[1], 10));
+            updateHeaderUI();
+          }
+        }
+      }
+
+      // TEST HARNESS: VOIDBLOOM NODE SHOWCASE (?test_voidbloom=1)
+      if (window.location.search.includes('test_voidbloom=1')) {
+        if (!state._testedVoidbloom) {
+          state._testedVoidbloom = true;
+          VoidbloomEngine.scheduleTelegraph(w, h, catcherPixelX, now, w * 0.28);
+          VoidbloomEngine.spawnDirect(w * 0.68, h * 0.34, 3.4, w, h);
         }
       }
 
@@ -9443,11 +11230,24 @@
       CoreKinematics.drawThrusterPlumes(ctx, u);
       CoreKinematics.drawGrazeSparks(ctx, u);
 
+      // === CHANGED (v387): Global Screen Shake (Caldera Nova, Voidbloom destruction/breach, Seeker launch) ===
+      if (state.globalScreenShake && state.globalScreenShake > 0.25) {
+        const sx = (Math.random() - 0.5) * state.globalScreenShake;
+        const sy = (Math.random() - 0.5) * state.globalScreenShake;
+        ctx.translate(sx, sy);
+        state.globalScreenShake *= Math.pow(0.88, dtScale);
+        if (state.globalScreenShake <= 0.25) state.globalScreenShake = 0;
+      }
+
       // Update & Render Live Seeking Micro-Missiles
       CoreKinematics.updateAndDrawMissiles(ctx, dtScale, now, state);
 
-      // Update & Render Round Progression, Sovereign Bosses & Chrome Core Offense Cannon!
+      // === CHANGED (v387): Voidbloom Growing Hazard (renders BEFORE Boss Bar / Top HUD so it never blocks them!) ===
+      VoidbloomEngine.tick(dt, ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h);
+
+      // Update & Render Round Progression, Sovereign Bosses, Ember Cannon & Active Skills!
       RoundBossEngine.updateAndDrawPlayerWeapon(ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h);
+      SkillSystem.tick(dt, ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h);
       RoundBossEngine.updateAndDrawBossSystem(ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h, spawnBossSupplyNode);
 
       // ─────────────────────────────────────────────────────────────
@@ -11157,7 +12957,7 @@
       tierPillEl.onclick = cycleCoreTier;
     }
 
-    // Keyboard bindings for Flux Pulse (Space), Offense Cannon Toggle (F / E), Tier Cycle (T) & Instant Re-Deploy (Enter / R)
+    // === CHANGED (v387): Keyboard bindings — keeps existing Space / [F] / [E] / [T] untouched, ADDS [A] Ember Cannon hold, [S] Seeker Comets, [D] Caldera Nova ===
     window.addEventListener('keydown', (e) => {
       if (!state.active) {
         if (dom.screenOverlay && dom.screenOverlay.style.display === 'flex' && dom.modal && dom.modal.classList.contains('active')) {
@@ -11171,6 +12971,8 @@
         }
         return;
       }
+      RealmMusicEngine.unlockOnGesture();
+
       if (e.code === 'Space') {
         e.preventDefault();
         triggerFluxPulse();
@@ -11179,6 +12981,40 @@
         RoundBossEngine.toggleOffense(performance.now());
       } else if (e.key === 't' || e.key === 'T') {
         cycleCoreTier();
+      } else if (!TouchFireControls.isTouch && (e.code === 'KeyA' || e.key === 'a' || e.key === 'A')) {
+        // [A] = EMBER CANNON: steady continuous hold fire (manual only, stops immediately on keyup)
+        e.preventDefault();
+        if (!TouchFireControls.heldKeys.has('KeyA')) {
+          TouchFireControls.heldKeys.add('KeyA');
+          if ((state.coreAmmo || 0) <= 0) TouchFireControls.flashEmpty();
+          updateHeaderUI();
+        }
+      } else if (!TouchFireControls.isTouch && (e.code === 'KeyS' || e.key === 's' || e.key === 'S')) {
+        // [S] = SEEKER COMETS (tap only; ignore e.repeat so holding S never spams)
+        e.preventDefault();
+        if (!e.repeat) {
+          TouchFireControls.heldKeys.add('KeyS');
+          SkillSystem.castSeekerComets(performance.now());
+        }
+      } else if (!TouchFireControls.isTouch && (e.code === 'KeyD' || e.key === 'd' || e.key === 'D')) {
+        // [D] = CALDERA NOVA (tap only; ignore e.repeat so holding D never spams)
+        e.preventDefault();
+        if (!e.repeat) {
+          TouchFireControls.heldKeys.add('KeyD');
+          SkillSystem.castCalderaNova(performance.now());
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'KeyA' || e.key === 'a' || e.key === 'A') {
+        if (TouchFireControls.heldKeys.delete('KeyA')) {
+          updateHeaderUI();
+        }
+      } else if (e.code === 'KeyS' || e.key === 's' || e.key === 'S') {
+        TouchFireControls.heldKeys.delete('KeyS');
+      } else if (e.code === 'KeyD' || e.key === 'd' || e.key === 'D') {
+        TouchFireControls.heldKeys.delete('KeyD');
       }
     });
 
@@ -11192,12 +13028,25 @@
       } catch (_) {}
     }
 
-    // Mute toggle
+    // Mute toggle (syncs BOTH SFX and Futuristic Realm Music Engine)
     if (dom.btnMute) {
       dom.btnMute.onclick = () => {
         audio.isMuted = !audio.isMuted;
         dom.btnMute.style.opacity = audio.isMuted ? '0.4' : '1';
+        RealmMusicEngine._syncGain();
+        if (!audio.isMuted && state.active) RealmMusicEngine.unlockOnGesture();
+        RealmMusicEngine.syncBtnUI();
       };
+    }
+
+    // === CHANGED (v387): Dedicated Futuristic Music Theme Toggle ===
+    const btnMusic = document.getElementById('cgMusicBtn');
+    if (btnMusic) {
+      btnMusic.onclick = (e) => {
+        e.stopPropagation();
+        RealmMusicEngine.toggle();
+      };
+      RealmMusicEngine.syncBtnUI();
     }
 
     // Digit Picker Buttons for Reflex Blitz
@@ -11300,37 +13149,41 @@
       return { x: clientX - rect.left, y: clientY - rect.top, normX, normY };
     };
 
-    // === CHANGED (v385): Track ship movement pointerId independently from FIRE button pointerId for two-thumb play ===
-    let activeMovePointerId = null;
-
+    // === CHANGED (v387): STEP 3 — TRUE 5+ FINGER MULTI-TOUCH POINTER MAP ENGINE ===
+    // Every active touch pointerId is mapped to ONE role ('MOVE' | 'GUN' | 'SKILL2' | 'ULT').
+    // No competing legacy touchstart/touchend state overwrites; laptop mouse path untouched!
     const onPointerDown = (e) => {
       if (!state.active) return;
+      RealmMusicEngine.unlockOnGesture();
 
-      // === CHANGED (v385): Touch-only multi-touch isolation — FIRE button pointer never moves ship or triggers desktop click-fire ===
       if (TouchFireControls.isTouch) {
-        if (
-          (e.target && e.target.closest && e.target.closest('#ocTouchFireBtn')) ||
-          (TouchFireControls.activeFirePointerId !== null && e.pointerId === TouchFireControls.activeFirePointerId)
-        ) {
+        // Ignore touches on the Kimmy 3-button arc (handled directly by each pad's setPointerCapture)
+        if (e.target && e.target.closest && e.target.closest('#ocTouchControlCluster')) {
           return;
         }
-        if (e.target && e.target.closest && e.target.closest('.game-modal-header, .game-screen-overlay')) {
+        // Ignore topbar controls & game-over overlay buttons
+        if (e.target && e.target.closest && e.target.closest('.game-topbar, .game-screen-overlay, .reflex-start-overlay')) {
+          return;
+        }
+        // Ignore if this pointerId already owns a button role
+        if (TouchFireControls.activePointers.has(e.pointerId)) {
           return;
         }
         setDeviceMode('touch');
-        if (activeMovePointerId === null) {
-          activeMovePointerId = e.pointerId;
+
+        // Assign MOVE role if no active MOVE finger exists yet (extra fingers outside buttons never cancel GUN or MOVE!)
+        if (!TouchFireControls.hasRole('MOVE')) {
+          TouchFireControls.activePointers.set(e.pointerId, { role: 'MOVE', el: null });
+          isPointerDown = true;
+          const coords = getCanvasCoords(e.clientX, e.clientY);
+          lastTouchClientX = e.clientX;
+          lastTouchClientY = e.clientY;
+          touchGuidePos = { x: coords.x, y: coords.y, active: true };
+          targetCatcherX = coords.normX;
+          currentCatcherX = coords.normX;
+          targetCatcherY = coords.normY;
+          currentCatcherY = coords.normY;
         }
-        if (e.pointerId !== activeMovePointerId) return;
-        isPointerDown = true;
-        const coords = getCanvasCoords(e.clientX, e.clientY);
-        lastTouchClientX = e.clientX;
-        lastTouchClientY = e.clientY;
-        touchGuidePos = { x: coords.x, y: coords.y, active: true };
-        targetCatcherX = coords.normX;
-        currentCatcherX = coords.normX;
-        targetCatcherY = coords.normY;
-        currentCatcherY = coords.normY;
         if (e.cancelable) e.preventDefault();
         return;
       }
@@ -11374,12 +13227,10 @@
     const onPointerMove = (e) => {
       if (!state.active) return;
 
-      // === CHANGED (v385): Touch-only two-thumb ship drag isolation ===
+      // === CHANGED (v387): Only the pointerId assigned role === 'MOVE' steers the ship on touch ===
       if (TouchFireControls.isTouch) {
-        if (TouchFireControls.activeFirePointerId !== null && e.pointerId === TouchFireControls.activeFirePointerId) {
-          return;
-        }
-        if (!isPointerDown || (activeMovePointerId !== null && e.pointerId !== activeMovePointerId)) return;
+        const entry = TouchFireControls.activePointers.get(e.pointerId);
+        if (!entry || entry.role !== 'MOVE') return;
         const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
         const lastEv = events[events.length - 1] || e;
         const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
@@ -11426,17 +13277,9 @@
     };
 
     const onPointerUp = (e) => {
-      // === CHANGED (v385): Touch-only independent pointer release for move vs fire thumbs ===
+      // === CHANGED (v387): Release ONLY this pointerId's role — never disrupts any other active finger! ===
       if (TouchFireControls.isTouch) {
-        if (TouchFireControls.activeFirePointerId !== null && e.pointerId === TouchFireControls.activeFirePointerId) {
-          TouchFireControls.releaseFire(e.pointerId);
-          return;
-        }
-        if (activeMovePointerId === null || e.pointerId === activeMovePointerId) {
-          activeMovePointerId = null;
-          isPointerDown = false;
-          touchGuidePos.active = false;
-        }
+        TouchFireControls.releasePointer(e.pointerId);
         return;
       }
 
@@ -11460,56 +13303,36 @@
     window.addEventListener('pointerup', onPointerUp, { passive: true });
     window.addEventListener('pointercancel', onPointerUp, { passive: true });
 
-    // Direct 1:1 Mobile / iPhone Touch Tracking (Zero Gesture Latency & Prevents Native Drag Swallows)
-    // === CHANGED (v385): Use e.targetTouches on canvas so a second thumb on #ocTouchFireBtn never moves the ship ===
-    const onTouchDirectHandler = (e) => {
+    // === CHANGED (v387): iOS Safari scroll/zoom/callout blocker (passive:false touchmove/touchstart) WITHOUT competing with Pointer Events Map ===
+    const blockIosCanvasTouchScroll = (e) => {
       if (!state.active) return;
-      setDeviceMode('touch');
-      const canvasTouches = (e.targetTouches && e.targetTouches.length > 0) ? e.targetTouches : null;
-      if (canvasTouches) {
-        const t = canvasTouches[0];
-        const coords = getCanvasCoords(t.clientX, t.clientY);
-        touchGuidePos = { x: coords.x, y: coords.y, active: true };
-        targetCatcherX = coords.normX;
-        targetCatcherY = coords.normY;
-        currentCatcherX = coords.normX;
-        currentCatcherY = coords.normY;
-        isPointerDown = true;
-      }
       if (e.cancelable) e.preventDefault();
     };
-
     if (dom.canvasReflex) {
-      dom.canvasReflex.addEventListener('touchstart', onTouchDirectHandler, { passive: false });
-      dom.canvasReflex.addEventListener('touchmove', onTouchDirectHandler, { passive: false });
-      dom.canvasReflex.addEventListener('touchend', (e) => {
-        if (!e.targetTouches || e.targetTouches.length === 0) {
-          isPointerDown = false;
-          activeMovePointerId = null;
-          touchGuidePos.active = false;
-        }
-        if (e.cancelable) e.preventDefault();
+      dom.canvasReflex.addEventListener('touchstart', blockIosCanvasTouchScroll, { passive: false });
+      dom.canvasReflex.addEventListener('touchmove', blockIosCanvasTouchScroll, { passive: false });
+      dom.canvasReflex.addEventListener('touchend', blockIosCanvasTouchScroll, { passive: false });
+    }
+    if (dom.viewReflex) {
+      dom.viewReflex.addEventListener('touchmove', (e) => {
+        if (state.active && TouchFireControls.isTouch && e.cancelable) e.preventDefault();
       }, { passive: false });
-      dom.canvasReflex.addEventListener('touchcancel', (e) => {
-        if (!e.targetTouches || e.targetTouches.length === 0) {
-          isPointerDown = false;
-          activeMovePointerId = null;
-          touchGuidePos.active = false;
-        }
-      }, { passive: true });
+      dom.viewReflex.addEventListener('contextmenu', (e) => {
+        if (state.active) e.preventDefault();
+      });
     }
 
-    // 2D Full Omnidirectional Flight Keyboard Controls (WASD & Arrow Keys)
+    // === CHANGED (v387): Arrow-Key Flight Controls (A/S/D reserved exclusively for Ember Cannon / Seeker Comets / Caldera Nova!) ===
     window.addEventListener('keydown', (e) => {
       if (!state.active) return;
       const step = 0.045;
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+      if (e.key === 'ArrowLeft') {
         targetCatcherX = Math.max(0.04, targetCatcherX - step);
-      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+      } else if (e.key === 'ArrowRight') {
         targetCatcherX = Math.min(0.96, targetCatcherX + step);
-      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+      } else if (e.key === 'ArrowUp') {
         targetCatcherY = Math.max(0.06, targetCatcherY - step);
-      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+      } else if (e.key === 'ArrowDown') {
         targetCatcherY = Math.min(0.94, targetCatcherY + step);
       }
     });
