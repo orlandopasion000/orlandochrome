@@ -5728,6 +5728,264 @@
   };
 
   // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v385): STEP 1 & STEP 2 — TOUCH-ONLY FIRE CONTROLS ENGINE ===
+  // Desktop/laptop mouse & keyboard paths are completely untouched.
+  // ══════════════════════════════════════════════════════════════════════════
+  const FIRE_DELAY = 120; // ms between shots on touch (~8.3 shots/sec max, gated inside requestAnimationFrame)
+
+  function detectTouchPrimary() {
+    try {
+      // Explicit QA preview flag (?touch_preview=1) for automated visual verification only; never set in normal play
+      if (window.location.search.includes('touch_preview=1')) return true;
+    } catch (_) {}
+    if (typeof window.matchMedia === 'function') {
+      const mqCoarse = window.matchMedia('(pointer: coarse)');
+      const mqHoverNone = window.matchMedia('(hover: none)');
+      const mqFine = window.matchMedia('(pointer: fine)');
+      if (mqCoarse.matches && mqHoverNone.matches) return true;
+      // If pointer media queries are supported and report a fine/desktop pointer, do NOT treat as touch-primary
+      if (mqFine.matches || mqCoarse.matches) return false;
+    }
+    // Fallback when pointer/hover media queries are unavailable
+    return (navigator.maxTouchPoints > 0) && ('ontouchstart' in window);
+  }
+
+  const TouchFireControls = {
+    isTouch: false,
+    btn: null,
+    ammoEl: null,
+    activeFirePointerId: null,
+    _emptyFlashTimer: null,
+    _initialized: false,
+    _cachedAmmo: null,
+    _cachedRealm: null,
+    _cachedHidden: null,
+
+    init() {
+      if (this._initialized) return;
+      this._initialized = true;
+
+      // STEP 1: Detect touch-primary device on load
+      this.isTouch = detectTouchPrimary();
+
+      // Re-check automatically whenever pointer/hover media queries change (e.g. tablet keyboard dock/undock)
+      if (typeof window.matchMedia === 'function') {
+        const mqCoarse = window.matchMedia('(pointer: coarse)');
+        const mqHoverNone = window.matchMedia('(hover: none)');
+        const onMediaChange = () => this.refreshMode();
+        if (mqCoarse.addEventListener) {
+          mqCoarse.addEventListener('change', onMediaChange);
+          mqHoverNone.addEventListener('change', onMediaChange);
+        } else if (mqCoarse.addListener) {
+          mqCoarse.addListener(onMediaChange);
+          mqHoverNone.addListener(onMediaChange);
+        }
+      }
+
+      // Prevent iOS Safari pinch-zoom gestures during active touch play
+      const preventIosGesture = (e) => {
+        if (this.isTouch && state.active && e.cancelable) {
+          e.preventDefault();
+        }
+      };
+      document.addEventListener('gesturestart', preventIosGesture, { passive: false });
+      document.addEventListener('gesturechange', preventIosGesture, { passive: false });
+      document.addEventListener('gestureend', preventIosGesture, { passive: false });
+
+      // Always stop firing if focus/visibility is interrupted (incoming call, swipe home, alert)
+      window.addEventListener('blur', () => this.releaseFire());
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) this.releaseFire();
+      });
+
+      this.syncUI();
+    },
+
+    refreshMode() {
+      const nextIsTouch = detectTouchPrimary();
+      if (nextIsTouch === this.isTouch) {
+        this.syncUI();
+        return;
+      }
+      this.isTouch = nextIsTouch;
+      if (!this.isTouch) {
+        // Switched to non-touch (laptop/desktop): stop touch fire and remove FIRE button from DOM completely
+        this.releaseFire();
+        this.destroyButton();
+      } else {
+        // Switched to touch-primary: ensure no auto-fire states carry over from desktop
+        state.offenseMode = false;
+        state.pointerFiring = false;
+      }
+      this.syncUI();
+      if (typeof updateHeaderUI === 'function') updateHeaderUI();
+    },
+
+    ensureButton() {
+      // Strictly never create the FIRE button on non-touch devices
+      if (!this.isTouch) return null;
+      if (this.btn && this.btn.isConnected) return this.btn;
+
+      const host = dom.viewReflex || document.getElementById('cgViewReflex');
+      if (!host) return null;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'ocTouchFireBtn';
+      btn.className = 'oc-fire-hidden';
+      btn.setAttribute('aria-label', 'Hold to fire cannon');
+      btn.innerHTML =
+        '<span class="oc-fire-label">FIRE</span>' +
+        '<span class="oc-fire-ammo" id="ocTouchFireAmmo">0</span>' +
+        '<span class="oc-fire-sub">HOLD</span>';
+
+      // Pointer Events with setPointerCapture so holding FIRE works simultaneously with dragging the ship
+      btn.addEventListener('pointerdown', (e) => {
+        if (!this.isTouch || !state.active) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        // At 0 ammo: do NOT fire, flash the button red immediately
+        if ((state.coreAmmo || 0) <= 0) {
+          this.flashEmpty();
+          return;
+        }
+
+        // Ignore secondary pointer if button is already captured by a firing thumb
+        if (this.activeFirePointerId !== null && this.activeFirePointerId !== e.pointerId) return;
+
+        this.activeFirePointerId = e.pointerId;
+        try { btn.setPointerCapture(e.pointerId); } catch (_) {}
+        state.touchFireHeld = true;
+        btn.classList.remove('oc-fire-empty-flash');
+        btn.classList.add('is-held');
+        if (typeof updateHeaderUI === 'function') updateHeaderUI();
+      }, { passive: false });
+
+      const stopFirePointer = (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (this.activeFirePointerId !== null && e && e.pointerId !== undefined && e.pointerId !== this.activeFirePointerId) {
+          return;
+        }
+        this.releaseFire(e && e.pointerId !== undefined ? e.pointerId : null);
+      };
+
+      btn.addEventListener('pointerup', stopFirePointer, { passive: true });
+      btn.addEventListener('pointercancel', stopFirePointer, { passive: true });
+      btn.addEventListener('lostpointercapture', stopFirePointer, { passive: true });
+      btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      btn.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+      btn.addEventListener('touchmove', (e) => { e.stopPropagation(); }, { passive: true });
+
+      host.appendChild(btn);
+      this.btn = btn;
+      this.ammoEl = btn.querySelector('#ocTouchFireAmmo');
+      this._cachedAmmo = null;
+      this._cachedRealm = null;
+      this._cachedHidden = true;
+      return btn;
+    },
+
+    destroyButton() {
+      if (this._emptyFlashTimer) {
+        clearTimeout(this._emptyFlashTimer);
+        this._emptyFlashTimer = null;
+      }
+      if (this.btn && this.btn.parentNode) {
+        this.btn.parentNode.removeChild(this.btn);
+      }
+      this.btn = null;
+      this.ammoEl = null;
+      this.activeFirePointerId = null;
+      this._cachedAmmo = null;
+      this._cachedRealm = null;
+      this._cachedHidden = null;
+    },
+
+    releaseFire(pointerId = null) {
+      const pid = (pointerId !== null) ? pointerId : this.activeFirePointerId;
+      if (this.btn && pid !== null) {
+        try {
+          if (this.btn.hasPointerCapture && this.btn.hasPointerCapture(pid)) {
+            this.btn.releasePointerCapture(pid);
+          }
+        } catch (_) {}
+      }
+      const wasHeld = !!state.touchFireHeld || this.activeFirePointerId !== null;
+      this.activeFirePointerId = null;
+      state.touchFireHeld = false;
+      if (this.btn) {
+        this.btn.classList.remove('is-held');
+      }
+      if (wasHeld && typeof updateHeaderUI === 'function') {
+        updateHeaderUI();
+      }
+    },
+
+    flashEmpty() {
+      if (!this.isTouch || !this.btn) return;
+      state.touchFireHeld = false;
+      this.btn.classList.remove('is-held');
+      this.btn.classList.add('oc-fire-empty-flash');
+      if (this._emptyFlashTimer) clearTimeout(this._emptyFlashTimer);
+      this._emptyFlashTimer = setTimeout(() => {
+        if (this.btn) this.btn.classList.remove('oc-fire-empty-flash');
+        this._emptyFlashTimer = null;
+      }, 320);
+    },
+
+    syncUI() {
+      if (!this.isTouch) {
+        if (this.btn) this.destroyButton();
+        return;
+      }
+      const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      const overlayVisible = !!(dom.screenOverlay && dom.screenOverlay.style.display === 'flex');
+      const shouldShow = !!(state.active && isCoreArcade && !overlayVisible);
+
+      if (!shouldShow) {
+        if (state.touchFireHeld || this.activeFirePointerId !== null) {
+          this.activeFirePointerId = null;
+          state.touchFireHeld = false;
+          if (this.btn) this.btn.classList.remove('is-held');
+        }
+        if (this.btn && !this._cachedHidden) {
+          this._cachedHidden = true;
+          this.btn.classList.add('oc-fire-hidden');
+        }
+        return;
+      }
+
+      const btn = this.ensureButton();
+      if (!btn) return;
+
+      if (this._cachedHidden !== false) {
+        this._cachedHidden = false;
+        btn.classList.remove('oc-fire-hidden');
+      }
+
+      const realmKey = (state.catcherType === 'helix') ? 'helix' : (state.catcherType === 'meteor' ? 'meteor' : 'dynamo');
+      if (this._cachedRealm !== realmKey) {
+        this._cachedRealm = realmKey;
+        btn.setAttribute('data-realm', realmKey);
+      }
+
+      const ammoCnt = Math.max(0, state.coreAmmo || 0);
+      if (this._cachedAmmo !== ammoCnt) {
+        this._cachedAmmo = ammoCnt;
+        if (this.ammoEl) this.ammoEl.textContent = String(ammoCnt);
+        btn.classList.toggle('is-empty', ammoCnt <= 0);
+      }
+
+      const showHeld = !!(state.touchFireHeld && ammoCnt > 0);
+      btn.classList.toggle('is-held', showHeld);
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
   // ROUND PROGRESSION, 5 SOVEREIGN BOSSES & CHROME CORE OFFENSE ENGINE (v382)
   // Zero-Lag GPU Sprite Blits · Realm-Unique Weapons · Multi-Phase Boss AI
   // ══════════════════════════════════════════════════════════════════════════
@@ -5823,6 +6081,8 @@
       state.nodesCaughtTotal = 0;
       state.offenseMode = false;
       state.pointerFiring = false;
+      state.touchFireHeld = false; // === CHANGED (v385): Touch manual-hold state ===
+      TouchFireControls.releaseFire();
       state.lastShotTime = 0;
       state.shotCounter = 0;
       state.muzzleFlashUntil = 0;
@@ -5844,6 +6104,8 @@
 
     toggleOffense(now) {
       if (!state.active || state.gameType === 'reflex' || state.gameType === 'math' || state.gameType === 'memory') return;
+      // === CHANGED (v385): On touch devices, firing is MANUAL ONLY via the FIRE button (no auto-fire toggle) ===
+      if (TouchFireControls.isTouch) return;
       state.offenseMode = !state.offenseMode;
       audio.playPhaseSwitch();
       if (state.offenseMode && state.coreAmmo <= 0) {
@@ -5889,7 +6151,10 @@
       state.empShockwaves = [];
       state.roundBanner = {
         title: `⚠ WARNING · ROUND ${spec.round} BOSS`,
-        sub: `${spec.name} · ${spec.maxHp} HP — Activate OFFENSE [F] or Hold Click!`,
+        // === CHANGED (v385): Touch-only prompt text vs untouched desktop prompt ===
+        sub: TouchFireControls.isTouch
+          ? `${spec.name} · ${spec.maxHp} HP — HOLD FIRE TO BLAST BOSS!`
+          : `${spec.name} · ${spec.maxHp} HP — Activate OFFENSE [F] or Hold Click!`,
         color: '#f43f5e',
         startTime: now,
         duration: 2300
@@ -6130,9 +6395,18 @@
     // ─── CHROME CORE OFFENSE WEAPON: ACCUMULATED GOOD-NODE CANNON ───
     updateAndDrawPlayerWeapon(ctx, cx, cy, u, dtScale, now, w, h) {
       const mode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
-      const wantsFire = (state.offenseMode || state.pointerFiring) && state.coreAmmo > 0 && state.roundPhase !== 'cleared';
+      // === CHANGED (v385): Touch-only manual hold fire with 120ms FIRE_DELAY; desktop path untouched ===
+      const isTouchMode = TouchFireControls.isTouch;
+      if (isTouchMode && state.touchFireHeld && (state.coreAmmo || 0) <= 0) {
+        TouchFireControls.releaseFire();
+        TouchFireControls.flashEmpty();
+      }
+      const isFiringActive = isTouchMode ? !!state.touchFireHeld : !!(state.offenseMode || state.pointerFiring);
+      const wantsFire = isFiringActive && state.coreAmmo > 0 && state.roundPhase !== 'cleared';
       const tier = state.coreTier || 1;
-      const fireInterval = (tier >= 5) ? 88 : (tier === 4 ? 98 : (tier >= 2 ? 108 : 122));
+      const fireInterval = isTouchMode
+        ? FIRE_DELAY
+        : ((tier >= 5) ? 88 : (tier === 4 ? 98 : (tier >= 2 ? 108 : 122)));
 
       if (wantsFire && (now - (state.lastShotTime || 0)) >= fireInterval) {
         state.lastShotTime = now;
@@ -6174,11 +6448,16 @@
           pushShot(-30 * u, -1.55, 0.26, false, 1.2);
           pushShot(30 * u, 1.55, 0.26, false, 2.4);
         }
+        // === CHANGED (v385): On touch, stop firing & flash button red when hitting 0 ammo ===
+        if (isTouchMode && state.coreAmmo <= 0) {
+          TouchFireControls.releaseFire();
+          TouchFireControls.flashEmpty();
+        }
         updateHeaderUI();
       }
 
       // Draw Sleek Core-Hugging Offense Stance & Ammo Arc Gauge
-      const showGauge = state.offenseMode || state.pointerFiring || (state.boss && state.boss.phase !== 'defeated');
+      const showGauge = isFiringActive || (state.boss && state.boss.phase !== 'defeated');
       if (showGauge) {
         const arcR = 64 * u;
         const ammoFrac = Math.min(1, (state.coreAmmo || 0) / (state.maxCoreAmmo || 150));
@@ -6208,7 +6487,7 @@
         }
 
         // Active Combat Stance Forward Muzzle Chevron + Subtle Laser Aim Sightline
-        if (state.offenseMode || state.pointerFiring) {
+        if (isFiringActive) {
           const chevY = -58 * u;
           ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.55)' : 'rgba(253, 224, 71, 0.75)';
           ctx.lineWidth = Math.max(1.6, 2.2 * u);
@@ -6950,6 +7229,15 @@
         if (state.coreAmmo <= 0) {
           ctx.fillStyle = '#fbbf24';
           ctx.fillText('⚡ AMMO EMPTY — CATCH FALLING GOOD NODES TO RELOAD!', w * 0.5, barY + bh + 5);
+        } else if (TouchFireControls.isTouch) {
+          // === CHANGED (v385): Touch-only boss prompt text (laptop prompt below untouched) ===
+          if (!state.touchFireHeld) {
+            ctx.fillStyle = '#7dd3fc';
+            ctx.fillText('HOLD FIRE TO BLAST BOSS!', w * 0.5, barY + bh + 5);
+          } else {
+            ctx.fillStyle = '#fde68a';
+            ctx.fillText(`🔥 OFFENSE CANNON ACTIVE · ${state.coreAmmo} SHOTS REMAINING`, w * 0.5, barY + bh + 5);
+          }
         } else if (!state.offenseMode && !state.pointerFiring) {
           ctx.fillStyle = '#7dd3fc';
           ctx.fillText(`🔫 ${state.coreAmmo} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS!`, w * 0.5, barY + bh + 5);
@@ -7008,6 +7296,7 @@
     maxCoreAmmo: 150,
     offenseMode: false,
     pointerFiring: false,
+    touchFireHeld: false, // === CHANGED (v385): Touch-only manual fire hold state ===
     lastShotTime: 0,
     shotCounter: 0,
     muzzleFlashUntil: 0,
@@ -7256,6 +7545,9 @@
 
   function closeGame() {
     state.active = false;
+    // === CHANGED (v385): Always stop touch firing & hide FIRE button on close ===
+    TouchFireControls.releaseFire();
+    TouchFireControls.syncUI();
     if (typeof OverlayRealmFX !== 'undefined') OverlayRealmFX.stop();
     document.body.classList.remove('arcade-active');
     clearInterval(state.mathTimer);
@@ -7343,7 +7635,8 @@
     if (dom.offensePill) {
       const showO = isCoreArcade ? '' : 'none';
       if (c.offDisp !== showO) { c.offDisp = showO; dom.offensePill.style.display = showO; }
-      const isActive = !!(state.offenseMode || state.pointerFiring);
+      // === CHANGED (v385): Reflect touch manual hold on touch devices; desktop unchanged ===
+      const isActive = TouchFireControls.isTouch ? !!state.touchFireHeld : !!(state.offenseMode || state.pointerFiring);
       if (c.offAct !== isActive) {
         c.offAct = isActive;
         dom.offensePill.classList.toggle('offense-active', isActive);
@@ -7353,6 +7646,8 @@
       setText('offTxt', dom.offenseVal, oTxt);
       setColor('offCol', dom.offenseVal, isActive ? '#fde047' : (ammoCnt > 0 ? '#38bdf8' : '#64748b'));
     }
+    // === CHANGED (v385): Keep touch-only FIRE button ammo & visibility synced ===
+    TouchFireControls.syncUI();
 
     // Advanced HUD: Tier, Pulse & Phase
     if (dom.tierVal && c.tierRaw !== state.coreTier) {
@@ -7623,6 +7918,9 @@
 
   function handleGameOver(title, desc) {
     state.active = false;
+    // === CHANGED (v385): Always stop touch firing & hide FIRE button on Game Over ===
+    TouchFireControls.releaseFire();
+    TouchFireControls.syncUI();
     clearInterval(state.mathTimer);
     if (animFrameId) {
       cancelAnimationFrame(animFrameId);
@@ -8730,9 +9028,11 @@
           state._testedBoss = true;
           const mBoss = window.location.search.match(/test_boss=(\d+)/);
           const bRound = mBoss ? Math.max(1, Math.min(5, parseInt(mBoss[1], 10) || 1)) : 1;
+          const mAmmo = window.location.search.match(/test_ammo=(\d+)/);
           state.currentRound = bRound;
-          state.coreAmmo = 72;
-          state.offenseMode = true;
+          state.coreAmmo = mAmmo ? Math.max(0, Math.min(150, parseInt(mAmmo[1], 10))) : 72;
+          // === CHANGED (v385): Touch mode never auto-fires even in test harness; desktop untouched ===
+          state.offenseMode = !TouchFireControls.isTouch;
           state.roundBanner = null;
           RoundBossEngine.spawnBoss(bRound, now, w, h, true);
           spawnBossSupplyNode(w * 0.5);
@@ -10585,6 +10885,8 @@
   // --- Global Event Listeners & Binding ---
   function initEvents() {
     initDOM();
+    // === CHANGED (v385): Initialize STEP 1 touch-primary detector & matchMedia change listeners ===
+    TouchFireControls.init();
 
     // Close button
     if (dom.btnClose) dom.btnClose.onclick = closeGame;
@@ -10643,6 +10945,8 @@
     if (dom.pulsePill) dom.pulsePill.onclick = () => triggerFluxPulse(false);
     if (dom.offensePill) dom.offensePill.onclick = (e) => {
       e.stopPropagation();
+      // === CHANGED (v385): Touch devices fire manually via #ocTouchFireBtn only (no HUD auto-fire toggle) ===
+      if (TouchFireControls.isTouch) return;
       RoundBossEngine.toggleOffense(performance.now());
     };
     window.triggerFluxPulse = (force = false) => triggerFluxPulse(force);
@@ -10810,8 +11114,42 @@
       return { x: clientX - rect.left, y: clientY - rect.top, normX, normY };
     };
 
+    // === CHANGED (v385): Track ship movement pointerId independently from FIRE button pointerId for two-thumb play ===
+    let activeMovePointerId = null;
+
     const onPointerDown = (e) => {
       if (!state.active) return;
+
+      // === CHANGED (v385): Touch-only multi-touch isolation — FIRE button pointer never moves ship or triggers desktop click-fire ===
+      if (TouchFireControls.isTouch) {
+        if (
+          (e.target && e.target.closest && e.target.closest('#ocTouchFireBtn')) ||
+          (TouchFireControls.activeFirePointerId !== null && e.pointerId === TouchFireControls.activeFirePointerId)
+        ) {
+          return;
+        }
+        if (e.target && e.target.closest && e.target.closest('.game-modal-header, .game-screen-overlay')) {
+          return;
+        }
+        setDeviceMode('touch');
+        if (activeMovePointerId === null) {
+          activeMovePointerId = e.pointerId;
+        }
+        if (e.pointerId !== activeMovePointerId) return;
+        isPointerDown = true;
+        const coords = getCanvasCoords(e.clientX, e.clientY);
+        lastTouchClientX = e.clientX;
+        lastTouchClientY = e.clientY;
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+        targetCatcherX = coords.normX;
+        currentCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        currentCatcherY = coords.normY;
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+
+      // Existing non-touch desktop/laptop path (UNTOUCHED)
       if (e.pointerType === 'touch' || e.pointerType === 'pen') {
         setDeviceMode('touch');
       } else if (e.pointerType === 'mouse') {
@@ -10849,6 +11187,28 @@
 
     const onPointerMove = (e) => {
       if (!state.active) return;
+
+      // === CHANGED (v385): Touch-only two-thumb ship drag isolation ===
+      if (TouchFireControls.isTouch) {
+        if (TouchFireControls.activeFirePointerId !== null && e.pointerId === TouchFireControls.activeFirePointerId) {
+          return;
+        }
+        if (!isPointerDown || (activeMovePointerId !== null && e.pointerId !== activeMovePointerId)) return;
+        const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+        const lastEv = events[events.length - 1] || e;
+        const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+        targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        currentCatcherX = coords.normX;
+        currentCatcherY = coords.normY;
+        lastTouchClientX = lastEv.clientX;
+        lastTouchClientY = lastEv.clientY;
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+
+      // Existing non-touch desktop/laptop path (UNTOUCHED)
       if (e.pointerType === 'touch' || e.pointerType === 'pen') {
         setDeviceMode('touch');
       } else if (e.pointerType === 'mouse') {
@@ -10880,6 +11240,21 @@
     };
 
     const onPointerUp = (e) => {
+      // === CHANGED (v385): Touch-only independent pointer release for move vs fire thumbs ===
+      if (TouchFireControls.isTouch) {
+        if (TouchFireControls.activeFirePointerId !== null && e.pointerId === TouchFireControls.activeFirePointerId) {
+          TouchFireControls.releaseFire(e.pointerId);
+          return;
+        }
+        if (activeMovePointerId === null || e.pointerId === activeMovePointerId) {
+          activeMovePointerId = null;
+          isPointerDown = false;
+          touchGuidePos.active = false;
+        }
+        return;
+      }
+
+      // Existing non-touch desktop/laptop path (UNTOUCHED)
       isPointerDown = false;
       touchGuidePos.active = false;
       if (state.pointerFiring) {
@@ -10900,11 +11275,13 @@
     window.addEventListener('pointercancel', onPointerUp, { passive: true });
 
     // Direct 1:1 Mobile / iPhone Touch Tracking (Zero Gesture Latency & Prevents Native Drag Swallows)
+    // === CHANGED (v385): Use e.targetTouches on canvas so a second thumb on #ocTouchFireBtn never moves the ship ===
     const onTouchDirectHandler = (e) => {
       if (!state.active) return;
       setDeviceMode('touch');
-      if (e.touches && e.touches.length > 0) {
-        const t = e.touches[0];
+      const canvasTouches = (e.targetTouches && e.targetTouches.length > 0) ? e.targetTouches : null;
+      if (canvasTouches) {
+        const t = canvasTouches[0];
         const coords = getCanvasCoords(t.clientX, t.clientY);
         touchGuidePos = { x: coords.x, y: coords.y, active: true };
         targetCatcherX = coords.normX;
@@ -10920,13 +11297,19 @@
       dom.canvasReflex.addEventListener('touchstart', onTouchDirectHandler, { passive: false });
       dom.canvasReflex.addEventListener('touchmove', onTouchDirectHandler, { passive: false });
       dom.canvasReflex.addEventListener('touchend', (e) => {
-        isPointerDown = false;
-        touchGuidePos.active = false;
+        if (!e.targetTouches || e.targetTouches.length === 0) {
+          isPointerDown = false;
+          activeMovePointerId = null;
+          touchGuidePos.active = false;
+        }
         if (e.cancelable) e.preventDefault();
       }, { passive: false });
       dom.canvasReflex.addEventListener('touchcancel', (e) => {
-        isPointerDown = false;
-        touchGuidePos.active = false;
+        if (!e.targetTouches || e.targetTouches.length === 0) {
+          isPointerDown = false;
+          activeMovePointerId = null;
+          touchGuidePos.active = false;
+        }
       }, { passive: true });
     }
 
