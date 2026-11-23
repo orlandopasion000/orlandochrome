@@ -1,12 +1,12 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v385_touch_fire';
+const CACHE_NAME = 'orlandochrome-arcade-v386_wave_pacing';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade385_touch_fire',
-  './game.js?v=arcade385_touch_fire',
+  './styles.css?v=arcade386_wave_pacing',
+  './game.js?v=arcade386_wave_pacing',
   './qrcode.min.js',
-  './app.js?v=arcade385_touch_fire',
+  './app.js?v=arcade386_wave_pacing',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',

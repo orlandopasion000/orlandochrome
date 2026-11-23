@@ -5986,13 +5986,14 @@
   };
 
   // ══════════════════════════════════════════════════════════════════════════
-  // ROUND PROGRESSION, 5 SOVEREIGN BOSSES & CHROME CORE OFFENSE ENGINE (v382)
-  // Zero-Lag GPU Sprite Blits · Realm-Unique Weapons · Multi-Phase Boss AI
+  // ROUND PROGRESSION, 5 SOVEREIGN BOSSES & CHROME CORE OFFENSE ENGINE (v386)
+  // Extended 3-Act Wave Gauntlets · Dual-Gated Boss Arrival · Multi-Phase Boss AI
   // ══════════════════════════════════════════════════════════════════════════
   const ROUND_BOSS_SPECS = {
     1: {
       bossId: 1,
-      quota: 18,
+      quota: 48,
+      minDurationSec: 45,
       baseHp: 50,
       drawW: 248,
       hitR: 72,
@@ -6003,7 +6004,8 @@
     },
     2: {
       bossId: 2,
-      quota: 22,
+      quota: 60,
+      minDurationSec: 55,
       baseHp: 85,
       drawW: 228,
       hitR: 74,
@@ -6014,7 +6016,8 @@
     },
     3: {
       bossId: 3,
-      quota: 26,
+      quota: 72,
+      minDurationSec: 65,
       baseHp: 125,
       drawW: 218,
       hitR: 78,
@@ -6025,7 +6028,8 @@
     },
     4: {
       bossId: 4,
-      quota: 30,
+      quota: 84,
+      minDurationSec: 75,
       baseHp: 175,
       drawW: 256,
       hitR: 76,
@@ -6036,7 +6040,8 @@
     },
     5: {
       bossId: 5,
-      quota: 34,
+      quota: 96,
+      minDurationSec: 85,
       baseHp: 240,
       drawW: 300,
       hitR: 84,
@@ -6056,7 +6061,8 @@
       return {
         round: r,
         bossId: base.bossId,
-        quota: base.quota + extraRounds * 4,
+        quota: base.quota + extraRounds * 12,
+        minDurationSec: base.minDurationSec + Math.min(35, extraRounds * 8),
         maxHp: base.baseHp + extraRounds * 70,
         drawW: base.drawW,
         hitR: base.hitR,
@@ -6073,6 +6079,10 @@
       state.roundNodesCaught = 0;
       const spec = this.getSpec(1, state.catcherType);
       state.roundQuota = spec.quota;
+      state.roundGauntletMs = 0;
+      state.roundMinDurationMs = spec.minDurationSec * 1000;
+      state.roundSubWave = 1; // 1 = Vanguard (0-33%), 2 = Surge (33-66%), 3 = Apex Assault (66-100%)
+      state.roundOverchargeBonusCount = 0;
       state.coreAmmo = 12; // Starter tactical reserve so player can test Offense Mode immediately!
       state.maxCoreAmmo = 150;
       state.maxComboReached = 1;
@@ -6094,11 +6104,11 @@
       state.playerShots = [];
       state.bossHitSparks = [];
       state.roundBanner = {
-        title: 'ROUND 1 · ENGAGE',
-        sub: 'Catch Good Nodes to Load Cannon · Defeat the Round 1 Boss (50 Shots)',
+        title: 'ROUND 1 · WAVE 1/3 · VANGUARD',
+        sub: `Survive 3 Waves (${spec.minDurationSec}s) & Catch ${spec.quota} Good Nodes to Challenge Boss (${spec.maxHp} HP)`,
         color: '#38bdf8',
         startTime: now || performance.now(),
-        duration: 2400
+        duration: 2600
       };
     },
 
@@ -6134,10 +6144,77 @@
       state.maxTierReached = Math.max(state.maxTierReached || 1, state.coreTier || 1);
 
       if (state.roundPhase === 'gauntlet') {
+        const wasQuotaMet = (state.roundNodesCaught || 0) >= (state.roundQuota || 48);
         state.roundNodesCaught = (state.roundNodesCaught || 0) + 1;
-        if (state.roundNodesCaught >= state.roundQuota) {
-          this.startBossWarning(now, w);
+
+        // If player cleared node quota ahead of the Boss approach timer, reward OVERCHARGE bonus!
+        if (wasQuotaMet && (state.roundGauntletMs || 0) < (state.roundMinDurationMs || 45000)) {
+          state.roundOverchargeBonusCount = (state.roundOverchargeBonusCount || 0) + 1;
+          state.score += 250;
+          this.addAmmo(2);
+          state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 5);
+          if (state.pulseMeter >= 100) state.isPulseReady = true;
+          state.floatingTexts.push({
+            x: (cachedCanvasRect.width || w || 800) * (state.catcherX || 0.5),
+            y: (cachedCanvasRect.height || 600) * (state.catcherY || 0.8) - 52,
+            text: '⚡ OVERCHARGE +250 · +2 AMMO',
+            color: '#fde047',
+            alpha: 1.0,
+            startTime: now || performance.now()
+          });
         }
+
+        // Check sub-wave milestone & dual-gated Boss unlock
+        this.tickGauntletPacing(0, now, w);
+      }
+    },
+
+    tickGauntletPacing(dtMs, now, w) {
+      if (state.roundPhase !== 'gauntlet') return;
+      if (dtMs > 0) {
+        state.roundGauntletMs = (state.roundGauntletMs || 0) + dtMs;
+      }
+      const quota = Math.max(1, state.roundQuota || 48);
+      const minDur = Math.max(1, state.roundMinDurationMs || 45000);
+      const quotaPct = Math.min(1, (state.roundNodesCaught || 0) / quota);
+      const timePct = Math.min(1, (state.roundGauntletMs || 0) / minDur);
+      const effectivePct = Math.min(quotaPct, timePct);
+      const rnd = state.currentRound || 1;
+
+      // 3-Act Sub-Wave Escalation (Wave 1 Vanguard -> Wave 2 Surge -> Wave 3 Apex Assault)
+      if ((state.roundSubWave || 1) === 1 && effectivePct >= 0.333) {
+        state.roundSubWave = 2;
+        const wBonus = 500 * rnd;
+        state.score += wBonus;
+        this.addAmmo(6);
+        audio.playPhaseSwitch();
+        state.roundBanner = {
+          title: `ROUND ${rnd} · WAVE 2/3 · SURGE`,
+          sub: `+${wBonus.toLocaleString()} WAVE BONUS · +6 AMMO · HAZARD CADENCE ESCALATING!`,
+          color: '#c084fc',
+          startTime: now || performance.now(),
+          duration: 2100
+        };
+        updateHeaderUI();
+      } else if ((state.roundSubWave || 1) === 2 && effectivePct >= 0.667) {
+        state.roundSubWave = 3;
+        const wBonus = 800 * rnd;
+        state.score += wBonus;
+        this.addAmmo(8);
+        audio.playPhaseSwitch();
+        state.roundBanner = {
+          title: `ROUND ${rnd} · WAVE 3/3 · APEX ASSAULT`,
+          sub: `+${wBonus.toLocaleString()} WAVE BONUS · +8 AMMO · BOSS SIGNAL DETECTED — HOLD THE LINE!`,
+          color: '#fb923c',
+          startTime: now || performance.now(),
+          duration: 2300
+        };
+        updateHeaderUI();
+      }
+
+      // Dual-Gated Boss Arrival: Requires BOTH Good-Node Quota AND Minimum Gauntlet Time!
+      if ((state.roundNodesCaught || 0) >= quota && (state.roundGauntletMs || 0) >= minDur) {
+        this.startBossWarning(now, w);
       }
     },
 
@@ -6665,13 +6742,17 @@
         state.roundPhase = 'gauntlet';
         state.roundNodesCaught = 0;
         state.roundQuota = nextSpec.quota;
+        state.roundGauntletMs = 0;
+        state.roundMinDurationMs = nextSpec.minDurationSec * 1000;
+        state.roundSubWave = 1;
+        state.roundOverchargeBonusCount = 0;
         state.boss = null;
         state.roundBanner = {
-          title: `ROUND ${nextSpec.round} · ${nextSpec.name} SECTOR`,
-          sub: `Difficulty Escalated! Catch ${nextSpec.quota} Good Nodes to Challenge Boss (${nextSpec.maxHp} HP)`,
+          title: `ROUND ${nextSpec.round} · WAVE 1/3 · ${nextSpec.name} SECTOR`,
+          sub: `3 Escalating Waves (${nextSpec.minDurationSec}s) & ${nextSpec.quota} Nodes to Challenge Boss (${nextSpec.maxHp} HP)`,
           color: '#c084fc',
           startTime: now,
-          duration: 2400
+          duration: 2700
         };
         audio.playPhaseSwitch();
         updateHeaderUI();
@@ -7145,34 +7226,84 @@
       const boss = state.boss;
       ctx.save();
 
-      // A. GAUNTLET PHASE: Sleek Minimal Round Progress Bar at Top-Center
+      // A. GAUNTLET PHASE: AAA 3-Segment Wave Progress Bar + Live Boss Approach Countdown
       if (state.roundPhase === 'gauntlet' && state.roundQuota > 0) {
-        const bw = Math.min(280, w * 0.36);
+        const bw = (w < 640) ? Math.min(344, w - 24) : Math.min(368, w * 0.42);
         const bx = (w - bw) * 0.5;
-        const by = 14;
-        const pct = Math.min(1, (state.roundNodesCaught || 0) / state.roundQuota);
+        const by = (w < 640) ? 64 : ((w < 1220) ? 48 : 14);
+        const bh = 24;
+        const quota = Math.max(1, state.roundQuota || 48);
+        const minDur = Math.max(1, state.roundMinDurationMs || 45000);
+        const caught = state.roundNodesCaught || 0;
+        const quotaPct = Math.min(1, caught / quota);
+        const timePct = Math.min(1, (state.roundGauntletMs || 0) / minDur);
+        const effPct = Math.min(quotaPct, timePct);
+        const subWave = state.roundSubWave || 1;
+        const remSec = Math.max(0, Math.ceil((minDur - (state.roundGauntletMs || 0)) / 1000));
+        const isOvercharge = (caught >= quota && remSec > 0);
 
-        ctx.fillStyle = 'rgba(8, 12, 26, 0.72)';
-        ctx.strokeStyle = 'rgba(139, 92, 246, 0.42)';
-        ctx.lineWidth = 1;
+        const waveAccent = isOvercharge
+          ? '#fde047'
+          : (subWave === 3 ? '#fb923c' : (subWave === 2 ? '#c084fc' : '#38bdf8'));
+        const waveFill = isOvercharge
+          ? 'rgba(250, 204, 21, 0.52)'
+          : (subWave === 3 ? 'rgba(251, 146, 60, 0.50)' : (subWave === 2 ? 'rgba(192, 132, 252, 0.48)' : 'rgba(56, 189, 248, 0.46)'));
+
+        ctx.fillStyle = 'rgba(8, 12, 26, 0.82)';
+        ctx.strokeStyle = isOvercharge ? 'rgba(253, 224, 71, 0.85)' : (subWave === 3 ? 'rgba(251, 146, 60, 0.65)' : 'rgba(139, 92, 246, 0.48)');
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(bx, by, bw, 22, 11); else ctx.rect(bx, by, bw, 22);
+        if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 12); else ctx.rect(bx, by, bw, bh);
         ctx.fill();
         ctx.stroke();
 
-        // Fill bar
-        const fillW = Math.max(0, (bw - 6) * pct);
+        // Subtle Ghost Lead Bar when player's caught-node pace leads the minimum countdown
+        if (quotaPct > effPct + 0.01) {
+          const ghostW = Math.max(0, (bw - 6) * quotaPct);
+          if (ghostW > 2) {
+            ctx.fillStyle = 'rgba(125, 211, 252, 0.16)';
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(bx + 3, by + 3, ghostW, bh - 6, 9); else ctx.rect(bx + 3, by + 3, ghostW, bh - 6);
+            ctx.fill();
+          }
+        }
+
+        // Active Effective Progress Fill
+        const fillW = Math.max(0, (bw - 6) * effPct);
         if (fillW > 2) {
-          ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
+          ctx.fillStyle = waveFill;
           ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(bx + 3, by + 3, fillW, 16, 8); else ctx.rect(bx + 3, by + 3, fillW, 16);
+          if (ctx.roundRect) ctx.roundRect(bx + 3, by + 3, fillW, bh - 6, 9); else ctx.rect(bx + 3, by + 3, fillW, bh - 6);
           ctx.fill();
         }
+
+        // Crisp 3-Act Wave Precision Ticks (33.3% & 66.7%) — subtle center hairline + sharp top/bottom notches so text stays 100% legible
+        const tick1X = bx + bw * 0.333;
+        const tick2X = bx + bw * 0.667;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+        ctx.fillRect(tick1X, by + 3, 1.2, bh - 6);
+        ctx.fillRect(tick2X, by + 3, 1.2, bh - 6);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.62)';
+        ctx.fillRect(tick1X - 0.5, by + 1, 2, 4);
+        ctx.fillRect(tick1X - 0.5, by + bh - 5, 2, 4);
+        ctx.fillRect(tick2X - 0.5, by + 1, 2, 4);
+        ctx.fillRect(tick2X - 0.5, by + bh - 5, 2, 4);
+
+        // Live Dual-Gate Telemetry Text (with crisp OLED legibility stroke)
         ctx.font = '800 10.5px "Lexend", sans-serif';
-        ctx.fillStyle = '#e2e8f0';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`ROUND ${state.currentRound} · ${state.roundNodesCaught || 0}/${state.roundQuota} TO BOSS`, w * 0.5, by + 11.5);
+        const timeStr = `${Math.floor(remSec / 60)}:${String(remSec % 60).padStart(2, '0')}`;
+        const labelTxt = isOvercharge
+          ? `⚡ R${state.currentRound} OVERCHARGE · BOSS IN ${remSec}s!`
+          : (remSec > 0
+            ? `R${state.currentRound} · WAVE ${subWave}/3 · ${caught}/${quota} · ${timeStr}`
+            : `R${state.currentRound} · WAVE 3/3 · ${caught}/${quota} TO BOSS`);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(4, 6, 16, 0.85)';
+        ctx.strokeText(labelTxt, w * 0.5, by + bh * 0.5 + 0.5);
+        ctx.fillStyle = isOvercharge ? '#fef08a' : '#f1f5f9';
+        ctx.fillText(labelTxt, w * 0.5, by + bh * 0.5 + 0.5);
       }
 
       // B. BOSS FIGHT PHASE: Luxury Segmented Boss Health Bar + Phase Markers (Zero HUD Collision on All Viewports!)
@@ -7291,7 +7422,11 @@
     currentRound: 1,
     roundPhase: 'gauntlet',
     roundNodesCaught: 0,
-    roundQuota: 18,
+    roundQuota: 48,
+    roundGauntletMs: 0,
+    roundMinDurationMs: 45000,
+    roundSubWave: 1,
+    roundOverchargeBonusCount: 0,
     coreAmmo: 12,
     maxCoreAmmo: 150,
     offenseMode: false,
@@ -7628,9 +7763,9 @@
         c.roundAlert = isBossAlert;
         dom.roundPill.classList.toggle('boss-alert', isBossAlert);
       }
-      const rTxt = isBossAlert ? `R${state.currentRound || 1} BOSS` : `R${state.currentRound || 1}`;
+      const rTxt = isBossAlert ? `R${state.currentRound || 1} BOSS` : `R${state.currentRound || 1} · W${state.roundSubWave || 1}`;
       setText('roundTxt', dom.roundVal, rTxt);
-      setColor('roundCol', dom.roundVal, isBossAlert ? '#fda4af' : '#c084fc');
+      setColor('roundCol', dom.roundVal, isBossAlert ? '#fda4af' : ((state.roundSubWave === 3) ? '#fb923c' : '#c084fc'));
     }
     if (dom.offensePill) {
       const showO = isCoreArcade ? '' : 'none';
@@ -8006,7 +8141,7 @@
 
       // Contextual Boss Near-Miss / Tactical Debrief Message
       let debriefSub = desc;
-      let bossSubTxt = bossesSlain > 0 ? `${bossesSlain} BOSS${bossesSlain > 1 ? 'ES' : ''} SLAIN` : `GAUNTLET ${state.roundNodesCaught || 0}/${state.roundQuota || 18}`;
+      let bossSubTxt = bossesSlain > 0 ? `${bossesSlain} BOSS${bossesSlain > 1 ? 'ES' : ''} SLAIN` : `W${state.roundSubWave || 1}/3 · ${state.roundNodesCaught || 0}/${state.roundQuota || 48}`;
       let tacticalTipHtml = `<strong>TACTICAL DEBRIEF:</strong> ${cfg.scienceTip}`;
 
       if (state.boss && state.boss.phase !== 'defeated') {
@@ -8022,7 +8157,7 @@
           tacticalTipHtml = `<strong>ARMOR BREAK TIP:</strong> Destroy ${state.boss.name}'s orbiting hexagonal Shield Pylons first for <strong>1.5× Crit</strong> + <strong>+8 Bonus Ammo</strong>!`;
         }
       } else {
-        debriefSub = `Containment lost during Round ${rnd} Gauntlet (${state.roundNodesCaught || 0}/${state.roundQuota || 18} nodes to Boss).`;
+        debriefSub = `Containment lost during Round ${rnd} Wave ${state.roundSubWave || 1}/3 (${state.roundNodesCaught || 0}/${state.roundQuota || 48} nodes to Boss).`;
       }
 
       dom.screenOverlay.classList.add('oc-realm-overlay');
@@ -8265,7 +8400,9 @@
       state.catcherType = 'dynamo';
     }
     RoundBossEngine.reset(performance.now());
+    TouchFireControls.syncUI();
     state._testedBoss = false;
+    state._testedWave = false;
     state._testedGameOver = false;
 
     const picker = document.getElementById('reflexMultiplePicker');
@@ -8789,18 +8926,22 @@
       function spawnNode(baseSpeed) {
         let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
 
-        // Multi-Axis Round Escalation: Smoothly intensifies speed & hazard depth every Round!
+        // Multi-Axis Round & 3-Act Sub-Wave Escalation: Smoothly intensifies speed & hazard depth every Wave & Round!
         const rnd = state.currentRound || 1;
-        const speedComboBonus = 1.0 + Math.min(0.45, (state.combo - 1) * 0.018 + (rnd - 1) * 0.11);
+        const subWave = state.roundSubWave || 1;
+        const waveSpeedMult = (subWave === 3) ? 1.15 : (subWave === 2 ? 1.08 : 1.0);
+        const speedComboBonus = (1.0 + Math.min(0.45, (state.combo - 1) * 0.016 + (rnd - 1) * 0.10)) * waveSpeedMult;
         const actualSpeed = baseSpeed * normFactor * speedComboBonus;
 
-        // Balanced Hazard Spawning: Max 2 hazards from Round 2+ (or combo >= 5), max 3 in Round 4+
-        const maxHazards = (rnd >= 4) ? 3 : ((rnd >= 2 || state.combo >= 5) ? 2 : 1);
+        // Balanced Hazard Spawning: Scales smoothly across Round & Sub-Wave (Wave 3 adds peak pre-boss pressure!)
+        const baseMaxHazards = (rnd >= 4) ? 3 : ((rnd >= 2 || state.combo >= 5) ? 2 : 1);
+        const maxHazards = Math.min(4, baseMaxHazards + (subWave === 3 ? 1 : 0));
         const currentHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
 
-        // Dynamic hazard chance scales cleanly with Round (16% R1 -> 26% R5+)
-        const hazardChance = Math.min(0.26, 0.16 + (rnd - 1) * 0.025);
-        const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.2 && Math.random() < hazardChance);
+        // Dynamic hazard chance scales across Round & Sub-Wave (15% R1 W1 -> 30% R5+ W3)
+        const waveHazBonus = (subWave === 3) ? 0.06 : (subWave === 2 ? 0.03 : 0.0);
+        const hazardChance = Math.min(0.30, 0.15 + (rnd - 1) * 0.025 + waveHazBonus);
+        const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.6 && Math.random() < hazardChance);
 
         let nClass = 'standard';
 
@@ -8810,8 +8951,8 @@
           if (rHaz < 0.60) {
             nClass = 'volatile'; // Classic Normal Bad Node (60% — clearly outnumbers powered hazards)
           } else if (rnd === 1) {
-            // Round 1 introduces Hyper-Comet & Corruptor Laser cleanly!
-            nClass = (rHaz < 0.82) ? 'hyper_comet' : 'corruptor_laser';
+            // Round 1 introduces Hyper-Comet & Corruptor Laser cleanly (plus Gravity Well in Wave 3 Apex!)
+            nClass = (subWave === 3 && rHaz >= 0.88) ? 'gravity_well' : ((rHaz < 0.80) ? 'hyper_comet' : 'corruptor_laser');
           } else if (rnd === 2) {
             // Round 2 unlocks Gravity Well alongside Hyper-Comet & Corruptor!
             nClass = (rHaz < 0.74) ? 'hyper_comet' : (rHaz < 0.88 ? 'corruptor_laser' : 'gravity_well');
@@ -8836,27 +8977,28 @@
           state._hazardStats.byClass[nClass] = (state._hazardStats.byClass[nClass] || 0) + 1;
           window.__CHROME_ARCADE_HAZARD_STATS__ = state._hazardStats;
         } else {
-          // Balanced Falling Node Archetypes (84% Standard Nodes, 16% Power-Ups)
+          // Balanced Falling Node Archetypes (Standard Nodes + Tactical Power-Ups, boosted slightly in Wave 3 Apex!)
           const rNode = Math.random();
           const isCriticalLife = (state.reflexLives <= 1);
+          const pBoost = (subWave === 3) ? 1.25 : 1.0;
           if (isCriticalLife && rNode < 0.10) {
             nClass = 'catalyst'; // Critical Pity: Emergency Life Recovery Node (10% when on last life)
-          } else if (rNode < 0.025) {
-            nClass = 'shield'; // 5-Second Aegis Forcefield Shield (2.5%)
-          } else if (rNode < 0.050) {
-            nClass = 'missiles'; // Live Seeking Micro-Missiles (2.5%)
-          } else if (rNode < 0.075) {
-            nClass = 'cluster'; // Bifurcation Flux Node ("Cluster Doubler") (2.5%)
-          } else if (rNode < 0.100) {
-            nClass = 'supercharge'; // Supercharged Hyper-Node (Supernova) (2.5%)
-          } else if (rNode < 0.120) {
-            nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time) (2.0%)
-          } else if (rNode < 0.140) {
-            nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum) (2.0%)
-          } else if (rNode < 0.160) {
-            nClass = (state.reflexLives >= 3) ? 'standard' : 'catalyst'; // Ascension Catalyst Star (+1 Life) (2.0% - only if lives < 3)
+          } else if (rNode < 0.025 * pBoost) {
+            nClass = 'shield'; // 5-Second Aegis Forcefield Shield
+          } else if (rNode < 0.050 * pBoost) {
+            nClass = 'missiles'; // Live Seeking Micro-Missiles
+          } else if (rNode < 0.075 * pBoost) {
+            nClass = 'cluster'; // Bifurcation Flux Node ("Cluster Doubler")
+          } else if (rNode < 0.100 * pBoost) {
+            nClass = 'supercharge'; // Supercharged Hyper-Node (Supernova)
+          } else if (rNode < 0.120 * pBoost) {
+            nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time)
+          } else if (rNode < 0.140 * pBoost) {
+            nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum)
+          } else if (rNode < 0.160 * pBoost) {
+            nClass = (state.reflexLives >= 3) ? 'standard' : 'catalyst'; // Ascension Catalyst Star (+1 Life)
           } else {
-            nClass = 'standard'; // Dominant Standard Multiple Target Nodes (84.0%)
+            nClass = 'standard'; // Dominant Standard Target Nodes
           }
         }
 
@@ -8943,47 +9085,61 @@
         state.lastSpawnTime = now;
       }
 
+      // Advance Deterministic Dual-Gated 3-Act Wave Gauntlet Timer (tab-switch proof via clamped dt!)
+      if (state.roundPhase === 'gauntlet') {
+        RoundBossEngine.tickGauntletPacing(dt, now, w);
+      }
+
       // Immediate spawn at t = 0s:
       if (state.totalNodesSpawned === 0) {
         spawnNode(1.95);
       }
 
-      // Opening 15-Second Choreography Engine:
+      // 3-Act Wave-Aware Spawn Cadence Engine (Vanguard -> Surge -> Apex Assault):
       let shouldSpawn = false;
-      let nextBaseSpeed = 1.95;
+      let nextBaseSpeed = 2.00;
+      const rndNow = state.currentRound || 1;
+      const subWaveNow = state.roundSubWave || 1;
+      const roundElapsedSec = (state.roundGauntletMs || 0) / 1000;
 
-      if (elapsedSec < 5.0) {
-        const interval = 720;
-        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 3 && state.totalNodesSpawned < 7) {
+      // Sync internal intensity wave cleanly for Blink Stalkers & score milestones
+      const calculatedWave = Math.min(10, (rndNow - 1) * 2 + subWaveNow);
+      if (calculatedWave > state.currentWave) {
+        state.currentWave = calculatedWave;
+      }
+
+      if (rndNow === 1 && roundElapsedSec < 5.0) {
+        // Gentle Round 1 opening warm-up (5 seconds)
+        const interval = 740;
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 3) {
           shouldSpawn = true;
-          nextBaseSpeed = 1.90 + Math.random() * 0.30;
+          nextBaseSpeed = 1.92 + Math.random() * 0.28;
         }
-      } else if (elapsedSec < 10.0) {
-        const interval = 580;
-        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 4 && state.totalNodesSpawned < 15) {
+      } else if (subWaveNow === 1) {
+        // ACT 1 · WAVE 1/3 — VANGUARD (Rhythmic build-up, combo & cannon charging)
+        const interval = Math.max(460, 640 - (rndNow - 1) * 30);
+        const maxConcurrent = Math.min(5, 4 + Math.floor((rndNow - 1) / 2));
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < maxConcurrent) {
           shouldSpawn = true;
-          nextBaseSpeed = 2.20 + Math.random() * 0.35;
+          nextBaseSpeed = 2.05 + (rndNow - 1) * 0.12 + Math.random() * 0.30;
         }
-      } else if (elapsedSec < 15.0) {
-        const isPairBurst = (state.totalNodesSpawned % 3 !== 0);
-        const interval = isPairBurst ? 360 : 880;
-        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 4 && state.totalNodesSpawned < 22) {
+      } else if (subWaveNow === 2) {
+        // ACT 2 · WAVE 2/3 — SURGE (Tighter tempo, escalating hazards)
+        const interval = Math.max(400, 530 - (rndNow - 1) * 28);
+        const maxConcurrent = Math.min(6, 5 + Math.floor((rndNow - 1) / 3));
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < maxConcurrent) {
           shouldSpawn = true;
-          nextBaseSpeed = 2.40 + Math.random() * 0.35;
+          nextBaseSpeed = 2.20 + (rndNow - 1) * 0.14 + Math.random() * 0.32;
         }
       } else {
-        const calculatedWave = Math.min(10, Math.floor(state.score / 1200) + 1);
-        if (calculatedWave > state.currentWave) {
-          state.currentWave = calculatedWave;
-          audio.playVictoryFanfare();
-          updateHeaderUI();
-        }
-
-        const maxConcurrent = Math.min(5, 3 + Math.floor(state.currentWave / 3));
-        const waveInterval = Math.max(380, 650 - (state.currentWave - 1) * 35);
-        if ((now - state.lastSpawnTime) >= waveInterval && state.particles.length < maxConcurrent) {
+        // ACT 3 · WAVE 3/3 — APEX ASSAULT (High-energy pre-boss crescendo!)
+        const isBurstBeat = (state.totalNodesSpawned % 4 === 2);
+        const baseInt = Math.max(360, 450 - (rndNow - 1) * 24);
+        const interval = isBurstBeat ? Math.max(290, baseInt - 90) : baseInt;
+        const maxConcurrent = Math.min(6, 5 + Math.floor(rndNow / 2));
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < maxConcurrent) {
           shouldSpawn = true;
-          nextBaseSpeed = 2.10 + (state.currentWave - 1) * 0.15 + Math.random() * 0.30;
+          nextBaseSpeed = 2.34 + (rndNow - 1) * 0.15 + Math.random() * 0.35;
         }
       }
 
@@ -9020,6 +9176,34 @@
 
       if (shouldSpawn && state.roundPhase === 'gauntlet') {
         spawnNode(nextBaseSpeed);
+      }
+
+      // TEST HARNESS: WAVE / OVERCHARGE PACING VERIFICATION (?test_wave=2|3 or ?test_overcharge=1)
+      if (window.location.search.includes('test_wave=') || window.location.search.includes('test_overcharge=1')) {
+        if (!state._testedWave) {
+          state._testedWave = true;
+          if (window.location.search.includes('test_overcharge=1')) {
+            // Quota already met with 3 seconds remaining on Boss approach timer -> verifies Overcharge countdown -> Boss Warning -> Boss Spawn!
+            state.roundNodesCaught = state.roundQuota;
+            state.roundGauntletMs = Math.max(0, state.roundMinDurationMs - 3000);
+            state.roundSubWave = 3;
+            state.coreAmmo = 64;
+            updateHeaderUI();
+          } else {
+            const mW = window.location.search.match(/test_wave=(\d+)/);
+            const targetW = mW ? parseInt(mW[1], 10) : 2;
+            if (targetW === 2) {
+              state.roundNodesCaught = Math.ceil(state.roundQuota * 0.34);
+              state.roundGauntletMs = Math.ceil(state.roundMinDurationMs * 0.34);
+              RoundBossEngine.tickGauntletPacing(0, now, w);
+            } else if (targetW === 3) {
+              state.roundSubWave = 2;
+              state.roundNodesCaught = Math.ceil(state.roundQuota * 0.68);
+              state.roundGauntletMs = Math.ceil(state.roundMinDurationMs * 0.68);
+              RoundBossEngine.tickGauntletPacing(0, now, w);
+            }
+          }
+        }
       }
 
       // TEST HARNESS: DIRECT BOSS SHOWDOWN (?test_boss=1 .. ?test_boss=5)
