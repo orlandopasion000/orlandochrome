@@ -7660,22 +7660,34 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t5.png?v=arcade374',
-          cta: '⚡ RE-IGNITE CHROME DYNAMO',
+          emblem: 'assets/btn-obj-dynamo-4k.png?v=arcade384',
+          ctaMain: 'RE-IGNITE CHROME DYNAMO',
+          ctaSub: 'FARADAY RAIL-ARC CORE',
+          btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
+          btnGif: 'assets/btn-dynamo-anim.gif?v=arcade384',
+          btnObj: 'assets/btn-obj-dynamo-4k.png?v=arcade384',
           scienceTip: 'Chain catches trigger Faraday Induction arcs that pull nearby Plasma Orbs closer — hold Click or press [F] to fire your Rail-Arc Cannon!'
         },
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t5.png?v=arcade374',
-          cta: '🧬 RE-SEQUENCE CHROME HELIX',
+          emblem: 'assets/btn-obj-helix-4k.png?v=arcade384',
+          ctaMain: 'RE-SEQUENCE CHROME HELIX',
+          ctaSub: 'PHOTONIC DNA LATTICE',
+          btnPng: 'assets/btn-helix-4k.png?v=arcade384',
+          btnGif: 'assets/btn-helix-anim.gif?v=arcade384',
+          btnObj: 'assets/btn-obj-helix-4k.png?v=arcade384',
           scienceTip: 'Consecutive clean Nucleotide catches stabilize Base-Pair Resonance — unload your Twin-Helix Photonic Lance [F] during Boss telegraph gaps!'
         },
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t5.png?v=arcade374',
-          cta: '☄️ RE-LAUNCH CHROME METEOR',
+          emblem: 'assets/btn-obj-meteor-4k.png?v=arcade384',
+          ctaMain: 'RE-LAUNCH CHROME METEOR',
+          ctaSub: 'AEGIS SOLAR CALDERA',
+          btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
+          btnGif: 'assets/btn-meteor-anim.gif?v=arcade384',
+          btnObj: 'assets/btn-obj-meteor-4k.png?v=arcade384',
           scienceTip: 'Solar Mass-Driver shots splash adjacent Boss Shield Pylons — graze incoming hazards to charge Flux Pulse [Space] for 15-dmg Boss burst!'
         }
       };
@@ -7729,7 +7741,7 @@
         quickRow.style.display = 'flex';
         quickRow.querySelectorAll('[data-switch-realm]').forEach((btn) => {
           const targetR = btn.getAttribute('data-switch-realm');
-          btn.style.display = (targetR === rKey) ? 'none' : 'inline-flex';
+          btn.classList.toggle('oc-go-hidden', targetR === rKey);
           btn.onclick = () => openGame(targetR);
         });
         const exitBtn = document.getElementById('cgGoExitBtn');
@@ -7753,7 +7765,21 @@
 
       dom.screenTitle.textContent = cfg.title;
       dom.screenDesc.textContent = debriefSub;
-      dom.btnStartAction.textContent = cfg.cta;
+      dom.btnStartAction.classList.add('oc-go-cta-4k');
+      dom.btnStartAction.innerHTML = `
+        <img class="oc-go-btn-art-png" src="${cfg.btnPng}" alt="" aria-hidden="true" />
+        <img class="oc-go-btn-art-gif" src="${cfg.btnGif}" alt="" aria-hidden="true" />
+        <span class="oc-go-btn-scrim" aria-hidden="true"></span>
+        <span class="oc-go-btn-obj-wrap" aria-hidden="true">
+          <span class="oc-go-btn-obj-ring"></span>
+          <img class="oc-go-btn-obj" src="${cfg.btnObj}" alt="" />
+        </span>
+        <span class="oc-go-btn-text-wrap">
+          <span class="oc-go-btn-main-txt">${cfg.ctaMain}</span>
+          <span class="oc-go-btn-sub-txt">${cfg.ctaSub}</span>
+        </span>
+        <span class="oc-go-btn-chevron" aria-hidden="true">»</span>
+      `;
       dom.btnStartAction.onclick = () => startGame(state.gameType);
       dom.screenOverlay.style.display = 'flex';
       OverlayRealmFX.start(rKey);
@@ -7762,6 +7788,7 @@
       OverlayRealmFX.stop();
       dom.screenOverlay.classList.remove('oc-realm-overlay');
       dom.screenOverlay.removeAttribute('data-realm');
+      dom.btnStartAction.classList.remove('oc-go-cta-4k');
       if (statusChip) statusChip.style.display = 'none';
       if (defGlyph) defGlyph.style.display = 'block';
       if (realmEmbWrap) realmEmbWrap.style.display = 'none';

@@ -21,7 +21,7 @@
   <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
-  <link rel="stylesheet" href="styles.css?v=arcade383_realm_gameover">
+  <link rel="stylesheet" href="styles.css?v=arcade384_4k_gif_buttons">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1740,8 +1740,8 @@
       background: radial-gradient(circle, rgba(12, 16, 32, 0.9) 40%, rgba(0, 0, 0, 0.7) 100%) !important;
     }
     .oc-go-emblem-img {
-      width: 138% !important;
-      height: 138% !important;
+      width: 106% !important;
+      height: 106% !important;
       max-width: none !important;
       object-fit: cover !important;
       filter: saturate(1.12) contrast(1.06) !important;
@@ -1825,47 +1825,263 @@
       letter-spacing: 0.04em !important;
     }
 
-    /* Primary & Secondary Quick-Action Controls */
+    /* Primary & Secondary Quick-Action Controls (v384 — 4K PNG + Cinemagraph GIF + Specific Game Objects) */
     .oc-go-btn-row {
       display: flex !important;
       flex-direction: column !important;
-      gap: 10px !important;
+      gap: 11px !important;
       align-items: center !important;
     }
-    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary {
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k {
+      position: relative !important;
       width: 100% !important;
-      padding: 13px 26px !important;
-      font-size: 13px !important;
-      letter-spacing: 0.08em !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      height: 58px !important;
+      padding: 0 16px 0 10px !important;
+      border-radius: 9999px !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 10px !important;
+      background: #050814 !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+      isolation: isolate !important;
+      cursor: pointer !important;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.22s ease !important;
     }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k:hover {
+      transform: translateY(-2px) scale(1.022) !important;
+    }
+    .oc-go-btn-art-png,
+    .oc-go-btn-art-gif {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: 78% 50% !important;
+      pointer-events: none !important;
+      transition: opacity 0.28s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease !important;
+    }
+    .oc-go-btn-art-png {
+      z-index: 0 !important;
+      opacity: 1 !important;
+    }
+    .oc-go-btn-art-gif {
+      z-index: 1 !important;
+      opacity: 0.94 !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k:hover .oc-go-btn-art-gif {
+      opacity: 1 !important;
+      transform: scale(1.045) !important;
+      filter: brightness(1.16) saturate(1.14) !important;
+    }
+    .oc-go-btn-scrim {
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 2 !important;
+      pointer-events: none !important;
+      background: linear-gradient(
+        90deg,
+        rgba(3, 6, 16, 0.72) 0%,
+        rgba(3, 6, 16, 0.56) 46%,
+        rgba(3, 6, 16, 0.24) 76%,
+        rgba(3, 6, 16, 0.44) 100%
+      ) !important;
+    }
+    .oc-go-btn-obj-wrap {
+      position: relative !important;
+      z-index: 4 !important;
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      flex-shrink: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: radial-gradient(circle, rgba(6, 10, 24, 0.92) 50%, rgba(0, 0, 0, 0.65) 100%) !important;
+      pointer-events: none !important;
+    }
+    .oc-go-btn-obj-ring {
+      position: absolute !important;
+      inset: -2px !important;
+      border-radius: 50% !important;
+      border: 1.5px solid transparent !important;
+      animation: ocOrbSpinSlow 5.2s linear infinite !important;
+      pointer-events: none !important;
+    }
+    .oc-go-btn-obj {
+      width: 36px !important;
+      height: 36px !important;
+      object-fit: contain !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+      animation: ocHelixBreath 2.8s ease-in-out infinite !important;
+    }
+    .oc-go-btn-text-wrap {
+      position: relative !important;
+      z-index: 4 !important;
+      flex: 1 1 auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      text-align: left !important;
+      line-height: 1.15 !important;
+      pointer-events: none !important;
+    }
+    .oc-go-btn-main-txt {
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.08em !important;
+      color: #ffffff !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.98), 0 0 12px rgba(0, 0, 0, 0.85) !important;
+    }
+    .oc-go-btn-sub-txt {
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 9px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.14em !important;
+      opacity: 0.92 !important;
+      margin-top: 2px !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.98) !important;
+    }
+    .oc-go-btn-chevron {
+      position: relative !important;
+      z-index: 4 !important;
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50% !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: rgba(6, 10, 24, 0.65) !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      color: #ffffff !important;
+      font-size: 15px !important;
+      font-weight: 900 !important;
+      flex-shrink: 0 !important;
+      transition: transform 0.22s ease, background 0.22s ease !important;
+      pointer-events: none !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k:hover .oc-go-btn-chevron {
+      transform: translateX(3px) !important;
+      background: rgba(255, 255, 255, 0.20) !important;
+    }
+
+    /* Secondary Quick-Switch Buttons (4K Specific Objects + Animated GIF Hover!) */
     .oc-go-quick-row {
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
       flex-wrap: wrap !important;
-      gap: 7px !important;
+      gap: 8px !important;
       width: 100% !important;
     }
     .oc-go-sec-btn {
-      padding: 6px 12px !important;
-      border-radius: 999px !important;
-      background: rgba(8, 14, 30, 0.60) !important;
-      border: 1px solid rgba(255, 255, 255, 0.14) !important;
-      color: #cbd5e1 !important;
+      position: relative !important;
+      height: 36px !important;
+      padding: 0 13px 0 6px !important;
+      border-radius: 9999px !important;
+      overflow: hidden !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      background: rgba(6, 10, 22, 0.80) !important;
+      border: 1.3px solid rgba(255, 255, 255, 0.18) !important;
+      color: #f1f5f9 !important;
       font-family: 'Lexend', sans-serif !important;
-      font-size: 10px !important;
-      font-weight: 700 !important;
-      letter-spacing: 0.05em !important;
+      font-size: 10.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
       cursor: pointer !important;
-      transition: all 0.18s ease !important;
+      isolation: isolate !important;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    .oc-go-sec-btn.oc-go-hidden {
+      display: none !important;
     }
     .oc-go-sec-btn:hover {
+      transform: translateY(-2px) scale(1.035) !important;
       color: #ffffff !important;
-      border-color: rgba(255, 255, 255, 0.42) !important;
-      background: rgba(24, 34, 64, 0.78) !important;
-      transform: translateY(-1px) !important;
     }
+    .oc-go-sec-bg-png,
+    .oc-go-sec-bg-gif {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: 65% 50% !important;
+      pointer-events: none !important;
+      transition: opacity 0.24s ease !important;
+    }
+    .oc-go-sec-bg-png { z-index: 0 !important; opacity: 0.42 !important; }
+    .oc-go-sec-bg-gif { z-index: 1 !important; opacity: 0.0 !important; }
+    .oc-go-sec-btn:hover .oc-go-sec-bg-gif { opacity: 0.78 !important; }
+    .oc-go-sec-scrim {
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 2 !important;
+      background: linear-gradient(90deg, rgba(4, 7, 18, 0.78) 0%, rgba(4, 7, 18, 0.56) 65%, rgba(4, 7, 18, 0.35) 100%) !important;
+      pointer-events: none !important;
+    }
+    .oc-go-sec-obj {
+      position: relative !important;
+      z-index: 3 !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      object-fit: contain !important;
+      flex-shrink: 0 !important;
+      pointer-events: none !important;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35)) !important;
+    }
+    .oc-go-sec-lbl {
+      position: relative !important;
+      z-index: 3 !important;
+      pointer-events: none !important;
+      text-shadow: 0 1px 5px rgba(0, 0, 0, 0.98) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="dynamo"] {
+      border-color: rgba(139, 92, 246, 0.62) !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.48), 0 0 10px rgba(56, 189, 248, 0.22) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="dynamo"]:hover {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.55) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="helix"] {
+      border-color: rgba(34, 211, 238, 0.60) !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.48), 0 0 10px rgba(232, 121, 249, 0.22) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="helix"]:hover {
+      border-color: #e879f9 !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(232, 121, 249, 0.55) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="meteor"] {
+      border-color: rgba(251, 146, 60, 0.66) !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.48), 0 0 10px rgba(249, 115, 22, 0.25) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="meteor"]:hover {
+      border-color: #fde047 !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(249, 115, 22, 0.60) !important;
+    }
+    .oc-go-sec-btn-ws {
+      border-color: rgba(148, 163, 184, 0.35) !important;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(8, 12, 24, 0.90)) !important;
+    }
+    .oc-go-sec-btn-ws:hover {
+      border-color: rgba(212, 168, 83, 0.72) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 0 12px rgba(212, 168, 83, 0.30) !important;
+    }
+    .oc-go-sec-obj-ws {
+      border-radius: 6px !important;
+      border: 1px solid rgba(212, 168, 83, 0.55) !important;
+      width: 22px !important;
+      height: 22px !important;
+    }
+
     .oc-go-kbd-hint {
       margin-top: 8px !important;
       font-size: 9.5px !important;
@@ -1901,10 +2117,12 @@
       filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.42)) !important;
     }
     #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-tip { border-left-color: #38bdf8 !important; }
-    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-btn-primary {
-      background: linear-gradient(135deg, #0284c7 0%, #6366f1 52%, #9333ea 100%) !important;
-      box-shadow: 0 8px 26px rgba(56, 189, 248, 0.38), 0 0 18px rgba(139, 92, 246, 0.35) !important;
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-btn-primary.oc-go-cta-4k {
+      border-color: rgba(56, 189, 248, 0.78) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 24px rgba(56, 189, 248, 0.42), 0 0 14px rgba(139, 92, 246, 0.45) !important;
     }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-btn-obj-ring { border-top-color: #38bdf8 !important; border-bottom-color: #fbbf24 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-btn-sub-txt { color: #7dd3fc !important; }
 
     /* ─── THEME 2: CHROME HELIX (Translucent Sapphire Aqua · Bioluminescent Cyan & Magenta) ─── */
     #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-card {
@@ -1924,10 +2142,12 @@
       filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.42)) !important;
     }
     #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-tip { border-left-color: #e879f9 !important; }
-    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-btn-primary {
-      background: linear-gradient(135deg, #0891b2 0%, #7c3aed 50%, #d946ef 100%) !important;
-      box-shadow: 0 8px 26px rgba(34, 211, 238, 0.35), 0 0 18px rgba(232, 121, 249, 0.38) !important;
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-btn-primary.oc-go-cta-4k {
+      border-color: rgba(34, 211, 238, 0.78) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 24px rgba(34, 211, 238, 0.38), 0 0 16px rgba(232, 121, 249, 0.42) !important;
     }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-btn-obj-ring { border-left-color: #22d3ee !important; border-right-color: #e879f9 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-btn-sub-txt { color: #f5d0fe !important; }
 
     /* ─── THEME 3: CHROME METEOR (Translucent Volcanic Basalt · Molten Gold · Solar Crimson) ─── */
     #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-card {
@@ -1947,10 +2167,12 @@
       filter: drop-shadow(0 0 14px rgba(249, 115, 22, 0.48)) !important;
     }
     #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-tip { border-left-color: #f97316 !important; }
-    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-btn-primary {
-      background: linear-gradient(135deg, #ea580c 0%, #f59e0b 52%, #dc2626 100%) !important;
-      box-shadow: 0 8px 26px rgba(249, 115, 22, 0.44), 0 0 18px rgba(253, 224, 71, 0.30) !important;
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-btn-primary.oc-go-cta-4k {
+      border-color: rgba(251, 146, 60, 0.84) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.68), 0 0 24px rgba(249, 115, 22, 0.48), 0 0 14px rgba(253, 224, 71, 0.32) !important;
     }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-btn-obj-ring { border-top-color: #fde047 !important; border-left-color: #f97316 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-btn-sub-txt { color: #fde68a !important; }
 
     @media (max-width: 520px) {
       .oc-go-telemetry { grid-template-columns: repeat(2, 1fr) !important; }
@@ -2474,10 +2696,31 @@
               <div class="screen-actions oc-go-btn-row">
                 <button type="button" class="screen-btn-primary" id="cgBtnStartAction">ENGAGE</button>
                 <div class="oc-go-quick-row" id="cgGoQuickRow" style="display:none;">
-                  <button type="button" class="oc-go-sec-btn" data-switch-realm="dynamo">⚡ DYNAMO</button>
-                  <button type="button" class="oc-go-sec-btn" data-switch-realm="helix">🧬 HELIX</button>
-                  <button type="button" class="oc-go-sec-btn" data-switch-realm="meteor">☄️ METEOR</button>
-                  <button type="button" class="oc-go-sec-btn" id="cgGoExitBtn">WORKSPACE</button>
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="dynamo" aria-label="Switch to Chrome Dynamo">
+                    <img class="oc-go-sec-bg-png" src="assets/btn-dynamo-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <img class="oc-go-sec-bg-gif" src="assets/btn-dynamo-anim.gif?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-scrim" aria-hidden="true"></span>
+                    <img class="oc-go-sec-obj" src="assets/btn-obj-dynamo-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">DYNAMO</span>
+                  </button>
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="helix" aria-label="Switch to Chrome Helix">
+                    <img class="oc-go-sec-bg-png" src="assets/btn-helix-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <img class="oc-go-sec-bg-gif" src="assets/btn-helix-anim.gif?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-scrim" aria-hidden="true"></span>
+                    <img class="oc-go-sec-obj" src="assets/btn-obj-helix-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">HELIX</span>
+                  </button>
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="meteor" aria-label="Switch to Chrome Meteor">
+                    <img class="oc-go-sec-bg-png" src="assets/btn-meteor-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <img class="oc-go-sec-bg-gif" src="assets/btn-meteor-anim.gif?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-scrim" aria-hidden="true"></span>
+                    <img class="oc-go-sec-obj" src="assets/btn-obj-meteor-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">METEOR</span>
+                  </button>
+                  <button type="button" class="oc-go-sec-btn oc-go-sec-btn-ws" id="cgGoExitBtn" aria-label="Return to OrlandoChrome Workspace">
+                    <img class="oc-go-sec-obj oc-go-sec-obj-ws" src="oc-logo.png?v=oc310" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">WORKSPACE</span>
+                  </button>
                 </div>
               </div>
               <div class="oc-go-kbd-hint" id="cgGoKbdHint" style="display:none;">
@@ -2494,7 +2737,7 @@
   <script src="assets/relative-time.js"></script>
   <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=arcade383_realm_gameover"></script>
+  <script src="app.js?v=arcade384_4k_gif_buttons"></script>
 
   <!-- BACKUP & RESTORE WORKSPACE MODAL -->
   <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
@@ -2553,7 +2796,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade383_realm_gameover"></script>
+  <script src="game.js?v=arcade384_4k_gif_buttons"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 
 </body>
