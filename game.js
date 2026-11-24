@@ -7277,18 +7277,46 @@
   };
 
   // ══════════════════════════════════════════════════════════════════════════
-  // === CHANGED (v387): STEP 6 — VOIDBLOOM NODE (GROWING HOSTILE HAZARD) ===
-  // Dark obsidian-violet core + pulsing toxic-green aura + jagged thorny petals.
+  // === CHANGED (v388): STEP 6 — PHOTOREALISTIC 3D VOIDBLOOM NODE HAZARD ===
+  // Sculpted 3D obsidian-violet claw orb (assets/voidbloom-3d.png) + back/front
+  // 3D perspective tilted orbital rings + live volumetric toxic-emerald plasma!
   // Telegraphed 1s spawn, grows 1x -> 6x over 15s, slows down as it grows,
   // drains 1 shield + 25% ammo on ship contact, scaling rewards on destruction!
   // ══════════════════════════════════════════════════════════════════════════
+  const _voidbloom3DSprite = new Image();
+  let _voidbloom3DLoaded = false;
+  _voidbloom3DSprite.onload = () => { _voidbloom3DLoaded = true; };
+  _voidbloom3DSprite.src = 'assets/voidbloom-3d.png?v=arcade388_voidbloom3d';
+
   const VoidbloomEngine = {
     nodes: [],
     telegraphs: [],
     nextSpawnInMs: CONFIG.voidbloom.firstSpawnSec * 1000,
+    _auraSprite: null,
     particlePool: Array.from({ length: CONFIG.voidbloom.particlePoolSize }, () => ({
       active: false, x: 0, y: 0, vx: 0, vy: 0, r: 3, color: '#a3e635', life: 0, maxLife: 24
     })),
+
+    _getAuraSprite() {
+      if (this._auraSprite) return this._auraSprite;
+      const sz = 128;
+      const c = document.createElement('canvas');
+      c.width = sz;
+      c.height = sz;
+      const gctx = c.getContext('2d');
+      if (gctx) {
+        const half = sz * 0.5;
+        const g = gctx.createRadialGradient(half, half, 4, half, half, half);
+        g.addColorStop(0.0, 'rgba(147, 51, 234, 0.78)');
+        g.addColorStop(0.38, 'rgba(132, 204, 22, 0.54)');
+        g.addColorStop(0.70, 'rgba(163, 230, 53, 0.18)');
+        g.addColorStop(1.0, 'rgba(16, 185, 129, 0)');
+        gctx.fillStyle = g;
+        gctx.fillRect(0, 0, sz, sz);
+      }
+      this._auraSprite = c;
+      return c;
+    },
 
     reset() {
       this.nodes = [];
@@ -7335,7 +7363,7 @@
 
     scheduleTelegraph(w, h, shipX, now, forcedX = null) {
       const tx = forcedX !== null ? forcedX : this._pickSafeX(w, shipX);
-      const spawnY = Math.max(114, Math.min(160, h * 0.16));
+      const spawnY = Math.max(142, Math.min(176, h * 0.20));
       this.telegraphs.push({
         x: tx,
         y: spawnY,
@@ -7509,49 +7537,57 @@
           continue;
         }
         const prog = Math.min(1, (now - tg.startAt) / cfg.telegraphMs);
-        const pulse = 0.55 + 0.45 * Math.sin(now * 0.025);
+        const pulse = 0.58 + 0.42 * Math.sin(now * 0.025);
+        const auraSpr = this._getAuraSprite();
 
+        // === CHANGED (v388): 3D Holographic Vortex Portal Spawn Telegraph ===
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        // Subtle vertical toxic warning beam
-        ctx.strokeStyle = `rgba(163, 230, 53, ${0.22 * pulse})`;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([6, 6]);
-        ctx.beginPath();
-        ctx.moveTo(tg.x, tg.y - 30);
-        ctx.lineTo(tg.x, Math.min(h - 90, tg.y + 180));
-        ctx.stroke();
-        ctx.setLineDash([]);
+        // Volumetric toxic-violet vertical tether beam
+        const beamG = ctx.createLinearGradient(tg.x, tg.y - 36, tg.x, Math.min(h - 90, tg.y + 165));
+        beamG.addColorStop(0.0, `rgba(163, 230, 53, ${0.42 * pulse})`);
+        beamG.addColorStop(0.5, `rgba(147, 51, 234, ${0.26 * pulse})`);
+        beamG.addColorStop(1.0, 'rgba(147, 51, 234, 0)');
+        ctx.fillStyle = beamG;
+        ctx.fillRect(tg.x - 4, tg.y - 36, 8, Math.min(200, h - tg.y));
 
-        // Pulsing toxic-violet warning reticle
-        const r = 34 - prog * 12;
-        ctx.strokeStyle = `rgba(163, 230, 53, ${0.88 * pulse})`;
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.arc(tg.x, tg.y, r, 0, Math.PI * 2);
-        ctx.stroke();
+        // Central glowing portal orb
+        const pGlowR = 44 * (0.65 + prog * 0.55);
+        ctx.globalAlpha = 0.72 * pulse;
+        ctx.drawImage(auraSpr, tg.x - pGlowR, tg.y - pGlowR, pGlowR * 2, pGlowR * 2);
 
-        ctx.strokeStyle = `rgba(147, 51, 234, ${0.82 * pulse})`;
-        ctx.lineWidth = 2;
+        // Foreshortened spinning 3D perspective portal ring
+        ctx.save();
+        ctx.translate(tg.x, tg.y);
+        ctx.rotate(Math.sin(now * 0.004) * 0.28);
+        ctx.scale(1, 0.36);
+        const r = 40 - prog * 14;
+        ctx.globalAlpha = 0.92 * pulse;
+        ctx.strokeStyle = '#a3e635';
+        ctx.lineWidth = 3.2;
         ctx.beginPath();
-        ctx.moveTo(tg.x, tg.y - r - 8);
-        ctx.lineTo(tg.x + r + 8, tg.y);
-        ctx.lineTo(tg.x, tg.y + r + 8);
-        ctx.lineTo(tg.x - r - 8, tg.y);
-        ctx.closePath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.68, now * 0.01, now * 0.01 + Math.PI * 1.4);
+        ctx.stroke();
+        ctx.restore();
 
-        ctx.font = '900 10px "Lexend", sans-serif';
-        ctx.fillStyle = '#bef264';
+        ctx.globalAlpha = 0.95;
+        ctx.font = '800 9.5px "Lexend", sans-serif';
+        ctx.fillStyle = '#d9f99d';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('⚠ VOIDBLOOM', tg.x, tg.y - r - 11);
+        ctx.fillText('VOIDBLOOM RIFT', tg.x, tg.y - 24);
         ctx.restore();
       }
 
-      // 3. Update & Draw Active Voidbloom Nodes (Continuous 1x -> 6x Growth, Slowing Drift, Scaling HP & Radius!)
+      // 3. Update & Draw Active 3D Voidbloom Nodes (Continuous 1x -> 6x Growth, Slowing Drift, Scaling HP & Radius!)
       const maxR = Math.min(w, h) * cfg.maxViewportFrac;
       const shipHitR = 40 * u;
+      const auraSpr = this._getAuraSprite();
 
       for (let i = this.nodes.length - 1; i >= 0; i--) {
         const vb = this.nodes[i];
@@ -7573,14 +7609,14 @@
         // Slow downward drift as it grows huge
         const speedMult = 1.0 - (1.0 - cfg.minSpeedMult) * growT;
         vb.y += cfg.baseSpeed * speedMult * dtScale;
-        vb.rot += (0.018 + 0.012 * (1 - growT)) * dtScale;
+        vb.rot += (0.014 + 0.010 * (1 - growT)) * dtScale;
 
         // Ambient pooled toxic spore emission
         vb.sporeAccum += dt;
-        if (vb.sporeAccum >= (growT > 0.5 ? 110 : 210)) {
+        if (vb.sporeAccum >= (growT > 0.5 ? 105 : 200)) {
           vb.sporeAccum = 0;
           const a = Math.random() * Math.PI * 2;
-          this._emitParticles(vb.x + Math.cos(a) * vb.radius * 0.85, vb.y + Math.sin(a) * vb.radius * 0.85, Math.random() < 0.55 ? '#84cc16' : '#9333ea', 1, 1.4);
+          this._emitParticles(vb.x + Math.cos(a) * vb.radius * 0.92, vb.y + Math.sin(a) * vb.radius * 0.92, Math.random() < 0.55 ? '#84cc16' : '#a855f7', 1, 1.5);
         }
 
         // Despawn safely past bottom
@@ -7597,93 +7633,131 @@
           continue;
         }
 
-        // Render Hostile Voidbloom Node (Dark Obsidian-Purple Core + Sickly Toxic-Green Aura + Jagged Petals + "!")
+        // === CHANGED (v388): TRUE 6-LAYER VOLUMETRIC 3D VOIDBLOOM RENDERING (ZERO 2D FLAT LOOK!) ===
         const r = vb.radius;
-        const pulse = 0.78 + 0.22 * Math.sin(now * 0.011 + i);
+        const pulse = 0.82 + 0.18 * Math.sin(now * 0.009 + i * 1.7);
+        const breathe = 1.0 + 0.028 * Math.sin(now * 0.0065 + i);
         const isFlashing = vb.hitFlashUntil && now < vb.hitFlashUntil;
+        const ringTilt = -0.36 + Math.sin(now * 0.0014 + i) * 0.14;
+        const orbitR = r * 1.26;
+        const orbitAngle = now * 0.0028 + i * 2.1;
 
         ctx.save();
         ctx.translate(vb.x, vb.y);
 
-        // Outer Sickly Toxic-Green & Ultraviolet Warning Aura (intensifies with scale!)
+        // LAYER 1: Pre-baked Volumetric Toxic-Emerald & Ultraviolet Subsurface Halo
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const auraR = r * (1.42 + growT * 0.25);
-        const ag = ctx.createRadialGradient(0, 0, r * 0.45, 0, 0, auraR);
-        ag.addColorStop(0.0, `rgba(147, 51, 234, ${(0.36 + growT * 0.26) * pulse})`);
-        ag.addColorStop(0.55, `rgba(132, 204, 22, ${(0.28 + growT * 0.24) * pulse})`);
-        ag.addColorStop(1.0, 'rgba(132, 204, 22, 0)');
-        ctx.fillStyle = ag;
-        ctx.beginPath();
-        ctx.arc(0, 0, auraR, 0, Math.PI * 2);
-        ctx.fill();
+        const auraR = r * (1.58 + growT * 0.28) * breathe;
+        ctx.globalAlpha = Math.min(0.95, (0.52 + growT * 0.34) * pulse);
+        ctx.drawImage(auraSpr, -auraR, -auraR, auraR * 2, auraR * 2);
         ctx.restore();
 
-        // Jagged Rotating Thorny Corona (10 razor-tooth spikes)
+        // LAYER 2: Back Half of 3D Perspective Orbital Containment Ring (passes BEHIND the 3D sphere!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(ringTilt);
+        ctx.scale(1, 0.34);
+        ctx.strokeStyle = `rgba(168, 85, 247, ${0.42 + growT * 0.24})`;
+        ctx.lineWidth = Math.max(2.2, r * 0.075);
+        ctx.beginPath();
+        ctx.arc(0, 0, orbitR, Math.PI, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // LAYER 3: Sculpted Photorealistic 3D Voidbloom Core Sprite (assets/voidbloom-3d.png)
+        const drawR = r * 1.18 * breathe;
         ctx.save();
         ctx.rotate(vb.rot);
-        const spikes = 10;
-        ctx.beginPath();
-        for (let s = 0; s < spikes * 2; s++) {
-          const ang = (s * Math.PI) / spikes;
-          const rad = (s % 2 === 0) ? r * 1.18 : r * 0.84;
-          const px = Math.cos(ang) * rad;
-          const py = Math.sin(ang) * rad;
-          if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        if (_voidbloom3DLoaded) {
+          ctx.drawImage(_voidbloom3DSprite, -drawR, -drawR, drawR * 2, drawR * 2);
+        } else {
+          // Graceful 3D shaded fallback only while PNG is still loading on frame 1
+          const fg = ctx.createRadialGradient(-r * 0.28, -r * 0.28, r * 0.08, 0, 0, r);
+          fg.addColorStop(0.0, '#7e22ce');
+          fg.addColorStop(0.55, '#1e0936');
+          fg.addColorStop(1.0, '#07020f');
+          ctx.fillStyle = fg;
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.fill();
         }
-        ctx.closePath();
-        ctx.fillStyle = isFlashing ? '#3b0764' : '#120520';
-        ctx.fill();
-        ctx.strokeStyle = isFlashing ? '#fef08a' : '#a3e635';
-        ctx.lineWidth = Math.max(2.0, 2.8 * (0.7 + growT * 0.6));
+        // Crisp impact flash when struck by Ember Cannon or Seeker Comets
+        if (isFlashing) {
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(auraSpr, -drawR * 0.9, -drawR * 0.9, drawR * 1.8, drawR * 1.8);
+        }
+        ctx.restore();
+
+        // LAYER 4: Live Counter-Rotating Abyssal Singularity Eye Shimmer (gives the 3D center live depth!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(-vb.rot * 1.6);
+        const eyeR = r * 0.30 * pulse;
+        ctx.strokeStyle = `rgba(192, 132, 252, ${0.45 * pulse})`;
+        ctx.lineWidth = Math.max(1.2, r * 0.032);
+        ctx.beginPath();
+        ctx.arc(0, 0, eyeR, 0, Math.PI * 1.25);
+        ctx.stroke();
+        ctx.strokeStyle = `rgba(163, 230, 53, ${0.38 * pulse})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, eyeR * 0.62, Math.PI, Math.PI * 2.15);
         ctx.stroke();
         ctx.restore();
 
-        // Inner Abyssal Core
-        const cg = ctx.createRadialGradient(-r * 0.18, -r * 0.18, r * 0.08, 0, 0, r * 0.85);
-        cg.addColorStop(0.0, isFlashing ? '#a855f7' : '#3b0764');
-        cg.addColorStop(0.55, '#140624');
-        cg.addColorStop(1.0, '#05020a');
-        ctx.fillStyle = cg;
+        // LAYER 5: Front Half of 3D Perspective Orbital Ring + Glowing Plasma Satellites (passes IN FRONT of sphere!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(ringTilt);
+        ctx.save();
+        ctx.scale(1, 0.34);
+        ctx.strokeStyle = `rgba(163, 230, 53, ${0.58 + growT * 0.28})`;
+        ctx.lineWidth = Math.max(2.4, r * 0.08);
         ctx.beginPath();
-        ctx.arc(0, 0, r * 0.84, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(168, 85, 247, 0.85)';
-        ctx.lineWidth = 1.8;
+        ctx.arc(0, 0, orbitR, 0, Math.PI);
         ctx.stroke();
-
-        // Distinct Center Warning Emblem ("!") so it is impossible to mistake for a Good Node
-        const triR = Math.max(8, Math.min(24, r * 0.36));
-        ctx.strokeStyle = '#bef264';
-        ctx.fillStyle = 'rgba(132, 204, 22, 0.22)';
-        ctx.lineWidth = 1.8;
+        ctx.strokeStyle = 'rgba(236, 252, 203, 0.65)';
+        ctx.lineWidth = Math.max(1.0, r * 0.028);
         ctx.beginPath();
-        ctx.moveTo(0, -triR);
-        ctx.lineTo(triR * 0.92, triR * 0.72);
-        ctx.lineTo(-triR * 0.92, triR * 0.72);
-        ctx.closePath();
-        ctx.fill();
+        ctx.arc(0, 0, orbitR, 0.15, Math.PI - 0.15);
         ctx.stroke();
+        ctx.restore();
 
-        ctx.fillStyle = '#ecfccb';
-        ctx.font = `900 ${Math.max(10, Math.round(triR * 1.15))}px "Lexend", sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('!', 0, triR * 0.16);
+        // Two glowing 3D orbiting emerald/violet plasma moons on the tilted plane
+        for (let k = 0; k < 2; k++) {
+          const a = orbitAngle + k * Math.PI;
+          const ox = Math.cos(a) * orbitR;
+          const oy = Math.sin(a) * orbitR * 0.34;
+          const inFront = Math.sin(a) >= 0;
+          if (inFront) {
+            const mR = Math.max(3.2, r * 0.095);
+            ctx.fillStyle = k === 0 ? '#bef264' : '#d8b4fe';
+            ctx.beginPath();
+            ctx.arc(ox, oy, mR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(ox, oy, mR * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
 
-        // Outer HP Ring (always visible when damaged or > 2x size)
-        if (vb.hp < vb.maxHp || vb.scale >= 2.0) {
+        // LAYER 6: Sleek Floating 3D Glassmorphic HP Arc (shown when damaged or >= 1.8x size; zero ugly flat triangle!)
+        if (vb.hp < vb.maxHp || vb.scale >= 1.8) {
           const hpFrac = Math.max(0, Math.min(1, vb.hp / Math.max(1, vb.maxHp)));
-          const ringR = r + 7;
-          ctx.strokeStyle = 'rgba(15, 23, 42, 0.75)';
-          ctx.lineWidth = 3.5;
+          const ringR = r * 1.16 + 6;
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = 'rgba(6, 10, 22, 0.72)';
+          ctx.lineWidth = 4.2;
           ctx.beginPath();
-          ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+          ctx.arc(0, 0, ringR, -Math.PI * 0.75, -Math.PI * 0.25);
           ctx.stroke();
           ctx.strokeStyle = hpFrac > 0.45 ? '#a3e635' : '#f43f5e';
-          ctx.lineWidth = 3.5;
+          ctx.lineWidth = 3.0;
           ctx.beginPath();
-          ctx.arc(0, 0, ringR, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * hpFrac);
+          ctx.arc(0, 0, ringR, -Math.PI * 0.75, -Math.PI * 0.75 + (Math.PI * 0.5) * hpFrac);
           ctx.stroke();
         }
 

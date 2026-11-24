@@ -1,12 +1,13 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v387_kimmy_music';
+const CACHE_NAME = 'orlandochrome-arcade-v388_voidbloom3d';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade387_kimmy_music',
-  './game.js?v=arcade387_kimmy_music',
+  './styles.css?v=arcade388_voidbloom3d',
+  './game.js?v=arcade388_voidbloom3d',
+  './assets/voidbloom-3d.png?v=arcade388_voidbloom3d',
   './qrcode.min.js',
-  './app.js?v=arcade387_kimmy_music',
+  './app.js?v=arcade388_voidbloom3d',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',
