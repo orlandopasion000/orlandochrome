@@ -1,10 +1,10 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v391_ult_signature';
+const CACHE_NAME = 'orlandochrome-arcade-v392_arsenal_overhaul';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade391_ult_signature',
-  './game.js?v=arcade391_ult_signature',
+  './styles.css?v=arcade392_arsenal_overhaul',
+  './game.js?v=arcade392_arsenal_overhaul',
   './assets/voidbloom-3d.png?v=arcade388_voidbloom3d',
   './assets/boss-r1-sentinel.png?v=arcade389_boss_nova',
   './assets/boss-r2-corruptor.png?v=arcade389_boss_nova',
@@ -25,7 +25,7 @@ const ASSETS = [
   './assets/vfx-gun-bolt-helix.png?v=arcade390_vfx_ultra',
   './assets/vfx-seeker-missile-3d.png?v=arcade390_vfx_ultra',
   './qrcode.min.js',
-  './app.js?v=arcade391_ult_signature',
+  './app.js?v=arcade392_arsenal_overhaul',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',

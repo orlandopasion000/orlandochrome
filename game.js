@@ -366,37 +366,118 @@
       this._vibrate(14);
     }
 
+    _ensureSfxNoise() {
+      if (!this.ctx) return null;
+      if (this._sfxNoise && this._sfxNoiseCtx === this.ctx) return this._sfxNoise;
+      const sr = this.ctx.sampleRate;
+      const len = Math.floor(sr * 1.5);
+      const buf = this.ctx.createBuffer(1, len, sr);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      this._sfxNoise = buf;
+      this._sfxNoiseCtx = this.ctx;
+      return buf;
+    }
+
+    // === CHANGED (v392): Distinct Primary Gun Audio per Chrome Core ===
     playCoreCannonShot(mode = 'dynamo', tier = 1) {
       if (this.isMuted) return;
       this.init();
       try {
-        const t0 = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        const pitchBoost = 1 + (Math.min(5, tier) - 1) * 0.055;
+        const ctx = this.ctx;
+        const t0 = ctx.currentTime;
+        const pitchBoost = 1 + (Math.min(5, tier) - 1) * 0.045;
+        const nBuf = this._ensureSfxNoise();
+
         if (mode === 'helix') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(980 * pitchBoost, t0);
-          osc.frequency.exponentialRampToValueAtTime(420 * pitchBoost, t0 + 0.065);
-          gain.gain.setValueAtTime(0.085, t0);
-          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.07);
+          // HELIX CASTER: Warm harmonic-fifth bio-prism pulse + soft sub body (zero shrillness)
+          [392 * pitchBoost, 587.33 * pitchBoost].forEach((f, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, t0);
+            osc.frequency.exponentialRampToValueAtTime(f * 0.56, t0 + 0.075);
+            gain.gain.setValueAtTime(idx === 0 ? 0.062 : 0.042, t0);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.082);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + 0.088);
+          });
+          const sub = ctx.createOscillator();
+          const sg = ctx.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(150, t0);
+          sub.frequency.exponentialRampToValueAtTime(64, t0 + 0.075);
+          sg.gain.setValueAtTime(0.068, t0);
+          sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.082);
+          sub.connect(sg);
+          sg.connect(ctx.destination);
+          sub.start(t0);
+          sub.stop(t0 + 0.088);
         } else if (mode === 'meteor') {
+          // EMBER CANNON: Heavy volcanic slug thump + warm lowpass fire puff
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(340 * pitchBoost, t0);
-          osc.frequency.exponentialRampToValueAtTime(110, t0 + 0.075);
-          gain.gain.setValueAtTime(0.11, t0);
-          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.08);
+          osc.frequency.setValueAtTime(215 * pitchBoost, t0);
+          osc.frequency.exponentialRampToValueAtTime(54, t0 + 0.09);
+          gain.gain.setValueAtTime(0.13, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.096);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.102);
+
+          if (nBuf) {
+            const src = ctx.createBufferSource();
+            src.buffer = nBuf;
+            const lp = ctx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.setValueAtTime(950, t0);
+            const ng = ctx.createGain();
+            ng.gain.setValueAtTime(0.06, t0);
+            ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.045);
+            src.connect(lp);
+            lp.connect(ng);
+            ng.connect(ctx.destination);
+            src.start(t0, Math.random() * 0.8);
+            src.stop(t0 + 0.05);
+          }
         } else {
+          // TESLA RAILGUN (Dynamo): Crisp electromagnetic rail-snap + lowpass sawtooth punch
+          const osc = ctx.createOscillator();
+          const lp = ctx.createBiquadFilter();
+          const gain = ctx.createGain();
+          lp.type = 'lowpass';
+          lp.frequency.setValueAtTime(2400, t0);
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(760 * pitchBoost, t0);
-          osc.frequency.exponentialRampToValueAtTime(240, t0 + 0.06);
-          gain.gain.setValueAtTime(0.075, t0);
-          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.065);
+          osc.frequency.setValueAtTime(520 * pitchBoost, t0);
+          osc.frequency.exponentialRampToValueAtTime(130, t0 + 0.072);
+          gain.gain.setValueAtTime(0.095, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.076);
+          osc.connect(lp);
+          lp.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.082);
+
+          if (nBuf) {
+            const src = ctx.createBufferSource();
+            src.buffer = nBuf;
+            const hp = ctx.createBiquadFilter();
+            hp.type = 'highpass';
+            hp.frequency.setValueAtTime(1800, t0);
+            const ng = ctx.createGain();
+            ng.gain.setValueAtTime(0.08, t0);
+            ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.014);
+            src.connect(hp);
+            hp.connect(ng);
+            ng.connect(ctx.destination);
+            src.start(t0, Math.random() * 0.8);
+            src.stop(t0 + 0.018);
+          }
         }
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(t0);
-        osc.stop(t0 + 0.085);
       } catch (e) {}
     }
 
@@ -474,22 +555,139 @@
       this._vibrate([60, 40, 80, 40, 120]);
     }
 
-    // === CHANGED (v387): Skill & Voidbloom Procedural SFX ===
-    playSeekerLockOn() {
+    // === CHANGED (v392): Distinct 2nd-Skill Missile Lock-On & Launch SFX ===
+    playSeekerLockOn(mode = 'dynamo') {
       if (this.isMuted) return;
       this.init();
-      this.playTone(1180, 'sine', 0.06, 0.14);
-      setTimeout(() => this.playTone(1560, 'triangle', 0.08, 0.14), 55);
+      if (mode === 'helix') {
+        this.playTone(587.33, 'sine', 0.07, 0.12);
+        setTimeout(() => this.playTone(880.0, 'sine', 0.08, 0.11), 50);
+      } else if (mode === 'meteor') {
+        this.playTone(440, 'triangle', 0.065, 0.14);
+        setTimeout(() => this.playTone(660, 'triangle', 0.08, 0.14), 55);
+      } else {
+        this.playTone(880, 'triangle', 0.045, 0.13);
+        setTimeout(() => this.playTone(1320, 'triangle', 0.055, 0.12), 45);
+      }
       this._vibrate(10);
     }
 
-    playSeekerLaunch() {
+    playSeekerLaunch(mode = 'dynamo') {
       if (this.isMuted) return;
       this.init();
-      const pitches = [420, 560, 720, 920];
-      pitches.forEach((f, idx) => {
-        setTimeout(() => this.playTone(f, 'sawtooth', 0.11, 0.12), idx * 28);
-      });
+      try {
+        const ctx = this.ctx;
+        const nBuf = this._ensureSfxNoise();
+        const tBase = ctx.currentTime;
+        if (mode === 'helix') {
+          // PRISM SWARM: 6-note warm mid-register harmonic crystal cascade + soft launch whoosh
+          const notes = [293.66, 369.99, 440.0, 554.37, 659.25, 739.99];
+          notes.forEach((f, idx) => {
+            const ts = tBase + idx * 0.022;
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, ts);
+            g.gain.setValueAtTime(0.0001, ts);
+            g.gain.exponentialRampToValueAtTime(0.085, ts + 0.006);
+            g.gain.exponentialRampToValueAtTime(0.0001, ts + 0.14);
+            osc.connect(g);
+            g.connect(ctx.destination);
+            osc.start(ts);
+            osc.stop(ts + 0.15);
+          });
+          const sw = ctx.createOscillator();
+          const swG = ctx.createGain();
+          sw.type = 'sine';
+          sw.frequency.setValueAtTime(110, tBase);
+          sw.frequency.exponentialRampToValueAtTime(48, tBase + 0.18);
+          swG.gain.setValueAtTime(0.14, tBase);
+          swG.gain.exponentialRampToValueAtTime(0.0001, tBase + 0.20);
+          sw.connect(swG);
+          swG.connect(ctx.destination);
+          sw.start(tBase);
+          sw.stop(tBase + 0.22);
+        } else if (mode === 'meteor') {
+          // SEEKER COMETS: Deep volcanic mortar ignition + roaring comet fire whoosh
+          const sub = ctx.createOscillator();
+          const sg = ctx.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(155, tBase);
+          sub.frequency.exponentialRampToValueAtTime(44, tBase + 0.22);
+          sg.gain.setValueAtTime(0.24, tBase);
+          sg.gain.exponentialRampToValueAtTime(0.0001, tBase + 0.25);
+          sub.connect(sg);
+          sg.connect(ctx.destination);
+          sub.start(tBase);
+          sub.stop(tBase + 0.27);
+          if (nBuf) {
+            const src = ctx.createBufferSource();
+            src.buffer = nBuf;
+            const lp = ctx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.setValueAtTime(920, tBase);
+            lp.frequency.exponentialRampToValueAtTime(280, tBase + 0.34);
+            const ng = ctx.createGain();
+            ng.gain.setValueAtTime(0.22, tBase);
+            ng.gain.exponentialRampToValueAtTime(0.0001, tBase + 0.36);
+            src.connect(lp);
+            lp.connect(ng);
+            ng.connect(ctx.destination);
+            src.start(tBase, Math.random() * 0.4);
+            src.stop(tBase + 0.38);
+          }
+          [0, 1, 2, 3].forEach((idx) => {
+            const ts = tBase + idx * 0.032;
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(260 - idx * 14, ts);
+            o.frequency.exponentialRampToValueAtTime(110, ts + 0.11);
+            g.gain.setValueAtTime(0.11, ts);
+            g.gain.exponentialRampToValueAtTime(0.0001, ts + 0.12);
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.start(ts);
+            o.stop(ts + 0.13);
+          });
+        } else {
+          // ARC SEEKERS (Dynamo): 4 rapid high-voltage capacitor cracks + punchy railgun thumps
+          [0, 1, 2, 3].forEach((idx) => {
+            const ts = tBase + idx * 0.024;
+            const o = ctx.createOscillator();
+            const lp = ctx.createBiquadFilter();
+            const g = ctx.createGain();
+            lp.type = 'lowpass';
+            lp.frequency.value = 2100;
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(340 + idx * 35, ts);
+            o.frequency.exponentialRampToValueAtTime(95, ts + 0.09);
+            g.gain.setValueAtTime(0.10, ts);
+            g.gain.exponentialRampToValueAtTime(0.0001, ts + 0.095);
+            o.connect(lp);
+            lp.connect(g);
+            g.connect(ctx.destination);
+            o.start(ts);
+            o.stop(ts + 0.10);
+            if (nBuf) {
+              const src = ctx.createBufferSource();
+              src.buffer = nBuf;
+              const bp = ctx.createBiquadFilter();
+              bp.type = 'bandpass';
+              bp.frequency.value = 1600;
+              bp.Q.value = 0.8;
+              const ng = ctx.createGain();
+              ng.gain.setValueAtTime(0.13, ts);
+              ng.gain.exponentialRampToValueAtTime(0.0001, ts + 0.022);
+              src.connect(bp);
+              bp.connect(ng);
+              ng.connect(ctx.destination);
+              src.start(ts, Math.random() * 0.6);
+              src.stop(ts + 0.026);
+            }
+          });
+        }
+      } catch (e) {}
       this._vibrate([12, 16, 12]);
     }
 
@@ -601,6 +799,44 @@
       return g;
     }
 
+    _ultShaperCurve(drive) {
+      if (!this._ultCurves) this._ultCurves = {};
+      if (this._ultCurves[drive]) return this._ultCurves[drive];
+      const curve = new Float32Array(256);
+      for (let i = 0; i < 256; i++) {
+        const x = (i / 255) * 2 - 1;
+        curve[i] = Math.tanh(x * drive);
+      }
+      this._ultCurves[drive] = curve;
+      return curve;
+    }
+
+    _ultClippedNoise(t0, dur, peak, drive, fType, fStart, fEnd, q, attack, dest) {
+      const ctx = this.ctx;
+      const bus = this._ultBus;
+      const src = ctx.createBufferSource();
+      src.buffer = bus.noise;
+      src.loop = true;
+      const f = ctx.createBiquadFilter();
+      f.type = fType;
+      f.Q.value = q;
+      f.frequency.setValueAtTime(Math.max(20, fStart), t0);
+      if (fEnd && fEnd !== fStart) f.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), t0 + dur);
+      const sh = ctx.createWaveShaper();
+      sh.curve = this._ultShaperCurve(drive || 4.0);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + Math.max(0.002, attack));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      src.connect(f);
+      f.connect(sh);
+      sh.connect(g);
+      g.connect(dest);
+      src.start(t0, Math.random() * 1.4);
+      src.stop(t0 + dur + 0.05);
+      return g;
+    }
+
     _ultKick(t0, f0, f1, dur, peak, dest) {
       const ctx = this.ctx;
       const o = ctx.createOscillator();
@@ -662,108 +898,154 @@
         const dest = bus.input;
 
         if (mode === 'dynamo') {
-          // ⚡ THUNDERSTORM — charge whine → thunderclap → crackling arcs → tesla hum → laser sweeps
-          const whineF = ctx.createBiquadFilter();
-          whineF.type = 'bandpass';
-          whineF.Q.value = 6;
-          whineF.frequency.setValueAtTime(400, T);
-          whineF.frequency.exponentialRampToValueAtTime(3600, T + 0.2);
-          whineF.connect(dest);
-          this._ultOsc('sawtooth', 90, 1800, T, 0.22, 0.20, 0.03, whineF);
-          const hit = T + 0.19;
-          this._ultKick(hit, 120, 30, 1.0, 0.95, dest);
-          this._ultNoise(hit, 1.35, 0.85, 'lowpass', 7000, 180, 0.7, 0.004, dest);   // thunderclap & rumble
-          this._ultNoise(hit, 0.18, 0.45, 'highpass', 2500, 2500, 0.7, 0.002, dest);  // crack transient
-          // Tesla hum with FM wobble
-          const humF = ctx.createBiquadFilter();
-          humF.type = 'lowpass';
-          humF.frequency.value = 1400;
-          humF.connect(dest);
-          const hum1 = this._ultOsc('sawtooth', 55, 55, hit, 1.55, 0.14, 0.08, humF);
-          this._ultOsc('sawtooth', 110, 110, hit, 1.55, 0.09, 0.08, humF, 7);
-          const lfo = ctx.createOscillator();
-          const lfoG = ctx.createGain();
-          lfo.frequency.value = 28;
-          lfoG.gain.value = 9;
-          lfo.connect(lfoG);
-          lfoG.connect(hum1.frequency);
-          lfo.start(hit);
-          lfo.stop(hit + 1.6);
-          // 24 crackling electric arc zaps spread across the storm (random stereo)
-          for (let k = 0; k < 24; k++) {
-            const tz = hit + 0.03 + Math.random() * 1.35;
-            const zp = this._ultPan(dest, Math.random() * 1.6 - 0.8);
-            const zf = ctx.createBiquadFilter();
-            zf.type = 'highpass';
-            zf.frequency.value = 900;
-            zf.connect(zp);
-            const f0 = 900 + Math.random() * 3200;
-            this._ultOsc('square', f0, f0 * (0.35 + Math.random() * 0.5), tz, 0.035 + Math.random() * 0.05, 0.10, 0.002, zf);
-            this._ultNoise(tz, 0.03, 0.22, 'highpass', 3200, 3200, 0.7, 0.001, zp);
+          // ⚡ STORM NOVA (REALISTIC THUNDERCLAP + HIGH-VOLTAGE POWER-ARC — ZERO BIRD CHIRPS!)
+          // Pre-strike magnetic transformer swell (deep 55 -> 115 Hz, lowpass 420 Hz)
+          const magF = ctx.createBiquadFilter();
+          magF.type = 'lowpass';
+          magF.frequency.value = 420;
+          magF.connect(dest);
+          this._ultOsc('sawtooth', 55, 115, T, 0.11, 0.22, 0.02, magF);
+
+          const hit = T + 0.08;
+          // 1. 4-Stroke Real Lightning Return Cracks (hard-clipped broadband noise transients across stereo)
+          [
+            { off: 0.0,   pan: 0.0,   dur: 0.088, pk: 0.85 },
+            { off: 0.026, pan: -0.45, dur: 0.068, pk: 0.72 },
+            { off: 0.064, pan: 0.50,  dur: 0.075, pk: 0.78 },
+            { off: 0.125, pan: -0.25, dur: 0.048, pk: 0.56 }
+          ].forEach((st) => {
+            const pDest = this._ultPan(dest, st.pan);
+            this._ultClippedNoise(hit + st.off, st.dur, st.pk, 8.5, 'bandpass', 1050, 1050, 0.55, 0.002, pDest);
+            this._ultClippedNoise(hit + st.off, 0.028, st.pk * 0.52, 6.0, 'highpass', 1500, 1500, 0.5, 0.001, pDest);
+          });
+
+          // 2. Colossal Sub-Bass Thunder Detonation
+          this._ultKick(hit, 96, 23, 1.35, 1.0, dest);
+          this._ultKick(hit + 0.064, 78, 25, 0.95, 0.72, dest);
+          const subT = ctx.createBiquadFilter();
+          subT.type = 'lowpass';
+          subT.frequency.value = 170;
+          subT.connect(dest);
+          this._ultOsc('sawtooth', 48, 24, hit, 1.45, 0.36, 0.008, subT);
+
+          // 3. Rolling Stereo Thunderhead Sky-Rumble (1.90s clipped brown rumble modulated by 5.8 Hz AM roll)
+          const rollL = this._ultClippedNoise(hit + 0.02, 1.88, 0.68, 3.2, 'lowpass', 820, 95, 0.75, 0.015, this._ultPan(dest, -0.65));
+          const rollR = this._ultClippedNoise(hit + 0.05, 1.88, 0.66, 3.2, 'lowpass', 780, 90, 0.75, 0.02, this._ultPan(dest, 0.65));
+          const rollLfo = ctx.createOscillator();
+          const rollLfoG = ctx.createGain();
+          rollLfo.frequency.value = 5.8;
+          rollLfoG.gain.value = 0.22;
+          rollLfo.connect(rollLfoG);
+          rollLfoG.connect(rollL.gain);
+          rollLfoG.connect(rollR.gain);
+          rollLfo.start(hit);
+          rollLfo.stop(hit + 1.92);
+
+          // 4. Raw 60/120/180 Hz High-Voltage Transformer / Jacob's-Ladder Arc Tear (overdriven sawtooths)
+          const arcSh = ctx.createWaveShaper();
+          arcSh.curve = this._ultShaperCurve(4.5);
+          const arcF = ctx.createBiquadFilter();
+          arcF.type = 'lowpass';
+          arcF.frequency.value = 580;
+          arcSh.connect(arcF);
+          arcF.connect(dest);
+          this._ultOsc('sawtooth', 60, 60, hit, 1.55, 0.16, 0.03, arcSh);
+          this._ultOsc('sawtooth', 120, 120, hit, 1.55, 0.11, 0.03, arcSh, 5);
+          this._ultOsc('sawtooth', 180, 180, hit, 1.55, 0.07, 0.03, arcSh, -6);
+
+          // 16 Unpitched Broadband Static Arc Snaps (strictly short bandpass noise — ZERO oscillators!)
+          for (let k = 0; k < 16; k++) {
+            const tz = hit + 0.06 + Math.random() * 1.45;
+            const cf = 1400 + Math.random() * 800;
+            this._ultClippedNoise(tz, 0.008 + Math.random() * 0.008, 0.28, 7.0, 'bandpass', cf, cf, 0.75, 0.001, this._ultPan(dest, Math.random() * 1.5 - 0.75));
           }
-          // Descending plasma laser sweeps
-          [0.22, 0.52, 0.86].forEach((off, i) => {
-            const lp = this._ultPan(dest, i === 1 ? 0.6 : -0.6);
-            this._ultOsc('sine', 2600, 260, hit + off, 0.28, 0.11, 0.004, lp);
+
+          // 5. Heavy Low-Register Storm Brass Undertow (D2 / A2 / D3 power fifth)
+          const stormF = ctx.createBiquadFilter();
+          stormF.type = 'lowpass';
+          stormF.Q.value = 0.9;
+          stormF.frequency.setValueAtTime(950, hit);
+          stormF.frequency.exponentialRampToValueAtTime(320, hit + 1.2);
+          stormF.connect(dest);
+          [73.42, 110.0, 146.83].forEach((f, i) => {
+            this._ultOsc('sawtooth', f, f, hit + 0.02, 1.25, 0.075, 0.03, stormF, i * 6 - 6);
           });
-          // Electric power-chord stab (D5)
-          const stabF = ctx.createBiquadFilter();
-          stabF.type = 'lowpass';
-          stabF.frequency.setValueAtTime(3200, hit);
-          stabF.frequency.exponentialRampToValueAtTime(500, hit + 0.8);
-          stabF.connect(dest);
-          [146.83, 220.0, 293.66].forEach((f, i) => {
-            this._ultOsc('square', f, f, hit, 0.85, 0.05, 0.01, stabF, i * 6 - 6);
-          });
-          this._vibrate([40, 20, 60, 20, 30, 20, 90]);
+          this._vibrate([50, 20, 75, 20, 35, 20, 100]);
 
         } else if (mode === 'helix') {
-          // 🧬 QUANTUM GENESIS — whoosh → impact → ethereal stereo choir → spiralling crystal arpeggio
-          this._ultNoise(T, 0.38, 0.30, 'bandpass', 220, 6500, 2.2, 0.25, dest);
-          const hit = T + 0.24;
-          this._ultKick(hit, 115, 34, 0.95, 0.78, dest);
-          this._ultNoise(hit, 1.2, 0.22, 'highpass', 2600, 6000, 0.7, 0.004, dest);
-          // Ethereal Lydian choir pad (detuned saws, vibrato, alternating stereo)
-          const padF = ctx.createBiquadFilter();
-          padF.type = 'lowpass';
-          padF.frequency.setValueAtTime(900, hit);
-          padF.frequency.exponentialRampToValueAtTime(2600, hit + 0.6);
-          padF.connect(dest);
-          const vib = ctx.createOscillator();
-          const vibG = ctx.createGain();
-          vib.frequency.value = 5.2;
-          vibG.gain.value = 6;
-          vib.connect(vibG);
-          vib.start(hit);
-          vib.stop(hit + 2.0);
-          [293.66, 369.99, 440.0, 554.37, 659.25].forEach((f, i) => {
-            const pp = this._ultPan(padF, i % 2 === 0 ? -0.55 : 0.55);
-            const oA = this._ultOsc('sawtooth', f, f, hit, 1.9, 0.045, 0.28, pp, -9);
-            const oB = this._ultOsc('sawtooth', f, f, hit, 1.9, 0.045, 0.28, pp, 9);
-            vibG.connect(oA.frequency);
-            vibG.connect(oB.frequency);
+          // 🧬 GENESIS NOVA (HEAVY GRAVITATIONAL SUB-DROP + 12-VOICE WARM SYNTH-BRASS — ZERO WHISTLE!)
+          // Warm low vacuum inward swell
+          this._ultNoise(T, 0.18, 0.28, 'lowpass', 180, 780, 0.7, 0.12, dest);
+
+          const hit = T + 0.11;
+          // 1. Heavy Quantum Gravitational Sub-Drop + Chest Impact Punch
+          this._ultKick(hit, 118, 26, 1.30, 0.98, dest);
+          this._ultClippedNoise(hit, 0.16, 0.46, 3.5, 'lowpass', 680, 140, 0.7, 0.003, dest);
+          const d1 = ctx.createBiquadFilter();
+          d1.type = 'lowpass';
+          d1.frequency.value = 140;
+          d1.connect(dest);
+          this._ultOsc('sine', 36.71, 36.71, hit, 1.65, 0.34, 0.012, d1);
+
+          // 2. Commanding 12-Voice Warm Cinema Synth-Brass Wall (D2..F#4 through non-whistling Q=0.80 LPF)
+          const brassLP = ctx.createBiquadFilter();
+          brassLP.type = 'lowpass';
+          brassLP.Q.value = 0.80;
+          brassLP.frequency.setValueAtTime(220, hit);
+          brassLP.frequency.exponentialRampToValueAtTime(1280, hit + 0.38);
+          brassLP.frequency.exponentialRampToValueAtTime(460, hit + 1.75);
+          brassLP.connect(dest);
+          [73.42, 110.0, 146.83, 220.0, 293.66, 369.99].forEach((f, i) => {
+            const pDest = this._ultPan(brassLP, i % 2 === 0 ? -0.6 : 0.6);
+            this._ultOsc('sawtooth', f, f, hit, 1.80, 0.068, 0.045, pDest, -10);
+            this._ultOsc('triangle', f, f, hit, 1.80, 0.068, 0.045, pDest, 10);
           });
-          // Crystal FM arpeggio spiralling L↔R like a double helix
-          [587.33, 739.99, 880.0, 1108.73, 1318.51, 1760.0, 2217.46, 2637.02].forEach((f, i) => {
-            const pan = Math.sin(i * 1.15) * 0.85;
-            this._ultFmBell(hit + 0.02 + i * 0.062, f, 0.62, 0.085, this._ultPan(dest, pan));
+
+          // 3. Biotic Double-Helix Sub-Thrum (10.5 Hz AM pulse through warm lowpass 520 Hz)
+          const thrumF = ctx.createBiquadFilter();
+          thrumF.type = 'lowpass';
+          thrumF.frequency.value = 520;
+          thrumF.connect(dest);
+          const thrumG = ctx.createGain();
+          thrumG.gain.value = 0.85;
+          thrumG.connect(thrumF);
+          this._ultOsc('triangle', 73.42, 73.42, hit, 1.65, 0.14, 0.03, thrumG);
+          this._ultOsc('triangle', 146.83, 146.83, hit, 1.65, 0.11, 0.03, thrumG, 4);
+          const bioLfo = ctx.createOscillator();
+          const bioLfoG = ctx.createGain();
+          bioLfo.frequency.value = 10.5;
+          bioLfoG.gain.value = 0.32;
+          bioLfo.connect(bioLfoG);
+          bioLfoG.connect(thrumG.gain);
+          bioLfo.start(hit);
+          bioLfo.stop(hit + 1.68);
+
+          // 4. Warm Mid-Register Harmonic Plucks (strictly <= 740 Hz — crystalline warmth, zero whistle!)
+          const plkF = ctx.createBiquadFilter();
+          plkF.type = 'lowpass';
+          plkF.frequency.value = 1400;
+          plkF.connect(dest);
+          [220.0, 293.66, 369.99, 440.0, 587.33, 739.99].forEach((f, i) => {
+            const tp = hit + 0.03 + i * 0.055;
+            const pp = this._ultPan(plkF, Math.sin(i * 1.1) * 0.72);
+            this._ultOsc('triangle', f, f, tp, 0.42, 0.075, 0.008, pp);
+            this._ultOsc('sine', f * 0.5, f * 0.5, tp, 0.45, 0.055, 0.008, pp);
           });
-          // Sparkle glissando shimmer
-          this._ultOsc('sine', 2100, 5200, hit + 0.5, 0.7, 0.045, 0.05, this._ultPan(dest, 0.4));
-          this._ultOsc('sine', 2400, 5800, hit + 0.62, 0.7, 0.035, 0.05, this._ultPan(dest, -0.4));
-          this._vibrate([30, 25, 45, 25, 70]);
+          this._vibrate([45, 25, 65, 25, 95]);
 
         } else {
-          // ☄️ SOLAR ERUPTION — riser → sub impact → roaring fire + crackles → brass power chord → bells
-          this._ultNoise(T, 0.24, 0.28, 'bandpass', 280, 3200, 1.6, 0.18, dest);
-          const hit = T + 0.19;
-          this._ultKick(hit, 140, 28, 1.05, 1.0, dest);
+          // 🌋 CALDERA NOVA (Meteor) — Seismic tectonic sub-crack + roaring volcano fire + crackles + C2/C3 brass + bells
+          this._ultNoise(T, 0.22, 0.28, 'bandpass', 240, 2200, 1.1, 0.16, dest);
+          const hit = T + 0.16;
+          this._ultKick(hit, 140, 26, 1.10, 1.0, dest);
+          this._ultKick(hit + 0.04, 64, 22, 1.35, 0.85, dest);
           const subF = ctx.createBiquadFilter();
           subF.type = 'lowpass';
-          subF.frequency.value = 320;
+          subF.frequency.value = 240;
           subF.connect(dest);
-          this._ultOsc('sawtooth', 72, 30, hit, 1.0, 0.32, 0.01, subF);
-          this._ultNoise(hit, 0.7, 0.48, 'highpass', 900, 600, 0.7, 0.003, dest);        // impact crash
+          this._ultOsc('sawtooth', 72, 28, hit, 1.15, 0.34, 0.01, subF);
+          this._ultClippedNoise(hit + 0.01, 1.45, 0.38, 2.8, 'lowpass', 240, 95, 0.7, 0.02, dest); // seismic magma rumble bed
+          this._ultNoise(hit, 0.7, 0.48, 'highpass', 900, 600, 0.7, 0.003, dest);
           // Roaring fire body with crackling tremolo
           const fireG = this._ultNoise(hit + 0.02, 1.65, 0.46, 'lowpass', 1100, 420, 0.9, 0.08, dest);
           const trem = ctx.createOscillator();
@@ -778,25 +1060,27 @@
           for (let k = 0; k < 16; k++) {
             const tc = hit + 0.05 + Math.random() * 1.4;
             const cf = 1800 + Math.random() * 3500;
-            this._ultNoise(tc, 0.03, 0.30, 'bandpass', cf, cf, 4, 0.001, this._ultPan(dest, Math.random() * 1.6 - 0.8));
+            this._ultNoise(tc, 0.03, 0.30, 'bandpass', cf, cf, 3.2, 0.001, this._ultPan(dest, Math.random() * 1.6 - 0.8));
           }
-          // Triumphant brass power chord with filter swell (C major)
+          // Triumphant brass power chord with deep C2 contrabass foundation
           const brassF = ctx.createBiquadFilter();
           brassF.type = 'lowpass';
-          brassF.Q.value = 2;
-          brassF.frequency.setValueAtTime(380, hit);
-          brassF.frequency.exponentialRampToValueAtTime(3400, hit + 0.42);
-          brassF.frequency.exponentialRampToValueAtTime(900, hit + 1.4);
+          brassF.Q.value = 1.6;
+          brassF.frequency.setValueAtTime(340, hit);
+          brassF.frequency.exponentialRampToValueAtTime(3100, hit + 0.40);
+          brassF.frequency.exponentialRampToValueAtTime(820, hit + 1.45);
           brassF.connect(dest);
+          this._ultOsc('sawtooth', 65.41, 65.41, hit + 0.01, 1.50, 0.085, 0.06, brassF, -6);
+          this._ultOsc('sawtooth', 65.41, 65.41, hit + 0.01, 1.50, 0.085, 0.06, brassF, 6);
           [130.81, 196.0, 261.63, 329.63, 392.0].forEach((f, i) => {
             this._ultOsc('sawtooth', f, f, hit + 0.02, 1.45, 0.06, 0.07, brassF, -7);
             this._ultOsc('sawtooth', f, f, hit + 0.02, 1.45, 0.05, 0.07, brassF, 7 + i);
           });
           // Golden shimmer bells
           [1046.5, 1318.51, 1567.98, 2093.0].forEach((f, i) => {
-            this._ultFmBell(hit + 0.24 + i * 0.075, f, 0.6, 0.07, this._ultPan(dest, i % 2 ? 0.5 : -0.5));
+            this._ultFmBell(hit + 0.24 + i * 0.075, f, 0.6, 0.065, this._ultPan(dest, i % 2 ? 0.5 : -0.5));
           });
-          this._vibrate([60, 30, 90, 30, 140]);
+          this._vibrate([65, 30, 95, 30, 145]);
         }
       } catch (e) {}
     }
@@ -2772,23 +3056,27 @@
           ctx.fill();
         }
 
-        // === CHANGED (v390): BIGGER 3D Sculpted Seeking Missile (1.8x larger with volumetric exhaust!) ===
+        // === CHANGED (v392): Mode-Unique Micro-Missile Rendering (Blue Dynamo Torpedo vs Fiery Meteor vs Crystal Helix) ===
         ctx.save();
         ctx.translate(m.x, m.y);
         ctx.globalAlpha = 1.0;
-        if (VfxUltraAssets.loaded.seekerMissile && VfxUltraAssets.seekerMissile && VfxUltraAssets.seekerMissile.naturalWidth > 0) {
+        if (mMode === 'dynamo' && VfxUltraAssets.loaded.seekerMissile && VfxUltraAssets.seekerMissile && VfxUltraAssets.seekerMissile.naturalWidth > 0) {
           ctx.rotate(m.angle + Math.PI * 0.5);
           const mw = 46;
           const mh = 70;
-          const mGlow = QuantumRenderer._getGlowSprite(mMode === 'meteor' ? 'amber' : (mMode === 'helix' ? 'helix' : 'cyan'));
+          const mGlow = QuantumRenderer._getGlowSprite('cyan');
           ctx.globalAlpha = 0.70;
           ctx.drawImage(mGlow, -28, -28, 56, 56);
           ctx.globalAlpha = 1.0;
           ctx.drawImage(VfxUltraAssets.seekerMissile, -mw * 0.5, -mh * 0.44, mw, mh);
           ctx.restore();
         } else {
+        const mGlow = QuantumRenderer._getGlowSprite(mMode === 'meteor' ? 'amber' : (mMode === 'helix' ? 'helix' : 'cyan'));
+        ctx.globalAlpha = 0.75;
+        ctx.drawImage(mGlow, -26, -26, 52, 52);
+        ctx.globalAlpha = 1.0;
         ctx.rotate(m.angle);
-        ctx.scale(1.8, 1.8);
+        ctx.scale(2.15, 2.15);
 
         // Rocket Motor Flame & Mach Shock Diamonds
         if (m.stage === 2) {
@@ -6472,6 +6760,12 @@
       ult: 'CALDERA NOVA',
       voidbloom: 'VOIDBLOOM NODE'
     },
+    // === CHANGED (v392): Per-Realm Weapon, 2nd-Skill Missile & Ultimate Signatures ===
+    realmArsenal: {
+      dynamo: { gun: 'TESLA RAILGUN', skill2: 'ARC SEEKERS',   ult: 'STORM NOVA',   s2Icon: '⚡', ultIcon: '🌩️', s2Count: 4, s2Dmg: 3.0 },
+      helix:  { gun: 'HELIX CASTER',  skill2: 'PRISM SWARM',   ult: 'GENESIS NOVA', s2Icon: '💠', ultIcon: '🧬', s2Count: 6, s2Dmg: 2.0 },
+      meteor: { gun: 'EMBER CANNON',  skill2: 'SEEKER COMETS', ult: 'CALDERA NOVA', s2Icon: '☄️', ultIcon: '🌋', s2Count: 4, s2Dmg: 3.0 }
+    },
     ui: {
       gunBtnSize: 96,
       skill2BtnSize: 68,
@@ -6487,15 +6781,15 @@
     },
     skill2: {
       cooldownMs: 8000,      // SKILL2_CD = 8 s
-      missileCount: 4,       // Volley of 4 homing missiles
+      missileCount: 4,       // Default volley size (overridden per-realm via getRealmArsenal().s2Count)
       lockOnMs: 300,         // ~0.3 s target lock-on reticles before launch
-      damageMultiplier: 3.0, // ~3x normal shot damage each
+      damageMultiplier: 3.0, // Default per-missile multiplier (12x total volley burst across realms)
       speed: 14.5,
       turnRate: 0.24,
       poolSize: 24
     },
     ult: {
-      cooldownMs: 35000,     // ULT_CD = 35 s
+      cooldownMs: 20000,     // === CHANGED (v392): Reduced ULT_CD from 35s to 20s ===
       bossMaxHpPct: 0.15,    // Deals EXACT certain 15% of boss max HP (no crit / armor-break inflation)
       bossPylonDmg: 6,       // Certain fixed damage to active shield pylons (no instant wipe)
       invulnMs: 2050,        // 2.05 s invulnerability on cast
@@ -6525,6 +6819,12 @@
       particlePoolSize: 96
     }
   };
+
+  function getRealmArsenal(modeOverride) {
+    const raw = modeOverride || (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
+    const key = (raw === 'helix') ? 'helix' : (raw === 'meteor' ? 'meteor' : 'dynamo');
+    return CONFIG.realmArsenal[key] || CONFIG.realmArsenal.dynamo;
+  }
 
   const FIRE_DELAY = CONFIG.gun.fireDelayMs;
 
@@ -6588,12 +6888,21 @@
     skill2CdTextEl: null,
     ultSweepEl: null,
     ultCdTextEl: null,
+    ultIconEl: null,
+    ultCapEl: null,
+    skill2IconEl: null,
+    skill2SubEl: null,
+    skill2CapEl: null,
+    gunCapEl: null,
     deskHudEl: null,
     deskGunChip: null,
+    deskGunName: null,
     deskGunStatus: null,
     deskSkill2Chip: null,
+    deskSkill2Name: null,
     deskSkill2Status: null,
     deskUltChip: null,
+    deskUltName: null,
     deskUltStatus: null,
     _emptyFlashTimer: null,
     _lastEmptyFlashAt: 0,
@@ -6601,6 +6910,7 @@
     _cachedAmmoStr: null,
     _cachedHidden: null,
     _cachedDeskHidden: null,
+    _cachedRealmMode: null,
 
     init() {
       if (this._initialized) return;
@@ -6781,32 +7091,33 @@
       cluster.className = 'oc-touch-hidden' + (this.leftHanded ? ' left-handed' : '');
       cluster.setAttribute('aria-label', 'Touch Combat Controls');
 
+      const ars = getRealmArsenal();
       cluster.innerHTML =
         '<div class="oc-touch-pad-wrap oc-pad-wrap-ult">' +
-          '<div role="button" tabindex="-1" id="ocTouchUltBtn" class="oc-touch-pad" aria-label="' + CONFIG.names.ult + '">' +
-            '<span class="oc-pad-icon">☄️</span>' +
+          '<div role="button" tabindex="-1" id="ocTouchUltBtn" class="oc-touch-pad" aria-label="' + ars.ult + '">' +
+            '<span class="oc-pad-icon" id="ocTouchUltIcon">' + ars.ultIcon + '</span>' +
             '<span class="oc-fire-sub">ULT</span>' +
             '<div class="oc-cd-sweep" id="ocTouchUltSweep"></div>' +
             '<div class="oc-cd-text" id="ocTouchUltCdText"></div>' +
           '</div>' +
-          '<span class="oc-pad-caption">' + CONFIG.names.ult + '</span>' +
+          '<span class="oc-pad-caption" id="ocTouchUltCap">' + ars.ult + '</span>' +
         '</div>' +
         '<div class="oc-touch-pad-wrap oc-pad-wrap-skill2">' +
-          '<div role="button" tabindex="-1" id="ocTouchSkill2Btn" class="oc-touch-pad" aria-label="' + CONFIG.names.skill2 + '">' +
-            '<span class="oc-pad-icon">🚀</span>' +
-            '<span class="oc-fire-sub">4×</span>' +
+          '<div role="button" tabindex="-1" id="ocTouchSkill2Btn" class="oc-touch-pad" aria-label="' + ars.skill2 + '">' +
+            '<span class="oc-pad-icon" id="ocTouchSkill2Icon">' + ars.s2Icon + '</span>' +
+            '<span class="oc-fire-sub" id="ocTouchSkill2Sub">' + ars.s2Count + '×</span>' +
             '<div class="oc-cd-sweep" id="ocTouchSkill2Sweep"></div>' +
             '<div class="oc-cd-text" id="ocTouchSkill2CdText"></div>' +
           '</div>' +
-          '<span class="oc-pad-caption">' + CONFIG.names.skill2 + '</span>' +
+          '<span class="oc-pad-caption" id="ocTouchSkill2Cap">' + ars.skill2 + '</span>' +
         '</div>' +
         '<div class="oc-touch-pad-wrap oc-pad-wrap-gun">' +
-          '<div role="button" tabindex="-1" id="ocTouchGunBtn" class="oc-touch-pad" aria-label="' + CONFIG.names.gun + '">' +
+          '<div role="button" tabindex="-1" id="ocTouchGunBtn" class="oc-touch-pad" aria-label="' + ars.gun + '">' +
             '<span class="oc-fire-label">FIRE</span>' +
             '<span class="oc-fire-ammo" id="ocTouchFireAmmo">0</span>' +
             '<span class="oc-fire-sub">HOLD</span>' +
           '</div>' +
-          '<span class="oc-pad-caption">' + CONFIG.names.gun + '</span>' +
+          '<span class="oc-pad-caption" id="ocTouchGunCap">' + ars.gun + '</span>' +
         '</div>';
 
       host.appendChild(cluster);
@@ -6819,6 +7130,12 @@
       this.skill2CdTextEl = cluster.querySelector('#ocTouchSkill2CdText');
       this.ultSweepEl = cluster.querySelector('#ocTouchUltSweep');
       this.ultCdTextEl = cluster.querySelector('#ocTouchUltCdText');
+      this.ultIconEl = cluster.querySelector('#ocTouchUltIcon');
+      this.ultCapEl = cluster.querySelector('#ocTouchUltCap');
+      this.skill2IconEl = cluster.querySelector('#ocTouchSkill2Icon');
+      this.skill2SubEl = cluster.querySelector('#ocTouchSkill2Sub');
+      this.skill2CapEl = cluster.querySelector('#ocTouchSkill2Cap');
+      this.gunCapEl = cluster.querySelector('#ocTouchGunCap');
 
       // Apply configurable button sizes from CONFIG
       if (this.gunBtn) {
@@ -6845,6 +7162,7 @@
 
       this._cachedAmmoStr = null;
       this._cachedHidden = true;
+      this._cachedRealmMode = null;
       return cluster;
     },
 
@@ -6856,6 +7174,7 @@
       const host = dom.viewReflex || document.getElementById('cgViewReflex');
       if (!host) return null;
 
+      const ars = getRealmArsenal();
       const hud = document.createElement('div');
       hud.id = 'ocDesktopSkillHud';
       hud.className = 'oc-desk-hidden';
@@ -6863,14 +7182,14 @@
         '<div class="oc-desk-chip" data-skill="gun" id="ocDeskGunChip">' +
           '<span class="oc-desk-keycap">A</span>' +
           '<div class="oc-desk-meta">' +
-            '<span class="oc-desk-name">' + CONFIG.names.gun + '</span>' +
+            '<span class="oc-desk-name" id="ocDeskGunName">' + ars.gun + '</span>' +
             '<span class="oc-desk-status" id="ocDeskGunStatus">HOLD</span>' +
           '</div>' +
         '</div>' +
         '<div class="oc-desk-chip" data-skill="skill2" id="ocDeskSkill2Chip">' +
           '<span class="oc-desk-keycap">S</span>' +
           '<div class="oc-desk-meta">' +
-            '<span class="oc-desk-name">' + CONFIG.names.skill2 + '</span>' +
+            '<span class="oc-desk-name" id="ocDeskSkill2Name">' + ars.skill2 + '</span>' +
             '<span class="oc-desk-status" id="ocDeskSkill2Status">READY</span>' +
           '</div>' +
           '<div class="oc-desk-cdbar" id="ocDeskSkill2Bar"></div>' +
@@ -6878,7 +7197,7 @@
         '<div class="oc-desk-chip" data-skill="ult" id="ocDeskUltChip">' +
           '<span class="oc-desk-keycap">D</span>' +
           '<div class="oc-desk-meta">' +
-            '<span class="oc-desk-name">' + CONFIG.names.ult + '</span>' +
+            '<span class="oc-desk-name" id="ocDeskUltName">' + ars.ult + '</span>' +
             '<span class="oc-desk-status" id="ocDeskUltStatus">READY</span>' +
           '</div>' +
           '<div class="oc-desk-cdbar" id="ocDeskUltBar"></div>' +
@@ -6887,14 +7206,18 @@
       host.appendChild(hud);
       this.deskHudEl = hud;
       this.deskGunChip = hud.querySelector('#ocDeskGunChip');
+      this.deskGunName = hud.querySelector('#ocDeskGunName');
       this.deskGunStatus = hud.querySelector('#ocDeskGunStatus');
       this.deskSkill2Chip = hud.querySelector('#ocDeskSkill2Chip');
+      this.deskSkill2Name = hud.querySelector('#ocDeskSkill2Name');
       this.deskSkill2Status = hud.querySelector('#ocDeskSkill2Status');
       this.deskSkill2Bar = hud.querySelector('#ocDeskSkill2Bar');
       this.deskUltChip = hud.querySelector('#ocDeskUltChip');
+      this.deskUltName = hud.querySelector('#ocDeskUltName');
       this.deskUltStatus = hud.querySelector('#ocDeskUltStatus');
       this.deskUltBar = hud.querySelector('#ocDeskUltBar');
       this._cachedDeskHidden = true;
+      this._cachedRealmMode = null;
       return hud;
     },
 
@@ -6915,8 +7238,15 @@
       this.skill2CdTextEl = null;
       this.ultSweepEl = null;
       this.ultCdTextEl = null;
+      this.ultIconEl = null;
+      this.ultCapEl = null;
+      this.skill2IconEl = null;
+      this.skill2SubEl = null;
+      this.skill2CapEl = null;
+      this.gunCapEl = null;
       this._cachedAmmoStr = null;
       this._cachedHidden = null;
+      this._cachedRealmMode = null;
     },
 
     destroyDesktopHud() {
@@ -6925,14 +7255,18 @@
       }
       this.deskHudEl = null;
       this.deskGunChip = null;
+      this.deskGunName = null;
       this.deskGunStatus = null;
       this.deskSkill2Chip = null;
+      this.deskSkill2Name = null;
       this.deskSkill2Status = null;
       this.deskSkill2Bar = null;
       this.deskUltChip = null;
+      this.deskUltName = null;
       this.deskUltStatus = null;
       this.deskUltBar = null;
       this._cachedDeskHidden = null;
+      this._cachedRealmMode = null;
     },
 
     releasePointer(pointerId) {
@@ -7024,7 +7358,28 @@
       setTimeout(() => { if (el) el.classList.remove(cls); }, kind === 'ready' ? 440 : 280);
     },
 
+    _syncRealmLabels() {
+      const raw = (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
+      const curMode = (raw === 'helix') ? 'helix' : (raw === 'meteor' ? 'meteor' : 'dynamo');
+      if (this._cachedRealmMode === curMode) return;
+      this._cachedRealmMode = curMode;
+      const ars = getRealmArsenal(curMode);
+      if (this.ultIconEl) this.ultIconEl.textContent = ars.ultIcon;
+      if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
+      if (this.ultBtn) this.ultBtn.setAttribute('aria-label', ars.ult);
+      if (this.skill2IconEl) this.skill2IconEl.textContent = ars.s2Icon;
+      if (this.skill2SubEl) this.skill2SubEl.textContent = `${ars.s2Count}×`;
+      if (this.skill2CapEl) this.skill2CapEl.textContent = ars.skill2;
+      if (this.skill2Btn) this.skill2Btn.setAttribute('aria-label', ars.skill2);
+      if (this.gunCapEl) this.gunCapEl.textContent = ars.gun;
+      if (this.gunBtn) this.gunBtn.setAttribute('aria-label', ars.gun);
+      if (this.deskGunName) this.deskGunName.textContent = ars.gun;
+      if (this.deskSkill2Name) this.deskSkill2Name.textContent = ars.skill2;
+      if (this.deskUltName) this.deskUltName.textContent = ars.ult;
+    },
+
     syncSkillCooldownUI() {
+      this._syncRealmLabels();
       const s2Rem = Math.max(0, SkillSystem.skill2CdMs || 0);
       const s2Max = CONFIG.skill2.cooldownMs;
       const uRem = Math.max(0, SkillSystem.ultCdMs || 0);
@@ -7148,9 +7503,11 @@
     skill2CdMs: 0,
     ultCdMs: 0,
     pendingVolleys: [],   // Active 0.3s lock-on reticle telegraphs before missile launch
+    impactBursts: [],     // === CHANGED (v392): Short radial lightning bursts on Dynamo ARC SEEKER hit ===
     activeNova: null,     // Active Caldera Nova beam + expanding shockwave
     missilePool: Array.from({ length: CONFIG.skill2.poolSize }, () => ({
       active: false, x: 0, y: 0, vx: 0, vy: 0, dmg: 3.0,
+      mode: 'dynamo', seed: 0,
       targetKind: null, targetRef: null, ageMs: 0, maxAgeMs: 2800,
       trail: []
     })),
@@ -7159,6 +7516,7 @@
       this.skill2CdMs = 0;
       this.ultCdMs = 0;
       this.pendingVolleys = [];
+      this.impactBursts = [];
       this.activeNova = null;
       for (let i = 0; i < this.missilePool.length; i++) {
         this.missilePool[i].active = false;
@@ -7251,21 +7609,27 @@
       const cx = (state.catcherX || 0.5) * w;
       const cy = (state.catcherY || 0.82) * h;
 
+      const mMode = (state.catcherType === 'helix') ? 'helix' : (state.catcherType === 'meteor' ? 'meteor' : 'dynamo');
+      const ars = getRealmArsenal(mMode);
       this.skill2CdMs = CONFIG.skill2.cooldownMs;
-      const targets = this._acquireTargets(cx, cy, CONFIG.skill2.missileCount);
+      const targets = this._acquireTargets(cx, cy, ars.s2Count || CONFIG.skill2.missileCount);
       this.pendingVolleys.push({
         startAt: now,
         launchAt: now + CONFIG.skill2.lockOnMs,
+        mode: mMode,
         targets
       });
-      audio.playSeekerLockOn();
+      audio.playSeekerLockOn(mMode);
       TouchFireControls.syncSkillCooldownUI();
       return true;
     },
 
     _launchVolley(volley, cx, cy, now) {
+      const vMode = volley.mode || 'dynamo';
+      const ars = getRealmArsenal(vMode);
       const n = volley.targets.length;
-      const baseDmg = CONFIG.skill2.damageMultiplier;
+      const baseDmg = ars.s2Dmg || CONFIG.skill2.damageMultiplier;
+      const spreadStep = (n > 4) ? 0.30 : 0.42;
       for (let i = 0; i < n; i++) {
         // Grab free slot from pre-allocated pool
         let slot = null;
@@ -7273,12 +7637,14 @@
           if (!this.missilePool[k].active) { slot = this.missilePool[k]; break; }
         }
         if (!slot) slot = this.missilePool[i % this.missilePool.length];
-        const fanAngle = -Math.PI * 0.5 + (i - (n - 1) * 0.5) * 0.42;
+        const fanAngle = -Math.PI * 0.5 + (i - (n - 1) * 0.5) * spreadStep;
         slot.active = true;
-        slot.x = cx + (i - (n - 1) * 0.5) * 16;
+        slot.mode = vMode;
+        slot.seed = i;
+        slot.x = cx + (i - (n - 1) * 0.5) * (n > 4 ? 12 : 16);
         slot.y = cy - 26;
-        slot.vx = Math.cos(fanAngle) * (CONFIG.skill2.speed * 0.65);
-        slot.vy = Math.sin(fanAngle) * (CONFIG.skill2.speed * 0.65);
+        slot.vx = Math.cos(fanAngle) * (CONFIG.skill2.speed * 0.68);
+        slot.vy = Math.sin(fanAngle) * (CONFIG.skill2.speed * 0.68);
         slot.dmg = baseDmg;
         slot.targetKind = volley.targets[i].kind;
         slot.targetRef = volley.targets[i].ref;
@@ -7286,7 +7652,7 @@
         slot.maxAgeMs = 3000;
         slot.trail.length = 0;
       }
-      audio.playSeekerLaunch();
+      audio.playSeekerLaunch(vMode);
       state.globalScreenShake = Math.max(state.globalScreenShake || 0, 7);
     },
 
@@ -7354,7 +7720,8 @@
         RoundBossEngine.damageBoss(bossDmgDealt, now, true, state.boss.x, state.boss.y, true);
       }
 
-      audio.playCalderaNova(this.activeNova ? this.activeNova.mode : 'meteor');
+      const novaArs = getRealmArsenal(novaMode);
+      audio.playCalderaNova(novaMode);
       const summaryParts = [];
       if (bossDmgDealt > 0) summaryParts.push(`-${bossDmgDealt} BOSS HP`);
       if (purge.vbDestroyed > 0) summaryParts.push(`${purge.vbDestroyed} VOIDBLOOM PURGED`);
@@ -7363,7 +7730,7 @@
       state.floatingTexts.push({
         x: cx,
         y: Math.max(120, cy - 72),
-        text: `☄️ ${CONFIG.names.ult}!` + (summaryParts.length ? ` · ${summaryParts.join(' · ')}` : ' · TOTAL PURGE · INVULNERABLE'),
+        text: `${novaArs.ultIcon} ${novaArs.ult}!` + (summaryParts.length ? ` · ${summaryParts.join(' · ')}` : ' · TOTAL PURGE · INVULNERABLE'),
         color: '#fde047',
         alpha: 1.0,
         startTime: now
@@ -7469,7 +7836,7 @@
       }
       TouchFireControls.syncSkillCooldownUI();
 
-      // 2. Render & Launch 0.3s Seeker Comet Lock-On Reticles
+      // 2. Render & Launch 0.3s Realm-Unique Lock-On Reticles
       for (let i = this.pendingVolleys.length - 1; i >= 0; i--) {
         const v = this.pendingVolleys[i];
         if (now >= v.launchAt) {
@@ -7478,6 +7845,7 @@
           continue;
         }
         const prog = Math.min(1, (now - v.startAt) / CONFIG.skill2.lockOnMs);
+        const vMode = v.mode || 'dynamo';
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         for (let t = 0; t < v.targets.length; t++) {
@@ -7491,25 +7859,105 @@
           ctx.save();
           ctx.translate(tx, ty);
           ctx.rotate(rot);
-          ctx.strokeStyle = prog > 0.7 ? '#fde047' : '#22d3ee';
-          ctx.lineWidth = 2.2;
-          ctx.beginPath();
-          ctx.arc(0, 0, r, 0, Math.PI * 2);
-          ctx.stroke();
-          // 4 target lock brackets
-          for (let b = 0; b < 4; b++) {
-            const a = (b * Math.PI) / 2;
+          if (vMode === 'helix') {
+            // PRISM SWARM: Counter-rotating sacred hexagonal double-glyph (cyan hexagon + magenta triangle)
+            ctx.strokeStyle = prog > 0.7 ? '#f0abfc' : '#22d3ee';
+            ctx.lineWidth = 2.2;
             ctx.beginPath();
-            ctx.moveTo(Math.cos(a) * (r + 7), Math.sin(a) * (r + 7));
-            ctx.lineTo(Math.cos(a) * (r - 6), Math.sin(a) * (r - 6));
+            for (let hp = 0; hp <= 6; hp++) {
+              const ha = (hp / 6) * Math.PI * 2;
+              if (hp === 0) ctx.moveTo(Math.cos(ha) * r, Math.sin(ha) * r);
+              else ctx.lineTo(Math.cos(ha) * r, Math.sin(ha) * r);
+            }
             ctx.stroke();
+            ctx.rotate(-rot * 2.0);
+            ctx.strokeStyle = '#ec4899';
+            ctx.beginPath();
+            for (let tp = 0; tp <= 3; tp++) {
+              const ta = (tp / 3) * Math.PI * 2;
+              if (tp === 0) ctx.moveTo(Math.cos(ta) * r * 0.72, Math.sin(ta) * r * 0.72);
+              else ctx.lineTo(Math.cos(ta) * r * 0.72, Math.sin(ta) * r * 0.72);
+            }
+            ctx.stroke();
+          } else if (vMode === 'meteor') {
+            // SEEKER COMETS: Blazing solar ring + 4 inward-slamming molten chevrons
+            ctx.strokeStyle = prog > 0.7 ? '#fef08a' : '#f97316';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.stroke();
+            for (let b = 0; b < 4; b++) {
+              const a = (b * Math.PI) / 2;
+              ctx.save();
+              ctx.rotate(a);
+              ctx.beginPath();
+              ctx.moveTo(-6, -r - 8);
+              ctx.lineTo(0, -r + 5);
+              ctx.lineTo(6, -r - 8);
+              ctx.stroke();
+              ctx.restore();
+            }
+          } else {
+            // ARC SEEKERS (Dynamo): Rotating electric diamond + crackling corner ticks
+            ctx.strokeStyle = prog > 0.7 ? '#fde047' : '#38bdf8';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.moveTo(0, -r);
+            ctx.lineTo(r, 0);
+            ctx.lineTo(0, r);
+            ctx.lineTo(-r, 0);
+            ctx.closePath();
+            ctx.stroke();
+            for (let b = 0; b < 4; b++) {
+              const a = (b * Math.PI) / 2;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(a) * (r + 8), Math.sin(a) * (r + 8));
+              ctx.lineTo(Math.cos(a) * (r - 5), Math.sin(a) * (r - 5));
+              ctx.stroke();
+            }
           }
           ctx.restore();
         }
         ctx.restore();
       }
 
-      // 3. Update & Draw Pooled Homing Seeker Comets
+      // 2B. Render Active Dynamo Radial Lightning Detonation Bursts
+      if (this.impactBursts && this.impactBursts.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        for (let bi = this.impactBursts.length - 1; bi >= 0; bi--) {
+          const ib = this.impactBursts[bi];
+          const age = now - ib.bornAt;
+          if (age >= ib.dur) {
+            this.impactBursts.splice(bi, 1);
+            continue;
+          }
+          const ba = 1 - age / ib.dur;
+          for (let b = 0; b < 6; b++) {
+            const ang = (b / 6) * Math.PI * 2 + (ib.seed || 0) * 0.7;
+            const bx1 = ib.x + Math.cos(ang) * 46 * (1 - ba * 0.35);
+            const by1 = ib.y + Math.sin(ang) * 46 * (1 - ba * 0.35);
+            const midA = ang + (b % 2 === 0 ? 0.25 : -0.25);
+            const bmx = ib.x + Math.cos(midA) * 22;
+            const bmy = ib.y + Math.sin(midA) * 22;
+            ctx.strokeStyle = (b % 2 === 0) ? `rgba(56, 189, 248, ${ba * 0.9})` : `rgba(167, 139, 250, ${ba * 0.9})`;
+            ctx.lineWidth = 3.2;
+            ctx.beginPath();
+            ctx.moveTo(ib.x, ib.y);
+            ctx.lineTo(bmx, bmy);
+            ctx.lineTo(bx1, by1);
+            ctx.stroke();
+            ctx.strokeStyle = `rgba(255, 255, 255, ${ba * 0.95})`;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
+
+      // 3. Update & Draw Pooled Homing 2nd-Skill Missiles (Theme-Unique Kinematics, 3D Bodies & Wakes)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       for (let i = 0; i < this.missilePool.length; i++) {
@@ -7521,27 +7969,40 @@
           continue;
         }
 
+        const mMode = m.mode || 'dynamo';
+        const mSpd = (mMode === 'dynamo')
+          ? CONFIG.skill2.speed * 1.06
+          : (mMode === 'meteor' ? CONFIG.skill2.speed * (0.88 + Math.min(0.28, m.ageMs / 900)) : CONFIG.skill2.speed);
+        const turnMult = (mMode === 'dynamo') ? 1.15 : (mMode === 'helix' ? 1.05 : 1.0);
+
         const tPos = this._getLiveTargetPos(m);
         if (tPos) {
+          const distToTarget = Math.hypot(tPos.x - m.x, tPos.y - m.y);
           const desiredAngle = Math.atan2(tPos.y - m.y, tPos.x - m.x);
           const curAngle = Math.atan2(m.vy, m.vx);
           let diff = desiredAngle - curAngle;
           while (diff > Math.PI) diff -= Math.PI * 2;
           while (diff < -Math.PI) diff += Math.PI * 2;
-          const nextAngle = curAngle + diff * Math.min(1, CONFIG.skill2.turnRate * dtScale);
-          m.vx = Math.cos(nextAngle) * CONFIG.skill2.speed;
-          m.vy = Math.sin(nextAngle) * CONFIG.skill2.speed;
+          let weave = 0;
+          if (mMode === 'dynamo' && distToTarget > 90) {
+            weave = Math.sin(m.ageMs * 0.045 + (m.seed || 0) * 1.9) * 0.065;
+          } else if (mMode === 'helix' && distToTarget > 80) {
+            weave = Math.sin(m.ageMs * 0.022 + (m.seed || 0) * 1.05) * 0.09;
+          }
+          const nextAngle = curAngle + diff * Math.min(1, CONFIG.skill2.turnRate * turnMult * dtScale) + weave;
+          m.vx = Math.cos(nextAngle) * mSpd;
+          m.vy = Math.sin(nextAngle) * mSpd;
         } else {
           // Fly straight upward if sky is clear
-          m.vy = Math.min(m.vy - 0.5 * dtScale, -CONFIG.skill2.speed);
+          m.vy = Math.min(m.vy - 0.5 * dtScale, -mSpd);
         }
 
         m.x += m.vx * dtScale;
         m.y += m.vy * dtScale;
         m.trail.push({ x: m.x, y: m.y });
-        if (m.trail.length > 14) m.trail.shift();
+        if (m.trail.length > 15) m.trail.shift();
 
-        // Check Hit Detection (Hazards, Voidbloom, Boss Pylons, Boss) — generous radius matching bigger 3D missile!
+        // Check Hit Detection (Hazards, Voidbloom, Boss Pylons, Boss)
         let hit = false;
         // A. Voidbloom Nodes
         if (VoidbloomEngine.hitByShot(m.x, m.y, m.dmg, now, 'seeker')) {
@@ -7555,7 +8016,7 @@
             if (Math.hypot(m.x - pt.x, m.y - pt.y) < (pt.headR || 28) + 26) {
               if (pt.shotHp === undefined) pt.shotHp = (pt.nodeClass === 'volatile') ? 3 : 5;
               pt.shotHp -= m.dmg;
-              RoundBossEngine._spawnHitSparks(m.x, m.y, '#22d3ee', 10);
+              RoundBossEngine._spawnHitSparks(m.x, m.y, mMode === 'meteor' ? '#fb923c' : (mMode === 'helix' ? '#ec4899' : '#22d3ee'), 10);
               if (pt.shotHp <= 0) {
                 state.score += 320;
                 RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fde047', 16);
@@ -7596,61 +8057,241 @@
         }
 
         if (hit) {
-          // Explosive Cyan-Gold Shock Ring + High-Impact Spark Burst on Seeker Comet Detonation!
-          RoundBossEngine._spawnHitSparks(m.x, m.y, '#38bdf8', 12);
-          RoundBossEngine._spawnHitSparks(m.x, m.y, '#fde047', 8);
-          if (state.bossShockRings && state.bossShockRings.length < 18) {
-            state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 68, alpha: 0.92, speed: 4.8, color: '#38bdf8', harmless: true });
+          // Realm-Unique Explosive Detonation Signatures!
+          if (mMode === 'helix') {
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#ec4899', 10);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#22d3ee', 10);
+            if (state.bossShockRings && state.bossShockRings.length < 18) {
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 64, alpha: 0.92, speed: 4.8, color: '#ec4899', harmless: true });
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 4, maxR: 46, alpha: 0.88, speed: 4.2, color: '#22d3ee', harmless: true });
+            }
+          } else if (mMode === 'meteor') {
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#f97316', 18);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#fde047', 10);
+            if (state.bossShockRings && state.bossShockRings.length < 18) {
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 10, maxR: 84, alpha: 0.95, speed: 5.2, color: '#f97316', harmless: true });
+            }
+          } else {
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#a78bfa', 12);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#38bdf8', 10);
+            if (state.bossShockRings && state.bossShockRings.length < 18) {
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 70, alpha: 0.92, speed: 5.0, color: '#a855f7', harmless: true });
+            }
+            if (this.impactBursts.length < 16) {
+              this.impactBursts.push({ x: m.x, y: m.y, bornAt: now, dur: 150, seed: m.seed || i });
+            }
           }
           m.active = false;
           continue;
         }
 
-        // === CHANGED (v390): MASSIVE SCULPTED 3D SEEKER COMET TORPEDO + TAPERED PLASMA COMET PLUME ===
+        // === CHANGED (v392): DISTINCT PER-GAME 2ND-SKILL MISSILE WAKES & 3D WARHEADS ===
         const tLen = m.trail.length;
-        if (tLen > 1) {
-          ctx.lineCap = 'round';
-          for (let ti = 1; ti < tLen; ti++) {
-            const frac = ti / tLen;
-            const p0 = m.trail[ti - 1];
-            const p1 = m.trail[ti];
-            // Wide outer electric-cyan comet exhaust aura
-            ctx.strokeStyle = `rgba(34, 211, 238, ${frac * 0.52})`;
-            ctx.lineWidth = 2.5 + frac * 15.0;
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
-            ctx.stroke();
-            // Bright blazing aqua-gold inner jet ribbon
-            ctx.strokeStyle = frac > 0.65 ? `rgba(254, 240, 138, ${frac * 0.88})` : `rgba(125, 211, 252, ${frac * 0.82})`;
-            ctx.lineWidth = 1.2 + frac * 6.2;
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
-            ctx.stroke();
-          }
-        }
         const mAngle = Math.atan2(m.vy, m.vx) + Math.PI * 0.5;
-        const mGlow = QuantumRenderer._getGlowSprite('cyan');
         const pulseM = 1.0 + 0.08 * Math.sin(now * 0.04 + i);
-        ctx.drawImage(mGlow, m.x - 42, m.y - 42, 84, 84);
-        if (VfxUltraAssets.loaded.seekerMissile && VfxUltraAssets.seekerMissile && VfxUltraAssets.seekerMissile.naturalWidth > 0) {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if (mMode === 'helix') {
+          // PRISM SWARM: Woven Bi-Chromatic Magenta + Cyan Twin-Ribbon Wake + 3D Faceted Crystal-Prism Bio-Needle
+          if (tLen > 1) {
+            for (let ti = 1; ti < tLen; ti++) {
+              const frac = ti / tLen;
+              const p0 = m.trail[ti - 1];
+              const p1 = m.trail[ti];
+              const dxT = p1.x - p0.x;
+              const dyT = p1.y - p0.y;
+              const segL = Math.hypot(dxT, dyT) || 1;
+              const nx = -dyT / segL;
+              const ny = dxT / segL;
+              const off0 = Math.sin((ti - 1) * 0.78 + now * 0.022 + i) * 7.5 * ((ti - 1) / tLen);
+              const off1 = Math.sin(ti * 0.78 + now * 0.022 + i) * 7.5 * frac;
+
+              ctx.strokeStyle = `rgba(236, 72, 153, ${frac * 0.85})`;
+              ctx.lineWidth = 1.5 + frac * 4.2;
+              ctx.beginPath();
+              ctx.moveTo(p0.x + nx * off0, p0.y + ny * off0);
+              ctx.lineTo(p1.x + nx * off1, p1.y + ny * off1);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(34, 211, 238, ${frac * 0.85})`;
+              ctx.lineWidth = 1.5 + frac * 4.2;
+              ctx.beginPath();
+              ctx.moveTo(p0.x - nx * off0, p0.y - ny * off0);
+              ctx.lineTo(p1.x - nx * off1, p1.y - ny * off1);
+              ctx.stroke();
+            }
+          }
+          const hGlow = QuantumRenderer._getGlowSprite('helix');
+          ctx.drawImage(hGlow, m.x - 36, m.y - 36, 72, 72);
+
+          // Custom Sculpted 3D Faceted Iridescent Crystal-Prism Bio-Needle (ZERO grey rocket!)
           ctx.save();
           ctx.translate(m.x, m.y);
           ctx.rotate(mAngle);
-          const mw = 74 * pulseM;
-          const mh = 112 * pulseM;
-          ctx.drawImage(VfxUltraAssets.seekerMissile, -mw * 0.5, -mh * 0.40, mw, mh);
-          // Intense golden-white afterburner core flash at nozzle
-          const nozGlow = QuantumRenderer._getGlowSprite('gold');
-          ctx.globalAlpha = 0.88;
-          ctx.drawImage(nozGlow, -26, 8, 52, 52);
-          ctx.restore();
-        } else {
+          ctx.scale(pulseM, pulseM);
+          // Translucent crystal wing-shards
+          ctx.fillStyle = 'rgba(236, 72, 153, 0.88)';
+          ctx.beginPath();
+          ctx.moveTo(-6, 6); ctx.lineTo(-22, 24); ctx.lineTo(-9, 18); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
+          ctx.beginPath();
+          ctx.moveTo(6, 6); ctx.lineTo(22, 24); ctx.lineTo(9, 18); ctx.closePath(); ctx.fill();
+          // Main 6-facet diamond crystal lance body
+          ctx.fillStyle = '#0891b2';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(10, -4); ctx.lineTo(7, 22); ctx.lineTo(0, 28); ctx.lineTo(-7, 22); ctx.lineTo(-10, -4); ctx.closePath(); ctx.fill();
+          // Left specular aquamarine facet & right magenta iridescent facet
+          ctx.fillStyle = '#67e8f9';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(0, 28); ctx.lineTo(-10, -4); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(10, -4); ctx.lineTo(4, 22); ctx.lineTo(0, 28); ctx.closePath(); ctx.fill();
+          // Bright diamond spine + glowing bio-pearl core
+          ctx.fillStyle = '#ecfeff';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(3.5, -4); ctx.lineTo(0, 24); ctx.lineTo(-3.5, -4); ctx.closePath(); ctx.fill();
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.arc(m.x, m.y, 9.5, 0, Math.PI * 2);
+          ctx.arc(0, -4, 4.2, 0, Math.PI * 2);
           ctx.fill();
+          ctx.restore();
+
+        } else if (mMode === 'meteor') {
+          // SEEKER COMETS: Volumetric Volcanic Fire-Comet Plume + 3D Blazing Molten-Lava Meteor Boulder
+          if (tLen > 1) {
+            for (let ti = 1; ti < tLen; ti++) {
+              const frac = ti / tLen;
+              const p0 = m.trail[ti - 1];
+              const p1 = m.trail[ti];
+              // Wide roaring crimson-orange volcanic comet wake
+              ctx.strokeStyle = `rgba(225, 29, 72, ${frac * 0.45})`;
+              ctx.lineWidth = 4 + frac * 22.0;
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(249, 115, 22, ${frac * 0.78})`;
+              ctx.lineWidth = 2.5 + frac * 14.0;
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(254, 240, 138, ${frac * 0.94})`;
+              ctx.lineWidth = 1.2 + frac * 6.5;
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.stroke();
+
+              if (ti % 3 === 0) {
+                ctx.fillStyle = `rgba(253, 224, 71, ${frac * 0.85})`;
+                ctx.beginPath();
+                ctx.arc(p0.x + Math.sin(ti * 2.1 + now * 0.03) * 8, p0.y, 2.2 * frac, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+          const mGlow = QuantumRenderer._getGlowSprite('amber');
+          ctx.drawImage(mGlow, m.x - 46, m.y - 46, 92, 92);
+
+          // Custom Sculpted 3D Blazing Molten-Lava Meteor-Comet (ZERO blue/grey metal rocket!)
+          ctx.save();
+          ctx.translate(m.x, m.y);
+          ctx.rotate(mAngle);
+          ctx.scale(pulseM, pulseM);
+          // Roaring twin swept volcanic flame-wings
+          ctx.fillStyle = 'rgba(249, 115, 22, 0.92)';
+          ctx.beginPath();
+          ctx.moveTo(-6, -4); ctx.quadraticCurveTo(-24, 8, -16, 30); ctx.lineTo(-5, 16); ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(6, -4); ctx.quadraticCurveTo(24, 8, 16, 30); ctx.lineTo(5, 16); ctx.closePath(); ctx.fill();
+          // Volcanic molten-basalt 3D sphere boulder with live cracked lava fissures
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          const mr = 16;
+          ctx.fillStyle = '#29150b';
+          ctx.beginPath();
+          ctx.arc(0, 0, mr, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.rotate(now * 0.008 + (m.seed || 0));
+          ctx.strokeStyle = '#fb923c';
+          ctx.lineWidth = 3.0;
+          ctx.beginPath();
+          ctx.moveTo(-mr * 0.85, -mr * 0.25); ctx.lineTo(0, mr * 0.15); ctx.lineTo(mr * 0.85, -mr * 0.3);
+          ctx.moveTo(0, -mr * 0.88); ctx.lineTo(-mr * 0.15, mr * 0.88);
+          ctx.stroke();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(0, 0, mr * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          // Blinding white-gold parabolic bow-shock hood ahead of nose
+          ctx.strokeStyle = 'rgba(255, 251, 235, 0.95)';
+          ctx.lineWidth = 3.4;
+          ctx.beginPath();
+          ctx.moveTo(-18, -2);
+          ctx.quadraticCurveTo(0, -34, 18, -2);
+          ctx.stroke();
+          ctx.restore();
+
+        } else {
+          // ARC SEEKERS (Dynamo): Jagged Electric Lightning Bolt Trail + High-Voltage Spear-Torpedo with Gold Coils
+          if (tLen > 1) {
+            ctx.strokeStyle = 'rgba(139, 92, 246, 0.48)';
+            ctx.lineWidth = 14;
+            ctx.beginPath();
+            ctx.moveTo(m.trail[0].x, m.trail[0].y);
+            for (let ti = 1; ti < tLen; ti++) {
+              const jx = (ti < tLen - 1) ? Math.sin(now * 0.09 + ti * 3.1 + i) * 7 : 0;
+              ctx.lineTo(m.trail[ti].x + jx, m.trail[ti].y);
+            }
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.90)';
+            ctx.lineWidth = 5.0;
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.96)';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+          }
+          const dGlow = QuantumRenderer._getGlowSprite('violet');
+          ctx.drawImage(dGlow, m.x - 42, m.y - 42, 84, 84);
+          ctx.save();
+          ctx.translate(m.x, m.y);
+          ctx.rotate(mAngle);
+          if (VfxUltraAssets.loaded.seekerMissile && VfxUltraAssets.seekerMissile && VfxUltraAssets.seekerMissile.naturalWidth > 0) {
+            const mw = 74 * pulseM;
+            const mh = 112 * pulseM;
+            ctx.drawImage(VfxUltraAssets.seekerMissile, -mw * 0.5, -mh * 0.40, mw, mh);
+          } else {
+            ctx.fillStyle = '#e0f2fe';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 9, 24, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          // 2 Glowing golden-volt electromagnetic induction coils + Tesla lightning nose lance
+          ctx.strokeStyle = 'rgba(253, 224, 71, 0.92)';
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.ellipse(0, -10, 12, 4.5, Math.sin(now * 0.015) * 0.25, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(0, 8, 14, 5.2, -Math.sin(now * 0.015) * 0.25, 0, Math.PI * 2);
+          ctx.stroke();
+          // Crackling forward Tesla nose arc
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(0, -34);
+          ctx.lineTo(Math.sin(now * 0.08 + i) * 5, -45);
+          ctx.lineTo(0, -56);
+          ctx.stroke();
+          ctx.restore();
         }
       }
       ctx.restore();
@@ -7753,90 +8394,157 @@
           ctx.stroke();
           ctx.restore();
 
-          // LAYER 2: Back Half of the 3D Perspective Tilted Golden Orbital Shockwave Ellipse!
+          // LAYER 2 (v392): Filled 3D Perspective Energy Vortex Disk + Seamless Back Orbital Ring
           ctx.save();
           ctx.translate(nv.x, nv.y);
-          ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.45})`;
-          ctx.lineWidth = 10;
+          // 2A: Richly filled 3D tilted floor vortex disk so the ellipse interior is NEVER hollow!
+          ctx.save();
+          ctx.scale(1, 0.36);
+          const diskGrad = ctx.createRadialGradient(0, 0, 8, 0, 0, ellipseRx);
+          diskGrad.addColorStop(0.0, `rgba(255, 255, 255, ${alphaEnv * 0.92})`);
+          diskGrad.addColorStop(0.22, `${pal.spineMid}${alphaEnv * 0.68})`);
+          diskGrad.addColorStop(0.58, `${pal.domeGlow}${alphaEnv * 0.34})`);
+          diskGrad.addColorStop(0.88, `${pal.domeOuter}${alphaEnv * 0.18})`);
+          diskGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = diskGrad;
           ctx.beginPath();
-          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI, Math.PI * 2);
-          ctx.stroke();
-          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.95})`;
+          ctx.arc(0, 0, ellipseRx, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 36 rotating 3D perspective radial energy spokes inside the disk
+          ctx.save();
+          ctx.rotate(elapsed * 0.0007);
+          ctx.lineCap = 'round';
+          for (let sp = 0; sp < 36; sp++) {
+            const sa = (sp / 36) * Math.PI * 2;
+            const srOut = ellipseRx * (0.62 + 0.34 * Math.abs(Math.sin(sp * 2.3)));
+            ctx.strokeStyle = (sp % 2 === 0) ? `${pal.ringCore}${alphaEnv * 0.34})` : `${pal.spineMid}${alphaEnv * 0.28})`;
+            ctx.lineWidth = (sp % 3 === 0) ? 3.0 : 1.6;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(sa) * 24, Math.sin(sa) * 24);
+            ctx.lineTo(Math.cos(sa) * srOut, Math.sin(sa) * srOut);
+            ctx.stroke();
+          }
+          // 2 counter-rotating swirling vortex arcs
+          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.42})`;
           ctx.lineWidth = 2.6;
+          for (let va = 0; va < 2; va++) {
+            const vr = ellipseRx * (va === 0 ? 0.42 : 0.70);
+            const vStart = elapsed * (va === 0 ? 0.0018 : -0.0012) + va * 2.1;
+            ctx.beginPath();
+            ctx.arc(0, 0, vr, vStart, vStart + Math.PI * 1.15);
+            ctx.stroke();
+          }
+          ctx.restore();
+          ctx.restore();
+
+          // 2B: Seamless Back Half of the 3D Orbital Ring (round cap + slight overlap matches front pass)
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.52})`;
+          ctx.lineWidth = 11;
           ctx.beginPath();
-          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI, Math.PI * 2);
+          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
+          ctx.stroke();
+          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.96})`;
+          ctx.lineWidth = 3.2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
           ctx.stroke();
           ctx.restore();
 
-          // LAYER 3: MASSIVE CONTINUOUS ANIMATED FLUID-FIRE VERTICAL SOLAR PILLAR (Zero-Seam Endless Scroll!)
-          // Drawn right before the 360-deg Sunburst Corona so the roaring fire roots seamlessly inside the Core!
+          // LAYER 3 (v392): Soft-Feathered Offscreen Eruption Column Buffer (ZERO binary clip edges!)
           const pillarH = Math.max(240, nv.y + 4);
           const basePillarW = (isMob ? 215 : 315) * (0.94 + 0.08 * Math.sin(elapsed * 0.024)) * scaleK;
           const flameImg = VfxUltraAssets.novaFlame[mKey];
           const wispsImg = VfxUltraAssets.novaWisps[mKey];
           const flameReady = VfxUltraAssets.loaded.novaFlame[mKey] && flameImg && flameImg.naturalWidth > 0;
           const wispsReady = VfxUltraAssets.loaded.novaWisps[mKey] && wispsImg && wispsImg.naturalWidth > 0;
-
-          // Curved base clip hugging the Core center cleanly (eliminates ANY flat horizontal cutoff line!)
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(nv.x - basePillarW * 0.95, 0);
-          ctx.lineTo(nv.x + basePillarW * 0.95, 0);
-          ctx.lineTo(nv.x + basePillarW * 0.95, nv.y - 8);
-          ctx.quadraticCurveTo(nv.x, nv.y + 28, nv.x - basePillarW * 0.95, nv.y - 8);
-          ctx.closePath();
-          ctx.clip();
-
-          // Pass 3A: Atmospheric Outer Column Aura (Helix uses a focused sleek laser spine so DNA strands pop!)
           const isHelixMode = (mKey === 'helix');
           const isDynamoMode = (mKey === 'dynamo');
-          const outerW = basePillarW * (isHelixMode ? 0.36 : 0.72);
-          const outerG = ctx.createLinearGradient(nv.x - outerW, 0, nv.x + outerW, 0);
+
+          // Soft royal-violet storm sheath behind Dynamo lightning (elliptical radial fill — ZERO rect edges!)
+          if (isDynamoMode) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            const shCy = Math.max(80, nv.y * 0.52);
+            const shRy = Math.max(220, nv.y * 0.56);
+            ctx.translate(nv.x, shCy);
+            ctx.scale(0.58, 1.0);
+            const shG = ctx.createRadialGradient(0, 0, 20, 0, 0, shRy);
+            shG.addColorStop(0.0, `rgba(76, 29, 149, ${alphaEnv * 0.42})`);
+            shG.addColorStop(0.55, `rgba(49, 46, 129, ${alphaEnv * 0.22})`);
+            shG.addColorStop(1.0, 'rgba(30, 27, 75, 0)');
+            ctx.fillStyle = shG;
+            ctx.beginPath();
+            ctx.arc(0, 0, shRy, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+
+          const offW = Math.max(260, Math.ceil(basePillarW * 1.45));
+          const offH = Math.max(280, Math.ceil(pillarH + 36));
+          if (!this._novaPillarCanvas) {
+            this._novaPillarCanvas = document.createElement('canvas');
+            this._novaPillarCtx = this._novaPillarCanvas.getContext('2d');
+          }
+          if (this._novaPillarCanvas.width < offW || this._novaPillarCanvas.height < offH) {
+            this._novaPillarCanvas.width = Math.max(this._novaPillarCanvas.width || 0, offW);
+            this._novaPillarCanvas.height = Math.max(this._novaPillarCanvas.height || 0, offH);
+          }
+          const pCtx = this._novaPillarCtx;
+          const midX = offW * 0.5;
+          pCtx.clearRect(0, 0, offW, offH);
+          pCtx.save();
+          pCtx.globalCompositeOperation = 'lighter';
+
+          // Pass 3A: Atmospheric Outer Column Aura
+          const outerW = basePillarW * (isHelixMode ? 0.36 : (isDynamoMode ? 0.60 : 0.68));
+          const outerG = pCtx.createLinearGradient(midX - outerW, 0, midX + outerW, 0);
           outerG.addColorStop(0.0, 'rgba(0,0,0,0)');
           outerG.addColorStop(0.28, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.24 : 0.34)})`);
           outerG.addColorStop(0.50, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.42 : 0.56)})`);
           outerG.addColorStop(0.72, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.24 : 0.34)})`);
           outerG.addColorStop(1.0, 'rgba(0,0,0,0)');
-          ctx.fillStyle = outerG;
-          ctx.fillRect(nv.x - outerW, 0, outerW * 2, pillarH);
+          pCtx.fillStyle = outerG;
+          pCtx.fillRect(midX - outerW, 0, outerW * 2, offH);
 
           // Pass 3B: Primary Upward-Rushing Seamless Domain-Warped Turbulent Column
           if (flameReady) {
-            const tileW = basePillarW * (isHelixMode ? 0.42 : 1.0);
-            const tileH = tileW * 2.0; // Exact 1:2 aspect ratio of 384x768 periodic seamless texture!
+            const tileW = basePillarW * (isHelixMode ? 0.42 : (isDynamoMode ? 0.72 : 1.0));
+            const tileH = tileW * 2.0;
             const scroll1 = (elapsed * 1.05) % tileH;
-            ctx.globalAlpha = alphaEnv * (isHelixMode ? 0.42 : 0.96);
+            pCtx.globalAlpha = alphaEnv * (isHelixMode ? 0.42 : (isDynamoMode ? 0.68 : 0.96));
             for (let ty = nv.y + 18 + tileH - scroll1; ty > -tileH; ty -= (tileH - 1)) {
-              ctx.drawImage(flameImg, nv.x - tileW * 0.5, ty - tileH, tileW, tileH);
+              pCtx.drawImage(flameImg, midX - tileW * 0.5, ty - tileH, tileW, tileH);
             }
-            // Counter-mirrored secondary pass (Meteor roaring fire & Dynamo plasma; omitted in Helix so DNA helix stays crisp!)
             if (!isHelixMode) {
               const scroll1b = (elapsed * 1.52) % tileH;
-              ctx.save();
-              ctx.translate(nv.x, 0);
-              ctx.scale(-1.08, 1);
-              ctx.globalAlpha = alphaEnv * (isDynamoMode ? 0.36 : 0.62);
+              pCtx.save();
+              pCtx.translate(midX, 0);
+              pCtx.scale(-1.08, 1);
+              pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.28 : 0.62);
               for (let ty = nv.y + 18 + tileH - scroll1b; ty > -tileH; ty -= (tileH - 1)) {
-                ctx.drawImage(flameImg, -tileW * 0.5, ty - tileH, tileW, tileH);
+                pCtx.drawImage(flameImg, -tileW * 0.5, ty - tileH, tileW, tileH);
               }
-              ctx.restore();
+              pCtx.restore();
             }
           }
 
           // Pass 3C: Curling Licking Flame / Plasma Tendril Ribbons Twisting Up Both Flanks
           if (wispsReady && !isHelixMode) {
-            const wTileW = basePillarW * 1.22;
+            const wTileW = basePillarW * (isDynamoMode ? 1.00 : 1.12);
             const wTileH = wTileW * 2.0;
             const scroll2 = (elapsed * 1.38) % wTileH;
-            ctx.globalAlpha = alphaEnv * (isDynamoMode ? 0.58 : 0.90);
+            pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.42 : 0.88);
             for (let ty = nv.y + 18 + wTileH - scroll2; ty > -wTileH; ty -= (wTileH - 1)) {
-              ctx.drawImage(wispsImg, nv.x - wTileW * 0.5, ty - wTileH, wTileW, wTileH);
+              pCtx.drawImage(wispsImg, midX - wTileW * 0.5, ty - wTileH, wTileW, wTileH);
             }
           }
 
           // Pass 3D: Central Laser / Plasma Core Spine
-          const spineW = (isMob ? (isHelixMode ? 18 : 38) : (isHelixMode ? 24 : 52)) * (0.92 + 0.12 * Math.sin(elapsed * 0.035));
-          const spineG = ctx.createLinearGradient(nv.x - spineW, 0, nv.x + spineW, 0);
+          pCtx.globalAlpha = 1.0;
+          const spineW = (isMob ? (isHelixMode ? 18 : (isDynamoMode ? 30 : 38)) : (isHelixMode ? 24 : (isDynamoMode ? 38 : 52))) * (0.92 + 0.12 * Math.sin(elapsed * 0.035));
+          const spineG = pCtx.createLinearGradient(midX - spineW, 0, midX + spineW, 0);
           spineG.addColorStop(0.0, 'rgba(255,255,255,0)');
           spineG.addColorStop(0.24, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.58 : 0.76)})`);
           spineG.addColorStop(0.42, `rgba(255, 255, 245, ${alphaEnv * (isHelixMode ? 0.78 : 0.96)})`);
@@ -7844,16 +8552,48 @@
           spineG.addColorStop(0.58, `rgba(255, 255, 245, ${alphaEnv * (isHelixMode ? 0.78 : 0.96)})`);
           spineG.addColorStop(0.76, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.58 : 0.76)})`);
           spineG.addColorStop(1.0, 'rgba(255,255,255,0)');
-          ctx.fillStyle = spineG;
-          ctx.fillRect(nv.x - spineW, 0, spineW * 2, pillarH);
-          ctx.restore();
+          pCtx.fillStyle = spineG;
+          pCtx.fillRect(midX - spineW, 0, spineW * 2, offH);
 
-          // LAYER 4: Dual Counter-Rotating 360-Degree Organic Fiery Sunburst Coronas Wrapping the Core Base!
+          // Pass 3E: Feathered Conical Base Alpha Mask (ZERO hard cut or silhouette!)
+          pCtx.globalCompositeOperation = 'destination-out';
+          const botY0 = Math.max(0, nv.y - 42);
+          const botFade = pCtx.createLinearGradient(0, botY0, 0, offH);
+          botFade.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+          botFade.addColorStop(0.55, 'rgba(0, 0, 0, 0.72)');
+          botFade.addColorStop(0.85, 'rgba(0, 0, 0, 1.0)');
+          botFade.addColorStop(1.0, 'rgba(0, 0, 0, 1.0)');
+          pCtx.fillStyle = botFade;
+          pCtx.fillRect(0, botY0, offW, offH - botY0);
+
+          const flankY = nv.y + 4;
+          const flankR = offW * 0.46;
+          [0, offW].forEach((cxF) => {
+            const fg = pCtx.createRadialGradient(cxF, flankY, offW * 0.14, cxF, flankY, flankR);
+            fg.addColorStop(0.0, 'rgba(0, 0, 0, 1.0)');
+            fg.addColorStop(0.55, 'rgba(0, 0, 0, 0.55)');
+            fg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            pCtx.fillStyle = fg;
+            pCtx.fillRect(0, Math.max(0, flankY - flankR), offW, flankR + 36);
+          });
+          pCtx.restore();
+
+          ctx.globalAlpha = 1.0;
+          ctx.drawImage(this._novaPillarCanvas, 0, 0, offW, offH, nv.x - midX, 0, offW, offH);
+
+          // LAYER 4 (v392): Always-Backed 360° Base Sunburst + Counter-Rotating Fiery Coronas
+          const baseGlowKey = isDynamoMode ? 'violet' : (isHelixMode ? 'helix' : 'amber');
+          const baseGlowSpr = QuantumRenderer._getGlowSprite(baseGlowKey);
+          const hotBaseSpr = QuantumRenderer._getGlowSprite(isDynamoMode ? 'cyan' : (isHelixMode ? 'helix' : 'gold'));
+          ctx.globalAlpha = alphaEnv * 0.85;
+          ctx.drawImage(baseGlowSpr, nv.x - 140 * scaleK, nv.y - 90 * scaleK, 280 * scaleK, 160 * scaleK);
+          ctx.globalAlpha = alphaEnv * 0.95;
+          ctx.drawImage(hotBaseSpr, nv.x - 75 * scaleK, nv.y - 68 * scaleK, 150 * scaleK, 120 * scaleK);
+          ctx.globalAlpha = 1.0;
           const corImg = VfxUltraAssets.novaCorona[mKey];
           const corReady = VfxUltraAssets.loaded.novaCorona[mKey] && corImg && corImg.naturalWidth > 0;
           if (corReady) {
             const corBase = (isMob ? 245 : 370) * (0.88 + 0.14 * Math.sin(elapsed * 0.018)) * rampIn;
-            // Pass 4A: Wide cinematic horizontal flare sunburst
             ctx.save();
             ctx.translate(nv.x, nv.y);
             ctx.scale(1.34, 0.88);
@@ -7861,7 +8601,6 @@
             ctx.globalAlpha = alphaEnv * 0.95;
             ctx.drawImage(corImg, -corBase * 0.5, -corBase * 0.5, corBase, corBase);
             ctx.restore();
-            // Pass 4B: Counter-rotating inner hot molten flare jets
             ctx.save();
             ctx.translate(nv.x, nv.y);
             ctx.scale(1.06, 0.96);
@@ -7872,7 +8611,7 @@
             ctx.restore();
           }
 
-          // LAYER 5: 68 Live Swirling Upward-Streaking Incandescent Fire Embers & Sparks!
+          // LAYER 5 (v392): Mode-Authentic Rising Particles Constrained Inside the Conical Eruption Funnel!
           if (nv.embers && nv.embers.length) {
             ctx.lineCap = 'round';
             for (let eIdx = 0; eIdx < nv.embers.length; eIdx++) {
@@ -7880,19 +8619,50 @@
               em.oy += em.vy * dtScale;
               em.ox += (em.vx + Math.sin(elapsed * 0.012 + em.phase) * 1.35) * dtScale;
               if (nv.y + em.oy < -24) {
-                em.oy = 10 - Math.random() * 60;
+                em.oy = -8 - Math.random() * 55;
                 em.ox = (Math.random() - 0.5) * basePillarW * 0.72;
               }
-              const ex = nv.x + em.ox;
               const ey = nv.y + em.oy;
-              if (ey > nv.y + 18) continue;
-              ctx.strokeStyle = em.bright ? pal.emberHot : pal.emberWarm;
-              ctx.globalAlpha = alphaEnv * (em.bright ? 0.92 : 0.72);
-              ctx.lineWidth = em.w;
-              ctx.beginPath();
-              ctx.moveTo(ex, ey);
-              ctx.lineTo(ex - em.vx * 1.5, ey + em.len);
-              ctx.stroke();
+              if (ey > nv.y + 8) continue;
+              const hFrac = Math.min(1.0, Math.max(0.18, (nv.y - ey) / 190));
+              const ex = nv.x + em.ox * hFrac;
+
+              if (isDynamoMode) {
+                // 3-segment jagged electric micro-sparks in cyan / violet / gold-volt
+                ctx.strokeStyle = (eIdx % 5 === 0) ? '#fde047' : (em.bright ? '#7dd3fc' : '#c4b5fd');
+                ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.74);
+                ctx.lineWidth = Math.max(1.2, em.w * 0.85);
+                const zig1 = Math.sin(elapsed * 0.08 + em.phase) * 6;
+                const zig2 = Math.cos(elapsed * 0.09 + eIdx) * 5;
+                ctx.beginPath();
+                ctx.moveTo(ex, ey);
+                ctx.lineTo(ex + zig1, ey + em.len * 0.36);
+                ctx.lineTo(ex - zig2, ey + em.len * 0.72);
+                ctx.lineTo(ex - em.vx * 1.2, ey + em.len);
+                ctx.stroke();
+              } else if (isHelixMode) {
+                // Crisp glowing 4-point diamond bio-motes
+                const dr = em.w * 1.65;
+                ctx.fillStyle = em.bright ? '#a5f3fc' : '#f5d0fe';
+                ctx.globalAlpha = alphaEnv * (em.bright ? 0.90 : 0.72);
+                ctx.beginPath();
+                ctx.moveTo(ex, ey - dr * 1.8);
+                ctx.lineTo(ex + dr * 0.75, ey);
+                ctx.lineTo(ex, ey + dr * 1.8);
+                ctx.lineTo(ex - dr * 0.75, ey);
+                ctx.closePath();
+                ctx.fill();
+              } else {
+                // Meteor curved tapered glowing ember streaks
+                const curveX = ex + Math.sin(elapsed * 0.02 + em.phase) * 4.5;
+                ctx.strokeStyle = em.bright ? pal.emberHot : pal.emberWarm;
+                ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.75);
+                ctx.lineWidth = em.w;
+                ctx.beginPath();
+                ctx.moveTo(ex, ey);
+                ctx.quadraticCurveTo(curveX, ey + em.len * 0.5, ex - em.vx * 1.6, ey + em.len);
+                ctx.stroke();
+              }
             }
           }
 
@@ -7955,88 +8725,156 @@
       ctx.lineJoin = 'round';
 
       if (mKey === 'dynamo') {
-        // ⚡ FRACTAL BRANCHING LIGHTNING STORM (re-strikes every ~55 ms for living electric flicker)
-        if (!nv._boltAt || elapsed - nv._boltAt > 55) {
+        // ⚡ MASSIVE MULTI-HUED V-CANOPY LIGHTNING STORM (38 ms re-strike + previous-frame afterglow!)
+        const rx = nv._ellipseRx || 240;
+        const ry = nv._ellipseRy || 86;
+        if (!nv._boltAt || elapsed - nv._boltAt > 38) {
+          nv._prevBolts = nv._bolts || null;
           nv._boltAt = elapsed;
           const trunks = [];
           const branches = [];
           const ground = [];
-          const topY = -10;
-          const coreTop = nv.y - 34;
-          for (let t = 0; t < 3; t++) {
-            const sx = nv.x + (Math.random() - 0.5) * pillarW * 0.55;
-            trunks.push(this._novaBolt(sx, topY, nv.x + (Math.random() - 0.5) * 18, coreTop, 78, 5));
+          const rimArcs = [];
+          const topY = -24;
+          const trunkCount = isMob ? 5 : 7;
+
+          // 1. 7 V-Fanning Primary Megabolt Trunks erupting out of the Core and flaring skyward
+          for (let t = 0; t < trunkCount; t++) {
+            const norm = (t / (trunkCount - 1)) - 0.5;
+            const xCore = nv.x + (t - (trunkCount - 1) * 0.5) * 7;
+            const yCore = nv.y - 8;
+            const xTop = nv.x + norm * pillarW * 2.5 + (Math.random() - 0.5) * 60;
+            trunks.push({
+              pts: this._novaBolt(xTop, topY, xCore, yCore, 66, 5),
+              style: t % 3 // 0=Cyan, 1=Royal Violet, 2=Golden-Volt
+            });
           }
-          // Outward-forking tree branches spreading diagonally like a lightning canopy
-          const branchCount = isMob ? 9 : 14;
+
+          // 2. 28 Outward-Forking Canopy Branches + Sub-Twigs (half erupting from upper Core, half off trunks)
+          const branchCount = isMob ? 18 : 28;
           for (let b = 0; b < branchCount; b++) {
-            const tr = trunks[b % trunks.length];
-            const si = 4 + Math.floor(Math.random() * (tr.length - 10));
-            const s = tr[si];
-            const side = (b % 2 === 0) ? -1 : 1;
-            const len = (isMob ? 90 : 130) + Math.random() * (isMob ? 150 : 230);
-            const ang = -Math.PI * 0.5 + side * (0.45 + Math.random() * 0.75);
-            const ex = s.x + Math.cos(ang) * len * 1.25;
-            const ey = s.y + Math.sin(ang) * len * 0.55 + len * 0.35;
-            const br = this._novaBolt(s.x, s.y, ex, ey, 36, 4);
-            branches.push(br);
-            // Secondary twig forks
-            if (Math.random() < 0.55) {
-              const tw = br[Math.floor(br.length * (0.4 + Math.random() * 0.3))];
-              branches.push(this._novaBolt(tw.x, tw.y, tw.x + side * (40 + Math.random() * 90), tw.y + (Math.random() - 0.3) * 70, 16, 3));
+            let sx, sy, side, len, ang;
+            if (b < Math.floor(branchCount * 0.5)) {
+              const frac = b / Math.max(1, Math.floor(branchCount * 0.5) - 1);
+              side = (b % 2 === 0) ? -1 : 1;
+              sx = nv.x + side * (12 + Math.random() * 26);
+              sy = nv.y - 18 - frac * 72;
+              len = (isMob ? 130 : 190) + Math.random() * (isMob ? 180 : 280);
+              ang = -Math.PI * 0.5 + side * (0.48 + Math.random() * 0.85);
+            } else {
+              const tr = trunks[b % trunks.length].pts;
+              const si = 3 + Math.floor(Math.random() * Math.max(2, tr.length - 8));
+              const s = tr[si];
+              sx = s.x;
+              sy = s.y;
+              side = (sx < nv.x) ? -1 : ((sx > nv.x) ? 1 : (b % 2 === 0 ? -1 : 1));
+              len = (isMob ? 110 : 160) + Math.random() * (isMob ? 160 : 240);
+              ang = -Math.PI * 0.5 + side * (0.50 + Math.random() * 0.78);
+            }
+            const ex = sx + Math.cos(ang) * len * 1.25;
+            const ey = sy + Math.sin(ang) * len * 0.62;
+            const style = (b % 5 === 0) ? 2 : (b % 2);
+            const br = this._novaBolt(sx, sy, ex, ey, 34, 4);
+            branches.push({ pts: br, style });
+            if (Math.random() < 0.65 && br.length > 4) {
+              const tw = br[Math.floor(br.length * (0.35 + Math.random() * 0.35))];
+              branches.push({
+                pts: this._novaBolt(tw.x, tw.y, tw.x + side * (48 + Math.random() * 105), tw.y + (Math.random() - 0.55) * 90, 18, 3),
+                style: style
+              });
             }
           }
-          // Ground arcs racing out along the 3D orbital ellipse
-          const rx = nv._ellipseRx || 240;
-          const ry = nv._ellipseRy || 86;
-          for (let g = 0; g < 7; g++) {
-            const ga = Math.random() * Math.PI * 2;
-            ground.push(this._novaBolt(nv.x, nv.y, nv.x + Math.cos(ga) * rx * (0.55 + Math.random() * 0.45), nv.y + Math.sin(ga) * ry * (0.55 + Math.random() * 0.45), 22, 4));
+
+          // 3. 14 Perspective Ground-Web Lightning Bolts + 4 Golden Rim Arc-Runners
+          for (let g = 0; g < 14; g++) {
+            const ga = (g / 14) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+            const reach = 0.58 + Math.random() * 0.44;
+            ground.push({
+              pts: this._novaBolt(nv.x, nv.y, nv.x + Math.cos(ga) * rx * reach, nv.y + Math.sin(ga) * ry * reach, 22, 4),
+              style: g % 4 === 0 ? 2 : (g % 2)
+            });
           }
-          // Tight crackling arcs hugging the Core (drawn in the foreground pass)
-          const arcs = [];
-          for (let c = 0; c < 4; c++) {
+          for (let ra = 0; ra < 4; ra++) {
             const a0 = Math.random() * Math.PI * 2;
-            const a1 = a0 + 0.8 + Math.random() * 1.4;
-            const r0 = 50 + Math.random() * 14;
-            arcs.push(this._novaBolt(nv.x + Math.cos(a0) * r0, nv.y + Math.sin(a0) * r0, nv.x + Math.cos(a1) * r0, nv.y + Math.sin(a1) * r0, 14, 3));
+            const a1 = a0 + 0.45 + Math.random() * 0.55;
+            rimArcs.push({
+              pts: this._novaBolt(nv.x + Math.cos(a0) * rx, nv.y + Math.sin(a0) * ry, nv.x + Math.cos(a1) * rx, nv.y + Math.sin(a1) * ry, 14, 3),
+              style: 2
+            });
           }
-          nv._bolts = { trunks, branches, ground };
+
+          // 4. 7 Foreground Core-Hugging Tesla Arcs
+          const arcs = [];
+          for (let c = 0; c < 7; c++) {
+            const a0 = Math.random() * Math.PI * 2;
+            const a1 = a0 + 0.8 + Math.random() * 1.5;
+            const r0 = 46 + Math.random() * 18;
+            arcs.push({
+              pts: this._novaBolt(nv.x + Math.cos(a0) * r0, nv.y + Math.sin(a0) * r0, nv.x + Math.cos(a1) * r0, nv.y + Math.sin(a1) * r0, 14, 3),
+              style: c % 3
+            });
+          }
+          nv._bolts = { trunks, branches, ground, rimArcs };
           nv._coreArcs = arcs;
-          nv._strobe = Math.random() < 0.22;
+          nv._strobe = Math.random() < 0.20;
         }
-        const bl = nv._bolts;
-        // Subtle lightning strobe (low-alpha, photosensitivity-safe)
+
+        const boltPalette = (st) => {
+          if (st === 2) return ['rgba(245, 158, 11, ', 'rgba(253, 224, 71, ']; // Golden-Volt
+          if (st === 1) return ['rgba(124, 58, 237, ', 'rgba(167, 139, 250, ']; // Royal Amethyst-Violet
+          return ['rgba(99, 102, 241, ', 'rgba(56, 189, 248, ']; // Electric Cyan
+        };
+
         if (nv._strobe && p < 0.82) {
-          ctx.fillStyle = `rgba(196, 181, 253, ${0.06 * a})`;
+          ctx.fillStyle = `rgba(196, 181, 253, ${0.055 * a})`;
           ctx.fillRect(0, 0, w, h);
         }
+
+        // Afterglow pass from previous frame (doubles visual density with atmospheric violet persistence!)
+        if (nv._prevBolts) {
+          const prev = nv._prevBolts;
+          for (let i = 0; i < prev.trunks.length; i++) {
+            this._strokeBoltPasses(ctx, prev.trunks[i].pts, a * 0.34, 0.82, 'rgba(109, 40, 217, ', 'rgba(167, 139, 250, ');
+          }
+          for (let i = 0; i < prev.branches.length; i++) {
+            this._strokeBoltPasses(ctx, prev.branches[i].pts, a * 0.30, 0.50, 'rgba(109, 40, 217, ', 'rgba(167, 139, 250, ');
+          }
+        }
+
+        const bl = nv._bolts;
         for (let i = 0; i < bl.branches.length; i++) {
-          this._strokeBoltPasses(ctx, bl.branches[i], a * 0.85, 0.62, 'rgba(139, 92, 246, ', 'rgba(96, 165, 250, ');
+          const cols = boltPalette(bl.branches[i].style);
+          this._strokeBoltPasses(ctx, bl.branches[i].pts, a * 0.90, 0.66, cols[0], cols[1]);
         }
         for (let i = 0; i < bl.ground.length; i++) {
-          this._strokeBoltPasses(ctx, bl.ground[i], a * 0.8, 0.55, 'rgba(168, 85, 247, ', 'rgba(125, 211, 252, ');
+          const cols = boltPalette(bl.ground[i].style);
+          this._strokeBoltPasses(ctx, bl.ground[i].pts, a * 0.84, 0.56, cols[0], cols[1]);
+        }
+        for (let i = 0; i < bl.rimArcs.length; i++) {
+          this._strokeBoltPasses(ctx, bl.rimArcs[i].pts, a * 0.92, 0.62, 'rgba(245, 158, 11, ', 'rgba(253, 224, 71, ');
         }
         for (let i = 0; i < bl.trunks.length; i++) {
-          this._strokeBoltPasses(ctx, bl.trunks[i], a, 1.05, 'rgba(124, 58, 237, ', 'rgba(56, 189, 248, ');
+          const cols = boltPalette(bl.trunks[i].style);
+          this._strokeBoltPasses(ctx, bl.trunks[i].pts, a, 1.08, cols[0], cols[1]);
         }
-        // Glowing plasma impact nodes at branch tips
-        const tipSpr = QuantumRenderer._getGlowSprite('violet');
-        ctx.globalAlpha = a * 0.75;
+        const tipSprC = QuantumRenderer._getGlowSprite('cyan');
+        const tipSprV = QuantumRenderer._getGlowSprite('violet');
+        ctx.globalAlpha = a * 0.72;
         for (let i = 0; i < bl.branches.length; i++) {
-          const tip = bl.branches[i][bl.branches[i].length - 1];
-          ctx.drawImage(tipSpr, tip.x - 14, tip.y - 14, 28, 28);
+          const pts = bl.branches[i].pts;
+          const tip = pts[pts.length - 1];
+          ctx.drawImage(bl.branches[i].style === 1 ? tipSprV : tipSprC, tip.x - 13, tip.y - 13, 26, 26);
         }
         ctx.globalAlpha = 1.0;
 
       } else if (mKey === 'helix') {
-        // 🧬 SPIRALLING DNA DOUBLE HELIX climbing the quantum beam (true depth sorting + base-pair rungs)
+        // 🧬 SPIRALLING DNA DOUBLE HELIX + 3 RISING 3D HARMONIC RINGS + OUTER GHOST HELIX
         const amp = pillarW * 0.30;
         const step = isMob ? 7 : 6;
         const k = 0.021;
         const scroll = elapsed * 0.62;
-        const baseY = nv.y - 26;
-        const frontA = [], backA = [], frontB = [], backB = [];
+        const baseY = nv.y - 22;
+        const frontA = [], backA = [], frontB = [], backB = [], ghostA = [], ghostB = [];
         const rungs = [];
         let prev = null;
         for (let y = baseY; y > -20; y -= step) {
@@ -8044,11 +8882,14 @@
           const ph = (y + scroll) * k;
           const s = Math.sin(ph);
           const c = Math.cos(ph);
+          const gs = Math.sin(ph + Math.PI * 0.5);
           const A = amp * (0.35 + 0.65 * rise);
-          const cur = { y, xa: nv.x + s * A, xb: nv.x - s * A, za: c, ph };
+          const cur = { y, xa: nv.x + s * A, xb: nv.x - s * A, gxa: nv.x + gs * A * 1.32, gxb: nv.x - gs * A * 1.32, za: c, ph };
           if (prev) {
             (cur.za >= 0 ? frontA : backA).push([prev.xa, prev.y, cur.xa, cur.y]);
             (cur.za < 0 ? frontB : backB).push([prev.xb, prev.y, cur.xb, cur.y]);
+            ghostA.push([prev.gxa, prev.y, cur.gxa, cur.y]);
+            ghostB.push([prev.gxb, prev.y, cur.gxb, cur.y]);
           }
           if (Math.floor(ph / 0.55) !== Math.floor((prev ? prev.ph : ph - 1) / 0.55)) {
             rungs.push(cur);
@@ -8066,9 +8907,10 @@
           }
           ctx.stroke();
         };
-        // Back strands (dim, thin) -> rungs -> front strands (vivid neon source-over so they cross cleanly in front of the beam!)
-        strokeSegs(backA, `rgba(232, 121, 249, ${0.46 * a})`, 3.6);
-        strokeSegs(backB, `rgba(34, 211, 238, ${0.46 * a})`, 3.6);
+        strokeSegs(ghostA, `rgba(103, 232, 249, ${0.28 * a})`, 1.6);
+        strokeSegs(ghostB, `rgba(240, 171, 252, ${0.28 * a})`, 1.6);
+        strokeSegs(backA, `rgba(232, 121, 249, ${0.48 * a})`, 3.6);
+        strokeSegs(backB, `rgba(34, 211, 238, ${0.48 * a})`, 3.6);
         ctx.strokeStyle = `rgba(207, 250, 254, ${0.65 * a})`;
         ctx.lineWidth = 2.0;
         ctx.beginPath();
@@ -8079,7 +8921,6 @@
         ctx.stroke();
         strokeSegs(frontA, `rgba(240, 171, 252, ${0.42 * a})`, 14);
         strokeSegs(frontB, `rgba(103, 232, 249, ${0.42 * a})`, 14);
-        // Switch briefly to source-over so the saturated magenta & cyan front helices pop cleanly over the white-cyan beam core
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
         strokeSegs(frontA, `rgba(236, 72, 153, ${0.96 * a})`, 5.4);
@@ -8087,6 +8928,21 @@
         strokeSegs(frontA, `rgba(253, 224, 247, ${0.88 * a})`, 1.8);
         strokeSegs(frontB, `rgba(207, 250, 254, ${0.88 * a})`, 1.8);
         ctx.restore();
+
+        // 3 Rising 3D Perspective Harmonic Pulse Rings climbing the DNA column
+        for (let hr = 0; hr < 3; hr++) {
+          const ph = ((elapsed * 0.0014) + hr / 3) % 1;
+          const hy = nv.y - 24 - ph * (nv.y + 12);
+          const hrx = pillarW * (0.24 + ph * 0.34);
+          const hry = hrx * 0.34;
+          const hAlpha = a * (1 - ph) * 0.82;
+          ctx.strokeStyle = (hr % 2 === 0) ? `rgba(34, 211, 238, ${hAlpha})` : `rgba(236, 72, 153, ${hAlpha})`;
+          ctx.lineWidth = 2.8;
+          ctx.beginPath();
+          ctx.ellipse(nv.x, hy, hrx, hry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
         // Nucleotide glow beads at front rung ends
         const beadM = QuantumRenderer._getGlowSprite('magPt');
         const beadC = QuantumRenderer._getGlowSprite('cyanPt');
@@ -8168,29 +9024,47 @@
         ctx.restore();
 
       } else {
-        // ☄️ SOLAR PROMINENCE FLAME LOOPS arcing off the Core + BALLISTIC MOLTEN LAVA EJECTA
+        // 🌋 CALDERA NOVA (Meteor) — 8 Solar Prominence Flame Loops + 3 Rising Molten Shock-Halos + Lava Ejecta
         const grow = Math.min(1, elapsed / 420);
-        for (let lI = 0; lI < 6; lI++) {
+        for (let lI = 0; lI < 8; lI++) {
           const side = (lI % 2 === 0) ? -1 : 1;
           const tier = Math.floor(lI / 2);
-          const baseX = nv.x + side * (34 + tier * 12);
-          const loopH = (isMob ? 110 : 160) * (0.7 + tier * 0.45) * grow * (0.92 + 0.08 * Math.sin(elapsed * 0.012 + lI));
-          const reach = (isMob ? 70 : 105) * (0.8 + tier * 0.4);
-          const endX = nv.x + side * (pillarW * 0.18);
-          const cpX = baseX + side * reach;
-          const cpY = nv.y - loopH;
-          const endY = nv.y - loopH * 1.35;
-          ctx.strokeStyle = `rgba(249, 115, 22, ${0.32 * a})`;
-          ctx.lineWidth = 14;
+          const sway = Math.sin(elapsed * 0.015 + lI * 1.35) * (12 + tier * 5);
+          const baseX = nv.x + side * (18 + tier * 9);
+          const loopH = (isMob ? 105 : 155) * (0.68 + tier * 0.36) * grow;
+          const endX = nv.x + side * (28 + tier * 22) + sway * 0.65;
+          const endY = nv.y - loopH * 1.45;
+          const cp1X = baseX + side * (42 + tier * 18);
+          const cp1Y = nv.y - loopH * 0.42;
+          const cp2X = nv.x + side * (pillarW * (0.14 + tier * 0.06)) - sway * 0.45;
+          const cp2Y = nv.y - loopH * 1.02;
+          ctx.strokeStyle = `rgba(249, 115, 22, ${0.22 * a})`;
+          ctx.lineWidth = 10;
           ctx.beginPath();
-          ctx.moveTo(baseX, nv.y - 12);
-          ctx.quadraticCurveTo(cpX, cpY, endX, endY);
+          ctx.moveTo(baseX, nv.y - 10);
+          ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
           ctx.stroke();
-          ctx.strokeStyle = `rgba(253, 186, 116, ${0.85 * a})`;
-          ctx.lineWidth = 4.2;
+          ctx.strokeStyle = `rgba(253, 186, 116, ${0.55 * a})`;
+          ctx.lineWidth = 3.2;
           ctx.stroke();
-          ctx.strokeStyle = `rgba(255, 251, 235, ${0.80 * a})`;
-          ctx.lineWidth = 1.4;
+          ctx.strokeStyle = `rgba(255, 251, 235, ${0.50 * a})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        // 3 Rising 3D Perspective Molten Shock-Halos softly blending into the fire column
+        for (let sr = 0; sr < 3; sr++) {
+          const ph = ((elapsed * 0.0014) + sr / 3) % 1;
+          const sy = nv.y - 20 - ph * (nv.y + 10);
+          const srx = pillarW * (0.26 + ph * 0.38);
+          const sry = srx * 0.34;
+          const sAlpha = a * Math.sin(ph * Math.PI) * 0.52;
+          ctx.strokeStyle = `rgba(249, 115, 22, ${sAlpha * 0.45})`;
+          ctx.lineWidth = 6;
+          ctx.beginPath();
+          ctx.ellipse(nv.x, sy, srx, sry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(254, 240, 138, ${sAlpha})`;
+          ctx.lineWidth = 1.8;
           ctx.stroke();
         }
         // Ballistic molten lava ejecta
@@ -8224,9 +9098,7 @@
       }
     },
 
-    // === CHANGED (v390): CALDERA NOVA 3D FOREGROUND PASS (DRAWS IN FRONT OF THE CHROME CORE!) ===
-    // Sweeps the front arc of the 3D tilted golden orbital ellipse + core-hugging molten ignition flare
-    // cleanly OVER the Chrome Core so the ship sits physically inside the erupting solar furnace!
+    // === CHANGED (v392): NOVA 3D FOREGROUND PASS (SEAMLESS FRONT RING + CORE LIGHTNING ARCS) ===
     drawNovaForeground(ctx, cx, cy, now, w, h) {
       if (!this.activeNova) return;
       const nv = this.activeNova;
@@ -8240,41 +9112,50 @@
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
 
-      // LAYER 6: Front Half (0..PI) of the 3D Perspective Tilted Golden Orbital Shockwave Ellipse!
+      // LAYER 6: Front Half (0..PI) of the 3D Orbital Ellipse with round cap & slight overlap (ZERO 3/9-o'clock notches!)
       ctx.save();
       ctx.translate(nv.x, nv.y);
+      ctx.lineCap = 'round';
       ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.58})`;
       ctx.lineWidth = 11;
       ctx.beginPath();
-      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI);
+      ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
       ctx.stroke();
 
       ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.98})`;
-      ctx.lineWidth = 3.0;
+      ctx.lineWidth = 3.2;
       ctx.beginPath();
-      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI);
+      ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
       ctx.stroke();
 
-      // Subtle hot equatorial rim glint right on the front horizon of the ellipse
+      // Equatorial horizon node glints + moving front rim glint
+      const gSpr = QuantumRenderer._getGlowSprite('gold');
+      ctx.globalAlpha = alphaEnv * 0.55;
+      ctx.drawImage(gSpr, -rx - 18, -14, 36, 28);
+      ctx.drawImage(gSpr, rx - 18, -14, 36, 28);
       const glintX = Math.cos(now * 0.005) * rx * 0.72;
       const glintY = Math.sqrt(Math.max(0, 1 - (glintX * glintX) / (rx * rx))) * ry;
-      const gSpr = QuantumRenderer._getGlowSprite('gold');
       ctx.globalAlpha = alphaEnv * 0.85;
       ctx.drawImage(gSpr, glintX - 24, glintY - 14, 48, 28);
       ctx.restore();
 
-      // LAYER 7: Core-Hugging Ignition Crown Flare where the Pillar Erupts out of the Top of the Core!
+      // LAYER 7: Core-Hugging Ignition Crown Flare where the Pillar Erupts out of the Top of the Core
       const topGlow = QuantumRenderer._getGlowSprite(nv.mode === 'meteor' ? 'gold' : (nv.mode === 'helix' ? 'helix' : 'cyan'));
-      ctx.globalAlpha = alphaEnv * 0.62;
-      ctx.drawImage(topGlow, nv.x - 56, nv.y - 68, 112, 86);
+      ctx.globalAlpha = alphaEnv * 0.72;
+      ctx.drawImage(topGlow, nv.x - 62, nv.y - 74, 124, 96);
       ctx.globalAlpha = 1.0;
 
-      // LAYER 8 (v391): Dynamo — crackling electric arcs wrapping OVER the Core surface
+      // LAYER 8 (v392): Dynamo — 7 Multi-Hued Crackling Electric Arcs Wrapping Over the Core Surface
       if (nv.mode === 'dynamo' && nv._coreArcs) {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         for (let i = 0; i < nv._coreArcs.length; i++) {
-          this._strokeBoltPasses(ctx, nv._coreArcs[i], alphaEnv * 0.9, 0.5, 'rgba(139, 92, 246, ', 'rgba(125, 211, 252, ');
+          const arc = nv._coreArcs[i];
+          const pts = arc.pts || arc;
+          const st = arc.style || 0;
+          const c0 = st === 2 ? 'rgba(245, 158, 11, ' : (st === 1 ? 'rgba(139, 92, 246, ' : 'rgba(59, 130, 246, ');
+          const c1 = st === 2 ? 'rgba(253, 224, 71, ' : (st === 1 ? 'rgba(192, 132, 252, ' : 'rgba(125, 211, 252, ');
+          this._strokeBoltPasses(ctx, pts, alphaEnv * 0.94, 0.56, c0, c1);
         }
       }
 
@@ -9059,12 +9940,13 @@
       state.roundPhase = 'warning';
       state.bossWarningUntil = now + 2300;
       // === CHANGED (v389): Keep all existing bad nodes, powered hazards, lasers & shockwaves alive when Boss arrives! ===
+      const ars = getRealmArsenal(state.catcherType);
       state.roundBanner = {
         title: `⚠ WARNING · ROUND ${spec.round} BOSS`,
-        // === CHANGED (v387): Theme-aligned skill prompts for touch vs desktop ===
+        // === CHANGED (v392): Per-realm skill prompts for touch vs desktop ===
         sub: TouchFireControls.isTouch
-          ? `${spec.name} · ${spec.maxHp} HP — HOLD ${CONFIG.names.gun} · TAP SKILLS`
-          : `${spec.name} · ${spec.maxHp} HP — Hold Click/[F]/[A] · [S] ${CONFIG.names.skill2} · [D] ${CONFIG.names.ult}`,
+          ? `${spec.name} · ${spec.maxHp} HP — HOLD ${ars.gun} · TAP SKILLS`
+          : `${spec.name} · ${spec.maxHp} HP — Hold Click/[F]/[A] · [S] ${ars.skill2} · [D] ${ars.ult}`,
         color: '#f43f5e',
         startTime: now,
         duration: 2300
@@ -9343,7 +10225,7 @@
         audio.playCoreCannonShot(mode, tier);
 
         const muzzleY = cy - 42 * u;
-        const speed = (mode === 'dynamo') ? 19.5 : (mode === 'helix' ? 18.2 : 16.8);
+        const speed = (mode === 'dynamo') ? 21.5 : (mode === 'helix' ? 19.2 : 17.8);
         const pushShot = (ox, vx, dmg, heavy, phaseOff = 0) => {
           if (state.playerShots.length >= 64) state.playerShots.shift();
           state.playerShots.push({
@@ -9412,42 +10294,141 @@
           ctx.stroke();
         }
 
-        // === CHANGED (v390): Heavy Artillery Forward Muzzle Crown + Big Volumetric Ignition Blast ===
+        // === CHANGED (v392): DISTINCT PER-REALM FORWARD ARTILLERY MUZZLE PERSONALITY ===
         if (isFiringActive) {
           const chevY = -62 * u;
-          ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.62)' : (mode === 'meteor' ? 'rgba(254, 240, 138, 0.88)' : 'rgba(125, 211, 252, 0.88)');
-          ctx.lineWidth = Math.max(2.2, 3.0 * u);
-          ctx.beginPath();
-          ctx.moveTo(-18 * u, chevY + 12 * u);
-          ctx.lineTo(0, chevY - 3 * u);
-          ctx.lineTo(18 * u, chevY + 12 * u);
-          ctx.stroke();
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
 
-          // Secondary Twin Outer Gun Emitter Prongs
-          ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.42)' : (mode === 'meteor' ? 'rgba(251, 146, 60, 0.68)' : 'rgba(192, 132, 252, 0.68)');
-          ctx.lineWidth = Math.max(1.6, 2.2 * u);
-          ctx.beginPath();
-          ctx.moveTo(-28 * u, chevY + 18 * u);
-          ctx.lineTo(-16 * u, chevY + 4 * u);
-          ctx.moveTo(28 * u, chevY + 18 * u);
-          ctx.lineTo(16 * u, chevY + 4 * u);
-          ctx.stroke();
+          if (mode === 'helix') {
+            // HELIX CASTER: Sacred Hexagonal Bio-Prism Emitter + Twin Floating Nucleotide Crystal Pods
+            const hRot = now * 0.005;
+            const hexR = 16 * u;
+            ctx.save();
+            ctx.translate(0, -64 * u);
+            ctx.rotate(hRot);
+            ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.7)' : 'rgba(34, 211, 238, 0.90)';
+            ctx.lineWidth = Math.max(1.8, 2.4 * u);
+            ctx.beginPath();
+            for (let hp = 0; hp <= 6; hp++) {
+              const ha = (hp / 6) * Math.PI * 2;
+              const hx = Math.cos(ha) * hexR;
+              const hy = Math.sin(ha) * hexR * 0.65;
+              if (hp === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+            }
+            ctx.stroke();
+            ctx.rotate(-hRot * 2.1);
+            ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.6)' : 'rgba(236, 72, 153, 0.88)';
+            ctx.lineWidth = Math.max(1.5, 2.0 * u);
+            ctx.beginPath();
+            for (let hp = 0; hp <= 6; hp++) {
+              const ha = (hp / 6) * Math.PI * 2;
+              const hx = Math.cos(ha) * hexR * 0.68;
+              const hy = Math.sin(ha) * hexR * 0.44;
+              if (hp === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+            }
+            ctx.stroke();
+            ctx.restore();
 
-          // Big Dramatic Volumetric Muzzle Ignition Blast + Shock Ring on Shot!
+            // Twin flanking nucleotide diamond pods
+            [-1, 1].forEach((side, sIdx) => {
+              const px = side * 26 * u;
+              const py = -54 * u + Math.sin(now * 0.014 + sIdx * Math.PI) * 3 * u;
+              ctx.fillStyle = sIdx === 0 ? 'rgba(34, 211, 238, 0.85)' : 'rgba(236, 72, 153, 0.85)';
+              ctx.beginPath();
+              ctx.moveTo(px, py - 6 * u);
+              ctx.lineTo(px + 4 * u, py);
+              ctx.lineTo(px, py + 6 * u);
+              ctx.lineTo(px - 4 * u, py);
+              ctx.closePath();
+              ctx.fill();
+            });
+          } else if (mode === 'meteor') {
+            // EMBER CANNON: Molten Caldera Artillery Maw — Curved Volcanic Tusks + Incandescent Chamber
+            ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.7)' : 'rgba(251, 146, 60, 0.92)';
+            ctx.lineWidth = Math.max(2.6, 3.6 * u);
+            [-1, 1].forEach((side) => {
+              ctx.beginPath();
+              ctx.moveTo(side * 24 * u, -46 * u);
+              ctx.quadraticCurveTo(side * 25 * u, -62 * u, side * 14 * u, -72 * u);
+              ctx.stroke();
+            });
+            ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.45)' : 'rgba(254, 240, 138, 0.88)';
+            ctx.lineWidth = Math.max(1.6, 2.2 * u);
+            ctx.beginPath();
+            ctx.arc(0, -58 * u, 9 * u, 0, Math.PI * 2);
+            ctx.stroke();
+          } else {
+            // TESLA RAILGUN (Dynamo): Twin Converging Faraday Rail Prongs + Gold Capacitor Tips + Live Jumping Arc
+            ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.7)' : 'rgba(56, 189, 248, 0.94)';
+            ctx.lineWidth = Math.max(2.4, 3.2 * u);
+            ctx.beginPath();
+            ctx.moveTo(-16 * u, -46 * u);
+            ctx.lineTo(-12 * u, -74 * u);
+            ctx.moveTo(16 * u, -46 * u);
+            ctx.lineTo(12 * u, -74 * u);
+            ctx.stroke();
+
+            // Glowing gold-volt capacitor tips
+            ctx.fillStyle = lowAmmo ? '#f43f5e' : '#fde047';
+            ctx.beginPath();
+            ctx.arc(-12 * u, -74 * u, 3.2 * u, 0, Math.PI * 2);
+            ctx.arc(12 * u, -74 * u, 3.2 * u, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Live crackling 5-segment zig-zag lightning arc jumping across the rail tips
+            ctx.strokeStyle = 'rgba(224, 242, 254, 0.92)';
+            ctx.lineWidth = Math.max(1.4, 2.0 * u);
+            ctx.beginPath();
+            ctx.moveTo(-12 * u, -70 * u);
+            for (let seg = 1; seg <= 4; seg++) {
+              const frac = seg / 5;
+              const ax = (-12 + 24 * frac) * u;
+              const ay = -70 * u + Math.sin(now * 0.08 + seg * 2.9) * 5.5 * u;
+              ctx.lineTo(ax, ay);
+            }
+            ctx.lineTo(12 * u, -70 * u);
+            ctx.stroke();
+          }
+
+          // Mode-Tailored Volumetric Muzzle Ignition Blast on Shot
           if (state.muzzleFlashUntil && now < state.muzzleFlashUntil) {
             const mfT = Math.max(0, (state.muzzleFlashUntil - now) / 70);
-            const mSpr = QuantumRenderer._getGlowSprite(mode === 'meteor' ? 'amber' : (mode === 'helix' ? 'helix' : 'cyan'));
+            const mSpr = QuantumRenderer._getGlowSprite(mode === 'meteor' ? 'amber' : (mode === 'helix' ? 'helix' : 'violet'));
             const mfR = 54 * u * (0.85 + 0.35 * mfT);
             ctx.globalAlpha = 0.92 * mfT;
             ctx.drawImage(mSpr, -mfR, chevY - mfR * 0.85, mfR * 2, mfR * 1.9);
-            // Blinding white-gold horizontal muzzle ignition flare
-            const mCore = QuantumRenderer._getGlowSprite('gold');
+            const mCore = QuantumRenderer._getGlowSprite(mode === 'meteor' ? 'gold' : (mode === 'helix' ? 'cyanPt' : 'cyan'));
             ctx.drawImage(mCore, -mfR * 0.65, chevY - mfR * 0.35, mfR * 1.3, mfR * 0.70);
-            ctx.strokeStyle = `rgba(255, 250, 220, ${0.75 * mfT})`;
-            ctx.lineWidth = 2.2;
-            ctx.beginPath();
-            ctx.ellipse(0, chevY, 26 * u * (1.2 - mfT * 0.3), 9 * u, 0, 0, Math.PI * 2);
-            ctx.stroke();
+            if (mode === 'dynamo') {
+              // Diamond shock-flash for Railgun
+              const dr = 22 * u * (1.2 - mfT * 0.3);
+              ctx.strokeStyle = `rgba(224, 242, 254, ${0.82 * mfT})`;
+              ctx.lineWidth = 2.2;
+              ctx.beginPath();
+              ctx.moveTo(0, chevY - dr * 0.65);
+              ctx.lineTo(dr, chevY);
+              ctx.lineTo(0, chevY + dr * 0.65);
+              ctx.lineTo(-dr, chevY);
+              ctx.closePath();
+              ctx.stroke();
+            } else if (mode === 'helix') {
+              ctx.strokeStyle = `rgba(236, 72, 153, ${0.78 * mfT})`;
+              ctx.lineWidth = 2.2;
+              ctx.beginPath();
+              ctx.ellipse(0, chevY, 28 * u * (1.25 - mfT * 0.3), 10 * u, 0, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.strokeStyle = `rgba(34, 211, 238, ${0.78 * mfT})`;
+              ctx.beginPath();
+              ctx.ellipse(0, chevY, 20 * u * (1.25 - mfT * 0.3), 7 * u, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            } else {
+              ctx.strokeStyle = `rgba(255, 250, 220, ${0.80 * mfT})`;
+              ctx.lineWidth = 2.4;
+              ctx.beginPath();
+              ctx.ellipse(0, chevY, 28 * u * (1.2 - mfT * 0.3), 10 * u, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
           }
         }
         ctx.restore();
@@ -9546,44 +10527,228 @@
         }
 
         if (consumed) {
+          // === CHANGED (v392): Per-Realm 5th-Shot Overcharged Super-Round Impact Signatures ===
+          if (s.isFifth) {
+            if (s.mode === 'helix') {
+              this._spawnHitSparks(s.x, s.y, '#ec4899', 6);
+              this._spawnHitSparks(s.x, s.y, '#22d3ee', 6);
+              if (state.bossShockRings && state.bossShockRings.length < 18) {
+                state.bossShockRings.push({ x: s.x, y: s.y, r: 6, maxR: 46, alpha: 0.88, speed: 4.5, color: '#e879f9', harmless: true });
+              }
+            } else if (s.mode === 'meteor') {
+              this._spawnHitSparks(s.x, s.y, '#fde047', 8);
+              this._spawnHitSparks(s.x, s.y, '#f97316', 6);
+              if (state.bossShockRings && state.bossShockRings.length < 18) {
+                state.bossShockRings.push({ x: s.x, y: s.y, r: 8, maxR: 54, alpha: 0.90, speed: 4.8, color: '#f97316', harmless: true });
+              }
+            } else {
+              this._spawnHitSparks(s.x, s.y, '#a78bfa', 10);
+              if (state.bossShockRings && state.bossShockRings.length < 18) {
+                state.bossShockRings.push({ x: s.x, y: s.y, r: 6, maxR: 48, alpha: 0.88, speed: 5.2, color: '#38bdf8', harmless: true });
+              }
+            }
+          }
           state.playerShots.splice(i, 1);
           continue;
         }
 
-        // === CHANGED (v390): MASSIVE SCULPTED 3D HYPER-PLASMA CANNON LANCE SHELLS (2.6X BIGGER!) ===
+        // === CHANGED (v392): BESPOKE PRIMARY GUN PROJECTILES PER CHROME CORE ===
         const bMode = (s.mode === 'helix') ? 'helix' : (s.mode === 'meteor' ? 'meteor' : 'dynamo');
         const bImg = VfxUltraAssets.gunBolt[bMode];
         const bReady = VfxUltraAssets.loaded.gunBolt[bMode] && bImg && bImg.naturalWidth > 0;
         const bAng = Math.atan2(s.vy, s.vx) + Math.PI * 0.5;
         const isSuper = Boolean(s.isFifth);
-        const bw = isSuper ? 60 : (s.heavy ? 52 : 42);
-        const bh = isSuper ? 96 : (s.heavy ? 82 : 66);
+        const bw = isSuper ? 62 : (s.heavy ? 52 : 42);
+        const bh = isSuper ? 98 : (s.heavy ? 82 : 66);
 
-        if (bReady) {
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate(bAng);
+
+        if (bMode === 'helix') {
+          // HELIX CASTER: Intertwining Live Double-Helix Wave Projectile + Spinning 3D Faceted Diamond Warhead
+          const auraSpr = QuantumRenderer._getGlowSprite(isSuper ? 'magPt' : 'helix');
+          ctx.globalAlpha = 0.65;
+          ctx.drawImage(auraSpr, -bw * 0.65, -bh * 0.42, bw * 1.30, bh * 0.88);
+          ctx.globalAlpha = 1.0;
+
+          const waveAmp = isSuper ? 11.5 : (s.heavy ? 9.0 : 7.0);
+          const segs = 7;
+          const yBot = bh * 0.44;
+          const yTop = -bh * 0.30;
+          const ptsA = [];
+          const ptsB = [];
+          for (let seg = 0; seg <= segs; seg++) {
+            const frac = seg / segs;
+            const py = yBot + (yTop - yBot) * frac;
+            const osc = Math.sin(now * 0.028 + s.phase + seg * 0.85) * waveAmp * (1.0 - frac * 0.25);
+            ptsA.push({ x: osc, y: py });
+            ptsB.push({ x: -osc, y: py });
+          }
+
+          // 3 glowing base-pair rungs connecting the two waves
+          ctx.strokeStyle = 'rgba(240, 253, 250, 0.85)';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          [1, 3, 5].forEach((idx) => {
+            ctx.moveTo(ptsA[idx].x, ptsA[idx].y);
+            ctx.lineTo(ptsB[idx].x, ptsB[idx].y);
+          });
+          ctx.stroke();
+
+          // Strand A (Neon Magenta) & Strand B (Aqua Cyan)
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = 'rgba(244, 114, 182, 0.96)';
+          ctx.lineWidth = isSuper ? 3.8 : 2.8;
+          ctx.beginPath();
+          ctx.moveTo(ptsA[0].x, ptsA[0].y);
+          for (let k = 1; k < ptsA.length; k++) ctx.lineTo(ptsA[k].x, ptsA[k].y);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.96)';
+          ctx.beginPath();
+          ctx.moveTo(ptsB[0].x, ptsB[0].y);
+          for (let k = 1; k < ptsB.length; k++) ctx.lineTo(ptsB[k].x, ptsB[k].y);
+          ctx.stroke();
+
+          // Crown: Spinning 3D faceted diamond crystal warhead
+          const wy = yTop - 4;
+          const wr = isSuper ? 12 : 9;
           ctx.save();
-          ctx.translate(s.x, s.y);
-          ctx.rotate(bAng);
-          // Volumetric outer bloom aura around the big plasma lance
-          const auraKey = isSuper ? 'gold' : (bMode === 'meteor' ? 'amber' : (bMode === 'helix' ? 'helix' : 'cyan'));
-          const auraSpr = QuantumRenderer._getGlowSprite(auraKey);
-          ctx.globalAlpha = 0.72;
-          ctx.drawImage(auraSpr, -bw * 0.72, -bh * 0.42, bw * 1.44, bh * 0.88);
-          // Crisp Sculpted 3D Plasma Lance Warhead & Ionized Wake!
-          ctx.globalAlpha = 1.0;
-          ctx.drawImage(bImg, -bw * 0.5, -bh * 0.36, bw, bh);
-          ctx.restore();
-        } else {
-          // High-impact enlarged vector fallback while PNG finishes preloading
-          const spr = QuantumRenderer._getGlowSprite(bMode === 'meteor' ? 'amber' : (bMode === 'helix' ? 'helix' : 'cyan'));
-          const r = s.heavy ? 28 : 22;
-          ctx.globalAlpha = 0.94;
-          ctx.drawImage(spr, s.x - r, s.y - r * 1.2, r * 2, r * 2.8);
-          ctx.globalAlpha = 1.0;
+          ctx.translate(0, wy);
+          ctx.scale(0.85 + 0.25 * Math.cos(now * 0.02 + s.phase), 1);
+          ctx.fillStyle = '#67e8f9';
+          ctx.beginPath();
+          ctx.moveTo(0, -wr * 1.5);
+          ctx.lineTo(wr * 0.85, 0);
+          ctx.lineTo(0, wr * 0.9);
+          ctx.lineTo(-wr * 0.85, 0);
+          ctx.closePath();
+          ctx.fill();
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.ellipse(s.x, s.y, s.heavy ? 6.5 : 5.0, s.heavy ? 18 : 14, 0, 0, Math.PI * 2);
+          ctx.moveTo(0, -wr * 1.1);
+          ctx.lineTo(wr * 0.38, -wr * 0.1);
+          ctx.lineTo(0, wr * 0.45);
+          ctx.lineTo(-wr * 0.38, -wr * 0.1);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+
+        } else if (bMode === 'meteor') {
+          // EMBER CANNON: Tumbling 3D Cracked Molten-Lava Fireball + Flame Wake + Bow-Shock Crescent
+          const auraSpr = QuantumRenderer._getGlowSprite(isSuper ? 'gold' : 'amber');
+          ctx.globalAlpha = 0.82;
+          ctx.drawImage(auraSpr, -bw * 0.78, -bh * 0.44, bw * 1.56, bh * 0.96);
+          if (bReady) {
+            ctx.globalAlpha = 0.96;
+            ctx.drawImage(bImg, -bw * 0.54, -bh * 0.34, bw * 1.08, bh * 1.12);
+          }
+
+          // Tumbling 3D cracked basalt-lava fireball core at warhead nose
+          const fbY = -bh * 0.18;
+          const fbR = isSuper ? 13 : (s.heavy ? 10.5 : 8.5);
+          ctx.save();
+          ctx.translate(0, fbY);
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.fillStyle = '#29150b';
+          ctx.beginPath();
+          ctx.arc(0, 0, fbR, 0, Math.PI * 2);
+          ctx.fill();
+          // Glowing magma fissures rotating across sphere
+          ctx.rotate(now * 0.012 + s.phase);
+          ctx.strokeStyle = '#fb923c';
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.moveTo(-fbR * 0.85, -fbR * 0.25);
+          ctx.lineTo(-fbR * 0.1, fbR * 0.2);
+          ctx.lineTo(fbR * 0.82, -fbR * 0.3);
+          ctx.moveTo(0, -fbR * 0.88);
+          ctx.lineTo(fbR * 0.15, fbR * 0.85);
+          ctx.stroke();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(0, 0, fbR * 0.42, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // Blazing parabolic bow-shock crescent ahead of the fireball nose
+          ctx.strokeStyle = 'rgba(255, 250, 220, 0.92)';
+          ctx.lineWidth = isSuper ? 3.2 : 2.3;
+          ctx.beginPath();
+          ctx.moveTo(-fbR * 1.25, fbY - fbR * 0.25);
+          ctx.quadraticCurveTo(0, fbY - fbR * 1.95, fbR * 1.25, fbY - fbR * 0.25);
+          ctx.stroke();
+
+          if (isSuper) {
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.90)';
+            ctx.lineWidth = 2.4;
+            ctx.beginPath();
+            ctx.ellipse(0, fbY, fbR * 1.65, fbR * 0.56, 0.22, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+        } else {
+          // TESLA RAILGUN (Dynamo): High-Velocity Rail Spear + Live 5-Segment Crackling Lightning Jacket
+          const auraSpr = QuantumRenderer._getGlowSprite(isSuper ? 'gold' : 'violet');
+          ctx.globalAlpha = 0.78;
+          ctx.drawImage(auraSpr, -bw * 0.72, -bh * 0.42, bw * 1.44, bh * 0.88);
+          if (bReady) {
+            ctx.globalAlpha = 0.96;
+            ctx.drawImage(bImg, -bw * 0.5, -bh * 0.36, bw, bh);
+          } else {
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 5.5, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Live 5-segment crackling zig-zag lightning jacket wrapped from tail to spearhead
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.strokeStyle = 'rgba(125, 211, 252, 0.96)';
+          ctx.lineWidth = isSuper ? 3.0 : 2.2;
+          ctx.beginPath();
+          const zBot = bh * 0.42;
+          const zTop = -bh * 0.46;
+          ctx.moveTo(0, zBot);
+          for (let seg = 1; seg <= 4; seg++) {
+            const frac = seg / 5;
+            const py = zBot + (zTop - zBot) * frac;
+            const px = Math.sin(now * 0.09 + s.phase + seg * 2.4) * (isSuper ? 12 : 8.5);
+            ctx.lineTo(px, py);
+          }
+          ctx.lineTo(0, zTop);
+          ctx.stroke();
+
+          if (isSuper) {
+            // Secondary golden-volt overcharge arc on every 5th Super-Round!
+            ctx.strokeStyle = 'rgba(253, 224, 71, 0.95)';
+            ctx.lineWidth = 2.0;
+            ctx.beginPath();
+            ctx.moveTo(0, zBot);
+            for (let seg = 1; seg <= 4; seg++) {
+              const frac = seg / 5;
+              const py = zBot + (zTop - zBot) * frac;
+              const px = -Math.sin(now * 0.11 + s.phase + seg * 3.1) * 13;
+              ctx.lineTo(px, py);
+            }
+            ctx.lineTo(0, zTop);
+            ctx.stroke();
+          }
+
+          // Sharp white-cyan plasma spearhead tip
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(0, zTop - 4);
+          ctx.lineTo(4.5, zTop + 12);
+          ctx.lineTo(0, zTop + 8);
+          ctx.lineTo(-4.5, zTop + 12);
+          ctx.closePath();
           ctx.fill();
         }
+
+        ctx.restore();
       }
       ctx.restore();
     },
@@ -10481,25 +11646,26 @@
         ctx.textBaseline = 'top';
         const ammoDisp = formatAmmoCount(state.coreAmmo || 0);
         const promptMaxW = Math.max(220, w - 24);
+        const ars = getRealmArsenal(state.catcherType);
         if ((state.coreAmmo || 0) <= 0) {
           ctx.fillStyle = '#fbbf24';
           ctx.fillText('⚡ AMMO EMPTY — CATCH FALLING GOOD NODES TO RELOAD!', w * 0.5, barY + bh + 5, promptMaxW);
         } else if (TouchFireControls.isTouch) {
-          // === CHANGED (v387): Touch-only Kimmy combat prompt text ===
+          // === CHANGED (v392): Touch-only Kimmy combat prompt text per realm ===
           if (!TouchFireControls.isGunHeld()) {
             ctx.fillStyle = '#7dd3fc';
-            ctx.fillText(`HOLD ${CONFIG.names.gun} · TAP SKILLS`, w * 0.5, barY + bh + 5, promptMaxW);
+            ctx.fillText(`HOLD ${ars.gun} · TAP SKILLS`, w * 0.5, barY + bh + 5, promptMaxW);
           } else {
             ctx.fillStyle = '#fde68a';
-            ctx.fillText(`🔥 ${CONFIG.names.gun} ACTIVE · ${ammoDisp} SHOTS`, w * 0.5, barY + bh + 5, promptMaxW);
+            ctx.fillText(`🔥 ${ars.gun} ACTIVE · ${ammoDisp} SHOTS`, w * 0.5, barY + bh + 5, promptMaxW);
           }
         } else if (!state.offenseMode && !state.pointerFiring && !TouchFireControls.isDesktopKeyGunHeld()) {
-          // === CHANGED (v387): Keep original click/[F] prompt + add A/S/D skill hints ===
+          // === CHANGED (v392): Keep original click/[F] prompt + add realm-specific A/S/D skill hints ===
           ctx.fillStyle = '#7dd3fc';
-          ctx.fillText(`🔫 ${ammoDisp} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS! · [A] ${CONFIG.names.gun} · [S] ${CONFIG.names.skill2} · [D] ${CONFIG.names.ult}`, w * 0.5, barY + bh + 5, promptMaxW);
+          ctx.fillText(`🔫 ${ammoDisp} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS! · [A] ${ars.gun} · [S] ${ars.skill2} · [D] ${ars.ult}`, w * 0.5, barY + bh + 5, promptMaxW);
         } else {
           ctx.fillStyle = '#fde68a';
-          ctx.fillText(`🔥 ${CONFIG.names.gun} ACTIVE · ${ammoDisp} SHOTS REMAINING`, w * 0.5, barY + bh + 5, promptMaxW);
+          ctx.fillText(`🔥 ${ars.gun} ACTIVE · ${ammoDisp} SHOTS REMAINING`, w * 0.5, barY + bh + 5, promptMaxW);
         }
       }
 
@@ -11296,7 +12462,8 @@
         if (remHp <= Math.ceil(maxHp * 0.30)) {
           tacticalTipHtml = `<strong>SO CLOSE!</strong> Only <strong>${remHp} HP</strong> left on ${state.boss.name} — save Flux Pulse <strong>[SPACE]</strong> to clear bullets &amp; deal 15 burst damage!`;
         } else if ((state.coreAmmo || 0) >= 12) {
-          tacticalTipHtml = `<strong>UNUSED ARSENAL:</strong> You fell with <strong>${formatAmmoCount(state.coreAmmo)} shots</strong> loaded — fire <strong>${CONFIG.names.gun}</strong> and unleash <strong>${CONFIG.names.skill2}</strong> / <strong>${CONFIG.names.ult}</strong>!`;
+          const arsTip = getRealmArsenal(state.catcherType);
+          tacticalTipHtml = `<strong>UNUSED ARSENAL:</strong> You fell with <strong>${formatAmmoCount(state.coreAmmo)} shots</strong> loaded — fire <strong>${arsTip.gun}</strong> and unleash <strong>${arsTip.skill2}</strong> / <strong>${arsTip.ult}</strong>!`;
         } else if (state.boss.pylons && state.boss.pylons.some(p => p.hp > 0)) {
           tacticalTipHtml = `<strong>ARMOR BREAK TIP:</strong> Destroy ${state.boss.name}'s orbiting hexagonal Shield Pylons first for <strong>1.5× Crit</strong> + <strong>+8 Bonus Ammo</strong>!`;
         }
