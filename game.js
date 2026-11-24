@@ -493,29 +493,312 @@
       this._vibrate([12, 16, 12]);
     }
 
-    playCalderaNova() {
+    // ══════════════════════════════════════════════════════════════════════
+    // === CHANGED (v391): CINEMATIC PER-REALM ULTIMATE SOUND DESIGN ENGINE ===
+    // Dedicated FX bus (procedural convolution reverb + glue compressor) and
+    // three bespoke fully-synthesized ultimate scores (zero audio files):
+    //  • METEOR  → "SOLAR ERUPTION"   : riser → sub impact → roaring fire + crackles + brass power chord + bells
+    //  • DYNAMO  → "THUNDERSTORM"     : charge whine → thunderclap → arc-zaps + tesla hum + laser sweeps
+    //  • HELIX   → "QUANTUM GENESIS"  : whoosh → impact → ethereal stereo choir + spiralling crystal FM arpeggio
+    // ══════════════════════════════════════════════════════════════════════
+    _ensureUltBus() {
+      if (!this.ctx) return null;
+      if (this._ultBus && this._ultBus.ctx === this.ctx) return this._ultBus;
+      const ctx = this.ctx;
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -16;
+      comp.knee.value = 12;
+      comp.ratio.value = 6;
+      comp.attack.value = 0.003;
+      comp.release.value = 0.28;
+      const out = ctx.createGain();
+      out.gain.value = 0.92;
+      comp.connect(out);
+      out.connect(ctx.destination);
+
+      const dry = ctx.createGain();
+      dry.gain.value = 1.0;
+      dry.connect(comp);
+
+      // Procedural stereo hall impulse response (2.4 s exponential tail)
+      const sr = ctx.sampleRate;
+      const irLen = Math.floor(sr * 2.4);
+      const ir = ctx.createBuffer(2, irLen, sr);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = ir.getChannelData(ch);
+        for (let i = 0; i < irLen; i++) {
+          d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 2.8);
+        }
+      }
+      const conv = ctx.createConvolver();
+      conv.buffer = ir;
+      const wet = ctx.createGain();
+      wet.gain.value = 0.38;
+      conv.connect(wet);
+      wet.connect(comp);
+
+      const input = ctx.createGain();
+      input.gain.value = 1.0;
+      input.connect(dry);
+      input.connect(conv);
+
+      // Shared 2 s white-noise buffer
+      const nLen = Math.floor(sr * 2.0);
+      const noise = ctx.createBuffer(1, nLen, sr);
+      const nd = noise.getChannelData(0);
+      for (let i = 0; i < nLen; i++) nd[i] = Math.random() * 2 - 1;
+
+      this._ultBus = { ctx, input, noise };
+      return this._ultBus;
+    }
+
+    _ultPan(dest, pan) {
+      if (!this.ctx.createStereoPanner) return dest;
+      const p = this.ctx.createStereoPanner();
+      p.pan.value = Math.max(-1, Math.min(1, pan));
+      p.connect(dest);
+      return p;
+    }
+
+    _ultOsc(type, f0, f1, t0, dur, peak, attack, dest, detune = 0) {
+      const ctx = this.ctx;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = type;
+      o.detune.value = detune;
+      o.frequency.setValueAtTime(Math.max(1, f0), t0);
+      if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + Math.max(0.004, attack));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g);
+      g.connect(dest);
+      o.start(t0);
+      o.stop(t0 + dur + 0.05);
+      return o;
+    }
+
+    _ultNoise(t0, dur, peak, fType, fStart, fEnd, q, attack, dest) {
+      const ctx = this.ctx;
+      const bus = this._ultBus;
+      const src = ctx.createBufferSource();
+      src.buffer = bus.noise;
+      src.loop = true;
+      const f = ctx.createBiquadFilter();
+      f.type = fType;
+      f.Q.value = q;
+      f.frequency.setValueAtTime(Math.max(20, fStart), t0);
+      if (fEnd && fEnd !== fStart) f.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), t0 + dur);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + Math.max(0.004, attack));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      src.connect(f);
+      f.connect(g);
+      g.connect(dest);
+      src.start(t0, Math.random() * 1.5);
+      src.stop(t0 + dur + 0.05);
+      return g;
+    }
+
+    _ultKick(t0, f0, f1, dur, peak, dest) {
+      const ctx = this.ctx;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const sh = ctx.createWaveShaper();
+      const curve = new Float32Array(256);
+      for (let i = 0; i < 256; i++) {
+        const x = (i / 255) * 2 - 1;
+        curve[i] = Math.tanh(x * 2.6);
+      }
+      sh.curve = curve;
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f0, t0);
+      o.frequency.exponentialRampToValueAtTime(f1, t0 + dur * 0.55);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(sh);
+      sh.connect(g);
+      g.connect(dest);
+      o.start(t0);
+      o.stop(t0 + dur + 0.05);
+    }
+
+    _ultFmBell(t0, freq, dur, peak, dest) {
+      const ctx = this.ctx;
+      const car = ctx.createOscillator();
+      const mod = ctx.createOscillator();
+      const modG = ctx.createGain();
+      const g = ctx.createGain();
+      car.type = 'sine';
+      mod.type = 'sine';
+      car.frequency.value = freq;
+      mod.frequency.value = freq * 3.5;
+      modG.gain.setValueAtTime(freq * 2.2, t0);
+      modG.gain.exponentialRampToValueAtTime(Math.max(1, freq * 0.05), t0 + dur);
+      mod.connect(modG);
+      modG.connect(car.frequency);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      car.connect(g);
+      g.connect(dest);
+      car.start(t0);
+      mod.start(t0);
+      car.stop(t0 + dur + 0.05);
+      mod.stop(t0 + dur + 0.05);
+    }
+
+    playCalderaNova(mode = 'meteor') {
       if (this.isMuted) return;
       this.init();
+      if (!this.ctx) return;
       try {
-        const t0 = this.ctx.currentTime;
-        const sub = this.ctx.createOscillator();
-        const sg = this.ctx.createGain();
-        sub.type = 'sawtooth';
-        sub.frequency.setValueAtTime(190, t0);
-        sub.frequency.exponentialRampToValueAtTime(26, t0 + 0.95);
-        sg.gain.setValueAtTime(0.55, t0);
-        sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.0);
-        sub.connect(sg);
-        sg.connect(this.ctx.destination);
-        sub.start(t0);
-        sub.stop(t0 + 1.02);
+        const bus = this._ensureUltBus();
+        if (!bus) return;
+        const ctx = this.ctx;
+        const T = ctx.currentTime + 0.01;
+        const dest = bus.input;
 
-        const shimmer = [523.25, 659.25, 987.77, 1318.51];
-        shimmer.forEach((f, idx) => {
-          setTimeout(() => this.playTone(f, 'triangle', 0.42, 0.18), 40 + idx * 45);
-        });
+        if (mode === 'dynamo') {
+          // ⚡ THUNDERSTORM — charge whine → thunderclap → crackling arcs → tesla hum → laser sweeps
+          const whineF = ctx.createBiquadFilter();
+          whineF.type = 'bandpass';
+          whineF.Q.value = 6;
+          whineF.frequency.setValueAtTime(400, T);
+          whineF.frequency.exponentialRampToValueAtTime(3600, T + 0.2);
+          whineF.connect(dest);
+          this._ultOsc('sawtooth', 90, 1800, T, 0.22, 0.20, 0.03, whineF);
+          const hit = T + 0.19;
+          this._ultKick(hit, 120, 30, 1.0, 0.95, dest);
+          this._ultNoise(hit, 1.35, 0.85, 'lowpass', 7000, 180, 0.7, 0.004, dest);   // thunderclap & rumble
+          this._ultNoise(hit, 0.18, 0.45, 'highpass', 2500, 2500, 0.7, 0.002, dest);  // crack transient
+          // Tesla hum with FM wobble
+          const humF = ctx.createBiquadFilter();
+          humF.type = 'lowpass';
+          humF.frequency.value = 1400;
+          humF.connect(dest);
+          const hum1 = this._ultOsc('sawtooth', 55, 55, hit, 1.55, 0.14, 0.08, humF);
+          this._ultOsc('sawtooth', 110, 110, hit, 1.55, 0.09, 0.08, humF, 7);
+          const lfo = ctx.createOscillator();
+          const lfoG = ctx.createGain();
+          lfo.frequency.value = 28;
+          lfoG.gain.value = 9;
+          lfo.connect(lfoG);
+          lfoG.connect(hum1.frequency);
+          lfo.start(hit);
+          lfo.stop(hit + 1.6);
+          // 24 crackling electric arc zaps spread across the storm (random stereo)
+          for (let k = 0; k < 24; k++) {
+            const tz = hit + 0.03 + Math.random() * 1.35;
+            const zp = this._ultPan(dest, Math.random() * 1.6 - 0.8);
+            const zf = ctx.createBiquadFilter();
+            zf.type = 'highpass';
+            zf.frequency.value = 900;
+            zf.connect(zp);
+            const f0 = 900 + Math.random() * 3200;
+            this._ultOsc('square', f0, f0 * (0.35 + Math.random() * 0.5), tz, 0.035 + Math.random() * 0.05, 0.10, 0.002, zf);
+            this._ultNoise(tz, 0.03, 0.22, 'highpass', 3200, 3200, 0.7, 0.001, zp);
+          }
+          // Descending plasma laser sweeps
+          [0.22, 0.52, 0.86].forEach((off, i) => {
+            const lp = this._ultPan(dest, i === 1 ? 0.6 : -0.6);
+            this._ultOsc('sine', 2600, 260, hit + off, 0.28, 0.11, 0.004, lp);
+          });
+          // Electric power-chord stab (D5)
+          const stabF = ctx.createBiquadFilter();
+          stabF.type = 'lowpass';
+          stabF.frequency.setValueAtTime(3200, hit);
+          stabF.frequency.exponentialRampToValueAtTime(500, hit + 0.8);
+          stabF.connect(dest);
+          [146.83, 220.0, 293.66].forEach((f, i) => {
+            this._ultOsc('square', f, f, hit, 0.85, 0.05, 0.01, stabF, i * 6 - 6);
+          });
+          this._vibrate([40, 20, 60, 20, 30, 20, 90]);
+
+        } else if (mode === 'helix') {
+          // 🧬 QUANTUM GENESIS — whoosh → impact → ethereal stereo choir → spiralling crystal arpeggio
+          this._ultNoise(T, 0.38, 0.30, 'bandpass', 220, 6500, 2.2, 0.25, dest);
+          const hit = T + 0.24;
+          this._ultKick(hit, 115, 34, 0.95, 0.78, dest);
+          this._ultNoise(hit, 1.2, 0.22, 'highpass', 2600, 6000, 0.7, 0.004, dest);
+          // Ethereal Lydian choir pad (detuned saws, vibrato, alternating stereo)
+          const padF = ctx.createBiquadFilter();
+          padF.type = 'lowpass';
+          padF.frequency.setValueAtTime(900, hit);
+          padF.frequency.exponentialRampToValueAtTime(2600, hit + 0.6);
+          padF.connect(dest);
+          const vib = ctx.createOscillator();
+          const vibG = ctx.createGain();
+          vib.frequency.value = 5.2;
+          vibG.gain.value = 6;
+          vib.connect(vibG);
+          vib.start(hit);
+          vib.stop(hit + 2.0);
+          [293.66, 369.99, 440.0, 554.37, 659.25].forEach((f, i) => {
+            const pp = this._ultPan(padF, i % 2 === 0 ? -0.55 : 0.55);
+            const oA = this._ultOsc('sawtooth', f, f, hit, 1.9, 0.045, 0.28, pp, -9);
+            const oB = this._ultOsc('sawtooth', f, f, hit, 1.9, 0.045, 0.28, pp, 9);
+            vibG.connect(oA.frequency);
+            vibG.connect(oB.frequency);
+          });
+          // Crystal FM arpeggio spiralling L↔R like a double helix
+          [587.33, 739.99, 880.0, 1108.73, 1318.51, 1760.0, 2217.46, 2637.02].forEach((f, i) => {
+            const pan = Math.sin(i * 1.15) * 0.85;
+            this._ultFmBell(hit + 0.02 + i * 0.062, f, 0.62, 0.085, this._ultPan(dest, pan));
+          });
+          // Sparkle glissando shimmer
+          this._ultOsc('sine', 2100, 5200, hit + 0.5, 0.7, 0.045, 0.05, this._ultPan(dest, 0.4));
+          this._ultOsc('sine', 2400, 5800, hit + 0.62, 0.7, 0.035, 0.05, this._ultPan(dest, -0.4));
+          this._vibrate([30, 25, 45, 25, 70]);
+
+        } else {
+          // ☄️ SOLAR ERUPTION — riser → sub impact → roaring fire + crackles → brass power chord → bells
+          this._ultNoise(T, 0.24, 0.28, 'bandpass', 280, 3200, 1.6, 0.18, dest);
+          const hit = T + 0.19;
+          this._ultKick(hit, 140, 28, 1.05, 1.0, dest);
+          const subF = ctx.createBiquadFilter();
+          subF.type = 'lowpass';
+          subF.frequency.value = 320;
+          subF.connect(dest);
+          this._ultOsc('sawtooth', 72, 30, hit, 1.0, 0.32, 0.01, subF);
+          this._ultNoise(hit, 0.7, 0.48, 'highpass', 900, 600, 0.7, 0.003, dest);        // impact crash
+          // Roaring fire body with crackling tremolo
+          const fireG = this._ultNoise(hit + 0.02, 1.65, 0.46, 'lowpass', 1100, 420, 0.9, 0.08, dest);
+          const trem = ctx.createOscillator();
+          const tremG = ctx.createGain();
+          trem.frequency.value = 11;
+          tremG.gain.value = 0.12;
+          trem.connect(tremG);
+          tremG.connect(fireG.gain);
+          trem.start(hit);
+          trem.stop(hit + 1.7);
+          // 16 random fire crackle pops across stereo field
+          for (let k = 0; k < 16; k++) {
+            const tc = hit + 0.05 + Math.random() * 1.4;
+            const cf = 1800 + Math.random() * 3500;
+            this._ultNoise(tc, 0.03, 0.30, 'bandpass', cf, cf, 4, 0.001, this._ultPan(dest, Math.random() * 1.6 - 0.8));
+          }
+          // Triumphant brass power chord with filter swell (C major)
+          const brassF = ctx.createBiquadFilter();
+          brassF.type = 'lowpass';
+          brassF.Q.value = 2;
+          brassF.frequency.setValueAtTime(380, hit);
+          brassF.frequency.exponentialRampToValueAtTime(3400, hit + 0.42);
+          brassF.frequency.exponentialRampToValueAtTime(900, hit + 1.4);
+          brassF.connect(dest);
+          [130.81, 196.0, 261.63, 329.63, 392.0].forEach((f, i) => {
+            this._ultOsc('sawtooth', f, f, hit + 0.02, 1.45, 0.06, 0.07, brassF, -7);
+            this._ultOsc('sawtooth', f, f, hit + 0.02, 1.45, 0.05, 0.07, brassF, 7 + i);
+          });
+          // Golden shimmer bells
+          [1046.5, 1318.51, 1567.98, 2093.0].forEach((f, i) => {
+            this._ultFmBell(hit + 0.24 + i * 0.075, f, 0.6, 0.07, this._ultPan(dest, i % 2 ? 0.5 : -0.5));
+          });
+          this._vibrate([60, 30, 90, 30, 140]);
+        }
       } catch (e) {}
-      this._vibrate([55, 30, 70, 30, 110]);
     }
 
     playSkillReady() {
@@ -6215,9 +6498,9 @@
       cooldownMs: 35000,     // ULT_CD = 35 s
       bossMaxHpPct: 0.15,    // Deals EXACT certain 15% of boss max HP (no crit / armor-break inflation)
       bossPylonDmg: 6,       // Certain fixed damage to active shield pylons (no instant wipe)
-      invulnMs: 1850,        // 1.85 s invulnerability on cast
+      invulnMs: 2050,        // 2.05 s invulnerability on cast
       killChargeMs: 1200,    // Bonus cooldown charge per destroyed hazard/Voidbloom
-      durationMs: 1450,      // Cinematic animated fluid-fire solar pillar + 3D shockwave duration
+      durationMs: 1750,      // Cinematic per-realm ultimate (fire / lightning storm / DNA genesis) duration
       screenShake: 34
     },
     voidbloom: {
@@ -7071,7 +7354,7 @@
         RoundBossEngine.damageBoss(bossDmgDealt, now, true, state.boss.x, state.boss.y, true);
       }
 
-      audio.playCalderaNova();
+      audio.playCalderaNova(this.activeNova ? this.activeNova.mode : 'meteor');
       const summaryParts = [];
       if (bossDmgDealt > 0) summaryParts.push(`-${bossDmgDealt} BOSS HP`);
       if (purge.vbDestroyed > 0) summaryParts.push(`${purge.vbDestroyed} VOIDBLOOM PURGED`);
@@ -7412,8 +7695,8 @@
             dynamo: {
               domeOuter: 'rgba(139, 92, 246, ',
               domeGlow: 'rgba(56, 189, 248, ',
-              ringCore: 'rgba(224, 242, 254, ',
-              ringGlow: 'rgba(56, 189, 248, ',
+              ringCore: 'rgba(254, 240, 138, ',
+              ringGlow: 'rgba(251, 191, 36, ',
               spineEdge: 'rgba(99, 102, 241, ',
               spineMid: 'rgba(56, 189, 248, ',
               emberHot: '#e0f2fe',
@@ -7504,58 +7787,62 @@
           ctx.closePath();
           ctx.clip();
 
-          // Pass 3A: Deep Warm Atmospheric Outer Furnace Aura
-          const outerW = basePillarW * 0.72;
+          // Pass 3A: Atmospheric Outer Column Aura (Helix uses a focused sleek laser spine so DNA strands pop!)
+          const isHelixMode = (mKey === 'helix');
+          const isDynamoMode = (mKey === 'dynamo');
+          const outerW = basePillarW * (isHelixMode ? 0.36 : 0.72);
           const outerG = ctx.createLinearGradient(nv.x - outerW, 0, nv.x + outerW, 0);
           outerG.addColorStop(0.0, 'rgba(0,0,0,0)');
-          outerG.addColorStop(0.28, `${pal.spineEdge}${alphaEnv * 0.34})`);
-          outerG.addColorStop(0.50, `${pal.spineMid}${alphaEnv * 0.56})`);
-          outerG.addColorStop(0.72, `${pal.spineEdge}${alphaEnv * 0.34})`);
+          outerG.addColorStop(0.28, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.24 : 0.34)})`);
+          outerG.addColorStop(0.50, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.42 : 0.56)})`);
+          outerG.addColorStop(0.72, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.24 : 0.34)})`);
           outerG.addColorStop(1.0, 'rgba(0,0,0,0)');
           ctx.fillStyle = outerG;
           ctx.fillRect(nv.x - outerW, 0, outerW * 2, pillarH);
 
-          // Pass 3B: Primary Upward-Rushing Seamless Domain-Warped Turbulent Fire Column (Continuous Full-Height Tiling!)
+          // Pass 3B: Primary Upward-Rushing Seamless Domain-Warped Turbulent Column
           if (flameReady) {
-            const tileW = basePillarW;
+            const tileW = basePillarW * (isHelixMode ? 0.42 : 1.0);
             const tileH = tileW * 2.0; // Exact 1:2 aspect ratio of 384x768 periodic seamless texture!
             const scroll1 = (elapsed * 1.05) % tileH;
-            ctx.globalAlpha = alphaEnv * 0.96;
+            ctx.globalAlpha = alphaEnv * (isHelixMode ? 0.42 : 0.96);
             for (let ty = nv.y + 18 + tileH - scroll1; ty > -tileH; ty -= (tileH - 1)) {
               ctx.drawImage(flameImg, nv.x - tileW * 0.5, ty - tileH, tileW, tileH);
             }
-            // Counter-mirrored faster secondary pass for dense boiling plasma turbulence!
-            const scroll1b = (elapsed * 1.52) % tileH;
-            ctx.save();
-            ctx.translate(nv.x, 0);
-            ctx.scale(-1.08, 1);
-            ctx.globalAlpha = alphaEnv * 0.62;
-            for (let ty = nv.y + 18 + tileH - scroll1b; ty > -tileH; ty -= (tileH - 1)) {
-              ctx.drawImage(flameImg, -tileW * 0.5, ty - tileH, tileW, tileH);
+            // Counter-mirrored secondary pass (Meteor roaring fire & Dynamo plasma; omitted in Helix so DNA helix stays crisp!)
+            if (!isHelixMode) {
+              const scroll1b = (elapsed * 1.52) % tileH;
+              ctx.save();
+              ctx.translate(nv.x, 0);
+              ctx.scale(-1.08, 1);
+              ctx.globalAlpha = alphaEnv * (isDynamoMode ? 0.36 : 0.62);
+              for (let ty = nv.y + 18 + tileH - scroll1b; ty > -tileH; ty -= (tileH - 1)) {
+                ctx.drawImage(flameImg, -tileW * 0.5, ty - tileH, tileW, tileH);
+              }
+              ctx.restore();
             }
-            ctx.restore();
           }
 
-          // Pass 3C: Curling Licking Golden Flame Tendril Ribbons Twisting Up Both Flanks (Continuous Full-Height Tiling!)
-          if (wispsReady) {
+          // Pass 3C: Curling Licking Flame / Plasma Tendril Ribbons Twisting Up Both Flanks
+          if (wispsReady && !isHelixMode) {
             const wTileW = basePillarW * 1.22;
             const wTileH = wTileW * 2.0;
             const scroll2 = (elapsed * 1.38) % wTileH;
-            ctx.globalAlpha = alphaEnv * 0.90;
+            ctx.globalAlpha = alphaEnv * (isDynamoMode ? 0.58 : 0.90);
             for (let ty = nv.y + 18 + wTileH - scroll2; ty > -wTileH; ty -= (wTileH - 1)) {
               ctx.drawImage(wispsImg, nv.x - wTileW * 0.5, ty - wTileH, wTileW, wTileH);
             }
           }
 
-          // Pass 3D: Blinding Incandescent White-Hot Central Plasma Spine!
-          const spineW = (isMob ? 38 : 52) * (0.92 + 0.12 * Math.sin(elapsed * 0.035));
+          // Pass 3D: Central Laser / Plasma Core Spine
+          const spineW = (isMob ? (isHelixMode ? 18 : 38) : (isHelixMode ? 24 : 52)) * (0.92 + 0.12 * Math.sin(elapsed * 0.035));
           const spineG = ctx.createLinearGradient(nv.x - spineW, 0, nv.x + spineW, 0);
           spineG.addColorStop(0.0, 'rgba(255,255,255,0)');
-          spineG.addColorStop(0.24, `${pal.spineMid}${alphaEnv * 0.76})`);
-          spineG.addColorStop(0.42, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
-          spineG.addColorStop(0.50, `rgba(255, 255, 255, ${alphaEnv * 1.0})`);
-          spineG.addColorStop(0.58, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
-          spineG.addColorStop(0.76, `${pal.spineMid}${alphaEnv * 0.76})`);
+          spineG.addColorStop(0.24, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.58 : 0.76)})`);
+          spineG.addColorStop(0.42, `rgba(255, 255, 245, ${alphaEnv * (isHelixMode ? 0.78 : 0.96)})`);
+          spineG.addColorStop(0.50, `rgba(255, 255, 255, ${alphaEnv * (isHelixMode ? 0.88 : 1.0)})`);
+          spineG.addColorStop(0.58, `rgba(255, 255, 245, ${alphaEnv * (isHelixMode ? 0.78 : 0.96)})`);
+          spineG.addColorStop(0.76, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.58 : 0.76)})`);
           spineG.addColorStop(1.0, 'rgba(255,255,255,0)');
           ctx.fillStyle = spineG;
           ctx.fillRect(nv.x - spineW, 0, spineW * 2, pillarH);
@@ -7609,7 +7896,330 @@
             }
           }
 
+          // LAYER 5B: === CHANGED (v391): Bespoke Per-Realm Signature Ultimate FX ===
+          // Dynamo -> fractal branching lightning storm · Helix -> spiralling DNA double helix + crystal shards
+          // Meteor -> solar prominence flame loops + ballistic molten lava ejecta
+          this._drawNovaRealmFX(ctx, nv, elapsed, p, alphaEnv, rampIn, w, h, dtScale, basePillarW, isMob);
+
           ctx.restore();
+        }
+      }
+    },
+
+    // === CHANGED (v391): Midpoint-displacement fractal lightning bolt generator ===
+    _novaBolt(x0, y0, x1, y1, rough, levels) {
+      let pts = [{ x: x0, y: y0 }, { x: x1, y: y1 }];
+      let disp = rough;
+      for (let lv = 0; lv < levels; lv++) {
+        const next = [pts[0]];
+        for (let i = 0; i < pts.length - 1; i++) {
+          const a = pts[i];
+          const b = pts[i + 1];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const off = (Math.random() * 2 - 1) * disp;
+          next.push({ x: (a.x + b.x) * 0.5 + (-dy / len) * off, y: (a.y + b.y) * 0.5 + (dx / len) * off });
+          next.push(b);
+        }
+        pts = next;
+        disp *= 0.52;
+      }
+      return pts;
+    },
+
+    _strokeBoltPasses(ctx, pts, a, scale, glowCol, midCol) {
+      if (!pts || pts.length < 2) return;
+      const trace = () => {
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.stroke();
+      };
+      ctx.strokeStyle = `${glowCol}${0.22 * a})`;
+      ctx.lineWidth = 11 * scale;
+      trace();
+      ctx.strokeStyle = `${midCol}${0.70 * a})`;
+      ctx.lineWidth = 4.2 * scale;
+      trace();
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.96 * a})`;
+      ctx.lineWidth = 1.6 * scale;
+      trace();
+    },
+
+    _drawNovaRealmFX(ctx, nv, elapsed, p, alphaEnv, rampIn, w, h, dtScale, pillarW, isMob) {
+      const mKey = nv.mode || 'meteor';
+      const a = alphaEnv;
+      if (a <= 0.01) return;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (mKey === 'dynamo') {
+        // ⚡ FRACTAL BRANCHING LIGHTNING STORM (re-strikes every ~55 ms for living electric flicker)
+        if (!nv._boltAt || elapsed - nv._boltAt > 55) {
+          nv._boltAt = elapsed;
+          const trunks = [];
+          const branches = [];
+          const ground = [];
+          const topY = -10;
+          const coreTop = nv.y - 34;
+          for (let t = 0; t < 3; t++) {
+            const sx = nv.x + (Math.random() - 0.5) * pillarW * 0.55;
+            trunks.push(this._novaBolt(sx, topY, nv.x + (Math.random() - 0.5) * 18, coreTop, 78, 5));
+          }
+          // Outward-forking tree branches spreading diagonally like a lightning canopy
+          const branchCount = isMob ? 9 : 14;
+          for (let b = 0; b < branchCount; b++) {
+            const tr = trunks[b % trunks.length];
+            const si = 4 + Math.floor(Math.random() * (tr.length - 10));
+            const s = tr[si];
+            const side = (b % 2 === 0) ? -1 : 1;
+            const len = (isMob ? 90 : 130) + Math.random() * (isMob ? 150 : 230);
+            const ang = -Math.PI * 0.5 + side * (0.45 + Math.random() * 0.75);
+            const ex = s.x + Math.cos(ang) * len * 1.25;
+            const ey = s.y + Math.sin(ang) * len * 0.55 + len * 0.35;
+            const br = this._novaBolt(s.x, s.y, ex, ey, 36, 4);
+            branches.push(br);
+            // Secondary twig forks
+            if (Math.random() < 0.55) {
+              const tw = br[Math.floor(br.length * (0.4 + Math.random() * 0.3))];
+              branches.push(this._novaBolt(tw.x, tw.y, tw.x + side * (40 + Math.random() * 90), tw.y + (Math.random() - 0.3) * 70, 16, 3));
+            }
+          }
+          // Ground arcs racing out along the 3D orbital ellipse
+          const rx = nv._ellipseRx || 240;
+          const ry = nv._ellipseRy || 86;
+          for (let g = 0; g < 7; g++) {
+            const ga = Math.random() * Math.PI * 2;
+            ground.push(this._novaBolt(nv.x, nv.y, nv.x + Math.cos(ga) * rx * (0.55 + Math.random() * 0.45), nv.y + Math.sin(ga) * ry * (0.55 + Math.random() * 0.45), 22, 4));
+          }
+          // Tight crackling arcs hugging the Core (drawn in the foreground pass)
+          const arcs = [];
+          for (let c = 0; c < 4; c++) {
+            const a0 = Math.random() * Math.PI * 2;
+            const a1 = a0 + 0.8 + Math.random() * 1.4;
+            const r0 = 50 + Math.random() * 14;
+            arcs.push(this._novaBolt(nv.x + Math.cos(a0) * r0, nv.y + Math.sin(a0) * r0, nv.x + Math.cos(a1) * r0, nv.y + Math.sin(a1) * r0, 14, 3));
+          }
+          nv._bolts = { trunks, branches, ground };
+          nv._coreArcs = arcs;
+          nv._strobe = Math.random() < 0.22;
+        }
+        const bl = nv._bolts;
+        // Subtle lightning strobe (low-alpha, photosensitivity-safe)
+        if (nv._strobe && p < 0.82) {
+          ctx.fillStyle = `rgba(196, 181, 253, ${0.06 * a})`;
+          ctx.fillRect(0, 0, w, h);
+        }
+        for (let i = 0; i < bl.branches.length; i++) {
+          this._strokeBoltPasses(ctx, bl.branches[i], a * 0.85, 0.62, 'rgba(139, 92, 246, ', 'rgba(96, 165, 250, ');
+        }
+        for (let i = 0; i < bl.ground.length; i++) {
+          this._strokeBoltPasses(ctx, bl.ground[i], a * 0.8, 0.55, 'rgba(168, 85, 247, ', 'rgba(125, 211, 252, ');
+        }
+        for (let i = 0; i < bl.trunks.length; i++) {
+          this._strokeBoltPasses(ctx, bl.trunks[i], a, 1.05, 'rgba(124, 58, 237, ', 'rgba(56, 189, 248, ');
+        }
+        // Glowing plasma impact nodes at branch tips
+        const tipSpr = QuantumRenderer._getGlowSprite('violet');
+        ctx.globalAlpha = a * 0.75;
+        for (let i = 0; i < bl.branches.length; i++) {
+          const tip = bl.branches[i][bl.branches[i].length - 1];
+          ctx.drawImage(tipSpr, tip.x - 14, tip.y - 14, 28, 28);
+        }
+        ctx.globalAlpha = 1.0;
+
+      } else if (mKey === 'helix') {
+        // 🧬 SPIRALLING DNA DOUBLE HELIX climbing the quantum beam (true depth sorting + base-pair rungs)
+        const amp = pillarW * 0.30;
+        const step = isMob ? 7 : 6;
+        const k = 0.021;
+        const scroll = elapsed * 0.62;
+        const baseY = nv.y - 26;
+        const frontA = [], backA = [], frontB = [], backB = [];
+        const rungs = [];
+        let prev = null;
+        for (let y = baseY; y > -20; y -= step) {
+          const rise = Math.min(1, (baseY - y) / 90);
+          const ph = (y + scroll) * k;
+          const s = Math.sin(ph);
+          const c = Math.cos(ph);
+          const A = amp * (0.35 + 0.65 * rise);
+          const cur = { y, xa: nv.x + s * A, xb: nv.x - s * A, za: c, ph };
+          if (prev) {
+            (cur.za >= 0 ? frontA : backA).push([prev.xa, prev.y, cur.xa, cur.y]);
+            (cur.za < 0 ? frontB : backB).push([prev.xb, prev.y, cur.xb, cur.y]);
+          }
+          if (Math.floor(ph / 0.55) !== Math.floor((prev ? prev.ph : ph - 1) / 0.55)) {
+            rungs.push(cur);
+          }
+          prev = cur;
+        }
+        const strokeSegs = (segs, col, width) => {
+          if (!segs.length) return;
+          ctx.strokeStyle = col;
+          ctx.lineWidth = width;
+          ctx.beginPath();
+          for (let i = 0; i < segs.length; i++) {
+            ctx.moveTo(segs[i][0], segs[i][1]);
+            ctx.lineTo(segs[i][2], segs[i][3]);
+          }
+          ctx.stroke();
+        };
+        // Back strands (dim, thin) -> rungs -> front strands (vivid neon source-over so they cross cleanly in front of the beam!)
+        strokeSegs(backA, `rgba(232, 121, 249, ${0.46 * a})`, 3.6);
+        strokeSegs(backB, `rgba(34, 211, 238, ${0.46 * a})`, 3.6);
+        ctx.strokeStyle = `rgba(207, 250, 254, ${0.65 * a})`;
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        for (let i = 0; i < rungs.length; i++) {
+          ctx.moveTo(rungs[i].xa, rungs[i].y);
+          ctx.lineTo(rungs[i].xb, rungs[i].y);
+        }
+        ctx.stroke();
+        strokeSegs(frontA, `rgba(240, 171, 252, ${0.42 * a})`, 14);
+        strokeSegs(frontB, `rgba(103, 232, 249, ${0.42 * a})`, 14);
+        // Switch briefly to source-over so the saturated magenta & cyan front helices pop cleanly over the white-cyan beam core
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        strokeSegs(frontA, `rgba(236, 72, 153, ${0.96 * a})`, 5.4);
+        strokeSegs(frontB, `rgba(6, 182, 212, ${0.96 * a})`, 5.4);
+        strokeSegs(frontA, `rgba(253, 224, 247, ${0.88 * a})`, 1.8);
+        strokeSegs(frontB, `rgba(207, 250, 254, ${0.88 * a})`, 1.8);
+        ctx.restore();
+        // Nucleotide glow beads at front rung ends
+        const beadM = QuantumRenderer._getGlowSprite('magPt');
+        const beadC = QuantumRenderer._getGlowSprite('cyanPt');
+        ctx.globalAlpha = a * 0.9;
+        for (let i = 0; i < rungs.length; i++) {
+          const r = rungs[i];
+          ctx.drawImage(r.za >= 0 ? beadM : beadC, (r.za >= 0 ? r.xa : r.xb) - 7, r.y - 7, 14, 14);
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Ripple of concentric bio-lattice ground rings
+        const rx = nv._ellipseRx || 240;
+        const ry = nv._ellipseRy || 86;
+        for (let rI = 0; rI < 3; rI++) {
+          const ph = ((elapsed * 0.0011) + rI / 3) % 1;
+          const sc = 0.55 + ph * 1.15;
+          ctx.strokeStyle = (rI % 2 === 0) ? `rgba(34, 211, 238, ${a * (1 - ph) * 0.85})` : `rgba(232, 121, 249, ${a * (1 - ph) * 0.85})`;
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.ellipse(nv.x, nv.y, rx * sc, ry * sc, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Flying prismatic crystal shards bursting outward from the beam
+        if (!nv._shards) {
+          nv._shards = [];
+          for (let sI = 0; sI < (isMob ? 26 : 40); sI++) {
+            nv._shards.push({ ox: 0, oy: -Math.random() * nv.y, vx: 0, vy: 0, rot: 0, vr: 0, sz: 0, col: 0, init: false });
+          }
+        }
+        for (let sI = 0; sI < nv._shards.length; sI++) {
+          const sh = nv._shards[sI];
+          if (!sh.init || nv.y + sh.oy < -30 || Math.abs(sh.ox) > w * 0.6) {
+            const side = Math.random() < 0.5 ? -1 : 1;
+            sh.ox = side * pillarW * (0.12 + Math.random() * 0.18);
+            sh.oy = -20 - Math.random() * Math.max(120, nv.y - 40);
+            sh.vx = side * (1.6 + Math.random() * 3.2);
+            sh.vy = -(1.2 + Math.random() * 3.0);
+            sh.rot = Math.random() * Math.PI;
+            sh.vr = (Math.random() - 0.5) * 0.18;
+            sh.sz = 6 + Math.random() * 9;
+            sh.col = Math.floor(Math.random() * 3);
+            sh.init = true;
+          }
+          sh.ox += sh.vx * dtScale;
+          sh.oy += sh.vy * dtScale;
+          sh.rot += sh.vr * dtScale;
+          const sx = nv.x + sh.ox;
+          const sy = nv.y + sh.oy;
+          ctx.save();
+          ctx.translate(sx, sy);
+          ctx.rotate(Math.atan2(sh.vy, sh.vx) + Math.PI * 0.5 + sh.rot * 0.2);
+          ctx.fillStyle = sh.col === 0 ? `rgba(165, 243, 252, ${0.85 * a})` : (sh.col === 1 ? `rgba(240, 171, 252, ${0.85 * a})` : `rgba(255, 255, 255, ${0.9 * a})`);
+          ctx.beginPath();
+          ctx.moveTo(0, -sh.sz);
+          ctx.lineTo(sh.sz * 0.32, 0);
+          ctx.lineTo(0, sh.sz * 0.7);
+          ctx.lineTo(-sh.sz * 0.32, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Razor-thin radiant starburst rays fanning from the core
+        ctx.save();
+        ctx.translate(nv.x, nv.y);
+        ctx.scale(1.0, 0.42);
+        ctx.rotate(elapsed * 0.0004);
+        for (let rI = 0; rI < 28; rI++) {
+          const ang = (rI / 28) * Math.PI * 2;
+          const len = (isMob ? 150 : 230) * (0.6 + 0.4 * Math.abs(Math.sin(rI * 2.71))) * rampIn;
+          ctx.strokeStyle = (rI % 2) ? `rgba(165, 243, 252, ${0.42 * a})` : `rgba(240, 171, 252, ${0.38 * a})`;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(ang) * 40, Math.sin(ang) * 40);
+          ctx.lineTo(Math.cos(ang) * len, Math.sin(ang) * len);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+      } else {
+        // ☄️ SOLAR PROMINENCE FLAME LOOPS arcing off the Core + BALLISTIC MOLTEN LAVA EJECTA
+        const grow = Math.min(1, elapsed / 420);
+        for (let lI = 0; lI < 6; lI++) {
+          const side = (lI % 2 === 0) ? -1 : 1;
+          const tier = Math.floor(lI / 2);
+          const baseX = nv.x + side * (34 + tier * 12);
+          const loopH = (isMob ? 110 : 160) * (0.7 + tier * 0.45) * grow * (0.92 + 0.08 * Math.sin(elapsed * 0.012 + lI));
+          const reach = (isMob ? 70 : 105) * (0.8 + tier * 0.4);
+          const endX = nv.x + side * (pillarW * 0.18);
+          const cpX = baseX + side * reach;
+          const cpY = nv.y - loopH;
+          const endY = nv.y - loopH * 1.35;
+          ctx.strokeStyle = `rgba(249, 115, 22, ${0.32 * a})`;
+          ctx.lineWidth = 14;
+          ctx.beginPath();
+          ctx.moveTo(baseX, nv.y - 12);
+          ctx.quadraticCurveTo(cpX, cpY, endX, endY);
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(253, 186, 116, ${0.85 * a})`;
+          ctx.lineWidth = 4.2;
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(255, 251, 235, ${0.80 * a})`;
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+        }
+        // Ballistic molten lava ejecta
+        if (!nv._lava) {
+          nv._lava = [];
+          for (let jI = 0; jI < (isMob ? 18 : 28); jI++) {
+            const ang = -Math.PI * 0.5 + (Math.random() - 0.5) * 2.4;
+            const spd = 6 + Math.random() * 9;
+            nv._lava.push({ x: nv.x, y: nv.y - 10, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, r: 3 + Math.random() * 4.5, px: nv.x, py: nv.y });
+          }
+        }
+        const lavaSpr = QuantumRenderer._getGlowSprite('emberPt');
+        for (let jI = 0; jI < nv._lava.length; jI++) {
+          const lv = nv._lava[jI];
+          lv.px = lv.x;
+          lv.py = lv.y;
+          lv.vy += 0.32 * dtScale;
+          lv.x += lv.vx * dtScale;
+          lv.y += lv.vy * dtScale;
+          if (lv.y > h + 30 || lv.x < -30 || lv.x > w + 30) continue;
+          ctx.strokeStyle = `rgba(251, 146, 60, ${0.65 * a})`;
+          ctx.lineWidth = lv.r * 0.9;
+          ctx.beginPath();
+          ctx.moveTo(lv.px - lv.vx * 1.6, lv.py - lv.vy * 1.6);
+          ctx.lineTo(lv.x, lv.y);
+          ctx.stroke();
+          ctx.globalAlpha = a;
+          ctx.drawImage(lavaSpr, lv.x - lv.r * 3, lv.y - lv.r * 3, lv.r * 6, lv.r * 6);
+          ctx.globalAlpha = 1.0;
         }
       }
     },
@@ -7657,6 +8267,16 @@
       const topGlow = QuantumRenderer._getGlowSprite(nv.mode === 'meteor' ? 'gold' : (nv.mode === 'helix' ? 'helix' : 'cyan'));
       ctx.globalAlpha = alphaEnv * 0.62;
       ctx.drawImage(topGlow, nv.x - 56, nv.y - 68, 112, 86);
+      ctx.globalAlpha = 1.0;
+
+      // LAYER 8 (v391): Dynamo — crackling electric arcs wrapping OVER the Core surface
+      if (nv.mode === 'dynamo' && nv._coreArcs) {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        for (let i = 0; i < nv._coreArcs.length; i++) {
+          this._strokeBoltPasses(ctx, nv._coreArcs[i], alphaEnv * 0.9, 0.5, 'rgba(139, 92, 246, ', 'rgba(125, 211, 252, ');
+        }
+      }
 
       ctx.restore();
     }
