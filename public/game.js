@@ -1,0 +1,15758 @@
+/**
+ * Chrome Synapse: Quantum Arcade Arena (v2.0)
+ * ─────────────────────────────────────────────────────────────
+ * Designed for Sir Orlando V. Pasion, Jr. — Teacher VI, Mathematics Educator, EdTech Innovator
+ * 
+ * Games:
+ * 1. 🧮 Math Overdrive: Professional Eight-Level Difficulty System (20 Qs/level, 10 Mistakes Max)
+ * 2. ⚡ Reflex Blitz: Quantum Realm, Helix & Meteor Catcher with Tier 3 Extra Big Particles (Strict 3 Lives)
+ * 3. 🧠 Memory Matrix: 16-Box (4x4) Fullscreen Neural Array with Harmonic Synthesizer (1 Mistake Game Over)
+ */
+
+(function () {
+  'use strict';
+
+  // --- Procedural Web Audio API Synthesizer ---
+  class CyberAudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.isMuted = false;
+    }
+
+    init() {
+      if (!this.ctx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          this.ctx = new AudioContextClass();
+        }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    }
+
+    playTone(freq, type = 'sine', duration = 0.2, gainVal = 0.15) {
+      if (this.isMuted) return;
+      this.init();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    }
+
+    playCorrectChime(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const baseFreq = 523.25; // C5
+      const mult = Math.min(2.0, 1 + (combo - 1) * 0.12);
+      this.playTone(baseFreq * mult, 'sine', 0.16, 0.18);
+      setTimeout(() => this.playTone(baseFreq * mult * 1.25, 'sine', 0.22, 0.18), 70);
+      setTimeout(() => this.playTone(baseFreq * mult * 1.5, 'sine', 0.30, 0.22), 140);
+    }
+
+    playMistakeBuzzer() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(130.81, 'sawtooth', 0.25, 0.22); // C3
+      setTimeout(() => this.playTone(110.00, 'sawtooth', 0.35, 0.25), 100); // A2
+    }
+
+    playMorphChime() {
+      if (this.isMuted) return;
+      this.init();
+      // Sci-fi arpeggio
+      const notes = [440, 554.37, 659.25, 880, 1108.73];
+      notes.forEach((f, i) => {
+        setTimeout(() => this.playTone(f, 'triangle', 0.20, 0.16), i * 50);
+      });
+    }
+
+    playMatrixTone(boxIndex) {
+      if (this.isMuted) return;
+      this.init();
+      // 16 distinct harmonic frequencies across two octaves (C4 to D6)
+      const pitches = [
+        261.63, 293.66, 329.63, 349.23,
+        392.00, 440.00, 493.88, 523.25,
+        587.33, 659.25, 698.46, 783.99,
+        880.00, 987.77, 1046.50, 1174.66
+      ];
+      const freq = pitches[boxIndex % pitches.length];
+      this.playTone(freq, 'sine', 0.35, 0.25);
+    }
+
+    playVictoryFanfare() {
+      if (this.isMuted) return;
+      this.init();
+      const chord = [523.25, 659.25, 783.99, 1046.50];
+      chord.forEach((f, idx) => {
+        setTimeout(() => this.playTone(f, 'sine', 0.45, 0.20), idx * 80);
+      });
+    }
+
+    _vibrate(pattern) {
+      try {
+        if (navigator.vibrate && (!('userActivation' in navigator) || navigator.userActivation?.hasBeenActive)) {
+          navigator.vibrate(pattern);
+        }
+      } catch(e) {}
+    }
+
+    // Recommendation 5: Mode-Specific Multi-Harmonic Audio & Micro-Haptics
+    playDynamoCapture(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const freq = 480 * Math.min(2.2, 1 + (combo - 1) * 0.08);
+      this.playTone(freq, 'sawtooth', 0.10, 0.22);
+      setTimeout(() => this.playTone(freq * 1.5, 'sine', 0.16, 0.20), 35);
+      this._vibrate(8);
+    }
+
+    playHelixCapture(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+      const pitch = pentatonic[(combo - 1) % pentatonic.length];
+      this.playTone(pitch, 'sine', 0.16, 0.24);
+      setTimeout(() => this.playTone(pitch * 1.25, 'triangle', 0.20, 0.18), 45);
+      this._vibrate([10, 15, 10]);
+    }
+
+    playMeteorCapture(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        const startPitch = 88 + Math.min(40, (combo - 1) * 4);
+        osc.frequency.setValueAtTime(startPitch, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(36, this.ctx.currentTime + 0.28);
+        gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.28);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.28);
+      } catch(e) {
+        this.playTone(65, 'triangle', 0.25, 0.30);
+      }
+      this._vibrate(28);
+    }
+
+    playOverdriveFanfare() {
+      if (this.isMuted) return;
+      this.init();
+      const notes = [440, 554.37, 659.25, 880, 1108.73, 1318.51];
+      notes.forEach((f, idx) => {
+        setTimeout(() => this.playTone(f, 'sine', 0.35, 0.25), idx * 55);
+      });
+      this._vibrate([30, 40, 30, 40, 60]);
+    }
+
+    // Perfect-Center Precision & Chain Audio
+    playPerfectCatch(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const baseFreq = 783.99; // G5
+      const mult = Math.min(2.4, 1 + (combo - 1) * 0.10);
+      this.playTone(baseFreq * mult, 'sine', 0.22, 0.25);
+      setTimeout(() => this.playTone(baseFreq * mult * 1.5, 'sine', 0.28, 0.28), 50);
+      this._vibrate([12, 12, 18]);
+    }
+
+    playGrazeCatch(combo = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const baseFreq = 440.00;
+      this.playTone(baseFreq, 'sine', 0.10, 0.16);
+      this._vibrate(6);
+    }
+
+    playHazardExplosion() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(110.00, 'sawtooth', 0.40, 0.35);
+      setTimeout(() => this.playTone(73.42, 'sawtooth', 0.45, 0.40), 60);
+      this._vibrate([50, 40, 60]);
+    }
+
+    playMissileHit() {
+      if (this.isMuted) return;
+      this.init();
+      // Positive tactical strike tone: bright rising crystalline major triad (D5 -> F#5 -> A5 -> D6)
+      const chord = [587.33, 739.99, 880.00, 1174.66];
+      chord.forEach((f, idx) => {
+        setTimeout(() => this.playTone(f, 'triangle', 0.22, 0.14), idx * 22);
+      });
+      this._vibrate(14);
+    }
+
+    playPulseCharged() {
+      if (this.isMuted) return;
+      this.init();
+      const chord = [392.00, 523.25, 659.25, 783.99, 1046.50];
+      chord.forEach((f, idx) => {
+        setTimeout(() => this.playTone(f, 'sine', 0.25, 0.22), idx * 45);
+      });
+      this._vibrate([15, 20, 25]);
+    }
+
+    playFluxPulseUnleashed(mode = 'dynamo') {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        if (mode === 'helix') {
+          // Cytogenetic Bio-Lattice Shatter: Resonant crystal bell triad with harmonic sweep
+          const freqs = [528, 880, 1320];
+          freqs.forEach((freq, fIdx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t0 + fIdx * 0.04);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.45, t0 + 0.85);
+            gain.gain.setValueAtTime(0.35, t0 + fIdx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.95);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t0 + fIdx * 0.04);
+            osc.stop(t0 + 0.95);
+          });
+        } else if (mode === 'meteor') {
+          // Solar Hypernova Shock: Heavy seismic basalt rumble + furnace roar
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, t0);
+          osc.frequency.exponentialRampToValueAtTime(24, t0 + 0.90);
+          gain.gain.setValueAtTime(0.65, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.90);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.90);
+        } else {
+          // Tachyon Resonance Singularity: Sub-bass 35Hz drop with high-voltage lightning crack
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(360, t0);
+          osc.frequency.exponentialRampToValueAtTime(32, t0 + 0.85);
+          gain.gain.setValueAtTime(0.60, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.85);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.85);
+        }
+      } catch(e) {
+        this.playTone(120, 'triangle', 0.4, 0.5);
+      }
+      this._vibrate([50, 40, 50, 40, 90]);
+    }
+
+    playTier5Ascension() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const chords = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C-E-G-C-E ascending divine triad
+        chords.forEach((note, idx) => {
+          setTimeout(() => this.playTone(note, 'sine', 0.28, 0.25), idx * 45);
+        });
+      } catch (e) {}
+      this._vibrate([30, 20, 30, 20, 60]);
+    }
+
+    playPhaseSwitch() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(659.25, 'sine', 0.12, 0.15);
+      setTimeout(() => this.playTone(880.00, 'sine', 0.16, 0.15), 40);
+      this._vibrate(8);
+    }
+
+    playHyperCometRoar() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, t0);
+        osc.frequency.exponentialRampToValueAtTime(48, t0 + 0.42);
+        gain.gain.setValueAtTime(0.28, t0);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.44);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.45);
+      } catch (e) {}
+      this._vibrate([20, 15, 35]);
+    }
+
+    playCorruptionLaser() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        [680, 340].forEach((startFreq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = idx === 0 ? 'sawtooth' : 'square';
+          osc.frequency.setValueAtTime(startFreq, t0);
+          osc.frequency.exponentialRampToValueAtTime(startFreq * 0.28, t0 + 0.34);
+          gain.gain.setValueAtTime(idx === 0 ? 0.22 : 0.14, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.36);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.38);
+        });
+      } catch (e) {}
+      this._vibrate([25, 20, 40]);
+    }
+
+    playEmpShockwave() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(160, t0);
+        osc.frequency.exponentialRampToValueAtTime(34, t0 + 0.45);
+        gain.gain.setValueAtTime(0.32, t0);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.48);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.50);
+      } catch (e) {}
+      this._vibrate([30, 20, 20]);
+    }
+
+    playQuantumBlink() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, t0);
+        osc.frequency.exponentialRampToValueAtTime(1180, t0 + 0.14);
+        osc.frequency.exponentialRampToValueAtTime(420, t0 + 0.24);
+        gain.gain.setValueAtTime(0.20, t0);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.26);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.28);
+      } catch (e) {}
+      this._vibrate(14);
+    }
+
+    _ensureSfxNoise() {
+      if (!this.ctx) return null;
+      if (this._sfxNoise && this._sfxNoiseCtx === this.ctx) return this._sfxNoise;
+      const sr = this.ctx.sampleRate;
+      const len = Math.floor(sr * 1.5);
+      const buf = this.ctx.createBuffer(1, len, sr);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      this._sfxNoise = buf;
+      this._sfxNoiseCtx = this.ctx;
+      return buf;
+    }
+
+    // === CHANGED (v392): Distinct Primary Gun Audio per Chrome Core ===
+    playCoreCannonShot(mode = 'dynamo', tier = 1) {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const ctx = this.ctx;
+        const t0 = ctx.currentTime;
+        const pitchBoost = 1 + (Math.min(5, tier) - 1) * 0.045;
+        const nBuf = this._ensureSfxNoise();
+
+        if (mode === 'helix') {
+          // HELIX CASTER: Warm harmonic-fifth bio-prism pulse + soft sub body (zero shrillness)
+          [392 * pitchBoost, 587.33 * pitchBoost].forEach((f, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, t0);
+            osc.frequency.exponentialRampToValueAtTime(f * 0.56, t0 + 0.075);
+            gain.gain.setValueAtTime(idx === 0 ? 0.062 : 0.042, t0);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.082);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + 0.088);
+          });
+          const sub = ctx.createOscillator();
+          const sg = ctx.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(150, t0);
+          sub.frequency.exponentialRampToValueAtTime(64, t0 + 0.075);
+          sg.gain.setValueAtTime(0.068, t0);
+          sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.082);
+          sub.connect(sg);
+          sg.connect(ctx.destination);
+          sub.start(t0);
+          sub.stop(t0 + 0.088);
+        } else if (mode === 'meteor') {
+          // EMBER CANNON: Heavy volcanic slug thump + warm lowpass fire puff
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(215 * pitchBoost, t0);
+          osc.frequency.exponentialRampToValueAtTime(54, t0 + 0.09);
+          gain.gain.setValueAtTime(0.13, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.096);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.102);
+
+          if (nBuf) {
+            const src = ctx.createBufferSource();
+            src.buffer = nBuf;
+            const lp = ctx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.setValueAtTime(950, t0);
+            const ng = ctx.createGain();
+            ng.gain.setValueAtTime(0.06, t0);
+            ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.045);
+            src.connect(lp);
+            lp.connect(ng);
+            ng.connect(ctx.destination);
+            src.start(t0, Math.random() * 0.8);
+            src.stop(t0 + 0.05);
+          }
+        } else {
+          // TESLA RAILGUN (Dynamo): Crisp electromagnetic rail-snap + lowpass sawtooth punch
+          const osc = ctx.createOscillator();
+          const lp = ctx.createBiquadFilter();
+          const gain = ctx.createGain();
+          lp.type = 'lowpass';
+          lp.frequency.setValueAtTime(2400, t0);
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(520 * pitchBoost, t0);
+          osc.frequency.exponentialRampToValueAtTime(130, t0 + 0.072);
+          gain.gain.setValueAtTime(0.095, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.076);
+          osc.connect(lp);
+          lp.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.082);
+
+          if (nBuf) {
+            const src = ctx.createBufferSource();
+            src.buffer = nBuf;
+            const hp = ctx.createBiquadFilter();
+            hp.type = 'highpass';
+            hp.frequency.setValueAtTime(1800, t0);
+            const ng = ctx.createGain();
+            ng.gain.setValueAtTime(0.08, t0);
+            ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.014);
+            src.connect(hp);
+            hp.connect(ng);
+            ng.connect(ctx.destination);
+            src.start(t0, Math.random() * 0.8);
+            src.stop(t0 + 0.018);
+          }
+        }
+      } catch (e) {}
+    }
+
+    playBossHit(isCrit = false) {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = isCrit ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(isCrit ? 1280 : 620, t0);
+        osc.frequency.exponentialRampToValueAtTime(isCrit ? 520 : 210, t0 + 0.055);
+        gain.gain.setValueAtTime(isCrit ? 0.11 : 0.065, t0);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.06);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.065);
+      } catch (e) {}
+    }
+
+    playBossWarningSiren() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        for (let k = 0; k < 3; k++) {
+          setTimeout(() => {
+            if (!this.ctx || this.isMuted) return;
+            const t0 = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(520, t0);
+            osc.frequency.exponentialRampToValueAtTime(290, t0 + 0.34);
+            gain.gain.setValueAtTime(0.16, t0);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.38);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + 0.40);
+          }, k * 460);
+        }
+      } catch (e) {}
+      this._vibrate([45, 70, 45, 70, 65]);
+    }
+
+    playArmorBreak() {
+      if (this.isMuted) return;
+      this.init();
+      const notes = [880, 1174.66, 1567.98];
+      notes.forEach((f, idx) => setTimeout(() => this.playTone(f, 'triangle', 0.24, 0.20), idx * 35));
+      this._vibrate([30, 20, 45]);
+    }
+
+    playBossDefeated() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const sub = this.ctx.createOscillator();
+        const sg = this.ctx.createGain();
+        sub.type = 'sawtooth';
+        sub.frequency.setValueAtTime(160, t0);
+        sub.frequency.exponentialRampToValueAtTime(28, t0 + 0.95);
+        sg.gain.setValueAtTime(0.45, t0);
+        sg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.98);
+        sub.connect(sg);
+        sg.connect(this.ctx.destination);
+        sub.start(t0);
+        sub.stop(t0 + 1.0);
+        const fanfare = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+        fanfare.forEach((f, idx) => setTimeout(() => this.playTone(f, 'sine', 0.32, 0.22), 180 + idx * 65));
+      } catch (e) {}
+      this._vibrate([60, 40, 80, 40, 120]);
+    }
+
+    // === CHANGED (v392): Distinct 2nd-Skill Missile Lock-On & Launch SFX ===
+    playSeekerLockOn(mode = 'dynamo') {
+      if (this.isMuted) return;
+      this.init();
+      if (mode === 'helix') {
+        this.playTone(587.33, 'sine', 0.07, 0.12);
+        setTimeout(() => this.playTone(880.0, 'sine', 0.08, 0.11), 50);
+      } else if (mode === 'meteor') {
+        this.playTone(440, 'triangle', 0.065, 0.14);
+        setTimeout(() => this.playTone(660, 'triangle', 0.08, 0.14), 55);
+      } else {
+        this.playTone(880, 'triangle', 0.045, 0.13);
+        setTimeout(() => this.playTone(1320, 'triangle', 0.055, 0.12), 45);
+      }
+      this._vibrate(10);
+    }
+
+    playSeekerLaunch(mode = 'dynamo') {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const ctx = this.ctx;
+        const nBuf = this._ensureSfxNoise();
+        const tBase = ctx.currentTime;
+        if (mode === 'helix') {
+          // PRISM SWARM: 6-note warm mid-register harmonic crystal cascade + soft launch whoosh
+          const notes = [293.66, 369.99, 440.0, 554.37, 659.25, 739.99];
+          notes.forEach((f, idx) => {
+            const ts = tBase + idx * 0.022;
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, ts);
+            g.gain.setValueAtTime(0.0001, ts);
+            g.gain.exponentialRampToValueAtTime(0.085, ts + 0.006);
+            g.gain.exponentialRampToValueAtTime(0.0001, ts + 0.14);
+            osc.connect(g);
+            g.connect(ctx.destination);
+            osc.start(ts);
+            osc.stop(ts + 0.15);
+          });
+          const sw = ctx.createOscillator();
+          const swG = ctx.createGain();
+          sw.type = 'sine';
+          sw.frequency.setValueAtTime(110, tBase);
+          sw.frequency.exponentialRampToValueAtTime(48, tBase + 0.18);
+          swG.gain.setValueAtTime(0.14, tBase);
+          swG.gain.exponentialRampToValueAtTime(0.0001, tBase + 0.20);
+          sw.connect(swG);
+          swG.connect(ctx.destination);
+          sw.start(tBase);
+          sw.stop(tBase + 0.22);
+        } else if (mode === 'meteor') {
+          // SEEKER COMETS: Deep volcanic mortar ignition + roaring comet fire whoosh
+          const sub = ctx.createOscillator();
+          const sg = ctx.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(155, tBase);
+          sub.frequency.exponentialRampToValueAtTime(44, tBase + 0.22);
+          sg.gain.setValueAtTime(0.24, tBase);
+          sg.gain.exponentialRampToValueAtTime(0.0001, tBase + 0.25);
+          sub.connect(sg);
+          sg.connect(ctx.destination);
+          sub.start(tBase);
+          sub.stop(tBase + 0.27);
+          if (nBuf) {
+            const src = ctx.createBufferSource();
+            src.buffer = nBuf;
+            const lp = ctx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.setValueAtTime(920, tBase);
+            lp.frequency.exponentialRampToValueAtTime(280, tBase + 0.34);
+            const ng = ctx.createGain();
+            ng.gain.setValueAtTime(0.22, tBase);
+            ng.gain.exponentialRampToValueAtTime(0.0001, tBase + 0.36);
+            src.connect(lp);
+            lp.connect(ng);
+            ng.connect(ctx.destination);
+            src.start(tBase, Math.random() * 0.4);
+            src.stop(tBase + 0.38);
+          }
+          [0, 1, 2, 3].forEach((idx) => {
+            const ts = tBase + idx * 0.032;
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(260 - idx * 14, ts);
+            o.frequency.exponentialRampToValueAtTime(110, ts + 0.11);
+            g.gain.setValueAtTime(0.11, ts);
+            g.gain.exponentialRampToValueAtTime(0.0001, ts + 0.12);
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.start(ts);
+            o.stop(ts + 0.13);
+          });
+        } else {
+          // ARC SEEKERS (Dynamo): 4 rapid high-voltage capacitor cracks + punchy railgun thumps
+          [0, 1, 2, 3].forEach((idx) => {
+            const ts = tBase + idx * 0.024;
+            const o = ctx.createOscillator();
+            const lp = ctx.createBiquadFilter();
+            const g = ctx.createGain();
+            lp.type = 'lowpass';
+            lp.frequency.value = 2100;
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(340 + idx * 35, ts);
+            o.frequency.exponentialRampToValueAtTime(95, ts + 0.09);
+            g.gain.setValueAtTime(0.10, ts);
+            g.gain.exponentialRampToValueAtTime(0.0001, ts + 0.095);
+            o.connect(lp);
+            lp.connect(g);
+            g.connect(ctx.destination);
+            o.start(ts);
+            o.stop(ts + 0.10);
+            if (nBuf) {
+              const src = ctx.createBufferSource();
+              src.buffer = nBuf;
+              const bp = ctx.createBiquadFilter();
+              bp.type = 'bandpass';
+              bp.frequency.value = 1600;
+              bp.Q.value = 0.8;
+              const ng = ctx.createGain();
+              ng.gain.setValueAtTime(0.13, ts);
+              ng.gain.exponentialRampToValueAtTime(0.0001, ts + 0.022);
+              src.connect(bp);
+              bp.connect(ng);
+              ng.connect(ctx.destination);
+              src.start(ts, Math.random() * 0.6);
+              src.stop(ts + 0.026);
+            }
+          });
+        }
+      } catch (e) {}
+      this._vibrate([12, 16, 12]);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // === CHANGED (v391): CINEMATIC PER-REALM ULTIMATE SOUND DESIGN ENGINE ===
+    // Dedicated FX bus (procedural convolution reverb + glue compressor) and
+    // three bespoke fully-synthesized ultimate scores (zero audio files):
+    //  • METEOR  → "SOLAR ERUPTION"   : riser → sub impact → roaring fire + crackles + brass power chord + bells
+    //  • DYNAMO  → "THUNDERSTORM"     : charge whine → thunderclap → arc-zaps + tesla hum + laser sweeps
+    //  • HELIX   → "QUANTUM GENESIS"  : whoosh → impact → ethereal stereo choir + spiralling crystal FM arpeggio
+    // ══════════════════════════════════════════════════════════════════════
+    _ensureUltBus() {
+      if (!this.ctx) return null;
+      if (this._ultBus && this._ultBus.ctx === this.ctx) return this._ultBus;
+      const ctx = this.ctx;
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -16;
+      comp.knee.value = 12;
+      comp.ratio.value = 6;
+      comp.attack.value = 0.003;
+      comp.release.value = 0.28;
+      const out = ctx.createGain();
+      out.gain.value = 0.92;
+      comp.connect(out);
+      out.connect(ctx.destination);
+
+      const dry = ctx.createGain();
+      dry.gain.value = 1.0;
+      dry.connect(comp);
+
+      // Procedural stereo hall impulse response (2.4 s exponential tail)
+      const sr = ctx.sampleRate;
+      const irLen = Math.floor(sr * 2.4);
+      const ir = ctx.createBuffer(2, irLen, sr);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = ir.getChannelData(ch);
+        for (let i = 0; i < irLen; i++) {
+          d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 2.8);
+        }
+      }
+      const conv = ctx.createConvolver();
+      conv.buffer = ir;
+      const wet = ctx.createGain();
+      wet.gain.value = 0.38;
+      conv.connect(wet);
+      wet.connect(comp);
+
+      const input = ctx.createGain();
+      input.gain.value = 1.0;
+      input.connect(dry);
+      input.connect(conv);
+
+      // Shared 2 s white-noise buffer
+      const nLen = Math.floor(sr * 2.0);
+      const noise = ctx.createBuffer(1, nLen, sr);
+      const nd = noise.getChannelData(0);
+      for (let i = 0; i < nLen; i++) nd[i] = Math.random() * 2 - 1;
+
+      this._ultBus = { ctx, input, noise };
+      return this._ultBus;
+    }
+
+    _ultPan(dest, pan) {
+      if (!this.ctx.createStereoPanner) return dest;
+      const p = this.ctx.createStereoPanner();
+      p.pan.value = Math.max(-1, Math.min(1, pan));
+      p.connect(dest);
+      return p;
+    }
+
+    _ultOsc(type, f0, f1, t0, dur, peak, attack, dest, detune = 0) {
+      const ctx = this.ctx;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = type;
+      o.detune.value = detune;
+      o.frequency.setValueAtTime(Math.max(1, f0), t0);
+      if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + Math.max(0.004, attack));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g);
+      g.connect(dest);
+      o.start(t0);
+      o.stop(t0 + dur + 0.05);
+      return o;
+    }
+
+    _ultNoise(t0, dur, peak, fType, fStart, fEnd, q, attack, dest) {
+      const ctx = this.ctx;
+      const bus = this._ultBus;
+      const src = ctx.createBufferSource();
+      src.buffer = bus.noise;
+      src.loop = true;
+      const f = ctx.createBiquadFilter();
+      f.type = fType;
+      f.Q.value = q;
+      f.frequency.setValueAtTime(Math.max(20, fStart), t0);
+      if (fEnd && fEnd !== fStart) f.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), t0 + dur);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + Math.max(0.004, attack));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      src.connect(f);
+      f.connect(g);
+      g.connect(dest);
+      src.start(t0, Math.random() * 1.5);
+      src.stop(t0 + dur + 0.05);
+      return g;
+    }
+
+    _ultShaperCurve(drive) {
+      if (!this._ultCurves) this._ultCurves = {};
+      if (this._ultCurves[drive]) return this._ultCurves[drive];
+      const curve = new Float32Array(256);
+      for (let i = 0; i < 256; i++) {
+        const x = (i / 255) * 2 - 1;
+        curve[i] = Math.tanh(x * drive);
+      }
+      this._ultCurves[drive] = curve;
+      return curve;
+    }
+
+    _ultClippedNoise(t0, dur, peak, drive, fType, fStart, fEnd, q, attack, dest) {
+      const ctx = this.ctx;
+      const bus = this._ultBus;
+      const src = ctx.createBufferSource();
+      src.buffer = bus.noise;
+      src.loop = true;
+      const f = ctx.createBiquadFilter();
+      f.type = fType;
+      f.Q.value = q;
+      f.frequency.setValueAtTime(Math.max(20, fStart), t0);
+      if (fEnd && fEnd !== fStart) f.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), t0 + dur);
+      const sh = ctx.createWaveShaper();
+      sh.curve = this._ultShaperCurve(drive || 4.0);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + Math.max(0.002, attack));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      src.connect(f);
+      f.connect(sh);
+      sh.connect(g);
+      g.connect(dest);
+      src.start(t0, Math.random() * 1.4);
+      src.stop(t0 + dur + 0.05);
+      return g;
+    }
+
+    _ultKick(t0, f0, f1, dur, peak, dest) {
+      const ctx = this.ctx;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const sh = ctx.createWaveShaper();
+      const curve = new Float32Array(256);
+      for (let i = 0; i < 256; i++) {
+        const x = (i / 255) * 2 - 1;
+        curve[i] = Math.tanh(x * 2.6);
+      }
+      sh.curve = curve;
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f0, t0);
+      o.frequency.exponentialRampToValueAtTime(f1, t0 + dur * 0.55);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(sh);
+      sh.connect(g);
+      g.connect(dest);
+      o.start(t0);
+      o.stop(t0 + dur + 0.05);
+    }
+
+    _ultFmBell(t0, freq, dur, peak, dest) {
+      const ctx = this.ctx;
+      const car = ctx.createOscillator();
+      const mod = ctx.createOscillator();
+      const modG = ctx.createGain();
+      const g = ctx.createGain();
+      car.type = 'sine';
+      mod.type = 'sine';
+      car.frequency.value = freq;
+      mod.frequency.value = freq * 3.5;
+      modG.gain.setValueAtTime(freq * 2.2, t0);
+      modG.gain.exponentialRampToValueAtTime(Math.max(1, freq * 0.05), t0 + dur);
+      mod.connect(modG);
+      modG.connect(car.frequency);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      car.connect(g);
+      g.connect(dest);
+      car.start(t0);
+      mod.start(t0);
+      car.stop(t0 + dur + 0.05);
+      mod.stop(t0 + dur + 0.05);
+    }
+
+    playCalderaNova(mode = 'meteor') {
+      if (this.isMuted) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const bus = this._ensureUltBus();
+        if (!bus) return;
+        const ctx = this.ctx;
+        const T = ctx.currentTime + 0.01;
+        const dest = bus.input;
+
+        if (mode === 'dynamo') {
+          // ⚡ STORM NOVA (REALISTIC THUNDERCLAP + HIGH-VOLTAGE POWER-ARC — ZERO BIRD CHIRPS!)
+          // Pre-strike magnetic transformer swell (deep 55 -> 115 Hz, lowpass 420 Hz)
+          const magF = ctx.createBiquadFilter();
+          magF.type = 'lowpass';
+          magF.frequency.value = 420;
+          magF.connect(dest);
+          this._ultOsc('sawtooth', 55, 115, T, 0.11, 0.22, 0.02, magF);
+
+          const hit = T + 0.08;
+          // 1. 4-Stroke Real Lightning Return Cracks (hard-clipped broadband noise transients across stereo)
+          [
+            { off: 0.0,   pan: 0.0,   dur: 0.088, pk: 0.85 },
+            { off: 0.026, pan: -0.45, dur: 0.068, pk: 0.72 },
+            { off: 0.064, pan: 0.50,  dur: 0.075, pk: 0.78 },
+            { off: 0.125, pan: -0.25, dur: 0.048, pk: 0.56 }
+          ].forEach((st) => {
+            const pDest = this._ultPan(dest, st.pan);
+            this._ultClippedNoise(hit + st.off, st.dur, st.pk, 8.5, 'bandpass', 1050, 1050, 0.55, 0.002, pDest);
+            this._ultClippedNoise(hit + st.off, 0.028, st.pk * 0.52, 6.0, 'highpass', 1500, 1500, 0.5, 0.001, pDest);
+          });
+
+          // 2. Colossal Sub-Bass Thunder Detonation
+          this._ultKick(hit, 96, 23, 1.35, 1.0, dest);
+          this._ultKick(hit + 0.064, 78, 25, 0.95, 0.72, dest);
+          const subT = ctx.createBiquadFilter();
+          subT.type = 'lowpass';
+          subT.frequency.value = 170;
+          subT.connect(dest);
+          this._ultOsc('sawtooth', 48, 24, hit, 1.45, 0.36, 0.008, subT);
+
+          // 3. Rolling Stereo Thunderhead Sky-Rumble (1.90s clipped brown rumble modulated by 5.8 Hz AM roll)
+          const rollL = this._ultClippedNoise(hit + 0.02, 1.88, 0.68, 3.2, 'lowpass', 820, 95, 0.75, 0.015, this._ultPan(dest, -0.65));
+          const rollR = this._ultClippedNoise(hit + 0.05, 1.88, 0.66, 3.2, 'lowpass', 780, 90, 0.75, 0.02, this._ultPan(dest, 0.65));
+          const rollLfo = ctx.createOscillator();
+          const rollLfoG = ctx.createGain();
+          rollLfo.frequency.value = 5.8;
+          rollLfoG.gain.value = 0.22;
+          rollLfo.connect(rollLfoG);
+          rollLfoG.connect(rollL.gain);
+          rollLfoG.connect(rollR.gain);
+          rollLfo.start(hit);
+          rollLfo.stop(hit + 1.92);
+
+          // 4. Raw 60/120/180 Hz High-Voltage Transformer / Jacob's-Ladder Arc Tear (overdriven sawtooths)
+          const arcSh = ctx.createWaveShaper();
+          arcSh.curve = this._ultShaperCurve(4.5);
+          const arcF = ctx.createBiquadFilter();
+          arcF.type = 'lowpass';
+          arcF.frequency.value = 580;
+          arcSh.connect(arcF);
+          arcF.connect(dest);
+          this._ultOsc('sawtooth', 60, 60, hit, 1.55, 0.16, 0.03, arcSh);
+          this._ultOsc('sawtooth', 120, 120, hit, 1.55, 0.11, 0.03, arcSh, 5);
+          this._ultOsc('sawtooth', 180, 180, hit, 1.55, 0.07, 0.03, arcSh, -6);
+
+          // 16 Unpitched Broadband Static Arc Snaps (strictly short bandpass noise — ZERO oscillators!)
+          for (let k = 0; k < 16; k++) {
+            const tz = hit + 0.06 + Math.random() * 1.45;
+            const cf = 1400 + Math.random() * 800;
+            this._ultClippedNoise(tz, 0.008 + Math.random() * 0.008, 0.28, 7.0, 'bandpass', cf, cf, 0.75, 0.001, this._ultPan(dest, Math.random() * 1.5 - 0.75));
+          }
+
+          // 5. Heavy Low-Register Storm Brass Undertow (D2 / A2 / D3 power fifth)
+          const stormF = ctx.createBiquadFilter();
+          stormF.type = 'lowpass';
+          stormF.Q.value = 0.9;
+          stormF.frequency.setValueAtTime(950, hit);
+          stormF.frequency.exponentialRampToValueAtTime(320, hit + 1.2);
+          stormF.connect(dest);
+          [73.42, 110.0, 146.83].forEach((f, i) => {
+            this._ultOsc('sawtooth', f, f, hit + 0.02, 1.25, 0.075, 0.03, stormF, i * 6 - 6);
+          });
+          this._vibrate([50, 20, 75, 20, 35, 20, 100]);
+
+        } else if (mode === 'helix') {
+          // 🧬 GENESIS NOVA (HEAVY GRAVITATIONAL SUB-DROP + 12-VOICE WARM SYNTH-BRASS — ZERO WHISTLE!)
+          // Warm low vacuum inward swell
+          this._ultNoise(T, 0.18, 0.28, 'lowpass', 180, 780, 0.7, 0.12, dest);
+
+          const hit = T + 0.11;
+          // 1. Heavy Quantum Gravitational Sub-Drop + Chest Impact Punch
+          this._ultKick(hit, 118, 26, 1.30, 0.98, dest);
+          this._ultClippedNoise(hit, 0.16, 0.46, 3.5, 'lowpass', 680, 140, 0.7, 0.003, dest);
+          const d1 = ctx.createBiquadFilter();
+          d1.type = 'lowpass';
+          d1.frequency.value = 140;
+          d1.connect(dest);
+          this._ultOsc('sine', 36.71, 36.71, hit, 1.65, 0.34, 0.012, d1);
+
+          // 2. Commanding 12-Voice Warm Cinema Synth-Brass Wall (D2..F#4 through non-whistling Q=0.80 LPF)
+          const brassLP = ctx.createBiquadFilter();
+          brassLP.type = 'lowpass';
+          brassLP.Q.value = 0.80;
+          brassLP.frequency.setValueAtTime(220, hit);
+          brassLP.frequency.exponentialRampToValueAtTime(1280, hit + 0.38);
+          brassLP.frequency.exponentialRampToValueAtTime(460, hit + 1.75);
+          brassLP.connect(dest);
+          [73.42, 110.0, 146.83, 220.0, 293.66, 369.99].forEach((f, i) => {
+            const pDest = this._ultPan(brassLP, i % 2 === 0 ? -0.6 : 0.6);
+            this._ultOsc('sawtooth', f, f, hit, 1.80, 0.068, 0.045, pDest, -10);
+            this._ultOsc('triangle', f, f, hit, 1.80, 0.068, 0.045, pDest, 10);
+          });
+
+          // 3. Biotic Double-Helix Sub-Thrum (10.5 Hz AM pulse through warm lowpass 520 Hz)
+          const thrumF = ctx.createBiquadFilter();
+          thrumF.type = 'lowpass';
+          thrumF.frequency.value = 520;
+          thrumF.connect(dest);
+          const thrumG = ctx.createGain();
+          thrumG.gain.value = 0.85;
+          thrumG.connect(thrumF);
+          this._ultOsc('triangle', 73.42, 73.42, hit, 1.65, 0.14, 0.03, thrumG);
+          this._ultOsc('triangle', 146.83, 146.83, hit, 1.65, 0.11, 0.03, thrumG, 4);
+          const bioLfo = ctx.createOscillator();
+          const bioLfoG = ctx.createGain();
+          bioLfo.frequency.value = 10.5;
+          bioLfoG.gain.value = 0.32;
+          bioLfo.connect(bioLfoG);
+          bioLfoG.connect(thrumG.gain);
+          bioLfo.start(hit);
+          bioLfo.stop(hit + 1.68);
+
+          // 4. Warm Mid-Register Harmonic Plucks (strictly <= 740 Hz — crystalline warmth, zero whistle!)
+          const plkF = ctx.createBiquadFilter();
+          plkF.type = 'lowpass';
+          plkF.frequency.value = 1400;
+          plkF.connect(dest);
+          [220.0, 293.66, 369.99, 440.0, 587.33, 739.99].forEach((f, i) => {
+            const tp = hit + 0.03 + i * 0.055;
+            const pp = this._ultPan(plkF, Math.sin(i * 1.1) * 0.72);
+            this._ultOsc('triangle', f, f, tp, 0.42, 0.075, 0.008, pp);
+            this._ultOsc('sine', f * 0.5, f * 0.5, tp, 0.45, 0.055, 0.008, pp);
+          });
+          this._vibrate([45, 25, 65, 25, 95]);
+
+        } else {
+          // 🌋 CALDERA NOVA (Meteor) — Seismic tectonic sub-crack + roaring volcano fire + crackles + C2/C3 brass + bells
+          this._ultNoise(T, 0.22, 0.28, 'bandpass', 240, 2200, 1.1, 0.16, dest);
+          const hit = T + 0.16;
+          this._ultKick(hit, 140, 26, 1.10, 1.0, dest);
+          this._ultKick(hit + 0.04, 64, 22, 1.35, 0.85, dest);
+          const subF = ctx.createBiquadFilter();
+          subF.type = 'lowpass';
+          subF.frequency.value = 240;
+          subF.connect(dest);
+          this._ultOsc('sawtooth', 72, 28, hit, 1.15, 0.34, 0.01, subF);
+          this._ultClippedNoise(hit + 0.01, 1.45, 0.38, 2.8, 'lowpass', 240, 95, 0.7, 0.02, dest); // seismic magma rumble bed
+          this._ultNoise(hit, 0.7, 0.48, 'highpass', 900, 600, 0.7, 0.003, dest);
+          // Roaring fire body with crackling tremolo
+          const fireG = this._ultNoise(hit + 0.02, 1.65, 0.46, 'lowpass', 1100, 420, 0.9, 0.08, dest);
+          const trem = ctx.createOscillator();
+          const tremG = ctx.createGain();
+          trem.frequency.value = 11;
+          tremG.gain.value = 0.12;
+          trem.connect(tremG);
+          tremG.connect(fireG.gain);
+          trem.start(hit);
+          trem.stop(hit + 1.7);
+          // 16 random fire crackle pops across stereo field
+          for (let k = 0; k < 16; k++) {
+            const tc = hit + 0.05 + Math.random() * 1.4;
+            const cf = 1800 + Math.random() * 3500;
+            this._ultNoise(tc, 0.03, 0.30, 'bandpass', cf, cf, 3.2, 0.001, this._ultPan(dest, Math.random() * 1.6 - 0.8));
+          }
+          // Triumphant brass power chord with deep C2 contrabass foundation
+          const brassF = ctx.createBiquadFilter();
+          brassF.type = 'lowpass';
+          brassF.Q.value = 1.6;
+          brassF.frequency.setValueAtTime(340, hit);
+          brassF.frequency.exponentialRampToValueAtTime(3100, hit + 0.40);
+          brassF.frequency.exponentialRampToValueAtTime(820, hit + 1.45);
+          brassF.connect(dest);
+          this._ultOsc('sawtooth', 65.41, 65.41, hit + 0.01, 1.50, 0.085, 0.06, brassF, -6);
+          this._ultOsc('sawtooth', 65.41, 65.41, hit + 0.01, 1.50, 0.085, 0.06, brassF, 6);
+          [130.81, 196.0, 261.63, 329.63, 392.0].forEach((f, i) => {
+            this._ultOsc('sawtooth', f, f, hit + 0.02, 1.45, 0.06, 0.07, brassF, -7);
+            this._ultOsc('sawtooth', f, f, hit + 0.02, 1.45, 0.05, 0.07, brassF, 7 + i);
+          });
+          // Golden shimmer bells
+          [1046.5, 1318.51, 1567.98, 2093.0].forEach((f, i) => {
+            this._ultFmBell(hit + 0.24 + i * 0.075, f, 0.6, 0.065, this._ultPan(dest, i % 2 ? 0.5 : -0.5));
+          });
+          this._vibrate([65, 30, 95, 30, 145]);
+        }
+      } catch (e) {}
+    }
+
+    playSkillReady() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(880, 'sine', 0.11, 0.13);
+      setTimeout(() => this.playTone(1318.51, 'triangle', 0.18, 0.14), 65);
+    }
+
+    playCooldownReject() {
+      if (this.isMuted) return;
+      this.init();
+      this.playTone(165, 'triangle', 0.08, 0.12);
+    }
+
+    playVoidbloomWarning() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        for (let k = 0; k < 2; k++) {
+          setTimeout(() => {
+            if (!this.ctx || this.isMuted) return;
+            const t0 = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(310, t0);
+            osc.frequency.exponentialRampToValueAtTime(145, t0 + 0.28);
+            g.gain.setValueAtTime(0.14, t0);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.30);
+            osc.connect(g);
+            g.connect(this.ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + 0.32);
+          }, k * 340);
+        }
+      } catch (e) {}
+    }
+
+    playVoidbloomDestroy(scale = 1) {
+      if (this.isMuted) return;
+      this.init();
+      const huge = scale >= 3.2;
+      const chord = huge ? [261.63, 392.0, 523.25, 783.99, 1046.5] : [329.63, 493.88, 659.25];
+      chord.forEach((f, idx) => setTimeout(() => this.playTone(f, 'triangle', huge ? 0.36 : 0.22, huge ? 0.20 : 0.16), idx * 35));
+      this._vibrate(huge ? [40, 25, 65] : [18, 15, 24]);
+    }
+
+    playVoidbloomDrain() {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const t0 = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(240, t0);
+        osc.frequency.exponentialRampToValueAtTime(52, t0 + 0.45);
+        g.gain.setValueAtTime(0.32, t0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.48);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.50);
+      } catch (e) {}
+      this._vibrate([55, 35, 75]);
+    }
+  }
+
+  const audio = new CyberAudioEngine();
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): FUTURISTIC PROCEDURAL REALM MUSIC ENGINE ===
+  // Distinct Sci-Fi Themes: Dynamo (Faraday Pulse), Helix (Quantum Biome),
+  // Meteor (Solar Caldera) — Zero external assets, iOS-safe Web Audio synth!
+  // ══════════════════════════════════════════════════════════════════════════
+  const RealmMusicEngine = {
+    enabled: (() => {
+      try { return localStorage.getItem('oc_bgm_enabled') !== '0'; } catch (_) { return true; }
+    })(),
+    currentRealm: null,
+    isPlaying: false,
+    stepIdx: 0,
+    timerId: null,
+    nextNoteTime: 0,
+    masterGain: null,
+    filterNode: null,
+    noiseBuffer: null,
+
+    // Note frequency table (Hz)
+    N: {
+      E1: 41.20, F1: 43.65, G1: 49.00, Gs1: 51.91, A1: 55.00, Bb1: 58.27, B1: 61.74,
+      C2: 65.41, D2: 73.42, E2: 82.41, F2: 87.31, G2: 98.00, Gs2: 103.83, A2: 110.00, Bb2: 116.54, B2: 123.47,
+      C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, Fs3: 185.00, G3: 196.00, Gs3: 207.65, A3: 220.00, B3: 246.94,
+      C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, Fs4: 369.99, G4: 392.00, Gs4: 415.30, A4: 440.00, Bb4: 466.16, B4: 493.88,
+      C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, Fs5: 739.99, G5: 783.99, Gs5: 830.61, A5: 880.00, B5: 987.77, C6: 1046.50
+    },
+
+    _ensureBus() {
+      audio.init();
+      if (!audio.ctx) return false;
+      if (!this.masterGain) {
+        this.filterNode = audio.ctx.createBiquadFilter();
+        this.filterNode.type = 'lowpass';
+        this.filterNode.frequency.value = 3400;
+        this.filterNode.Q.value = 0.8;
+
+        this.masterGain = audio.ctx.createGain();
+        this.masterGain.gain.value = (this.enabled && !audio.isMuted) ? 0.14 : 0.0001;
+        this.filterNode.connect(this.masterGain);
+        this.masterGain.connect(audio.ctx.destination);
+
+        // Pre-bake 80ms crisp hi-hat / snare noise buffer once (zero per-step alloc)
+        const sr = audio.ctx.sampleRate || 44100;
+        const len = Math.floor(sr * 0.08);
+        this.noiseBuffer = audio.ctx.createBuffer(1, len, sr);
+        const ch = this.noiseBuffer.getChannelData(0);
+        for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      }
+      return true;
+    },
+
+    _syncGain() {
+      if (!this.masterGain || !audio.ctx) return;
+      const target = (this.enabled && !audio.isMuted && this.isPlaying) ? 0.14 : 0.0001;
+      try {
+        this.masterGain.gain.cancelScheduledValues(audio.ctx.currentTime);
+        this.masterGain.gain.setTargetAtTime(target, audio.ctx.currentTime, 0.06);
+      } catch (_) {}
+    },
+
+    setEnabled(val) {
+      this.enabled = !!val;
+      try { localStorage.setItem('oc_bgm_enabled', this.enabled ? '1' : '0'); } catch (_) {}
+      this._syncGain();
+      if (this.enabled && !audio.isMuted && state.active && this.currentRealm && !this.isPlaying) {
+        this.start(this.currentRealm);
+      }
+      this.syncBtnUI();
+    },
+
+    toggle() {
+      this.setEnabled(!this.enabled);
+    },
+
+    syncBtnUI() {
+      const btn = document.getElementById('cgMusicBtn');
+      if (!btn) return;
+      const active = this.enabled && !audio.isMuted;
+      btn.classList.toggle('oc-btn-off', !active);
+      btn.classList.toggle('oc-btn-active', active && this.isPlaying);
+      const tMap = { dynamo: 'FARADAY PULSE', helix: 'QUANTUM BIOME', meteor: 'SOLAR CALDERA' };
+      const tName = tMap[this.currentRealm] || 'REALM SYNTH';
+      btn.title = active ? `Music ON (${tName}) — Click to Mute BGM` : 'Music OFF — Click to Enable Futuristic BGM';
+    },
+
+    start(realm) {
+      const rKey = (realm === 'helix') ? 'helix' : (realm === 'meteor' ? 'meteor' : 'dynamo');
+      this.currentRealm = rKey;
+      if (!this.enabled || audio.isMuted) {
+        this.syncBtnUI();
+        return;
+      }
+      if (!this._ensureBus()) return;
+      if (audio.ctx.state === 'suspended') {
+        audio.ctx.resume().catch(() => {});
+      }
+      if (this.isPlaying) {
+        this._syncGain();
+        this.syncBtnUI();
+        return;
+      }
+      this.isPlaying = true;
+      this.stepIdx = 0;
+      this.nextNoteTime = audio.ctx.currentTime + 0.05;
+      this._syncGain();
+      this.syncBtnUI();
+      if (this.timerId) clearInterval(this.timerId);
+      this.timerId = setInterval(() => this._scheduler(), 32);
+    },
+
+    stop() {
+      this.isPlaying = false;
+      if (this.timerId) {
+        clearInterval(this.timerId);
+        this.timerId = null;
+      }
+      this._syncGain();
+      this.syncBtnUI();
+    },
+
+    unlockOnGesture() {
+      if (!state.active) return;
+      const isCore = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      if (!isCore) return;
+      const rKey = (state.gameType === 'helix') ? 'helix' : (state.gameType === 'meteor' ? 'meteor' : 'dynamo');
+      if (this.enabled && !audio.isMuted) {
+        if (!this.isPlaying || this.currentRealm !== rKey) {
+          this.start(rKey);
+        } else if (audio.ctx && audio.ctx.state === 'suspended') {
+          audio.ctx.resume().catch(() => {});
+        }
+      }
+    },
+
+    _playNote(freq, time, dur, type, vol, detune = 0) {
+      if (!freq || !audio.ctx || !this.filterNode) return;
+      try {
+        const osc = audio.ctx.createOscillator();
+        const g = audio.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, time);
+        if (detune) osc.detune.setValueAtTime(detune, time);
+        g.gain.setValueAtTime(0.0001, time);
+        g.gain.linearRampToValueAtTime(vol, time + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+        osc.connect(g);
+        g.connect(this.filterNode);
+        osc.start(time);
+        osc.stop(time + dur + 0.02);
+      } catch (_) {}
+    },
+
+    _playKick(time, startHz, endHz, vol) {
+      if (!audio.ctx || !this.masterGain) return;
+      try {
+        const osc = audio.ctx.createOscillator();
+        const g = audio.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startHz, time);
+        osc.frequency.exponentialRampToValueAtTime(endHz, time + 0.13);
+        g.gain.setValueAtTime(vol, time);
+        g.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start(time);
+        osc.stop(time + 0.18);
+      } catch (_) {}
+    },
+
+    _playHat(time, vol, hpHz = 6800) {
+      if (!audio.ctx || !this.noiseBuffer || !this.masterGain) return;
+      try {
+        const src = audio.ctx.createBufferSource();
+        src.buffer = this.noiseBuffer;
+        const hp = audio.ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.value = hpHz;
+        const g = audio.ctx.createGain();
+        g.gain.setValueAtTime(vol, time);
+        g.gain.exponentialRampToValueAtTime(0.0001, time + 0.055);
+        src.connect(hp);
+        hp.connect(g);
+        g.connect(this.masterGain);
+        src.start(time);
+        src.stop(time + 0.07);
+      } catch (_) {}
+    },
+
+    _scheduler() {
+      if (!this.isPlaying || !audio.ctx || !this.enabled || audio.isMuted || document.hidden) return;
+      if (audio.ctx.state !== 'running') return;
+      const isBoss = (state.roundPhase === 'boss' || state.roundPhase === 'warning');
+      const bpmMap = { dynamo: 128, helix: 116, meteor: 134 };
+      const bpm = (bpmMap[this.currentRealm] || 128) + (isBoss ? 8 : 0);
+      const stepDur = 60 / bpm / 4; // 16th note
+      const horizon = audio.ctx.currentTime + 0.12;
+
+      if (this.nextNoteTime < audio.ctx.currentTime - 0.15) {
+        this.nextNoteTime = audio.ctx.currentTime + 0.03;
+      }
+
+      while (this.nextNoteTime < horizon) {
+        this._scheduleStep(this.stepIdx, this.nextNoteTime, stepDur, isBoss);
+        this.nextNoteTime += stepDur;
+        this.stepIdx = (this.stepIdx + 1) % 32;
+      }
+    },
+
+    _scheduleStep(step, t, sd, isBoss) {
+      const N = this.N;
+      const r = this.currentRealm;
+      const bar = Math.floor(step / 16);
+      const s = step % 16;
+
+      if (r === 'dynamo') {
+        // CHROME DYNAMO: "FARADAY PULSE" — High-Voltage Cyber-Electro Synthwave (D Minor)
+        const bassSeq = [
+          N.D2, 0, N.D2, N.D2, N.F2, 0, N.D2, 0, N.A1, 0, N.C2, 0, N.D2, 0, N.G2, N.F2,
+          N.Bb1, 0, N.Bb1, N.Bb1, N.C2, 0, N.C2, 0, N.A1, 0, N.A1, N.C2, N.D2, 0, N.F2, N.E2
+        ];
+        const arpSeq = [
+          N.D4, N.A4, N.F4, N.A4, N.C5, N.A4, N.F4, N.E4, N.D4, N.F4, N.A4, N.D5, N.E5, N.D5, N.A4, N.F4,
+          N.Bb4, N.F4, N.D4, N.F4, N.C5, N.G4, N.E4, N.G4, N.A4, N.E4, N.C5, N.A4, N.D5, N.A4, N.F4, N.E4
+        ];
+        if (bassSeq[step]) this._playNote(bassSeq[step], t, sd * 1.4, 'sawtooth', 0.34);
+        if (arpSeq[step] && (s % 2 === 0 || isBoss)) {
+          this._playNote(arpSeq[step], t, sd * 1.15, 'square', isBoss ? 0.14 : 0.11, 5);
+        }
+        if (s === 0 || s === 8) this._playKick(t, 138, 38, 0.42);
+        if (s === 4 || s === 12) this._playHat(t, 0.20, 4200);
+        if (s % 2 === 1) this._playHat(t, isBoss ? 0.10 : 0.06, 7800);
+        if (step === 0 || step === 16) {
+          this._playNote(bar === 0 ? N.D3 : N.Bb2, t, sd * 14, 'triangle', 0.13);
+          this._playNote(bar === 0 ? N.A3 : N.F3, t, sd * 14, 'sine', 0.11);
+        }
+      } else if (r === 'helix') {
+        // CHROME HELIX: "QUANTUM BIOME" — Ethereal Twin-Strand Sci-Fi Trance (A Minor / C Lydian)
+        const strandA = [
+          N.A4, 0, N.C5, 0, N.E5, 0, N.G5, 0, N.E5, 0, N.C5, 0, N.B4, 0, N.G4, 0,
+          N.F4, 0, N.A4, 0, N.C5, 0, N.Fs5, 0, N.E5, 0, N.C5, 0, N.B4, 0, N.E5, 0
+        ];
+        const strandB = [
+          0, N.E4, 0, N.G4, 0, N.B4, 0, N.D5, 0, N.C5, 0, N.A4, 0, N.G4, 0, N.E4,
+          0, N.C4, 0, N.E4, 0, N.A4, 0, N.C5, 0, N.B4, 0, N.G4, 0, N.E4, 0, N.B4
+        ];
+        if (strandA[step]) this._playNote(strandA[step], t, sd * 2.4, 'sine', 0.18);
+        if (strandB[step]) this._playNote(strandB[step], t, sd * 2.1, 'triangle', 0.13, -4);
+        if (s === 0 || s === 6 || s === 12) {
+          const bRoot = bar === 0 ? (s === 12 ? N.G2 : N.A2) : (s === 12 ? N.G2 : N.F2);
+          this._playNote(bRoot, t, sd * 3.5, 'sine', 0.36);
+        }
+        if (s === 0 || (isBoss && s === 8)) this._playKick(t, 108, 42, 0.30);
+        if (s === 4 || s === 12) this._playHat(t, 0.08, 8600);
+        if (step === 0 || step === 16) {
+          this._playNote(bar === 0 ? N.A3 : N.F3, t, sd * 15, 'sine', 0.15);
+          this._playNote(bar === 0 ? N.E4 : N.C4, t, sd * 15, 'sine', 0.11, 6);
+        }
+      } else {
+        // CHROME METEOR: "SOLAR CALDERA" — Epic Dark-Synth Industrial Space-Metal (E Phrygian Dominant)
+        const magmaBass = [
+          N.E1, N.E1, 0, N.E1, N.F1, 0, N.E1, N.G1, N.E1, 0, N.Gs1, 0, N.B1, 0, N.Gs1, N.F1,
+          N.E1, N.E1, 0, N.E1, N.C2, 0, N.B1, 0, N.Gs1, 0, N.F1, N.E1, N.G1, 0, N.F1, N.E1
+        ];
+        const solarLead = [
+          N.E4, 0, N.F4, 0, N.Gs4, 0, N.B4, N.Gs4, N.E4, 0, N.B4, 0, N.C5, 0, N.B4, N.Gs4,
+          N.E5, 0, N.C5, 0, N.B4, 0, N.Gs4, N.F4, N.E4, 0, N.Gs4, 0, N.B4, 0, N.E5, 0
+        ];
+        if (magmaBass[step]) {
+          this._playNote(magmaBass[step], t, sd * 1.35, 'sawtooth', 0.44);
+          this._playNote(magmaBass[step] * 2, t, sd * 0.9, 'sawtooth', 0.18, -7);
+        }
+        if (solarLead[step]) {
+          this._playNote(solarLead[step], t, sd * 1.5, 'sawtooth', isBoss ? 0.16 : 0.12, 7);
+        }
+        if (s === 0 || s === 6 || s === 10 || (isBoss && s === 14)) this._playKick(t, 152, 32, 0.50);
+        if (s === 4 || s === 12) this._playHat(t, 0.24, 3400);
+        if (s % 2 === 1) this._playHat(t, isBoss ? 0.11 : 0.07, 7200);
+        if (step === 0 || step === 16) {
+          this._playNote(bar === 0 ? N.E3 : N.F3, t, sd * 14, 'sawtooth', 0.10, -5);
+          this._playNote(bar === 0 ? N.B3 : N.C4, t, sd * 14, 'triangle', 0.12);
+        }
+      }
+    }
+  };
+  window.RealmMusicEngine = RealmMusicEngine;
+
+  // --- Eight-Level Mathematics Engine ---
+  const MathEngine = {
+    // Generate exactly 20 questions for the selected level
+    generateLevelSet(levelNum) {
+      const questions = [];
+      const usedSignatures = new Set();
+
+      // Operation distributions per level
+      let dist;
+      switch (levelNum) {
+        case 1: dist = { add: 8, sub: 6, mul: 4, div: 2 }; break;
+        case 2: dist = { add: 6, sub: 6, mul: 4, div: 4 }; break;
+        case 3: dist = { add: 5, sub: 5, mul: 5, div: 5 }; break;
+        case 4: dist = { add: 6, sub: 6, mul: 4, div: 4 }; break;
+        case 5: dist = { add: 5, sub: 5, mul: 5, div: 5 }; break;
+        case 6: dist = { add: 5, sub: 5, mul: 5, div: 5 }; break;
+        case 7: dist = { add: 5, sub: 5, mul: 5, div: 5 }; break;
+        case 8:
+        default: dist = { add: 5, sub: 5, mul: 5, div: 5 }; break;
+      }
+
+      const opList = [
+        ...Array(dist.add).fill('+'),
+        ...Array(dist.sub).fill('−'),
+        ...Array(dist.mul).fill('×'),
+        ...Array(dist.div).fill('÷')
+      ];
+
+      // Shuffle operations
+      for (let i = opList.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opList[i], opList[j]] = [opList[j], opList[i]];
+      }
+
+      for (let i = 0; i < opList.length; i++) {
+        const op = opList[i];
+        let q = null;
+        let attempts = 0;
+
+        while (!q && attempts < 100) {
+          attempts++;
+          const candidate = this.createQuestion(levelNum, op, i);
+          const sig = `${candidate.a}|${op}|${candidate.b}`;
+          const commSig = (op === '+' || op === '×') ? `${candidate.b}|${op}|${candidate.a}` : sig;
+
+          if (!usedSignatures.has(sig) && !usedSignatures.has(commSig)) {
+            usedSignatures.add(sig);
+            usedSignatures.add(commSig);
+            q = candidate;
+          }
+        }
+
+        if (!q) {
+          // Fallback if space is tight
+          q = this.createQuestion(levelNum, op, i, true);
+        }
+        questions.push(q);
+      }
+
+      return questions;
+    },
+
+    createQuestion(level, op, qIdx, allowFallback = false) {
+      let a = 1, b = 1, ans = 0;
+
+      // Random integer in range [min, max] inclusive
+      const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+      const randNonZero = (min, max) => {
+        let v = 0;
+        while (v === 0) v = randInt(min, max);
+        return v;
+      };
+
+      if (level === 1) {
+        // Level 1: Positive one-digit integers (1 to 9). Sub nonnegative, div whole number
+        if (op === '+') {
+          a = randInt(1, 9);
+          b = randInt(1, 9);
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(1, 9);
+          b = randInt(1, a); // guarantees a >= b
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(1, 9);
+          b = randInt(1, 9);
+          ans = a * b;
+        } else if (op === '÷') {
+          b = randInt(1, 9);
+          ans = randInt(1, 9);
+          a = b * ans;
+          if (a > 9 && !allowFallback) {
+            // keep 1-digit dividend if possible, or small quotient
+            b = randInt(1, 4);
+            ans = randInt(1, 2);
+            a = b * ans;
+          }
+        }
+      } else if (level === 2) {
+        // Level 2: Exactly one negative operand (abs 1 to 9)
+        const signA = Math.random() < 0.5 ? -1 : 1;
+        const signB = -signA; // exactly one negative
+
+        if (op === '+') {
+          a = randInt(1, 9) * signA;
+          b = randInt(1, 9) * signB;
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(1, 9) * signA;
+          b = randInt(1, 9) * signB;
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(1, 9) * signA;
+          b = randInt(1, 9) * signB;
+          ans = a * b;
+        } else if (op === '÷') {
+          const quotMag = randInt(1, 9);
+          const divMag = randInt(1, 9);
+          b = divMag * signB;
+          ans = quotMag * (signA * signB);
+          a = b * ans;
+          // adjust signs so exactly one of a or b is negative
+          if ((a < 0 && b < 0) || (a > 0 && b > 0)) {
+            a = -a;
+            ans = Math.round(a / b);
+          }
+        }
+      } else if (level === 3) {
+        // Level 3: Mixed signs (abs 1 to 9). At least 40% two negative operands
+        const requireTwoNeg = (qIdx < 8) || (Math.random() < 0.45);
+        let signA, signB;
+        if (requireTwoNeg) {
+          signA = -1;
+          signB = -1;
+        } else {
+          signA = Math.random() < 0.5 ? 1 : -1;
+          signB = Math.random() < 0.5 ? 1 : -1;
+        }
+
+        if (op === '+') {
+          a = randInt(1, 9) * signA;
+          b = randInt(1, 9) * signB;
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(1, 9) * signA;
+          b = randInt(1, 9) * signB;
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(1, 9) * signA;
+          b = randInt(1, 9) * signB;
+          ans = a * b;
+        } else if (op === '÷') {
+          const divMag = randInt(1, 9);
+          const quotMag = randInt(1, 9);
+          b = divMag * signB;
+          ans = quotMag * (signA * signB);
+          a = b * ans;
+          if (signA === -1 && a > 0) a = -a;
+          if (signA === 1 && a < 0) a = -a;
+          ans = Math.round(a / b);
+        }
+      } else if (level === 4) {
+        // Level 4: Positive two-digit integers (10-99) & positive one-digit (1-5)
+        if (op === '+') {
+          a = randInt(10, 99);
+          b = randInt(1, 5);
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(10, 99);
+          b = randInt(1, 5);
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(10, 19);
+          b = randInt(2, 5);
+          ans = a * b;
+        } else if (op === '÷') {
+          const quot = randInt(10, 19);
+          b = randInt(2, 5);
+          a = b * quot;
+          ans = quot;
+        }
+      } else if (level === 5) {
+        // Level 5: Signed two-digit (abs 10-99) & small one-digit (abs 1-5)
+        const signA = Math.random() < 0.5 ? 1 : -1;
+        const signB = Math.random() < 0.5 ? 1 : -1;
+
+        if (op === '+') {
+          a = randInt(10, 99) * signA;
+          b = randInt(1, 5) * signB;
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(10, 99) * signA;
+          b = randInt(1, 5) * signB;
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(10, 19) * signA;
+          b = randInt(1, 5) * signB;
+          ans = a * b;
+        } else if (op === '÷') {
+          const quot = randInt(10, 19) * signA;
+          b = randInt(2, 5) * signB;
+          a = b * quot;
+          ans = quot;
+        }
+      } else if (level === 6) {
+        // Level 6: Signed two-digit (abs 10-99) & larger one-digit (abs 6-9)
+        const signA = Math.random() < 0.5 ? 1 : -1;
+        const signB = Math.random() < 0.5 ? 1 : -1;
+
+        if (op === '+') {
+          a = randInt(10, 99) * signA;
+          b = randInt(6, 9) * signB;
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(10, 99) * signA;
+          b = randInt(6, 9) * signB;
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(10, 19) * signA;
+          b = randInt(6, 9) * signB;
+          ans = a * b;
+        } else if (op === '÷') {
+          b = randInt(6, 9) * signB;
+          const maxQuot = Math.floor(99 / Math.abs(b));
+          const quotMag = randInt(10, Math.max(10, maxQuot));
+          ans = quotMag * (signA * signB);
+          a = b * ans;
+        }
+      } else if (level === 7) {
+        // Level 7: Advanced signed integers (abs 10 to 50)
+        const signA = Math.random() < 0.5 ? 1 : -1;
+        const signB = Math.random() < 0.5 ? 1 : -1;
+        if (op === '+') {
+          a = randInt(10, 50) * signA;
+          b = randInt(10, 50) * signB;
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(10, 50) * signA;
+          b = randInt(10, 50) * signB;
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(10, 25) * signA;
+          b = randInt(2, 8) * signB;
+          ans = a * b;
+        } else if (op === '÷') {
+          const quot = randInt(10, 25) * signA;
+          b = randInt(2, 6) * signB;
+          a = b * quot;
+          ans = quot;
+        }
+      } else {
+        // Level 8: Master fluency across full 10-99 signed range
+        const signA = Math.random() < 0.5 ? 1 : -1;
+        const signB = Math.random() < 0.5 ? 1 : -1;
+        if (op === '+') {
+          a = randInt(15, 99) * signA;
+          b = randInt(15, 99) * signB;
+          ans = a + b;
+        } else if (op === '−') {
+          a = randInt(15, 99) * signA;
+          b = randInt(15, 99) * signB;
+          ans = a - b;
+        } else if (op === '×') {
+          a = randInt(12, 35) * signA;
+          b = randInt(3, 12) * signB;
+          ans = a * b;
+        } else if (op === '÷') {
+          const quot = randInt(12, 30) * signA;
+          b = randInt(3, 9) * signB;
+          a = b * quot;
+          ans = quot;
+        }
+      }
+
+      // Format operand with parentheses if negative
+      const fmt = (n) => (n < 0 ? `(${n})` : `${n}`);
+      const expr = `${fmt(a)} ${op} ${fmt(b)}`;
+
+      // Generate 3 plausible distractors
+      const options = [ans];
+      const deltas = [-10, 10, -1, 1, -2, 2, -ans, ans * -1];
+
+      // Shuffle deltas
+      deltas.sort(() => Math.random() - 0.5);
+
+      for (const d of deltas) {
+        if (options.length >= 4) break;
+        const cand = (d === -ans || d === ans * -1) ? -ans : ans + d;
+        if (!options.includes(cand)) {
+          options.push(cand);
+        }
+      }
+
+      while (options.length < 4) {
+        const offset = (Math.random() < 0.5 ? -1 : 1) * randInt(1, 15);
+        const cand = ans + offset;
+        if (!options.includes(cand)) {
+          options.push(cand);
+        }
+      }
+
+      // Shuffle options
+      options.sort(() => Math.random() - 0.5);
+
+      return {
+        expr,
+        a,
+        b,
+        op,
+        ans,
+        options,
+        choices: options
+      };
+    }
+  };
+
+  
+  // ══════════════════════════════════════════════════════════════
+  // PROCEDURAL 3D ASTEROID, VOLUMETRIC SMOKE & PLASMA VFX ENGINE
+  // (Pre-rendered zero-allocation sprite caches for 60-120 FPS)
+  // ══════════════════════════════════════════════════════════════
+  var MeteorVFXEngine = (function() {
+    var ASTEROID_COUNT = 6;
+    var asteroidSprites = [];
+    var smokeSprite = null;
+    var plasmaSprite = null;
+    var emberSprite = null;
+    var electricSparkSprite = null;
+    var helixCyanSparkSprite = null;
+    var helixMagentaSparkSprite = null;
+    var flameWispSprite = null;
+    var flamePuffSprite = null;
+    var cursorAsteroidSprite = null;
+    var initialized = false;
+
+    function init() {
+      if (initialized) return;
+      try {
+        for (var i = 0; i < ASTEROID_COUNT; i++) {
+          asteroidSprites.push(generateAsteroidCanvas(i, 96, false));
+        }
+        cursorAsteroidSprite = generateAsteroidCanvas(0, 144, true);
+        smokeSprite = generateSmokeCanvas(64);
+        plasmaSprite = generatePlasmaCanvas(64);
+        emberSprite = generateEmberCanvas(24);
+        electricSparkSprite = generateElectricSparkCanvas(24);
+        helixCyanSparkSprite = generateHelixSparkCanvas(24, false);
+        helixMagentaSparkSprite = generateHelixSparkCanvas(24, true);
+        flameWispSprite = generateFlameWispCanvas(64, 96);
+        flamePuffSprite = generateFlamePuffCanvas(64);
+        initialized = true;
+      } catch (e) {
+        console.error("MeteorVFXEngine initialization error:", e);
+      }
+    }
+
+    function generateAsteroidCanvas(type, size, isCursor) {
+      var canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = size * 0.5;
+      var cy = size * 0.5;
+      var baseR = size * (isCursor ? 0.36 : 0.34);
+
+      // 1. Perfect Round Spherical Volcanic Asteroid
+      var SAMPLES = 36;
+      var dTheta = (Math.PI * 2) / SAMPLES;
+      var rPts = [];
+      for (var s = 0; s < SAMPLES; s++) {
+        rPts.push(baseR);
+      }
+
+      // 2. Basalt Mineral Body with 3D Spherical Light Vector (-0.45, -0.55)
+      ctx.save();
+      ctx.beginPath();
+      for (var s = 0; s < SAMPLES; s++) {
+        var th = s * dTheta;
+        var x = cx + Math.cos(th) * rPts[s];
+        var y = cy + Math.sin(th) * rPts[s];
+        if (s === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.clip();
+
+      // 3D Directional Lighting Gradient (Deep Basalt Regolith)
+      var lightX = cx - baseR * 0.45;
+      var lightY = cy - baseR * 0.55;
+      var bodyGrad = ctx.createRadialGradient(lightX, lightY, baseR * 0.12, cx, cy, baseR * 1.30);
+      bodyGrad.addColorStop(0.0, "#5c4537"); // Sunlit mineral ridge
+      bodyGrad.addColorStop(0.30, "#3d2b20"); // Deep basalt mantle
+      bodyGrad.addColorStop(0.62, "#21140e"); // Deep regolith
+      bodyGrad.addColorStop(0.88, "#110906"); // Shadowed regolith
+      bodyGrad.addColorStop(1.0, "#050302"); // Deep space shadow
+      ctx.fillStyle = bodyGrad;
+      ctx.fill();
+
+      // Chiseled Crystalline Facets (Subtle geometric planar depth)
+      var facets = [
+        [[-0.45, -0.55], [0.10, -0.65], [0.18, -0.25], [-0.22, -0.18]],
+        [[0.18, -0.25], [0.65, -0.35], [0.55, 0.12], [0.08, -0.08]],
+        [[-0.52, -0.18], [-0.08, -0.08], [-0.18, 0.42], [-0.58, 0.22]],
+        [[-0.08, -0.08], [0.48, 0.12], [0.28, 0.58], [-0.08, 0.48]]
+      ];
+      for (var fc = 0; fc < facets.length; fc++) {
+        var fct = facets[fc];
+        ctx.beginPath();
+        for (var p = 0; p < fct.length; p++) {
+          var px = cx + fct[p][0] * baseR;
+          var py = cy + fct[p][1] * baseR;
+          if (p === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fc % 2 === 0 ? "rgba(120, 95, 78, 0.30)" : "rgba(35, 20, 14, 0.42)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(140, 110, 90, 0.22)";
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+
+      // Vesicular 3D Impact Craters with Sunlit Rims and Molten Magma Wells
+      var numCraters = isCursor ? 6 : 4;
+      for (var c = 0; c < numCraters; c++) {
+        var cAng = (c * 1.85 + type * 1.1) % (Math.PI * 2);
+        var cDist = baseR * (0.22 + (c * 0.14) % 0.52);
+        var crX = cx + Math.cos(cAng) * cDist;
+        var crY = cy + Math.sin(cAng) * cDist;
+        var crR = baseR * (0.13 + (c * 0.05) % 0.16);
+
+        ctx.beginPath();
+        ctx.arc(crX, crY, crR, 0, Math.PI * 2);
+        ctx.fillStyle = "#070302"; // Crater hollow
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(crX - 0.8, crY - 1.0, crR, Math.PI * 0.7, Math.PI * 1.9);
+        ctx.strokeStyle = "rgba(160, 130, 110, 0.65)"; // Sunlit rim highlight
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(crX + 0.8, crY + 1.0, crR, Math.PI * 1.9, Math.PI * 0.7);
+        ctx.strokeStyle = "rgba(8, 4, 2, 0.85)"; // Shadowed inner rim
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Molten bubbling magma pool in crater floor
+        ctx.beginPath();
+        ctx.arc(crX, crY, crR * 0.55, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(234, 88, 12, 0.72)";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(crX, crY, crR * 0.26, 0, Math.PI * 2);
+        ctx.fillStyle = "#fef08a";
+        ctx.fill();
+      }
+
+      // 3. Multi-Branching Curved Molten Magma Fissures (Planck Blackbody Radiation)
+      var fissureDefs = [
+        [[-0.58, -0.32], [-0.35, -0.22], [-0.15, -0.08], [0.08, 0.05], [0.32, 0.14], [0.58, 0.35]],
+        [[0.28, -0.48], [0.18, -0.22], [0.08, 0.05], [-0.12, 0.24], [-0.32, 0.48]],
+        [[-0.15, -0.08], [-0.30, 0.08], [-0.52, 0.12]]
+      ];
+
+      for (var f = 0; f < fissureDefs.length; f++) {
+        var pts = fissureDefs[f];
+        // Layer A: Wide crimson thermal heat aura bleeding into adjacent rock
+        ctx.beginPath();
+        ctx.moveTo(cx + pts[0][0] * baseR, cy + pts[0][1] * baseR);
+        for (var j = 1; j < pts.length; j++) {
+          var mx = (pts[j - 1][0] + pts[j][0]) * 0.5 * baseR + cx;
+          var my = (pts[j - 1][1] + pts[j][1]) * 0.5 * baseR + cy;
+          ctx.quadraticCurveTo(cx + pts[j - 1][0] * baseR, cy + pts[j - 1][1] * baseR, mx, my);
+        }
+        ctx.lineTo(cx + pts[pts.length - 1][0] * baseR, cy + pts[pts.length - 1][1] * baseR);
+        ctx.strokeStyle = "rgba(220, 38, 38, 0.65)";
+        ctx.lineWidth = 4.8;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.stroke();
+
+        // Layer B: Middle radiant magma mantle
+        ctx.beginPath();
+        ctx.moveTo(cx + pts[0][0] * baseR, cy + pts[0][1] * baseR);
+        for (var j = 1; j < pts.length; j++) {
+          var mx = (pts[j - 1][0] + pts[j][0]) * 0.5 * baseR + cx;
+          var my = (pts[j - 1][1] + pts[j][1]) * 0.5 * baseR + cy;
+          ctx.quadraticCurveTo(cx + pts[j - 1][0] * baseR, cy + pts[j - 1][1] * baseR, mx, my);
+        }
+        ctx.lineTo(cx + pts[pts.length - 1][0] * baseR, cy + pts[pts.length - 1][1] * baseR);
+        ctx.strokeStyle = "rgba(249, 115, 22, 0.92)";
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        // Layer C: Core blackbody incandescent vein (5000K white-gold)
+        ctx.beginPath();
+        ctx.moveTo(cx + pts[0][0] * baseR, cy + pts[0][1] * baseR);
+        for (var j = 1; j < pts.length; j++) {
+          var mx = (pts[j - 1][0] + pts[j][0]) * 0.5 * baseR + cx;
+          var my = (pts[j - 1][1] + pts[j][1]) * 0.5 * baseR + cy;
+          ctx.quadraticCurveTo(cx + pts[j - 1][0] * baseR, cy + pts[j - 1][1] * baseR, mx, my);
+        }
+        ctx.lineTo(cx + pts[pts.length - 1][0] * baseR, cy + pts[pts.length - 1][1] * baseR);
+        ctx.strokeStyle = "rgba(255, 255, 245, 0.98)";
+        ctx.lineWidth = 1.0;
+        ctx.stroke();
+      }
+
+      // Molten Caldera Hotspots at fissure convergence
+      var calderas = [[0.08, 0.05], [-0.15, -0.08]];
+      for (var k = 0; k < calderas.length; k++) {
+        var kx = cx + calderas[k][0] * baseR;
+        var ky = cy + calderas[k][1] * baseR;
+        ctx.beginPath();
+        ctx.arc(kx, ky, 3.8, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(249, 115, 22, 0.70)";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(kx, ky, 2.0, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(254, 240, 138, 0.95)";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(kx, ky, 1.0, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      // 4. Asteroid Perimeter Incandescent Ablation Rim
+      ctx.beginPath();
+      for (var s = 0; s < SAMPLES; s++) {
+        var th = s * dTheta;
+        var x = cx + Math.cos(th) * rPts[s];
+        var y = cy + Math.sin(th) * rPts[s];
+        if (s === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "rgba(251, 191, 36, 0.95)";
+      ctx.lineWidth = isCursor ? 1.8 : 1.4;
+      ctx.stroke();
+
+      return canvas;
+    }
+
+    function generateSmokeCanvas(size) {
+      var canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = size * 0.5;
+      var cy = size * 0.5;
+      var r = size * 0.46;
+
+      // Organic multi-lobe soft volumetric puff
+      var lobes = [
+        { x: cx, y: cy, r: r * 0.95, a: 0.38 },
+        { x: cx - r * 0.18, y: cy + r * 0.15, r: r * 0.75, a: 0.28 },
+        { x: cx + r * 0.20, y: cy - r * 0.12, r: r * 0.70, a: 0.26 }
+      ];
+
+      for (var l = 0; l < lobes.length; l++) {
+        var lb = lobes[l];
+        var g = ctx.createRadialGradient(lb.x, lb.y, lb.r * 0.15, lb.x, lb.y, lb.r);
+        g.addColorStop(0.0, "rgba(38, 30, 26, " + lb.a + ")");
+        g.addColorStop(0.45, "rgba(30, 24, 21, " + (lb.a * 0.65).toFixed(2) + ")");
+        g.addColorStop(0.80, "rgba(22, 18, 16, " + (lb.a * 0.22).toFixed(2) + ")");
+        g.addColorStop(1.0, "rgba(16, 12, 10, 0.0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(lb.x, lb.y, lb.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      return canvas;
+    }
+
+    function generatePlasmaCanvas(size) {
+      var canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = size * 0.5;
+      var cy = size * 0.5;
+      var r = size * 0.48;
+
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0.0, "rgba(255, 255, 255, 1.0)");
+      g.addColorStop(0.22, "rgba(254, 240, 138, 0.92)");
+      g.addColorStop(0.50, "rgba(249, 115, 22, 0.60)");
+      g.addColorStop(0.80, "rgba(194, 65, 12, 0.20)");
+      g.addColorStop(1.0, "rgba(124, 45, 18, 0.0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      return canvas;
+    }
+
+    // Bi-Chromatic Bioluminescent Nucleotide Spark Sprite for Quantum Helix Tail Wake (High-Fidelity 8-Point Diamond Starlight)
+    function generateHelixSparkCanvas(size, isMagenta) {
+      var canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = size * 0.5;
+      var cy = size * 0.5;
+      var r = size * 0.46;
+
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0.0, "rgba(255, 255, 255, 1.0)");
+      if (isMagenta) {
+        g.addColorStop(0.20, "rgba(250, 232, 255, 0.98)");
+        g.addColorStop(0.48, "rgba(217, 70, 239, 0.70)");
+        g.addColorStop(0.78, "rgba(168, 85, 247, 0.30)");
+        g.addColorStop(1.0, "rgba(126, 34, 206, 0.0)");
+      } else {
+        g.addColorStop(0.20, "rgba(207, 250, 254, 0.98)");
+        g.addColorStop(0.48, "rgba(34, 211, 238, 0.70)");
+        g.addColorStop(0.78, "rgba(56, 189, 248, 0.30)");
+        g.addColorStop(1.0, "rgba(14, 116, 144, 0.0)");
+      }
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 8-Point Diamond Optical Diffraction Spikes
+      ctx.strokeStyle = isMagenta ? "rgba(253, 244, 255, 0.95)" : "rgba(240, 253, 250, 0.95)";
+      ctx.lineWidth = 0.95;
+      ctx.beginPath();
+      // Primary Cardinals
+      ctx.moveTo(cx, cy - r * 0.92); ctx.lineTo(cx, cy + r * 0.92);
+      ctx.moveTo(cx - r * 0.92, cy); ctx.lineTo(cx + r * 0.92, cy);
+      // Secondary Diagonals
+      var dR = r * 0.55;
+      ctx.moveTo(cx - dR, cy - dR); ctx.lineTo(cx + dR, cy + dR);
+      ctx.moveTo(cx - dR, cy + dR); ctx.lineTo(cx + dR, cy - dR);
+      ctx.stroke();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+
+      return canvas;
+    }
+
+    // High-Voltage Electric Plasma Spark Sprite for Quantum Realm Tail Discharges (Hyper-Ionized Corona & Multi-Spikes)
+    function generateElectricSparkCanvas(size) {
+      var canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = size * 0.5;
+      var cy = size * 0.5;
+      var r = size * 0.46;
+
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0.0, "rgba(255, 255, 255, 1.0)");
+      g.addColorStop(0.18, "rgba(224, 242, 254, 0.98)");
+      g.addColorStop(0.45, "rgba(56, 189, 248, 0.72)");
+      g.addColorStop(0.75, "rgba(129, 140, 248, 0.32)");
+      g.addColorStop(1.0, "rgba(99, 102, 241, 0.0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // High-Frequency 8-Point Starlight Electric Spikes
+      ctx.strokeStyle = "rgba(240, 249, 255, 0.96)";
+      ctx.lineWidth = 0.95;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r * 0.94); ctx.lineTo(cx, cy + r * 0.94);
+      ctx.moveTo(cx - r * 0.94, cy); ctx.lineTo(cx + r * 0.94, cy);
+      var dRe = r * 0.56;
+      ctx.moveTo(cx - dRe, cy - dRe); ctx.lineTo(cx + dRe, cy + dRe);
+      ctx.moveTo(cx - dRe, cy + dRe); ctx.lineTo(cx + dRe, cy - dRe);
+      ctx.stroke();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.13, 0, Math.PI * 2);
+      ctx.fill();
+
+      return canvas;
+    }
+
+    // High-Intensity Incandescent Burning Ember Spark (Hyper-Realistic Thermal Corona & 8-Point Starlight Flares)
+    function generateEmberCanvas(size) {
+      var canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = size * 0.5;
+      var cy = size * 0.5;
+      var r = size * 0.46;
+
+      // 1. Multi-Stage Radiating Thermal Corona (White-Hot -> Molten Gold -> Blazing Amber -> Burnt Crimson)
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0.0, "rgba(255, 255, 255, 1.0)");
+      g.addColorStop(0.18, "rgba(254, 240, 138, 0.98)");
+      g.addColorStop(0.46, "rgba(251, 146, 60, 0.65)");
+      g.addColorStop(0.76, "rgba(220, 38, 38, 0.28)");
+      g.addColorStop(1.0, "rgba(153, 27, 27, 0.0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. 8-Point Searing Solar Diffraction Spikes
+      ctx.strokeStyle = "rgba(255, 255, 240, 0.94)";
+      ctx.lineWidth = 0.90;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - r * 0.90); ctx.lineTo(cx, cy + r * 0.90);
+      ctx.moveTo(cx - r * 0.90, cy); ctx.lineTo(cx + r * 0.90, cy);
+      var dRm = r * 0.52;
+      ctx.moveTo(cx - dRm, cy - dRm); ctx.lineTo(cx + dRm, cy + dRm);
+      ctx.moveTo(cx - dRm, cy + dRm); ctx.lineTo(cx + dRm, cy - dRm);
+      ctx.stroke();
+
+      // 3. Incandescent white-hot pinpoint nucleus
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+
+      return canvas;
+    }
+
+    // High-Fidelity Organic Curling Flame Wisp Tongue (Fluid Navier-Stokes Wisp)
+    function generateFlameWispCanvas(width, height) {
+      var canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = width * 0.5;
+      var rootY = height * 0.90;
+      var tipY = height * 0.08;
+      var tipX = cx + width * 0.15; // Natural fluid curl to one side
+
+      // Outer Crimson Flame Boundary
+      ctx.beginPath();
+      ctx.moveTo(cx - width * 0.35, rootY);
+      ctx.bezierCurveTo(cx - width * 0.42, height * 0.55, cx - width * 0.18, height * 0.25, tipX, tipY);
+      ctx.bezierCurveTo(cx + width * 0.10, height * 0.35, cx + width * 0.38, height * 0.60, cx + width * 0.35, rootY);
+      ctx.closePath();
+      var gradOuter = ctx.createLinearGradient(cx, rootY, tipX, tipY);
+      gradOuter.addColorStop(0.0, "rgba(254, 240, 138, 0.98)");
+      gradOuter.addColorStop(0.30, "rgba(251, 146, 60, 0.90)");
+      gradOuter.addColorStop(0.65, "rgba(234, 88, 12, 0.65)");
+      gradOuter.addColorStop(0.88, "rgba(185, 28, 28, 0.35)");
+      gradOuter.addColorStop(1.0, "rgba(124, 45, 18, 0.0)");
+      ctx.fillStyle = gradOuter;
+      ctx.fill();
+
+      // Inner Solar Plasma Core
+      ctx.beginPath();
+      ctx.moveTo(cx - width * 0.18, rootY);
+      ctx.bezierCurveTo(cx - width * 0.20, height * 0.62, cx - width * 0.05, height * 0.38, tipX * 0.95, height * 0.24);
+      ctx.bezierCurveTo(cx + width * 0.08, height * 0.42, cx + width * 0.20, height * 0.65, cx + width * 0.18, rootY);
+      ctx.closePath();
+      var gradInner = ctx.createLinearGradient(cx, rootY, tipX * 0.95, height * 0.24);
+      gradInner.addColorStop(0.0, "rgba(255, 255, 255, 0.98)");
+      gradInner.addColorStop(0.40, "rgba(254, 240, 138, 0.92)");
+      gradInner.addColorStop(0.80, "rgba(251, 146, 60, 0.50)");
+      gradInner.addColorStop(1.0, "rgba(249, 115, 22, 0.0)");
+      ctx.fillStyle = gradInner;
+      ctx.fill();
+
+      return canvas;
+    }
+
+    // Soft Gaussian Volumetric Combustion Gas Puff (Zero Vector Outlines)
+    function generateFlamePuffCanvas(size) {
+      var canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+
+      var cx = size * 0.5;
+      var cy = size * 0.5;
+      var r = size * 0.48;
+
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0.0, "rgba(255, 255, 250, 0.95)");
+      g.addColorStop(0.18, "rgba(254, 240, 138, 0.88)");
+      g.addColorStop(0.45, "rgba(251, 146, 60, 0.60)");
+      g.addColorStop(0.72, "rgba(220, 38, 38, 0.28)");
+      g.addColorStop(0.90, "rgba(185, 28, 28, 0.10)");
+      g.addColorStop(1.0, "rgba(124, 45, 18, 0.0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      return canvas;
+    }
+
+    return {
+      init: init,
+      getAsteroid: function(i) {
+        if (!initialized) init();
+        return asteroidSprites[Math.abs(i | 0) % ASTEROID_COUNT];
+      },
+      getCursorAsteroid: function() {
+        if (!initialized) init();
+        return cursorAsteroidSprite;
+      },
+      getSmoke: function() {
+        if (!initialized) init();
+        return smokeSprite;
+      },
+      getPlasma: function() {
+        if (!initialized) init();
+        return plasmaSprite;
+      },
+      getEmber: function() {
+        if (!initialized) init();
+        return emberSprite;
+      },
+      getElectricSpark: function() {
+        if (!initialized) init();
+        return electricSparkSprite;
+      },
+      getHelixSpark: function(isMagenta) {
+        if (!initialized) init();
+        return isMagenta ? helixMagentaSparkSprite : helixCyanSparkSprite;
+      },
+      getFlameWisp: function() {
+        if (!initialized) init();
+        return flameWispSprite;
+      },
+      getFlamePuff: function() {
+        if (!initialized) init();
+        return flamePuffSprite;
+      }
+    };
+  })();
+  
+
+  // ══════════════════════════════════════════════════════════════
+  // MASTER HIGH-FIDELITY PARTICLE RENDERERS (DYNAMO, HELIX, METEOR)
+  // (Conforming to 4K HUD Scientific Telemetry Blueprints)
+  // ══════════════════════════════════════════════════════════════
+  
+  // ─────────────────────────────────────────────────────────────
+  // INDEPENDENT LAYERED ANIMATION & 5 VISUAL EVOLUTION UPGRADES (v342)
+  // 1. Real-Time Morphing "Ascension Unfurl" Transitions (Tier I <-> II <-> III <-> IV)
+  // 2. Dual-Tiered Counter-Articulating Pinions & Feather-Tip Splaying (Tier IV)
+  // 3. Traveling Wing-Vein Energy Conduits, Wingtip Spark Emitters & Wing-Root Gyros
+  // 4. Progressive Internal Core Complexity Across Tiers I -> II -> III -> IV
+  // 5. Pre-Impact "Magnetic Lock-On" Core Anticipation & Tier IV Harmonic Resonance Flash
+  // ─────────────────────────────────────────────────────────────
+  const LayeredT4Assets = {
+    halo: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    wingRight: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    wingRightT5: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    wingLeftCanvas: { dynamo: null, helix: null, meteor: null },
+    coreBase: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    coreBaseT5: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    // === CHANGED (v393): 15 Chrome Core Tier-Specific PNGs & Layered Wing/Shell Registry ===
+    coreTierSprites: { dynamo: {}, helix: {}, meteor: {} },
+    wingRightTiers: { dynamo: {}, helix: {}, meteor: {} },
+    helixGlassShell: new Image(),
+    nodeShell: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    hazard: {
+      dynamoCore: new Image(),
+      dynamoGlitch: new Image(),
+      helixClean: new Image(),
+      meteorBlades: new Image(),
+      meteorCenter: new Image()
+    },
+    poweredHazard: { dynamo: {}, helix: {}, meteor: {} },
+    bosses: {},
+    loaded: {
+      halo: { dynamo: false, helix: false, meteor: false },
+      wingRight: { dynamo: false, helix: false, meteor: false },
+      wingRightT5: { dynamo: false, helix: false, meteor: false },
+      coreBase: { dynamo: false, helix: false, meteor: false },
+      coreBaseT5: { dynamo: false, helix: false, meteor: false },
+      coreTierSprites: { dynamo: {}, helix: {}, meteor: {} },
+      wingRightTiers: { dynamo: {}, helix: {}, meteor: {} },
+      helixGlassShell: false,
+      nodeShell: { dynamo: false, helix: false, meteor: false },
+      hazard: {
+        dynamoCore: false,
+        dynamoGlitch: false,
+        helixClean: false,
+        meteorBlades: false,
+        meteorCenter: false
+      },
+      poweredHazard: { dynamo: {}, helix: {}, meteor: {} },
+      bosses: {}
+    }
+  };
+
+  function buildMirroredWingCanvas(img) {
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth || 688;
+    c.height = img.naturalHeight || 768;
+    const g = c.getContext('2d');
+    if (g) {
+      g.translate(c.width, 0);
+      g.scale(-1, 1);
+      g.drawImage(img, 0, 0);
+    }
+    return c;
+  }
+
+  LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade393';
+
+  ['dynamo', 'helix', 'meteor'].forEach((m) => {
+    LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
+    LayeredT4Assets.halo[m].src = `assets/layer-${m}-halo.png?v=arcade374`;
+
+    LayeredT4Assets.wingRight[m].onload = () => {
+      LayeredT4Assets.loaded.wingRight[m] = true;
+    };
+    LayeredT4Assets.wingRight[m].src = `assets/layer-${m}-wing-right.png?v=arcade374`;
+
+    LayeredT4Assets.wingRightT5[m].onload = () => {
+      LayeredT4Assets.loaded.wingRightT5[m] = true;
+    };
+    LayeredT4Assets.wingRightT5[m].src = `assets/layer-${m}-wing-t5.png?v=arcade374`;
+
+    LayeredT4Assets.coreBaseT5[m].onload = () => {
+      LayeredT4Assets.loaded.coreBaseT5[m] = true;
+    };
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade393`;
+
+    for (let t = 1; t <= 5; t++) {
+      const cImg = new Image();
+      LayeredT4Assets.coreTierSprites[m][t] = cImg;
+      LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
+      cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade393`;
+
+      if (t >= 2) {
+        const wImg = new Image();
+        LayeredT4Assets.wingRightTiers[m][t] = wImg;
+        LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
+        wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade393`;
+      }
+    }
+  });
+
+  LayeredT4Assets.coreBase.dynamo.onload = () => { LayeredT4Assets.loaded.coreBase.dynamo = true; };
+  LayeredT4Assets.coreBase.dynamo.src = 'assets/layer-dynamo-nucleus.png?v=arcade374';
+
+  LayeredT4Assets.coreBase.helix.onload = () => { LayeredT4Assets.loaded.coreBase.helix = true; };
+  LayeredT4Assets.coreBase.helix.src = 'assets/layer-helix-shell.png?v=arcade374';
+
+  LayeredT4Assets.coreBase.meteor.onload = () => { LayeredT4Assets.loaded.coreBase.meteor = true; };
+  LayeredT4Assets.coreBase.meteor.src = 'assets/layer-meteor-caldera.png?v=arcade374';
+
+  LayeredT4Assets.nodeShell.dynamo.onload = () => { LayeredT4Assets.loaded.nodeShell.dynamo = true; };
+  LayeredT4Assets.nodeShell.dynamo.src = 'assets/layer-node-dynamo-shell.png?v=arcade374';
+
+  LayeredT4Assets.nodeShell.helix.onload = () => { LayeredT4Assets.loaded.nodeShell.helix = true; };
+  LayeredT4Assets.nodeShell.helix.src = 'assets/layer-node-helix-shell.png?v=arcade374';
+
+  LayeredT4Assets.nodeShell.meteor.onload = () => { LayeredT4Assets.loaded.nodeShell.meteor = true; };
+  LayeredT4Assets.nodeShell.meteor.src = 'assets/layer-node-meteor-rock.png?v=arcade374';
+
+  LayeredT4Assets.hazard.dynamoCore.onload = () => { LayeredT4Assets.loaded.hazard.dynamoCore = true; };
+  LayeredT4Assets.hazard.dynamoCore.src = 'assets/layer-hazard-dynamo-core.png?v=arcade374';
+
+  LayeredT4Assets.hazard.dynamoGlitch.onload = () => { LayeredT4Assets.loaded.hazard.dynamoGlitch = true; };
+  LayeredT4Assets.hazard.dynamoGlitch.src = 'assets/layer-hazard-dynamo-glitch.png?v=arcade374';
+
+  LayeredT4Assets.hazard.helixClean.onload = () => { LayeredT4Assets.loaded.hazard.helixClean = true; };
+  LayeredT4Assets.hazard.helixClean.src = 'assets/layer-hazard-helix-clean.png?v=arcade374';
+
+  LayeredT4Assets.hazard.meteorBlades.onload = () => { LayeredT4Assets.loaded.hazard.meteorBlades = true; };
+  LayeredT4Assets.hazard.meteorBlades.src = 'assets/layer-hazard-meteor-blades.png?v=arcade374';
+
+  LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
+  LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade374';
+
+  // Preload all 15 Bespoke Luxury Raytraced Powered Bad Chrome Core Sprites (3 Games x 5 Powered Hazards)
+  const POWERED_HAZARD_KEYS = ['hyper_comet', 'corruptor_laser', 'gravity_well', 'emp_detonator', 'phase_stalker'];
+  ['dynamo', 'helix', 'meteor'].forEach((m) => {
+    POWERED_HAZARD_KEYS.forEach((hk) => {
+      const img = new Image();
+      LayeredT4Assets.poweredHazard[m][hk] = img;
+      LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
+      img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade378`;
+    });
+  });
+
+  // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
+  const BOSS_SPRITE_FILES = {
+    1: 'assets/boss-r1-sentinel.png?v=arcade389_boss_nova',
+    2: 'assets/boss-r2-corruptor.png?v=arcade389_boss_nova',
+    3: 'assets/boss-r3-singularity.png?v=arcade389_boss_nova',
+    4: 'assets/boss-r4-tempest.png?v=arcade389_boss_nova',
+    5: 'assets/boss-r5-omega.png?v=arcade389_boss_nova'
+  };
+  Object.keys(BOSS_SPRITE_FILES).forEach((bKey) => {
+    const img = new Image();
+    LayeredT4Assets.bosses[bKey] = img;
+    LayeredT4Assets.loaded.bosses[bKey] = false;
+    img.onload = () => { LayeredT4Assets.loaded.bosses[bKey] = true; };
+    img.src = BOSS_SPRITE_FILES[bKey];
+  });
+
+  // === CHANGED (v390): PRELOAD ULTRA-HD 3D WEAPON, MISSILE & FLUID-FIRE NOVA VFX ASSETS ===
+  const VfxUltraAssets = {
+    novaFlame: {},
+    novaWisps: {},
+    novaCorona: {},
+    gunBolt: {},
+    seekerMissile: null,
+    loaded: { novaFlame: {}, novaWisps: {}, novaCorona: {}, gunBolt: {}, seekerMissile: false }
+  };
+  (['meteor', 'dynamo', 'helix']).forEach((rm) => {
+    const fImg = new Image();
+    VfxUltraAssets.novaFlame[rm] = fImg;
+    VfxUltraAssets.loaded.novaFlame[rm] = false;
+    fImg.onload = () => { VfxUltraAssets.loaded.novaFlame[rm] = true; };
+    fImg.src = `assets/vfx-nova-flame-${rm}.png?v=arcade390_vfx_ultra`;
+
+    const wImg = new Image();
+    VfxUltraAssets.novaWisps[rm] = wImg;
+    VfxUltraAssets.loaded.novaWisps[rm] = false;
+    wImg.onload = () => { VfxUltraAssets.loaded.novaWisps[rm] = true; };
+    wImg.src = `assets/vfx-nova-wisps-${rm}.png?v=arcade390_vfx_ultra`;
+
+    const cImg = new Image();
+    VfxUltraAssets.novaCorona[rm] = cImg;
+    VfxUltraAssets.loaded.novaCorona[rm] = false;
+    cImg.onload = () => { VfxUltraAssets.loaded.novaCorona[rm] = true; };
+    cImg.src = `assets/vfx-nova-corona-${rm}.png?v=arcade390_vfx_ultra`;
+
+    const gImg = new Image();
+    VfxUltraAssets.gunBolt[rm] = gImg;
+    VfxUltraAssets.loaded.gunBolt[rm] = false;
+    gImg.onload = () => { VfxUltraAssets.loaded.gunBolt[rm] = true; };
+    gImg.src = `assets/vfx-gun-bolt-${rm}.png?v=arcade390_vfx_ultra`;
+  });
+  (function preloadSeekerMissile() {
+    const mImg = new Image();
+    VfxUltraAssets.seekerMissile = mImg;
+    mImg.onload = () => { VfxUltraAssets.loaded.seekerMissile = true; };
+    mImg.src = 'assets/vfx-seeker-missile-3d.png?v=arcade390_vfx_ultra';
+  })();
+
+  // Helper: Identifies any hazard trap or anomaly archetype
+  function isHazardNode(nodeClass) {
+    return nodeClass === 'volatile' || nodeClass === 'seeker' || nodeClass === 'phantom' || nodeClass === 'fragmentation' || nodeClass === 'vortex' || nodeClass === 'gravity_well' || nodeClass === 'pulsar_mine' || nodeClass === 'emp_glitch' || nodeClass === 'emp_detonator' || nodeClass === 'tachyon_fracture' || nodeClass === 'phase_stalker' || nodeClass === 'plasma_flare' || nodeClass === 'hyper_comet' || nodeClass === 'corruptor_laser' || nodeClass === 'broken_arc';
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // SECONDARY KINEMATICS, ASCENSION MORPHING & LOCK-ON ENGINE
+  // ─────────────────────────────────────────────────────────────
+  // OMNIDIRECTIONAL 6-DOF CORE KINEMATICS & TACTICAL ORDNANCE (v353)
+  // ─────────────────────────────────────────────────────────────
+  const CoreKinematics = {
+    lastX: null,
+    lastY: null,
+    vx: 0,
+    vy: 0,
+    prevVx: 0,
+    prevVy: 0,
+    bodyBank: 0,
+    bodyBankVel: 0,
+    pitchAngle: 0,
+    pitchAngleVel: 0,
+    rootY: 0, rootVelY: 0,
+    midY: 0,  midVelY: 0,
+    tipY: 0,  tipVelY: 0,
+    tipX: 0,  tipVelX: 0,
+
+    // Upgrade 1: Real-Time Morphing "Ascension Unfurl" State (1.0 -> 4.0)
+    lastTargetTier: 1,
+    continuousTier: 1.0,
+    continuousTierVel: 0.0,
+    ascensionRings: [],     // Expanding shock-rings on Tier Up!
+
+    // Upgrade 2 & 3: Feather-Tip Splay & Wingtip Particle Emitters
+    featherSplay: 0,
+    wingtipSparks: [],
+    lastWingSparkTime: 0,
+
+    // Upgrade 5: Pre-Impact Magnetic Lock-On & Tier IV Harmonic Resonance Flash
+    lockOnDX: 0,
+    lockOnProximity: 0,     // 0.0 (none) -> 1.0 (imminent contact)
+    overdriveFlash: 0,      // Synchronized Core-to-Wing harmonic flash in Tier IV
+
+    // Reactive Ion Thrusters & Tactical Ordnance Systems
+    thrusterPlumes: [],
+    missiles: [],
+    missileSalvoQueue: 0,
+    salvoOrigin: null,
+    launchFlashes: [],
+    grazeSparks: [],
+    shieldDeflectFlash: 0,
+
+    // Mode-Specific Capture States
+    wingRipples: [],
+    dynamoDischarges: [],
+    meteorShieldRecoil: { x: 0, vx: 0, y: 0, vy: 0, tilt: 0, vTilt: 0, flash: 0 },
+    impactCinders: [],
+    worldStreaks: [],
+
+    reset() {
+      this.lastX = null;
+      this.lastY = null;
+      this.vx = 0;
+      this.vy = 0;
+      this.prevVx = 0;
+      this.prevVy = 0;
+      this.bodyBank = 0;
+      this.bodyBankVel = 0;
+      this.pitchAngle = 0;
+      this.pitchAngleVel = 0;
+      this.rootY = 0; this.rootVelY = 0;
+      this.midY = 0;  this.midVelY = 0;
+      this.tipY = 0;  this.tipVelY = 0;
+      this.tipX = 0;  this.tipVelX = 0;
+      this.lastTargetTier = 1;
+      this.continuousTier = 1.0;
+      this.continuousTierVel = 0.0;
+      this.ascensionRings = [];
+      this.featherSplay = 0;
+      this.wingtipSparks = [];
+      this.lastWingSparkTime = 0;
+      this.lockOnDX = 0;
+      this.lockOnProximity = 0;
+      this.overdriveFlash = 0;
+      this.thrusterPlumes = [];
+      this.missiles = [];
+      this.missileSalvoQueue = 0;
+      this.salvoOrigin = null;
+      this.launchFlashes = [];
+      this.grazeSparks = [];
+      this.shieldDeflectFlash = 0;
+      this.wingRipples = [];
+      this.dynamoDischarges = [];
+      this.meteorShieldRecoil = { x: 0, vx: 0, y: 0, vy: 0, tilt: 0, vTilt: 0, flash: 0 };
+      this.impactCinders = [];
+      this.worldStreaks = [];
+    },
+
+    update(catcherPixelX, catcherPixelY, dtScale, now, targetTier = 1, mode = 'dynamo', particles = []) {
+      const dt = Math.max(0.25, Math.min(2.5, dtScale));
+      if (this.lastX === null) this.lastX = catcherPixelX;
+      if (this.lastY === null) this.lastY = catcherPixelY;
+      const rawVx = (catcherPixelX - this.lastX) / dt;
+      const rawVy = (catcherPixelY - this.lastY) / dt;
+      this.lastX = catcherPixelX;
+      this.lastY = catcherPixelY;
+
+      this.prevVx = this.vx;
+      this.prevVy = this.vy;
+      this.vx = this.vx * 0.45 + rawVx * 0.55;
+      this.vy = this.vy * 0.45 + rawVy * 0.55;
+      const accelX = this.vx - this.prevVx;
+
+      // 3D Pitch Kinematics: Vertical velocity induces aerodynamic dive/climb tilt
+      const targetPitch = Math.max(-0.25, Math.min(0.25, this.vy * 0.012));
+      this.pitchAngleVel = (this.pitchAngleVel + (targetPitch - this.pitchAngle) * 0.25 * dt) * Math.pow(0.72, dt);
+      this.pitchAngle += this.pitchAngleVel * dt;
+
+      // UPGRADE 1: Real-Time Morphing "Ascension Unfurl" Spring (Tier I <-> II <-> III <-> IV <-> V)
+      if (targetTier > this.lastTargetTier) {
+        // Trigger Ascension Unfurl Burst Ring!
+        this.ascensionRings.push({
+          tierReached: targetTier,
+          radius: 36,
+          maxRadius: targetTier === 4 ? 250 : (targetTier === 5 ? 320 : 185),
+          alpha: 1.0,
+          mode: mode
+        });
+        if (targetTier >= 4) {
+          this.overdriveFlash = 1.0;
+        }
+      }
+      this.lastTargetTier = targetTier;
+
+      // Smooth Monotonic Tier Progression (Guarantees zero spring-overshoot across tier thresholds)
+      const prevCTier = this.continuousTier;
+      const tierDiff = targetTier - this.continuousTier;
+      const easeRate = 1.0 - Math.pow(0.85, dt);
+      this.continuousTier += tierDiff * easeRate;
+      // Strict monotonic clamp: never overshoot target tier
+      if (prevCTier <= targetTier && this.continuousTier > targetTier) {
+        this.continuousTier = targetTier;
+      } else if (prevCTier >= targetTier && this.continuousTier < targetTier) {
+        this.continuousTier = targetTier;
+      }
+      this.continuousTier = Math.max(1.0, Math.min(5.0, this.continuousTier));
+
+      for (let i = this.ascensionRings.length - 1; i >= 0; i--) {
+        const ar = this.ascensionRings[i];
+        ar.radius += (ar.maxRadius - ar.radius) * 0.14 * dt;
+        ar.alpha -= 0.038 * dt;
+        if (ar.alpha <= 0) this.ascensionRings.splice(i, 1);
+      }
+
+      // UPGRADE 5: Pre-Impact Magnetic Lock-On Detection
+      let bestDist = 195;
+      let bestDX = 0;
+      for (let i = 0; i < particles.length; i++) {
+        const pt = particles[i];
+        if (isHazardNode(pt.nodeClass) || pt.isNumber) continue;
+        const dy = catcherPixelY - pt.y;
+        if (dy > -20 && dy < 195) {
+          const dx = pt.x - catcherPixelX;
+          const d = Math.hypot(dx, dy);
+          if (d < bestDist) {
+            bestDist = d;
+            bestDX = dx;
+          }
+        }
+      }
+      const targetProx = bestDist < 195 ? Math.pow(1.0 - bestDist / 195.0, 1.3) : 0.0;
+      this.lockOnProximity += (targetProx - this.lockOnProximity) * 0.25 * dt;
+      this.lockOnDX += ((bestDist < 195 ? bestDX : 0) - this.lockOnDX) * 0.25 * dt;
+      this.overdriveFlash = Math.max(0, this.overdriveFlash - 0.045 * dt);
+
+      // 1. Body Bank Angle
+      const targetBank = Math.max(-0.16, Math.min(0.16, this.vx * 0.0050));
+      this.bodyBankVel = (this.bodyBankVel + (targetBank - this.bodyBank) * 0.28 * dt) * Math.pow(0.70, dt);
+      this.bodyBank += this.bodyBankVel * dt;
+
+      // 2. Wing Root: follows body movement closely
+      const targetRootY = Math.max(-16, Math.min(16, this.vx * 0.40));
+      this.rootVelY = (this.rootVelY + (targetRootY - this.rootY) * 0.30 * dt) * Math.pow(0.70, dt);
+      this.rootY += this.rootVelY * dt;
+
+      // 3. Wing Mid-Section: follows Wing Root a fraction of a second later
+      const targetMidY = this.rootY * 1.35;
+      this.midVelY = (this.midVelY + (targetMidY - this.midY) * 0.16 * dt) * Math.pow(0.76, dt);
+      this.midY += this.midVelY * dt;
+
+      // 4. Outer Feather Tips: follows Mid-Section last + carries reversal momentum whip!
+      const reversalImpulseY = -accelX * 0.46;
+      const reversalImpulseX = -accelX * 0.52;
+      this.tipVelY += reversalImpulseY;
+      this.tipVelX += reversalImpulseX;
+
+      const targetTipY = this.midY * 1.45;
+      const targetTipX = Math.max(-26, Math.min(26, -this.vx * 0.52));
+      this.tipVelY = (this.tipVelY + (targetTipY - this.tipY) * 0.085 * dt) * Math.pow(0.83, dt);
+      this.tipY += this.tipVelY * dt;
+
+      this.tipVelX = (this.tipVelX + (targetTipX - this.tipX) * 0.085 * dt) * Math.pow(0.82, dt);
+      this.tipX += this.tipVelX * dt;
+
+      // UPGRADE 2: Feather-Tip Splay during sharp reversals & Tier Ascension
+      const targetSplay = Math.min(1.0, (Math.abs(this.tipVelY) + Math.abs(this.tipVelX)) * 0.065 + this.overdriveFlash * 0.65);
+      this.featherSplay += (targetSplay - this.featherSplay) * 0.22 * dt;
+
+      // UPGRADE 3: Update Wingtip Particle Emitters (Tier III & IV)
+      for (let i = this.wingtipSparks.length - 1; i >= 0; i--) {
+        const sp = this.wingtipSparks[i];
+        sp.x += sp.vx * dt;
+        sp.y += sp.vy * dt;
+        sp.life += dt;
+        if (sp.life >= sp.maxLife) {
+          this.wingtipSparks.splice(i, 1);
+        }
+      }
+
+      // 5. Update Meteor Shield Recoil Spring (2D Directional Contact Recoil)
+      const sr = this.meteorShieldRecoil;
+      sr.vx = ((sr.vx || 0) - (sr.x || 0) * 0.24 * dt) * Math.pow(0.74, dt);
+      sr.x = (sr.x || 0) + sr.vx * dt;
+      sr.vy = (sr.vy - sr.y * 0.24 * dt) * Math.pow(0.74, dt);
+      sr.y += sr.vy * dt;
+      sr.vTilt = (sr.vTilt - sr.tilt * 0.22 * dt) * Math.pow(0.75, dt);
+      sr.tilt += sr.vTilt * dt;
+      sr.flash = Math.max(0, sr.flash - 0.05 * dt);
+
+      // 6. Update Meteor Upward Deflection Cinders
+      for (let i = this.impactCinders.length - 1; i >= 0; i--) {
+        const c = this.impactCinders[i];
+        c.x += c.vx * dt;
+        c.y += c.vy * dt;
+        c.vy += 0.20 * dt;
+        c.vx *= Math.pow(0.98, dt);
+        c.life += dt;
+        if (c.life >= c.maxLife) {
+          this.impactCinders.splice(i, 1);
+        }
+      }
+
+      // 7. Update Helix Wing Ripples
+      for (let i = this.wingRipples.length - 1; i >= 0; i--) {
+        const rp = this.wingRipples[i];
+        rp.progress = (now - rp.startTime) / rp.duration;
+        if (rp.progress >= 1.15) {
+          this.wingRipples.splice(i, 1);
+        }
+      }
+
+      // 8. Update Dynamo Inward Snap Discharges
+      for (let i = this.dynamoDischarges.length - 1; i >= 0; i--) {
+        const d = this.dynamoDischarges[i];
+        d.progress = (now - d.startTime) / d.duration;
+        if (d.progress >= 1.0) {
+          this.dynamoDischarges.splice(i, 1);
+        }
+      }
+
+      // 9. Emit & Update Reactive Omnidirectional Ion Thrusters & Twin Wingtip Vortex Trails
+      const speed2D = Math.hypot(this.vx, this.vy);
+      const isMoving = speed2D > 0.35;
+      const thrusterColors = {
+        dynamo: ['#00f0ff', '#38bdf8', '#e0f2fe', '#ffffff'],
+        helix: ['#22d3ee', '#34d399', '#fef08a', '#ffffff'],
+        meteor: ['#fbbf24', '#f97316', '#ea580c', '#ffffff']
+      };
+      const pal = thrusterColors[mode] || thrusterColors.dynamo;
+
+      // 9. Ultra-Smooth Micro-Ion Trail (Lightweight, Tiny, Zero-Lag Architecture)
+      if (isMoving && speed2D > 0.8) {
+        if (!this.lastPlumeEmitTime || (now - this.lastPlumeEmitTime) > 34) {
+          this.lastPlumeEmitTime = now;
+          const normVx = this.vx / speed2D;
+          const normVy = this.vy / speed2D;
+          const exhaustAngle = Math.atan2(-normVy, -normVx) + (Math.random() - 0.5) * 0.35;
+          const pSpd = Math.min(2.8, 1.2 + speed2D * 0.20);
+          
+          this.thrusterPlumes.push({
+            x: catcherPixelX - normVx * 26 + (Math.random() - 0.5) * 4,
+            y: catcherPixelY - normVy * 26 + (Math.random() - 0.5) * 4,
+            vx: Math.cos(exhaustAngle) * pSpd,
+            vy: Math.sin(exhaustAngle) * pSpd,
+            color: pal[Math.floor(Math.random() * pal.length)],
+            size: 0.9 + Math.random() * 0.5, // Ultra-tiny subtle micro-mote
+            life: 0,
+            maxLife: 8 + Math.random() * 4 // Snappy ~150ms fade
+          });
+
+          // Delicate single wingtip stardust glint on high-velocity turns
+          if (this.continuousTier >= 2.0 && speed2D > 3.2 && Math.random() < 0.45) {
+            const spanDist = (0.24 + Math.min(0.20, (this.continuousTier - 2.0) * 0.10)) * 320;
+            const wingYOff = this.tipY * 0.32;
+            const isLeft = (Math.random() < 0.5);
+            this.thrusterPlumes.push({
+              x: catcherPixelX + (isLeft ? -spanDist : spanDist) + (Math.random() - 0.5) * 3,
+              y: catcherPixelY + wingYOff + (Math.random() - 0.5) * 3,
+              vx: -this.vx * 0.12,
+              vy: -this.vy * 0.12,
+              color: pal[0],
+              isWingtip: true,
+              size: 0.85,
+              life: 0,
+              maxLife: 8
+            });
+          }
+        }
+      }
+
+      // Hard-cap plume array to max 10 tiny particles for absolute zero CPU/GPU overhead
+      if (this.thrusterPlumes.length > 10) {
+        this.thrusterPlumes.splice(0, this.thrusterPlumes.length - 10);
+      }
+
+      for (let i = this.thrusterPlumes.length - 1; i >= 0; i--) {
+        const tp = this.thrusterPlumes[i];
+        tp.x += tp.vx * dt;
+        tp.y += tp.vy * dt;
+        tp.size = Math.max(0.2, tp.size * 0.92);
+        tp.life += dt;
+        if (tp.life >= tp.maxLife) this.thrusterPlumes.splice(i, 1);
+      }
+
+      // 10. Update Graze & Shield Deflection Sparks
+      for (let i = this.grazeSparks.length - 1; i >= 0; i--) {
+        const gs = this.grazeSparks[i];
+        gs.x += gs.vx * dt;
+        gs.y += gs.vy * dt;
+        gs.life += dt;
+        if (gs.life >= gs.maxLife) this.grazeSparks.splice(i, 1);
+      }
+      this.shieldDeflectFlash = Math.max(0, this.shieldDeflectFlash - 0.05 * dt);
+    },
+
+    triggerGraze(x, y, now) {
+      for (let k = 0; k < 12; k++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = 2.4 + Math.random() * 4.6;
+        this.grazeSparks.push({
+          x: x,
+          y: y,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd,
+          color: '#38bdf8',
+          life: 0,
+          maxLife: 18 + Math.random() * 10
+        });
+      }
+    },
+
+    triggerShieldDeflect(x, y, now) {
+      this.shieldDeflectFlash = 1.0;
+      for (let k = 0; k < 22; k++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = 3.6 + Math.random() * 6.4;
+        this.grazeSparks.push({
+          x: x,
+          y: y,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd,
+          color: '#fbbf24',
+          life: 0,
+          maxLife: 24 + Math.random() * 14
+        });
+      }
+    },
+
+    fireMissiles(cx, cy, now, particles, mode = 'dynamo') {
+      this.missileSalvoQueue = 14;
+      this.salvoOrigin = { x: cx, y: cy };
+      this.salvoMode = mode;
+      this.salvoTimer = 0;
+      this._launchMissilePair(cx, cy, now, mode);
+      this.missileSalvoQueue -= 2;
+    },
+
+    _launchMissilePair(cx, cy, now, mode = 'dynamo') {
+      const pylonOffsets = [-24, 24];
+      const baseAngles = [-1.88, -1.26]; // Fanned upward-left and upward-right (~-108 deg and ~-72 deg)
+      for (let p = 0; p < 2; p++) {
+        const lx = cx + pylonOffsets[p];
+        const ly = cy - 6;
+        const angle = baseAngles[p] + (Math.random() - 0.5) * 0.15;
+        const initSpeed = 7.5 + Math.random() * 2.0;
+        this.missiles.push({
+          x: lx,
+          y: ly,
+          vx: Math.cos(angle) * initSpeed,
+          vy: Math.sin(angle) * initSpeed,
+          angle: angle,
+          speed: initSpeed,
+          mode: mode || 'dynamo',
+          stage: 1, // Stage 1: Cold ejection coast; Stage 2: Solid rocket booster ignition
+          smoke: [],
+          target: null,
+          life: 0,
+          maxLife: 150
+        });
+
+        // Launch Muzzle Flash & Cold-Gas Launch Exhaust Puff
+        const flashColor = (mode === 'meteor') ? '#f97316' : (mode === 'helix' ? '#22d3ee' : '#38bdf8');
+        this.launchFlashes.push({
+          x: lx,
+          y: ly,
+          r: 6,
+          maxR: 20,
+          alpha: 1.0,
+          color: flashColor
+        });
+        for (let sp = 0; sp < 4; sp++) {
+          const sAng = Math.PI / 2 + (Math.random() - 0.5) * 1.2;
+          const sSpd = 1.2 + Math.random() * 2.4;
+          this.grazeSparks.push({
+            x: lx,
+            y: ly,
+            vx: Math.cos(sAng) * sSpd,
+            vy: Math.sin(sAng) * sSpd,
+            color: (mode === 'meteor') ? 'rgba(254, 240, 138, 0.9)' : ((mode === 'helix') ? 'rgba(167, 243, 208, 0.85)' : 'rgba(224, 242, 254, 0.85)'),
+            life: 0,
+            maxLife: 14 + Math.random() * 8
+          });
+        }
+      }
+    },
+
+    updateAndDrawMissiles(ctx, dtScale, now, state) {
+      const dt = Math.max(0.25, Math.min(2.5, dtScale));
+
+      // 1. Process Missile Salvo Queue (Rapid Ripple Launch from Core Pylons)
+      if (this.missileSalvoQueue > 0 && this.salvoOrigin) {
+        this.salvoTimer = (this.salvoTimer || 0) + dt;
+        if (this.salvoTimer >= 2.4) {
+          this.salvoTimer = 0;
+          this._launchMissilePair(this.salvoOrigin.x, this.salvoOrigin.y, now, this.salvoMode || state.catcherType || 'dynamo');
+          this.missileSalvoQueue -= 2;
+        }
+      }
+
+      // 2. Render & Update Launch Muzzle Flashes
+      for (let fIdx = this.launchFlashes.length - 1; fIdx >= 0; fIdx--) {
+        const lf = this.launchFlashes[fIdx];
+        lf.r += (lf.maxR - lf.r) * 0.35 * dt;
+        lf.alpha -= 0.14 * dt;
+        if (lf.alpha <= 0) {
+          this.launchFlashes.splice(fIdx, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const lfR = Math.max(2, lf.r);
+        const lfCol = lf.color || '#38bdf8';
+        const lfRgb = (lfCol === '#f97316') ? '249, 115, 22'
+          : (lfCol === '#22d3ee') ? '34, 211, 238'
+          : (lfCol === '#fbbf24') ? '251, 191, 36'
+          : '56, 189, 248';
+        const lfGrad = ctx.createRadialGradient(lf.x, lf.y, lfR * 0.15, lf.x, lf.y, lfR);
+        lfGrad.addColorStop(0.0, `rgba(255, 255, 255, ${lf.alpha * 0.32})`);
+        lfGrad.addColorStop(0.45, `rgba(${lfRgb}, ${lf.alpha * 0.55})`);
+        lfGrad.addColorStop(0.76, `rgba(255, 255, 255, ${lf.alpha * 0.78})`);
+        lfGrad.addColorStop(0.90, `rgba(${lfRgb}, ${lf.alpha * 0.35})`);
+        lfGrad.addColorStop(1.0, `rgba(${lfRgb}, 0)`);
+        ctx.fillStyle = lfGrad;
+        ctx.beginPath();
+        ctx.arc(lf.x, lf.y, lfR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      if (this.missiles.length === 0) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let mIdx = this.missiles.length - 1; mIdx >= 0; mIdx--) {
+        const m = this.missiles[mIdx];
+        const mMode = m.mode || 'dynamo';
+        m.life += dt;
+
+        // Stage 2: Main Solid Rocket Booster Ignition after 7 frames (~0.12s)
+        if (m.stage === 1 && m.life >= 7) {
+          m.stage = 2;
+          this.launchFlashes.push({
+            x: m.x,
+            y: m.y,
+            r: 5,
+            maxR: 16,
+            alpha: 0.95,
+            color: (mMode === 'meteor') ? '#f97316' : ((mMode === 'helix') ? '#22d3ee' : '#fbbf24')
+          });
+        }
+
+        // Target Acquisition & Proportional Navigation (Prioritize Active Boss Pylons/Boss & Hazards!)
+        let bestDist = 9999;
+        let bestTarget = null;
+        if (state.boss && state.boss.phase === 'fighting') {
+          const bossRef = state.boss;
+          if (bossRef.pylons && bossRef.pylons.length > 0) {
+            for (let pyIdx = 0; pyIdx < bossRef.pylons.length; pyIdx++) {
+              const pyl = bossRef.pylons[pyIdx];
+              if (pyl.hp > 0) {
+                const dP = Math.hypot(pyl.x - m.x, pyl.y - m.y) * 0.25;
+                if (dP < bestDist) { bestDist = dP; bestTarget = pyl; }
+              }
+            }
+          }
+          const dB = Math.hypot(bossRef.x - m.x, bossRef.y - m.y) * 0.30;
+          if (dB < bestDist) { bestDist = dB; bestTarget = bossRef; }
+        }
+        for (let p of state.particles) {
+          if (p.hasDetonated) continue;
+          const d = Math.hypot(p.x - m.x, p.y - m.y);
+          const isApexHazard = (p.nodeClass === 'corruptor_laser' || p.nodeClass === 'hyper_comet');
+          const weight = isApexHazard ? 0.35 : (isHazardNode(p.nodeClass) ? 0.50 : 1.0);
+          if (d * weight < bestDist) {
+            bestDist = d * weight;
+            bestTarget = p;
+          }
+        }
+
+        if (bestTarget && m.stage === 2) {
+          const desiredAngle = Math.atan2(bestTarget.y - m.y, bestTarget.x - m.x);
+          let diff = desiredAngle - m.angle;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          const maxTurn = 0.28 * dt;
+          m.angle += Math.max(-maxTurn, Math.min(maxTurn, diff));
+        }
+
+        // High-Thrust Rocket Propulsion (Accelerates up to 26px/frame)
+        if (m.stage === 2) {
+          m.speed = Math.min(26.0, m.speed + 1.20 * dt);
+        } else {
+          m.speed = Math.max(5.5, m.speed - 0.20 * dt);
+        }
+        m.vx = Math.cos(m.angle) * m.speed;
+        m.vy = Math.sin(m.angle) * m.speed;
+        m.x += m.vx * dt;
+        m.y += m.vy * dt;
+
+        // Expanding Mode-Specific Smoke & Contrail Puffs
+        let smokeColor = 'rgba(240, 249, 255, 0.85)';
+        if (m.stage === 2) {
+          if (mMode === 'meteor') {
+            smokeColor = (Math.random() < 0.35) ? 'rgba(249, 115, 22, 0.85)' : 'rgba(120, 113, 108, 0.75)';
+          } else if (mMode === 'helix') {
+            smokeColor = (Math.random() < 0.35) ? 'rgba(34, 211, 238, 0.80)' : 'rgba(244, 114, 182, 0.70)';
+          } else {
+            smokeColor = (Math.random() < 0.35) ? 'rgba(56, 189, 248, 0.85)' : 'rgba(192, 132, 252, 0.70)';
+          }
+        }
+
+        m.smoke.push({
+          x: m.x - Math.cos(m.angle) * 18,
+          y: m.y - Math.sin(m.angle) * 18,
+          size: 5.2,
+          alpha: 0.90,
+          color: smokeColor
+        });
+
+        for (let s = m.smoke.length - 1; s >= 0; s--) {
+          const sm = m.smoke[s];
+          sm.size += 0.55 * dt;
+          sm.alpha -= 0.052 * dt;
+          if (sm.alpha <= 0) {
+            m.smoke.splice(s, 1);
+            continue;
+          }
+          ctx.beginPath();
+          ctx.arc(sm.x, sm.y, sm.size, 0, Math.PI * 2);
+          ctx.fillStyle = sm.color;
+          ctx.globalAlpha = sm.alpha * 0.72;
+          ctx.fill();
+        }
+
+        // === CHANGED (v392): Mode-Unique Micro-Missile Rendering (Blue Dynamo Torpedo vs Fiery Meteor vs Crystal Helix) ===
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        ctx.globalAlpha = 1.0;
+        if (mMode === 'dynamo' && VfxUltraAssets.loaded.seekerMissile && VfxUltraAssets.seekerMissile && VfxUltraAssets.seekerMissile.naturalWidth > 0) {
+          ctx.rotate(m.angle + Math.PI * 0.5);
+          const mw = 46;
+          const mh = 70;
+          const mGlow = QuantumRenderer._getGlowSprite('cyan');
+          ctx.globalAlpha = 0.70;
+          ctx.drawImage(mGlow, -28, -28, 56, 56);
+          ctx.globalAlpha = 1.0;
+          ctx.drawImage(VfxUltraAssets.seekerMissile, -mw * 0.5, -mh * 0.44, mw, mh);
+          ctx.restore();
+        } else {
+        const mGlow = QuantumRenderer._getGlowSprite(mMode === 'meteor' ? 'amber' : (mMode === 'helix' ? 'helix' : 'cyan'));
+        ctx.globalAlpha = 0.75;
+        ctx.drawImage(mGlow, -26, -26, 52, 52);
+        ctx.globalAlpha = 1.0;
+        ctx.rotate(m.angle);
+        ctx.scale(2.15, 2.15);
+
+        // Rocket Motor Flame & Mach Shock Diamonds
+        if (m.stage === 2) {
+          ctx.beginPath();
+          ctx.moveTo(-7, -2.2);
+          ctx.lineTo(-17 - Math.random() * 5, 0);
+          ctx.lineTo(-7, 2.2);
+          ctx.closePath();
+          if (mMode === 'meteor') {
+            ctx.fillStyle = '#f97316';
+          } else if (mMode === 'helix') {
+            ctx.fillStyle = (Math.random() < 0.5) ? '#22d3ee' : '#ec4899';
+          } else {
+            ctx.fillStyle = '#38bdf8';
+          }
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(-7, -1.2);
+          ctx.lineTo(-12, 0);
+          ctx.lineTo(-7, 1.2);
+          ctx.closePath();
+          ctx.fillStyle = (mMode === 'meteor') ? '#fef08a' : '#ffffff';
+          ctx.fill();
+        }
+
+        if (mMode === 'meteor') {
+          // METEOR MISSILE: Dark Obsidian Volcanic Basalt with Molten Magma Seams
+          ctx.fillStyle = '#292524';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(-7, -2.8, 14, 5.6, 1.5); else ctx.rect(-7, -2.8, 14, 5.6);
+          ctx.fill();
+
+          // Magma fissure line along fuselage spine
+          ctx.beginPath();
+          ctx.moveTo(-6, 0);
+          ctx.lineTo(6, 0);
+          ctx.strokeStyle = '#f97316';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // Molten Gold Tungsten Penetrator Nosecone
+          ctx.beginPath();
+          ctx.moveTo(7, -2.8);
+          ctx.lineTo(14, 0);
+          ctx.lineTo(7, 2.8);
+          ctx.closePath();
+          ctx.fillStyle = '#fbbf24';
+          ctx.fill();
+
+          // Chiseled Volcanic Basalt Fins with Magma Edging
+          ctx.fillStyle = '#ea580c';
+          ctx.beginPath();
+          ctx.moveTo(-5, -2.8); ctx.lineTo(-10, -7.0); ctx.lineTo(-7, -2.8);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-5, 2.8); ctx.lineTo(-10, 7.0); ctx.lineTo(-7, 2.8);
+          ctx.closePath(); ctx.fill();
+
+          // Forward Canards
+          ctx.beginPath();
+          ctx.moveTo(3, -2.8); ctx.lineTo(1, -5.5); ctx.lineTo(5, -2.8);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(3, 2.8); ctx.lineTo(1, 5.5); ctx.lineTo(5, 2.8);
+          ctx.closePath(); ctx.fill();
+
+        } else if (mMode === 'helix') {
+          // HELIX MISSILE: Pearlescent Teal Bio-Resonance Body with Iridescent Helical Stripe
+          ctx.fillStyle = '#0f766e';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(-7, -2.6, 14, 5.2, 1.5); else ctx.rect(-7, -2.6, 14, 5.2);
+          ctx.fill();
+
+          // Helical spiral wave
+          ctx.beginPath();
+          ctx.moveTo(-6, -1.5);
+          ctx.quadraticCurveTo(0, 2.0, 6, -1.5);
+          ctx.strokeStyle = '#ec4899';
+          ctx.lineWidth = 1.3;
+          ctx.stroke();
+
+          // Luminous Aquamarine Crystal Radome Nosecone
+          ctx.beginPath();
+          ctx.moveTo(7, -2.6);
+          ctx.lineTo(13.5, 0);
+          ctx.lineTo(7, 2.6);
+          ctx.closePath();
+          ctx.fillStyle = '#67e8f9';
+          ctx.fill();
+
+          // Iridescent Magenta Bio-Crystal Fins
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath();
+          ctx.moveTo(-5, -2.6); ctx.lineTo(-9, -6.5); ctx.lineTo(-7, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-5, 2.6); ctx.lineTo(-9, 6.5); ctx.lineTo(-7, 2.6);
+          ctx.closePath(); ctx.fill();
+
+          // Forward Aquamarine Canards
+          ctx.fillStyle = '#22d3ee';
+          ctx.beginPath();
+          ctx.moveTo(3, -2.6); ctx.lineTo(1, -5.2); ctx.lineTo(5, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(3, 2.6); ctx.lineTo(1, 5.2); ctx.lineTo(5, 2.6);
+          ctx.closePath(); ctx.fill();
+
+        } else {
+          // DYNAMO MISSILE: Deep Cobalt & Amethyst Quantum Arc Dart
+          ctx.fillStyle = '#312e81';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(-7, -2.6, 14, 5.2, 1.5); else ctx.rect(-7, -2.6, 14, 5.2);
+          ctx.fill();
+
+          // Cyan quantum circuit line along spine
+          ctx.beginPath();
+          ctx.moveTo(-6, 0);
+          ctx.lineTo(6, 0);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // High-Tech Forward Ogive Radome Nosecone (Electric Cyan & White)
+          ctx.beginPath();
+          ctx.moveTo(7, -2.6);
+          ctx.lineTo(13, 0);
+          ctx.lineTo(7, 2.6);
+          ctx.closePath();
+          ctx.fillStyle = '#e0f2fe';
+          ctx.fill();
+
+          // Swept Delta Quantum Stabilizer Fins at Aft
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.moveTo(-5, -2.6); ctx.lineTo(-9, -6.5); ctx.lineTo(-7, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-5, 2.6); ctx.lineTo(-9, 6.5); ctx.lineTo(-7, 2.6);
+          ctx.closePath(); ctx.fill();
+
+          // 2 Forward Amethyst Canard Fins
+          ctx.fillStyle = '#c084fc';
+          ctx.beginPath();
+          ctx.moveTo(3, -2.6); ctx.lineTo(1, -5.2); ctx.lineTo(5, -2.6);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(3, 2.6); ctx.lineTo(1, 5.2); ctx.lineTo(5, 2.6);
+          ctx.closePath(); ctx.fill();
+        }
+
+        ctx.restore();
+        }
+
+        // Check Impact with Active Round Boss / Shield Pylons first (3 damage per missile!)
+        let hit = false;
+        if (state.boss && state.boss.phase === 'fighting' && typeof RoundBossEngine !== 'undefined') {
+          const bossRef = state.boss;
+          if (bossRef.pylons) {
+            for (let pyIdx = 0; pyIdx < bossRef.pylons.length; pyIdx++) {
+              const pyl = bossRef.pylons[pyIdx];
+              if (pyl.hp > 0 && Math.hypot(pyl.x - m.x, pyl.y - m.y) < 32) {
+                hit = true;
+                RoundBossEngine.damagePylon(pyl, 3, now, m.x, m.y);
+                this.launchFlashes.push({ x: m.x, y: m.y, r: 10, maxR: 46, alpha: 1.0, color: '#fbbf24' });
+                audio.playMissileHit();
+                break;
+              }
+            }
+          }
+          if (!hit && Math.hypot(bossRef.x - m.x, bossRef.y - m.y) < (bossRef.hitR || 72)) {
+            hit = true;
+            RoundBossEngine.damageBoss(3, now, true, m.x, m.y);
+            this.launchFlashes.push({ x: m.x, y: m.y, r: 12, maxR: 52, alpha: 1.0, color: '#fbbf24' });
+            audio.playMissileHit();
+          }
+        }
+
+        // Check Impact with Falling Targets (Neutralize Hazards & Auto-Claim Collectibles)
+        for (let pIdx = state.particles.length - 1; !hit && pIdx >= 0; pIdx--) {
+          const pt = state.particles[pIdx];
+          if (pt.hasDetonated) continue;
+          const hitDist = Math.hypot(pt.x - m.x, pt.y - m.y);
+          if (hitDist < 32) {
+            hit = true;
+            pt.hasDetonated = true;
+
+            // Supersonic Kinetic Blast Ring
+            const blastColor = (mMode === 'meteor') ? '#f97316' : ((mMode === 'helix') ? '#22d3ee' : '#38bdf8');
+            this.launchFlashes.push({
+              x: pt.x,
+              y: pt.y,
+              r: 10,
+              maxR: 44,
+              alpha: 1.0,
+              color: isHazardNode(pt.nodeClass) ? blastColor : '#fbbf24'
+            });
+
+            if (isHazardNode(pt.nodeClass)) {
+              // Bad node vaporized by tactical missile: disappears cleanly with zero harm to player core!
+              const wasChargingCorruptor = (pt.nodeClass === 'corruptor_laser' && pt.laserState === 'charging');
+              const isApex = (pt.nodeClass === 'corruptor_laser' || pt.nodeClass === 'hyper_comet');
+              const bonusPts = wasChargingCorruptor ? 450 : (isApex ? 300 : 200);
+              state.score += bonusPts;
+              if (wasChargingCorruptor) {
+                state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
+                if (state.pulseMeter >= 100) state.isPulseReady = true;
+              }
+              this.triggerGraze(pt.x, pt.y, now);
+              state.floatingTexts.push({
+                x: pt.x, y: pt.y,
+                text: wasChargingCorruptor ? '+450 SALVO INTERRUPTED!' : (isApex ? `+${bonusPts} THREAT VAPORIZED` : '+200 NEUTRALIZED'),
+                color: wasChargingCorruptor ? '#fbbf24' : blastColor,
+                alpha: 1.0,
+                startTime: now
+              });
+              audio.playMissileHit();
+              updateHeaderUI();
+            } else {
+              // Good node intercepted by missile: immediately counts as an authentic combo addition + reloads Core Cannon!
+              const pts = 300 * state.combo;
+              state.score += pts;
+              if (typeof RoundBossEngine !== 'undefined') {
+                RoundBossEngine.onGoodNodeCaught(pt.nodeClass, false, now, (cachedCanvasRect.width || 800));
+              }
+              const prevCombo = state.combo;
+              state.combo = Math.min(50, state.combo + 1);
+
+              // Recalculate Core Evolution Tier immediately based on updated combo
+              if (state.combo >= 28) {
+                state.coreTier = 5;
+                state.isOverdrive = true;
+              } else if (state.combo >= 21) {
+                state.coreTier = 4;
+                state.isOverdrive = true;
+              } else if (state.combo >= 14) {
+                state.coreTier = 3;
+                state.isOverdrive = false;
+              } else if (state.combo >= 7) {
+                state.coreTier = 2;
+                state.isOverdrive = false;
+              } else {
+                state.coreTier = 1;
+                state.isOverdrive = false;
+              }
+              CoreKinematics.continuousTier = state.coreTier;
+
+              // Sound cue for combo/tier advance
+              if (prevCombo < 21 && state.combo >= 21) {
+                audio.playOverdriveFanfare();
+              } else if (prevCombo < 28 && state.combo >= 28) {
+                audio.playTier5Ascension();
+              } else {
+                audio.playCorrectChime(state.combo);
+              }
+
+              state.floatingTexts.push({
+                x: pt.x, y: pt.y,
+                text: `COMBO ${state.combo}x (+${pts})`,
+                color: blastColor,
+                alpha: 1.0,
+                startTime: now
+              });
+
+              if (pt.nodeClass === 'cluster') {
+                state.applyBuff('cluster', '2X CLUSTER', '#38bdf8', '✨', 5000, now);
+              } else if (pt.nodeClass === 'supercharge') {
+                state.applyBuff('hyper', 'HYPER SURGE', '#fbbf24', '⚡', 5000, now);
+              } else if (pt.nodeClass === 'chronos') {
+                state.applyBuff('chronos', 'CHRONOS STASIS', '#22d3ee', '⏳', 4500, now);
+              } else if (pt.nodeClass === 'singularity') {
+                state.applyBuff('singularity', 'GRAVITON VACUUM', '#38bdf8', '🧲', 3500, now);
+              } else if (pt.nodeClass === 'catalyst') {
+                const targetTierCombo = { 2: 7, 3: 14, 4: 21, 5: 28 };
+                state.coreTier = Math.min(5, state.coreTier + 1);
+                state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
+                state.isOverdrive = (state.coreTier >= 4);
+                state.reflexLives = Math.min(3, state.reflexLives + 1);
+                renderReflexShields();
+                state.applyBuff('catalyst', 'ASCENSION CATALYST', '#10b981', '💚', 6000, now);
+                if (state.coreTier === 5) audio.playTier5Ascension();
+                else audio.playOverdriveFanfare();
+              } else if (pt.nodeClass === 'shield') {
+                state.applyBuff('shield', 'AEGIS SHIELD', '#f59e0b', '🛡️', 5000, now);
+              } else if (pt.nodeClass === 'missiles') {
+                state.applyBuff('missiles', 'ALLIED MISSILES', '#38bdf8', '🚀', 4000, now);
+                this.fireMissiles(m.x, m.y, now, state.particles, mMode);
+              }
+
+              updateHeaderUI();
+            }
+
+            state.particles.splice(pIdx, 1);
+            break;
+          }
+        }
+
+        if (hit || m.life >= m.maxLife || m.x < -70 || m.x > ctx.canvas.width + 70 || m.y < -70 || m.y > ctx.canvas.height + 70) {
+          this.missiles.splice(mIdx, 1);
+        }
+      }
+      ctx.restore();
+    },
+
+    drawAegisForcefield(ctx, cx, cy, u, now, timeLeft = 5000, mode = 'dynamo') {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = 'lighter';
+
+      // 1. High-Visibility Enveloping Spherical Dome
+      const baseRadius = Math.max(92, 142 * u);
+      const pulse = 1.0 + 0.045 * Math.sin(now * 0.008);
+      const r = baseRadius * pulse;
+      const rot = now * 0.0028;
+
+      // Warning pulse when < 1.2s remaining
+      const isExpiring = timeLeft < 1200;
+      const warnPulse = isExpiring ? (0.5 + 0.5 * Math.sin(now * 0.025)) : 1.0;
+      const secondsLeft = Math.max(0, (timeLeft / 1000)).toFixed(1);
+
+      if (mode === 'dynamo' || mode === 'realm') {
+        // ─── CHROME DYNAMO: QUANTUM FARADAY CAGE AEGIS ───
+        // High-frequency electromagnetic containment grid & perimeter lightning
+        const grad = ctx.createRadialGradient(0, 0, r * 0.40, 0, 0, r * 1.08);
+        grad.addColorStop(0.0, 'rgba(0, 240, 255, 0.03)');
+        grad.addColorStop(0.60, `rgba(56, 189, 248, ${0.16 * warnPulse})`);
+        grad.addColorStop(0.85, `rgba(14, 165, 233, ${0.30 * warnPulse})`);
+        grad.addColorStop(0.96, `rgba(224, 242, 254, ${0.60 * warnPulse})`);
+        grad.addColorStop(1.0, 'rgba(56, 189, 248, 0.0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 4 Rotating Electromagnetic Faraday Latitudinal Rings
+        for (let l = -2; l <= 2; l++) {
+          const yOff = (l / 2.5) * (r * 0.72);
+          const latR = Math.sqrt(Math.max(0, r * r - yOff * yOff));
+          ctx.save();
+          ctx.translate(0, yOff);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, latR, latR * 0.36, rot * (l % 2 === 0 ? 1 : -1), 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(103, 232, 249, ${(0.55 + 0.35 * Math.abs(l / 2.5)) * warnPulse})`;
+          ctx.lineWidth = 1.8 * Math.max(0.7, u);
+          ctx.stroke();
+
+          // Induction Polar Vertices
+          for (let v = 0; v < 4; v++) {
+            const va = rot * (l % 2 === 0 ? 1 : -1) + v * (Math.PI / 2);
+            const vx = Math.cos(va) * latR;
+            const vy = Math.sin(va) * latR * 0.36;
+            ctx.beginPath();
+            ctx.arc(vx, vy, 2.2 * Math.max(0.7, u), 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // Surface-Crawling Faraday Electrical Arcs
+        const numArcs = 5;
+        for (let a = 0; a < numArcs; a++) {
+          const arcBase = now * 0.0055 + a * (Math.PI * 2 / numArcs);
+          const arcSpan = 0.75 + 0.25 * Math.sin(now * 0.009 + a);
+          ctx.beginPath();
+          for (let s = 0; s <= 10; s++) {
+            const t = s / 10;
+            const ang = arcBase + t * arcSpan;
+            const jitter = (Math.sin(now * 0.035 + s * 2.3 + a) - 0.5) * 6.0;
+            const rad = r + jitter;
+            const ax = Math.cos(ang) * rad;
+            const ay = Math.sin(ang) * rad;
+            if (s === 0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
+          }
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.90 * warnPulse})`;
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+        }
+
+        // Heavy Cyan/White Barrier Rim
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(56, 189, 248, ${0.92 * warnPulse})`;
+        ctx.lineWidth = 3.4;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 2.5, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(224, 242, 254, ${0.65 * warnPulse})`;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+
+        this._drawAegisHudBadge(ctx, r, u, `🛡️ FARADAY AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#00f0ff', '#38bdf8', 'rgba(14, 165, 233, 0.40)');
+
+      } else if (mode === 'helix') {
+        // ─── CHROME HELIX: HARMONIC BIO-LATTICE BARRIER ───
+        // Interlocking crystalline aquamarine and rose-quartz helical boundary ribbons
+        const grad = ctx.createRadialGradient(0, 0, r * 0.40, 0, 0, r * 1.08);
+        grad.addColorStop(0.0, 'rgba(34, 211, 238, 0.03)');
+        grad.addColorStop(0.60, `rgba(110, 231, 183, ${0.16 * warnPulse})`);
+        grad.addColorStop(0.85, `rgba(34, 211, 238, ${0.30 * warnPulse})`);
+        grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.55 * warnPulse})`);
+        grad.addColorStop(1.0, 'rgba(34, 211, 238, 0.0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hexagonal Prismatic Crystal Lattice Ribs
+        for (let l = -2; l <= 2; l++) {
+          const yOff = (l / 2.6) * (r * 0.74);
+          const latR = Math.sqrt(Math.max(0, r * r - yOff * yOff));
+          ctx.save();
+          ctx.translate(0, yOff);
+          ctx.rotate(rot * (l % 2 === 0 ? 1 : -1));
+          ctx.beginPath();
+          for (let h = 0; h < 6; h++) {
+            const ha = h * Math.PI / 3;
+            const hx = Math.cos(ha) * latR;
+            const hy = Math.sin(ha) * latR * 0.38;
+            if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = `rgba(110, 231, 183, ${(0.55 + 0.35 * Math.abs(l / 2.6)) * warnPulse})`;
+          ctx.lineWidth = 1.9 * Math.max(0.7, u);
+          ctx.stroke();
+
+          // Diamond Node Vertices
+          for (let h = 0; h < 6; h++) {
+            const ha = h * Math.PI / 3;
+            const hx = Math.cos(ha) * latR;
+            const hy = Math.sin(ha) * latR * 0.38;
+            ctx.beginPath();
+            ctx.arc(hx, hy, 2.5 * Math.max(0.7, u), 0, Math.PI * 2);
+            ctx.fillStyle = '#fef08a';
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // Twin Counter-Rotating Helical Perimeter Boundary Ribbons
+        const ribbonRot = now * 0.0035;
+        for (let strand = 0; strand < 2; strand++) {
+          const sOff = strand * Math.PI;
+          ctx.beginPath();
+          for (let k = 0; k <= 32; k++) {
+            const t = k / 32;
+            const ang = ribbonRot + t * Math.PI * 2;
+            const zMod = Math.sin(ang * 3 + sOff) * 12 * u;
+            const rad = r + zMod;
+            const kx = Math.cos(ang) * rad;
+            const ky = Math.sin(ang) * rad * 0.75;
+            if (k === 0) ctx.moveTo(kx, ky); else ctx.lineTo(kx, ky);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = strand === 0 ? `rgba(34, 211, 238, ${0.80 * warnPulse})` : `rgba(254, 240, 138, ${0.75 * warnPulse})`;
+          ctx.lineWidth = 2.0 * Math.max(0.7, u);
+          ctx.stroke();
+        }
+
+        // Outer Bio-Lattice Barrier Rim
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(34, 211, 238, ${0.90 * warnPulse})`;
+        ctx.lineWidth = 3.2;
+        ctx.stroke();
+
+        this._drawAegisHudBadge(ctx, r, u, `🛡️ HARMONIC AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#22d3ee', '#6ee7b7', 'rgba(13, 148, 136, 0.40)');
+
+      } else {
+        // ─── CHROME METEOR: CALDERA THERMAL MAGMA AEGIS ───
+        // Volcanic basalt tectonic shield plates floating over molten magma envelope
+        const grad = ctx.createRadialGradient(0, 0, r * 0.38, 0, 0, r * 1.08);
+        grad.addColorStop(0.0, 'rgba(254, 240, 138, 0.05)');
+        grad.addColorStop(0.55, `rgba(249, 115, 22, ${0.22 * warnPulse})`);
+        grad.addColorStop(0.85, `rgba(234, 88, 12, ${0.38 * warnPulse})`);
+        grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.68 * warnPulse})`);
+        grad.addColorStop(1.0, 'rgba(234, 88, 12, 0.0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 8 Interlocking Basalt Tectonic Plates around the Perimeter
+        const numPlates = 8;
+        const plateRot = now * 0.002;
+        ctx.save();
+        ctx.rotate(plateRot);
+        for (let p = 0; p < numPlates; p++) {
+          const pAng1 = p * (Math.PI * 2 / numPlates) + 0.04;
+          const pAng2 = (p + 1) * (Math.PI * 2 / numPlates) - 0.04;
+          const rPlateIn = r * 0.82;
+          const rPlateOut = r * 1.02;
+
+          ctx.beginPath();
+          ctx.arc(0, 0, rPlateOut, pAng1, pAng2);
+          ctx.arc(0, 0, rPlateIn, pAng2, pAng1, true);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
+          ctx.fill();
+          ctx.strokeStyle = `rgba(251, 146, 60, ${0.85 * warnPulse})`;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+
+          // Incandescent Magma Fissure in the Center of each Plate
+          const midAng = (pAng1 + pAng2) * 0.5;
+          const fX1 = Math.cos(midAng) * rPlateIn;
+          const fY1 = Math.sin(midAng) * rPlateIn;
+          const fX2 = Math.cos(midAng) * rPlateOut;
+          const fY2 = Math.sin(midAng) * rPlateOut;
+          ctx.beginPath();
+          ctx.moveTo(fX1, fY1);
+          ctx.lineTo(fX2, fY2);
+          ctx.strokeStyle = `rgba(254, 240, 138, ${0.92 * warnPulse})`;
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Molten Solar Gold Perimeter Ring
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(251, 191, 36, ${0.95 * warnPulse})`;
+        ctx.lineWidth = 3.6;
+        ctx.stroke();
+
+        this._drawAegisHudBadge(ctx, r, u, `🛡️ CALDERA AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#fbbf24', '#f97316', 'rgba(194, 65, 12, 0.40)');
+      }
+
+      // Shield Deflection Shockwave Flash (Shared Across Modes)
+      if (this.shieldDeflectFlash > 0.02) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r * (1.1 + (1.0 - this.shieldDeflectFlash) * 0.4), 0, Math.PI * 2);
+        const flashColor = (mode === 'dynamo' || mode === 'realm') ? '#38bdf8' : (mode === 'helix' ? '#22d3ee' : '#fbbf24');
+        ctx.strokeStyle = flashColor;
+        ctx.globalAlpha = this.shieldDeflectFlash * 0.95;
+        ctx.lineWidth = 5.0;
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    },
+
+    _drawAegisHudBadge(ctx, r, u, badgeText, timeLeft, isExpiring, mainColor, borderColor, bgColor) {
+      ctx.save();
+      const hudY = -r - 20;
+      ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+      const bWidth = ctx.measureText(badgeText).width;
+
+      ctx.fillStyle = isExpiring ? 'rgba(239, 68, 68, 0.45)' : bgColor;
+      ctx.strokeStyle = isExpiring ? '#f87171' : borderColor;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-bWidth / 2 - 10, hudY - 10, bWidth + 20, 20, 10);
+      else ctx.rect(-bWidth / 2 - 10, hudY - 10, bWidth + 20, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(badgeText, 0, hudY);
+
+      // Remaining Time Radial Gauge
+      const timeFrac = Math.max(0, Math.min(1.0, timeLeft / 5000));
+      ctx.beginPath();
+      ctx.arc(-bWidth / 2 - 18, hudY, 6, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * timeFrac);
+      ctx.strokeStyle = isExpiring ? '#ef4444' : mainColor;
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
+      ctx.restore();
+    },
+
+    drawCursorReticle(ctx, cx, cy, u, now) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = 'lighter';
+
+      const retR = 48 * u;
+      const rot = now * 0.0018;
+
+      for (let b = 0; b < 4; b++) {
+        const ba = rot + (b * Math.PI / 2);
+        const bx = Math.cos(ba) * retR;
+        const by = Math.sin(ba) * retR;
+        const armLen = 8 * u;
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(ba);
+        ctx.beginPath();
+        ctx.moveTo(-armLen, 0);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(0, -armLen);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.42)';
+        ctx.lineWidth = 1.4 * u;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.beginPath();
+      ctx.arc(0, 0, 1.8 * u, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(224, 242, 254, 0.65)';
+      ctx.fill();
+
+      ctx.restore();
+    },
+
+    drawThrusterPlumes(ctx, u) {
+      if (this.thrusterPlumes.length === 0) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.thrusterPlumes.length; i++) {
+        const tp = this.thrusterPlumes[i];
+        const alpha = Math.max(0, 1.0 - tp.life / tp.maxLife);
+        ctx.beginPath();
+        ctx.arc(tp.x, tp.y, tp.size, 0, Math.PI * 2);
+        ctx.fillStyle = tp.color;
+        ctx.globalAlpha = alpha * 0.70;
+        ctx.fill();
+      }
+      ctx.restore();
+    },
+
+    drawGrazeSparks(ctx, u) {
+      if (this.grazeSparks.length === 0) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let gs of this.grazeSparks) {
+        const alpha = Math.max(0, 1.0 - gs.life / gs.maxLife);
+        ctx.beginPath();
+        ctx.arc(gs.x, gs.y, 2.2 * u, 0, Math.PI * 2);
+        ctx.fillStyle = gs.color || '#38bdf8';
+        ctx.globalAlpha = alpha;
+        ctx.fill();
+      }
+      ctx.restore();
+    },
+
+    triggerCaptureEffect(mode, catcherX, catcherY, nodeX, nodeY, now, u = 0.5) {
+      const rawDx = nodeX - catcherX;
+      const rawDy = nodeY - catcherY;
+      const contactAng = (Math.abs(rawDx) < 0.01 && Math.abs(rawDy) < 0.01) ? -Math.PI * 0.5 : Math.atan2(rawDy, rawDx);
+      const coreR = 68.0 * u;
+      const dxContact = Math.cos(contactAng) * coreR;
+      const dyContact = Math.sin(contactAng) * coreR;
+
+      // UPGRADE 5: Tier IV Overdrive Harmonic Resonance Flash on every catch in Tier IV!
+      if (this.continuousTier >= 3.6) {
+        this.overdriveFlash = 0.95;
+        this.ascensionRings.push({
+          tierReached: 4,
+          radius: 42,
+          maxRadius: 220,
+          alpha: 0.85,
+          mode: (mode === 'realm') ? 'dynamo' : mode
+        });
+      }
+
+      if (mode === 'dynamo' || mode === 'realm') {
+        const pts = [];
+        const steps = 7;
+        for (let s = 0; s <= steps; s++) {
+          const t = s / steps;
+          const jitter = (s === 0 || s === steps) ? 0 : (Math.random() - 0.5) * 18 * (1 - t * 0.4);
+          const perpX = -Math.sin(contactAng);
+          const perpY = Math.cos(contactAng);
+          pts.push({
+            x: dxContact * (1 - t) + perpX * jitter,
+            y: dyContact * (1 - t) + perpY * jitter
+          });
+        }
+        this.dynamoDischarges.push({
+          startTime: now,
+          duration: 340,
+          progress: 0,
+          contactX: dxContact,
+          contactY: dyContact,
+          contactAngle: contactAng,
+          pts: pts
+        });
+      } else if (mode === 'helix') {
+        this.wingRipples.push({
+          startTime: now,
+          duration: 560,
+          progress: 0,
+          contactX: dxContact,
+          contactY: dyContact,
+          contactAngle: contactAng
+        });
+      } else if (mode === 'meteor') {
+        // Recoil strictly opposite the exact contact normal!
+        this.meteorShieldRecoil.x = -Math.cos(contactAng) * 8.5;
+        this.meteorShieldRecoil.vx = -Math.cos(contactAng) * 2.5;
+        this.meteorShieldRecoil.y = -Math.sin(contactAng) * 8.5;
+        this.meteorShieldRecoil.vy = -Math.sin(contactAng) * 2.5;
+        this.meteorShieldRecoil.tilt = Math.max(-0.22, Math.min(0.22, Math.cos(contactAng) * 0.16));
+        this.meteorShieldRecoil.vTilt = this.meteorShieldRecoil.tilt * 0.25;
+        this.meteorShieldRecoil.flash = 1.0;
+
+        const impactWorldX = catcherX + dxContact;
+        const impactWorldY = catcherY + dyContact;
+        const tangX = -Math.sin(contactAng);
+        const tangY = Math.cos(contactAng);
+        for (let k = 0; k < 14; k++) {
+          const spreadAngle = contactAng + (Math.random() - 0.5) * 1.35;
+          const speed = 3.2 + Math.random() * 4.4;
+          const tJitter = (Math.random() - 0.5) * 14;
+          this.impactCinders.push({
+            x: impactWorldX + tangX * tJitter,
+            y: impactWorldY + tangY * tJitter,
+            vx: Math.cos(spreadAngle) * speed,
+            vy: Math.sin(spreadAngle) * speed,
+            size: 2.0 + Math.random() * 2.4,
+            isCyanSpark: (k % 4 === 0),
+            life: 0,
+            maxLife: 20 + Math.random() * 14
+          });
+        }
+      }
+    },
+
+    emitNodeWorldStreaks(p, targetR, mode, isHazard, dtScale, now) {
+      if (!p.lastStreakEmit) p.lastStreakEmit = now - Math.random() * 100;
+
+      if (!isHazard) {
+        // ─── GOOD COLLECTIBLE NODES: SUBTLE EMBER DRIFT (ULTRA-LEAN & LAG-FREE) ───
+        // Particles linger where released and fade snappily (~160ms). Wide emission intervals
+        // (260ms) guarantee crisp readability of falling nodes, badges, and zero particle clutter.
+        const emitInterval = 260;
+        if (now - p.lastStreakEmit < emitInterval) return;
+        p.lastStreakEmit = now;
+
+        if (mode === 'dynamo' || mode === 'realm') {
+          // Zero redundant vertical ticks — compact Lichtenberg micro-crown handles Dynamo's wake smoothly!
+          return;
+        } else if (mode === 'helix') {
+          // Chrome Helix: Micro cyan/lilac fleck turning above the glass DNA orb
+          const spawnX = p.x + (Math.random() - 0.5) * targetR * 0.45;
+          const spawnY = p.y - targetR * (0.80 + Math.random() * 0.15);
+          this.worldStreaks.push({
+            type: 'ember',
+            kind: 'helixFleck',
+            x: spawnX,
+            y: spawnY,
+            vx: (Math.random() - 0.5) * 0.22,
+            vy: -0.12 - Math.random() * 0.12,
+            size: 0.85 + Math.random() * 0.35,
+            life: 0,
+            maxLife: 10 + Math.random() * 4
+          });
+        } else {
+          // Chrome Meteor: Micro orange cinder from glowing fissures cooling to dark red
+          const crackAng = Math.random() * Math.PI * 2;
+          const crackDist = targetR * (0.45 + Math.random() * 0.35);
+          const spawnX = p.x + Math.cos(crackAng) * crackDist;
+          const spawnY = p.y + Math.sin(crackAng) * crackDist;
+          this.worldStreaks.push({
+            type: 'ember',
+            kind: 'meteorCinder',
+            x: spawnX,
+            y: spawnY,
+            vx: (Math.random() - 0.5) * 0.22,
+            vy: -0.10 - Math.random() * 0.12,
+            size: 0.85 + Math.random() * 0.35,
+            life: 0,
+            maxLife: 10 + Math.random() * 4
+          });
+        }
+
+      } else {
+        // ─── BAD HAZARD NODES: ULTRA-LEAN ATMOSPHERIC SIGNATURES (ZERO BLURRY CLUTTER) ───
+        const emitInterval = 280;
+        if (now - p.lastStreakEmit < emitInterval) return;
+        p.lastStreakEmit = now;
+
+        if (mode === 'dynamo' || mode === 'realm') {
+          // Broken Arc: Short, clean magenta micro-discharge flickering along recent path
+          this.worldStreaks.push({
+            type: 'hazard',
+            kind: 'brokenArcSpark',
+            x: p.x + (Math.random() - 0.5) * targetR * 0.35,
+            y: p.y - targetR * (0.85 + Math.random() * 0.45),
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: -0.18 - Math.random() * 0.15,
+            len: 4 + Math.random() * 4,
+            angle: -Math.PI * 0.5 + (Math.random() - 0.5) * 0.5,
+            life: 0,
+            maxLife: 10 + Math.random() * 4
+          });
+        } else if (mode === 'helix') {
+          // Facet Dust: Single micro ruby grain behind the crystal
+          this.worldStreaks.push({
+            type: 'hazard',
+            kind: 'facetDust',
+            x: p.x + (Math.random() - 0.5) * targetR * 0.45,
+            y: p.y - targetR * (0.4 + Math.random() * 0.4),
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: -0.15 - Math.random() * 0.15,
+            size: 0.85 + Math.random() * 0.35,
+            life: 0,
+            maxLife: 10 + Math.random() * 4
+          });
+        } else {
+          // Ash Flakes: Single micro charcoal flake from rotating basalt spikes
+          const flakeAng = Math.random() * Math.PI * 2;
+          const flakeDist = targetR * (0.7 + Math.random() * 0.25);
+          this.worldStreaks.push({
+            type: 'hazard',
+            kind: 'ashFlake',
+            x: p.x + Math.cos(flakeAng) * flakeDist,
+            y: p.y + Math.sin(flakeAng) * flakeDist,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: -0.15 - Math.random() * 0.15,
+            size: 1.2 + Math.random() * 0.6,
+            life: 0,
+            maxLife: 10 + Math.random() * 4
+          });
+        }
+      }
+    },
+
+    updateAndDrawWorldStreaks(ctx, dtScale) {
+      if (this.worldStreaks.length === 0) return;
+      // High-refresh performance guard: hard-cap total world streaks to 18 particles max
+      if (this.worldStreaks.length > 18) {
+        this.worldStreaks.splice(0, this.worldStreaks.length - 18);
+      }
+      const dt = Math.max(0.25, Math.min(2.5, dtScale));
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = this.worldStreaks.length - 1; i >= 0; i--) {
+        const st = this.worldStreaks[i];
+        st.x += (st.vx || 0) * dt;
+        st.y += (st.vy || 0) * dt;
+        st.life += dt;
+        if (st.life >= st.maxLife) {
+          this.worldStreaks.splice(i, 1);
+          continue;
+        }
+
+        const prog = st.life / st.maxLife;
+        const alpha = Math.sin(prog * Math.PI); // smooth bell fade
+        if (alpha <= 0.03) continue;
+
+        if (st.type === 'speedline' || st.kind === 'dynamoSpeedline') {
+          // Soft vertical cyan motion speedline (matches user reference image!)
+          const syBot = st.y;
+          const syTop = syBot - st.len;
+          const grad = ctx.createLinearGradient(st.x, syTop, st.x, syBot);
+          grad.addColorStop(0.0, 'rgba(0, 240, 255, 0)');
+          grad.addColorStop(0.45, `rgba(56, 189, 248, ${alpha * 0.72})`);
+          grad.addColorStop(0.85, `rgba(224, 242, 254, ${alpha * 0.90})`);
+          grad.addColorStop(1.0, 'rgba(0, 240, 255, 0)');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(st.x, syTop);
+          ctx.lineTo(st.x, syBot);
+          ctx.stroke();
+
+        } else if (st.type === 'ember') {
+          // ─── EMBER DRIFT PARTICLES (DIRECT ZERO-ALLOC RENDERING) ───
+          if (st.kind === 'dynamoSpark') {
+            // Ultra-delicate violet-white micro-spark
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.size * (1.0 - prog * 0.4), 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.88})`;
+            ctx.fill();
+
+          } else if (st.kind === 'helixFleck') {
+            // Micro cyan / lilac fleck
+            const isLilac = (Math.floor(st.x) % 2 === 0);
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.size * (1.0 - prog * 0.4), 0, Math.PI * 2);
+            ctx.fillStyle = isLilac ? `rgba(216, 180, 254, ${alpha * 0.80})` : `rgba(56, 189, 248, ${alpha * 0.78})`;
+            ctx.fill();
+
+          } else if (st.kind === 'meteorCinder') {
+            // Micro orange cinder
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.size * (1.0 - prog * 0.4), 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(249, 115, 22, ${alpha * 0.82})`;
+            ctx.fill();
+          }
+
+        } else if (st.type === 'hazard') {
+          // ─── HAZARD PARTICLES (LIGHTWEIGHT VECTOR RENDER) ───
+          if (st.kind === 'brokenArcSpark') {
+            // Short clean magenta micro-arc segment
+            ctx.beginPath();
+            ctx.moveTo(st.x, st.y);
+            ctx.lineTo(st.x + Math.sin(st.angle || 0) * (st.len * 0.5), st.y + Math.cos(st.angle || 0) * (st.len * 0.5));
+            ctx.strokeStyle = `rgba(244, 63, 94, ${alpha * 0.82})`;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+          } else if (st.kind === 'facetDust') {
+            // Micro ruby dust grain
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(225, 29, 72, ${alpha * 0.78})`;
+            ctx.fill();
+
+          } else if (st.kind === 'ashFlake') {
+            // Micro charcoal ash flake
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.size * 0.75, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(71, 85, 105, ${alpha * 0.78})`;
+            ctx.fill();
+          }
+        }
+      }
+
+      ctx.restore();
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // PROCEDURAL & LAYERED COMPONENT RENDERERS (DYNAMO, HELIX, METEOR)
+  // ─────────────────────────────────────────────────────────────
+
+  // UPGRADES 1, 2, 3 & 5:
+  // ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  // ARTICULATED KINEMATIC WINGS ENGINE (v352 TOP-TIER FLIGHT & PROPORTIONS)
+  // - Recommendation 1: Wing Flap Damping & Convergence Limiter (strictly prevents tips touching/converging)
+  // - Recommendation 2: Asymmetric Directional Kinematics (identifies strafe direction; leading wing lifts & glints, trailing drags & tucks)
+  // - Recommendation 3: Proportional Sleek Wingspan (reduced max span to 0.46 for majestic, balanced aerospace silhouette)
+  // - Intact 4K feathers, real-3D perspective foreshortening, and zero-slice seams
+  // ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  // LAYERED 15 CHROME CORE RENDERING & MOTION ENGINE (v393)
+  // - Strict Material-Bounded Lighting: zero outer bloom, zero glow halos, zero radial rays, zero background lighting
+  // - Tier-Specific Extracted Wing Layers (Tiers II -> V) with hinged flex, inner/outer feather lag, and material speculars
+  // - Arc-Length Sampled Orbits in Local Space with Front/Rear Occlusion & Continuous Phase Across Tiers
+  // - Single-Transform Upright Double Helix for Helix I-V (zero double images even during crossfades)
+  // - Circular Silhouette Mask for Meteor I-V with rotating surface texture, fluctuating lava channels & occasional detaching embers
+  // ─────────────────────────────────────────────────────────────
+
+  // Arc-length lookup tables for uniform visual speed along elliptical orbits (rx, ry)
+  const _orbitArcTables = {};
+  function sampleUniformEllipseAngle(rx, ry, normPhase) {
+    const p = ((normPhase % 1.0) + 1.0) % 1.0;
+    const ratioKey = Math.round((ry / Math.max(1, rx)) * 1000);
+    let table = _orbitArcTables[ratioKey];
+    if (!table) {
+      const N = 128;
+      const cum = new Float32Array(N + 1);
+      cum[0] = 0;
+      const aspect = ry / Math.max(1, rx);
+      let prevX = 1.0, prevY = 0.0;
+      for (let i = 1; i <= N; i++) {
+        const theta = (i / N) * Math.PI * 2;
+        const curX = Math.cos(theta);
+        const curY = Math.sin(theta) * aspect;
+        cum[i] = cum[i - 1] + Math.hypot(curX - prevX, curY - prevY);
+        prevX = curX;
+        prevY = curY;
+      }
+      const total = cum[N] || 1;
+      for (let i = 1; i <= N; i++) cum[i] /= total;
+      table = cum;
+      _orbitArcTables[ratioKey] = table;
+    }
+    const N = 128;
+    let lo = 0, hi = N;
+    while (lo < hi - 1) {
+      const mid = (lo + hi) >> 1;
+      if (table[mid] <= p) lo = mid;
+      else hi = mid;
+    }
+    const segSpan = Math.max(1e-6, table[hi] - table[lo]);
+    const frac = (p - table[lo]) / segSpan;
+    return ((lo + frac) / N) * Math.PI * 2;
+  }
+
+  // Reduced-motion media query cache
+  const _prefersReducedMotion = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+
+  // Persistent Meteor Tier II+ free detaching embers (confined to local space, cools and fades cleanly)
+  const _meteorDetachedEmbers = [];
+  let _lastMeteorEmberSpawn = 0;
+
+  function drawArticulatedWings(ctx, mode, u, cySrc, tier, now, isPortalPreview = false) {
+    const cTier = isPortalPreview ? tier : CoreKinematics.continuousTier;
+    if (cTier <= 1.02) return; // Tier I has no wings!
+
+    // Core visual scale: 1024x576 reference mapped so the central sphere radius (~150px in 1024x576) equals 68 * u
+    const coreImgScale = (68.0 / 150.0) * u; // 0.45333 * u
+    const wingW = 512 * coreImgScale;
+    const wingH = 576 * coreImgScale;
+    const pivotY = 288 * coreImgScale;
+
+    // Determine lower and upper wing tiers for coherent upgrade crossfade
+    const lowTier = Math.max(2, Math.min(5, Math.floor(cTier)));
+    const highTier = Math.max(2, Math.min(5, Math.ceil(cTier)));
+    const blendT = (highTier > lowTier) ? Math.max(0, Math.min(1, cTier - lowTier)) : 0;
+    const t12Fade = (cTier < 2.0) ? Math.max(0, Math.min(1, (cTier - 1.0) / 0.98)) : 1.0;
+
+    const motionScale = _prefersReducedMotion ? 0.25 : 1.0;
+    const vx = isPortalPreview ? 0 : (CoreKinematics.vx || 0);
+    const vy = isPortalPreview ? 0 : (CoreKinematics.vy || 0);
+    const isUltActive = Boolean(typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mode);
+
+    // Small mirrored flex with tip lag (kept tight so hinges always remain attached to the bezel/core!)
+    const loadFlex = Math.max(-0.045, Math.min(0.055, (CoreKinematics.rootY * 0.0022 - vy * 0.0018) * motionScale));
+    const delayedOuterFlex = Math.max(-0.065, Math.min(0.075, (CoreKinematics.tipY * 0.0028 - CoreKinematics.bodyBank * 0.08) * motionScale));
+    const breathFlex = Math.sin(now * 0.0030) * 0.008 * motionScale;
+
+    const drawSingleTierWingPair = (tIdx, alphaVal) => {
+      if (alphaVal <= 0.01) return;
+      const wSpr = LayeredT4Assets.wingRightTiers[mode] && LayeredT4Assets.wingRightTiers[mode][tIdx];
+      const wLoaded = LayeredT4Assets.loaded.wingRightTiers[mode] && LayeredT4Assets.loaded.wingRightTiers[mode][tIdx];
+      if (!wSpr || !wLoaded) return;
+
+      for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
+        const dir = (sideIdx === 0) ? 1 : -1; // +1 Right wing, -1 Left wing
+        const rootInsetX = (mode === 'meteor') ? (-4 * coreImgScale) : (-2 * coreImgScale);
+
+        // For Tier IV & V (broader layered wings), render subtle delayed response between inner and outer feathers
+        if (tIdx >= 4 && !_prefersReducedMotion) {
+          // Outer feather pass (delayed response)
+          ctx.save();
+          ctx.rotate(dir * (loadFlex * 0.65 + delayedOuterFlex + breathFlex));
+          ctx.scale(dir, 1);
+          ctx.globalAlpha = alphaVal * 0.96;
+          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          ctx.restore();
+
+          // Inner feather & root collar pass (immediate response, clipped to inner 58% of wing span)
+          ctx.save();
+          ctx.rotate(dir * (loadFlex + breathFlex * 0.5));
+          ctx.scale(dir, 1);
+          ctx.beginPath();
+          ctx.rect(rootInsetX, -pivotY, wingW * 0.58, wingH);
+          ctx.clip();
+          ctx.globalAlpha = alphaVal;
+          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          ctx.restore();
+        } else {
+          // Single-layer synchronized flex (Tiers II & III)
+          ctx.save();
+          ctx.rotate(dir * (loadFlex + breathFlex));
+          ctx.scale(dir, 1);
+          ctx.globalAlpha = alphaVal;
+          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          ctx.restore();
+        }
+
+        // Material-Specific Surface Lighting & Feather Currents (strictly clipped to the wing's alpha silhouette via source-atop!)
+        ctx.save();
+        ctx.rotate(dir * (loadFlex + (tIdx >= 4 ? delayedOuterFlex * 0.7 : 0) + breathFlex));
+        ctx.scale(dir, 1);
+
+        if (mode === 'dynamo') {
+          // DYNAMO II: Occasional small blue charge flashes near the fin roots
+          if (tIdx === 2) {
+            const flashCycle = Math.sin(now * 0.019 + sideIdx * 2.7);
+            if (flashCycle > 0.62) {
+              const fa = ((flashCycle - 0.62) / 0.38) * alphaVal;
+              const rx = 74 * coreImgScale;
+              const ry = -6 * coreImgScale;
+              ctx.strokeStyle = `rgba(186, 230, 253, ${0.88 * fa})`;
+              ctx.lineWidth = 1.4 * u;
+              ctx.beginPath();
+              ctx.moveTo(rx, ry - 7 * u);
+              ctx.lineTo(rx + 6 * u, ry - 1 * u);
+              ctx.lineTo(rx + 2 * u, ry + 3 * u);
+              ctx.lineTo(rx + 10 * u, ry + 8 * u);
+              ctx.stroke();
+            }
+          }
+          // DYNAMO III, IV, V: Faint blue current passing from each wing root toward the tips (+ synchronized wing-light pulse during ultimate in V)
+          if (tIdx >= 3) {
+            const curPhase = ((now * (isUltActive ? 0.0028 : 0.0012) + sideIdx * 0.15) % 1.0);
+            const curX = (72 + curPhase * (tIdx === 3 ? 165 : (tIdx === 4 ? 235 : 270))) * coreImgScale;
+            const curY = (-12 - curPhase * 34) * coreImgScale;
+            const curAlpha = Math.sin(curPhase * Math.PI) * (isUltActive ? 0.62 : 0.34) * alphaVal;
+            if (curAlpha > 0.02) {
+              ctx.strokeStyle = isUltActive ? `rgba(224, 242, 254, ${curAlpha})` : `rgba(125, 211, 252, ${curAlpha})`;
+              ctx.lineWidth = (isUltActive ? 2.0 : 1.3) * u;
+              ctx.beginPath();
+              ctx.moveTo(curX - 14 * coreImgScale, curY + 5 * coreImgScale);
+              ctx.lineTo(curX - 4 * coreImgScale, curY - 2 * coreImgScale);
+              ctx.lineTo(curX + 6 * coreImgScale, curY + 2 * coreImgScale);
+              ctx.lineTo(curX + 16 * coreImgScale, curY - 4 * coreImgScale);
+              ctx.stroke();
+            }
+          }
+        } else if (mode === 'helix') {
+          // HELIX II: Soft traveling glint along each prismatic fin
+          // HELIX III, IV, V: Restrained cyan and lavender caustics shifting across feather edges (+ intensified wing-light pulse during ultimate)
+          const glintProg = ((now * (isUltActive ? 0.0024 : 0.00095) + sideIdx * 0.22) % 1.0);
+          const spanPx = (tIdx === 2 ? 155 : (tIdx === 3 ? 230 : (tIdx === 4 ? 295 : 340))) * coreImgScale;
+          const gx = 72 * coreImgScale + glintProg * spanPx;
+          const gy = (-8 - glintProg * 26) * coreImgScale;
+          const ga = Math.sin(glintProg * Math.PI) * (isUltActive ? 0.52 : 0.28) * alphaVal;
+          if (ga > 0.02) {
+            ctx.strokeStyle = (glintProg < 0.5) ? `rgba(103, 232, 249, ${ga})` : `rgba(216, 180, 254, ${ga})`;
+            ctx.lineWidth = 1.6 * u;
+            ctx.beginPath();
+            ctx.moveTo(gx - 12 * coreImgScale, gy + 4 * coreImgScale);
+            ctx.lineTo(gx + 12 * coreImgScale, gy - 4 * coreImgScale);
+            ctx.stroke();
+          }
+        } else if (mode === 'meteor') {
+          // METEOR IV & V: Specular response on feathers & heat reflected on wing tips (strictly on the metal feather surfaces!)
+          if (tIdx >= 4) {
+            const heatPulse = (0.5 + 0.5 * Math.sin(now * (isUltActive ? 0.009 : 0.0035) + sideIdx * 0.7)) * alphaVal;
+            const tipStart = (tIdx === 5 ? 235 : 195) * coreImgScale;
+            const tipEnd = (tIdx === 5 ? 360 : 305) * coreImgScale;
+            ctx.strokeStyle = `rgba(251, 146, 60, ${(tIdx === 5 ? 0.34 : 0.22) * heatPulse})`;
+            ctx.lineWidth = 1.5 * u;
+            ctx.beginPath();
+            ctx.moveTo(tipStart, -26 * coreImgScale);
+            ctx.lineTo(tipEnd, -48 * coreImgScale);
+            ctx.moveTo(tipStart * 0.95, 4 * coreImgScale);
+            ctx.lineTo(tipEnd * 0.92, -10 * coreImgScale);
+            ctx.stroke();
+          }
+        }
+
+        ctx.restore();
+      }
+    };
+
+    if (cTier < 2.0) {
+      drawSingleTierWingPair(2, t12Fade);
+    } else if (highTier === lowTier || blendT <= 0.01) {
+      drawSingleTierWingPair(lowTier, 1.0);
+    } else {
+      drawSingleTierWingPair(lowTier, 1.0 - blendT);
+      drawSingleTierWingPair(highTier, blendT);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // DYNAMO ORBITS (Tiers III, IV, V — Sharp, dim, unblurred lines & discrete charge particles with ZERO glow!)
+  // Tier I & II: NO orbit
+  // Tier III: 1 cyan orbital track + 1 small charge moving along the fixed track
+  // Tier IV & V: 2 fixed, tilted tracks (1 cyan + 1 gold), each carrying a charge on its own smooth phase with front/back occlusion
+  // ─────────────────────────────────────────────────────────────
+  const DYNAMO_ORBIT_TRACKS = [
+    { tilt: -0.38, rx: 94, ry: 32, speed:  0.00052, phase0: 0.15, isGold: false }, // Track 1: Cyan (Tiers III, IV, V)
+    { tilt:  0.42, rx: 98, ry: 34, speed: -0.00046, phase0: 0.62, isGold: true  }  // Track 2: Gold (Tiers IV, V)
+  ];
+
+  function drawDynamoRingsHalf(ctx, u, now, drawFrontHalf, tierIdx = 4, cTier = null) {
+    const effTier = cTier !== null ? cTier : tierIdx;
+    if (effTier <= 2.02) return; // Tiers I & II have no orbit!
+
+    ctx.save();
+    const numTracks = (effTier < 3.05) ? 1 : 2;
+
+    for (let rIdx = 0; rIdx < numTracks; rIdx++) {
+      const cfg = DYNAMO_ORBIT_TRACKS[rIdx];
+      let trackAlpha = 1.0;
+      if (rIdx === 0 && effTier < 3.0) trackAlpha = Math.max(0, Math.min(1, effTier - 2.0));
+      if (rIdx === 1 && effTier < 4.0) trackAlpha = Math.max(0, Math.min(1, effTier - 3.0));
+      if (trackAlpha <= 0.01) continue;
+
+      const rx = cfg.rx * u;
+      const ry = cfg.ry * u;
+
+      ctx.save();
+      ctx.rotate(cfg.tilt);
+
+      // Sharp, dim, unblurred orbital track line split at the sphere horizon (sin(a) >= 0 is Front, sin(a) < 0 is Rear)
+      const startA = drawFrontHalf ? 0 : Math.PI;
+      const endA = drawFrontHalf ? Math.PI : Math.PI * 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, startA, endA);
+      const lineAlpha = (drawFrontHalf ? 0.52 : 0.24) * trackAlpha;
+      ctx.lineWidth = Math.max(1.0, 1.35 * u);
+      ctx.strokeStyle = cfg.isGold
+        ? `rgba(234, 179, 8, ${lineAlpha})`
+        : `rgba(34, 211, 238, ${lineAlpha})`;
+      ctx.stroke();
+
+      // Discrete charge carrier moving with uniform arc-length visual speed (continuous phase from render clock)
+      const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+      const rawPhase = now * cfg.speed * motionMult + cfg.phase0;
+      const eAngle = sampleUniformEllipseAngle(rx, ry, rawPhase);
+      const ez = Math.sin(eAngle);
+      const eIsFront = (ez >= 0);
+
+      if (eIsFront === drawFrontHalf) {
+        const ex = Math.cos(eAngle) * rx;
+        const ey = Math.sin(eAngle) * ry;
+        const chargeR = Math.max(1.6, (drawFrontHalf ? 2.6 : 2.0) * u);
+
+        // Short crisp wake along recent track path (strictly unblurred line segments)
+        const dirSign = cfg.speed >= 0 ? -1 : 1;
+        ctx.beginPath();
+        for (let w = 0; w <= 5; w++) {
+          const wa = eAngle + dirSign * (w * 0.055);
+          const wx = Math.cos(wa) * rx;
+          const wy = Math.sin(wa) * ry;
+          if (w === 0) ctx.moveTo(wx, wy);
+          else ctx.lineTo(wx, wy);
+        }
+        ctx.strokeStyle = cfg.isGold
+          ? `rgba(253, 224, 71, ${0.55 * trackAlpha})`
+          : `rgba(125, 211, 252, ${0.55 * trackAlpha})`;
+        ctx.lineWidth = Math.max(1.0, 1.3 * u);
+        ctx.stroke();
+
+        // Crisp discrete charge particle (outer rim + solid bright center, ZERO radial gradient halo!)
+        ctx.fillStyle = cfg.isGold
+          ? `rgba(245, 158, 11, ${0.95 * trackAlpha})`
+          : `rgba(56, 189, 248, ${0.95 * trackAlpha})`;
+        ctx.beginPath();
+        ctx.arc(ex, ey, chargeR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.98 * trackAlpha})`;
+        ctx.beginPath();
+        ctx.arc(ex, ey, chargeR * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function pseudoSin(seed) {
+    return Math.sin(seed * 12.9898 + Math.cos(seed * 4.1414) * 3.1);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // DYNAMO INTERNAL DISCHARGE FILAMENTS (Strictly confined inside the glass sphere boundary!)
+  // - Tier I: Few fine blue-white discharge filaments that grow, fork, and decay in brief irregular bursts
+  // - Tier II: Increased violet branching
+  // - Tier III & IV: Deeper violet plasma & branching filaments
+  // - Tier V: Bright violet-white center point surrounded by fine branching plasma (+ stronger internal arcs during ultimate)
+  // - Stable surface reflection relative to light
+  // ─────────────────────────────────────────────────────────────
+  function drawInternalPlasmaArcs(ctx, cx, cy, maxR, now, phaseOffset, isCore = false, tierIdx = 4) {
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // Strictly clip all internal plasma light inside the smoky violet glass sphere boundary!
+    ctx.beginPath();
+    ctx.arc(0, 0, maxR * 0.96, 0, Math.PI * 2);
+    ctx.clip();
+
+    const isUltActive = Boolean(isCore && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === 'dynamo');
+    const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+
+    // Tier-progressive filament count
+    const numArcs = isCore
+      ? (tierIdx === 1 ? 3 : (tierIdx === 2 ? 5 : (tierIdx === 3 ? 6 : (tierIdx === 4 ? 7 : 9)))) + (isUltActive ? 3 : 0)
+      : 4;
+
+    for (let a = 0; a < numArcs; a++) {
+      const cycleDuration = (isUltActive ? 220 : 340) + (a * 73) % 190;
+      const localTime = (now * motionMult + phaseOffset * 420 + a * 211);
+      const cycleIdx = Math.floor(localTime / cycleDuration);
+      const cycleProg = (localTime % cycleDuration) / cycleDuration;
+
+      // Brief irregular burst envelope: rapid growth (0..0.28), fork (0.18..0.75), and decay (0.75..1.0)
+      const burstSeed = Math.abs(pseudoSin(cycleIdx * 13 + a * 29));
+      if (tierIdx === 1 && burstSeed < 0.25) continue; // Irregular brief pauses in Tier I
+
+      const reachFrac = Math.min(1.0, cycleProg / 0.28);
+      const fadeAlpha = Math.sin(cycleProg * Math.PI);
+      if (fadeAlpha <= 0.04) continue;
+
+      const baseAng = (a / numArcs) * Math.PI * 2 + pseudoSin(cycleIdx * 7 + a * 19) * 0.55;
+      const segs = 6;
+      let forkX = 0, forkY = 0;
+
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      for (let s = 1; s <= segs; s++) {
+        const frac = (s / segs) * reachFrac;
+        const rDist = frac * maxR * 0.90;
+        const jitter = pseudoSin(cycleIdx * 17 + a * 31 + s * 11) * (0.28 * (1 - frac * 0.3));
+        const sx = Math.cos(baseAng + jitter) * rDist;
+        const sy = Math.sin(baseAng + jitter) * rDist;
+        ctx.lineTo(sx, sy);
+        if (s === 3) {
+          forkX = sx;
+          forkY = sy;
+        }
+      }
+
+      // Tier I features fine blue-white discharge filaments; Tiers II-V increase violet & icy-blue branching
+      const isBlueWhite = (tierIdx === 1) ? (a % 2 === 0) : (a % 3 === 0);
+      ctx.strokeStyle = isBlueWhite
+        ? `rgba(224, 242, 254, ${(isUltActive ? 0.95 : 0.85) * fadeAlpha})`
+        : `rgba(216, 180, 254, ${(isUltActive ? 0.92 : 0.80) * fadeAlpha})`;
+      ctx.lineWidth = Math.max(0.85, maxR * (isUltActive ? 0.032 : 0.024));
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // Forking secondary sub-branches
+      if (cycleProg > 0.18 && reachFrac > 0.55) {
+        const bAng = baseAng + (a % 2 === 0 ? 0.48 : -0.48);
+        const bLen = maxR * (tierIdx >= 2 ? 0.42 : 0.30) * Math.min(1.0, (cycleProg - 0.18) / 0.35);
+        const bMidX = forkX + Math.cos(bAng + 0.18) * (bLen * 0.52);
+        const bMidY = forkY + Math.sin(bAng + 0.18) * (bLen * 0.52);
+        const bEndX = forkX + Math.cos(bAng - 0.14) * bLen;
+        const bEndY = forkY + Math.sin(bAng - 0.14) * bLen;
+
+        ctx.beginPath();
+        ctx.moveTo(forkX, forkY);
+        ctx.lineTo(bMidX, bMidY);
+        ctx.lineTo(bEndX, bEndY);
+        ctx.strokeStyle = isBlueWhite
+          ? `rgba(186, 230, 253, ${0.75 * fadeAlpha})`
+          : `rgba(192, 132, 252, ${0.75 * fadeAlpha})`;
+        ctx.lineWidth = Math.max(0.65, maxR * 0.016);
+        ctx.stroke();
+      }
+    }
+
+    // Crisp central violet-white discharge point inside the glass (strongest in Tier V)
+    const ptR = Math.max(1.8, maxR * (tierIdx === 5 ? 0.085 : 0.060));
+    ctx.fillStyle = (tierIdx === 5 || isUltActive) ? 'rgba(243, 232, 255, 0.96)' : 'rgba(233, 213, 255, 0.88)';
+    ctx.beginPath();
+    ctx.arc(0, 0, ptR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Stable surface reflection relative to the top-left studio light source
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
+    ctx.lineWidth = Math.max(1.1, maxR * 0.032);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(0, 0, maxR * 0.84, -Math.PI * 0.82, -Math.PI * 0.58);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // HELIX ORBIT & PEARL (Tiers III, IV, V — Sharp, thin, steady cyan orbit & single occluded pearl!)
+  // - Tier I & II: NO orbit
+  // - Tier III: 1 thin, steady cyan orbit (no pearl yet)
+  // - Tier IV & V: 1 thin, steady cyan orbit + 1 pearl moving along the fixed cyan orbit, partly occluded behind the core
+  // ─────────────────────────────────────────────────────────────
+  const HELIX_SINGLE_ORBIT = {
+    tilt: -0.32,
+    rx: 92,
+    ry: 30,
+    speed: 0.00044,
+    phase0: 0.25
+  };
+
+  function drawHelixOrbitalRingsHalf(ctx, u, now, drawFrontHalf, tierIdx = 4, cTier = null) {
+    const effTier = cTier !== null ? cTier : tierIdx;
+    if (effTier <= 2.02) return; // Tiers I & II have no orbit!
+
+    const trackAlpha = (effTier < 3.0) ? Math.max(0, Math.min(1, effTier - 2.0)) : 1.0;
+    if (trackAlpha <= 0.01) return;
+
+    const rx = HELIX_SINGLE_ORBIT.rx * u;
+    const ry = HELIX_SINGLE_ORBIT.ry * u;
+
+    ctx.save();
+    ctx.rotate(HELIX_SINGLE_ORBIT.tilt);
+
+    // 1. One thin, steady cyan orbital track split into Rear (sin < 0) and Front (sin >= 0) passes
+    const startA = drawFrontHalf ? 0 : Math.PI;
+    const endA = drawFrontHalf ? Math.PI : Math.PI * 2;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, rx, ry, 0, startA, endA);
+    const lineAlpha = (drawFrontHalf ? 0.54 : 0.24) * trackAlpha;
+    ctx.strokeStyle = `rgba(34, 211, 238, ${lineAlpha})`;
+    ctx.lineWidth = Math.max(1.0, 1.3 * u);
+    ctx.stroke();
+
+    // 2. In Tiers IV & V: One pearl moving smoothly along the fixed cyan orbit (with arc-length uniform speed & core occlusion)
+    if (effTier > 3.02) {
+      const pearlAlpha = (effTier < 4.0) ? Math.max(0, Math.min(1, effTier - 3.0)) : 1.0;
+      const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+      const rawPhase = now * HELIX_SINGLE_ORBIT.speed * motionMult + HELIX_SINGLE_ORBIT.phase0;
+      const pAngle = sampleUniformEllipseAngle(rx, ry, rawPhase);
+      const pz = Math.sin(pAngle);
+      const pIsFront = (pz >= 0);
+
+      if (pIsFront === drawFrontHalf) {
+        const px = Math.cos(pAngle) * rx;
+        const py = Math.sin(pAngle) * ry;
+        const pearlR = Math.max(2.2, (drawFrontHalf ? 3.6 : 2.8) * u);
+
+        // Subtle crisp trail arc along the orbit behind the pearl
+        ctx.beginPath();
+        for (let w = 0; w <= 5; w++) {
+          const wa = pAngle - w * 0.05;
+          const wx = Math.cos(wa) * rx;
+          const wy = Math.sin(wa) * ry;
+          if (w === 0) ctx.moveTo(wx, wy);
+          else ctx.lineTo(wx, wy);
+        }
+        ctx.strokeStyle = `rgba(103, 232, 249, ${0.48 * pearlAlpha})`;
+        ctx.lineWidth = Math.max(0.9, 1.15 * u);
+        ctx.stroke();
+
+        // Crisp shaded pearl body (no external glow halo!)
+        ctx.fillStyle = `rgba(14, 116, 144, ${0.95 * pearlAlpha})`;
+        ctx.beginPath();
+        ctx.arc(px, py, pearlR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(165, 243, 252, ${0.96 * pearlAlpha})`;
+        ctx.beginPath();
+        ctx.arc(px - pearlR * 0.18, py - pearlR * 0.18, pearlR * 0.72, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.98 * pearlAlpha})`;
+        ctx.beginPath();
+        ctx.arc(px - pearlR * 0.30, py - pearlR * 0.30, pearlR * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // HELIX SINGLE UPRIGHT DOUBLE HELIX (One shared transform across all tiers & crossfades!)
+  // - Upright cyan-magenta double helix rotating slowly together with its rungs around one vertical axis
+  // - Glass highlights shift independently
+  // - Zero second double helix, zero outer glow halo
+  // ─────────────────────────────────────────────────────────────
+  function drawRotating3DDNAInsideGlass(ctx, cx, cy, radiusX, radiusY, now, phaseOffset, isCore = false, tierIdx = 4) {
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    const clipR = Math.max(radiusX, radiusY) * 0.98;
+    ctx.beginPath();
+    ctx.arc(0, 0, clipR, 0, Math.PI * 2);
+    ctx.clip();
+
+    const isUltActive = Boolean(isCore && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === 'helix');
+    const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+    // Both strands and their rungs rotate together slowly around one vertical axis
+    const rotPhase = now * (isCore ? 0.0018 : 0.0028) * motionMult + phaseOffset;
+
+    const numRungs = isCore ? 8 : 6;
+    const strandSteps = 32;
+    const twistFactor = 3.25; // Matches the upright 1.5-turn double helix in the reference PNGs
+    const strandA = [];
+    const strandB = [];
+
+    for (let i = 0; i <= strandSteps; i++) {
+      const t = i / strandSteps;
+      const yNorm = -0.84 + t * 1.68;
+      const yPx = yNorm * radiusY;
+      const env = Math.sqrt(Math.max(0.18, 1.0 - yNorm * yNorm * 0.72));
+      const ampX = radiusX * env;
+
+      const theta = yNorm * twistFactor - rotPhase;
+      const xA = Math.sin(theta) * ampX;
+      const zA = Math.cos(theta);
+      const xB = Math.sin(theta + Math.PI) * ampX;
+      const zB = -zA;
+
+      strandA.push({ x: xA, y: yPx, z: zA, yNorm });
+      strandB.push({ x: xB, y: yPx, z: zB, yNorm });
+    }
+
+    const scaleK = radiusY / 48.0;
+    const drawStrandPass = (pts, isCyan, frontPass) => {
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i];
+        const p1 = pts[i + 1];
+        const zMid = (p0.z + p1.z) * 0.5;
+        if ((zMid >= 0) !== frontPass) continue;
+
+        const alpha = frontPass ? (0.88 + 0.12 * zMid) : (0.42 + 0.22 * (1 + zMid));
+        const lw = (frontPass ? (3.2 + 1.1 * zMid) : 2.1) * scaleK;
+
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.lineCap = 'round';
+        ctx.lineWidth = lw;
+        ctx.strokeStyle = isCyan
+          ? `rgba(6, 182, 212, ${alpha})`
+          : `rgba(217, 70, 239, ${alpha})`;
+        ctx.stroke();
+
+        if (frontPass) {
+          ctx.lineWidth = lw * 0.42;
+          ctx.strokeStyle = isCyan
+            ? `rgba(165, 243, 252, ${alpha * 0.95})`
+            : `rgba(245, 208, 254, ${alpha * 0.95})`;
+          ctx.stroke();
+        }
+      }
+    };
+
+    // 1. Rear strand segments
+    drawStrandPass(strandA, true, false);
+    drawStrandPass(strandB, false, false);
+
+    // 2. Horizontal base-pair rungs rotating together with the strands
+    for (let r = 0; r < numRungs; r++) {
+      const yNorm = -0.70 + (r / (numRungs - 1)) * 1.40;
+      const yPx = yNorm * radiusY;
+      const env = Math.sqrt(Math.max(0.18, 1.0 - yNorm * yNorm * 0.72));
+      const ampX = radiusX * env;
+      const theta = yNorm * twistFactor - rotPhase;
+      const xA = Math.sin(theta) * ampX;
+      const xB = -xA;
+
+      const rg = ctx.createLinearGradient(xA, yPx, xB, yPx);
+      rg.addColorStop(0.0, 'rgba(34, 211, 238, 0.78)');
+      rg.addColorStop(0.5, 'rgba(203, 213, 225, 0.85)');
+      rg.addColorStop(1.0, 'rgba(232, 121, 249, 0.78)');
+
+      ctx.beginPath();
+      ctx.moveTo(xA, yPx);
+      ctx.lineTo(xB, yPx);
+      ctx.strokeStyle = rg;
+      ctx.lineWidth = Math.max(1.1, 1.8 * scaleK);
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+
+    // 3. Front strand segments
+    drawStrandPass(strandA, true, true);
+    drawStrandPass(strandB, false, true);
+
+    // 4. Independently shifting glass highlights & restrained cyan/lavender edge caustics (intensified during ultimate)
+    const specShift = Math.sin(now * 0.0011 * motionMult + phaseOffset) * 0.14;
+    ctx.strokeStyle = `rgba(255, 255, 255, ${isUltActive ? 0.72 : 0.52})`;
+    ctx.lineWidth = Math.max(1.8, 3.0 * scaleK);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(0, 0, clipR * 0.86, -Math.PI * 0.80 + specShift, -Math.PI * 0.58 + specShift);
+    ctx.stroke();
+
+    ctx.strokeStyle = `rgba(255, 255, 255, ${isUltActive ? 0.58 : 0.38})`;
+    ctx.lineWidth = Math.max(1.5, 2.4 * scaleK);
+    ctx.beginPath();
+    ctx.arc(0, 0, clipR * 0.84, -Math.PI * 0.18 - specShift * 0.7, -Math.PI * 0.04 - specShift * 0.7);
+    ctx.stroke();
+
+    if (tierIdx >= 3 || isUltActive) {
+      const causticShift = Math.cos(now * 0.0016 * motionMult) * 0.22;
+      const cAlpha = isUltActive ? 0.65 : (tierIdx === 5 ? 0.44 : 0.28);
+      ctx.strokeStyle = `rgba(34, 211, 238, ${cAlpha})`;
+      ctx.lineWidth = Math.max(1.2, 2.0 * scaleK);
+      ctx.beginPath();
+      ctx.arc(0, 0, clipR * 0.91, Math.PI * 0.65 + causticShift, Math.PI * 0.92 + causticShift);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(216, 180, 254, ${cAlpha})`;
+      ctx.beginPath();
+      ctx.arc(0, 0, clipR * 0.91, Math.PI * 0.08 - causticShift, Math.PI * 0.34 - causticShift);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // METEOR INTERNAL LAVA CHANNELS & CRATER RELIEF (Strictly clipped to circular sphere silhouette!)
+  // - Confines crater and lava relief to texture and shading so it NEVER deforms the circular silhouette
+  // - Slowly turns surface texture and varies heat in individual cracks
+  // - During ultimate, increases flow and contrast within lava channels and accelerates surface heat pulse
+  // ─────────────────────────────────────────────────────────────
+  const METEOR_FISSURE_HOTSPOTS = [
+    { x:  0.00, y:  0.05, r: 0.26, freq: 0.0052, phase: 0.0, isPool: false },
+    { x:  0.24, y: -0.26, r: 0.24, freq: 0.0046, phase: 1.3, isPool: true  },
+    { x: -0.28, y:  0.22, r: 0.22, freq: 0.0059, phase: 2.7, isPool: true  },
+    { x: -0.34, y: -0.24, r: 0.18, freq: 0.0068, phase: 4.1, isPool: false },
+    { x:  0.32, y:  0.28, r: 0.20, freq: 0.0063, phase: 5.2, isPool: false }
+  ];
+
+  const METEOR_CRACK_PATHS = [
+    [ {x: -0.06, y: -0.82}, {x: -0.08, y: -0.35}, {x: 0.0, y: 0.02}, {x: -0.18, y: 0.42}, {x: -0.22, y: 0.82} ],
+    [ {x: -0.58, y: -0.38}, {x: -0.26, y: -0.14}, {x: 0.0, y: 0.02}, {x:  0.28, y: 0.18}, {x:  0.62, y: 0.44} ],
+    [ {x:  0.0,  y:  0.02}, {x:  0.16, y: -0.16}, {x: 0.24, y: -0.26}, {x: 0.52, y: -0.46} ],
+    [ {x: -0.26, y: -0.14}, {x: -0.32, y:  0.08}, {x: -0.28, y: 0.22}, {x: -0.56, y: 0.36} ]
+  ];
+
+  function drawMeteorMagmaFissuresAndPlates(ctx, radius, now, phaseOffset, tumbleAngle, tierIdx = 4) {
+    ctx.save();
+    // Strict circular silhouette mask so craters and lava relief never deform the sphere!
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.96, 0, Math.PI * 2);
+    ctx.clip();
+
+    ctx.rotate(tumbleAngle);
+
+    const isUltActive = Boolean(typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === 'meteor');
+    const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+    const freqMult = (isUltActive ? 2.4 : 1.0) * motionMult;
+    const tierHeat = (tierIdx === 1 ? 0.55 : (tierIdx === 2 ? 0.72 : (tierIdx === 3 ? 0.85 : (tierIdx === 4 ? 0.95 : 1.08)))) * (isUltActive ? 1.35 : 1.0);
+
+    // Fluctuating heat variation traveling along individual branching lava channels
+    for (let c = 0; c < METEOR_CRACK_PATHS.length; c++) {
+      const path = METEOR_CRACK_PATHS[c];
+      const veinPulse = (0.35 + 0.65 * Math.pow(0.5 + 0.5 * Math.sin(now * 0.0048 * freqMult + c * 1.55 + phaseOffset), 1.6)) * tierHeat;
+
+      ctx.beginPath();
+      for (let k = 0; k < path.length; k++) {
+        const px = path[k].x * radius;
+        const py = path[k].y * radius;
+        if (k === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      const chWidth = Math.max(1.0, radius * (tierIdx === 1 ? 0.032 : (tierIdx >= 4 ? 0.055 : 0.044)));
+      ctx.strokeStyle = `rgba(234, 88, 12, ${Math.min(0.85, 0.42 * veinPulse)})`;
+      ctx.lineWidth = chWidth;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(254, 240, 138, ${Math.min(0.95, 0.58 * veinPulse)})`;
+      ctx.lineWidth = chWidth * 0.42;
+      ctx.stroke();
+    }
+
+    // Localized crater magma pools (Tiers II -> V)
+    if (tierIdx >= 2) {
+      for (let h = 0; h < METEOR_FISSURE_HOTSPOTS.length; h++) {
+        const hs = METEOR_FISSURE_HOTSPOTS[h];
+        if (tierIdx === 2 && !hs.isPool) continue;
+        const pulse = (0.30 + 0.70 * Math.pow(0.5 + 0.5 * Math.sin(now * hs.freq * freqMult + hs.phase + phaseOffset), 1.5)) * tierHeat;
+        const hx = hs.x * radius;
+        const hy = hs.y * radius;
+        const hr = hs.r * radius * (0.75 + 0.20 * pulse);
+
+        const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, hr);
+        g.addColorStop(0.0, `rgba(254, 240, 138, ${Math.min(0.82, 0.52 * pulse)})`);
+        g.addColorStop(0.55, `rgba(249, 115, 22, ${Math.min(0.65, 0.38 * pulse)})`);
+        g.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(hx, hy, hr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawDownwardCyanBowShock(ctx, radius, now, phaseOffset) {
+    // Removed bright outer outline to keep all light strictly inside material boundaries
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // METEOR SINGLE TILTED EMBER ORBIT (Tiers III, IV, V — One tilted ember orbit throughout!)
+  // - Tier I: No orbit
+  // - Tier II: No orbit, but emits an occasional ember that detaches, cools and fades
+  // - Tiers III, IV, V: Exactly ONE tilted ember orbit; each orbiting ember sheds a short fading wake along its movement
+  // ─────────────────────────────────────────────────────────────
+  const METEOR_SINGLE_ORBIT = {
+    tilt: -0.44,
+    rx: 94,
+    ry: 32,
+    speed: 0.00048,
+    numEmbers: 3
+  };
+
+  function drawMeteorMoltenRingsHalf(ctx, u, now, drawFrontHalf, tierIdx = 4, cTier = null) {
+    const effTier = cTier !== null ? cTier : tierIdx;
+
+    // Tier II+: Emit an occasional free ember that detaches, cools, and fades (drawn in front pass)
+    if (drawFrontHalf && effTier >= 1.85 && !_prefersReducedMotion) {
+      if (now - _lastMeteorEmberSpawn > 420 && _meteorDetachedEmbers.length < 6) {
+        _lastMeteorEmberSpawn = now;
+        const spawnAng = Math.random() * Math.PI * 2;
+        const spawnR = (42 + Math.random() * 18) * u;
+        _meteorDetachedEmbers.push({
+          x: Math.cos(spawnAng) * spawnR,
+          y: Math.sin(spawnAng) * spawnR,
+          vx: (Math.random() - 0.5) * 0.45 * u,
+          vy: (-0.35 - Math.random() * 0.45) * u,
+          bornAt: now,
+          dur: 680 + Math.random() * 320
+        });
+      }
+      for (let i = _meteorDetachedEmbers.length - 1; i >= 0; i--) {
+        const em = _meteorDetachedEmbers[i];
+        const age = now - em.bornAt;
+        if (age < 0 || age >= em.dur) {
+          _meteorDetachedEmbers.splice(i, 1);
+          continue;
+        }
+        const prog = Math.max(0, Math.min(1, age / em.dur));
+        em.x += em.vx;
+        em.y += em.vy;
+        const alpha = (1.0 - prog);
+        const er = Math.max(1.0, (2.2 - prog * 1.1) * u);
+        // Cools from bright orange-yellow to dark ember red before fading
+        ctx.fillStyle = prog < 0.35
+          ? `rgba(253, 224, 71, ${alpha * 0.92})`
+          : (prog < 0.70 ? `rgba(249, 115, 22, ${alpha * 0.85})` : `rgba(185, 28, 28, ${alpha * 0.75})`);
+        ctx.beginPath();
+        ctx.arc(em.x, em.y, er, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    if (effTier <= 2.02) return; // Tiers I & II have no orbital track!
+
+    const trackAlpha = (effTier < 3.0) ? Math.max(0, Math.min(1, effTier - 2.0)) : 1.0;
+    if (trackAlpha <= 0.01) return;
+
+    const rx = METEOR_SINGLE_ORBIT.rx * u;
+    const ry = METEOR_SINGLE_ORBIT.ry * u;
+
+    ctx.save();
+    ctx.rotate(METEOR_SINGLE_ORBIT.tilt);
+
+    // 1. Sharp, dim, unblurred tilted orbital track split into Rear (sin < 0) and Front (sin >= 0) passes
+    const startA = drawFrontHalf ? 0 : Math.PI;
+    const endA = drawFrontHalf ? Math.PI : Math.PI * 2;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, rx, ry, 0, startA, endA);
+    const lineAlpha = (drawFrontHalf ? 0.44 : 0.20) * trackAlpha;
+    ctx.strokeStyle = `rgba(234, 88, 12, ${lineAlpha})`;
+    ctx.lineWidth = Math.max(1.0, 1.25 * u);
+    ctx.stroke();
+
+    // 2. Discrete orbiting embers along the single tilted track, each shedding a short fading wake
+    const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+    const count = METEOR_SINGLE_ORBIT.numEmbers;
+    for (let eIdx = 0; eIdx < count; eIdx++) {
+      const rawPhase = now * METEOR_SINGLE_ORBIT.speed * motionMult + (eIdx / count);
+      const eAngle = sampleUniformEllipseAngle(rx, ry, rawPhase);
+      const ez = Math.sin(eAngle);
+      const eIsFront = (ez >= 0);
+      if (eIsFront !== drawFrontHalf) continue;
+
+      // Short fading wake along recent orbital movement (4 crisp cooling segments, zero glow halo!)
+      for (let w = 4; w >= 1; w--) {
+        const wa0 = eAngle - w * 0.048;
+        const wa1 = eAngle - (w - 1) * 0.048;
+        const wFrac = 1.0 - w / 5.0;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(wa0) * rx, Math.sin(wa0) * ry);
+        ctx.lineTo(Math.cos(wa1) * rx, Math.sin(wa1) * ry);
+        ctx.strokeStyle = (w <= 2)
+          ? `rgba(249, 115, 22, ${0.65 * wFrac * trackAlpha})`
+          : `rgba(185, 28, 28, ${0.48 * wFrac * trackAlpha})`;
+        ctx.lineWidth = Math.max(0.9, (1.1 + wFrac * 0.9) * u);
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+
+      // Crisp discrete ember cinder
+      const ex = Math.cos(eAngle) * rx;
+      const ey = Math.sin(eAngle) * ry;
+      const emberR = Math.max(1.8, (drawFrontHalf ? 2.8 : 2.1) * u);
+
+      ctx.fillStyle = `rgba(234, 88, 12, ${0.96 * trackAlpha})`;
+      ctx.beginPath();
+      ctx.arc(ex, ey, emberR, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = `rgba(254, 240, 138, ${0.98 * trackAlpha})`;
+      ctx.beginPath();
+      ctx.arc(ex, ey, emberR * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // DIRECTIONAL CONTACT CATCH EFFECT (Precisely anchored where the node touches the core!)
+  // ─────────────────────────────────────────────────────────────
+  function drawCoreTopContactBurst(ctx, cx, contactY, mode, intensity = 1.0, now = 0, contactAngle = -Math.PI * 0.5) {
+    ctx.save();
+    ctx.translate(cx, contactY);
+    ctx.rotate(contactAngle + Math.PI * 0.5); // Align tangential arc & sparks with the exact contact normal!
+
+    // Crisp localized surface contact arc & discrete sparks (zero giant bloom disc!)
+    const arcSpan = 16 * (0.7 + 0.3 * intensity);
+    ctx.lineCap = 'round';
+
+    if (mode === 'meteor') {
+      ctx.strokeStyle = `rgba(249, 115, 22, ${0.88 * intensity})`;
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.arc(0, 8, 14, -Math.PI * 0.78, -Math.PI * 0.22);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(254, 240, 138, ${0.96 * intensity})`;
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.arc(0, 8, 14, -Math.PI * 0.70, -Math.PI * 0.30);
+      ctx.stroke();
+
+      for (let r = 0; r < 5; r++) {
+        const ang = -Math.PI * 0.82 + (r / 4) * (Math.PI * 0.64);
+        const rIn = 4;
+        const rOut = (11 + (r % 2) * 5) * intensity;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(ang) * rIn, Math.sin(ang) * rIn);
+        ctx.lineTo(Math.cos(ang) * rOut, Math.sin(ang) * rOut);
+        ctx.strokeStyle = (r % 2 === 0) ? `rgba(254, 240, 138, ${0.90 * intensity})` : `rgba(249, 115, 22, ${0.85 * intensity})`;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      }
+    } else if (mode === 'helix') {
+      ctx.strokeStyle = `rgba(34, 211, 238, ${0.88 * intensity})`;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(-arcSpan, 2);
+      ctx.quadraticCurveTo(0, -4, arcSpan, 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(232, 121, 249, ${0.85 * intensity})`;
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.moveTo(-arcSpan * 0.7, 0);
+      ctx.quadraticCurveTo(0, -5, arcSpan * 0.7, 0);
+      ctx.stroke();
+    } else {
+      ctx.strokeStyle = `rgba(56, 189, 248, ${0.88 * intensity})`;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(-arcSpan, 2);
+      ctx.quadraticCurveTo(0, -4, arcSpan, 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(254, 240, 138, ${0.92 * intensity})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-arcSpan * 0.65, 0);
+      ctx.quadraticCurveTo(0, -4, arcSpan * 0.65, 0);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  // Zero outer bloom, glow halos, outer aura, radial rays, heat haze, or background lighting in every state!
+  function drawFuturisticResonanceAura(ctx, mode, u, now, cTier) {
+    // Intentionally empty: all light is kept strictly inside material boundaries or on metal surfaces.
+  }
+
+  const QuantumRenderer = {
+    drawQuantumAtomic(ctx, cx, cy, now, progress = 0) {
+      this.drawDynamoCore(ctx, cx, cy, now, progress);
+    },
+
+    // Master Multi-Layered Chrome Core Renderer (Dynamo, Helix, Meteor — Tiers I through V)
+    _drawLayeredWingedCore(ctx, mode, cx, cy, now, tier = 4, customScale = null, isPortalPreview = false) {
+      const tierIdx = Math.min(5, Math.max(1, tier | 0));
+      const cTier = isPortalPreview
+        ? tierIdx
+        : ((CoreKinematics && CoreKinematics.continuousTier !== undefined && Math.abs(CoreKinematics.continuousTier - tierIdx) < 1.2) ? CoreKinematics.continuousTier : tierIdx);
+      const effDpr = (ctx.canvas && ctx.canvas._renderDpr) ? ctx.canvas._renderDpr : Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+      const canvasW = ctx.canvas.width / effDpr;
+      const isMobile = canvasW < 600;
+
+      const drawW = customScale ? (customScale * 1376.0) : (isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060));
+      const u = customScale || (drawW / 1376.0);
+      const cySrc = (mode === 'meteor') ? 586.0 : (mode === 'helix' ? 568.0 : 590.0);
+
+      // Core 1024x576 reference scale so the central sphere radius (150px in 1024x576) equals 68 * u
+      const coreImgScale = (68.0 / 150.0) * u;
+      const fullRefW = 1024 * coreImgScale;
+      const fullRefH = 576 * coreImgScale;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // Banking Central Core Body + Hinged Layered Wings + Local-Space Orbits (Front/Rear split against sphere)
+      const previewBank = isPortalPreview ? (Math.sin(now * 0.0019) * 0.025) : (CoreKinematics.bodyBank * 0.45);
+      ctx.save();
+      ctx.rotate(previewBank);
+
+      // PASS 1: Rear Orbit Depth Pass (behind wings and core sphere)
+      if (mode === 'dynamo') {
+        drawDynamoRingsHalf(ctx, u, now, false, tierIdx, cTier);
+      } else if (mode === 'helix') {
+        drawHelixOrbitalRingsHalf(ctx, u, now, false, tierIdx, cTier);
+      } else if (mode === 'meteor') {
+        drawMeteorMoltenRingsHalf(ctx, u, now, false, tierIdx, cTier);
+      }
+
+      // PASS 2: Articulated Tier-Specific Wings (Tiers II -> V, anchored at sphere center with zero gap)
+      drawArticulatedWings(ctx, mode, u, cySrc, tierIdx, now, isPortalPreview);
+
+      // PASS 3: Central Core Sphere, Bezel, and Internal Energy / Helix / Lava
+      if (mode === 'dynamo') {
+        // Draw smoky violet glass sphere in its gold bezel (using Tier I core base plate so wings never double-draw)
+        const d1Spr = LayeredT4Assets.coreTierSprites.dynamo && LayeredT4Assets.coreTierSprites.dynamo[1];
+        const d1Loaded = LayeredT4Assets.loaded.coreTierSprites.dynamo && LayeredT4Assets.loaded.coreTierSprites.dynamo[1];
+        if (d1Spr && d1Loaded) {
+          ctx.drawImage(d1Spr, -fullRefW * 0.5, -fullRefH * 0.5, fullRefW, fullRefH);
+        } else if (LayeredT4Assets.loaded.coreBase.dynamo) {
+          const dScale = 1.2143;
+          ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
+        }
+
+        // Internal branching electrical filaments & stable light reflection strictly inside the glass boundary
+        drawInternalPlasmaArcs(ctx, 0, 0, 56 * u, now, 0.0, true, tierIdx);
+
+        // Inward capture discharge snap inside the glass sphere
+        for (let d = 0; d < CoreKinematics.dynamoDischarges.length; d++) {
+          const dis = CoreKinematics.dynamoDischarges[d];
+          const alpha = 1.0 - dis.progress;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(0, 0, 62 * u, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.beginPath();
+          for (let k = 0; k < dis.pts.length; k++) {
+            const pt = dis.pts[k];
+            const jx = (k === 0 || k === dis.pts.length - 1) ? 0 : (Math.random() - 0.5) * 4;
+            const jy = (k === 0 || k === dis.pts.length - 1) ? 0 : (Math.random() - 0.5) * 4;
+            if (k === 0) ctx.moveTo(pt.x + jx, pt.y + jy);
+            else ctx.lineTo(pt.x + jx, pt.y + jy);
+          }
+          ctx.strokeStyle = `rgba(125, 211, 252, ${alpha * 0.9})`;
+          ctx.lineWidth = 2.4 * u;
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+          ctx.lineWidth = 1.1 * u;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+      } else if (mode === 'helix') {
+        // Draw the clean quartz/navy glass shell + stepped chrome bezel (with zero baked helix!)
+        const shellSize = 400 * coreImgScale;
+        if (LayeredT4Assets.loaded.helixGlassShell && LayeredT4Assets.helixGlassShell) {
+          ctx.drawImage(LayeredT4Assets.helixGlassShell, -shellSize * 0.5, -shellSize * 0.5, shellSize, shellSize);
+        } else if (LayeredT4Assets.loaded.coreBase.helix) {
+          const hScale = 0.7727;
+          ctx.drawImage(LayeredT4Assets.coreBase.helix, -170 * u * hScale, -144 * u * hScale, 340 * u * hScale, 280 * u * hScale);
+        }
+
+        // Single upright cyan-magenta double helix rendered in one pass with one shared transform (never double images!)
+        drawRotating3DDNAInsideGlass(ctx, 0, 0, 26 * u, 54 * u, now, 0.0, true, tierIdx);
+
+      } else {
+        // METEOR: Perfectly spherical iron-basalt core with circular silhouette mask
+        const sr = CoreKinematics.meteorShieldRecoil;
+        ctx.save();
+        ctx.translate((sr.x || 0) * u * 0.55, (sr.y || 0) * u * 0.55);
+        ctx.rotate(sr.tilt * 0.35);
+
+        const sphereR = 68.5 * u;
+        const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+        const surfaceTurnAngle = now * 0.00035 * motionMult;
+
+        ctx.save();
+        // Enforce circular silhouette mask so crater relief and rotating texture never deform the circular silhouette!
+        ctx.beginPath();
+        ctx.arc(0, 0, sphereR, 0, Math.PI * 2);
+        ctx.clip();
+
+        ctx.save();
+        ctx.rotate(surfaceTurnAngle);
+        const m1Spr = LayeredT4Assets.coreTierSprites.meteor && LayeredT4Assets.coreTierSprites.meteor[1];
+        const m1Loaded = LayeredT4Assets.loaded.coreTierSprites.meteor && LayeredT4Assets.loaded.coreTierSprites.meteor[1];
+        if (m1Spr && m1Loaded) {
+          // 1.16x overscan inside the circular clip mask so rotating the texture fills 100% of the circular silhouette with zero edge gaps
+          ctx.drawImage(m1Spr, -fullRefW * 0.58, -fullRefH * 0.58, fullRefW * 1.16, fullRefH * 1.16);
+        } else if (LayeredT4Assets.loaded.coreBase.meteor) {
+          const mScale = 0.9577;
+          ctx.drawImage(LayeredT4Assets.coreBase.meteor, -170 * u * mScale, -140 * u * mScale, 340 * u * mScale, 280 * u * mScale);
+        }
+        ctx.restore();
+
+        // Moving heat variation inside the branching lava channels & molten crater pools
+        drawMeteorMagmaFissuresAndPlates(ctx, sphereR, now, 0.0, surfaceTurnAngle, tierIdx);
+
+        // Directional surface shading (keeps 3D lighting anchored to top-left while the rock texture turns underneath)
+        const shadeG = ctx.createRadialGradient(-sphereR * 0.32, -sphereR * 0.32, sphereR * 0.15, 0, 0, sphereR);
+        shadeG.addColorStop(0.0, 'rgba(255, 245, 220, 0.06)');
+        shadeG.addColorStop(0.65, 'rgba(0, 0, 0, 0)');
+        shadeG.addColorStop(1.0, 'rgba(0, 0, 0, 0.36)');
+        ctx.fillStyle = shadeG;
+        ctx.beginPath();
+        ctx.arc(0, 0, sphereR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore(); // End circular silhouette clip
+        ctx.restore(); // End recoil transform
+      }
+
+      // PASS 4: Front Orbit Depth Pass (occludes the front of the core sphere!)
+      if (mode === 'dynamo') {
+        drawDynamoRingsHalf(ctx, u, now, true, tierIdx, cTier);
+      } else if (mode === 'helix') {
+        drawHelixOrbitalRingsHalf(ctx, u, now, true, tierIdx, cTier);
+      } else if (mode === 'meteor') {
+        drawMeteorMoltenRingsHalf(ctx, u, now, true, tierIdx, cTier);
+      }
+
+      ctx.restore(); // End shared core/wing bank
+
+      if (!isPortalPreview) {
+        // Mode-Specific 5-Second Aegis Spherical Geodesic Forcefield (only when Shield power-up is active)
+        const activeShield = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
+        if (activeShield && activeShield.expiresAt > now) {
+          CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, activeShield.expiresAt - now, mode);
+        }
+      }
+
+      ctx.restore(); // End core translate
+
+      // Render discrete directional Meteor impact cinders at the exact contact point (no glow halo!)
+      if (!isPortalPreview && mode === 'meteor' && CoreKinematics.impactCinders.length > 0) {
+        ctx.save();
+        for (let i = 0; i < CoreKinematics.impactCinders.length; i++) {
+          const c = CoreKinematics.impactCinders[i];
+          const prog = c.life / c.maxLife;
+          const alpha = Math.max(0, 1.0 - prog);
+          const r = Math.max(1.0, c.size * (0.65 + 0.35 * alpha));
+          ctx.fillStyle = prog < 0.35
+            ? `rgba(254, 240, 138, ${alpha})`
+            : (prog < 0.72 ? `rgba(249, 115, 22, ${alpha * 0.92})` : `rgba(185, 28, 28, ${alpha * 0.80})`);
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    },
+
+    drawDynamoCore(ctx, cx, cy, now, progress = 0, tier = 1, customScale = null) {
+      this._drawLayeredWingedCore(ctx, 'dynamo', cx, cy, now, tier, customScale);
+    },
+
+    drawHelixCore(ctx, cx, cy, now, progress = 0, tier = 1, customScale = null) {
+      this._drawLayeredWingedCore(ctx, 'helix', cx, cy, now, tier, customScale);
+    },
+
+    drawMeteorAsteroid(ctx, cx, cy, now, progress = 0, tier = 1, customScale = null) {
+      this._drawLayeredWingedCore(ctx, 'meteor', cx, cy, now, tier, customScale);
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PRE-BAKED GPU GLOW SPRITE CACHE (Role #6 & #7: ZERO per-frame gradient allocations!)
+    // ─────────────────────────────────────────────────────────────────────────
+    _glowSprites: null,
+    _getGlowSprite(key) {
+      if (!this._glowSprites) {
+        const makeGlow = (stops) => {
+          const c = document.createElement('canvas');
+          c.width = 64; c.height = 64;
+          const gctx = c.getContext('2d');
+          const g = gctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+          for (let i = 0; i < stops.length; i++) g.addColorStop(stops[i][0], stops[i][1]);
+          gctx.fillStyle = g;
+          gctx.fillRect(0, 0, 64, 64);
+          return c;
+        };
+        this._glowSprites = {
+          indigo:  makeGlow([[0, 'rgba(99,102,241,0.58)'], [0.45, 'rgba(79,70,229,0.24)'], [1, 'rgba(49,46,129,0)']]),
+          cyan:    makeGlow([[0, 'rgba(125,211,252,0.62)'], [0.45, 'rgba(34,211,238,0.26)'], [1, 'rgba(14,165,233,0)']]),
+          helix:   makeGlow([[0, 'rgba(34,211,238,0.48)'], [0.48, 'rgba(232,121,249,0.24)'], [1, 'rgba(168,85,247,0)']]),
+          amber:   makeGlow([[0, 'rgba(255,250,210,0.92)'], [0.38, 'rgba(251,146,60,0.65)'], [0.75, 'rgba(220,38,38,0.20)'], [1, 'rgba(153,27,27,0)']]),
+          gold:    makeGlow([[0, 'rgba(255,253,225,0.95)'], [0.40, 'rgba(250,204,21,0.65)'], [0.78, 'rgba(234,88,12,0.22)'], [1, 'rgba(154,52,18,0)']]),
+          crimson: makeGlow([[0, 'rgba(244,63,94,0.54)'], [0.50, 'rgba(159,18,57,0.22)'], [1, 'rgba(136,19,55,0)']]),
+          violet:  makeGlow([[0, 'rgba(245,208,254,0.75)'], [0.42, 'rgba(192,132,252,0.42)'], [0.78, 'rgba(126,34,206,0.18)'], [1, 'rgba(88,28,135,0)']]),
+          emerald: makeGlow([[0, 'rgba(16,185,129,0.52)'], [0.48, 'rgba(147,51,234,0.24)'], [1, 'rgba(88,28,135,0)']]),
+          emberPt: makeGlow([[0, 'rgba(255,255,235,0.98)'], [0.42, 'rgba(251,146,60,0.78)'], [1, 'rgba(220,38,38,0)']]),
+          cyanPt:  makeGlow([[0, 'rgba(240,253,255,0.98)'], [0.42, 'rgba(56,189,248,0.82)'], [1, 'rgba(59,130,246,0)']]),
+          magPt:   makeGlow([[0, 'rgba(255,245,255,0.96)'], [0.42, 'rgba(232,121,249,0.80)'], [1, 'rgba(168,85,247,0)']]),
+          crimPt:  makeGlow([[0, 'rgba(255,228,230,0.96)'], [0.45, 'rgba(244,63,94,0.82)'], [1, 'rgba(159,18,57,0)']]),
+          emPt:    makeGlow([[0, 'rgba(240,255,248,0.95)'], [0.45, 'rgba(16,185,129,0.78)'], [1, 'rgba(88,28,135,0)']])
+        };
+      }
+      return this._glowSprites[key] || this._glowSprites.cyan;
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // COMPACT, ZERO-LAG REALM MICRO-AURA WAKE ENGINE (Roles #3 & #6)
+    // Natural, hugging upper-hemisphere atmospheric/plasma/bioluminescent slipstreams
+    // Uses pure pre-baked GPU GlowSprites & soft rim micro-arcs — ZERO antennae, ZERO lag!
+    // ─────────────────────────────────────────────────────────────────────────
+    _drawScientificNodeWake(ctx, mode, p, targetR, scale, now, isHazard, isPowered) {
+      const animPhase = p.animPhase || 0.0;
+      const modeKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
+      const powerMult = isPowered ? 1.16 : 1.0;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      if (!isHazard) {
+        if (modeKey === 'dynamo') {
+          // ═══ DYNAMO GOOD: Hugging Ionized Plasma Slipstream + Tangential Tesla Rim Micro-Arcs + Ion Sparks ═══
+          const wakeLen = targetR * 1.05 * powerMult;
+          const spr = this._getGlowSprite(isPowered ? 'cyan' : 'indigo');
+          const sway = Math.sin(now * 0.012 + animPhase) * targetR * 0.08;
+          ctx.globalAlpha = isPowered ? 0.72 : 0.62;
+          ctx.drawImage(spr, -targetR * 1.06 + sway * 0.3, -targetR * 1.12 - wakeLen * 0.45, targetR * 2.12, targetR * 1.75 + wakeLen * 0.55);
+          ctx.globalAlpha = 0.46;
+          ctx.drawImage(this._getGlowSprite('cyan'), -targetR * 0.65 + sway, -targetR * 1.05 - wakeLen * 0.78, targetR * 1.30, wakeLen * 1.05);
+
+          // Tangential Tesla-globe surface corona arcs hugging the left/right shoulders (NEVER poking above pill!)
+          const tick = Math.floor(now / 65) + Math.floor(animPhase * 17);
+          ctx.globalAlpha = 1.0;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          const arcSides = isPowered ? 2 : 1;
+          for (let a = 0; a < arcSides; a++) {
+            const sideDir = (arcSides === 1) ? ((tick % 2 === 0) ? 1 : -1) : (a === 0 ? -1 : 1);
+            const baseAng = -Math.PI * 0.5 + sideDir * (0.48 + (Math.sin(tick * 1.9 + a) * 0.14));
+            const arcSpan = 0.46;
+            const segs = 4;
+            ctx.beginPath();
+            for (let s = 0; s <= segs; s++) {
+              const frac = s / segs;
+              const ang = baseAng + sideDir * (frac - 0.5) * arcSpan;
+              const jitter = (s === 0 || s === segs) ? 0 : Math.sin(tick * 3.7 + s * 2.9 + a * 4.1) * targetR * 0.11;
+              const r = targetR * 1.06 + jitter;
+              const px = Math.cos(ang) * r;
+              const py = Math.sin(ang) * r;
+              if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = isPowered ? 'rgba(250, 204, 21, 0.72)' : 'rgba(56, 189, 248, 0.76)';
+            ctx.lineWidth = 2.0 * scale;
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(240, 249, 255, 0.85)';
+            ctx.lineWidth = 0.85 * scale;
+            ctx.stroke();
+          }
+
+          // 3 Delicate GPU-blitted electric ion sparks drifting softly upward in slipstream
+          const ptSpr = this._getGlowSprite(isPowered ? 'emberPt' : 'cyanPt');
+          for (let em = 0; em < 3; em++) {
+            const ep = ((now * 0.0024 + em * 0.333 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.009 + em * 2.7 + animPhase) * targetR * (0.58 - ep * 0.22);
+            const ey = -targetR * 0.60 - ep * wakeLen * 1.05;
+            const es = (4.8 - ep * 2.4) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.88;
+            ctx.drawImage(ptSpr, ex - es, ey - es, es * 2, es * 2);
+          }
+          ctx.globalAlpha = 1.0;
+
+        } else if (modeKey === 'helix') {
+          // ═══ HELIX GOOD: Silky Bioluminescent Photonic Slipstream + Spiraling Cyan/Magenta Nucleotide Stardust ═══
+          const wakeLen = targetR * 1.08 * powerMult;
+          const spr = this._getGlowSprite('helix');
+          const sway = Math.sin(now * 0.010 + animPhase) * targetR * 0.08;
+          ctx.globalAlpha = isPowered ? 0.72 : 0.58;
+          ctx.drawImage(spr, -targetR * 1.05 + sway * 0.3, -targetR * 1.10 - wakeLen * 0.45, targetR * 2.10, targetR * 1.72 + wakeLen * 0.58);
+          ctx.globalAlpha = 0.42;
+          ctx.drawImage(this._getGlowSprite('cyan'), -targetR * 0.62 - sway * 0.5, -targetR * 1.02 - wakeLen * 0.78, targetR * 1.24, wakeLen * 1.00);
+
+          // 4 Delicate GPU-blitted nucleotide stardust motes orbiting in a soft twin-helix slipstream (ZERO rigid bow/antennae!)
+          const cSpr = this._getGlowSprite('cyanPt');
+          const mSpr = this._getGlowSprite(isPowered ? 'emberPt' : 'magPt');
+          const twist = now * 0.0048 + animPhase;
+          for (let em = 0; em < 4; em++) {
+            const ep = ((now * 0.0021 + em * 0.25 + animPhase) % 1.0);
+            const strandSign = (em % 2 === 0) ? 1 : -1;
+            const ex = Math.sin(twist + ep * Math.PI * 2.2) * targetR * (0.56 - ep * 0.26) * strandSign;
+            const ey = -targetR * 0.55 - ep * wakeLen * 1.08;
+            const es = (4.6 - ep * 2.2) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.90;
+            ctx.drawImage(strandSign > 0 ? cSpr : mSpr, ex - es, ey - es, es * 2, es * 2);
+          }
+          ctx.globalAlpha = 1.0;
+
+        } else {
+          // ═══ METEOR GOOD: Intimate Hugging Ablation Flame Collar + 3 GPU-Blitted Molten Embers (~1.12x R) ═══
+          const wakeLen = targetR * 1.12 * powerMult;
+          const spr = this._getGlowSprite(isPowered ? 'gold' : 'amber');
+          const sway = Math.sin(now * 0.018 + animPhase) * targetR * 0.12;
+          // 1. Hugging re-entry fire crown wrapping smoothly off upper basalt crust (pure GPU blit!)
+          ctx.globalAlpha = isPowered ? 0.78 : 0.68;
+          ctx.drawImage(spr, -targetR * 1.05 + sway * 0.4, -targetR * 1.18 - wakeLen * 0.55, targetR * 2.10, targetR * 1.75 + wakeLen * 0.75);
+          ctx.globalAlpha = 0.52;
+          ctx.drawImage(spr, -targetR * 0.62 + sway, -targetR * 1.10 - wakeLen * 0.92, targetR * 1.24, wakeLen * 1.15);
+
+          // 2. Three delicate rising incandescent spallation embers (pure GPU blit — ZERO gradients!)
+          const eSpr = this._getGlowSprite('emberPt');
+          for (let em = 0; em < 3; em++) {
+            const ep = ((now * 0.0026 + em * 0.333 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.008 + em * 2.4 + animPhase) * targetR * (0.52 - ep * 0.18);
+            const ey = -targetR * 0.65 - ep * wakeLen * 1.18;
+            const es = (5.5 - ep * 2.8) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.90;
+            ctx.drawImage(eSpr, ex - es, ey - es, es * 2, es * 2);
+          }
+          ctx.globalAlpha = 1.0;
+        }
+      } else if (!isPowered) {
+        // ═══ REGULAR BAD NODES: Compact Hugging Antimatter Slipstreams (Pure GPU Blit — ZERO Antennae!) ═══
+        const wakeLen = targetR * 0.85;
+        if (modeKey === 'dynamo') {
+          const spr = this._getGlowSprite('crimson');
+          ctx.globalAlpha = 0.58;
+          ctx.drawImage(spr, -targetR * 1.00, -targetR * 1.15 - wakeLen * 0.35, targetR * 2.00, targetR * 1.70);
+          const cpSpr = this._getGlowSprite('crimPt');
+          for (let em = 0; em < 2; em++) {
+            const ep = ((now * 0.0025 + em * 0.5 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.011 + em * 3.1 + animPhase) * targetR * 0.48;
+            const ey = -targetR * 0.58 - ep * wakeLen * 0.98;
+            const es = (4.2 - ep * 2.0) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.85;
+            ctx.drawImage(cpSpr, ex - es, ey - es, es * 2, es * 2);
+          }
+          ctx.globalAlpha = 1.0;
+
+        } else if (modeKey === 'helix') {
+          const spr = this._getGlowSprite('crimson');
+          ctx.globalAlpha = 0.52;
+          ctx.drawImage(spr, -targetR * 0.98, -targetR * 1.12 - wakeLen * 0.35, targetR * 1.96, targetR * 1.66);
+          const cpSpr = this._getGlowSprite('crimPt');
+          const mpSpr = this._getGlowSprite('magPt');
+          for (let em = 0; em < 3; em++) {
+            const ep = ((now * 0.0022 + em * 0.333 + animPhase) % 1.0);
+            const ex = Math.sin(now * 0.006 + em * 2.5 + animPhase) * targetR * 0.46;
+            const ey = -targetR * 0.56 - ep * wakeLen * 0.96;
+            const es = (4.0 - ep * 1.9) * scale;
+            ctx.globalAlpha = Math.sin(ep * Math.PI) * 0.82;
+            ctx.drawImage(em % 2 === 0 ? cpSpr : mpSpr, ex - es, ey - es, es * 2, es * 2);
+          }
+          ctx.globalAlpha = 1.0;
+
+        } else {
+          // Meteor Regular Bad: Compact Abyssal-Emerald & Amethyst Isotope Whisper + 2 GPU-blitted motes
+          const spr = this._getGlowSprite('emerald');
+          ctx.globalAlpha = 0.56;
+          ctx.drawImage(spr, -targetR * 1.05, -targetR * 1.25 - wakeLen * 0.40, targetR * 2.10, targetR * 1.85);
+          const mpSpr = this._getGlowSprite('emPt');
+          for (let m = 0; m < 2; m++) {
+            const mp = ((now * 0.0024 + m * 0.5 + animPhase) % 1.0);
+            const mx = Math.sin(now * 0.006 + m * 2.5 + animPhase) * targetR * 0.42;
+            const my = -targetR * 0.65 - mp * wakeLen * 1.1;
+            const ms = 4.6 * scale;
+            ctx.globalAlpha = Math.sin(mp * Math.PI) * 0.85;
+            ctx.drawImage(mpSpr, mx - ms, my - ms, ms * 2, ms * 2);
+          }
+          ctx.globalAlpha = 1.0;
+        }
+      }
+      ctx.restore();
+    },
+
+    _drawLayeredNodeOrHazard(ctx, mode, p, now, customR = null) {
+      const isHazard = isHazardNode(p.nodeClass);
+      const isPoweredGood = (!isHazard && p.nodeClass !== 'standard');
+      const isPoweredBad = (isHazard && (
+        p.nodeClass === 'hyper_comet' || p.nodeClass === 'plasma_flare' ||
+        p.nodeClass === 'corruptor_laser' || p.nodeClass === 'gravity_well' || p.nodeClass === 'vortex' ||
+        p.nodeClass === 'emp_detonator' || p.nodeClass === 'emp_glitch' || p.nodeClass === 'pulsar_mine' ||
+        p.nodeClass === 'phase_stalker' || p.nodeClass === 'tachyon_fracture'
+      ));
+      const canvasW = ctx.canvas.width / (window.devicePixelRatio || 1);
+      const isMobile = canvasW < 600;
+      const baseR = customR || (isMobile ? 26.0 : 36.0);
+      const targetR = customR || (p.headR ? (p.headR * (isMobile ? 0.72 : 1.0)) : baseR);
+      const scale = targetR / 48.0;
+      const animPhase = p.animPhase || 0.0;
+
+      CoreKinematics.emitNodeWorldStreaks(p, targetR, mode, isHazard, 1.0, now);
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+
+      // Phantom Hazard cloaking opacity
+      if (p.nodeClass === 'phantom') {
+        ctx.globalAlpha = (p.phantomAlpha !== undefined) ? p.phantomAlpha : 1.0;
+      }
+
+      // Render Scientific Game-Aligned Trailing Wake behind every Good, Powered-Good, and Regular-Bad node!
+      this._drawScientificNodeWake(ctx, mode, p, targetR, scale, now, isHazard, isHazard ? isPoweredBad : isPoweredGood);
+
+      if (!isHazard) {
+        if (mode === 'dynamo' || mode === 'realm') {
+          // Iconic Quantum Plasma Purple Glass Orb (enhanced with Dual-Polarity Anode-Gold / Cathode-Cyan Rim!)
+          if (LayeredT4Assets.loaded.nodeShell.dynamo) {
+            ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+          } else {
+            // High-fidelity procedural fallback: deep cosmic purple glass plasma sphere
+            const pOrb = ctx.createRadialGradient(-targetR * 0.28, -targetR * 0.32, targetR * 0.05, 0, 0, targetR);
+            pOrb.addColorStop(0.0, 'rgba(216, 180, 254, 0.95)');
+            pOrb.addColorStop(0.28, 'rgba(147, 51, 234, 0.92)');
+            pOrb.addColorStop(0.68, 'rgba(88, 28, 135, 0.95)');
+            pOrb.addColorStop(0.95, 'rgba(59, 7, 100, 1.0)');
+            pOrb.addColorStop(1.0, 'rgba(30, 4, 55, 0.85)');
+            ctx.fillStyle = pOrb;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.86, now, animPhase, false, 4);
+
+          // Dual-Polarity Fresnel Rim Polarization (Matches uploaded Dynamo concept images #3 & #4!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.lineCap = 'round';
+          // Left-bottom Warm Gold Anode Rim
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.96, Math.PI * 0.62, Math.PI * 1.48);
+          ctx.strokeStyle = 'rgba(251, 146, 60, 0.58)';
+          ctx.lineWidth = 2.4 * scale;
+          ctx.stroke();
+          // Right-top Cool Electric-Cyan Cathode Rim
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.96, -Math.PI * 0.38, Math.PI * 0.45);
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.62)';
+          ctx.lineWidth = 2.4 * scale;
+          ctx.stroke();
+          ctx.restore();
+
+          // Outer Resonance Ring & Twin Satellite Motes
+          const ringR = targetR * 1.16;
+          ctx.beginPath();
+          ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.45)';
+          ctx.lineWidth = 1.4 * scale;
+          ctx.stroke();
+
+          const moteAngle = now * 0.0035 + animPhase;
+          const mx1 = Math.cos(moteAngle) * ringR;
+          const my1 = Math.sin(moteAngle) * ringR * 0.55;
+          ctx.beginPath();
+          ctx.arc(mx1, my1, 4.2 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#00f0ff';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(mx1, my1, 1.8 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+
+          const mx2 = -mx1;
+          const my2 = -my1;
+          ctx.beginPath();
+          ctx.arc(mx2, my2, 4.2 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#c084fc';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(mx2, my2, 1.8 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+        } else if (mode === 'helix') {
+          if (LayeredT4Assets.loaded.nodeShell.helix) {
+            ctx.drawImage(LayeredT4Assets.nodeShell.helix, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+          }
+          drawRotating3DDNAInsideGlass(ctx, 0, 0, targetR * 0.36, targetR * 0.78, now, animPhase, false, 4);
+
+          // Bioluminescent Quartz Glass Rim & Swirling Core Highlight (Matches uploaded Helix images #1 & #6!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const hRim = ctx.createRadialGradient(-targetR * 0.25, -targetR * 0.30, targetR * 0.08, 0, 0, targetR * 1.04);
+          hRim.addColorStop(0.0, 'rgba(255, 255, 255, 0.28)');
+          hRim.addColorStop(0.55, 'rgba(232, 121, 249, 0.14)');
+          hRim.addColorStop(0.88, 'rgba(34, 211, 238, 0.34)');
+          hRim.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
+          ctx.fillStyle = hRim;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.04, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          const tumbleDir = p.tumbleDir || 1;
+          const rockAngle = now * 0.00145 * tumbleDir + animPhase;
+
+          ctx.save();
+          ctx.rotate(rockAngle);
+          if (LayeredT4Assets.loaded.nodeShell.meteor) {
+            ctx.drawImage(LayeredT4Assets.nodeShell.meteor, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+          }
+          ctx.restore();
+
+          drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4);
+
+          // Incandescent Atmospheric Bow-Shock Plasma Rim hugging leading lower edge (Matches uploaded Meteor images #2 & #5!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const bowGlow = ctx.createRadialGradient(0, targetR * 0.35, targetR * 0.12, 0, targetR * 0.25, targetR * 1.18);
+          bowGlow.addColorStop(0.0, 'rgba(254, 249, 195, 0.42)');
+          bowGlow.addColorStop(0.45, 'rgba(251, 146, 60, 0.28)');
+          bowGlow.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
+          ctx.fillStyle = bowGlow;
+          ctx.beginPath();
+          ctx.arc(0, targetR * 0.25, targetR * 1.18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHETYPES (Enhanced with Scientific Visual Metaphors):
+        if (p.nodeClass === 'cluster') {
+          // BIFURCATION FLUX NODE (CLUSTER DOUBLER / 2X DUP — Mitotic/Quantum Split Satellites!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const pulseR = targetR * (1.18 + 0.06 * Math.sin(now * 0.006 + animPhase));
+          ctx.beginPath();
+          ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.44)';
+          ctx.lineWidth = 1.4 * scale;
+          ctx.stroke();
+
+          // Twin phase-locked bifurcation twin orbs orbiting 180° apart
+          const bAng = now * 0.0042 + animPhase;
+          for (let bSide = -1; bSide <= 1; bSide += 2) {
+            const bx = Math.cos(bAng) * pulseR * bSide;
+            const by = Math.sin(bAng) * pulseR * 0.62 * bSide;
+            const bGlow = ctx.createRadialGradient(bx, by, 0, bx, by, 7.5 * scale);
+            bGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+            bGlow.addColorStop(0.45, bSide > 0 ? 'rgba(56, 189, 248, 0.85)' : 'rgba(232, 121, 249, 0.85)');
+            bGlow.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
+            ctx.fillStyle = bGlow;
+            ctx.beginPath();
+            ctx.arc(bx, by, 7.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'supercharge') {
+          // DELUXE SOLAR HYPER-SURGE CORE: Warm golden solar plasma & elegant prominence loops (No harsh white washout, zero rigid spikes!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          // 1. Soft atmospheric solar plasma corona
+          const coronaR = targetR * (1.18 + 0.12 * Math.sin(now * 0.007 + animPhase));
+          const gradCorona = ctx.createRadialGradient(0, 0, targetR * 0.25, 0, 0, coronaR);
+          gradCorona.addColorStop(0.0, 'rgba(254, 240, 138, 0.45)');
+          gradCorona.addColorStop(0.4, 'rgba(245, 158, 11, 0.38)');
+          gradCorona.addColorStop(0.8, 'rgba(217, 119, 6, 0.18)');
+          gradCorona.addColorStop(1.0, 'rgba(180, 83, 9, 0)');
+          ctx.fillStyle = gradCorona;
+          ctx.beginPath();
+          ctx.arc(0, 0, coronaR, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 2. Three Organic Curving Solar Prominence Arches (Magnetic loops)
+          const promAngle = now * 0.0022 + animPhase;
+          for (let pIdx = 0; pIdx < 3; pIdx++) {
+            const pa = promAngle + (pIdx * Math.PI * 2 / 3);
+            const rInner = targetR * 0.85;
+            const rOuter = targetR * (1.25 + 0.10 * Math.sin(now * 0.005 + pIdx * 1.8));
+            const p1x = Math.cos(pa - 0.32) * rInner;
+            const p1y = Math.sin(pa - 0.32) * rInner;
+            const p2x = Math.cos(pa + 0.32) * rInner;
+            const p2y = Math.sin(pa + 0.32) * rInner;
+            const cpx = Math.cos(pa) * rOuter;
+            const cpy = Math.sin(pa) * rOuter;
+            ctx.beginPath();
+            ctx.moveTo(p1x, p1y);
+            ctx.quadraticCurveTo(cpx, cpy, p2x, p2y);
+            ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 + 0.25 * Math.sin(now * 0.004 + pIdx)})`;
+            ctx.lineWidth = 2.2 * scale;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
+
+          // 3. Gentle rotating solar flare filaments
+          const flareR = targetR * 0.95;
+          ctx.beginPath();
+          ctx.arc(0, 0, flareR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
+          ctx.lineWidth = 1.4 * scale;
+          ctx.stroke();
+          ctx.restore();
+
+        } else if (p.nodeClass === 'chronos') {
+          // CHRONOS STASIS PEARL: Frosted Relativistic Time-Dilation Ripple + Crystalline Chronometer Reticle
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const dilPhase = (now * 0.0022 + animPhase) % 1.0;
+          const dilR = targetR * (1.05 + dilPhase * 0.50);
+          const dilG = ctx.createRadialGradient(0, 0, dilR * 0.65, 0, 0, dilR);
+          dilG.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
+          dilG.addColorStop(0.75, `rgba(103, 232, 249, ${(1.0 - dilPhase) * 0.36})`);
+          dilG.addColorStop(1.0, 'rgba(6, 182, 212, 0)');
+          ctx.fillStyle = dilG;
+          ctx.beginPath();
+          ctx.arc(0, 0, dilR, 0, Math.PI * 2);
+          ctx.fill();
+
+          const reticleR = targetR * 1.28;
+          ctx.beginPath();
+          ctx.arc(0, 0, reticleR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(6, 182, 212, 0.85)';
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
+          // 12 Chronometer Ticks
+          const tickRot = now * 0.002;
+          for (let t = 0; t < 12; t++) {
+            const ta = tickRot + (t * Math.PI / 6);
+            const isMajor = (t % 3 === 0);
+            const tLen = isMajor ? 5 * scale : 2.5 * scale;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(ta) * reticleR, Math.sin(ta) * reticleR);
+            ctx.lineTo(Math.cos(ta) * (reticleR - tLen), Math.sin(ta) * (reticleR - tLen));
+            ctx.strokeStyle = isMajor ? '#38bdf8' : 'rgba(147, 197, 253, 0.6)';
+            ctx.lineWidth = isMajor ? 2.0 : 1.2;
+            ctx.stroke();
+          }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'singularity') {
+          // GRAVITON SINGULARITY NODE: Celestial Gold & Starlight Cyan Accretion Discs + Inward Geodesic Motes
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const vortexAngle = -now * 0.008;
+          for (let v = 0; v < 3; v++) {
+            const va = vortexAngle + (v * Math.PI * 2 / 3);
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * (1.15 + v * 0.15), va, va + 1.2);
+            ctx.strokeStyle = (v % 2 === 0) ? `rgba(56, 189, 248, ${0.85 - v * 0.20})` : `rgba(254, 240, 138, ${0.85 - v * 0.20})`;
+            ctx.lineWidth = 2.4;
+            ctx.stroke();
+          }
+          for (let gm = 0; gm < 4; gm++) {
+            const gp = ((now * 0.0020 + gm * 0.25 + animPhase) % 1.0);
+            const ga = vortexAngle * 1.4 + gm * (Math.PI / 2) + gp * 1.8;
+            const gr = targetR * (1.65 * (1.0 - gp * 0.65));
+            const gx = Math.cos(ga) * gr;
+            const gy = Math.sin(ga) * gr;
+            ctx.fillStyle = gm % 2 === 0 ? `rgba(125, 211, 252, ${Math.sin(gp * Math.PI) * 0.9})` : `rgba(254, 240, 138, ${Math.sin(gp * Math.PI) * 0.9})`;
+            ctx.beginPath();
+            ctx.arc(gx, gy, 2.2 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'catalyst') {
+          // SUPREME VITALITY LIFE RECOVERY NODE (+1 LIFE RESTORATION)
+          // 1. Refined Contained Heartbeat Pulse (Soft & Non-Distracting - ZERO Full-Screen Vertical Line!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const heartPhase = (now * 0.005) % 1.0;
+          const rRing = targetR * (1.02 + heartPhase * 0.30);
+          const aRing = (1.0 - heartPhase) * 0.35;
+          ctx.beginPath();
+          ctx.arc(0, 0, rRing, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(52, 211, 153, ${aRing})`;
+          ctx.lineWidth = 1.2 * scale;
+          ctx.stroke();
+
+          // 2. Faceted Octahedral Emerald & Diamond Star Core
+          const gemRot = now * 0.0028 + animPhase;
+          const gemR = targetR * 0.95;
+          ctx.save();
+          ctx.rotate(gemRot);
+
+          // Outer Vitality Star
+          const numPts = 8;
+          ctx.beginPath();
+          for (let pt = 0; pt < numPts; pt++) {
+            const a = (pt * Math.PI * 2) / numPts;
+            const r = (pt % 2 === 0) ? gemR : gemR * 0.58;
+            const gx = Math.cos(a) * r;
+            const gy = Math.sin(a) * r;
+            if (pt === 0) ctx.moveTo(gx, gy); else ctx.lineTo(gx, gy);
+          }
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(240, 253, 244, 0.95)';
+          ctx.lineWidth = 2.0 * scale;
+          ctx.stroke();
+
+          // Internal Brilliant Facets (Emerald Green & Diamond White)
+          for (let f = 0; f < numPts; f++) {
+            const fa = (f * Math.PI * 2) / numPts;
+            const r = (f % 2 === 0) ? gemR : gemR * 0.58;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(fa) * r, Math.sin(fa) * r);
+            ctx.strokeStyle = (f % 2 === 0) ? 'rgba(52, 211, 153, 0.90)' : 'rgba(255, 255, 255, 0.95)';
+            ctx.lineWidth = 1.4 * scale;
+            ctx.stroke();
+          }
+
+          // Central Radiant Vitality Heart-Light Core
+          const heartGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, gemR * 0.65);
+          heartGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+          heartGlow.addColorStop(0.40, 'rgba(52, 211, 153, 0.75)');
+          heartGlow.addColorStop(0.75, 'rgba(16, 185, 129, 0.35)');
+          heartGlow.addColorStop(1.0, 'rgba(5, 150, 105, 0.0)');
+          ctx.fillStyle = heartGlow;
+          ctx.beginPath();
+          ctx.arc(0, 0, gemR * 0.65, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 3. Floating Vitality Badge ("💚 +1 LIFE") — render in source-over so pill pops cleanly over bright flames!
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          const badgeText = '💚 +1 LIFE';
+          ctx.font = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
+          const textW = ctx.measureText(badgeText).width;
+          const padX = 7 * scale;
+          const padY = 3.5 * scale;
+          ctx.translate(0, -targetR * 1.35);
+          ctx.fillStyle = 'rgba(4, 34, 26, 0.90)';
+          ctx.strokeStyle = '#34d399';
+          ctx.lineWidth = 1.2 * scale;
+          ctx.beginPath();
+          ctx.roundRect(-textW / 2 - padX, -padY - 7 * scale, textW + padX * 2, 16 * scale, 7 * scale);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#6ee7b7';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(badgeText, 0, 0);
+          ctx.restore();
+
+          // 4. Subtle Ambient Motes (Crisp & Non-Distracting)
+          for (let s = 0; s < 3; s++) {
+            const sAngle = -now * 0.0035 + (s * Math.PI * 2 / 3);
+            const sDist = targetR * 1.18;
+            const sx = Math.cos(sAngle) * sDist;
+            const sy = Math.sin(sAngle) * sDist * 0.70;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = (s % 2 === 0) ? '#34d399' : '#ffffff';
+            ctx.fill();
+          }
+          ctx.restore();
+
+        } else if (p.nodeClass === 'shield') {
+          // 5-SECOND AEGIS FORCEFIELD CRYSTAL: Rotating 3D Golden Hexagonal Shield
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const hexAngle = now * 0.0035 + animPhase;
+          const hxR = targetR * 1.25;
+          ctx.beginPath();
+          for (let hx = 0; hx < 6; hx++) {
+            const ha = hexAngle + (hx * Math.PI / 3);
+            const px = Math.cos(ha) * hxR;
+            const py = Math.sin(ha) * hxR;
+            if (hx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 2.4 * scale;
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(245, 158, 11, 0.28)';
+          ctx.fill();
+
+          const pCoreR = targetR * (0.45 + 0.15 * Math.sin(now * 0.009));
+          const shGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, pCoreR);
+          shGrad.addColorStop(0.0, '#ffffff');
+          shGrad.addColorStop(0.5, '#fef08a');
+          shGrad.addColorStop(1.0, 'rgba(245, 158, 11, 0)');
+          ctx.fillStyle = shGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, pCoreR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+        } else if (p.nodeClass === 'missiles') {
+          // ALLIED TACTICAL ORDNANCE POD (Electric Cyan & Burnished Aerospace Titanium - Absolutely NO Red!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const podAngle = now * 0.0028 + animPhase;
+
+          // 1. Sleek Hexagonal Titanium Launch Canister
+          const podR = targetR * 0.95;
+          ctx.beginPath();
+          for (let hx = 0; hx < 6; hx++) {
+            const ha = podAngle + (hx * Math.PI / 3);
+            const px = Math.cos(ha) * podR;
+            const py = Math.sin(ha) * podR;
+            if (hx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(14, 165, 233, 0.22)';
+          ctx.fill();
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2.0 * scale;
+          ctx.stroke();
+
+          // 2. 4 Precision Missile Silo Ports with Glowing Cyan/Gold Telemetry LEDs
+          const siloDist = podR * 0.52;
+          for (let s = 0; s < 4; s++) {
+            const sa = podAngle + (s * Math.PI / 2) + Math.PI / 4;
+            const sx = Math.cos(sa) * siloDist;
+            const sy = Math.sin(sa) * siloDist;
+
+            // Silo launch port
+            ctx.beginPath();
+            ctx.arc(sx, sy, 4.2 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(2, 132, 199, 0.85)';
+            ctx.fill();
+            ctx.strokeStyle = '#e0f2fe';
+            ctx.lineWidth = 1.0 * scale;
+            ctx.stroke();
+
+            // Active guidance rocket warhead tip
+            ctx.beginPath();
+            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = (s % 2 === 0) ? '#38bdf8' : '#fbbf24';
+            ctx.fill();
+          }
+
+          // 3. Friendly Tactical Radar Alignment Brackets in Electric Cyan (Friendly, NON-HAZARD!)
+          const bracketR = targetR * 1.30;
+          const radarRot = -now * 0.002;
+          for (let b = 0; b < 4; b++) {
+            const ba = radarRot + (b * Math.PI / 2);
+            ctx.save();
+            ctx.translate(Math.cos(ba) * bracketR, Math.sin(ba) * bracketR);
+            ctx.rotate(ba);
+            ctx.beginPath();
+            ctx.moveTo(-5 * scale, 0);
+            ctx.lineTo(0, 0);
+            ctx.lineTo(0, -5 * scale);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+            ctx.lineWidth = 1.5 * scale;
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // 4. Pulsing Friendly Telemetry Halo
+          const telR = targetR * (1.10 + 0.08 * Math.sin(now * 0.006));
+          ctx.beginPath();
+          ctx.arc(0, 0, telR, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+          ctx.lineWidth = 1.2 * scale;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Floating Holographic Badges for Power-Ups (High-Contrast Dark Obsidian Pill Backdrop so Text Pops Over Bright Flames/Lightning!)
+        const badges = {
+          shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(10, 14, 28, 0.88)', border: '#fbbf24' },
+          missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#38bdf8' },
+          cluster: { text: '✨ 2X DUP', color: '#ffffff', bg: 'rgba(10, 14, 28, 0.88)', border: '#c084fc' },
+          supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(10, 14, 28, 0.88)', border: '#fef08a' },
+          chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(10, 14, 28, 0.88)', border: '#67e8f9' },
+          singularity: { text: '🧲 VACUUM', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#7dd3fc' },
+          catalyst: { text: '💎 CATALYST', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#7dd3fc' }
+        };
+
+        if (badges[p.nodeClass] && p.nodeClass !== 'catalyst') {
+          const b = badges[p.nodeClass];
+          const bScale = Math.max(0.65, scale);
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.translate(0, -targetR * 1.46 - 3);
+          ctx.font = `bold ${Math.round(11 * bScale)}px system-ui, -apple-system, sans-serif`;
+          const textW = ctx.measureText(b.text).width;
+          const padX = 7.5 * bScale;
+          const padY = 4 * bScale;
+
+          ctx.fillStyle = b.bg;
+          ctx.strokeStyle = b.border;
+          ctx.lineWidth = 1.3 * bScale;
+          ctx.beginPath();
+          ctx.roundRect(-textW / 2 - padX, -padY - 7 * bScale, textW + padX * 2, 16 * bScale, 7 * bScale);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(b.text, 0, 0);
+          ctx.restore();
+        }
+
+      } else {
+        // ─────────────────────────────────────────────────────────────
+        // RENDER HAZARD TRAPS & 15 BESPOKE LUXURY RAYTRACED BAD CHROME CORES
+        // (3 Games x 5 Powered Feature Hazards — ZERO thin wireframe lines!)
+        // ─────────────────────────────────────────────────────────────
+        const hClass = p.nodeClass;
+        const modeKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
+        const isHyperComet = (hClass === 'hyper_comet' || hClass === 'plasma_flare');
+        const isCorruptor = (hClass === 'corruptor_laser');
+        const isGravityWell = (hClass === 'gravity_well' || hClass === 'vortex');
+        const isEmpDetonator = (hClass === 'emp_detonator' || hClass === 'emp_glitch' || hClass === 'pulsar_mine');
+        const isPhaseStalker = (hClass === 'phase_stalker' || hClass === 'tachyon_fracture');
+
+        // Mode-Specific Luxury VFX Color Palettes matching each game's Chrome Core aesthetic
+        const mPal = (modeKey === 'meteor')
+          ? { primary: 'rgba(16, 185, 129, ', secondary: 'rgba(168, 85, 247, ', accent: 'rgba(249, 115, 22, ', hex: '#10b981' }
+          : (modeKey === 'helix'
+              ? { primary: 'rgba(225, 29, 72, ', secondary: 'rgba(251, 191, 36, ', accent: 'rgba(232, 121, 249, ', hex: '#f43f5e' }
+              : { primary: 'rgba(244, 63, 94, ', secondary: 'rgba(192, 132, 252, ', accent: 'rgba(56, 189, 248, ', hex: '#f43f5e' });
+
+        if (isHyperComet) {
+          // ═══ FEATURE BAD NODE #1: INFERNO HYPER-COMET (Game-Matched Luxury Raytraced Core + Live Roaring Flames!) ═══
+          const isCharging = (p.cometPhase === 'charging');
+          const flicker = 0.86 + 0.14 * Math.sin(now * 0.045 + animPhase * 7);
+          const diveIntensity = isCharging ? 0.60 : 1.0;
+
+          // 1. Pre-Dive Telegraph Volumetric Lane Heat-Shimmer (fair 0.85s dodge telegraph!)
+          if (isCharging) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const chargePulse = 0.55 + 0.45 * Math.sin(now * 0.025);
+            const laneGrad = ctx.createLinearGradient(0, targetR * 0.2, 0, targetR * 11.5);
+            laneGrad.addColorStop(0.0, `rgba(254, 215, 170, ${0.42 * chargePulse})`);
+            laneGrad.addColorStop(0.18, `rgba(249, 115, 22, ${0.26 * chargePulse})`);
+            laneGrad.addColorStop(0.55, `rgba(220, 38, 38, ${0.12 * chargePulse})`);
+            laneGrad.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
+            ctx.fillStyle = laneGrad;
+            ctx.beginPath();
+            ctx.moveTo(-targetR * 0.65, targetR * 0.2);
+            ctx.lineTo(targetR * 0.65, targetR * 0.2);
+            ctx.lineTo(targetR * 1.15, targetR * 11.5);
+            ctx.lineTo(-targetR * 1.15, targetR * 11.5);
+            ctx.closePath();
+            ctx.fill();
+
+            const ignGrad = ctx.createRadialGradient(0, 0, targetR * 0.3, 0, 0, targetR * (2.2 + 0.35 * chargePulse));
+            ignGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.80)');
+            ignGrad.addColorStop(0.35, 'rgba(251, 146, 60, 0.52)');
+            ignGrad.addColorStop(0.7, 'rgba(239, 68, 68, 0.20)');
+            ignGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+            ctx.fillStyle = ignGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * (2.2 + 0.35 * chargePulse), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+
+          // 2. Realistic Multi-Layered Turbulent Plasma Fire Plume Hugging the Hyper-Comet Core
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const tailStretch = isCharging ? 1.35 : 3.65;
+
+          // 2a. Deep Atmospheric Heat Wash (scaled circle so radial gradient hits pure alpha=0 well inside bounds — ZERO oval outline!)
+          ctx.save();
+          const heatLen = targetR * (1.80 + tailStretch * 0.65);
+          ctx.translate(0, -heatLen * 0.32);
+          ctx.scale(0.58, 1.0);
+          const heatGrad = ctx.createRadialGradient(0, heatLen * 0.22, targetR * 0.25, 0, 0, heatLen);
+          heatGrad.addColorStop(0.0, `rgba(255, 224, 165, ${0.42 * diveIntensity})`);
+          heatGrad.addColorStop(0.32, `rgba(249, 115, 22, ${0.26 * diveIntensity})`);
+          heatGrad.addColorStop(0.66, `rgba(185, 28, 28, ${0.09 * diveIntensity})`);
+          heatGrad.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
+          ctx.fillStyle = heatGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, heatLen, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2b. Organic Sinuous S-Curve Flame Billows (wrapping smoothly around the sphere — zero rigid triangles!)
+          const flameLicks = [
+            { ox: 0.00, w: 1.02, h: 1.04, spd: 0.022, ph: 0.0, curl: 0.38 },
+            { ox: -0.46, w: 0.64, h: 0.84, spd: 0.028, ph: 1.3, curl: -0.46 },
+            { ox: 0.46, w: 0.64, h: 0.84, spd: 0.026, ph: 2.6, curl: 0.46 },
+            { ox: -0.82, w: 0.44, h: 0.60, spd: 0.034, ph: 4.0, curl: -0.42 },
+            { ox: 0.82, w: 0.44, h: 0.60, spd: 0.032, ph: 5.2, curl: 0.42 }
+          ];
+          for (let tIdx = 0; tIdx < flameLicks.length; tIdx++) {
+            const tg = flameLicks[tIdx];
+            const wave1 = Math.sin(now * tg.spd + tg.ph + animPhase);
+            const wave2 = Math.cos(now * tg.spd * 1.45 + tg.ph * 1.7 + animPhase);
+            const tipSway = (wave1 * 0.28 + wave2 * 0.14 + tg.curl * 0.25) * targetR;
+            const midSway = (-wave1 * 0.18 + tg.curl * 0.16) * targetR;
+            const tipY = -targetR * (1.05 + tailStretch * tg.h * (0.86 + 0.16 * wave2));
+            const baseW = targetR * tg.w;
+            const baseX = targetR * tg.ox;
+
+            const fGrad = ctx.createLinearGradient(baseX, targetR * 0.45, baseX + tipSway, tipY);
+            fGrad.addColorStop(0.0, `rgba(255, 245, 214, ${0.72 * diveIntensity})`);
+            fGrad.addColorStop(0.28, `rgba(251, 146, 60, ${0.68 * diveIntensity})`);
+            fGrad.addColorStop(0.62, `rgba(220, 38, 38, ${0.42 * diveIntensity})`);
+            fGrad.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
+
+            ctx.fillStyle = fGrad;
+            ctx.beginPath();
+            ctx.moveTo(baseX - baseW * 0.92, targetR * 0.12);
+            ctx.bezierCurveTo(
+              baseX - baseW * 1.06 + midSway, tipY * 0.28,
+              baseX + tipSway - baseW * 0.42, tipY * 0.72,
+              baseX + tipSway, tipY
+            );
+            ctx.bezierCurveTo(
+              baseX + tipSway + baseW * 0.42, tipY * 0.72,
+              baseX + baseW * 1.06 + midSway, tipY * 0.28,
+              baseX + baseW * 0.92, targetR * 0.12
+            );
+            ctx.quadraticCurveTo(baseX, targetR * 0.78, baseX - baseW * 0.92, targetR * 0.12);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // 2c. Rolling Volumetric Fire Billows Rising Off the Leading Rim (gives organic plasma turbulence)
+          for (let bIdx = 0; bIdx < 5; bIdx++) {
+            const bPhase = ((now * 0.0028 + bIdx * 0.2 + animPhase) % 1.0);
+            const bAngle = Math.sin(now * 0.008 + bIdx * 2.3 + animPhase) * 0.65;
+            const bx = Math.sin(bAngle) * targetR * (0.55 - bPhase * 0.32);
+            const by = targetR * 0.15 - bPhase * targetR * (1.35 + tailStretch * 0.68);
+            const bRad = targetR * (0.52 * (1.0 - bPhase * 0.58));
+            const bAlpha = Math.sin(bPhase * Math.PI) * 0.62 * diveIntensity;
+            const bg = ctx.createRadialGradient(bx, by, 0, bx, by, bRad);
+            bg.addColorStop(0.0, `rgba(255, 250, 225, ${bAlpha})`);
+            bg.addColorStop(0.42, `rgba(251, 146, 60, ${bAlpha * 0.85})`);
+            bg.addColorStop(0.78, `rgba(220, 38, 38, ${bAlpha * 0.38})`);
+            bg.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
+            ctx.fillStyle = bg;
+            ctx.beginPath();
+            ctx.arc(bx, by, bRad, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 2d. Inner Incandescent White-Gold Core Slipstream
+          for (let k = -1; k <= 1; k++) {
+            const kSway = Math.sin(now * 0.038 + k * 2.1 + animPhase) * targetR * 0.18;
+            const kTipY = -targetR * (0.78 + tailStretch * (k === 0 ? 0.46 : 0.30));
+            const kW = targetR * (k === 0 ? 0.68 : 0.40);
+            const kX = k * targetR * 0.32;
+            const inGrad = ctx.createLinearGradient(kX, targetR * 0.35, kX + kSway, kTipY);
+            inGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.82)');
+            inGrad.addColorStop(0.36, 'rgba(254, 240, 138, 0.72)');
+            inGrad.addColorStop(0.75, 'rgba(249, 115, 22, 0.28)');
+            inGrad.addColorStop(1.0, 'rgba(249, 115, 22, 0)');
+            ctx.fillStyle = inGrad;
+            ctx.beginPath();
+            ctx.moveTo(kX - kW, targetR * 0.18);
+            ctx.quadraticCurveTo(kX - kW * 0.72 + kSway * 0.4, kTipY * 0.55, kX + kSway, kTipY);
+            ctx.quadraticCurveTo(kX + kW * 0.72 + kSway * 0.4, kTipY * 0.55, kX + kW, targetR * 0.18);
+            ctx.quadraticCurveTo(kX, targetR * 0.65, kX - kW, targetR * 0.18);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Live Trailing Molten Embers
+          if (p.flameEmbers && p.flameEmbers.length > 0) {
+            for (let eIdx = 0; eIdx < p.flameEmbers.length; eIdx++) {
+              const em = p.flameEmbers[eIdx];
+              const relX = em.x - p.x;
+              const relY = em.y - p.y;
+              const eAlpha = Math.max(0, 1.0 - em.life / em.maxLife);
+              const eRad = em.size * eAlpha * scale;
+              if (eRad > 0.3) {
+                const emGrad = ctx.createRadialGradient(relX, relY, 0, relX, relY, eRad * 2.2);
+                emGrad.addColorStop(0.0, `rgba(255, 255, 255, ${eAlpha})`);
+                emGrad.addColorStop(0.45, `rgba(251, 191, 36, ${eAlpha * 0.85})`);
+                emGrad.addColorStop(1.0, 'rgba(239, 68, 68, 0)');
+                ctx.fillStyle = emGrad;
+                ctx.beginPath();
+                ctx.arc(relX, relY, eRad * 2.2, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+          ctx.restore();
+
+          // 3. Game-Matched Luxury Raytraced Hyper-Comet Bad Chrome Core Sprite!
+          const cometSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].hyper_comet;
+          const cometLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].hyper_comet;
+          if (cometSpr && cometLoaded) {
+            const sprSize = 158 * scale;
+            const microVibX = isCharging ? (Math.sin(now * 0.08) * 1.4 * scale) : 0;
+            const microTilt = (modeKey === 'meteor') ? (now * 0.0025 + animPhase) : Math.sin(now * 0.006 + animPhase) * 0.07;
+            ctx.save();
+            ctx.translate(microVibX, 0);
+            ctx.rotate(microTilt);
+            ctx.drawImage(cometSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+          }
+
+          // Subtle Re-Entry Heat Sheen hugging leading bottom edge
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const leadGlow = ctx.createRadialGradient(0, targetR * 0.45, 0, 0, targetR * 0.35, targetR * 1.25);
+          leadGlow.addColorStop(0.0, `rgba(255, 245, 210, ${0.42 * flicker})`);
+          leadGlow.addColorStop(0.48, `rgba(249, 115, 22, ${0.26 * flicker})`);
+          leadGlow.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
+          ctx.fillStyle = leadGlow;
+          ctx.beginPath();
+          ctx.arc(0, targetR * 0.35, targetR * 1.25, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+        } else if (isCorruptor) {
+          // ═══ FEATURE BAD NODE #2: CORRUPTOR OVERLORD (Game-Matched Luxury Raytraced Dreadnought + Live Optical Flare) ═══
+          const charge = Math.max(0, Math.min(1, p.laserCharge || 0));
+          const isFiring = (p.laserState === 'firing');
+          const rotOuter = now * (modeKey === 'meteor' ? 0.0014 : 0.00085) + animPhase;
+          const swell = 1.0 + charge * 0.14 + (isFiring ? 0.08 : 0);
+
+          // 1. Mode-Matched Volumetric Singularity Energy Halo
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const auraR = targetR * (1.72 + charge * 0.62 + (isFiring ? 0.38 : 0));
+          const auraG = ctx.createRadialGradient(0, 0, targetR * 0.35, 0, 0, auraR);
+          auraG.addColorStop(0.0, `${mPal.primary}${0.42 + charge * 0.45})`);
+          auraG.addColorStop(0.50, `${mPal.secondary}${0.24 + charge * 0.32})`);
+          auraG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = auraG;
+          ctx.beginPath();
+          ctx.arc(0, 0, auraR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2. Game-Matched Luxury Raytraced Corruptor Overlord Sprite!
+          const corSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].corruptor_laser;
+          const corLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].corruptor_laser;
+          if (corSpr && corLoaded) {
+            const baseCorSize = (modeKey === 'meteor') ? 186 : (modeKey === 'helix' ? 178 : 166);
+            const sprSize = baseCorSize * scale * swell;
+            ctx.save();
+            ctx.rotate(rotOuter);
+            ctx.drawImage(corSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+          }
+
+          // 3. Blinding Live Optical Emitter Pulse & Anamorphic Lens Flare on Charge / Laser Fire
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const eyePulse = 0.78 + 0.22 * Math.sin(now * 0.014 + animPhase);
+          const eyeR = targetR * (0.36 + charge * 0.38 + (isFiring ? 0.26 : 0));
+          const eyeGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, eyeR);
+          eyeGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.65 + charge * 0.35})`);
+          eyeGrad.addColorStop(0.45, `${mPal.primary}${0.68 * eyePulse + charge * 0.25})`);
+          eyeGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = eyeGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, eyeR, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (charge > 0.12 || isFiring) {
+            const flareLen = targetR * (1.35 + charge * 1.55 + (isFiring ? 0.90 : 0));
+            const flGrad = ctx.createLinearGradient(-flareLen, 0, flareLen, 0);
+            flGrad.addColorStop(0.0, `${mPal.primary}0)`);
+            flGrad.addColorStop(0.38, `${mPal.primary}0.60)`);
+            flGrad.addColorStop(0.50, 'rgba(255, 255, 255, 0.96)');
+            flGrad.addColorStop(0.62, `${mPal.primary}0.60)`);
+            flGrad.addColorStop(1.0, `${mPal.primary}0)`);
+            ctx.fillStyle = flGrad;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, flareLen, targetR * 0.13, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+        } else if (isGravityWell) {
+          // ═══ FEATURE BAD NODE #3: EVENT-HORIZON SINGULARITY (Game-Matched Luxury Raytraced Black Hole + Tidal Swirl) ═══
+          const swirlRot = now * 0.0022 + animPhase;
+
+          // 1. Soft Volumetric Tidal Gravity Distortion Aura
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const tidalR = targetR * (2.05 + 0.16 * Math.sin(now * 0.006));
+          const tidalGrad = ctx.createRadialGradient(0, 0, targetR * 0.55, 0, 0, tidalR);
+          tidalGrad.addColorStop(0.0, `${mPal.primary}0.32)`);
+          tidalGrad.addColorStop(0.50, `${mPal.secondary}0.22)`);
+          tidalGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = tidalGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, tidalR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2. Game-Matched Luxury Raytraced Black Hole / Singularity Sprite!
+          const gravSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].gravity_well;
+          const gravLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].gravity_well;
+          if (gravSpr && gravLoaded) {
+            const sprSize = 172 * scale;
+            const spinAng = (modeKey === 'helix') ? (-now * 0.0028 + animPhase) : (Math.sin(now * 0.0018 + animPhase) * 0.22);
+            ctx.save();
+            ctx.rotate(spinAng);
+            ctx.drawImage(gravSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+          }
+
+          // 3. Tilted Relativistic Accretion Streaks Spiraling Inward Into Event Horizon
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const tiltAngle = (modeKey === 'dynamo') ? -0.30 : (modeKey === 'meteor' ? -0.18 : 0);
+          ctx.rotate(tiltAngle);
+          for (let knot = 0; knot < 6; knot++) {
+            const kProg = ((now * 0.00095 + knot * 0.167 + animPhase) % 1.0);
+            const ka = swirlRot * 2.2 + knot * (Math.PI / 3) + kProg * 2.4;
+            const kr = targetR * (1.72 * (1.0 - kProg * 0.62));
+            const flatY = (modeKey === 'helix') ? 0.92 : 0.56;
+            const kx = Math.cos(ka) * kr;
+            const ky = Math.sin(ka) * kr * flatY;
+            const kPrevA = ka - 0.34;
+            const kpx = Math.cos(kPrevA) * (kr * 1.06);
+            const kpy = Math.sin(kPrevA) * (kr * 1.06) * flatY;
+            const kAlpha = Math.sin(kProg * Math.PI) * 0.85;
+
+            const sGrad = ctx.createLinearGradient(kpx, kpy, kx, ky);
+            sGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+            sGrad.addColorStop(0.65, `${(knot % 2 === 0) ? mPal.primary : mPal.secondary}${kAlpha * 0.78})`);
+            sGrad.addColorStop(1.0, `rgba(255, 255, 255, ${kAlpha})`);
+            ctx.strokeStyle = sGrad;
+            ctx.lineWidth = Math.max(1.5, targetR * 0.11 * (1.0 - kProg * 0.35));
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(kpx, kpy);
+            ctx.lineTo(kx, ky);
+            ctx.stroke();
+          }
+          ctx.restore();
+
+        } else if (isEmpDetonator) {
+          // ═══ FEATURE BAD NODE #4: OVERLOAD EMP SHOCK-MINE (Game-Matched Luxury Raytraced Mine + Reactor Surge) ═══
+          const empCharge = Math.max(0, Math.min(1, p.empCharge || 0));
+          const mineRot = now * 0.0011 + animPhase;
+
+          // 1. Surging Electromagnetic Field Corona right before EMP Dome Detonation
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const fRad = targetR * (1.48 + empCharge * 0.88);
+          const fGrad = ctx.createRadialGradient(0, 0, targetR * 0.45, 0, 0, fRad);
+          const empOuterCol = (modeKey === 'meteor') ? mPal.secondary : mPal.accent;
+          fGrad.addColorStop(0.0, `${mPal.primary}${0.30 + empCharge * 0.55})`);
+          fGrad.addColorStop(0.55, `${empOuterCol}${0.18 + empCharge * 0.46})`);
+          fGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = fGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, fRad, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2. Game-Matched Luxury Raytraced EMP Shock-Mine Sprite!
+          const empSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].emp_detonator;
+          const empLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].emp_detonator;
+          if (empSpr && empLoaded) {
+            const sprSize = 160 * scale * (1.0 + empCharge * 0.10);
+            ctx.save();
+            ctx.rotate(mineRot);
+            ctx.drawImage(empSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+          }
+
+          // 3. Central Pressurized Reactor Surge Flash when approaching 100% charge
+          if (empCharge > 0.15) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const coreR = targetR * (0.48 + empCharge * 0.36);
+            const rGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreR);
+            rGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.88 * empCharge})`);
+            rGrad.addColorStop(0.45, `${mPal.accent}${0.75 * empCharge})`);
+            rGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = rGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, coreR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+
+        } else if (isPhaseStalker) {
+          // ═══ FEATURE BAD NODE #5: QUANTUM BLINK STALKER (Game-Matched Luxury Split-Core Rift Sprite + Phase Shimmer) ═══
+          const isTelegraphing = (p.blinkState === 'telegraphing');
+          const blinkProg = isTelegraphing ? Math.max(0, Math.min(1, p.blinkProgress || 0)) : 0;
+          const orbPulse = 0.85 + 0.15 * Math.sin(now * 0.011 + animPhase);
+
+          // 1. Subtle Volumetric Dimensional Phase Corona (preserves full razor-sharp split-core artwork!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const phaseR = targetR * (1.58 + blinkProg * 0.42);
+          const phaseGrad = ctx.createRadialGradient(0, 0, targetR * 0.50, 0, 0, phaseR);
+          phaseGrad.addColorStop(0.0, `${mPal.secondary}${0.22 + blinkProg * 0.25})`);
+          phaseGrad.addColorStop(0.55, `${mPal.primary}${0.18 + blinkProg * 0.20})`);
+          phaseGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = phaseGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, phaseR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 2. Game-Matched Luxury Raytraced Split Rift Core Sprite with Quantum Phase Breathing!
+          const phSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].phase_stalker;
+          const phLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].phase_stalker;
+          if (phSpr && phLoaded) {
+            const basePhSize = (modeKey === 'helix' || modeKey === 'meteor') ? 178 : 166;
+            const sprSize = basePhSize * scale * (1.0 + Math.sin(now * 0.008 + animPhase) * 0.035);
+            const swayAng = Math.sin(now * 0.0025 + animPhase) * 0.14;
+            ctx.save();
+            // Subtle phase-flicker while keeping luxury split-core silhouette sharp & legible!
+            if (isTelegraphing) {
+              ctx.globalAlpha = Math.max(0.74, 1.0 - blinkProg * 0.22 + Math.sin(now * 0.045) * 0.08);
+            }
+            ctx.rotate(swayAng);
+            ctx.drawImage(phSpr, -sprSize * 0.5, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+          }
+
+          // 3. Precision Dimensional Rift Core Glint (delicate so it enhances instead of washing out the split shell!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const hG = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (0.28 + blinkProg * 0.18));
+          hG.addColorStop(0.0, `rgba(255, 255, 255, ${(0.36 + blinkProg * 0.28) * orbPulse})`);
+          hG.addColorStop(0.48, `${mPal.secondary}${(0.28 + blinkProg * 0.26) * orbPulse})`);
+          hG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = hG;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * (0.28 + blinkProg * 0.18), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+        } else {
+          // ═══ CLASSIC MODE-SPECIFIC HAZARDS (volatile, seeker, fragmentation, phantom) ═══
+          const proxHeat = Math.max(0, Math.min(1, p._proxHeat || 0));
+          if (mode === 'dynamo' || mode === 'realm') {
+            const gSpr = LayeredT4Assets.hazard.dynamoGlitch;
+            if (gSpr && LayeredT4Assets.loaded.hazard.dynamoGlitch) {
+              const numSlices = 7;
+              const srcSize = 140;
+              const sliceH = srcSize / numSlices;
+              const glitchTick = Math.floor(now * (0.022 + proxHeat * 0.014) + animPhase * 3.0);
+
+              for (let s = 0; s < numSlices; s++) {
+                const wave = Math.sin(glitchTick * 1.9 + s * 2.4 + animPhase);
+                const isGlitchBand = (Math.abs(wave) > (0.42 - proxHeat * 0.14)) || (s === 2 || s === 4);
+                const dxGlitch = isGlitchBand ? (wave * (8.5 + proxHeat * 4.5) * scale) : 0;
+
+                const sy = s * sliceH;
+                const dy = (-70 + s * sliceH) * scale;
+                const dw = 140 * scale;
+                const dh = (sliceH + 0.6) * scale;
+
+                if (Math.abs(dxGlitch) > 3.2 * scale) {
+                  ctx.save();
+                  ctx.globalAlpha = 0.48 + proxHeat * 0.20;
+                  ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, -70 * scale - dxGlitch * 0.65, dy, dw, dh);
+                  ctx.restore();
+                }
+                ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, -70 * scale + dxGlitch, dy, dw, dh);
+              }
+            } else {
+              const hazGrad = ctx.createRadialGradient(-targetR * 0.25, -targetR * 0.25, targetR * 0.1, 0, 0, targetR);
+              hazGrad.addColorStop(0.0, 'rgba(239, 68, 68, 0.95)');
+              hazGrad.addColorStop(0.45, 'rgba(185, 28, 28, 0.95)');
+              hazGrad.addColorStop(0.85, 'rgba(127, 29, 29, 0.98)');
+              hazGrad.addColorStop(1.0, 'rgba(69, 10, 10, 1.0)');
+              ctx.fillStyle = hazGrad;
+              ctx.beginPath();
+              ctx.arc(0, 0, targetR, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          } else if (mode === 'helix') {
+            if (LayeredT4Assets.loaded.hazard.helixClean) {
+              ctx.drawImage(LayeredT4Assets.hazard.helixClean, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+            }
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * 0.95, 0, Math.PI * 2);
+            ctx.clip();
+            const numFacets = 6;
+            for (let f = 0; f < numFacets; f++) {
+              const fPhase = now * (0.0042 + proxHeat * 0.004) + f * 1.35 + animPhase;
+              const glint = Math.pow(0.5 + 0.5 * Math.sin(fPhase), 3.0);
+              const fAng = (f / numFacets) * Math.PI * 2 + Math.sin(now * 0.002 + f) * 0.18;
+              const rMid = targetR * (0.35 + 0.22 * (f % 2));
+              const fx = Math.cos(fAng) * rMid;
+              const fy = Math.sin(fAng) * rMid;
+              const fr = targetR * 0.36;
+              ctx.beginPath();
+              for (let v = 0; v < 3; v++) {
+                const va = fAng + v * (Math.PI * 2 / 3) + Math.sin(fPhase * 0.7 + v) * 0.22;
+                const vx = fx + Math.cos(va) * fr;
+                const vy = fy + Math.sin(va) * fr;
+                if (v === 0) ctx.moveTo(vx, vy);
+                else ctx.lineTo(vx, vy);
+              }
+              ctx.closePath();
+              ctx.fillStyle = `rgba(255, 100, 110, ${0.14 + glint * (0.48 + proxHeat * 0.28)})`;
+              ctx.fill();
+            }
+            ctx.restore();
+          } else {
+            const bladeSpinBoost = 1.0 + proxHeat * 0.55;
+            const bladeAngle = now * 0.0032 * bladeSpinBoost + animPhase;
+            const counterAngle = -now * 0.0022 * bladeSpinBoost - animPhase * 0.7;
+            if (LayeredT4Assets.loaded.hazard.meteorBlades) {
+              ctx.save();
+              ctx.rotate(counterAngle);
+              ctx.scale(0.76, 0.76);
+              ctx.globalAlpha = 0.78;
+              ctx.drawImage(LayeredT4Assets.hazard.meteorBlades, -80 * scale, -80 * scale, 160 * scale, 160 * scale);
+              ctx.restore();
+
+              ctx.save();
+              ctx.rotate(bladeAngle);
+              ctx.drawImage(LayeredT4Assets.hazard.meteorBlades, -80 * scale, -80 * scale, 160 * scale, 160 * scale);
+              ctx.restore();
+            }
+            if (LayeredT4Assets.loaded.hazard.meteorCenter) {
+              ctx.drawImage(LayeredT4Assets.hazard.meteorCenter, -80 * scale, -80 * scale, 160 * scale, 160 * scale);
+            }
+            const eyePulse = 0.65 + 0.35 * Math.sin(now * 0.007 + animPhase) + proxHeat * 0.22;
+            const eg = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (0.34 + proxHeat * 0.12));
+            eg.addColorStop(0.0, `rgba(254, 202, 202, ${Math.min(1, 0.92 * eyePulse)})`);
+            eg.addColorStop(0.5, `rgba(239, 68, 68, ${Math.min(1, 0.58 * eyePulse)})`);
+            eg.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
+            ctx.fillStyle = eg;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * (0.34 + proxHeat * 0.12), 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Upgraded Volumetric Overlays for Classic Archetypes (ZERO Thin Wireframes!)
+          if (p.nodeClass === 'seeker') {
+            // SEEKER HARBINGER: Solid Shaded Metallic Hunter Fins + Soft Volumetric Forward Scanner Cone
+            ctx.save();
+            const finRot = now * 0.0032 + animPhase;
+            for (let f = 0; f < 4; f++) {
+              const fa = finRot + f * (Math.PI / 2);
+              ctx.save();
+              ctx.rotate(fa);
+              const fGrad = ctx.createLinearGradient(targetR * 0.75, -targetR * 0.18, targetR * 1.32, targetR * 0.18);
+              fGrad.addColorStop(0.0, '#991b1b');
+              fGrad.addColorStop(0.5, '#ef4444');
+              fGrad.addColorStop(1.0, '#fecaca');
+              ctx.fillStyle = fGrad;
+              ctx.beginPath();
+              ctx.moveTo(targetR * 0.76, -targetR * 0.18);
+              ctx.lineTo(targetR * 1.34, 0);
+              ctx.lineTo(targetR * 0.76, targetR * 0.18);
+              ctx.closePath();
+              ctx.fill();
+              ctx.restore();
+            }
+            // Volumetric Glowing Crimson Targeting Eye
+            ctx.globalCompositeOperation = 'lighter';
+            const sEye = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * 0.55);
+            sEye.addColorStop(0.0, '#ffffff');
+            sEye.addColorStop(0.38, 'rgba(248, 113, 113, 0.90)');
+            sEye.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
+            ctx.fillStyle = sEye;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * 0.55, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+          } else if (p.nodeClass === 'fragmentation') {
+            // FRAGMENTATION BOLIDE: Mode-Aligned Swelling Critical Pressure Bloom (Meteor: Radioactive Emerald/Amethyst vs Crimson!)
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const fragPulse = 0.65 + 0.35 * Math.sin(now * 0.022 + animPhase);
+            const pGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (1.18 + 0.18 * fragPulse));
+            if (modeKey === 'meteor') {
+              pGrad.addColorStop(0.0, `rgba(240, 255, 248, ${0.85 * fragPulse})`);
+              pGrad.addColorStop(0.35, `rgba(16, 185, 129, ${0.72 * fragPulse})`);
+              pGrad.addColorStop(0.70, `rgba(168, 85, 247, ${0.42 * fragPulse})`);
+              pGrad.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+            } else {
+              pGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.85 * fragPulse})`);
+              pGrad.addColorStop(0.35, `rgba(244, 63, 94, ${0.72 * fragPulse})`);
+              pGrad.addColorStop(0.70, `rgba(234, 88, 12, ${0.38 * fragPulse})`);
+              pGrad.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+            }
+            ctx.fillStyle = pGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * (1.18 + 0.18 * fragPulse), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+
+          // Freshly Corrupted Node Flare (when a Good Node is instantly converted by Corruptor Laser!)
+          if (p.justCorruptedUntil && p.justCorruptedUntil > now) {
+            const cFrac = Math.min(1.0, (p.justCorruptedUntil - now) / 900);
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const cGrad = ctx.createRadialGradient(0, 0, targetR * 0.2, 0, 0, targetR * (1.45 + 0.45 * cFrac));
+            cGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.90 * cFrac})`);
+            cGrad.addColorStop(0.38, `rgba(244, 63, 94, ${0.85 * cFrac})`);
+            cGrad.addColorStop(0.75, `rgba(217, 70, 239, ${0.45 * cFrac})`);
+            cGrad.addColorStop(1.0, 'rgba(136, 19, 55, 0)');
+            ctx.fillStyle = cGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * (1.45 + 0.45 * cFrac), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+      }
+
+      ctx.restore();
+    },
+
+    drawTier3RealmParticle(targetCtx, p, now) {
+      this._drawLayeredNodeOrHazard(targetCtx, 'dynamo', p, now);
+    },
+
+    drawTier3DynamoParticle(targetCtx, p, now) {
+      this._drawLayeredNodeOrHazard(targetCtx, 'dynamo', p, now);
+    },
+
+    drawTier3HelixParticle(targetCtx, p, now) {
+      this._drawLayeredNodeOrHazard(targetCtx, 'helix', p, now);
+    },
+
+    drawTier3MeteorParticle(targetCtx, p, now) {
+      this._drawLayeredNodeOrHazard(targetCtx, 'meteor', p, now);
+    },
+
+    drawContactBurst(ctx, cx, contactY, mode, intensity, now, contactAngle = -Math.PI * 0.5) {
+      drawCoreTopContactBurst(ctx, cx, contactY, mode, intensity, now, contactAngle);
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): AUTHORITATIVE COMBAT, SKILLS, VOIDBLOOM & UI CONFIG ===
+  // All names, cooldowns, sizes, damage multipliers, and Voidbloom stats live here.
+  // ══════════════════════════════════════════════════════════════════════════
+  const CONFIG = {
+    names: {
+      gun: 'EMBER CANNON',
+      skill2: 'SEEKER COMETS',
+      ult: 'CALDERA NOVA',
+      voidbloom: 'VOIDBLOOM NODE'
+    },
+    // === CHANGED (v392): Per-Realm Weapon, 2nd-Skill Missile & Ultimate Signatures ===
+    realmArsenal: {
+      dynamo: { gun: 'TESLA RAILGUN', skill2: 'ARC SEEKERS',   ult: 'STORM NOVA',   s2Icon: '⚡', ultIcon: '🌩️', s2Count: 4, s2Dmg: 3.0 },
+      helix:  { gun: 'HELIX CASTER',  skill2: 'PRISM SWARM',   ult: 'GENESIS NOVA', s2Icon: '💠', ultIcon: '🧬', s2Count: 6, s2Dmg: 2.0 },
+      meteor: { gun: 'EMBER CANNON',  skill2: 'SEEKER COMETS', ult: 'CALDERA NOVA', s2Icon: '☄️', ultIcon: '🌋', s2Count: 4, s2Dmg: 3.0 }
+    },
+    ui: {
+      gunBtnSize: 96,
+      skill2BtnSize: 68,
+      ultBtnSize: 76,
+      btnOpacity: 0.85,
+      pressedScale: 0.92,
+      leftHandedKey: 'oc_left_handed_controls'
+    },
+    gun: {
+      fireDelayMs: 120,      // FIRE_DELAY = 120 ms (requestAnimationFrame gated, never setInterval)
+      ammoPerShot: 1,
+      emptyFlashMs: 320
+    },
+    skill2: {
+      cooldownMs: 8000,      // SKILL2_CD = 8 s
+      missileCount: 4,       // Default volley size (overridden per-realm via getRealmArsenal().s2Count)
+      lockOnMs: 300,         // ~0.3 s target lock-on reticles before launch
+      damageMultiplier: 3.0, // Default per-missile multiplier (12x total volley burst across realms)
+      speed: 14.5,
+      turnRate: 0.24,
+      poolSize: 24
+    },
+    ult: {
+      cooldownMs: 20000,     // === CHANGED (v392): Reduced ULT_CD from 35s to 20s ===
+      bossMaxHpPct: 0.15,    // Deals EXACT certain 15% of boss max HP (no crit / armor-break inflation)
+      bossPylonDmg: 6,       // Certain fixed damage to active shield pylons (no instant wipe)
+      invulnMs: 2050,        // 2.05 s invulnerability on cast
+      killChargeMs: 1200,    // Bonus cooldown charge per destroyed hazard/Voidbloom
+      durationMs: 1750,      // Cinematic per-realm ultimate (fire / lightning storm / DNA genesis) duration
+      screenShake: 34
+    },
+    voidbloom: {
+      firstSpawnSec: 12,
+      spawnIntervalMs: 18000,
+      maxAlive: 2,
+      telegraphMs: 1000,     // ~1 s spawn warning + sound cue before appearing
+      minScale: 1.0,
+      maxScale: 6.0,         // Grows from 1x to 6x over growDurationSec
+      growDurationSec: 15,
+      baseRadius: 18,
+      maxViewportFrac: 0.20, // Capped so it never covers the whole screen or blocks HUD/boss bar
+      baseHp: 4,
+      maxHp: 28,
+      baseSpeed: 1.55,
+      minSpeedMult: 0.28,    // Slows dramatically as it grows huge
+      ammoDrainPct: 0.25,    // Drains 25% of current ammo on contact (never below 0)
+      smallRewardScore: 450,
+      smallRewardAmmo: 14,
+      hugeRewardScore: 3600,
+      hugeRewardAmmo: 95,
+      particlePoolSize: 96
+    }
+  };
+
+  function getRealmArsenal(modeOverride) {
+    const raw = modeOverride || (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
+    const key = (raw === 'helix') ? 'helix' : (raw === 'meteor' ? 'meteor' : 'dynamo');
+    return CONFIG.realmArsenal[key] || CONFIG.realmArsenal.dynamo;
+  }
+
+  const FIRE_DELAY = CONFIG.gun.fireDelayMs;
+
+  // === CHANGED (v387): STEP 5 — UNLIMITED AMMO SAFE FORMATTER ===
+  // Exact comma-formatted integer up to 9,999; compact 12.4K / 1.2M / 1.2B above; never NaN or scientific notation.
+  function formatAmmoCount(rawVal) {
+    if (!Number.isFinite(rawVal) || rawVal <= 0) return '0';
+    const n = Math.floor(rawVal);
+    if (n <= 9999) return n.toLocaleString('en-US');
+    const units = [
+      { v: 1e12, s: 'T' },
+      { v: 1e9,  s: 'B' },
+      { v: 1e6,  s: 'M' },
+      { v: 1e3,  s: 'K' }
+    ];
+    for (let i = 0; i < units.length; i++) {
+      if (n >= units[i].v) {
+        const scaled = n / units[i].v;
+        const txt = scaled >= 100 ? Math.floor(scaled).toString() : scaled.toFixed(1).replace(/\.0$/, '');
+        return `${txt}${units[i].s}`;
+      }
+    }
+    return String(n);
+  }
+
+  // === CHANGED (v387): STEP 2 — TOUCH-PRIMARY DEVICE DETECTION ===
+  function detectTouchPrimary() {
+    try {
+      // Explicit QA preview flag (?touch_preview=1) for automated visual verification only; never set in normal play
+      if (window.location.search.includes('touch_preview=1')) return true;
+    } catch (_) {}
+    if (typeof window.matchMedia === 'function') {
+      const mqCoarse = window.matchMedia('(pointer: coarse)');
+      const mqHoverNone = window.matchMedia('(hover: none)');
+      const mqFine = window.matchMedia('(pointer: fine)');
+      if (mqCoarse.matches && mqHoverNone.matches) return true;
+      if (mqFine.matches || mqCoarse.matches) return false;
+    }
+    return (navigator.maxTouchPoints > 0) && ('ontouchstart' in window);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): STEP 3 & STEP 4 — TRUE MULTI-TOUCH ENGINE & KIMMY ARC ===
+  // Tracks every active pointer by pointerId in a Map (MOVE | GUN | SKILL2 | ULT).
+  // Supports 5+ simultaneous touches, iOS long-press hardening (30s+ steady hold),
+  // left-handed mirror toggle, and desktop [A]/[S]/[D] key tracking & HUD strip.
+  // ══════════════════════════════════════════════════════════════════════════
+  const TouchFireControls = {
+    isTouch: false,
+    leftHanded: (() => {
+      try { return localStorage.getItem(CONFIG.ui.leftHandedKey) === '1'; } catch (_) { return false; }
+    })(),
+    activePointers: new Map(), // pointerId -> { role: 'MOVE'|'GUN'|'SKILL2'|'ULT', el }
+    heldKeys: new Set(),       // Desktop held keyboard codes ('KeyA', etc.)
+    clusterEl: null,
+    gunBtn: null,
+    skill2Btn: null,
+    ultBtn: null,
+    ammoEl: null,
+    skill2SweepEl: null,
+    skill2CdTextEl: null,
+    ultSweepEl: null,
+    ultCdTextEl: null,
+    ultIconEl: null,
+    ultCapEl: null,
+    skill2IconEl: null,
+    skill2SubEl: null,
+    skill2CapEl: null,
+    gunCapEl: null,
+    deskHudEl: null,
+    deskGunChip: null,
+    deskGunName: null,
+    deskGunStatus: null,
+    deskSkill2Chip: null,
+    deskSkill2Name: null,
+    deskSkill2Status: null,
+    deskUltChip: null,
+    deskUltName: null,
+    deskUltStatus: null,
+    _emptyFlashTimer: null,
+    _lastEmptyFlashAt: 0,
+    _initialized: false,
+    _cachedAmmoStr: null,
+    _cachedHidden: null,
+    _cachedDeskHidden: null,
+    _cachedRealmMode: null,
+
+    init() {
+      if (this._initialized) return;
+      this._initialized = true;
+
+      this.isTouch = detectTouchPrimary();
+
+      // Re-check automatically on matchMedia change events (e.g. tablet keyboard dock/undock)
+      if (typeof window.matchMedia === 'function') {
+        const mqCoarse = window.matchMedia('(pointer: coarse)');
+        const mqHoverNone = window.matchMedia('(hover: none)');
+        const onMediaChange = () => this.refreshMode();
+        if (mqCoarse.addEventListener) {
+          mqCoarse.addEventListener('change', onMediaChange);
+          mqHoverNone.addEventListener('change', onMediaChange);
+        } else if (mqCoarse.addListener) {
+          mqCoarse.addListener(onMediaChange);
+          mqHoverNone.addListener(onMediaChange);
+        }
+      }
+
+      // iOS Safari Hardening: block pinch-zoom gestures, selection, and callouts during active touch play
+      const preventIosGesture = (e) => {
+        if (this.isTouch && state.active && e.cancelable) e.preventDefault();
+      };
+      document.addEventListener('gesturestart', preventIosGesture, { passive: false });
+      document.addEventListener('gesturechange', preventIosGesture, { passive: false });
+      document.addEventListener('gestureend', preventIosGesture, { passive: false });
+      document.addEventListener('selectstart', (e) => {
+        if (state.active && document.body.classList.contains('arcade-active')) e.preventDefault();
+      });
+
+      // Clear all active pointers & held keyboard keys on window blur or tab switch so gun NEVER sticks!
+      const clearAllInputs = () => {
+        this.releaseAllPointers();
+        this.clearHeldKeys();
+      };
+      window.addEventListener('blur', clearAllInputs);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          clearAllInputs();
+          RealmMusicEngine.stop();
+        } else if (state.active) {
+          RealmMusicEngine.unlockOnGesture();
+        }
+      });
+
+      // Wire Left-Handed layout toggle button (visible on touch only)
+      const leftBtn = document.getElementById('cgLeftHandBtn');
+      if (leftBtn) {
+        leftBtn.onclick = (e) => {
+          e.stopPropagation();
+          this.toggleLeftHanded();
+        };
+      }
+
+      this.syncUI();
+    },
+
+    hasRole(role) {
+      for (const entry of this.activePointers.values()) {
+        if (entry.role === role) return true;
+      }
+      return false;
+    },
+
+    isGunHeld() {
+      return this.hasRole('GUN');
+    },
+
+    isDesktopKeyGunHeld() {
+      return !this.isTouch && this.heldKeys.has('KeyA');
+    },
+
+    getMovePointerId() {
+      for (const [pid, entry] of this.activePointers.entries()) {
+        if (entry.role === 'MOVE') return pid;
+      }
+      return null;
+    },
+
+    toggleLeftHanded() {
+      this.leftHanded = !this.leftHanded;
+      try { localStorage.setItem(CONFIG.ui.leftHandedKey, this.leftHanded ? '1' : '0'); } catch (_) {}
+      if (this.clusterEl) {
+        this.clusterEl.classList.toggle('left-handed', this.leftHanded);
+      }
+      this._syncLeftHandBtn();
+    },
+
+    _syncLeftHandBtn() {
+      const leftBtn = document.getElementById('cgLeftHandBtn');
+      if (!leftBtn) return;
+      const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      leftBtn.style.display = (this.isTouch && isCoreArcade) ? '' : 'none';
+      leftBtn.classList.toggle('oc-btn-active', this.leftHanded);
+      leftBtn.title = this.leftHanded ? 'Left-Handed Layout ON (Tap for Right-Handed)' : 'Right-Handed Layout (Tap for Left-Handed)';
+    },
+
+    refreshMode() {
+      const nextIsTouch = detectTouchPrimary();
+      if (nextIsTouch === this.isTouch) {
+        this.syncUI();
+        return;
+      }
+      this.isTouch = nextIsTouch;
+      this.releaseAllPointers();
+      this.clearHeldKeys();
+      if (!this.isTouch) {
+        this.destroyTouchCluster();
+      } else {
+        this.destroyDesktopHud();
+        state.offenseMode = false;
+        state.pointerFiring = false;
+      }
+      this.syncUI();
+      if (typeof updateHeaderUI === 'function') updateHeaderUI();
+    },
+
+    _bindPadPointerEvents(el, role, onDownAction) {
+      // Prevent iOS Safari native touchstart/touchmove long-press cancellation, callout, scroll & double-tap zoom
+      el.addEventListener('touchstart', (e) => {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }, { passive: false });
+      el.addEventListener('touchmove', (e) => {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }, { passive: false });
+      el.addEventListener('touchend', (e) => {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }, { passive: false });
+      el.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
+      el.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
+
+      el.addEventListener('pointerdown', (e) => {
+        if (!this.isTouch || !state.active) return;
+        e.preventDefault();
+        e.stopPropagation();
+        RealmMusicEngine.unlockOnGesture();
+
+        // Store strictly by pointerId — never interferes with any other finger or role!
+        this.activePointers.set(e.pointerId, { role, el });
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+        el.classList.add('is-held');
+
+        if (typeof onDownAction === 'function') onDownAction(e);
+        if (role === 'GUN') {
+          state.touchFireHeld = true;
+          if ((state.coreAmmo || 0) <= 0) this.flashEmpty();
+          if (typeof updateHeaderUI === 'function') updateHeaderUI();
+        }
+      }, { passive: false });
+
+      const releaseThisPointer = (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (e && e.pointerId !== undefined) {
+          this.releasePointer(e.pointerId);
+        }
+      };
+
+      el.addEventListener('pointerup', releaseThisPointer, { passive: true });
+      el.addEventListener('pointercancel', releaseThisPointer, { passive: true });
+      el.addEventListener('lostpointercapture', releaseThisPointer, { passive: true });
+    },
+
+    ensureTouchCluster() {
+      // Strictly never create touch buttons on non-touch desktop/laptop devices!
+      if (!this.isTouch) return null;
+      if (this.clusterEl && this.clusterEl.isConnected) return this.clusterEl;
+
+      const host = dom.viewReflex || document.getElementById('cgViewReflex');
+      if (!host) return null;
+
+      const cluster = document.createElement('div');
+      cluster.id = 'ocTouchControlCluster';
+      cluster.className = 'oc-touch-hidden' + (this.leftHanded ? ' left-handed' : '');
+      cluster.setAttribute('aria-label', 'Touch Combat Controls');
+
+      const ars = getRealmArsenal();
+      cluster.innerHTML =
+        '<div class="oc-touch-pad-wrap oc-pad-wrap-ult">' +
+          '<div role="button" tabindex="-1" id="ocTouchUltBtn" class="oc-touch-pad" aria-label="' + ars.ult + '">' +
+            '<span class="oc-pad-icon" id="ocTouchUltIcon">' + ars.ultIcon + '</span>' +
+            '<span class="oc-fire-sub">ULT</span>' +
+            '<div class="oc-cd-sweep" id="ocTouchUltSweep"></div>' +
+            '<div class="oc-cd-text" id="ocTouchUltCdText"></div>' +
+          '</div>' +
+          '<span class="oc-pad-caption" id="ocTouchUltCap">' + ars.ult + '</span>' +
+        '</div>' +
+        '<div class="oc-touch-pad-wrap oc-pad-wrap-skill2">' +
+          '<div role="button" tabindex="-1" id="ocTouchSkill2Btn" class="oc-touch-pad" aria-label="' + ars.skill2 + '">' +
+            '<span class="oc-pad-icon" id="ocTouchSkill2Icon">' + ars.s2Icon + '</span>' +
+            '<span class="oc-fire-sub" id="ocTouchSkill2Sub">' + ars.s2Count + '×</span>' +
+            '<div class="oc-cd-sweep" id="ocTouchSkill2Sweep"></div>' +
+            '<div class="oc-cd-text" id="ocTouchSkill2CdText"></div>' +
+          '</div>' +
+          '<span class="oc-pad-caption" id="ocTouchSkill2Cap">' + ars.skill2 + '</span>' +
+        '</div>' +
+        '<div class="oc-touch-pad-wrap oc-pad-wrap-gun">' +
+          '<div role="button" tabindex="-1" id="ocTouchGunBtn" class="oc-touch-pad" aria-label="' + ars.gun + '">' +
+            '<span class="oc-fire-label">FIRE</span>' +
+            '<span class="oc-fire-ammo" id="ocTouchFireAmmo">0</span>' +
+            '<span class="oc-fire-sub">HOLD</span>' +
+          '</div>' +
+          '<span class="oc-pad-caption" id="ocTouchGunCap">' + ars.gun + '</span>' +
+        '</div>';
+
+      host.appendChild(cluster);
+      this.clusterEl = cluster;
+      this.gunBtn = cluster.querySelector('#ocTouchGunBtn');
+      this.skill2Btn = cluster.querySelector('#ocTouchSkill2Btn');
+      this.ultBtn = cluster.querySelector('#ocTouchUltBtn');
+      this.ammoEl = cluster.querySelector('#ocTouchFireAmmo');
+      this.skill2SweepEl = cluster.querySelector('#ocTouchSkill2Sweep');
+      this.skill2CdTextEl = cluster.querySelector('#ocTouchSkill2CdText');
+      this.ultSweepEl = cluster.querySelector('#ocTouchUltSweep');
+      this.ultCdTextEl = cluster.querySelector('#ocTouchUltCdText');
+      this.ultIconEl = cluster.querySelector('#ocTouchUltIcon');
+      this.ultCapEl = cluster.querySelector('#ocTouchUltCap');
+      this.skill2IconEl = cluster.querySelector('#ocTouchSkill2Icon');
+      this.skill2SubEl = cluster.querySelector('#ocTouchSkill2Sub');
+      this.skill2CapEl = cluster.querySelector('#ocTouchSkill2Cap');
+      this.gunCapEl = cluster.querySelector('#ocTouchGunCap');
+
+      // Apply configurable button sizes from CONFIG
+      if (this.gunBtn) {
+        this.gunBtn.style.setProperty('width', `${CONFIG.ui.gunBtnSize}px`, 'important');
+        this.gunBtn.style.setProperty('height', `${CONFIG.ui.gunBtnSize}px`, 'important');
+      }
+      if (this.skill2Btn) {
+        this.skill2Btn.style.setProperty('width', `${CONFIG.ui.skill2BtnSize}px`, 'important');
+        this.skill2Btn.style.setProperty('height', `${CONFIG.ui.skill2BtnSize}px`, 'important');
+      }
+      if (this.ultBtn) {
+        this.ultBtn.style.setProperty('width', `${CONFIG.ui.ultBtnSize}px`, 'important');
+        this.ultBtn.style.setProperty('height', `${CONFIG.ui.ultBtnSize}px`, 'important');
+      }
+
+      // Bind true multi-touch independent roles via pointerId Map
+      this._bindPadPointerEvents(this.gunBtn, 'GUN');
+      this._bindPadPointerEvents(this.skill2Btn, 'SKILL2', () => {
+        SkillSystem.castSeekerComets(performance.now());
+      });
+      this._bindPadPointerEvents(this.ultBtn, 'ULT', () => {
+        SkillSystem.castCalderaNova(performance.now());
+      });
+
+      this._cachedAmmoStr = null;
+      this._cachedHidden = true;
+      this._cachedRealmMode = null;
+      return cluster;
+    },
+
+    ensureDesktopHud() {
+      // Strictly non-touch desktop/laptop ONLY — displays A/S/D keycap hints & skill cooldowns (not touch buttons!)
+      if (this.isTouch) return null;
+      if (this.deskHudEl && this.deskHudEl.isConnected) return this.deskHudEl;
+
+      const host = dom.viewReflex || document.getElementById('cgViewReflex');
+      if (!host) return null;
+
+      const ars = getRealmArsenal();
+      const hud = document.createElement('div');
+      hud.id = 'ocDesktopSkillHud';
+      hud.className = 'oc-desk-hidden';
+      hud.innerHTML =
+        '<div class="oc-desk-chip" data-skill="gun" id="ocDeskGunChip">' +
+          '<span class="oc-desk-keycap">A</span>' +
+          '<div class="oc-desk-meta">' +
+            '<span class="oc-desk-name" id="ocDeskGunName">' + ars.gun + '</span>' +
+            '<span class="oc-desk-status" id="ocDeskGunStatus">HOLD</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="oc-desk-chip" data-skill="skill2" id="ocDeskSkill2Chip">' +
+          '<span class="oc-desk-keycap">S</span>' +
+          '<div class="oc-desk-meta">' +
+            '<span class="oc-desk-name" id="ocDeskSkill2Name">' + ars.skill2 + '</span>' +
+            '<span class="oc-desk-status" id="ocDeskSkill2Status">READY</span>' +
+          '</div>' +
+          '<div class="oc-desk-cdbar" id="ocDeskSkill2Bar"></div>' +
+        '</div>' +
+        '<div class="oc-desk-chip" data-skill="ult" id="ocDeskUltChip">' +
+          '<span class="oc-desk-keycap">D</span>' +
+          '<div class="oc-desk-meta">' +
+            '<span class="oc-desk-name" id="ocDeskUltName">' + ars.ult + '</span>' +
+            '<span class="oc-desk-status" id="ocDeskUltStatus">READY</span>' +
+          '</div>' +
+          '<div class="oc-desk-cdbar" id="ocDeskUltBar"></div>' +
+        '</div>';
+
+      host.appendChild(hud);
+      this.deskHudEl = hud;
+      this.deskGunChip = hud.querySelector('#ocDeskGunChip');
+      this.deskGunName = hud.querySelector('#ocDeskGunName');
+      this.deskGunStatus = hud.querySelector('#ocDeskGunStatus');
+      this.deskSkill2Chip = hud.querySelector('#ocDeskSkill2Chip');
+      this.deskSkill2Name = hud.querySelector('#ocDeskSkill2Name');
+      this.deskSkill2Status = hud.querySelector('#ocDeskSkill2Status');
+      this.deskSkill2Bar = hud.querySelector('#ocDeskSkill2Bar');
+      this.deskUltChip = hud.querySelector('#ocDeskUltChip');
+      this.deskUltName = hud.querySelector('#ocDeskUltName');
+      this.deskUltStatus = hud.querySelector('#ocDeskUltStatus');
+      this.deskUltBar = hud.querySelector('#ocDeskUltBar');
+      this._cachedDeskHidden = true;
+      this._cachedRealmMode = null;
+      return hud;
+    },
+
+    destroyTouchCluster() {
+      if (this._emptyFlashTimer) {
+        clearTimeout(this._emptyFlashTimer);
+        this._emptyFlashTimer = null;
+      }
+      if (this.clusterEl && this.clusterEl.parentNode) {
+        this.clusterEl.parentNode.removeChild(this.clusterEl);
+      }
+      this.clusterEl = null;
+      this.gunBtn = null;
+      this.skill2Btn = null;
+      this.ultBtn = null;
+      this.ammoEl = null;
+      this.skill2SweepEl = null;
+      this.skill2CdTextEl = null;
+      this.ultSweepEl = null;
+      this.ultCdTextEl = null;
+      this.ultIconEl = null;
+      this.ultCapEl = null;
+      this.skill2IconEl = null;
+      this.skill2SubEl = null;
+      this.skill2CapEl = null;
+      this.gunCapEl = null;
+      this._cachedAmmoStr = null;
+      this._cachedHidden = null;
+      this._cachedRealmMode = null;
+    },
+
+    destroyDesktopHud() {
+      if (this.deskHudEl && this.deskHudEl.parentNode) {
+        this.deskHudEl.parentNode.removeChild(this.deskHudEl);
+      }
+      this.deskHudEl = null;
+      this.deskGunChip = null;
+      this.deskGunName = null;
+      this.deskGunStatus = null;
+      this.deskSkill2Chip = null;
+      this.deskSkill2Name = null;
+      this.deskSkill2Status = null;
+      this.deskSkill2Bar = null;
+      this.deskUltChip = null;
+      this.deskUltName = null;
+      this.deskUltStatus = null;
+      this.deskUltBar = null;
+      this._cachedDeskHidden = null;
+      this._cachedRealmMode = null;
+    },
+
+    releasePointer(pointerId) {
+      const entry = this.activePointers.get(pointerId);
+      if (!entry) return;
+      this.activePointers.delete(pointerId);
+      if (entry.el) {
+        try {
+          if (entry.el.hasPointerCapture && entry.el.hasPointerCapture(pointerId)) {
+            entry.el.releasePointerCapture(pointerId);
+          }
+        } catch (_) {}
+        if (!this.hasRole(entry.role)) {
+          entry.el.classList.remove('is-held');
+        }
+      }
+      if (entry.role === 'GUN') {
+        const stillHeld = this.hasRole('GUN');
+        state.touchFireHeld = stillHeld;
+        if (!stillHeld && typeof updateHeaderUI === 'function') updateHeaderUI();
+      } else if (entry.role === 'MOVE') {
+        if (!this.hasRole('MOVE')) {
+          isPointerDown = false;
+          touchGuidePos.active = false;
+        }
+      }
+    },
+
+    releaseAllPointers() {
+      const pids = Array.from(this.activePointers.keys());
+      for (let i = 0; i < pids.length; i++) {
+        this.releasePointer(pids[i]);
+      }
+      this.activePointers.clear();
+      state.touchFireHeld = false;
+      isPointerDown = false;
+      touchGuidePos.active = false;
+      if (this.gunBtn) this.gunBtn.classList.remove('is-held');
+      if (this.skill2Btn) this.skill2Btn.classList.remove('is-held');
+      if (this.ultBtn) this.ultBtn.classList.remove('is-held');
+    },
+
+    releaseFire() {
+      const gunPids = [];
+      for (const [pid, entry] of this.activePointers.entries()) {
+        if (entry.role === 'GUN') gunPids.push(pid);
+      }
+      for (let i = 0; i < gunPids.length; i++) {
+        this.releasePointer(gunPids[i]);
+      }
+      state.touchFireHeld = false;
+      if (this.gunBtn) this.gunBtn.classList.remove('is-held');
+    },
+
+    clearHeldKeys() {
+      const hadA = this.heldKeys.has('KeyA');
+      this.heldKeys.clear();
+      if (hadA && typeof updateHeaderUI === 'function') updateHeaderUI();
+    },
+
+    flashEmpty() {
+      const now = performance.now();
+      if (now - this._lastEmptyFlashAt < 260) return;
+      this._lastEmptyFlashAt = now;
+      if (this.gunBtn) {
+        this.gunBtn.classList.add('oc-fire-empty-flash');
+        if (this._emptyFlashTimer) clearTimeout(this._emptyFlashTimer);
+        this._emptyFlashTimer = setTimeout(() => {
+          if (this.gunBtn) this.gunBtn.classList.remove('oc-fire-empty-flash');
+          this._emptyFlashTimer = null;
+        }, CONFIG.gun.emptyFlashMs);
+      }
+      if (this.deskGunChip) {
+        this.deskGunChip.classList.add('oc-cd-shake');
+        setTimeout(() => { if (this.deskGunChip) this.deskGunChip.classList.remove('oc-cd-shake'); }, 260);
+      }
+      audio.playCooldownReject();
+    },
+
+    triggerSkillFeedback(skillKey, kind) {
+      const el = this.isTouch
+        ? (skillKey === 'ult' ? this.ultBtn : this.skill2Btn)
+        : (skillKey === 'ult' ? this.deskUltChip : this.deskSkill2Chip);
+      if (!el) return;
+      const cls = kind === 'ready' ? 'oc-ready-pulse' : 'oc-cd-shake';
+      el.classList.remove(cls);
+      void el.offsetWidth;
+      el.classList.add(cls);
+      setTimeout(() => { if (el) el.classList.remove(cls); }, kind === 'ready' ? 440 : 280);
+    },
+
+    _syncRealmLabels() {
+      const raw = (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
+      const curMode = (raw === 'helix') ? 'helix' : (raw === 'meteor' ? 'meteor' : 'dynamo');
+      if (this._cachedRealmMode === curMode) return;
+      this._cachedRealmMode = curMode;
+      const ars = getRealmArsenal(curMode);
+      if (this.ultIconEl) this.ultIconEl.textContent = ars.ultIcon;
+      if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
+      if (this.ultBtn) this.ultBtn.setAttribute('aria-label', ars.ult);
+      if (this.skill2IconEl) this.skill2IconEl.textContent = ars.s2Icon;
+      if (this.skill2SubEl) this.skill2SubEl.textContent = `${ars.s2Count}×`;
+      if (this.skill2CapEl) this.skill2CapEl.textContent = ars.skill2;
+      if (this.skill2Btn) this.skill2Btn.setAttribute('aria-label', ars.skill2);
+      if (this.gunCapEl) this.gunCapEl.textContent = ars.gun;
+      if (this.gunBtn) this.gunBtn.setAttribute('aria-label', ars.gun);
+      if (this.deskGunName) this.deskGunName.textContent = ars.gun;
+      if (this.deskSkill2Name) this.deskSkill2Name.textContent = ars.skill2;
+      if (this.deskUltName) this.deskUltName.textContent = ars.ult;
+    },
+
+    syncSkillCooldownUI() {
+      this._syncRealmLabels();
+      const s2Rem = Math.max(0, SkillSystem.skill2CdMs || 0);
+      const s2Max = CONFIG.skill2.cooldownMs;
+      const uRem = Math.max(0, SkillSystem.ultCdMs || 0);
+      const uMax = CONFIG.ult.cooldownMs;
+
+      if (this.isTouch) {
+        if (this.skill2Btn) {
+          const onCd = s2Rem > 0;
+          this.skill2Btn.classList.toggle('on-cooldown', onCd);
+          if (this.skill2SweepEl) {
+            const deg = onCd ? Math.round((s2Rem / s2Max) * 360) : 0;
+            this.skill2SweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+          }
+          if (this.skill2CdTextEl) {
+            const txt = onCd ? String(Math.ceil(s2Rem / 1000)) : '';
+            if (this.skill2CdTextEl.textContent !== txt) this.skill2CdTextEl.textContent = txt;
+          }
+        }
+        if (this.ultBtn) {
+          const onCd = uRem > 0;
+          this.ultBtn.classList.toggle('on-cooldown', onCd);
+          if (this.ultSweepEl) {
+            const deg = onCd ? Math.round((uRem / uMax) * 360) : 0;
+            this.ultSweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+          }
+          if (this.ultCdTextEl) {
+            const txt = onCd ? String(Math.ceil(uRem / 1000)) : '';
+            if (this.ultCdTextEl.textContent !== txt) this.ultCdTextEl.textContent = txt;
+          }
+        }
+      } else if (this.deskHudEl) {
+        if (this.deskGunChip) {
+          const activeGun = this.isDesktopKeyGunHeld() || !!state.offenseMode || !!state.pointerFiring;
+          this.deskGunChip.classList.toggle('is-active', activeGun && (state.coreAmmo || 0) > 0);
+          if (this.deskGunStatus) {
+            const gTxt = (state.coreAmmo || 0) <= 0 ? 'EMPTY' : formatAmmoCount(state.coreAmmo);
+            if (this.deskGunStatus.textContent !== gTxt) this.deskGunStatus.textContent = gTxt;
+          }
+        }
+        if (this.deskSkill2Chip) {
+          const onCd = s2Rem > 0;
+          this.deskSkill2Chip.classList.toggle('on-cooldown', onCd);
+          const txt = onCd ? `${Math.ceil(s2Rem / 1000)}s` : 'READY';
+          if (this.deskSkill2Status && this.deskSkill2Status.textContent !== txt) this.deskSkill2Status.textContent = txt;
+          if (this.deskSkill2Bar) this.deskSkill2Bar.style.setProperty('--cd-pct', onCd ? `${Math.round((s2Rem / s2Max) * 100)}%` : '0%');
+        }
+        if (this.deskUltChip) {
+          const onCd = uRem > 0;
+          this.deskUltChip.classList.toggle('on-cooldown', onCd);
+          const txt = onCd ? `${Math.ceil(uRem / 1000)}s` : 'READY';
+          if (this.deskUltStatus && this.deskUltStatus.textContent !== txt) this.deskUltStatus.textContent = txt;
+          if (this.deskUltBar) this.deskUltBar.style.setProperty('--cd-pct', onCd ? `${Math.round((uRem / uMax) * 100)}%` : '0%');
+        }
+      }
+    },
+
+    syncUI() {
+      const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      const overlayVisible = !!(dom.screenOverlay && dom.screenOverlay.style.display === 'flex');
+      const shouldShow = !!(state.active && isCoreArcade && !overlayVisible);
+      this._syncLeftHandBtn();
+
+      if (!this.isTouch) {
+        if (this.clusterEl) this.destroyTouchCluster();
+        if (!shouldShow) {
+          if (this.deskHudEl && !this._cachedDeskHidden) {
+            this._cachedDeskHidden = true;
+            this.deskHudEl.classList.add('oc-desk-hidden');
+          }
+          return;
+        }
+        const dh = this.ensureDesktopHud();
+        if (dh && this._cachedDeskHidden !== false) {
+          this._cachedDeskHidden = false;
+          dh.classList.remove('oc-desk-hidden');
+        }
+        this.syncSkillCooldownUI();
+        return;
+      }
+
+      // Touch mode: remove desktop HUD if present
+      if (this.deskHudEl) this.destroyDesktopHud();
+
+      if (!shouldShow) {
+        if (this.activePointers.size > 0) this.releaseAllPointers();
+        if (this.clusterEl && !this._cachedHidden) {
+          this._cachedHidden = true;
+          this.clusterEl.classList.add('oc-touch-hidden');
+        }
+        return;
+      }
+
+      const cluster = this.ensureTouchCluster();
+      if (!cluster) return;
+
+      if (this._cachedHidden !== false) {
+        this._cachedHidden = false;
+        cluster.classList.remove('oc-touch-hidden');
+      }
+
+      const ammoCnt = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      const ammoStr = formatAmmoCount(ammoCnt);
+      if (this._cachedAmmoStr !== ammoStr) {
+        this._cachedAmmoStr = ammoStr;
+        if (this.ammoEl) this.ammoEl.textContent = ammoStr;
+        if (this.gunBtn) this.gunBtn.classList.toggle('is-empty', ammoCnt <= 0);
+      }
+      if (this.gunBtn) {
+        this.gunBtn.classList.toggle('is-held', this.isGunHeld() && ammoCnt > 0);
+      }
+      this.syncSkillCooldownUI();
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v387): STEP 4 — ACTIVE SKILLS ENGINE (POOLED 60 FPS) ===
+  // 2nd Skill: SEEKER COMETS (4 homing missiles + 0.3s lock-on reticles, 8s CD)
+  // Ultimate:  CALDERA NOVA (piercing beam + shockwave + 15% Boss HP + 1.5s invuln, 35s CD)
+  // ══════════════════════════════════════════════════════════════════════════
+  const SkillSystem = {
+    skill2CdMs: 0,
+    ultCdMs: 0,
+    pendingVolleys: [],   // Active 0.3s lock-on reticle telegraphs before missile launch
+    impactBursts: [],     // === CHANGED (v392): Short radial lightning bursts on Dynamo ARC SEEKER hit ===
+    activeNova: null,     // Active Caldera Nova beam + expanding shockwave
+    missilePool: Array.from({ length: CONFIG.skill2.poolSize }, () => ({
+      active: false, x: 0, y: 0, vx: 0, vy: 0, dmg: 3.0,
+      mode: 'dynamo', seed: 0,
+      targetKind: null, targetRef: null, ageMs: 0, maxAgeMs: 2800,
+      trail: []
+    })),
+
+    reset() {
+      this.skill2CdMs = 0;
+      this.ultCdMs = 0;
+      this.pendingVolleys = [];
+      this.impactBursts = [];
+      this.activeNova = null;
+      for (let i = 0; i < this.missilePool.length; i++) {
+        this.missilePool[i].active = false;
+        this.missilePool[i].targetRef = null;
+        this.missilePool[i].trail.length = 0;
+      }
+      TouchFireControls.syncSkillCooldownUI();
+    },
+
+    onEnemyDestroyed() {
+      // Optional ultimate charge from kills (base cooldown always works independently)
+      if (this.ultCdMs > 0) {
+        const prev = this.ultCdMs;
+        this.ultCdMs = Math.max(0, this.ultCdMs - CONFIG.ult.killChargeMs);
+        if (prev > 0 && this.ultCdMs === 0) {
+          audio.playSkillReady();
+          TouchFireControls.triggerSkillFeedback('ult', 'ready');
+        }
+      }
+    },
+
+    _acquireTargets(cx, cy, count) {
+      const targets = [];
+      // Priority 1: Nearest hostile falling bolides / hazard nodes
+      const hazards = [];
+      for (let i = 0; i < state.particles.length; i++) {
+        const pt = state.particles[i];
+        if (isHazardNode(pt.nodeClass) && pt.y > -40) {
+          hazards.push({ kind: 'hazard', ref: pt, dist: Math.hypot(pt.x - cx, pt.y - cy) });
+        }
+      }
+      hazards.sort((a, b) => a.dist - b.dist);
+      for (let i = 0; i < hazards.length && targets.length < count; i++) {
+        targets.push({ kind: 'hazard', ref: hazards[i].ref });
+      }
+
+      // Priority 2: Active Voidbloom Nodes
+      if (targets.length < count && VoidbloomEngine.nodes.length > 0) {
+        const vbs = VoidbloomEngine.nodes
+          .filter(v => v.active)
+          .map(v => ({ kind: 'voidbloom', ref: v, dist: Math.hypot(v.x - cx, v.y - cy) }))
+          .sort((a, b) => a.dist - b.dist);
+        for (let i = 0; i < vbs.length && targets.length < count; i++) {
+          targets.push({ kind: 'voidbloom', ref: vbs[i].ref });
+        }
+      }
+
+      // Priority 3: Active Boss Pylons or Boss Body
+      if (targets.length < count && state.boss && state.boss.phase === 'fighting') {
+        if (state.boss.pylons) {
+          for (let i = 0; i < state.boss.pylons.length && targets.length < count; i++) {
+            if (state.boss.pylons[i].hp > 0) {
+              targets.push({ kind: 'pylon', ref: state.boss.pylons[i] });
+            }
+          }
+        }
+        while (targets.length < count) {
+          targets.push({ kind: 'boss', ref: state.boss });
+        }
+      }
+
+      // If fewer than 4 distinct targets exist (e.g. 1 Voidbloom or 2 hazards), cycle acquired targets so all 4 missiles lock cleanly!
+      if (targets.length > 0) {
+        let idx = 0;
+        while (targets.length < count) {
+          targets.push({ kind: targets[idx % targets.length].kind, ref: targets[idx % targets.length].ref });
+          idx++;
+        }
+      } else {
+        // Empty sky fallback: forward-fan free-flight interceptors
+        for (let i = 0; i < count; i++) {
+          targets.push({ kind: 'none', ref: null });
+        }
+      }
+      return targets;
+    },
+
+    castSeekerComets(now) {
+      if (!state.active) return false;
+      const isCore = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      if (!isCore) return false;
+      if (this.skill2CdMs > 0) {
+        audio.playCooldownReject();
+        TouchFireControls.triggerSkillFeedback('skill2', 'shake');
+        return false;
+      }
+
+      const w = cachedCanvasRect.width || window.innerWidth;
+      const h = cachedCanvasRect.height || window.innerHeight;
+      const cx = (state.catcherX || 0.5) * w;
+      const cy = (state.catcherY || 0.82) * h;
+
+      const mMode = (state.catcherType === 'helix') ? 'helix' : (state.catcherType === 'meteor' ? 'meteor' : 'dynamo');
+      const ars = getRealmArsenal(mMode);
+      this.skill2CdMs = CONFIG.skill2.cooldownMs;
+      const targets = this._acquireTargets(cx, cy, ars.s2Count || CONFIG.skill2.missileCount);
+      this.pendingVolleys.push({
+        startAt: now,
+        launchAt: now + CONFIG.skill2.lockOnMs,
+        mode: mMode,
+        targets
+      });
+      audio.playSeekerLockOn(mMode);
+      TouchFireControls.syncSkillCooldownUI();
+      return true;
+    },
+
+    _launchVolley(volley, cx, cy, now) {
+      const vMode = volley.mode || 'dynamo';
+      const ars = getRealmArsenal(vMode);
+      const n = volley.targets.length;
+      const baseDmg = ars.s2Dmg || CONFIG.skill2.damageMultiplier;
+      const spreadStep = (n > 4) ? 0.30 : 0.42;
+      for (let i = 0; i < n; i++) {
+        // Grab free slot from pre-allocated pool
+        let slot = null;
+        for (let k = 0; k < this.missilePool.length; k++) {
+          if (!this.missilePool[k].active) { slot = this.missilePool[k]; break; }
+        }
+        if (!slot) slot = this.missilePool[i % this.missilePool.length];
+        const fanAngle = -Math.PI * 0.5 + (i - (n - 1) * 0.5) * spreadStep;
+        slot.active = true;
+        slot.mode = vMode;
+        slot.seed = i;
+        slot.x = cx + (i - (n - 1) * 0.5) * (n > 4 ? 12 : 16);
+        slot.y = cy - 26;
+        slot.vx = Math.cos(fanAngle) * (CONFIG.skill2.speed * 0.68);
+        slot.vy = Math.sin(fanAngle) * (CONFIG.skill2.speed * 0.68);
+        slot.dmg = baseDmg;
+        slot.targetKind = volley.targets[i].kind;
+        slot.targetRef = volley.targets[i].ref;
+        slot.ageMs = 0;
+        slot.maxAgeMs = 3000;
+        slot.trail.length = 0;
+      }
+      audio.playSeekerLaunch(vMode);
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, 7);
+    },
+
+    castCalderaNova(now) {
+      if (!state.active) return false;
+      const isCore = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+      if (!isCore) return false;
+      if (this.ultCdMs > 0) {
+        audio.playCooldownReject();
+        TouchFireControls.triggerSkillFeedback('ult', 'shake');
+        return false;
+      }
+
+      const w = cachedCanvasRect.width || window.innerWidth;
+      const h = cachedCanvasRect.height || window.innerHeight;
+      const cx = (state.catcherX || 0.5) * w;
+      const cy = (state.catcherY || 0.82) * h;
+
+      this.ultCdMs = CONFIG.ult.cooldownMs;
+      // Grant invulnerability & intense cataclysm recoil
+      state.playerInvulnUntil = Math.max(state.playerInvulnUntil || 0, now + CONFIG.ult.invulnMs);
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, CONFIG.ult.screenShake);
+
+      const novaMode = (state.catcherType === 'helix') ? 'helix' : (state.catcherType === 'meteor' ? 'meteor' : 'dynamo');
+      const novaEmbers = [];
+      for (let eIdx = 0; eIdx < 68; eIdx++) {
+        novaEmbers.push({
+          ox: (Math.random() - 0.5) * 210,
+          oy: -Math.random() * Math.max(480, cy),
+          vx: (Math.random() - 0.5) * 1.4,
+          vy: -(9.5 + Math.random() * 14.5),
+          len: 8 + Math.random() * 18,
+          w: 1.4 + Math.random() * 2.4,
+          phase: Math.random() * Math.PI * 2,
+          bright: Math.random() > 0.35
+        });
+      }
+      this.activeNova = {
+        x: cx,
+        y: cy,
+        mode: novaMode,
+        startAt: now,
+        durationMs: CONFIG.ult.durationMs,
+        maxRadius: Math.hypot(w, h) * 1.15,
+        embers: novaEmbers
+      };
+
+      // 1 & 2. TOTAL PURGE of ALL bad nodes, powered hazards, shrapnel, Voidbloom nodes & telegraphs,
+      // hostile boss bullets/beams/shock rings, hazard lasers & EMP shockwaves (never destroys good nodes!)
+      const purge = this._purgeAllBadEntities(now, true);
+
+      // 3. Deal CERTAIN / CAPPED Boss Damage ONLY (exact 15% of boss max HP — zero armor-break/crit inflation!)
+      //    and fixed certain damage (6 dmg) to active Shield Pylons instead of instant-wiping them.
+      let bossDmgDealt = 0;
+      if (state.boss && state.boss.phase === 'fighting') {
+        if (state.boss.pylons) {
+          const pylonDmg = CONFIG.ult.bossPylonDmg || 6;
+          for (let i = 0; i < state.boss.pylons.length; i++) {
+            if (state.boss.pylons[i].hp > 0) {
+              RoundBossEngine.damagePylon(state.boss.pylons[i], pylonDmg, now, state.boss.pylons[i].x, state.boss.pylons[i].y);
+            }
+          }
+        }
+        bossDmgDealt = Math.max(8, Math.round(state.boss.maxHp * CONFIG.ult.bossMaxHpPct));
+        RoundBossEngine.damageBoss(bossDmgDealt, now, true, state.boss.x, state.boss.y, true);
+      }
+
+      const novaArs = getRealmArsenal(novaMode);
+      audio.playCalderaNova(novaMode);
+      const summaryParts = [];
+      if (bossDmgDealt > 0) summaryParts.push(`-${bossDmgDealt} BOSS HP`);
+      if (purge.vbDestroyed > 0) summaryParts.push(`${purge.vbDestroyed} VOIDBLOOM PURGED`);
+      if (purge.riftsCollapsed > 0) summaryParts.push(`${purge.riftsCollapsed} RIFT COLLAPSED`);
+      if (purge.clearedHazards > 0) summaryParts.push(`${purge.clearedHazards} BAD NODES DESTROYED`);
+      state.floatingTexts.push({
+        x: cx,
+        y: Math.max(120, cy - 72),
+        text: `${novaArs.ultIcon} ${novaArs.ult}!` + (summaryParts.length ? ` · ${summaryParts.join(' · ')}` : ' · TOTAL PURGE · INVULNERABLE'),
+        color: '#fde047',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+      TouchFireControls.syncSkillCooldownUI();
+      return true;
+    },
+
+    // === CHANGED (v389): Guaranteed 100% Bad-Node & Hostile Projectile Purge (called on cast & continuously during Nova!) ===
+    _purgeAllBadEntities(now, isInitialCast = false) {
+      let clearedHazards = 0;
+      if (!state.vaporizedShards) state.vaporizedShards = [];
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const pt = state.particles[i];
+        if (!pt) continue;
+        if (isHazardNode(pt.nodeClass) || pt.isShard) {
+          RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fbbf24', 10);
+          // Burst radiant golden-crimson debris shards so the player sees every bad node disintegrate!
+          for (let sh = 0; sh < 8; sh++) {
+            if (state.vaporizedShards.length >= 160) break;
+            const sAng = Math.random() * Math.PI * 2;
+            const sSpd = 3.5 + Math.random() * 6.5;
+            state.vaporizedShards.push({
+              x: pt.x,
+              y: pt.y,
+              vx: Math.cos(sAng) * sSpd,
+              vy: Math.sin(sAng) * sSpd,
+              size: 2.6 + Math.random() * 3.2,
+              color: (sh % 2 === 0) ? '#fde047' : '#f43f5e',
+              life: 0,
+              maxLife: 22 + Math.floor(Math.random() * 14)
+            });
+          }
+          state.score += 300;
+          clearedHazards++;
+          state.particles.splice(i, 1);
+          this.onEnemyDestroyed();
+        }
+      }
+
+      // Clear ALL hostile projectiles, beams, lasers, EMP shockwaves & hostile Boss shock rings
+      if (state.bossBullets && state.bossBullets.length) state.bossBullets = [];
+      if (state.bossBeams && state.bossBeams.length) state.bossBeams = [];
+      if (state.hazardLasers && state.hazardLasers.length) state.hazardLasers = [];
+      if (state.empShockwaves && state.empShockwaves.length) state.empShockwaves = [];
+      if (state.bossShockRings && state.bossShockRings.length) {
+        state.bossShockRings = state.bossShockRings.filter(r => r && r.harmless === true);
+      }
+
+      // Destroy EVERY live Voidbloom Node AND collapse EVERY incoming Voidbloom Rift Telegraph!
+      const vbRes = VoidbloomEngine.destroyAllByNova(now);
+      const vbDestroyed = (typeof vbRes === 'object' && vbRes) ? (vbRes.nodes || 0) : (vbRes || 0);
+      const riftsCollapsed = (typeof vbRes === 'object' && vbRes) ? (vbRes.rifts || 0) : 0;
+
+      if (!isInitialCast && (clearedHazards > 0 || vbDestroyed > 0 || riftsCollapsed > 0)) {
+        updateHeaderUI();
+      }
+      return { clearedHazards, vbDestroyed, riftsCollapsed };
+    },
+
+    _getLiveTargetPos(m) {
+      if (m.targetKind === 'hazard' && m.targetRef && state.particles.includes(m.targetRef)) {
+        return { x: m.targetRef.x, y: m.targetRef.y };
+      }
+      if (m.targetKind === 'voidbloom' && m.targetRef && m.targetRef.active) {
+        return { x: m.targetRef.x, y: m.targetRef.y };
+      }
+      if (m.targetKind === 'pylon' && m.targetRef && m.targetRef.hp > 0 && state.boss && state.boss.phase === 'fighting') {
+        return { x: m.targetRef.x, y: m.targetRef.y };
+      }
+      if (m.targetKind === 'boss' && state.boss && state.boss.phase === 'fighting') {
+        return { x: state.boss.x, y: state.boss.y };
+      }
+      // Target was already destroyed: auto-reacquire next highest priority live target!
+      const re = this._acquireTargets(m.x, m.y, 1)[0];
+      if (re && re.kind !== 'none') {
+        m.targetKind = re.kind;
+        m.targetRef = re.ref;
+        if (re.kind === 'hazard') return { x: re.ref.x, y: re.ref.y };
+        if (re.kind === 'voidbloom') return { x: re.ref.x, y: re.ref.y };
+        if (re.kind === 'pylon') return { x: re.ref.x, y: re.ref.y };
+        if (re.kind === 'boss') return { x: re.ref.x, y: re.ref.y };
+      }
+      return null;
+    },
+
+    tick(dt, ctx, cx, cy, u, dtScale, now, w, h) {
+      // 1. Tick Cooldowns cleanly using clamped frame dt (auto-pauses on tab hide / pause!)
+      if (this.skill2CdMs > 0) {
+        this.skill2CdMs = Math.max(0, this.skill2CdMs - dt);
+        if (this.skill2CdMs === 0) {
+          audio.playSkillReady();
+          TouchFireControls.triggerSkillFeedback('skill2', 'ready');
+        }
+      }
+      if (this.ultCdMs > 0) {
+        this.ultCdMs = Math.max(0, this.ultCdMs - dt);
+        if (this.ultCdMs === 0) {
+          audio.playSkillReady();
+          TouchFireControls.triggerSkillFeedback('ult', 'ready');
+        }
+      }
+      TouchFireControls.syncSkillCooldownUI();
+
+      // 2. Render & Launch 0.3s Realm-Unique Lock-On Reticles
+      for (let i = this.pendingVolleys.length - 1; i >= 0; i--) {
+        const v = this.pendingVolleys[i];
+        if (now >= v.launchAt) {
+          this._launchVolley(v, cx, cy, now);
+          this.pendingVolleys.splice(i, 1);
+          continue;
+        }
+        const prog = Math.min(1, (now - v.startAt) / CONFIG.skill2.lockOnMs);
+        const vMode = v.mode || 'dynamo';
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let t = 0; t < v.targets.length; t++) {
+          const trg = v.targets[t];
+          if (!trg.ref) continue;
+          const tx = trg.ref.x;
+          const ty = trg.ref.y;
+          if (!Number.isFinite(tx) || !Number.isFinite(ty)) continue;
+          const r = 38 - prog * 14;
+          const rot = prog * Math.PI * 0.85;
+          ctx.save();
+          ctx.translate(tx, ty);
+          ctx.rotate(rot);
+          if (vMode === 'helix') {
+            // PRISM SWARM: Counter-rotating sacred hexagonal double-glyph (cyan hexagon + magenta triangle)
+            ctx.strokeStyle = prog > 0.7 ? '#f0abfc' : '#22d3ee';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            for (let hp = 0; hp <= 6; hp++) {
+              const ha = (hp / 6) * Math.PI * 2;
+              if (hp === 0) ctx.moveTo(Math.cos(ha) * r, Math.sin(ha) * r);
+              else ctx.lineTo(Math.cos(ha) * r, Math.sin(ha) * r);
+            }
+            ctx.stroke();
+            ctx.rotate(-rot * 2.0);
+            ctx.strokeStyle = '#ec4899';
+            ctx.beginPath();
+            for (let tp = 0; tp <= 3; tp++) {
+              const ta = (tp / 3) * Math.PI * 2;
+              if (tp === 0) ctx.moveTo(Math.cos(ta) * r * 0.72, Math.sin(ta) * r * 0.72);
+              else ctx.lineTo(Math.cos(ta) * r * 0.72, Math.sin(ta) * r * 0.72);
+            }
+            ctx.stroke();
+          } else if (vMode === 'meteor') {
+            // SEEKER COMETS: Blazing solar ring + 4 inward-slamming molten chevrons
+            ctx.strokeStyle = prog > 0.7 ? '#fef08a' : '#f97316';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.stroke();
+            for (let b = 0; b < 4; b++) {
+              const a = (b * Math.PI) / 2;
+              ctx.save();
+              ctx.rotate(a);
+              ctx.beginPath();
+              ctx.moveTo(-6, -r - 8);
+              ctx.lineTo(0, -r + 5);
+              ctx.lineTo(6, -r - 8);
+              ctx.stroke();
+              ctx.restore();
+            }
+          } else {
+            // ARC SEEKERS (Dynamo): Rotating electric diamond + crackling corner ticks
+            ctx.strokeStyle = prog > 0.7 ? '#fde047' : '#38bdf8';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.moveTo(0, -r);
+            ctx.lineTo(r, 0);
+            ctx.lineTo(0, r);
+            ctx.lineTo(-r, 0);
+            ctx.closePath();
+            ctx.stroke();
+            for (let b = 0; b < 4; b++) {
+              const a = (b * Math.PI) / 2;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(a) * (r + 8), Math.sin(a) * (r + 8));
+              ctx.lineTo(Math.cos(a) * (r - 5), Math.sin(a) * (r - 5));
+              ctx.stroke();
+            }
+          }
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      // 2B. Render Active Dynamo Radial Lightning Detonation Bursts
+      if (this.impactBursts && this.impactBursts.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        for (let bi = this.impactBursts.length - 1; bi >= 0; bi--) {
+          const ib = this.impactBursts[bi];
+          const age = now - ib.bornAt;
+          if (age >= ib.dur) {
+            this.impactBursts.splice(bi, 1);
+            continue;
+          }
+          const ba = 1 - age / ib.dur;
+          for (let b = 0; b < 6; b++) {
+            const ang = (b / 6) * Math.PI * 2 + (ib.seed || 0) * 0.7;
+            const bx1 = ib.x + Math.cos(ang) * 46 * (1 - ba * 0.35);
+            const by1 = ib.y + Math.sin(ang) * 46 * (1 - ba * 0.35);
+            const midA = ang + (b % 2 === 0 ? 0.25 : -0.25);
+            const bmx = ib.x + Math.cos(midA) * 22;
+            const bmy = ib.y + Math.sin(midA) * 22;
+            ctx.strokeStyle = (b % 2 === 0) ? `rgba(56, 189, 248, ${ba * 0.9})` : `rgba(167, 139, 250, ${ba * 0.9})`;
+            ctx.lineWidth = 3.2;
+            ctx.beginPath();
+            ctx.moveTo(ib.x, ib.y);
+            ctx.lineTo(bmx, bmy);
+            ctx.lineTo(bx1, by1);
+            ctx.stroke();
+            ctx.strokeStyle = `rgba(255, 255, 255, ${ba * 0.95})`;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
+
+      // 3. Update & Draw Pooled Homing 2nd-Skill Missiles (Theme-Unique Kinematics, 3D Bodies & Wakes)
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.missilePool.length; i++) {
+        const m = this.missilePool[i];
+        if (!m.active) continue;
+        m.ageMs += dt;
+        if (m.ageMs >= m.maxAgeMs || m.y < -80 || m.y > h + 80 || m.x < -80 || m.x > w + 80) {
+          m.active = false;
+          continue;
+        }
+
+        const mMode = m.mode || 'dynamo';
+        const mSpd = (mMode === 'dynamo')
+          ? CONFIG.skill2.speed * 1.06
+          : (mMode === 'meteor' ? CONFIG.skill2.speed * (0.88 + Math.min(0.28, m.ageMs / 900)) : CONFIG.skill2.speed);
+        const turnMult = (mMode === 'dynamo') ? 1.15 : (mMode === 'helix' ? 1.05 : 1.0);
+
+        const tPos = this._getLiveTargetPos(m);
+        if (tPos) {
+          const distToTarget = Math.hypot(tPos.x - m.x, tPos.y - m.y);
+          const desiredAngle = Math.atan2(tPos.y - m.y, tPos.x - m.x);
+          const curAngle = Math.atan2(m.vy, m.vx);
+          let diff = desiredAngle - curAngle;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          let weave = 0;
+          if (mMode === 'dynamo' && distToTarget > 90) {
+            weave = Math.sin(m.ageMs * 0.045 + (m.seed || 0) * 1.9) * 0.065;
+          } else if (mMode === 'helix' && distToTarget > 80) {
+            weave = Math.sin(m.ageMs * 0.022 + (m.seed || 0) * 1.05) * 0.09;
+          }
+          const nextAngle = curAngle + diff * Math.min(1, CONFIG.skill2.turnRate * turnMult * dtScale) + weave;
+          m.vx = Math.cos(nextAngle) * mSpd;
+          m.vy = Math.sin(nextAngle) * mSpd;
+        } else {
+          // Fly straight upward if sky is clear
+          m.vy = Math.min(m.vy - 0.5 * dtScale, -mSpd);
+        }
+
+        m.x += m.vx * dtScale;
+        m.y += m.vy * dtScale;
+        m.trail.push({ x: m.x, y: m.y });
+        if (m.trail.length > 15) m.trail.shift();
+
+        // Check Hit Detection (Hazards, Voidbloom, Boss Pylons, Boss)
+        let hit = false;
+        // A. Voidbloom Nodes
+        if (VoidbloomEngine.hitByShot(m.x, m.y, m.dmg, now, 'seeker')) {
+          hit = true;
+        }
+        // B. Falling Hazard Nodes
+        if (!hit) {
+          for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+            const pt = state.particles[pIdx];
+            if (!isHazardNode(pt.nodeClass)) continue;
+            if (Math.hypot(m.x - pt.x, m.y - pt.y) < (pt.headR || 28) + 26) {
+              if (pt.shotHp === undefined) pt.shotHp = (pt.nodeClass === 'volatile') ? 3 : 5;
+              pt.shotHp -= m.dmg;
+              RoundBossEngine._spawnHitSparks(m.x, m.y, mMode === 'meteor' ? '#fb923c' : (mMode === 'helix' ? '#ec4899' : '#22d3ee'), 10);
+              if (pt.shotHp <= 0) {
+                state.score += 320;
+                RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fde047', 16);
+                audio.playMissileHit();
+                state.particles.splice(pIdx, 1);
+                this.onEnemyDestroyed();
+                updateHeaderUI();
+              } else {
+                audio.playBossHit(false);
+              }
+              hit = true;
+              break;
+            }
+          }
+        }
+        // C. Boss Pylons & Boss Body
+        if (!hit && state.boss && state.boss.phase === 'fighting') {
+          if (state.boss.pylons) {
+            for (let pIdx = 0; pIdx < state.boss.pylons.length; pIdx++) {
+              const pyl = state.boss.pylons[pIdx];
+              if (pyl.hp > 0 && Math.hypot(m.x - pyl.x, m.y - pyl.y) < 40) {
+                RoundBossEngine.damagePylon(pyl, m.dmg, now, m.x, m.y);
+                hit = true;
+                break;
+              }
+            }
+          }
+          if (!hit) {
+            const dx = m.x - state.boss.x;
+            const dy = m.y - state.boss.y;
+            const rx = state.boss.hitR * 1.26;
+            const ry = state.boss.hitR * 0.92;
+            if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1.0) {
+              RoundBossEngine.damageBoss(m.dmg, now, true, m.x, m.y);
+              hit = true;
+            }
+          }
+        }
+
+        if (hit) {
+          // Realm-Unique Explosive Detonation Signatures!
+          if (mMode === 'helix') {
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#ec4899', 10);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#22d3ee', 10);
+            if (state.bossShockRings && state.bossShockRings.length < 18) {
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 64, alpha: 0.92, speed: 4.8, color: '#ec4899', harmless: true });
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 4, maxR: 46, alpha: 0.88, speed: 4.2, color: '#22d3ee', harmless: true });
+            }
+          } else if (mMode === 'meteor') {
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#f97316', 18);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#fde047', 10);
+            if (state.bossShockRings && state.bossShockRings.length < 18) {
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 10, maxR: 84, alpha: 0.95, speed: 5.2, color: '#f97316', harmless: true });
+            }
+          } else {
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#a78bfa', 12);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#38bdf8', 10);
+            if (state.bossShockRings && state.bossShockRings.length < 18) {
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 70, alpha: 0.92, speed: 5.0, color: '#a855f7', harmless: true });
+            }
+            if (this.impactBursts.length < 16) {
+              this.impactBursts.push({ x: m.x, y: m.y, bornAt: now, dur: 150, seed: m.seed || i });
+            }
+          }
+          m.active = false;
+          continue;
+        }
+
+        // === CHANGED (v392): DISTINCT PER-GAME 2ND-SKILL MISSILE WAKES & 3D WARHEADS ===
+        const tLen = m.trail.length;
+        const mAngle = Math.atan2(m.vy, m.vx) + Math.PI * 0.5;
+        const pulseM = 1.0 + 0.08 * Math.sin(now * 0.04 + i);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if (mMode === 'helix') {
+          // PRISM SWARM: Woven Bi-Chromatic Magenta + Cyan Twin-Ribbon Wake + 3D Faceted Crystal-Prism Bio-Needle
+          if (tLen > 1) {
+            for (let ti = 1; ti < tLen; ti++) {
+              const frac = ti / tLen;
+              const p0 = m.trail[ti - 1];
+              const p1 = m.trail[ti];
+              const dxT = p1.x - p0.x;
+              const dyT = p1.y - p0.y;
+              const segL = Math.hypot(dxT, dyT) || 1;
+              const nx = -dyT / segL;
+              const ny = dxT / segL;
+              const off0 = Math.sin((ti - 1) * 0.78 + now * 0.022 + i) * 7.5 * ((ti - 1) / tLen);
+              const off1 = Math.sin(ti * 0.78 + now * 0.022 + i) * 7.5 * frac;
+
+              ctx.strokeStyle = `rgba(236, 72, 153, ${frac * 0.85})`;
+              ctx.lineWidth = 1.5 + frac * 4.2;
+              ctx.beginPath();
+              ctx.moveTo(p0.x + nx * off0, p0.y + ny * off0);
+              ctx.lineTo(p1.x + nx * off1, p1.y + ny * off1);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(34, 211, 238, ${frac * 0.85})`;
+              ctx.lineWidth = 1.5 + frac * 4.2;
+              ctx.beginPath();
+              ctx.moveTo(p0.x - nx * off0, p0.y - ny * off0);
+              ctx.lineTo(p1.x - nx * off1, p1.y - ny * off1);
+              ctx.stroke();
+            }
+          }
+          const hGlow = QuantumRenderer._getGlowSprite('helix');
+          ctx.drawImage(hGlow, m.x - 36, m.y - 36, 72, 72);
+
+          // Custom Sculpted 3D Faceted Iridescent Crystal-Prism Bio-Needle (ZERO grey rocket!)
+          ctx.save();
+          ctx.translate(m.x, m.y);
+          ctx.rotate(mAngle);
+          ctx.scale(pulseM, pulseM);
+          // Translucent crystal wing-shards
+          ctx.fillStyle = 'rgba(236, 72, 153, 0.88)';
+          ctx.beginPath();
+          ctx.moveTo(-6, 6); ctx.lineTo(-22, 24); ctx.lineTo(-9, 18); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = 'rgba(34, 211, 238, 0.88)';
+          ctx.beginPath();
+          ctx.moveTo(6, 6); ctx.lineTo(22, 24); ctx.lineTo(9, 18); ctx.closePath(); ctx.fill();
+          // Main 6-facet diamond crystal lance body
+          ctx.fillStyle = '#0891b2';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(10, -4); ctx.lineTo(7, 22); ctx.lineTo(0, 28); ctx.lineTo(-7, 22); ctx.lineTo(-10, -4); ctx.closePath(); ctx.fill();
+          // Left specular aquamarine facet & right magenta iridescent facet
+          ctx.fillStyle = '#67e8f9';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(0, 28); ctx.lineTo(-10, -4); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(10, -4); ctx.lineTo(4, 22); ctx.lineTo(0, 28); ctx.closePath(); ctx.fill();
+          // Bright diamond spine + glowing bio-pearl core
+          ctx.fillStyle = '#ecfeff';
+          ctx.beginPath();
+          ctx.moveTo(0, -34); ctx.lineTo(3.5, -4); ctx.lineTo(0, 24); ctx.lineTo(-3.5, -4); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(0, -4, 4.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+        } else if (mMode === 'meteor') {
+          // SEEKER COMETS: Volumetric Volcanic Fire-Comet Plume + 3D Blazing Molten-Lava Meteor Boulder
+          if (tLen > 1) {
+            for (let ti = 1; ti < tLen; ti++) {
+              const frac = ti / tLen;
+              const p0 = m.trail[ti - 1];
+              const p1 = m.trail[ti];
+              // Wide roaring crimson-orange volcanic comet wake
+              ctx.strokeStyle = `rgba(225, 29, 72, ${frac * 0.45})`;
+              ctx.lineWidth = 4 + frac * 22.0;
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(249, 115, 22, ${frac * 0.78})`;
+              ctx.lineWidth = 2.5 + frac * 14.0;
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(254, 240, 138, ${frac * 0.94})`;
+              ctx.lineWidth = 1.2 + frac * 6.5;
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.stroke();
+
+              if (ti % 3 === 0) {
+                ctx.fillStyle = `rgba(253, 224, 71, ${frac * 0.85})`;
+                ctx.beginPath();
+                ctx.arc(p0.x + Math.sin(ti * 2.1 + now * 0.03) * 8, p0.y, 2.2 * frac, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+          const mGlow = QuantumRenderer._getGlowSprite('amber');
+          ctx.drawImage(mGlow, m.x - 46, m.y - 46, 92, 92);
+
+          // Custom Sculpted 3D Blazing Molten-Lava Meteor-Comet (ZERO blue/grey metal rocket!)
+          ctx.save();
+          ctx.translate(m.x, m.y);
+          ctx.rotate(mAngle);
+          ctx.scale(pulseM, pulseM);
+          // Roaring twin swept volcanic flame-wings
+          ctx.fillStyle = 'rgba(249, 115, 22, 0.92)';
+          ctx.beginPath();
+          ctx.moveTo(-6, -4); ctx.quadraticCurveTo(-24, 8, -16, 30); ctx.lineTo(-5, 16); ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(6, -4); ctx.quadraticCurveTo(24, 8, 16, 30); ctx.lineTo(5, 16); ctx.closePath(); ctx.fill();
+          // Volcanic molten-basalt 3D sphere boulder with live cracked lava fissures
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          const mr = 16;
+          ctx.fillStyle = '#29150b';
+          ctx.beginPath();
+          ctx.arc(0, 0, mr, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.rotate(now * 0.008 + (m.seed || 0));
+          ctx.strokeStyle = '#fb923c';
+          ctx.lineWidth = 3.0;
+          ctx.beginPath();
+          ctx.moveTo(-mr * 0.85, -mr * 0.25); ctx.lineTo(0, mr * 0.15); ctx.lineTo(mr * 0.85, -mr * 0.3);
+          ctx.moveTo(0, -mr * 0.88); ctx.lineTo(-mr * 0.15, mr * 0.88);
+          ctx.stroke();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(0, 0, mr * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          // Blinding white-gold parabolic bow-shock hood ahead of nose
+          ctx.strokeStyle = 'rgba(255, 251, 235, 0.95)';
+          ctx.lineWidth = 3.4;
+          ctx.beginPath();
+          ctx.moveTo(-18, -2);
+          ctx.quadraticCurveTo(0, -34, 18, -2);
+          ctx.stroke();
+          ctx.restore();
+
+        } else {
+          // ARC SEEKERS (Dynamo): Jagged Electric Lightning Bolt Trail + High-Voltage Spear-Torpedo with Gold Coils
+          if (tLen > 1) {
+            ctx.strokeStyle = 'rgba(139, 92, 246, 0.48)';
+            ctx.lineWidth = 14;
+            ctx.beginPath();
+            ctx.moveTo(m.trail[0].x, m.trail[0].y);
+            for (let ti = 1; ti < tLen; ti++) {
+              const jx = (ti < tLen - 1) ? Math.sin(now * 0.09 + ti * 3.1 + i) * 7 : 0;
+              ctx.lineTo(m.trail[ti].x + jx, m.trail[ti].y);
+            }
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.90)';
+            ctx.lineWidth = 5.0;
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.96)';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+          }
+          const dGlow = QuantumRenderer._getGlowSprite('violet');
+          ctx.drawImage(dGlow, m.x - 42, m.y - 42, 84, 84);
+          ctx.save();
+          ctx.translate(m.x, m.y);
+          ctx.rotate(mAngle);
+          if (VfxUltraAssets.loaded.seekerMissile && VfxUltraAssets.seekerMissile && VfxUltraAssets.seekerMissile.naturalWidth > 0) {
+            const mw = 74 * pulseM;
+            const mh = 112 * pulseM;
+            ctx.drawImage(VfxUltraAssets.seekerMissile, -mw * 0.5, -mh * 0.40, mw, mh);
+          } else {
+            ctx.fillStyle = '#e0f2fe';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 9, 24, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          // 2 Glowing golden-volt electromagnetic induction coils + Tesla lightning nose lance
+          ctx.strokeStyle = 'rgba(253, 224, 71, 0.92)';
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.ellipse(0, -10, 12, 4.5, Math.sin(now * 0.015) * 0.25, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(0, 8, 14, 5.2, -Math.sin(now * 0.015) * 0.25, 0, Math.PI * 2);
+          ctx.stroke();
+          // Crackling forward Tesla nose arc
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(0, -34);
+          ctx.lineTo(Math.sin(now * 0.08 + i) * 5, -45);
+          ctx.lineTo(0, -56);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+
+      // 4. === ZERO-BLOOM CRISP REALM ULTIMATE (BACK PLANE) ===
+      // Strict adherence to visual constraints:
+      // - Keep all light inside material boundaries or on metal surfaces.
+      // - Use zero bloom, glow halos, outer aura, radial rays, heat haze, or background lighting in every state, including the ultimate!
+      // - Core internal arcs / helix edge refraction / lava channel contrast & synchronized wing-light pulse intensify inside the core renderer while SkillSystem.isUltimateActive() is true.
+      // - Arena sweep is rendered strictly via crisp, unblurred shock rings and discrete unblurred particles/lightning arcs with zero glow sprites or full-screen background flashes.
+      if (this.activeNova) {
+        const nv = this.activeNova;
+        const elapsed = now - nv.startAt;
+        if (elapsed >= nv.durationMs) {
+          this.activeNova = null;
+        } else {
+          // Continuously vaporize ANY bad node, Voidbloom, rift telegraph, or boss projectile during the entire Nova wave!
+          this._purgeAllBadEntities(now, false);
+
+          // Smoothly tether to the live Chrome Core position!
+          nv.x += (cx - nv.x) * Math.min(1, 0.36 * dtScale);
+          nv.y += (cy - nv.y) * Math.min(1, 0.36 * dtScale);
+
+          const p = elapsed / nv.durationMs;
+          const rampIn = Math.min(1, p / 0.08);
+          const fadeOut = (p < 0.65) ? 1.0 : Math.pow(1 - (p - 0.65) / 0.35, 1.15);
+          const alphaEnv = rampIn * fadeOut;
+          const mKey = nv.mode || 'meteor';
+          const isMob = w < 640;
+
+          const palMap = {
+            meteor: {
+              domeOuter: 'rgba(234, 88, 12, ',
+              domeGlow: 'rgba(249, 115, 22, ',
+              ringCore: 'rgba(254, 240, 138, ',
+              ringGlow: 'rgba(251, 146, 60, ',
+              emberHot: '#fef08a',
+              emberWarm: '#fb923c'
+            },
+            dynamo: {
+              domeOuter: 'rgba(139, 92, 246, ',
+              domeGlow: 'rgba(56, 189, 248, ',
+              ringCore: 'rgba(254, 240, 138, ',
+              ringGlow: 'rgba(125, 211, 252, ',
+              emberHot: '#e0f2fe',
+              emberWarm: '#a78bfa'
+            },
+            helix: {
+              domeOuter: 'rgba(217, 70, 239, ',
+              domeGlow: 'rgba(34, 211, 238, ',
+              ringCore: 'rgba(165, 243, 252, ',
+              ringGlow: 'rgba(232, 121, 249, ',
+              emberHot: '#cffafe',
+              emberWarm: '#f0abfc'
+            }
+          };
+          const pal = palMap[mKey] || palMap.meteor;
+          const domeR = nv.maxRadius * (0.20 + Math.pow(p, 0.58) * 0.64);
+          const ellipseRx = (isMob ? 135 : 195) * (0.72 + Math.pow(p, 0.35) * 0.38);
+          const ellipseRy = ellipseRx * 0.34;
+          nv._ellipseRx = ellipseRx;
+          nv._ellipseRy = ellipseRy;
+          nv._alphaEnv = alphaEnv;
+          nv._pal = pal;
+
+          ctx.save();
+
+          // LAYER 1: Crisp Unblurred Expanding Arena Purge Wave Ring (Zero background lighting, zero outer glow halo!)
+          const domeFade = Math.pow(1 - p, 0.75);
+          ctx.strokeStyle = `${pal.domeOuter}${domeFade * 0.65})`;
+          ctx.lineWidth = Math.max(1.5, 2.4 * domeFade);
+          ctx.beginPath();
+          ctx.arc(nv.x, nv.y, domeR, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // LAYER 2: Crisp Back Half of the Tilted Perspective Shock Track (behind core & wings)
+          ctx.save();
+          ctx.translate(nv.x, nv.y);
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.55})`;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+
+          // LAYER 3: Discrete Unblurred Mode-Specific Particles & Crisp Lines (Zero column bloom, zero radial rays!)
+          const basePillarW = (isMob ? 160 : 220);
+          this._drawNovaRealmFX(ctx, nv, elapsed, p, alphaEnv, rampIn, w, h, dtScale, basePillarW, isMob);
+
+          ctx.restore();
+        }
+      }
+    },
+
+    // === Midpoint-displacement fractal lightning bolt generator ===
+    _novaBolt(x0, y0, x1, y1, rough, levels) {
+      let pts = [{ x: x0, y: y0 }, { x: x1, y: y1 }];
+      let disp = rough;
+      for (let lv = 0; lv < levels; lv++) {
+        const next = [pts[0]];
+        for (let i = 0; i < pts.length - 1; i++) {
+          const a = pts[i];
+          const b = pts[i + 1];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const off = (Math.random() * 2 - 1) * disp;
+          next.push({ x: (a.x + b.x) * 0.5 + (-dy / len) * off, y: (a.y + b.y) * 0.5 + (dx / len) * off });
+          next.push(b);
+        }
+        pts = next;
+        disp *= 0.52;
+      }
+      return pts;
+    },
+
+    _strokeBoltPasses(ctx, pts, a, scale, glowCol, midCol) {
+      if (!pts || pts.length < 2) return;
+      const trace = () => {
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.stroke();
+      };
+      // Crisp, unblurred two-tone filament (zero wide outer glow pass!)
+      ctx.strokeStyle = `${midCol}${0.72 * a})`;
+      ctx.lineWidth = Math.max(1.1, 2.2 * scale);
+      trace();
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.95 * a})`;
+      ctx.lineWidth = Math.max(0.8, 1.1 * scale);
+      trace();
+    },
+
+    _drawNovaRealmFX(ctx, nv, elapsed, p, alphaEnv, rampIn, w, h, dtScale, pillarW, isMob) {
+      const mKey = nv.mode || 'meteor';
+      const a = alphaEnv;
+      if (a <= 0.01) return;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (mKey === 'dynamo') {
+        // ⚡ DYNAMO ULTIMATE: Crisp unblurred branching lightning arcs & discrete ground-track arcs (Zero background strobe or tip glow halos!)
+        const rx = nv._ellipseRx || 180;
+        const ry = nv._ellipseRy || 62;
+        if (!nv._boltAt || elapsed - nv._boltAt > 48) {
+          nv._boltAt = elapsed;
+          const rimArcs = [];
+          for (let ra = 0; ra < 4; ra++) {
+            const a0 = Math.random() * Math.PI * 2;
+            const a1 = a0 + 0.45 + Math.random() * 0.55;
+            rimArcs.push({
+              pts: this._novaBolt(nv.x + Math.cos(a0) * rx, nv.y + Math.sin(a0) * ry, nv.x + Math.cos(a1) * rx, nv.y + Math.sin(a1) * ry, 10, 3),
+              style: ra % 2
+            });
+          }
+          nv._bolts = { rimArcs };
+        }
+        const bl = nv._bolts;
+        if (bl && bl.rimArcs) {
+          for (let i = 0; i < bl.rimArcs.length; i++) {
+            const st = bl.rimArcs[i].style;
+            const c0 = st === 0 ? 'rgba(56, 189, 248, ' : 'rgba(253, 224, 71, ';
+            this._strokeBoltPasses(ctx, bl.rimArcs[i].pts, a * 0.75, 0.70, c0, c0);
+          }
+        }
+
+      } else if (mKey === 'helix') {
+        // 🧬 HELIX ULTIMATE: Crisp concentric bio-lattice ground rings + discrete faceted crystal shards (Zero second helix, zero radial starburst rays!)
+        const rx = nv._ellipseRx || 180;
+        const ry = nv._ellipseRy || 62;
+        for (let rI = 0; rI < 2; rI++) {
+          const ph = ((elapsed * 0.0011) + rI / 2) % 1;
+          const sc = 0.58 + ph * 0.85;
+          ctx.strokeStyle = (rI % 2 === 0) ? `rgba(34, 211, 238, ${a * (1 - ph) * 0.65})` : `rgba(232, 121, 249, ${a * (1 - ph) * 0.65})`;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.ellipse(nv.x, nv.y, rx * sc, ry * sc, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Discrete faceted prismatic shards (no glow sprites!)
+        if (!nv._shards) {
+          nv._shards = [];
+          for (let sI = 0; sI < (isMob ? 12 : 18); sI++) {
+            nv._shards.push({ ox: 0, oy: 0, vx: 0, vy: 0, rot: 0, vr: 0, sz: 0, col: 0, init: false });
+          }
+        }
+        for (let sI = 0; sI < nv._shards.length; sI++) {
+          const sh = nv._shards[sI];
+          if (!sh.init || Math.hypot(sh.ox, sh.oy) > rx * 1.4) {
+            const ang = Math.random() * Math.PI * 2;
+            sh.ox = Math.cos(ang) * 28;
+            sh.oy = Math.sin(ang) * 16;
+            sh.vx = Math.cos(ang) * (1.8 + Math.random() * 2.2);
+            sh.vy = Math.sin(ang) * (1.0 + Math.random() * 1.6);
+            sh.rot = Math.random() * Math.PI;
+            sh.vr = (Math.random() - 0.5) * 0.14;
+            sh.sz = 3.5 + Math.random() * 3.5;
+            sh.col = sI % 3;
+            sh.init = true;
+          }
+          sh.ox += sh.vx * dtScale;
+          sh.oy += sh.vy * dtScale;
+          sh.rot += sh.vr * dtScale;
+          const sx = nv.x + sh.ox;
+          const sy = nv.y + sh.oy;
+          ctx.save();
+          ctx.translate(sx, sy);
+          ctx.rotate(sh.rot);
+          ctx.fillStyle = sh.col === 0 ? `rgba(103, 232, 249, ${0.82 * a})` : (sh.col === 1 ? `rgba(240, 171, 252, ${0.82 * a})` : `rgba(255, 255, 255, ${0.88 * a})`);
+          ctx.beginPath();
+          ctx.moveTo(0, -sh.sz);
+          ctx.lineTo(sh.sz * 0.36, 0);
+          ctx.lineTo(0, sh.sz * 0.75);
+          ctx.lineTo(-sh.sz * 0.36, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+      } else {
+        // 🌋 METEOR ULTIMATE: Discrete ballistic molten cinders with short fading wakes (Zero glow sprites!)
+        if (!nv._lava) {
+          nv._lava = [];
+          for (let jI = 0; jI < (isMob ? 12 : 18); jI++) {
+            const ang = -Math.PI * 0.5 + (Math.random() - 0.5) * 2.2;
+            const spd = 4.5 + Math.random() * 6.5;
+            nv._lava.push({ x: nv.x, y: nv.y - 8, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, r: 1.8 + Math.random() * 2.0, px: nv.x, py: nv.y });
+          }
+        }
+        for (let jI = 0; jI < nv._lava.length; jI++) {
+          const lv = nv._lava[jI];
+          lv.px = lv.x;
+          lv.py = lv.y;
+          lv.vy += 0.26 * dtScale;
+          lv.x += lv.vx * dtScale;
+          lv.y += lv.vy * dtScale;
+          if (lv.y > h + 30 || lv.x < -30 || lv.x > w + 30) continue;
+          ctx.strokeStyle = `rgba(234, 88, 12, ${0.65 * a})`;
+          ctx.lineWidth = Math.max(1.0, lv.r * 0.75);
+          ctx.beginPath();
+          ctx.moveTo(lv.px - lv.vx * 1.4, lv.py - lv.vy * 1.4);
+          ctx.lineTo(lv.x, lv.y);
+          ctx.stroke();
+
+          ctx.fillStyle = `rgba(254, 240, 138, ${0.92 * a})`;
+          ctx.beginPath();
+          ctx.arc(lv.x, lv.y, lv.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    },
+
+    // === NOVA 3D FOREGROUND PASS (Crisp Front Shock Ring Only — Zero Glow Halos!) ===
+    drawNovaForeground(ctx, cx, cy, now, w, h) {
+      if (!this.activeNova) return;
+      const nv = this.activeNova;
+      const alphaEnv = nv._alphaEnv || 0;
+      if (alphaEnv <= 0.01) return;
+      const pal = nv._pal;
+      const rx = nv._ellipseRx || 180;
+      const ry = nv._ellipseRy || 62;
+      if (!pal) return;
+
+      ctx.save();
+      ctx.translate(nv.x, nv.y);
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.72})`;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI);
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // === CHANGED (v388): STEP 6 — PHOTOREALISTIC 3D VOIDBLOOM NODE HAZARD ===
+  // Sculpted 3D obsidian-violet claw orb (assets/voidbloom-3d.png) + back/front
+  // 3D perspective tilted orbital rings + live volumetric toxic-emerald plasma!
+  // Telegraphed 1s spawn, grows 1x -> 6x over 15s, slows down as it grows,
+  // drains 1 shield + 25% ammo on ship contact, scaling rewards on destruction!
+  // ══════════════════════════════════════════════════════════════════════════
+  const _voidbloom3DSprite = new Image();
+  let _voidbloom3DLoaded = false;
+  _voidbloom3DSprite.onload = () => { _voidbloom3DLoaded = true; };
+  _voidbloom3DSprite.src = 'assets/voidbloom-3d.png?v=arcade388_voidbloom3d';
+
+  const VoidbloomEngine = {
+    nodes: [],
+    telegraphs: [],
+    nextSpawnInMs: CONFIG.voidbloom.firstSpawnSec * 1000,
+    _auraSprite: null,
+    particlePool: Array.from({ length: CONFIG.voidbloom.particlePoolSize }, () => ({
+      active: false, x: 0, y: 0, vx: 0, vy: 0, r: 3, color: '#a3e635', life: 0, maxLife: 24
+    })),
+
+    _getAuraSprite() {
+      if (this._auraSprite) return this._auraSprite;
+      const sz = 128;
+      const c = document.createElement('canvas');
+      c.width = sz;
+      c.height = sz;
+      const gctx = c.getContext('2d');
+      if (gctx) {
+        const half = sz * 0.5;
+        const g = gctx.createRadialGradient(half, half, 4, half, half, half);
+        g.addColorStop(0.0, 'rgba(147, 51, 234, 0.78)');
+        g.addColorStop(0.38, 'rgba(132, 204, 22, 0.54)');
+        g.addColorStop(0.70, 'rgba(163, 230, 53, 0.18)');
+        g.addColorStop(1.0, 'rgba(16, 185, 129, 0)');
+        gctx.fillStyle = g;
+        gctx.fillRect(0, 0, sz, sz);
+      }
+      this._auraSprite = c;
+      return c;
+    },
+
+    reset() {
+      this.nodes = [];
+      this.telegraphs = [];
+      this.nextSpawnInMs = CONFIG.voidbloom.firstSpawnSec * 1000;
+      for (let i = 0; i < this.particlePool.length; i++) {
+        this.particlePool[i].active = false;
+      }
+    },
+
+    _emitParticles(x, y, color, count, spdMax = 5.5) {
+      let emitted = 0;
+      for (let i = 0; i < this.particlePool.length && emitted < count; i++) {
+        const pt = this.particlePool[i];
+        if (!pt.active) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 1.0 + Math.random() * spdMax;
+          pt.active = true;
+          pt.x = x;
+          pt.y = y;
+          pt.vx = Math.cos(ang) * spd;
+          pt.vy = Math.sin(ang) * spd;
+          pt.r = 2.2 + Math.random() * 3.4;
+          pt.color = color;
+          pt.life = 0;
+          pt.maxLife = 18 + Math.floor(Math.random() * 18);
+          emitted++;
+        }
+      }
+    },
+
+    _pickSafeX(w, shipX) {
+      const pad = Math.max(70, w * 0.14);
+      let bestX = w * 0.5;
+      let bestDist = -1;
+      for (let att = 0; att < 14; att++) {
+        const cand = pad + Math.random() * Math.max(40, w - pad * 2);
+        const dist = Math.abs(cand - shipX);
+        if (dist >= 145) return cand;
+        if (dist > bestDist) { bestDist = dist; bestX = cand; }
+      }
+      return bestX;
+    },
+
+    scheduleTelegraph(w, h, shipX, now, forcedX = null) {
+      const tx = forcedX !== null ? forcedX : this._pickSafeX(w, shipX);
+      const spawnY = Math.max(142, Math.min(176, h * 0.20));
+      this.telegraphs.push({
+        x: tx,
+        y: spawnY,
+        startAt: now,
+        spawnAt: now + CONFIG.voidbloom.telegraphMs
+      });
+      audio.playVoidbloomWarning();
+    },
+
+    spawnDirect(x, y, initialScale = 1.0, w = 800, h = 600) {
+      const cfg = CONFIG.voidbloom;
+      const sc = Math.max(cfg.minScale, Math.min(cfg.maxScale, initialScale));
+      const growT = (sc - cfg.minScale) / Math.max(0.01, cfg.maxScale - cfg.minScale);
+      const maxR = Math.min(w, h) * cfg.maxViewportFrac;
+      const r = Math.min(maxR, cfg.baseRadius * sc);
+      const hp = Math.round(cfg.baseHp + (cfg.maxHp - cfg.baseHp) * growT);
+      const node = {
+        active: true,
+        x, y,
+        scale: sc,
+        radius: r,
+        hp,
+        maxHp: hp,
+        ageSec: growT * cfg.growDurationSec,
+        rot: Math.random() * Math.PI * 2,
+        hitFlashUntil: 0,
+        sporeAccum: 0
+      };
+      this.nodes.push(node);
+      this._emitParticles(x, y, '#a3e635', 10, 3.8);
+      return node;
+    },
+
+    destroyNode(vb, now, source = 'shot') {
+      if (!vb || !vb.active) return;
+      vb.active = false;
+      const cfg = CONFIG.voidbloom;
+      const sizeT = Math.max(0, Math.min(1, (vb.scale - cfg.minScale) / Math.max(0.01, cfg.maxScale - cfg.minScale)));
+      const scoreGain = Math.round(cfg.smallRewardScore + (cfg.hugeRewardScore - cfg.smallRewardScore) * sizeT);
+      const ammoGain = Math.round(cfg.smallRewardAmmo + (cfg.hugeRewardAmmo - cfg.smallRewardAmmo) * sizeT);
+
+      state.score += scoreGain;
+      RoundBossEngine.addAmmo(ammoGain);
+      if (sizeT >= 0.5) {
+        state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 18);
+        if (state.pulseMeter >= 100) state.isPulseReady = true;
+      }
+      SkillSystem.onEnemyDestroyed();
+      audio.playVoidbloomDestroy(vb.scale);
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, sizeT >= 0.5 ? 14 : 6);
+
+      this._emitParticles(vb.x, vb.y, '#a3e635', 16, 6.5);
+      this._emitParticles(vb.x, vb.y, '#a855f7', 14, 5.5);
+      this._emitParticles(vb.x, vb.y, '#fde047', sizeT >= 0.5 ? 14 : 6, 7.2);
+
+      const tierTag = sizeT >= 0.65 ? 'HUGE VOIDBLOOM PURGED!' : (sizeT >= 0.3 ? 'VOIDBLOOM SHATTERED!' : 'VOIDBLOOM CLEARED!');
+      state.floatingTexts.push({
+        x: vb.x,
+        y: vb.y - 12,
+        text: `☠ ${tierTag} +${scoreGain.toLocaleString()} · +${ammoGain} AMMO`,
+        color: sizeT >= 0.5 ? '#fde047' : '#a3e635',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+    },
+
+    // === CHANGED (v389): Caldera Nova destroys EVERY live Voidbloom Node AND collapses ALL incoming Voidbloom Rifts! ===
+    destroyAllByNova(now) {
+      let count = 0;
+      for (let i = this.nodes.length - 1; i >= 0; i--) {
+        if (this.nodes[i].active) {
+          this.destroyNode(this.nodes[i], now, 'nova');
+          count++;
+        }
+      }
+      this.nodes = this.nodes.filter(n => n.active);
+
+      let riftCount = 0;
+      for (let t = this.telegraphs.length - 1; t >= 0; t--) {
+        const tg = this.telegraphs[t];
+        this._emitParticles(tg.x, tg.y, '#a3e635', 14, 5.8);
+        this._emitParticles(tg.x, tg.y, '#fde047', 10, 6.4);
+        state.score += 250;
+        RoundBossEngine.addAmmo(6);
+        SkillSystem.onEnemyDestroyed();
+        state.floatingTexts.push({
+          x: tg.x,
+          y: tg.y - 10,
+          text: '☠ VOIDBLOOM RIFT COLLAPSED! +250 · +6 AMMO',
+          color: '#fde047',
+          alpha: 1.0,
+          startTime: now
+        });
+        riftCount++;
+      }
+      this.telegraphs = [];
+      return { nodes: count, rifts: riftCount };
+    },
+
+    hitByShot(sx, sy, dmg, now, source = 'shot') {
+      for (let i = this.nodes.length - 1; i >= 0; i--) {
+        const vb = this.nodes[i];
+        if (!vb.active) continue;
+        if (Math.hypot(sx - vb.x, sy - vb.y) <= vb.radius + 12) {
+          vb.hp -= dmg;
+          vb.hitFlashUntil = now + 75;
+          this._emitParticles(sx, sy, '#a3e635', 4, 3.6);
+          if (vb.hp <= 0) {
+            this.destroyNode(vb, now, source);
+            this.nodes.splice(i, 1);
+          } else {
+            audio.playBossHit(false);
+          }
+          return true;
+        }
+      }
+      return false;
+    },
+
+    _onShipContact(vb, cx, cy, now) {
+      vb.active = false;
+      this._emitParticles(vb.x, vb.y, '#9333ea', 18, 6.2);
+      this._emitParticles(vb.x, vb.y, '#84cc16', 14, 5.4);
+
+      // Respect Aegis Forcefield Shield Buff & Invulnerability (e.g. Caldera Nova 1.5s invuln)
+      if (state.hasBuff('shield', now) || (state.playerInvulnUntil && now < state.playerInvulnUntil)) {
+        state.score += 200;
+        CoreKinematics.triggerShieldDeflect(cx, cy, now);
+        audio.playPerfectCatch(state.combo);
+        return;
+      }
+
+      state.playerInvulnUntil = now + 1350;
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, 18);
+
+      // Deduct 1 Shield + drain configurable % of current ammo (never below 0!)
+      const curAmmo = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      const drained = Math.floor(curAmmo * CONFIG.voidbloom.ammoDrainPct);
+      state.coreAmmo = Math.max(0, curAmmo - drained);
+
+      if (state.coreTier > 1) {
+        state.coreTier--;
+        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+        state.combo = tierFloorCombo[state.coreTier] || 0;
+      } else {
+        state.coreTier = 1;
+        state.combo = 0;
+      }
+      state.reflexLives--;
+      state.consecutivePerfects = 0;
+      audio.playVoidbloomDrain();
+      renderReflexShields();
+
+      state.floatingTexts.push({
+        x: cx,
+        y: cy - 42,
+        text: `☠ VOIDBLOOM BREACH! -1 SHIELD` + (drained > 0 ? ` · -${formatAmmoCount(drained)} AMMO` : ''),
+        color: '#a3e635',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+
+      if (state.reflexLives <= 0) {
+        const gameNames = { dynamo: 'CHROME DYNAMO', realm: 'CHROME DYNAMO', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
+        handleGameOver('SHIELDS DEPLETED', `${gameNames[state.gameType]} was consumed by a ${CONFIG.names.voidbloom} in Round ${state.currentRound}. Final Score: ${state.score.toLocaleString()} points.`);
+      }
+    },
+
+    tick(dt, ctx, cx, cy, u, dtScale, now, w, h) {
+      const cfg = CONFIG.voidbloom;
+
+      // 1. Periodic Telegraphed Spawner (respects maxAlive, pauses while Caldera Nova is erupting)
+      if ((state.roundPhase === 'gauntlet' || state.roundPhase === 'boss') && !SkillSystem.activeNova) {
+        const totalAlive = this.nodes.length + this.telegraphs.length;
+        if (totalAlive < cfg.maxAlive) {
+          this.nextSpawnInMs -= dt;
+          if (this.nextSpawnInMs <= 0) {
+            this.nextSpawnInMs = cfg.spawnIntervalMs;
+            this.scheduleTelegraph(w, h, cx, now);
+          }
+        }
+      }
+
+      // 2. Render & Promote 1.0s Spawn Telegraphs
+      for (let i = this.telegraphs.length - 1; i >= 0; i--) {
+        const tg = this.telegraphs[i];
+        if (now >= tg.spawnAt) {
+          this.spawnDirect(tg.x, tg.y, cfg.minScale, w, h);
+          this.telegraphs.splice(i, 1);
+          continue;
+        }
+        const prog = Math.min(1, (now - tg.startAt) / cfg.telegraphMs);
+        const pulse = 0.58 + 0.42 * Math.sin(now * 0.025);
+        const auraSpr = this._getAuraSprite();
+
+        // === CHANGED (v388): 3D Holographic Vortex Portal Spawn Telegraph ===
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        // Volumetric toxic-violet vertical tether beam
+        const beamG = ctx.createLinearGradient(tg.x, tg.y - 36, tg.x, Math.min(h - 90, tg.y + 165));
+        beamG.addColorStop(0.0, `rgba(163, 230, 53, ${0.42 * pulse})`);
+        beamG.addColorStop(0.5, `rgba(147, 51, 234, ${0.26 * pulse})`);
+        beamG.addColorStop(1.0, 'rgba(147, 51, 234, 0)');
+        ctx.fillStyle = beamG;
+        ctx.fillRect(tg.x - 4, tg.y - 36, 8, Math.min(200, h - tg.y));
+
+        // Central glowing portal orb
+        const pGlowR = 44 * (0.65 + prog * 0.55);
+        ctx.globalAlpha = 0.72 * pulse;
+        ctx.drawImage(auraSpr, tg.x - pGlowR, tg.y - pGlowR, pGlowR * 2, pGlowR * 2);
+
+        // Foreshortened spinning 3D perspective portal ring
+        ctx.save();
+        ctx.translate(tg.x, tg.y);
+        ctx.rotate(Math.sin(now * 0.004) * 0.28);
+        ctx.scale(1, 0.36);
+        const r = 40 - prog * 14;
+        ctx.globalAlpha = 0.92 * pulse;
+        ctx.strokeStyle = '#a3e635';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.68, now * 0.01, now * 0.01 + Math.PI * 1.4);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.globalAlpha = 0.95;
+        ctx.font = '800 9.5px "Lexend", sans-serif';
+        ctx.fillStyle = '#d9f99d';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('VOIDBLOOM RIFT', tg.x, tg.y - 24);
+        ctx.restore();
+      }
+
+      // 3. Update & Draw Active 3D Voidbloom Nodes (Continuous 1x -> 6x Growth, Slowing Drift, Scaling HP & Radius!)
+      const maxR = Math.min(w, h) * cfg.maxViewportFrac;
+      const shipHitR = 40 * u;
+      const auraSpr = this._getAuraSprite();
+
+      for (let i = this.nodes.length - 1; i >= 0; i--) {
+        const vb = this.nodes[i];
+        if (!vb.active) { this.nodes.splice(i, 1); continue; }
+
+        const prevMaxHp = vb.maxHp;
+        vb.ageSec += dt / 1000;
+        const growT = Math.min(1, vb.ageSec / cfg.growDurationSec);
+        vb.scale = cfg.minScale + (cfg.maxScale - cfg.minScale) * growT;
+        vb.radius = Math.min(maxR, cfg.baseRadius * vb.scale);
+
+        // Scale HP smoothly with growth (preserves damage already dealt!)
+        const nextMaxHp = Math.round(cfg.baseHp + (cfg.maxHp - cfg.baseHp) * growT);
+        if (nextMaxHp > prevMaxHp) {
+          vb.hp += (nextMaxHp - prevMaxHp);
+          vb.maxHp = nextMaxHp;
+        }
+
+        // Slow downward drift as it grows huge
+        const speedMult = 1.0 - (1.0 - cfg.minSpeedMult) * growT;
+        vb.y += cfg.baseSpeed * speedMult * dtScale;
+        vb.rot += (0.014 + 0.010 * (1 - growT)) * dtScale;
+
+        // Ambient pooled toxic spore emission
+        vb.sporeAccum += dt;
+        if (vb.sporeAccum >= (growT > 0.5 ? 105 : 200)) {
+          vb.sporeAccum = 0;
+          const a = Math.random() * Math.PI * 2;
+          this._emitParticles(vb.x + Math.cos(a) * vb.radius * 0.92, vb.y + Math.sin(a) * vb.radius * 0.92, Math.random() < 0.55 ? '#84cc16' : '#a855f7', 1, 1.5);
+        }
+
+        // Despawn safely past bottom
+        if (vb.y - vb.radius > h + 40) {
+          vb.active = false;
+          this.nodes.splice(i, 1);
+          continue;
+        }
+
+        // Ship Collision Check
+        if (Math.hypot(vb.x - cx, vb.y - cy) < vb.radius * 0.86 + shipHitR) {
+          this._onShipContact(vb, cx, cy, now);
+          this.nodes.splice(i, 1);
+          continue;
+        }
+
+        // === CHANGED (v388): TRUE 6-LAYER VOLUMETRIC 3D VOIDBLOOM RENDERING (ZERO 2D FLAT LOOK!) ===
+        const r = vb.radius;
+        const pulse = 0.82 + 0.18 * Math.sin(now * 0.009 + i * 1.7);
+        const breathe = 1.0 + 0.028 * Math.sin(now * 0.0065 + i);
+        const isFlashing = vb.hitFlashUntil && now < vb.hitFlashUntil;
+        const ringTilt = -0.36 + Math.sin(now * 0.0014 + i) * 0.14;
+        const orbitR = r * 1.26;
+        const orbitAngle = now * 0.0028 + i * 2.1;
+
+        ctx.save();
+        ctx.translate(vb.x, vb.y);
+
+        // LAYER 1: Pre-baked Volumetric Toxic-Emerald & Ultraviolet Subsurface Halo
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const auraR = r * (1.58 + growT * 0.28) * breathe;
+        ctx.globalAlpha = Math.min(0.95, (0.52 + growT * 0.34) * pulse);
+        ctx.drawImage(auraSpr, -auraR, -auraR, auraR * 2, auraR * 2);
+        ctx.restore();
+
+        // LAYER 2: Back Half of 3D Perspective Orbital Containment Ring (passes BEHIND the 3D sphere!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(ringTilt);
+        ctx.scale(1, 0.34);
+        ctx.strokeStyle = `rgba(168, 85, 247, ${0.42 + growT * 0.24})`;
+        ctx.lineWidth = Math.max(2.2, r * 0.075);
+        ctx.beginPath();
+        ctx.arc(0, 0, orbitR, Math.PI, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // LAYER 3: Sculpted Photorealistic 3D Voidbloom Core Sprite (assets/voidbloom-3d.png)
+        const drawR = r * 1.18 * breathe;
+        ctx.save();
+        ctx.rotate(vb.rot);
+        if (_voidbloom3DLoaded) {
+          ctx.drawImage(_voidbloom3DSprite, -drawR, -drawR, drawR * 2, drawR * 2);
+        } else {
+          // Graceful 3D shaded fallback only while PNG is still loading on frame 1
+          const fg = ctx.createRadialGradient(-r * 0.28, -r * 0.28, r * 0.08, 0, 0, r);
+          fg.addColorStop(0.0, '#7e22ce');
+          fg.addColorStop(0.55, '#1e0936');
+          fg.addColorStop(1.0, '#07020f');
+          ctx.fillStyle = fg;
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Crisp impact flash when struck by Ember Cannon or Seeker Comets
+        if (isFlashing) {
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(auraSpr, -drawR * 0.9, -drawR * 0.9, drawR * 1.8, drawR * 1.8);
+        }
+        ctx.restore();
+
+        // LAYER 4: Live Counter-Rotating Abyssal Singularity Eye Shimmer (gives the 3D center live depth!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(-vb.rot * 1.6);
+        const eyeR = r * 0.30 * pulse;
+        ctx.strokeStyle = `rgba(192, 132, 252, ${0.45 * pulse})`;
+        ctx.lineWidth = Math.max(1.2, r * 0.032);
+        ctx.beginPath();
+        ctx.arc(0, 0, eyeR, 0, Math.PI * 1.25);
+        ctx.stroke();
+        ctx.strokeStyle = `rgba(163, 230, 53, ${0.38 * pulse})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, eyeR * 0.62, Math.PI, Math.PI * 2.15);
+        ctx.stroke();
+        ctx.restore();
+
+        // LAYER 5: Front Half of 3D Perspective Orbital Ring + Glowing Plasma Satellites (passes IN FRONT of sphere!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(ringTilt);
+        ctx.save();
+        ctx.scale(1, 0.34);
+        ctx.strokeStyle = `rgba(163, 230, 53, ${0.58 + growT * 0.28})`;
+        ctx.lineWidth = Math.max(2.4, r * 0.08);
+        ctx.beginPath();
+        ctx.arc(0, 0, orbitR, 0, Math.PI);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(236, 252, 203, 0.65)';
+        ctx.lineWidth = Math.max(1.0, r * 0.028);
+        ctx.beginPath();
+        ctx.arc(0, 0, orbitR, 0.15, Math.PI - 0.15);
+        ctx.stroke();
+        ctx.restore();
+
+        // Two glowing 3D orbiting emerald/violet plasma moons on the tilted plane
+        for (let k = 0; k < 2; k++) {
+          const a = orbitAngle + k * Math.PI;
+          const ox = Math.cos(a) * orbitR;
+          const oy = Math.sin(a) * orbitR * 0.34;
+          const inFront = Math.sin(a) >= 0;
+          if (inFront) {
+            const mR = Math.max(3.2, r * 0.095);
+            ctx.fillStyle = k === 0 ? '#bef264' : '#d8b4fe';
+            ctx.beginPath();
+            ctx.arc(ox, oy, mR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(ox, oy, mR * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+
+        // LAYER 6: Sleek Floating 3D Glassmorphic HP Arc (shown when damaged or >= 1.8x size; zero ugly flat triangle!)
+        if (vb.hp < vb.maxHp || vb.scale >= 1.8) {
+          const hpFrac = Math.max(0, Math.min(1, vb.hp / Math.max(1, vb.maxHp)));
+          const ringR = r * 1.16 + 6;
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = 'rgba(6, 10, 22, 0.72)';
+          ctx.lineWidth = 4.2;
+          ctx.beginPath();
+          ctx.arc(0, 0, ringR, -Math.PI * 0.75, -Math.PI * 0.25);
+          ctx.stroke();
+          ctx.strokeStyle = hpFrac > 0.45 ? '#a3e635' : '#f43f5e';
+          ctx.lineWidth = 3.0;
+          ctx.beginPath();
+          ctx.arc(0, 0, ringR, -Math.PI * 0.75, -Math.PI * 0.75 + (Math.PI * 0.5) * hpFrac);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      // 4. Update & Draw Pooled Voidbloom Spores / Destruction Shards
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.particlePool.length; i++) {
+        const pt = this.particlePool[i];
+        if (!pt.active) continue;
+        pt.life += dtScale;
+        if (pt.life >= pt.maxLife) { pt.active = false; continue; }
+        pt.x += pt.vx * dtScale;
+        pt.y += pt.vy * dtScale;
+        pt.vx *= 0.96;
+        pt.vy *= 0.96;
+        ctx.globalAlpha = Math.max(0, 1 - pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ROUND PROGRESSION, 5 SOVEREIGN BOSSES & CHROME CORE OFFENSE ENGINE (v386)
+  // Extended 3-Act Wave Gauntlets · Dual-Gated Boss Arrival · Multi-Phase Boss AI
+  // ══════════════════════════════════════════════════════════════════════════
+  const ROUND_BOSS_SPECS = {
+    1: {
+      bossId: 1,
+      quota: 48,
+      minDurationSec: 45,
+      baseHp: 50,
+      drawW: 266,
+      hitR: 74,
+      pylonCount: 0,
+      subtitle: 'AEGIS ORBITAL SENTINEL · ROUND 1 BOSS',
+      names: { dynamo: 'VOLTAIC WARDEN', helix: 'RIBOSOME GUARDIAN', meteor: 'OBSIDIAN BASALT TITAN' },
+      accent: '#f43f5e'
+    },
+    2: {
+      bossId: 2,
+      quota: 60,
+      minDurationSec: 55,
+      baseHp: 85,
+      drawW: 248,
+      hitR: 76,
+      pylonCount: 0,
+      subtitle: 'CORRUPTOR PRISM SOVEREIGN · ROUND 2 BOSS',
+      names: { dynamo: 'TESLA ANNIHILATOR', helix: 'MUTAGEN HYDRA', meteor: 'MAGMA RAIL-CARRIER' },
+      accent: '#e879f9'
+    },
+    3: {
+      bossId: 3,
+      quota: 72,
+      minDurationSec: 65,
+      baseHp: 125,
+      drawW: 242,
+      hitR: 80,
+      pylonCount: 2,
+      subtitle: 'SINGULARITY LEVIATHAN · ROUND 3 BOSS',
+      names: { dynamo: 'MAGNETAR VORTEX', helix: 'CHIRAL ABYSSAL COIL', meteor: 'ACCRETION DEVOURER' },
+      accent: '#fb923c'
+    },
+    4: {
+      bossId: 4,
+      quota: 84,
+      minDurationSec: 75,
+      baseHp: 175,
+      drawW: 274,
+      hitR: 78,
+      pylonCount: 2,
+      subtitle: 'TEMPEST ARCH-HYDRA · ROUND 4 BOSS',
+      names: { dynamo: 'ARCVOLT EMPEROR', helix: 'PRION SERAPH', meteor: 'HYPERNOVA COLOSSUS' },
+      accent: '#f97316'
+    },
+    5: {
+      bossId: 5,
+      quota: 96,
+      minDurationSec: 85,
+      baseHp: 240,
+      drawW: 316,
+      hitR: 86,
+      pylonCount: 3,
+      subtitle: 'OMEGA ANTICORE · FALLEN CHROME ARCHON',
+      names: { dynamo: 'ANTIMATTER SERAPH · OMEGA', helix: 'ENTROPY ARCHON · OMEGA', meteor: 'ECLIPSE MAGNETAR · OMEGA' },
+      accent: '#fbbf24'
+    }
+  };
+
+  const RoundBossEngine = {
+    getSpec(roundNum, mode) {
+      const r = Math.max(1, roundNum | 0);
+      const base = ROUND_BOSS_SPECS[Math.min(5, r)] || ROUND_BOSS_SPECS[5];
+      const extraRounds = Math.max(0, r - 5);
+      const mKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
+      return {
+        round: r,
+        bossId: base.bossId,
+        quota: base.quota + extraRounds * 12,
+        minDurationSec: base.minDurationSec + Math.min(35, extraRounds * 8),
+        maxHp: base.baseHp + extraRounds * 70,
+        drawW: base.drawW,
+        hitR: base.hitR,
+        pylonCount: base.pylonCount,
+        name: extraRounds > 0 ? `${base.names[mKey]} MK.${extraRounds + 1}` : base.names[mKey],
+        subtitle: extraRounds > 0 ? `ENDLESS APEX SOVEREIGN · ROUND ${r} BOSS` : base.subtitle,
+        accent: base.accent
+      };
+    },
+
+    reset(now) {
+      state.currentRound = 1;
+      state.roundPhase = 'gauntlet'; // 'gauntlet' | 'warning' | 'boss' | 'cleared'
+      state.roundNodesCaught = 0;
+      const spec = this.getSpec(1, state.catcherType);
+      state.roundQuota = spec.quota;
+      state.roundGauntletMs = 0;
+      state.roundMinDurationMs = spec.minDurationSec * 1000;
+      state.roundSubWave = 1; // 1 = Vanguard (0-33%), 2 = Surge (33-66%), 3 = Apex Assault (66-100%)
+      state.roundOverchargeBonusCount = 0;
+      state.coreAmmo = 12; // Starter tactical reserve
+      // === CHANGED (v387): STEP 5 — Unlimited ammo collection (no 150 cap!) ===
+      state.maxCoreAmmo = Infinity;
+      state.globalScreenShake = 0;
+      state.maxComboReached = 1;
+      state.maxTierReached = 1;
+      state.bossesDefeated = 0;
+      state.nodesCaughtTotal = 0;
+      state.offenseMode = false;
+      state.pointerFiring = false;
+      state.touchFireHeld = false;
+      TouchFireControls.releaseAllPointers();
+      TouchFireControls.clearHeldKeys();
+      SkillSystem.reset();
+      VoidbloomEngine.reset();
+      state.lastShotTime = 0;
+      state.shotCounter = 0;
+      state.muzzleFlashUntil = 0;
+      state.playerInvulnUntil = 0;
+      state.boss = null;
+      state.bossBullets = [];
+      state.bossBeams = [];
+      state.bossShockRings = [];
+      state.playerShots = [];
+      state.bossHitSparks = [];
+      state.roundBanner = {
+        title: 'ROUND 1 · WAVE 1/3 · VANGUARD',
+        sub: `Survive 3 Waves (${spec.minDurationSec}s) & Catch ${spec.quota} Good Nodes to Challenge Boss (${spec.maxHp} HP)`,
+        color: '#38bdf8',
+        startTime: now || performance.now(),
+        duration: 2600
+      };
+    },
+
+    toggleOffense(now) {
+      if (!state.active || state.gameType === 'reflex' || state.gameType === 'math' || state.gameType === 'memory') return;
+      // === CHANGED (v385): On touch devices, firing is MANUAL ONLY via the FIRE button (no auto-fire toggle) ===
+      if (TouchFireControls.isTouch) return;
+      state.offenseMode = !state.offenseMode;
+      audio.playPhaseSwitch();
+      if (state.offenseMode && state.coreAmmo <= 0) {
+        state.floatingTexts.push({
+          x: (cachedCanvasRect.width || 800) * (state.catcherX || 0.5),
+          y: (cachedCanvasRect.height || 600) * (state.catcherY || 0.8) - 54,
+          text: '⚡ CATCH GOOD NODES TO RELOAD CANNON!',
+          color: '#fbbf24',
+          alpha: 1.0,
+          startTime: now || performance.now()
+        });
+      }
+      updateHeaderUI();
+    },
+
+    // === CHANGED (v387): STEP 5 — Unlimited ammo accumulation (no 150 cap, safe integer handling) ===
+    addAmmo(amount) {
+      const add = Number.isFinite(amount) ? Math.max(0, Math.floor(amount)) : 0;
+      const cur = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      state.coreAmmo = Math.min(Number.MAX_SAFE_INTEGER, cur + add);
+    },
+
+    onGoodNodeCaught(nodeClass, isPerfect, now, w) {
+      const isPowered = (nodeClass && nodeClass !== 'standard');
+      const gain = isPowered ? 6 : (isPerfect ? 4 : 3);
+      this.addAmmo(gain);
+      state.nodesCaughtTotal = (state.nodesCaughtTotal || 0) + 1;
+      state.maxComboReached = Math.max(state.maxComboReached || 1, state.combo || 1);
+      state.maxTierReached = Math.max(state.maxTierReached || 1, state.coreTier || 1);
+
+      if (state.roundPhase === 'gauntlet') {
+        const wasQuotaMet = (state.roundNodesCaught || 0) >= (state.roundQuota || 48);
+        state.roundNodesCaught = (state.roundNodesCaught || 0) + 1;
+
+        // If player cleared node quota ahead of the Boss approach timer, reward OVERCHARGE bonus!
+        if (wasQuotaMet && (state.roundGauntletMs || 0) < (state.roundMinDurationMs || 45000)) {
+          state.roundOverchargeBonusCount = (state.roundOverchargeBonusCount || 0) + 1;
+          state.score += 250;
+          this.addAmmo(2);
+          state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 5);
+          if (state.pulseMeter >= 100) state.isPulseReady = true;
+          state.floatingTexts.push({
+            x: (cachedCanvasRect.width || w || 800) * (state.catcherX || 0.5),
+            y: (cachedCanvasRect.height || 600) * (state.catcherY || 0.8) - 52,
+            text: '⚡ OVERCHARGE +250 · +2 AMMO',
+            color: '#fde047',
+            alpha: 1.0,
+            startTime: now || performance.now()
+          });
+        }
+
+        // Check sub-wave milestone & dual-gated Boss unlock
+        this.tickGauntletPacing(0, now, w);
+      }
+    },
+
+    tickGauntletPacing(dtMs, now, w) {
+      if (state.roundPhase !== 'gauntlet') return;
+      if (dtMs > 0) {
+        state.roundGauntletMs = (state.roundGauntletMs || 0) + dtMs;
+      }
+      const quota = Math.max(1, state.roundQuota || 48);
+      const minDur = Math.max(1, state.roundMinDurationMs || 45000);
+      const quotaPct = Math.min(1, (state.roundNodesCaught || 0) / quota);
+      const timePct = Math.min(1, (state.roundGauntletMs || 0) / minDur);
+      const effectivePct = Math.min(quotaPct, timePct);
+      const rnd = state.currentRound || 1;
+
+      // 3-Act Sub-Wave Escalation (Wave 1 Vanguard -> Wave 2 Surge -> Wave 3 Apex Assault)
+      if ((state.roundSubWave || 1) === 1 && effectivePct >= 0.333) {
+        state.roundSubWave = 2;
+        const wBonus = 500 * rnd;
+        state.score += wBonus;
+        this.addAmmo(6);
+        audio.playPhaseSwitch();
+        state.roundBanner = {
+          title: `ROUND ${rnd} · WAVE 2/3 · SURGE`,
+          sub: `+${wBonus.toLocaleString()} WAVE BONUS · +6 AMMO · HAZARD CADENCE ESCALATING!`,
+          color: '#c084fc',
+          startTime: now || performance.now(),
+          duration: 2100
+        };
+        updateHeaderUI();
+      } else if ((state.roundSubWave || 1) === 2 && effectivePct >= 0.667) {
+        state.roundSubWave = 3;
+        const wBonus = 800 * rnd;
+        state.score += wBonus;
+        this.addAmmo(8);
+        audio.playPhaseSwitch();
+        state.roundBanner = {
+          title: `ROUND ${rnd} · WAVE 3/3 · APEX ASSAULT`,
+          sub: `+${wBonus.toLocaleString()} WAVE BONUS · +8 AMMO · BOSS SIGNAL DETECTED — HOLD THE LINE!`,
+          color: '#fb923c',
+          startTime: now || performance.now(),
+          duration: 2300
+        };
+        updateHeaderUI();
+      }
+
+      // Dual-Gated Boss Arrival: Requires BOTH Good-Node Quota AND Minimum Gauntlet Time!
+      if ((state.roundNodesCaught || 0) >= quota && (state.roundGauntletMs || 0) >= minDur) {
+        this.startBossWarning(now, w);
+      }
+    },
+
+    startBossWarning(now, w) {
+      const spec = this.getSpec(state.currentRound, state.catcherType);
+      state.roundPhase = 'warning';
+      state.bossWarningUntil = now + 2300;
+      // === CHANGED (v389): Keep all existing bad nodes, powered hazards, lasers & shockwaves alive when Boss arrives! ===
+      const ars = getRealmArsenal(state.catcherType);
+      state.roundBanner = {
+        title: `⚠ WARNING · ROUND ${spec.round} BOSS`,
+        // === CHANGED (v392): Per-realm skill prompts for touch vs desktop ===
+        sub: TouchFireControls.isTouch
+          ? `${spec.name} · ${spec.maxHp} HP — HOLD ${ars.gun} · TAP SKILLS`
+          : `${spec.name} · ${spec.maxHp} HP — Hold Click/[F]/[A] · [S] ${ars.skill2} · [D] ${ars.ult}`,
+        color: '#f43f5e',
+        startTime: now,
+        duration: 2300
+      };
+      audio.playBossWarningSiren();
+      updateHeaderUI();
+    },
+
+    spawnBoss(roundNum, now, w, h, skipIntro = false) {
+      const mode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+      const spec = this.getSpec(roundNum, mode);
+      const isMob = w < 600;
+      const scaleM = isMob ? 0.72 : 1.0;
+      const targetY = Math.max(122, Math.min(195, h * 0.21));
+
+      const boss = {
+        round: spec.round,
+        bossId: spec.bossId,
+        name: spec.name,
+        subtitle: spec.subtitle,
+        accent: spec.accent,
+        mode: mode,
+        x: w * 0.5,
+        prevX: w * 0.5,
+        y: skipIntro ? targetY : -140,
+        targetY: targetY,
+        vx: 0,
+        bankAngle: 0,
+        drawW: spec.drawW * scaleM,
+        hitR: spec.hitR * scaleM,
+        hp: spec.maxHp,
+        maxHp: spec.maxHp,
+        phase: skipIntro ? 'fighting' : 'entering', // 'entering' | 'fighting' | 'defeated'
+        enraged: false,
+        finalEclipse: false,
+        enterStart: now,
+        hitFlashUntil: 0,
+        armorBreakUntil: 0,
+        recoilY: 0,
+        movePhase: 0,
+        nextAttackAt: now + (skipIntro ? 900 : 1900),
+        nextSupplyAt: now + 2800,
+        // === CHANGED (v389): Boss active Powered Bad Node production timer & wing-emitter flare ===
+        nextHazardAt: now + (skipIntro ? 1800 : 3200),
+        emitterFlashUntil: 0,
+        emitterFlashX: 0,
+        emitterSide: 1,
+        bossHazardsDeployed: 0,
+        spiralAngle: 0,
+        attackStep: 0,
+        dashState: null,
+        pylons: [],
+        pylonsSpawnedP2: false
+      };
+
+      // Round 3 starts with 2 Orbiting Shield Pylons immediately!
+      if (spec.bossId === 3 && spec.pylonCount > 0) {
+        this._spawnPylons(boss, spec.pylonCount, 12 + (spec.round - 3) * 3);
+      }
+
+      state.boss = boss;
+      state.roundPhase = 'boss';
+      state.bossBullets = [];
+      state.bossBeams = [];
+      state.bossShockRings = [];
+      updateHeaderUI();
+    },
+
+    _spawnPylons(boss, count, hpEach) {
+      boss.pylons = [];
+      const orbitR = boss.hitR * 1.66;
+      for (let i = 0; i < count; i++) {
+        boss.pylons.push({
+          angle: (i * Math.PI * 2) / count,
+          orbitR: orbitR,
+          x: boss.x + Math.cos((i * Math.PI * 2) / count) * orbitR,
+          y: boss.y + Math.sin((i * Math.PI * 2) / count) * (orbitR * 0.65),
+          hp: hpEach,
+          maxHp: hpEach,
+          hitFlashUntil: 0
+        });
+      }
+    },
+
+    _spawnHitSparks(x, y, color, count = 5) {
+      if (!state.bossHitSparks) state.bossHitSparks = [];
+      for (let i = 0; i < count; i++) {
+        if (state.bossHitSparks.length >= 90) break;
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2.2 + Math.random() * 5.2;
+        state.bossHitSparks.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 2.5 + Math.random() * 3.0,
+          color: color,
+          life: 0,
+          maxLife: 16 + Math.floor(Math.random() * 12)
+        });
+      }
+    },
+
+    damagePylon(pyl, dmg, now, hx, hy) {
+      if (!pyl || pyl.hp <= 0) return;
+      pyl.hp -= dmg;
+      pyl.hitFlashUntil = now + 70;
+      this._spawnHitSparks(hx || pyl.x, hy || pyl.y, '#38bdf8', 5);
+      audio.playBossHit(false);
+      if (pyl.hp <= 0) {
+        pyl.hp = 0;
+        state.score += 800;
+        this.addAmmo(8);
+        if (state.boss) {
+          state.boss.armorBreakUntil = now + 2600;
+        }
+        this._spawnHitSparks(pyl.x, pyl.y, '#fbbf24', 16);
+        audio.playArmorBreak();
+        state.floatingTexts.push({
+          x: pyl.x, y: pyl.y - 10,
+          text: '💥 PYLON SHATTERED! ARMOR BREAK 1.5X (+8 AMMO)',
+          color: '#fbbf24',
+          alpha: 1.0,
+          startTime: now
+        });
+        updateHeaderUI();
+      }
+    },
+
+    damageBoss(rawDmg, now, isSpecial = false, hx = null, hy = null, exactDamage = false) {
+      const boss = state.boss;
+      if (!boss || boss.phase !== 'fighting') return;
+
+      const isArmorBroken = (boss.armorBreakUntil && now < boss.armorBreakUntil);
+      const tierCritChance = (state.coreTier >= 5) ? 0.30 : (state.coreTier === 4 ? 0.20 : 0.06);
+      const isCrit = exactDamage ? false : (isSpecial || isArmorBroken || (Math.random() < tierCritChance));
+      // === CHANGED (v389): Caldera Nova (exactDamage = true) deals exact certain capped damage (no crit/armor-break inflation!) ===
+      const finalDmg = exactDamage
+        ? rawDmg
+        : rawDmg * (isArmorBroken ? 1.5 : (isCrit && !isSpecial ? 1.5 : 1.0));
+      boss.hp = Math.max(0, boss.hp - finalDmg);
+      boss.hitFlashUntil = now + (exactDamage ? 180 : 68);
+      boss.recoilY = Math.max(-12, boss.recoilY - (exactDamage ? 7.5 : 3.8));
+
+      const hitX = hx !== null ? hx : boss.x;
+      const hitY = hy !== null ? hy : boss.y;
+      this._spawnHitSparks(hitX, hitY, (exactDamage || isCrit) ? '#fde047' : '#38bdf8', exactDamage ? 14 : (isCrit ? 6 : 3));
+      audio.playBossHit(exactDamage || isCrit);
+
+      // Award crisp score tick per hit
+      state.score += Math.round(finalDmg * 45);
+      if (exactDamage || isCrit || isSpecial) {
+        state.floatingTexts.push({
+          x: hitX + (Math.random() - 0.5) * 26,
+          y: hitY - 14,
+          text: exactDamage ? `☄️ NOVA -${Math.round(finalDmg)} HP` : (isSpecial ? `⚡ -${Math.round(finalDmg)} BLAST!` : `CRIT -${finalDmg.toFixed(1)}`),
+          color: '#fde047',
+          alpha: 1.0,
+          startTime: now
+        });
+      }
+
+      // Check Phase 2 Enrage (<50% HP) & Phase 3 Final Eclipse (<33% HP on Round 5+)
+      const hpRatio = boss.hp / boss.maxHp;
+      if (!boss.enraged && hpRatio <= 0.50 && boss.hp > 0) {
+        boss.enraged = true;
+        boss.hitFlashUntil = now + 220;
+        audio.playHyperCometRoar();
+        state.floatingTexts.push({
+          x: boss.x, y: boss.y + boss.hitR * 0.55,
+          text: '🔥 PHASE 2 ENRAGE!',
+          color: '#f43f5e',
+          alpha: 1.0,
+          startTime: now
+        });
+        if ((boss.bossId === 4 || boss.bossId === 5) && !boss.pylonsSpawnedP2) {
+          boss.pylonsSpawnedP2 = true;
+          this._spawnPylons(boss, boss.bossId === 5 ? 3 : 2, 14 + (boss.round - 4) * 3);
+        }
+      }
+      if (boss.bossId === 5 && !boss.finalEclipse && hpRatio <= 0.33 && boss.hp > 0) {
+        boss.finalEclipse = true;
+        audio.playTier5Ascension();
+        state.floatingTexts.push({
+          x: boss.x, y: boss.y + boss.hitR * 0.72,
+          text: '☄️ PHASE 3 · FINAL ECLIPSE!',
+          color: '#fbbf24',
+          alpha: 1.0,
+          startTime: now
+        });
+      }
+
+      // Check Boss Defeat!
+      if (boss.hp <= 0) {
+        this.defeatBoss(now);
+      }
+    },
+
+    defeatBoss(now) {
+      const boss = state.boss;
+      if (!boss || boss.phase === 'defeated') return;
+      boss.phase = 'defeated';
+      boss.defeatedAt = now;
+      state.bossBullets = [];
+      state.bossBeams = [];
+      state.bossShockRings = [];
+
+      const roundBonus = 5000 * boss.round;
+      state.score += roundBonus;
+      state.bossesDefeated = (state.bossesDefeated || 0) + 1;
+      const prevLives = state.reflexLives;
+      state.reflexLives = Math.min(3, state.reflexLives + 1);
+      renderReflexShields();
+      state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 25);
+      if (state.pulseMeter >= 100) state.isPulseReady = true;
+      this.addAmmo(15);
+
+      // Massive Supernova Shatter Burst (36 Shards)
+      if (!state.vaporizedShards) state.vaporizedShards = [];
+      for (let i = 0; i < 36; i++) {
+        const ang = (i / 36) * Math.PI * 2 + Math.random() * 0.2;
+        const spd = 4.5 + Math.random() * 10.5;
+        state.vaporizedShards.push({
+          x: boss.x, y: boss.y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          size: 3.5 + Math.random() * 4.5,
+          color: (i % 3 === 0) ? '#fde047' : (i % 3 === 1 ? '#f43f5e' : '#38bdf8'),
+          life: 0,
+          maxLife: 34 + Math.floor(Math.random() * 20)
+        });
+      }
+      state.bossShockRings.push({ x: boss.x, y: boss.y, r: 16, maxR: 340, alpha: 1.0, color: '#fde047', harmless: true });
+      state.bossShockRings.push({ x: boss.x, y: boss.y, r: 8, maxR: 250, alpha: 0.9, color: '#38bdf8', harmless: true });
+
+      audio.playBossDefeated();
+      state.roundPhase = 'cleared';
+      state.nextRoundAt = now + 2700;
+      const lifeTxt = state.reflexLives > prevLives ? ' · +1 SHIELD' : '';
+      state.roundBanner = {
+        title: `⭐ ROUND ${boss.round} CLEARED!`,
+        sub: `+${roundBonus.toLocaleString()} BONUS${lifeTxt} · +15 AMMO → ADVANCING TO ROUND ${boss.round + 1}`,
+        color: '#34d399',
+        startTime: now,
+        duration: 2700
+      };
+      updateHeaderUI();
+    },
+
+    // ─── CHROME CORE OFFENSE WEAPON: ADAPTABLE TIER I–V ARTILLERY CANNON ───
+    updateAndDrawPlayerWeapon(ctx, cx, cy, u, dtScale, now, w, h) {
+      const mode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+      // === CHANGED (v387): Multi-touch GUN role + Desktop [A] hold (FIRE_DELAY=120ms) + untouched click/[F] ===
+      const isTouchMode = TouchFireControls.isTouch;
+      const isGunTouchHeld = isTouchMode && TouchFireControls.isGunHeld();
+      const isKeyAHeld = TouchFireControls.isDesktopKeyGunHeld();
+      const isFiringActive = isTouchMode
+        ? isGunTouchHeld
+        : !!(state.offenseMode || state.pointerFiring || isKeyAHeld);
+
+      // Flash red when holding gun at 0 ammo WITHOUT dropping the held touch pointer!
+      if ((isGunTouchHeld || isKeyAHeld) && (state.coreAmmo || 0) <= 0) {
+        TouchFireControls.flashEmpty();
+      }
+
+      const wantsFire = isFiringActive && (state.coreAmmo || 0) > 0 && state.roundPhase !== 'cleared';
+      const tier = state.coreTier || 1;
+      const cTier = (CoreKinematics && CoreKinematics.continuousTier !== undefined) ? CoreKinematics.continuousTier : tier;
+      const fireInterval = (isTouchMode || isKeyAHeld)
+        ? FIRE_DELAY
+        : ((tier >= 5) ? 88 : (tier === 4 ? 98 : (tier >= 2 ? 108 : 122)));
+
+      // Top bezel clearance radius per mode: Dynamo's jeweled crown reaches -85*u; Helix/Meteor spheres reach -68*u
+      const coreCrownY = (mode === 'dynamo') ? (-86 * u) : (-69 * u);
+      const wingMuzzleX = (tier === 2) ? (76 * u) : (tier === 3 ? (92 * u) : (tier === 4 ? (112 * u) : (126 * u)));
+      const wingMuzzleY = -58 * u;
+
+      if (wantsFire && (now - (state.lastShotTime || 0)) >= fireInterval) {
+        state.lastShotTime = now;
+        state.coreAmmo = Math.max(0, (Number.isFinite(state.coreAmmo) ? Math.floor(state.coreAmmo) : 0) - CONFIG.gun.ammoPerShot);
+        state.shotCounter = (state.shotCounter || 0) + 1;
+        state.muzzleFlashUntil = now + 65;
+        audio.playCoreCannonShot(mode, tier);
+
+        const muzzleY = cy + coreCrownY - 12 * u;
+        const speed = (mode === 'dynamo') ? 21.5 : (mode === 'helix' ? 19.2 : 17.8);
+        const pushShot = (ox, oy, vx, dmg, heavy, phaseOff = 0) => {
+          if (state.playerShots.length >= 64) state.playerShots.shift();
+          state.playerShots.push({
+            x: cx + ox,
+            y: cy + oy,
+            vx: vx,
+            vy: -speed,
+            dmg: dmg,
+            mode: mode,
+            heavy: heavy,
+            bornAt: now,
+            phase: phaseOff + state.shotCounter * 0.7,
+            isFifth: (state.shotCounter % 5 === 0)
+          });
+        };
+
+        const centerTipOy = coreCrownY - 14 * u;
+        const flankTipOy = wingMuzzleY - 12 * u;
+
+        if (tier <= 1) {
+          pushShot(0, centerTipOy, 0, 1.0, true, 0);
+        } else if (tier <= 3) {
+          pushShot(-wingMuzzleX, flankTipOy, 0, 0.58, true, 0);
+          pushShot(wingMuzzleX, flankTipOy, 0, 0.58, true, Math.PI);
+        } else if (tier === 4) {
+          pushShot(0, centerTipOy, 0, 0.75, true, 0);
+          pushShot(-wingMuzzleX, flankTipOy, -1.15, 0.32, false, 1.0);
+          pushShot(wingMuzzleX, flankTipOy, 1.15, 0.32, false, 2.0);
+        } else {
+          pushShot(-16 * u, centerTipOy, 0, 0.56, true, 0);
+          pushShot(16 * u, centerTipOy, 0, 0.56, true, Math.PI);
+          pushShot(-wingMuzzleX, flankTipOy, -1.55, 0.26, false, 1.2);
+          pushShot(wingMuzzleX, flankTipOy, 1.55, 0.26, false, 2.4);
+        }
+        // === CHANGED (v387): At 0 ammo, stop shots and flash button red (keep pointer tracked if still physically held!) ===
+        if ((isTouchMode || isKeyAHeld) && state.coreAmmo <= 0) {
+          TouchFireControls.flashEmpty();
+        }
+        updateHeaderUI();
+      }
+
+      // ─────────────────────────────────────────────────────────────────────────
+      // ADAPTABLE TIER I–V CHROME CORE ARTILLERY TURRETS (Rendered IN FRONT of Core & Wings!)
+      // Always visible when ammo > 0, firing, or boss active; dynamically scales & mounts across Tiers I..V!
+      // Strict zero outer bloom: uses crisp metallic barrels, material highlights, and sharp unblurred muzzle shocks.
+      // ─────────────────────────────────────────────────────────────────────────
+      const hasAmmo = (state.coreAmmo || 0) > 0;
+      const showTurrets = isFiringActive || hasAmmo || (state.boss && state.boss.phase !== 'defeated');
+      if (showTurrets) {
+        const arcR = ((mode === 'dynamo') ? 76 : 70) * u;
+        const ammoFrac = Math.min(1, (state.coreAmmo || 0) / 150);
+        const lowAmmo = (state.coreAmmo || 0) < 6;
+        const gaugeCol = lowAmmo ? '#f43f5e' : (mode === 'meteor' ? '#fb923c' : (mode === 'helix' ? '#22d3ee' : '#38bdf8'));
+        const isHot = isFiringActive || (state.muzzleFlashUntil && now < state.muzzleFlashUntil + 140);
+        const mfActive = Boolean(state.muzzleFlashUntil && now < state.muzzleFlashUntil);
+        const mfT = mfActive ? Math.max(0, (state.muzzleFlashUntil - now) / 65) : 0;
+        const recoilY = mfActive ? (mfT * 4.5 * u) : 0;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        const bankAngle = (CoreKinematics && CoreKinematics.bodyBank) ? (CoreKinematics.bodyBank * 0.45) : 0;
+        ctx.rotate(bankAngle);
+
+        // Lower Hemisphere Crisp Unblurred Ammo Track (only when firing or low ammo or boss active)
+        if (isFiringActive || (state.boss && state.boss.phase !== 'defeated')) {
+          const startA = Math.PI * 0.24;
+          const endA = Math.PI * 0.76;
+          ctx.beginPath();
+          ctx.arc(0, 0, arcR, startA, endA);
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.24)';
+          ctx.lineWidth = Math.max(1.8, 2.8 * u);
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          if (ammoFrac > 0.005) {
+            ctx.beginPath();
+            ctx.arc(0, 0, arcR, startA, startA + (endA - startA) * ammoFrac);
+            ctx.strokeStyle = gaugeCol;
+            ctx.lineWidth = Math.max(2.0, 3.2 * u);
+            ctx.stroke();
+          }
+        }
+
+        // Helper to draw a single material-authentic artillery barrel at (bx, by) with scale bScale
+        const drawMaterialTurret = (bx, by, bScale, isCenterMount) => {
+          ctx.save();
+          ctx.translate(bx, by + recoilY);
+          ctx.scale(bScale, bScale);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+
+          if (mode === 'dynamo') {
+            // DYNAMO TESLA RAILGUN: Brushed Gold Bezel Mount + Twin Converging Faraday Rails + Sapphire/Cyan Capacitor Core
+            // 1. Dark bronze-gold armored housing base
+            ctx.fillStyle = '#451a03';
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = Math.max(1.2, 1.8 * u);
+            ctx.beginPath();
+            ctx.moveTo(-13 * u, 4 * u);
+            ctx.lineTo(-9 * u, -10 * u);
+            ctx.lineTo(9 * u, -10 * u);
+            ctx.lineTo(13 * u, 4 * u);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 2. Twin converging high-voltage rail prongs
+            ctx.strokeStyle = '#92400e';
+            ctx.lineWidth = Math.max(2.6, 4.2 * u);
+            ctx.beginPath();
+            ctx.moveTo(-10 * u, -6 * u);
+            ctx.lineTo(-7.5 * u, -28 * u);
+            ctx.moveTo(10 * u, -6 * u);
+            ctx.lineTo(7.5 * u, -28 * u);
+            ctx.stroke();
+
+            // Metallic gold specular ridge along each rail
+            ctx.strokeStyle = '#fde047';
+            ctx.lineWidth = Math.max(1.3, 2.0 * u);
+            ctx.beginPath();
+            ctx.moveTo(-10 * u, -6 * u);
+            ctx.lineTo(-7.5 * u, -28 * u);
+            ctx.moveTo(10 * u, -6 * u);
+            ctx.lineTo(7.5 * u, -28 * u);
+            ctx.stroke();
+
+            // Inner cyan plasma conductor channel along rails
+            ctx.strokeStyle = lowAmmo ? '#f43f5e' : '#38bdf8';
+            ctx.lineWidth = Math.max(1.1, 1.5 * u);
+            ctx.beginPath();
+            ctx.moveTo(-7.2 * u, -8 * u);
+            ctx.lineTo(-5.5 * u, -26 * u);
+            ctx.moveTo(7.2 * u, -8 * u);
+            ctx.lineTo(5.5 * u, -26 * u);
+            ctx.stroke();
+
+            // Capacitor tips
+            ctx.fillStyle = lowAmmo ? '#f43f5e' : '#e0f2fe';
+            ctx.beginPath();
+            ctx.arc(-7.5 * u, -28 * u, 2.4 * u, 0, Math.PI * 2);
+            ctx.arc(7.5 * u, -28 * u, 2.4 * u, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Crisp live zig-zag arc between rail tips when active/loaded
+            if (isHot || hasAmmo) {
+              ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.9)' : (isHot ? '#ffffff' : 'rgba(125, 211, 252, 0.85)');
+              ctx.lineWidth = Math.max(1.1, (isHot ? 1.8 : 1.2) * u);
+              ctx.beginPath();
+              ctx.moveTo(-7.5 * u, -26 * u);
+              for (let seg = 1; seg <= 3; seg++) {
+                const frac = seg / 4;
+                const ax = (-7.5 + 15 * frac) * u;
+                const ay = -26 * u + Math.sin(now * 0.075 + seg * 2.7 + bx) * 3.5 * u;
+                ctx.lineTo(ax, ay);
+              }
+              ctx.lineTo(7.5 * u, -26 * u);
+              ctx.stroke();
+            }
+
+            // Sharp unblurred diamond shock-flash on shot
+            if (mfActive) {
+              const dr = 16 * u * (1.15 - mfT * 0.25);
+              ctx.strokeStyle = `rgba(224, 242, 254, ${0.92 * mfT})`;
+              ctx.lineWidth = Math.max(1.4, 2.0 * u);
+              ctx.beginPath();
+              ctx.moveTo(0, -28 * u - dr * 0.75);
+              ctx.lineTo(dr, -28 * u);
+              ctx.lineTo(0, -28 * u + dr * 0.75);
+              ctx.lineTo(-dr, -28 * u);
+              ctx.closePath();
+              ctx.stroke();
+            }
+
+          } else if (mode === 'helix') {
+            // HELIX CASTER: Stepped Silver-Chrome Prismatic Barrel + Rotating Hexagonal Crystal Emitter
+            // 1. Stepped chrome collar mount
+            ctx.fillStyle = '#0f172a';
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = Math.max(1.2, 1.8 * u);
+            ctx.beginPath();
+            ctx.moveTo(-12 * u, 4 * u);
+            ctx.lineTo(-8 * u, -12 * u);
+            ctx.lineTo(8 * u, -12 * u);
+            ctx.lineTo(12 * u, 4 * u);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 2. Twin silver-chrome prism guide fins
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = Math.max(2.0, 3.0 * u);
+            ctx.beginPath();
+            ctx.moveTo(-9 * u, -6 * u);
+            ctx.lineTo(-6.5 * u, -25 * u);
+            ctx.moveTo(9 * u, -6 * u);
+            ctx.lineTo(6.5 * u, -25 * u);
+            ctx.stroke();
+
+            // Cyan & magenta chiral inner refractive edges
+            ctx.strokeStyle = lowAmmo ? '#f43f5e' : '#22d3ee';
+            ctx.lineWidth = Math.max(1.1, 1.5 * u);
+            ctx.beginPath();
+            ctx.moveTo(-6.8 * u, -8 * u);
+            ctx.lineTo(-4.8 * u, -24 * u);
+            ctx.stroke();
+
+            ctx.strokeStyle = lowAmmo ? '#f43f5e' : '#ec4899';
+            ctx.beginPath();
+            ctx.moveTo(6.8 * u, -8 * u);
+            ctx.lineTo(4.8 * u, -24 * u);
+            ctx.stroke();
+
+            // Central faceted hexagonal prism crystal at muzzle (-20*u)
+            const hRot = now * (isHot ? 0.006 : 0.0025);
+            const hexR = (isCenterMount ? 9.5 : 7.5) * u;
+            ctx.save();
+            ctx.translate(0, -21 * u);
+            ctx.rotate(hRot);
+            ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.85)' : 'rgba(34, 211, 238, 0.94)';
+            ctx.lineWidth = Math.max(1.3, 1.8 * u);
+            ctx.beginPath();
+            for (let hp = 0; hp <= 6; hp++) {
+              const ha = (hp / 6) * Math.PI * 2;
+              const hx = Math.cos(ha) * hexR;
+              const hy = Math.sin(ha) * hexR * 0.65;
+              if (hp === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            // Crisp unblurred dual elliptical refraction ring on shot
+            if (mfActive) {
+              ctx.strokeStyle = `rgba(34, 211, 238, ${0.90 * mfT})`;
+              ctx.lineWidth = Math.max(1.3, 1.9 * u);
+              ctx.beginPath();
+              ctx.ellipse(0, -26 * u, 16 * u * (1.2 - mfT * 0.25), 5.5 * u, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+
+          } else {
+            // METEOR EMBER CANNON: Forged Bronze-Gold Caldera Maw + Curved Volcanic Tusks + Incandescent Breach
+            // 1. Dark basalt-bronze breach block
+            ctx.fillStyle = '#271206';
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = Math.max(1.3, 1.9 * u);
+            ctx.beginPath();
+            ctx.moveTo(-14 * u, 5 * u);
+            ctx.lineTo(-10 * u, -10 * u);
+            ctx.lineTo(10 * u, -10 * u);
+            ctx.lineTo(14 * u, 5 * u);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 2. Twin curved bronze-gold volcanic artillery tusks
+            [-1, 1].forEach((side) => {
+              ctx.strokeStyle = '#78350f';
+              ctx.lineWidth = Math.max(2.8, 4.4 * u);
+              ctx.beginPath();
+              ctx.moveTo(side * 11 * u, -4 * u);
+              ctx.quadraticCurveTo(side * 13 * u, -18 * u, side * 7 * u, -27 * u);
+              ctx.stroke();
+
+              ctx.strokeStyle = lowAmmo ? '#f43f5e' : '#fbbf24';
+              ctx.lineWidth = Math.max(1.4, 2.2 * u);
+              ctx.beginPath();
+              ctx.moveTo(side * 11 * u, -4 * u);
+              ctx.quadraticCurveTo(side * 13 * u, -18 * u, side * 7 * u, -27 * u);
+              ctx.stroke();
+            });
+
+            // 3. Incandescent molten chamber core inside the tusks
+            ctx.fillStyle = lowAmmo ? '#f43f5e' : '#ea580c';
+            ctx.beginPath();
+            ctx.arc(0, -14 * u, 5.2 * u, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = lowAmmo ? '#fecdd3' : '#fef08a';
+            ctx.beginPath();
+            ctx.arc(0, -14 * u, 2.8 * u, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Crisp unblurred compression ring on shot
+            if (mfActive) {
+              ctx.strokeStyle = `rgba(254, 240, 138, ${0.92 * mfT})`;
+              ctx.lineWidth = Math.max(1.4, 2.1 * u);
+              ctx.beginPath();
+              ctx.ellipse(0, -27 * u, 16 * u * (1.2 - mfT * 0.25), 6 * u, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          }
+
+          ctx.restore();
+        };
+
+        // Mount Configuration Adaptable to Tiers I through V:
+        // - Tier I: Primary forward crown turret at (0, coreCrownY)
+        // - Tiers II & III: Primary forward crown turret + Twin wing-shoulder artillery turrets at (±wingMuzzleX, wingMuzzleY)
+        // - Tier IV: Heavy forward crown turret + Twin broader wing-collar artillery turrets at (±wingMuzzleX, wingMuzzleY)
+        // - Tier V: Twin crown dual-linked turrets (±15*u, coreCrownY) + Twin outer wing-collar turrets (±wingMuzzleX, wingMuzzleY)
+        if (tier <= 1) {
+          drawMaterialTurret(0, coreCrownY, 1.0, true);
+        } else if (tier <= 3) {
+          drawMaterialTurret(0, coreCrownY, 0.92, true);
+          drawMaterialTurret(-wingMuzzleX, wingMuzzleY, 0.86, false);
+          drawMaterialTurret(wingMuzzleX, wingMuzzleY, 0.86, false);
+        } else if (tier === 4) {
+          drawMaterialTurret(0, coreCrownY, 1.05, true);
+          drawMaterialTurret(-wingMuzzleX, wingMuzzleY, 0.94, false);
+          drawMaterialTurret(wingMuzzleX, wingMuzzleY, 0.94, false);
+        } else {
+          drawMaterialTurret(-15 * u, coreCrownY + 2 * u, 0.92, true);
+          drawMaterialTurret(15 * u, coreCrownY + 2 * u, 0.92, true);
+          drawMaterialTurret(-wingMuzzleX, wingMuzzleY, 0.98, false);
+          drawMaterialTurret(wingMuzzleX, wingMuzzleY, 0.98, false);
+        }
+
+        ctx.restore();
+      }
+
+      // Update & Render All Player Accumulated-Node Bolts (Zero shadowBlur, Pure GPU Blits!)
+      if (!state.playerShots || state.playerShots.length === 0) return;
+      const boss = state.boss;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = state.playerShots.length - 1; i >= 0; i--) {
+        const s = state.playerShots[i];
+        s.x += s.vx * dtScale;
+        s.y += s.vy * dtScale;
+
+        if (s.y < -60 || s.x < -60 || s.x > w + 60) {
+          state.playerShots.splice(i, 1);
+          continue;
+        }
+
+        let consumed = false;
+
+        // 1. Check Hit on Boss Shield Pylons First (generous radius matching bigger 3D plasma shells!)
+        if (boss && boss.phase === 'fighting' && boss.pylons && boss.pylons.length > 0) {
+          for (let pIdx = 0; pIdx < boss.pylons.length; pIdx++) {
+            const pyl = boss.pylons[pIdx];
+            if (pyl.hp > 0 && Math.hypot(s.x - pyl.x, s.y - pyl.y) < 34) {
+              this.damagePylon(pyl, s.dmg, now, s.x, s.y);
+              consumed = true;
+              break;
+            }
+          }
+        }
+
+        // 2. Check Hit on Active Boss Body
+        if (!consumed && boss && boss.phase === 'fighting') {
+          const dx = s.x - boss.x;
+          const dy = s.y - boss.y;
+          // Elliptical hitbox matching wide winged bosses cleanly
+          const rx = boss.hitR * 1.22;
+          const ry = boss.hitR * 0.86;
+          if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1.0) {
+            this.damageBoss(s.dmg, now, false, s.x, s.y);
+            // Meteor Mass-Driver splash nudges nearby Pylon if close
+            if (s.mode === 'meteor' && boss.pylons) {
+              for (let pIdx = 0; pIdx < boss.pylons.length; pIdx++) {
+                const pyl = boss.pylons[pIdx];
+                if (pyl.hp > 0 && Math.hypot(s.x - pyl.x, s.y - pyl.y) < 75) {
+                  this.damagePylon(pyl, 0.35, now, pyl.x, pyl.y);
+                }
+              }
+            }
+            consumed = true;
+          }
+        }
+
+        // 2.5. === CHANGED (v387): Check Hit on Hostile Voidbloom Nodes ===
+        if (!consumed && VoidbloomEngine.hitByShot(s.x, s.y, s.dmg, now, 'shot')) {
+          consumed = true;
+        }
+
+        // 3. Tactical Defense: Bolts Shatter Falling Bad Nodes (NEVER Harm Good Nodes!)
+        if (!consumed && state.particles.length > 0) {
+          for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+            const pt = state.particles[pIdx];
+            if (!isHazardNode(pt.nodeClass)) continue;
+            const hr = (pt.headR || 28) + 16;
+            if (Math.hypot(s.x - pt.x, s.y - pt.y) < hr) {
+              if (pt.shotHp === undefined) {
+                pt.shotHp = (pt.nodeClass === 'volatile') ? 3 : 5;
+              }
+              pt.shotHp -= s.dmg;
+              this._spawnHitSparks(s.x, s.y, '#fbbf24', 5);
+              consumed = true;
+              if (pt.shotHp <= 0) {
+                state.score += 250;
+                this._spawnHitSparks(pt.x, pt.y, '#fbbf24', 12);
+                audio.playMissileHit();
+                state.floatingTexts.push({
+                  x: pt.x, y: pt.y - 10,
+                  text: '💥 HAZARD SHATTERED +250',
+                  color: '#38bdf8',
+                  alpha: 1.0,
+                  startTime: now
+                });
+                state.particles.splice(pIdx, 1);
+                SkillSystem.onEnemyDestroyed();
+                updateHeaderUI();
+              } else {
+                audio.playBossHit(false);
+              }
+              break;
+            }
+          }
+        }
+
+        if (consumed) {
+          // === CHANGED (v392): Per-Realm 5th-Shot Overcharged Super-Round Impact Signatures ===
+          if (s.isFifth) {
+            if (s.mode === 'helix') {
+              this._spawnHitSparks(s.x, s.y, '#ec4899', 6);
+              this._spawnHitSparks(s.x, s.y, '#22d3ee', 6);
+              if (state.bossShockRings && state.bossShockRings.length < 18) {
+                state.bossShockRings.push({ x: s.x, y: s.y, r: 6, maxR: 46, alpha: 0.88, speed: 4.5, color: '#e879f9', harmless: true });
+              }
+            } else if (s.mode === 'meteor') {
+              this._spawnHitSparks(s.x, s.y, '#fde047', 8);
+              this._spawnHitSparks(s.x, s.y, '#f97316', 6);
+              if (state.bossShockRings && state.bossShockRings.length < 18) {
+                state.bossShockRings.push({ x: s.x, y: s.y, r: 8, maxR: 54, alpha: 0.90, speed: 4.8, color: '#f97316', harmless: true });
+              }
+            } else {
+              this._spawnHitSparks(s.x, s.y, '#a78bfa', 10);
+              if (state.bossShockRings && state.bossShockRings.length < 18) {
+                state.bossShockRings.push({ x: s.x, y: s.y, r: 6, maxR: 48, alpha: 0.88, speed: 5.2, color: '#38bdf8', harmless: true });
+              }
+            }
+          }
+          state.playerShots.splice(i, 1);
+          continue;
+        }
+
+        // === CHANGED (v392): BESPOKE PRIMARY GUN PROJECTILES PER CHROME CORE ===
+        const bMode = (s.mode === 'helix') ? 'helix' : (s.mode === 'meteor' ? 'meteor' : 'dynamo');
+        const bImg = VfxUltraAssets.gunBolt[bMode];
+        const bReady = VfxUltraAssets.loaded.gunBolt[bMode] && bImg && bImg.naturalWidth > 0;
+        const bAng = Math.atan2(s.vy, s.vx) + Math.PI * 0.5;
+        const isSuper = Boolean(s.isFifth);
+        const bw = isSuper ? 62 : (s.heavy ? 52 : 42);
+        const bh = isSuper ? 98 : (s.heavy ? 82 : 66);
+
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate(bAng);
+
+        if (bMode === 'helix') {
+          // HELIX CASTER: Intertwining Live Double-Helix Wave Projectile + Spinning 3D Faceted Diamond Warhead (Zero outer glow halo!)
+          const waveAmp = isSuper ? 11.5 : (s.heavy ? 9.0 : 7.0);
+          const segs = 7;
+          const yBot = bh * 0.44;
+          const yTop = -bh * 0.30;
+          const ptsA = [];
+          const ptsB = [];
+          for (let seg = 0; seg <= segs; seg++) {
+            const frac = seg / segs;
+            const py = yBot + (yTop - yBot) * frac;
+            const osc = Math.sin(now * 0.028 + s.phase + seg * 0.85) * waveAmp * (1.0 - frac * 0.25);
+            ptsA.push({ x: osc, y: py });
+            ptsB.push({ x: -osc, y: py });
+          }
+
+          // 3 glowing base-pair rungs connecting the two waves
+          ctx.strokeStyle = 'rgba(240, 253, 250, 0.85)';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          [1, 3, 5].forEach((idx) => {
+            ctx.moveTo(ptsA[idx].x, ptsA[idx].y);
+            ctx.lineTo(ptsB[idx].x, ptsB[idx].y);
+          });
+          ctx.stroke();
+
+          // Strand A (Neon Magenta) & Strand B (Aqua Cyan)
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = 'rgba(244, 114, 182, 0.96)';
+          ctx.lineWidth = isSuper ? 3.8 : 2.8;
+          ctx.beginPath();
+          ctx.moveTo(ptsA[0].x, ptsA[0].y);
+          for (let k = 1; k < ptsA.length; k++) ctx.lineTo(ptsA[k].x, ptsA[k].y);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.96)';
+          ctx.beginPath();
+          ctx.moveTo(ptsB[0].x, ptsB[0].y);
+          for (let k = 1; k < ptsB.length; k++) ctx.lineTo(ptsB[k].x, ptsB[k].y);
+          ctx.stroke();
+
+          // Crown: Spinning 3D faceted diamond crystal warhead
+          const wy = yTop - 4;
+          const wr = isSuper ? 12 : 9;
+          ctx.save();
+          ctx.translate(0, wy);
+          ctx.scale(0.85 + 0.25 * Math.cos(now * 0.02 + s.phase), 1);
+          ctx.fillStyle = '#67e8f9';
+          ctx.beginPath();
+          ctx.moveTo(0, -wr * 1.5);
+          ctx.lineTo(wr * 0.85, 0);
+          ctx.lineTo(0, wr * 0.9);
+          ctx.lineTo(-wr * 0.85, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(0, -wr * 1.1);
+          ctx.lineTo(wr * 0.38, -wr * 0.1);
+          ctx.lineTo(0, wr * 0.45);
+          ctx.lineTo(-wr * 0.38, -wr * 0.1);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+
+        } else if (bMode === 'meteor') {
+          // EMBER CANNON: Tumbling 3D Cracked Molten-Lava Fireball + Bow-Shock Crescent (Zero outer glow halo!)
+          if (bReady) {
+            ctx.globalAlpha = 0.96;
+            ctx.drawImage(bImg, -bw * 0.54, -bh * 0.34, bw * 1.08, bh * 1.12);
+          }
+
+          // Tumbling 3D cracked basalt-lava fireball core at warhead nose
+          const fbY = -bh * 0.18;
+          const fbR = isSuper ? 13 : (s.heavy ? 10.5 : 8.5);
+          ctx.save();
+          ctx.translate(0, fbY);
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.fillStyle = '#29150b';
+          ctx.beginPath();
+          ctx.arc(0, 0, fbR, 0, Math.PI * 2);
+          ctx.fill();
+          // Glowing magma fissures rotating across sphere
+          ctx.rotate(now * 0.012 + s.phase);
+          ctx.strokeStyle = '#fb923c';
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.moveTo(-fbR * 0.85, -fbR * 0.25);
+          ctx.lineTo(-fbR * 0.1, fbR * 0.2);
+          ctx.lineTo(fbR * 0.82, -fbR * 0.3);
+          ctx.moveTo(0, -fbR * 0.88);
+          ctx.lineTo(fbR * 0.15, fbR * 0.85);
+          ctx.stroke();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(0, 0, fbR * 0.42, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // Blazing parabolic bow-shock crescent ahead of the fireball nose
+          ctx.strokeStyle = 'rgba(255, 250, 220, 0.92)';
+          ctx.lineWidth = isSuper ? 3.2 : 2.3;
+          ctx.beginPath();
+          ctx.moveTo(-fbR * 1.25, fbY - fbR * 0.25);
+          ctx.quadraticCurveTo(0, fbY - fbR * 1.95, fbR * 1.25, fbY - fbR * 0.25);
+          ctx.stroke();
+
+          if (isSuper) {
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.90)';
+            ctx.lineWidth = 2.4;
+            ctx.beginPath();
+            ctx.ellipse(0, fbY, fbR * 1.65, fbR * 0.56, 0.22, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+        } else {
+          // TESLA RAILGUN (Dynamo): High-Velocity Rail Spear + Live 5-Segment Crackling Lightning Jacket (Zero outer glow halo!)
+          if (bReady) {
+            ctx.globalAlpha = 0.96;
+            ctx.drawImage(bImg, -bw * 0.5, -bh * 0.36, bw, bh);
+          } else {
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 5.5, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Live 5-segment crackling zig-zag lightning jacket wrapped from tail to spearhead
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.strokeStyle = 'rgba(125, 211, 252, 0.96)';
+          ctx.lineWidth = isSuper ? 3.0 : 2.2;
+          ctx.beginPath();
+          const zBot = bh * 0.42;
+          const zTop = -bh * 0.46;
+          ctx.moveTo(0, zBot);
+          for (let seg = 1; seg <= 4; seg++) {
+            const frac = seg / 5;
+            const py = zBot + (zTop - zBot) * frac;
+            const px = Math.sin(now * 0.09 + s.phase + seg * 2.4) * (isSuper ? 12 : 8.5);
+            ctx.lineTo(px, py);
+          }
+          ctx.lineTo(0, zTop);
+          ctx.stroke();
+
+          if (isSuper) {
+            // Secondary golden-volt overcharge arc on every 5th Super-Round!
+            ctx.strokeStyle = 'rgba(253, 224, 71, 0.95)';
+            ctx.lineWidth = 2.0;
+            ctx.beginPath();
+            ctx.moveTo(0, zBot);
+            for (let seg = 1; seg <= 4; seg++) {
+              const frac = seg / 5;
+              const py = zBot + (zTop - zBot) * frac;
+              const px = -Math.sin(now * 0.11 + s.phase + seg * 3.1) * 13;
+              ctx.lineTo(px, py);
+            }
+            ctx.lineTo(0, zTop);
+            ctx.stroke();
+          }
+
+          // Sharp white-cyan plasma spearhead tip
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(0, zTop - 4);
+          ctx.lineTo(4.5, zTop + 12);
+          ctx.lineTo(0, zTop + 8);
+          ctx.lineTo(-4.5, zTop + 12);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+      ctx.restore();
+    },
+
+    // === CHANGED (v389): BOSS ACTIVE POWERED BAD-NODE DEPLOYMENT ENGINE ===
+    // While fighting, each Sovereign Boss manufactures and launches Round-tailored
+    // Powered Bad Nodes (Hyper-Comet, Corruptor Laser, Gravity Well, EMP Detonator,
+    // Phase Stalker + Round 5+ occasional 3D Voidbloom Rift) directly from its wing emitters!
+    _spawnBossPoweredHazard(boss, now, w, h) {
+      if (!boss || boss.phase !== 'fighting' || SkillSystem.activeNova) return false;
+
+      const maxBossHazards = Math.min(4, 2 + (boss.round >= 3 ? 1 : 0) + (boss.enraged ? 1 : 0));
+      const activeHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
+      if (activeHazards >= maxBossHazards) return false;
+
+      // Alternate left / right Boss wing emitter pods
+      boss.emitterSide = -(boss.emitterSide || 1);
+      const emitterOffsetX = boss.emitterSide * boss.drawW * 0.30;
+      const launchX = Math.max(54, Math.min(w - 54, boss.x + emitterOffsetX));
+      const launchY = Math.max(88, boss.y + boss.hitR * 0.44);
+
+      boss.emitterFlashUntil = now + 560;
+      boss.emitterFlashX = emitterOffsetX;
+      boss.bossHazardsDeployed = (boss.bossHazardsDeployed || 0) + 1;
+
+      // Round 5+ Apex Boss: 22% chance to tear open a 3D Voidbloom Rift directly from its wing emitter!
+      if (boss.bossId >= 5 && Math.random() < 0.22 && (VoidbloomEngine.nodes.length + VoidbloomEngine.telegraphs.length) < CONFIG.voidbloom.maxAlive) {
+        VoidbloomEngine.scheduleTelegraph(w, h, boss.x, now, launchX);
+        this._spawnHitSparks(launchX, launchY, '#a3e635', 12);
+        state.floatingTexts.push({
+          x: launchX,
+          y: launchY + 14,
+          text: '☠ BOSS OPENED VOIDBLOOM RIFT!',
+          color: '#a3e635',
+          alpha: 1.0,
+          startTime: now
+        });
+        return true;
+      }
+
+      // Select Round-tailored Powered Bad Node class
+      const pools = {
+        1: ['hyper_comet', 'corruptor_laser'],
+        2: ['corruptor_laser', 'hyper_comet', 'gravity_well'],
+        3: ['gravity_well', 'emp_detonator', 'hyper_comet'],
+        4: ['phase_stalker', 'hyper_comet', 'emp_detonator', 'corruptor_laser'],
+        5: ['hyper_comet', 'corruptor_laser', 'gravity_well', 'emp_detonator', 'phase_stalker']
+      };
+      const pool = pools[boss.bossId] || pools[5];
+      const nClass = pool[Math.floor(Math.random() * pool.length)];
+
+      const headRadiusMap = {
+        hyper_comet: 29.0,
+        corruptor_laser: 32.0,
+        gravity_well: 33.0,
+        emp_detonator: 31.0,
+        phase_stalker: 30.0
+      };
+      const speedMultMap = {
+        hyper_comet: 1.0,
+        corruptor_laser: 0.72,
+        gravity_well: 0.78,
+        emp_detonator: 0.84,
+        phase_stalker: 0.96
+      };
+      const labelMap = {
+        hyper_comet: 'HYPER-COMET',
+        corruptor_laser: 'CORRUPTOR LASER',
+        gravity_well: 'GRAVITY WELL',
+        emp_detonator: 'EMP DETONATOR',
+        phase_stalker: 'PHASE STALKER'
+      };
+
+      const pType = (state.gameType === 'realm') ? 'dynamo' : (state.gameType || 'meteor');
+      const normFactor = Math.max(0.75, Math.min(1.45, h / 720));
+      const baseSpeed = 2.05 + (boss.round - 1) * 0.14 + (boss.enraged ? 0.25 : 0);
+      const actualSpeed = baseSpeed * normFactor;
+
+      const p = {
+        type: pType,
+        nodeClass: nClass,
+        bossSpawned: true,
+        x: launchX,
+        y: launchY,
+        vx: boss.emitterSide * 0.55,
+        speed: actualSpeed * (speedMultMap[nClass] || 0.9),
+        baseSpeed: baseSpeed,
+        headR: headRadiusMap[nClass] || 30.0,
+        hasSplit: false,
+        hasDetonated: false,
+        hasGrazed: false,
+        phantomAlpha: 1.0,
+        animPhase: Math.random() * Math.PI * 2,
+        tumbleDir: Math.random() < 0.5 ? 1 : -1,
+        cometPhase: (nClass === 'hyper_comet') ? 'charging' : null,
+        cometChargeEnd: (nClass === 'hyper_comet') ? (now + 900) : 0,
+        cometDiveSpeed: actualSpeed * 3.45,
+        flameEmbers: [],
+        laserState: 'idle',
+        laserCharge: 0,
+        laserChargeStart: 0,
+        laserTargets: [],
+        laserSalvosLeft: 2,
+        laserNextReady: now + 750,
+        empCharge: 0,
+        empNextPulse: now + 1500,
+        blinkState: 'idle',
+        blinkProgress: 0,
+        blinkStartTime: 0,
+        blinkTargetX: launchX,
+        blinkTargetY: Math.min(h * 0.45, launchY + 120),
+        blinksLeft: boss.enraged ? 2 : 1,
+        spine: [],
+        stardust: []
+      };
+      for (let j = 0; j < 8; j++) {
+        p.spine.push({ x: launchX, y: launchY - j * 8.0 });
+      }
+      state.particles.push(p);
+
+      // Visual & Audio Boss Deployment Telegraph
+      this._spawnHitSparks(launchX, launchY, boss.accent || '#f43f5e', 12);
+      if (nClass === 'hyper_comet') {
+        audio.playHyperCometRoar();
+      } else {
+        audio.playPhaseSwitch();
+      }
+      state.floatingTexts.push({
+        x: launchX,
+        y: launchY + 16,
+        text: `⚡ BOSS DEPLOYED ${labelMap[nClass] || 'POWERED HAZARD'}!`,
+        color: boss.accent || '#fb923c',
+        alpha: 1.0,
+        startTime: now
+      });
+      return true;
+    },
+
+    // ─── BOSS AI, ATTACK PATTERNS, BULLETS, BEAMS & RENDERING ───
+    updateAndDrawBossSystem(ctx, cx, cy, u, dtScale, now, w, h, spawnSupplyNodeFn) {
+      // 1. Check Transitions (Warning -> Spawn Boss; Cleared -> Advance Round!)
+      if (state.roundPhase === 'warning' && now >= (state.bossWarningUntil || 0)) {
+        this.spawnBoss(state.currentRound, now, w, h, false);
+      } else if (state.roundPhase === 'cleared' && now >= (state.nextRoundAt || 0)) {
+        state.currentRound++;
+        state.currentWave = Math.min(10, state.currentRound);
+        const nextSpec = this.getSpec(state.currentRound, state.catcherType);
+        state.roundPhase = 'gauntlet';
+        state.roundNodesCaught = 0;
+        state.roundQuota = nextSpec.quota;
+        state.roundGauntletMs = 0;
+        state.roundMinDurationMs = nextSpec.minDurationSec * 1000;
+        state.roundSubWave = 1;
+        state.roundOverchargeBonusCount = 0;
+        state.boss = null;
+        state.roundBanner = {
+          title: `ROUND ${nextSpec.round} · WAVE 1/3 · ${nextSpec.name} SECTOR`,
+          sub: `3 Escalating Waves (${nextSpec.minDurationSec}s) & ${nextSpec.quota} Nodes to Challenge Boss (${nextSpec.maxHp} HP)`,
+          color: '#c084fc',
+          startTime: now,
+          duration: 2700
+        };
+        audio.playPhaseSwitch();
+        updateHeaderUI();
+      }
+
+      const boss = state.boss;
+      const coreHitR = 46 * u;
+
+      if (boss && boss.phase !== 'defeated') {
+        // Boss Movement & Entrance
+        boss.recoilY *= 0.84;
+        if (boss.phase === 'entering') {
+          const p = Math.min(1, (now - boss.enterStart) / 1450);
+          const ease = 1 - Math.pow(1 - p, 3);
+          boss.y = -140 + (boss.targetY + 140) * ease;
+          if (p >= 1) {
+            boss.phase = 'fighting';
+            boss.nextAttackAt = now + 750;
+          }
+        } else if (boss.phase === 'fighting') {
+          const speedMult = (boss.enraged ? 1.32 : 1.0) * (1 + (boss.round - 1) * 0.08);
+          boss.movePhase += 0.015 * dtScale * speedMult;
+
+          const prevBossX = boss.x;
+          // Boss 4 Tempest Dash-Strafe Logic
+          if (boss.dashState) {
+            const ds = boss.dashState;
+            if (now < ds.telegraphEnd) {
+              // Brief pause telegraphing dash target
+            } else {
+              const dp = Math.min(1, (now - ds.telegraphEnd) / 360);
+              boss.x = ds.startX + (ds.endX - ds.startX) * (1 - Math.pow(1 - dp, 2));
+              if (dp >= 1) boss.dashState = null;
+            }
+          } else {
+            const margin = Math.max(boss.drawW * 0.52, w * 0.16);
+            const span = Math.max(40, (w - margin * 2) * 0.5);
+            boss.x = w * 0.5 + Math.sin(boss.movePhase) * span;
+            boss.y = boss.targetY + Math.sin(boss.movePhase * 1.9) * 14 + boss.recoilY;
+          }
+          // Smooth 3D Velocity-Driven Banking Tilt
+          boss.vx = boss.x - prevBossX;
+          boss.prevX = boss.x;
+          const targetBank = Math.max(-0.15, Math.min(0.15, boss.vx * 0.024));
+          boss.bankAngle = (boss.bankAngle || 0) + (targetBank - (boss.bankAngle || 0)) * Math.min(1, 0.14 * dtScale);
+
+          // Update Orbiting Shield Pylons
+          if (boss.pylons && boss.pylons.length > 0) {
+            const pSpin = (boss.enraged ? 0.026 : 0.018) * dtScale;
+            for (let i = 0; i < boss.pylons.length; i++) {
+              const pyl = boss.pylons[i];
+              if (pyl.hp <= 0) continue;
+              pyl.angle += pSpin;
+              pyl.x = boss.x + Math.cos(pyl.angle) * pyl.orbitR;
+              pyl.y = boss.y + Math.sin(pyl.angle) * (pyl.orbitR * 0.58);
+            }
+          }
+
+          // Periodic Boss-Phase Good-Node Ammo Supply Drops (Keeps Catch-to-Reload Loop Alive!)
+          if (now >= boss.nextSupplyAt && typeof spawnSupplyNodeFn === 'function') {
+            boss.nextSupplyAt = now + (state.coreAmmo < 18 ? 1900 : 3200);
+            spawnSupplyNodeFn(boss.x);
+          }
+
+          // === CHANGED (v389): Boss Actively Produces Powered Bad Nodes During Boss Combat! ===
+          if (now >= (boss.nextHazardAt || 0) && !SkillSystem.activeNova) {
+            this._spawnBossPoweredHazard(boss, now, w, h);
+            const hazInterval = boss.enraged
+              ? Math.max(2900, 4300 - boss.round * 220)
+              : Math.max(3900, 5600 - boss.round * 240);
+            boss.nextHazardAt = now + hazInterval;
+          }
+
+          // Execute Round-Specific Boss Attack Choreography (pauses cleanly during Caldera Nova eruption)
+          if (now >= boss.nextAttackAt && !SkillSystem.activeNova) {
+            this._executeBossAttack(boss, cx, cy, now, w, h);
+          }
+        }
+
+        // ─── RENDER 6-LAYER VOLUMETRIC 3D SOVEREIGN BOSS & LIVE SHADER FX (v389) ───
+        const bSpr = LayeredT4Assets.bosses[boss.bossId];
+        const bLoaded = LayeredT4Assets.loaded.bosses[boss.bossId];
+        const bossPalettes = {
+          1: { ring: 'rgba(244, 63, 94, 0.72)', ring2: 'rgba(56, 189, 248, 0.58)', core: 'crimson', thrust: '#38bdf8' },
+          2: { ring: 'rgba(232, 121, 249, 0.78)', ring2: 'rgba(250, 204, 21, 0.55)', core: 'violet', thrust: '#e879f9' },
+          3: { ring: 'rgba(251, 146, 60, 0.80)', ring2: 'rgba(253, 224, 71, 0.62)', core: 'amber', thrust: '#fb923c' },
+          4: { ring: 'rgba(249, 115, 22, 0.82)', ring2: 'rgba(254, 240, 138, 0.65)', core: 'amber', thrust: '#f97316' },
+          5: { ring: 'rgba(251, 191, 36, 0.88)', ring2: 'rgba(255, 255, 255, 0.72)', core: 'gold', thrust: '#fde047' }
+        };
+        const pal = bossPalettes[boss.bossId] || bossPalettes[1];
+        const breath = 1.0 + Math.sin(now * 0.0042) * 0.024;
+        const aspect = (bSpr && bLoaded && bSpr.naturalWidth > 0) ? (bSpr.naturalHeight / bSpr.naturalWidth) : 1.0;
+        const dw = boss.drawW * breath;
+        const dh = dw * aspect;
+        const bank = (boss.bankAngle || 0) + Math.sin(boss.movePhase) * 0.032;
+        const foreshortenX = 1.0 - Math.abs(bank) * 0.18;
+        const ringSpin = now * (boss.enraged ? 0.0032 : 0.0017);
+        const haloR = boss.drawW * (boss.enraged ? 0.58 : 0.52);
+
+        ctx.save();
+        ctx.translate(boss.x, boss.y);
+
+        // LAYER 1: Ambient Volumetric Boss Aura Glow (Pre-baked GPU Sprite!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const auraSpr = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : pal.core);
+        const aR = boss.drawW * (boss.enraged ? 0.76 : 0.64);
+        ctx.globalAlpha = boss.enraged ? (0.62 + 0.16 * Math.sin(now * 0.012)) : 0.46;
+        ctx.drawImage(auraSpr, -aR, -aR * 0.80, aR * 2, aR * 1.60);
+        ctx.restore();
+
+        // LAYER 2: Back-Plane Tilted 3D Perspective Sovereign Halo Ring (behind hull!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(bank * 0.55);
+        ctx.scale(1.0, 0.34);
+        ctx.strokeStyle = pal.ring;
+        ctx.lineWidth = boss.enraged ? 4.2 : 2.8;
+        ctx.setLineDash([28, 14]);
+        ctx.beginPath();
+        ctx.arc(0, 0, haloR, Math.PI, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = pal.ring2;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(0, 0, haloR * 0.84, Math.PI + ringSpin * 0.4, Math.PI * 2 + ringSpin * 0.4);
+        ctx.stroke();
+        ctx.restore();
+
+        // LAYER 3: Twin Live Volumetric Rear Ion Thruster Exhaust Plumes (calibrated per Boss nozzle!)
+        ctx.save();
+        ctx.rotate(bank);
+        ctx.scale(foreshortenX, 1.0);
+        ctx.globalCompositeOperation = 'lighter';
+        const thrustFlicker = 0.86 + 0.14 * Math.sin(now * 0.038) + Math.min(0.24, Math.abs(boss.vx || 0) * 0.035);
+        const plumeLen = (boss.enraged ? 38 : 26) * thrustFlicker;
+        const nozzleCfg = {
+          1: { ox: 0.145, oy: -0.42 },
+          2: { ox: 0.130, oy: -0.31 },
+          3: { ox: 0.088, oy: -0.42 },
+          4: { ox: 0.065, oy: -0.26 },
+          5: { ox: 0.135, oy: -0.24 }
+        }[boss.bossId] || { ox: 0.14, oy: -0.34 };
+        const plumeOffX = dw * nozzleCfg.ox;
+        const plumeY = dh * nozzleCfg.oy;
+        const jetGlow = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : pal.core);
+        for (let side = -1; side <= 1; side += 2) {
+          const px = side * plumeOffX;
+          ctx.save();
+          ctx.translate(px, plumeY - plumeLen * 0.35);
+          ctx.scale(0.42, 1.15);
+          ctx.globalAlpha = 0.65 * thrustFlicker;
+          ctx.drawImage(jetGlow, -plumeLen * 0.55, -plumeLen * 0.55, plumeLen * 1.1, plumeLen * 1.1);
+          ctx.restore();
+        }
+        ctx.restore();
+
+        // Armor Break Stagger Ring
+        if (boss.armorBreakUntil && now < boss.armorBreakUntil) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
+          ctx.lineWidth = 3;
+          ctx.setLineDash([10, 8]);
+          ctx.beginPath();
+          ctx.arc(0, 0, boss.hitR * 1.15, now * 0.006, now * 0.006 + Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Boss 4 Ghost Dash Telegraph Marker
+        if (boss.dashState && now < boss.dashState.telegraphEnd) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.strokeStyle = 'rgba(249, 115, 22, 0.75)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 6]);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(boss.dashState.endX - boss.x, 0);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(boss.dashState.endX - boss.x, 0, 26, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // LAYER 4: Photorealistic 3D Sculpted Sovereign Boss Model Sprite
+        ctx.save();
+        ctx.rotate(bank);
+        ctx.scale(foreshortenX, 1.0);
+        if (bSpr && bLoaded && bSpr.naturalWidth > 0) {
+          ctx.drawImage(bSpr, -dw * 0.5, -dh * 0.5, dw, dh);
+
+          // Crisp Zero-Lag Hit-Flash Overlay (Additive second pass on hit!)
+          if (now < boss.hitFlashUntil) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = 0.78;
+            ctx.drawImage(bSpr, -dw * 0.5, -dh * 0.5, dw, dh);
+            ctx.restore();
+          }
+        } else {
+          ctx.fillStyle = '#991b1b';
+          ctx.beginPath();
+          ctx.arc(0, 0, boss.hitR * 0.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // LAYER 5: Live Pulsing 3D Reactor Core Bloom (syncs with Boss Heart & Enrage!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const corePulse = 0.52 + 0.34 * Math.sin(now * (boss.enraged ? 0.014 : 0.007));
+        const coreGlow = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : pal.core);
+        const coreR = dw * (boss.bossId === 3 ? 0.24 : 0.18) * (0.92 + 0.14 * corePulse);
+        ctx.globalAlpha = corePulse * (boss.enraged ? 0.78 : 0.55);
+        ctx.drawImage(coreGlow, -coreR, -coreR, coreR * 2, coreR * 2);
+        ctx.restore();
+
+        // LAYER 6A: Wing-Emitter Charge & Deployment Flare when Boss Spawns a Powered Bad Node!
+        if (boss.emitterFlashUntil && now < boss.emitterFlashUntil) {
+          const efT = Math.max(0, (boss.emitterFlashUntil - now) / 560);
+          const ex = boss.emitterFlashX || 0;
+          const ey = boss.hitR * 0.42;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const emGlow = QuantumRenderer._getGlowSprite('gold');
+          const er = 48 * (1.35 - efT * 0.5);
+          ctx.globalAlpha = efT * 0.95;
+          ctx.drawImage(emGlow, ex - er, ey - er, er * 2, er * 2);
+          ctx.strokeStyle = `rgba(254, 240, 138, ${efT * 0.95})`;
+          ctx.lineWidth = 3.2 * efT;
+          ctx.beginPath();
+          ctx.arc(ex, ey, 14 + (1 - efT) * 34, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.restore();
+
+        // LAYER 6B: Front-Plane Tilted 3D Perspective Orbital Halo Arc (in FRONT of hull for real 3D depth!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(bank * 0.55);
+        ctx.scale(1.0, 0.34);
+        ctx.strokeStyle = pal.ring;
+        ctx.lineWidth = boss.enraged ? 4.4 : 3.0;
+        ctx.setLineDash([28, 14]);
+        ctx.beginPath();
+        ctx.arc(0, 0, haloR, 0, Math.PI);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Orbiting bright energy node bead sweeping across the front perspective plane
+        const beadAng = ringSpin % (Math.PI * 2);
+        if (beadAng >= 0 && beadAng <= Math.PI) {
+          const bx = Math.cos(beadAng) * haloR;
+          const by = Math.sin(beadAng) * haloR;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(bx, by, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+        ctx.restore();
+
+        // Render Orbiting Destructible Shield Pylons
+        if (boss.pylons && boss.pylons.length > 0) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          for (let i = 0; i < boss.pylons.length; i++) {
+            const pyl = boss.pylons[i];
+            if (pyl.hp <= 0) continue;
+            // Energy tether to Boss
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+            ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.moveTo(boss.x, boss.y);
+            ctx.lineTo(pyl.x, pyl.y);
+            ctx.stroke();
+
+            // Hexagonal Shield Pylon Node
+            const pGlow = QuantumRenderer._getGlowSprite(now < pyl.hitFlashUntil ? 'gold' : 'cyan');
+            ctx.drawImage(pGlow, pyl.x - 24, pyl.y - 24, 48, 48);
+            ctx.fillStyle = now < pyl.hitFlashUntil ? '#ffffff' : '#0f172a';
+            ctx.strokeStyle = now < pyl.hitFlashUntil ? '#fde047' : '#38bdf8';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            for (let k = 0; k < 6; k++) {
+              const a = (k * Math.PI) / 3 + now * 0.003;
+              const px = pyl.x + Math.cos(a) * 15;
+              const py = pyl.y + Math.sin(a) * 15;
+              if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Tiny Pylon HP Bar
+            const frac = Math.max(0, pyl.hp / pyl.maxHp);
+            ctx.fillStyle = 'rgba(15,23,42,0.85)';
+            ctx.fillRect(pyl.x - 14, pyl.y - 24, 28, 3.5);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(pyl.x - 14, pyl.y - 24, 28 * frac, 3.5);
+          }
+          ctx.restore();
+        }
+      }
+
+      // 2. Update & Render Telegraphed Boss Laser Beams
+      if (state.bossBeams && state.bossBeams.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossBeams.length - 1; i >= 0; i--) {
+          const bm = state.bossBeams[i];
+          if (now >= bm.endAt) {
+            state.bossBeams.splice(i, 1);
+            continue;
+          }
+          if (boss && bm.followBoss) {
+            bm.x = boss.x + (bm.offsetX || 0);
+            bm.y = boss.y + 22;
+          }
+          const isFiring = now >= bm.fireAt;
+          const x2 = bm.x + Math.sin(bm.angle || 0) * (h + 100);
+          const y2 = bm.y + Math.cos(bm.angle || 0) * (h + 100);
+
+          if (!isFiring) {
+            // Clear 1.0s Dashed Warning Telegraph Sightline (Zero Cheap Hits!)
+            const prog = Math.min(1, (now - bm.startAt) / Math.max(1, bm.fireAt - bm.startAt));
+            ctx.strokeStyle = `rgba(244, 63, 94, ${0.32 + 0.52 * prog})`;
+            ctx.lineWidth = 1.6 + prog * 1.4;
+            ctx.setLineDash([10, 8]);
+            ctx.beginPath();
+            ctx.moveTo(bm.x, bm.y);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          } else {
+            // Blazing Active Beam Lance!
+            const halfW = bm.width || 16;
+            ctx.strokeStyle = bm.color || 'rgba(244, 63, 94, 0.82)';
+            ctx.lineWidth = halfW * 2;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(bm.x, bm.y);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = halfW * 0.65;
+            ctx.stroke();
+
+            // Distance from Player Core to Beam Line Segment
+            const ldx = x2 - bm.x;
+            const ldy = y2 - bm.y;
+            const lenSq = ldx * ldx + ldy * ldy || 1;
+            const tProj = Math.max(0, Math.min(1, ((cx - bm.x) * ldx + (cy - bm.y) * ldy) / lenSq));
+            const closestX = bm.x + tProj * ldx;
+            const closestY = bm.y + tProj * ldy;
+            const distBeam = Math.hypot(cx - closestX, cy - closestY);
+            if (distBeam < coreHitR * 0.72 + halfW) {
+              this._onPlayerHitByBoss(cx, cy, now);
+            }
+          }
+        }
+        ctx.restore();
+      }
+
+      // 3. Update & Render Boss Projectiles (Pure GPU Blit — Zero Lag!)
+      if (state.bossBullets && state.bossBullets.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossBullets.length - 1; i >= 0; i--) {
+          const b = state.bossBullets[i];
+          b.x += b.vx * dtScale;
+          b.y += b.vy * dtScale;
+          if (b.y > h + 40 || b.y < -60 || b.x < -50 || b.x > w + 50) {
+            state.bossBullets.splice(i, 1);
+            continue;
+          }
+
+          const spr = QuantumRenderer._getGlowSprite(b.glowKey || 'crimson');
+          const r = b.r || 9;
+          ctx.drawImage(spr, b.x - r * 2.1, b.y - r * 2.1, r * 4.2, r * 4.2);
+          ctx.fillStyle = b.coreColor || '#ffe4e6';
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, r * 0.58, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Player Collision Check
+          const dist = Math.hypot(cx - b.x, cy - b.y);
+          if (dist < coreHitR * 0.75 + r) {
+            state.bossBullets.splice(i, 1);
+            this._onPlayerHitByBoss(cx, cy, now);
+          }
+        }
+        ctx.restore();
+      }
+
+      // 4. Update & Render Boss Shock-Rings (Victory Supernova & EMP Rings)
+      if (state.bossShockRings && state.bossShockRings.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossShockRings.length - 1; i >= 0; i--) {
+          const sr = state.bossShockRings[i];
+          sr.r += (sr.speed || 7.5) * dtScale;
+          sr.alpha = Math.max(0, 1 - sr.r / sr.maxR);
+          if (sr.alpha <= 0.02) {
+            state.bossShockRings.splice(i, 1);
+            continue;
+          }
+          ctx.strokeStyle = sr.color || '#f43f5e';
+          ctx.globalAlpha = sr.alpha * 0.85;
+          ctx.lineWidth = sr.harmless ? 5 : 3;
+          ctx.beginPath();
+          ctx.arc(sr.x, sr.y, sr.r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // 5. Update & Render Crisp GPU Hit Sparks
+      if (state.bossHitSparks && state.bossHitSparks.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = state.bossHitSparks.length - 1; i >= 0; i--) {
+          const sp = state.bossHitSparks[i];
+          sp.x += sp.vx * dtScale;
+          sp.y += sp.vy * dtScale;
+          sp.vx *= 0.94;
+          sp.vy *= 0.94;
+          sp.life += dtScale;
+          if (sp.life >= sp.maxLife) {
+            state.bossHitSparks.splice(i, 1);
+            continue;
+          }
+          ctx.globalAlpha = 1 - sp.life / sp.maxLife;
+          ctx.fillStyle = sp.color;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.size * (1 - sp.life / sp.maxLife * 0.5), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 6. Render On-Canvas Telemetry HUD (Round Progress Bar / Boss HP Bar / Banners)
+      this._drawArenaOverlays(ctx, w, h, now);
+    },
+
+    _executeBossAttack(boss, cx, cy, now, w, h) {
+      boss.attackStep++;
+      const enr = boss.enraged;
+      const spdScale = 1 + (boss.round - 1) * 0.08 + (enr ? 0.14 : 0);
+      const aimAng = Math.atan2(cy - boss.y, cx - boss.x);
+      const pushBullet = (x, y, ang, spd, r, glowKey, coreColor) => {
+        if (state.bossBullets.length >= 90) return;
+        state.bossBullets.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          r: r || 8.5,
+          glowKey: glowKey || 'crimson',
+          coreColor: coreColor || '#ffe4e6'
+        });
+      };
+
+      if (boss.bossId === 1) {
+        // ROUND 1: AEGIS SENTINEL — Aimed 3-way (P1) -> 5-way (P2) + telegraphed center beam!
+        const count = enr ? 5 : 3;
+        const spread = enr ? 0.22 : 0.26;
+        for (let k = 0; k < count; k++) {
+          const a = aimAng + (k - (count - 1) / 2) * spread;
+          pushBullet(boss.x, boss.y + 28, a, 5.2 * spdScale, 9, 'crimson', '#fecdd3');
+        }
+        if (enr && boss.attackStep % 2 === 0) {
+          state.bossBeams.push({
+            x: boss.x, y: boss.y + 24, offsetX: 0, angle: 0, width: 15, followBoss: true,
+            color: 'rgba(244, 63, 94, 0.78)', startAt: now, fireAt: now + 950, endAt: now + 1550
+          });
+        }
+        boss.nextAttackAt = now + (enr ? 1450 : 1850);
+
+      } else if (boss.bossId === 2) {
+        // ROUND 2: CORRUPTOR PRISM SOVEREIGN — Twin/Triple Telegraphed Crimson Beam Lances + Flank Darts!
+        if (boss.attackStep % 2 === 1) {
+          const offsets = enr ? [-64, 0, 64] : [-52, 52];
+          offsets.forEach((ox) => {
+            state.bossBeams.push({
+              x: boss.x + ox, y: boss.y + 28, offsetX: ox, angle: 0, width: 14, followBoss: true,
+              color: 'rgba(232, 121, 249, 0.80)', startAt: now, fireAt: now + 1000, endAt: now + 1650
+            });
+          });
+        } else {
+          for (let side = -1; side <= 1; side += 2) {
+            const ox = boss.x + side * 56;
+            const ang = Math.atan2(cy - boss.y, cx - ox);
+            pushBullet(ox, boss.y + 22, ang - 0.14, 5.8 * spdScale, 8.5, 'crimson', '#f5d0fe');
+            pushBullet(ox, boss.y + 22, ang + 0.14, 5.8 * spdScale, 8.5, 'crimson', '#f5d0fe');
+          }
+        }
+        boss.nextAttackAt = now + (enr ? 1450 : 1750);
+
+      } else if (boss.bossId === 3) {
+        // ROUND 3: SINGULARITY LEVIATHAN — Rotating Spiral Curtain + Gravity Ring Pulse!
+        const spokes = enr ? 10 : 8;
+        boss.spiralAngle += 0.38;
+        for (let s = 0; s < spokes; s++) {
+          const a = boss.spiralAngle + (s * Math.PI * 2) / spokes;
+          pushBullet(boss.x, boss.y, a, 4.4 * spdScale, 8.5, (s % 2 === 0) ? 'amber' : 'crimson', '#fef08a');
+        }
+        if (boss.attackStep % 3 === 0) {
+          state.bossShockRings.push({ x: boss.x, y: boss.y, r: 22, maxR: 260, alpha: 0.9, speed: 5.5, color: '#a855f7', harmless: true });
+        }
+        boss.nextAttackAt = now + (enr ? 1150 : 1450);
+
+      } else if (boss.bossId === 4) {
+        // ROUND 4: TEMPEST ARCH-HYDRA — Telegraphed Ghost-Dash Strafe + Tri-Turbine Volleys!
+        if (boss.attackStep % 3 === 0 && !boss.dashState) {
+          const targetX = (boss.x < w * 0.5) ? (w * 0.76) : (w * 0.24);
+          boss.dashState = { startX: boss.x, endX: targetX, telegraphEnd: now + 520 };
+        }
+        const guns = [-68, 0, 68];
+        guns.forEach((gx) => {
+          const sx = boss.x + gx;
+          const a = Math.atan2(cy - boss.y, cx - sx);
+          pushBullet(sx, boss.y + 20, a, 6.2 * spdScale, 8.5, 'amber', '#fef08a');
+          if (enr) {
+            pushBullet(sx, boss.y + 20, a + 0.24, 5.4 * spdScale, 8, 'crimson', '#fed7aa');
+            pushBullet(sx, boss.y + 20, a - 0.24, 5.4 * spdScale, 8, 'crimson', '#fed7aa');
+          }
+        });
+        boss.nextAttackAt = now + (enr ? 1200 : 1500);
+
+      } else {
+        // ROUND 5+: OMEGA ANTICORE · FALLEN CHROME ARCHON — 3-Phase Grand Finale!
+        const pat = boss.attackStep % 3;
+        if (pat === 0) {
+          const count = boss.finalEclipse ? 7 : 5;
+          for (let k = 0; k < count; k++) {
+            const a = aimAng + (k - (count - 1) / 2) * 0.21;
+            pushBullet(boss.x, boss.y + 26, a, 5.6 * spdScale, 9, 'amber', '#fef08a');
+          }
+        } else if (pat === 1) {
+          const offs = boss.finalEclipse ? [-92, 0, 92] : [-72, 72];
+          offs.forEach((ox) => {
+            state.bossBeams.push({
+              x: boss.x + ox, y: boss.y + 26, offsetX: ox, angle: 0, width: 15, followBoss: true,
+              color: 'rgba(249, 115, 22, 0.82)', startAt: now, fireAt: now + 950, endAt: now + 1580
+            });
+          });
+        } else {
+          const spokes = boss.finalEclipse ? 12 : 8;
+          boss.spiralAngle += 0.42;
+          for (let s = 0; s < spokes; s++) {
+            const a = boss.spiralAngle + (s * Math.PI * 2) / spokes;
+            pushBullet(boss.x, boss.y, a, 4.7 * spdScale, 8.5, (s % 2 === 0) ? 'amber' : 'crimson', '#fde047');
+          }
+        }
+        boss.nextAttackAt = now + (boss.finalEclipse ? 1050 : (enr ? 1220 : 1480));
+      }
+    },
+
+    _onPlayerHitByBoss(cx, cy, now) {
+      if (state.hasBuff('shield', now)) {
+        state.score += 150;
+        CoreKinematics.triggerShieldDeflect(cx, cy, now);
+        audio.playPerfectCatch(state.combo);
+        return;
+      }
+      if (state.playerInvulnUntil && now < state.playerInvulnUntil) return;
+      state.playerInvulnUntil = now + 1350;
+
+      if (state.coreTier > 1) {
+        state.coreTier--;
+        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+        state.combo = tierFloorCombo[state.coreTier] || 0;
+      } else {
+        state.coreTier = 1;
+        state.combo = 0;
+      }
+      state.reflexLives--;
+      state.consecutivePerfects = 0;
+      audio.playHazardExplosion();
+      renderReflexShields();
+      state.floatingTexts.push({
+        x: cx, y: cy - 36,
+        text: '⚠ HULL BREACH! -1 SHIELD',
+        color: '#f43f5e',
+        alpha: 1.0,
+        startTime: now
+      });
+      updateHeaderUI();
+
+      if (state.reflexLives <= 0) {
+        const gameNames = { dynamo: 'CHROME DYNAMO', realm: 'CHROME DYNAMO', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
+        handleGameOver('SHIELDS DEPLETED', `${gameNames[state.gameType]} fell in Round ${state.currentRound}. Final Score: ${state.score.toLocaleString()} points.`);
+      }
+    },
+
+    _drawArenaOverlays(ctx, w, h, now) {
+      const boss = state.boss;
+      ctx.save();
+
+      // A. GAUNTLET PHASE: AAA 3-Segment Wave Progress Bar + Live Boss Approach Countdown
+      if (state.roundPhase === 'gauntlet' && state.roundQuota > 0) {
+        const bw = (w < 640) ? Math.min(344, w - 24) : Math.min(368, w * 0.42);
+        const bx = (w - bw) * 0.5;
+        const by = (w < 640) ? 64 : ((w < 1220) ? 48 : 14);
+        const bh = 24;
+        const quota = Math.max(1, state.roundQuota || 48);
+        const minDur = Math.max(1, state.roundMinDurationMs || 45000);
+        const caught = state.roundNodesCaught || 0;
+        const quotaPct = Math.min(1, caught / quota);
+        const timePct = Math.min(1, (state.roundGauntletMs || 0) / minDur);
+        const effPct = Math.min(quotaPct, timePct);
+        const subWave = state.roundSubWave || 1;
+        const remSec = Math.max(0, Math.ceil((minDur - (state.roundGauntletMs || 0)) / 1000));
+        const isOvercharge = (caught >= quota && remSec > 0);
+
+        const waveAccent = isOvercharge
+          ? '#fde047'
+          : (subWave === 3 ? '#fb923c' : (subWave === 2 ? '#c084fc' : '#38bdf8'));
+        const waveFill = isOvercharge
+          ? 'rgba(250, 204, 21, 0.52)'
+          : (subWave === 3 ? 'rgba(251, 146, 60, 0.50)' : (subWave === 2 ? 'rgba(192, 132, 252, 0.48)' : 'rgba(56, 189, 248, 0.46)'));
+
+        ctx.fillStyle = 'rgba(8, 12, 26, 0.82)';
+        ctx.strokeStyle = isOvercharge ? 'rgba(253, 224, 71, 0.85)' : (subWave === 3 ? 'rgba(251, 146, 60, 0.65)' : 'rgba(139, 92, 246, 0.48)');
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 12); else ctx.rect(bx, by, bw, bh);
+        ctx.fill();
+        ctx.stroke();
+
+        // Subtle Ghost Lead Bar when player's caught-node pace leads the minimum countdown
+        if (quotaPct > effPct + 0.01) {
+          const ghostW = Math.max(0, (bw - 6) * quotaPct);
+          if (ghostW > 2) {
+            ctx.fillStyle = 'rgba(125, 211, 252, 0.16)';
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(bx + 3, by + 3, ghostW, bh - 6, 9); else ctx.rect(bx + 3, by + 3, ghostW, bh - 6);
+            ctx.fill();
+          }
+        }
+
+        // Active Effective Progress Fill
+        const fillW = Math.max(0, (bw - 6) * effPct);
+        if (fillW > 2) {
+          ctx.fillStyle = waveFill;
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx + 3, by + 3, fillW, bh - 6, 9); else ctx.rect(bx + 3, by + 3, fillW, bh - 6);
+          ctx.fill();
+        }
+
+        // Crisp 3-Act Wave Precision Ticks (33.3% & 66.7%) — subtle center hairline + sharp top/bottom notches so text stays 100% legible
+        const tick1X = bx + bw * 0.333;
+        const tick2X = bx + bw * 0.667;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+        ctx.fillRect(tick1X, by + 3, 1.2, bh - 6);
+        ctx.fillRect(tick2X, by + 3, 1.2, bh - 6);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.62)';
+        ctx.fillRect(tick1X - 0.5, by + 1, 2, 4);
+        ctx.fillRect(tick1X - 0.5, by + bh - 5, 2, 4);
+        ctx.fillRect(tick2X - 0.5, by + 1, 2, 4);
+        ctx.fillRect(tick2X - 0.5, by + bh - 5, 2, 4);
+
+        // Live Dual-Gate Telemetry Text (with crisp OLED legibility stroke)
+        ctx.font = '800 10.5px "Lexend", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const timeStr = `${Math.floor(remSec / 60)}:${String(remSec % 60).padStart(2, '0')}`;
+        const labelTxt = isOvercharge
+          ? `⚡ R${state.currentRound} OVERCHARGE · BOSS IN ${remSec}s!`
+          : (remSec > 0
+            ? `R${state.currentRound} · WAVE ${subWave}/3 · ${caught}/${quota} · ${timeStr}`
+            : `R${state.currentRound} · WAVE 3/3 · ${caught}/${quota} TO BOSS`);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(4, 6, 16, 0.85)';
+        ctx.strokeText(labelTxt, w * 0.5, by + bh * 0.5 + 0.5);
+        ctx.fillStyle = isOvercharge ? '#fef08a' : '#f1f5f9';
+        ctx.fillText(labelTxt, w * 0.5, by + bh * 0.5 + 0.5);
+      }
+
+      // B. BOSS FIGHT PHASE: Luxury Segmented Boss Health Bar + Phase Markers (Zero HUD Collision on All Viewports!)
+      if (boss && boss.phase !== 'defeated') {
+        const bw = (w < 640) ? Math.min(344, w - 24) : Math.min(390, w * 0.44);
+        const bx = (w - bw) * 0.5;
+        const by = (w < 640) ? 62 : ((w < 1220) ? 46 : 12);
+        const bh = 16;
+        const hpFrac = Math.max(0, Math.min(1, boss.hp / boss.maxHp));
+        const isBroken = boss.armorBreakUntil && now < boss.armorBreakUntil;
+
+        // Title + Live Shot Counter Row (auto-fitted so title & HP never overlap on 390px iPhones)
+        ctx.font = `800 ${w < 640 ? 10 : 11}px "Lexend", sans-serif`;
+        ctx.fillStyle = isBroken ? '#fde047' : '#f8fafc';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`ROUND ${boss.round} BOSS · ${boss.name}${boss.enraged ? ' [ENRAGED]' : ''}`, bx, by + 11, Math.max(120, bw - 84));
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#fda4af';
+        ctx.fillText(`${Math.ceil(boss.hp)} / ${boss.maxHp} HP`, bx + bw, by + 11, 78);
+
+        // Bar Track
+        const barY = by + 15;
+        ctx.fillStyle = 'rgba(10, 12, 24, 0.88)';
+        ctx.strokeStyle = isBroken ? '#fde047' : 'rgba(244, 63, 94, 0.72)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(bx, barY, bw, bh, 8); else ctx.rect(bx, barY, bw, bh);
+        ctx.fill();
+        ctx.stroke();
+
+        // HP Fill
+        const fillW = Math.max(0, (bw - 4) * hpFrac);
+        if (fillW > 2) {
+          ctx.fillStyle = isBroken ? '#facc15' : (boss.enraged ? '#ef4444' : '#f43f5e');
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx + 2, barY + 2, fillW, bh - 4, 6); else ctx.rect(bx + 2, barY + 2, fillW, bh - 4);
+          ctx.fill();
+          // Gloss highlight strip
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+          ctx.fillRect(bx + 4, barY + 3, Math.max(0, fillW - 4), 4);
+        }
+
+        // Phase 2 Enrage Notch (50%) & Phase 3 Notch (33% for R5)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.fillRect(bx + bw * 0.50, barY + 1, 2, bh - 2);
+        if (boss.bossId === 5) ctx.fillRect(bx + bw * 0.33, barY + 1, 2, bh - 2);
+
+        // Compact Control Hint right below Boss Bar
+        ctx.font = '700 10px "Lexend", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const ammoDisp = formatAmmoCount(state.coreAmmo || 0);
+        const promptMaxW = Math.max(220, w - 24);
+        const ars = getRealmArsenal(state.catcherType);
+        if ((state.coreAmmo || 0) <= 0) {
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('⚡ AMMO EMPTY — CATCH FALLING GOOD NODES TO RELOAD!', w * 0.5, barY + bh + 5, promptMaxW);
+        } else if (TouchFireControls.isTouch) {
+          // === CHANGED (v392): Touch-only Kimmy combat prompt text per realm ===
+          if (!TouchFireControls.isGunHeld()) {
+            ctx.fillStyle = '#7dd3fc';
+            ctx.fillText(`HOLD ${ars.gun} · TAP SKILLS`, w * 0.5, barY + bh + 5, promptMaxW);
+          } else {
+            ctx.fillStyle = '#fde68a';
+            ctx.fillText(`🔥 ${ars.gun} ACTIVE · ${ammoDisp} SHOTS`, w * 0.5, barY + bh + 5, promptMaxW);
+          }
+        } else if (!state.offenseMode && !state.pointerFiring && !TouchFireControls.isDesktopKeyGunHeld()) {
+          // === CHANGED (v392): Keep original click/[F] prompt + add realm-specific A/S/D skill hints ===
+          ctx.fillStyle = '#7dd3fc';
+          ctx.fillText(`🔫 ${ammoDisp} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS! · [A] ${ars.gun} · [S] ${ars.skill2} · [D] ${ars.ult}`, w * 0.5, barY + bh + 5, promptMaxW);
+        } else {
+          ctx.fillStyle = '#fde68a';
+          ctx.fillText(`🔥 ${ars.gun} ACTIVE · ${ammoDisp} SHOTS REMAINING`, w * 0.5, barY + bh + 5, promptMaxW);
+        }
+      }
+
+      // C. DRAMATIC ROUND / WARNING / VICTORY TELEMETRY BANNER
+      if (state.roundBanner) {
+        const bn = state.roundBanner;
+        const elapsed = now - bn.startTime;
+        if (elapsed >= bn.duration) {
+          state.roundBanner = null;
+        } else {
+          const fadeIn = Math.min(1, elapsed / 260);
+          const fadeOut = Math.min(1, (bn.duration - elapsed) / 360);
+          const alpha = fadeIn * fadeOut;
+          const bannerY = h * 0.36;
+          const isNarrow = w < 520;
+          const bw = Math.min(540, w * (isNarrow ? 0.92 : 0.86));
+          const bx = (w - bw) * 0.5;
+          const maxTxtW = Math.max(120, bw - 26);
+
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = 'rgba(6, 10, 24, 0.88)';
+          ctx.strokeStyle = bn.color || '#38bdf8';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx, bannerY - 34, bw, 68, 14); else ctx.rect(bx, bannerY - 34, bw, 68);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.font = `900 ${isNarrow ? 15 : 19}px "Lexend", sans-serif`;
+          ctx.fillStyle = bn.color || '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(bn.title, w * 0.5, bannerY - 9, maxTxtW);
+
+          ctx.font = `600 ${isNarrow ? 10.5 : 11.5}px "Lexend", sans-serif`;
+          ctx.fillStyle = '#e2e8f0';
+          ctx.fillText(bn.sub, w * 0.5, bannerY + 15, maxTxtW);
+        }
+      }
+      ctx.restore();
+    }
+  };
+
+  // --- Main Application State ---
+  const state = {
+    currentWave: 1,
+    currentRound: 1,
+    roundPhase: 'gauntlet',
+    roundNodesCaught: 0,
+    roundQuota: 48,
+    roundGauntletMs: 0,
+    roundMinDurationMs: 45000,
+    roundSubWave: 1,
+    roundOverchargeBonusCount: 0,
+    coreAmmo: 12,
+    maxCoreAmmo: Infinity, // === CHANGED (v387): STEP 5 — Unlimited ammo collection ===
+    globalScreenShake: 0,
+    offenseMode: false,
+    pointerFiring: false,
+    touchFireHeld: false, // === CHANGED (v385): Touch-only manual fire hold state ===
+    lastShotTime: 0,
+    shotCounter: 0,
+    muzzleFlashUntil: 0,
+    playerInvulnUntil: 0,
+    boss: null,
+    bossBullets: [],
+    bossBeams: [],
+    bossShockRings: [],
+    playerShots: [],
+    bossHitSparks: [],
+    roundBanner: null,
+    active: false,
+    gameType: 'math',
+    score: 0,
+    combo: 1,
+    targetMultiple: 7, // Chosen multiple for Reflex Numbers Blitz (1 to 9)
+    isChoosingMultiple: false, // True until player chooses 1-9
+    floatingTexts: [],
+    hazardLasers: [],
+    empShockwaves: [],
+    blinkGhosts: [],
+    corruptionBursts: [],
+    scienceArcs: [],
+    scienceRipples: [],
+    empSlowUntil: 0,
+    activeBuffs: {}, // Simultaneous active buffs: { [type]: { type, name, color, icon, expiresAt } }
+    activeBuff: null,
+
+    applyBuff(type, name, color, icon, durationMs, now) {
+      if (!this.activeBuffs) this.activeBuffs = {};
+      const current = this.activeBuffs[type];
+      let expiresAt = now + durationMs;
+      if (current && current.expiresAt > now) {
+        // If buff already active: extend it! For shield: stack duration up to 15s max!
+        expiresAt = Math.min(now + 15000, current.expiresAt + durationMs);
+      }
+      this.activeBuffs[type] = { type, name, color, icon, expiresAt, duration: durationMs };
+      this.activeBuff = this.activeBuffs[type];
+    },
+
+    hasBuff(type, now) {
+      if (!this.activeBuffs) return false;
+      const b = this.activeBuffs[type];
+      return !!(b && b.expiresAt > now);
+    },
+
+    getBuff(type, now) {
+      if (!this.activeBuffs) return null;
+      const b = this.activeBuffs[type];
+      return (b && b.expiresAt > now) ? b : null;
+    },
+
+    getAllActiveBuffs(now) {
+      if (!this.activeBuffs) return [];
+      const list = [];
+      for (const k in this.activeBuffs) {
+        if (this.activeBuffs[k] && this.activeBuffs[k].expiresAt > now) {
+          list.push(this.activeBuffs[k]);
+        }
+      }
+      return list.sort((a, b) => b.expiresAt - a.expiresAt);
+    },
+
+    // Math Overdrive State
+    mathLevel: 1,
+    mathQuestions: [],
+    mathQIdx: 0,
+    mathMistakes: 0,
+    mathTimer: null,
+    mathTimeLeft: 100,
+
+    // Reflex Blitz State (Strict 3 Lives)
+    reflexLives: 3,
+    catcherX: 0.5,
+    catcherType: 'realm',
+    lastTransmuteTime: 0,
+    particles: [],
+
+    // Memory Matrix State
+    memoryRound: 1,
+    memorySequence: [],
+    playerSequence: [],
+    isAcceptingInput: false,
+
+    bestScores: {
+      math: parseInt(localStorage.getItem('oc_best_math') || '0', 10),
+      reflex: parseInt(localStorage.getItem('oc_best_reflex') || '0', 10),
+      realm: parseInt(localStorage.getItem('oc_best_realm') || '0', 10),
+      helix: parseInt(localStorage.getItem('oc_best_helix') || '0', 10),
+      meteor: parseInt(localStorage.getItem('oc_best_meteor') || '0', 10),
+      memory: parseInt(localStorage.getItem('oc_best_memory') || '0', 10)
+    }
+  };
+
+  let animFrameId = null;
+  let dom = {};
+
+  // --- DOM Initializer ---
+  
+  // ─────────────────────────────────────────────────────────────
+  // DEVICE CAPABILITIES & LIVE HYBRID INPUT ENGINE (v323)
+  // (matchMedia, maxTouchPoints, Coalesced Pointer Events, Lerp)
+  // ─────────────────────────────────────────────────────────────
+  let deviceInputMode = 'mouse'; // 'mouse' | 'touch'
+  let isPointerDown = false;
+  let precisionMode = false; // Direct 1:1 physical touch tracking (finger is exact core center)
+  let touchGuidePos = { x: -9999, y: -9999, active: false };
+  let targetCatcherX = 0.5;
+  let currentCatcherX = 0.5;
+  let targetCatcherY = 0.82;
+  let currentCatcherY = 0.82;
+  let lastTouchClientX = 0;
+  let lastTouchClientY = 0;
+  let invulnerabilityTimer = 0;
+
+  function detectDeviceCapabilities() {
+    const isCoarse = window.matchMedia && (
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(hover: none)').matches
+    );
+    const hasTouch = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+    setDeviceMode(isCoarse || hasTouch ? 'touch' : 'mouse');
+  }
+
+  function setDeviceMode(mode) {
+    if (deviceInputMode === mode) return;
+    deviceInputMode = mode;
+    document.body.classList.remove('mode-mouse', 'mode-touch');
+    document.body.classList.add(`mode-${mode}`);
+    updateTargetText();
+  }
+
+  function updateTargetText() {
+    const sub = document.getElementById('cgGameSub');
+    if (!sub) return;
+    const isTouch = deviceInputMode === 'touch';
+    const targetHint = isTouch
+      ? 'DRAG TO ALIGN CHROME CORE · INTERCEPT CELESTIAL FLUX NODES'
+      : 'ALIGN CHROME CORE WITH CURSOR · INTERCEPT CELESTIAL FLUX NODES';
+    sub.setAttribute('data-device-hint', targetHint);
+  }
+
+  window.addEventListener('resize', detectDeviceCapabilities);
+  if (window.matchMedia) {
+    const mPointer = window.matchMedia('(pointer: fine)');
+    if (mPointer.addEventListener) {
+      mPointer.addEventListener('change', detectDeviceCapabilities);
+    }
+  }
+
+  function initDOM() {
+    dom = {
+      modal: document.getElementById('chromeGameModal'),
+      btnClose: document.getElementById('cgCloseBtn'),
+      btnFullscreen: document.getElementById('cgFullscreenBtn'),
+      btnMute: document.getElementById('cgMuteBtn'),
+      tierVal: document.getElementById('cgTierVal'),
+      pulseVal: document.getElementById('cgPulseVal'),
+      pulsePill: document.getElementById('cgPulsePill'),
+      buffVal: document.getElementById('cgBuffVal') || document.getElementById('cgPhaseVal'),
+      buffPill: document.getElementById('cgBuffPill') || document.getElementById('cgPhasePill'),
+      roundPill: document.getElementById('cgRoundPill'),
+      roundVal: document.getElementById('cgRoundVal'),
+      offensePill: document.getElementById('cgOffensePill'),
+      offenseVal: document.getElementById('cgOffenseVal'),
+      scoreVal: document.getElementById('cgScoreVal'),
+      comboVal: document.getElementById('cgComboVal'),
+      bestVal: document.getElementById('cgBestVal'),
+      gameTitle: document.getElementById('cgGameTitle'),
+      gameSub: document.getElementById('cgGameSub'),
+
+      // Game Views
+      viewMath: document.getElementById('cgViewMath'),
+      viewReflex: document.getElementById('cgViewReflex'),
+      viewMemory: document.getElementById('cgViewMemory'),
+      canvasReflex: document.getElementById('cgCanvasReflex'),
+
+      // Math View Elements
+      mathLevelTabs: document.querySelectorAll('.math-level-tab'),
+      mathProgressLabel: document.getElementById('mathProgressLabel'),
+      mathShields: document.getElementById('mathShields'),
+      mathEquation: document.getElementById('mathEquation'),
+      mathTimeBar: document.getElementById('mathTimeBar'),
+      mathOptions: document.querySelectorAll('.math-opt-btn'),
+
+      // Reflex View Elements
+      reflexShields: document.getElementById('reflexShields'),
+      transmuteIndicator: document.getElementById('transmuteIndicator'),
+      reflexMultiplePicker: document.getElementById('reflexMultiplePicker'),
+      reflexDigitBtns: document.querySelectorAll('#reflexDigitBtns .digit-pill'),
+      reflexStartOverlay: document.getElementById('reflexStartOverlay'),
+      reflexStartDigitsGrid: document.getElementById('reflexStartDigitsGrid'),
+      btnChangeDivisor: document.getElementById('btnChangeDivisor'),
+
+      // Memory View Elements
+      memoryRoundLabel: document.getElementById('memoryRoundLabel'),
+      memoryGrid: document.getElementById('memoryGrid'),
+
+      // Overlays
+      screenOverlay: document.getElementById('cgScreenOverlay'),
+      screenTitle: document.getElementById('cgScreenTitle'),
+      screenDesc: document.getElementById('cgScreenDesc'),
+      btnStartAction: document.getElementById('cgBtnStartAction')
+    };
+  }
+
+  // --- Fullscreen Manager ---
+  function toggleAppFullscreen() {
+    if (!document.fullscreenElement) {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) elem.requestFullscreen();
+      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
+    }
+  }
+
+  // --- Game Modal Launch & Lifecycle for all 6 Games ---
+  function openGame(type = 'math') {
+    initDOM();
+    if (!dom.modal) return;
+
+    state.gameType = type;
+    document.body.classList.add('arcade-active');
+    dom.modal.classList.add('active');
+    dom.modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Activate the corresponding view
+    if (dom.viewMath) dom.viewMath.style.display = type === 'math' ? 'flex' : 'none';
+    if (dom.viewReflex) dom.viewReflex.style.display = (type === 'reflex' || type === 'realm' || type === 'dynamo' || type === 'helix' || type === 'meteor') ? 'flex' : 'none';
+    if (dom.viewMemory) dom.viewMemory.style.display = type === 'memory' ? 'flex' : 'none';
+
+    // Toggle Reflex Numbers Picker vs Transmute Indicator
+    const picker = document.getElementById('reflexMultiplePicker');
+    const badge = document.getElementById('transmuteIndicator');
+    if (picker) picker.style.display = type === 'reflex' ? 'flex' : 'none';
+    if (badge) badge.style.display = (type === 'realm' || type === 'dynamo' || type === 'helix' || type === 'meteor') ? 'block' : 'none';
+
+    updateHeaderUI();
+    startGame(type);
+  }
+
+  function closeGame() {
+    state.active = false;
+    // === CHANGED (v387): Stop music, release all pointers & held keys, hide controls ===
+    RealmMusicEngine.stop();
+    TouchFireControls.releaseAllPointers();
+    TouchFireControls.clearHeldKeys();
+    TouchFireControls.syncUI();
+    if (typeof OverlayRealmFX !== 'undefined') OverlayRealmFX.stop();
+    document.body.classList.remove('arcade-active');
+    clearInterval(state.mathTimer);
+    if (animFrameId) {
+      cancelAnimationFrame(animFrameId);
+      animFrameId = null;
+    }
+    if (dom.modal) {
+      dom.modal.classList.remove('active');
+      dom.modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+  }
+
+  function updateHeaderUI() {
+    if (!dom.gameTitle) return;
+    if (!state._uiCache) state._uiCache = {};
+    const c = state._uiCache;
+    const setText = (key, el, val) => {
+      if (el && c[key] !== val) { c[key] = val; el.textContent = val; }
+    };
+    const setColor = (key, el, val) => {
+      if (el && c[key] !== val) { c[key] = val; el.style.color = val; }
+    };
+
+    let nextTitle = '';
+    let nextSub = '';
+    if (state.gameType === 'dynamo' || state.gameType === 'realm') {
+      nextTitle = state.coreTier === 5 ? 'CHROME DYNAMO · SERAPHIC ARCHON' : 'CHROME DYNAMO';
+      nextSub = state.coreTier === 5
+        ? `⭐ Tier V Supreme Ascendant · Faraday Rail-Arc Core · Round ${state.currentRound || 1}`
+        : `Faraday Singularity Core · Plasma Orbs · Offense Cannon [F] · Round ${state.currentRound || 1}`;
+    } else if (state.gameType === 'helix') {
+      nextTitle = state.coreTier === 5 ? 'CHROME HELIX · PRISM ARCHON' : 'CHROME HELIX';
+      nextSub = state.coreTier === 5
+        ? `⭐ Tier V Supreme Ascendant · Twin-Helix Photonic Lance · Round ${state.currentRound || 1}`
+        : `Harmonic Bio-Lattice Core · Nucleotide Pearls · Offense Cannon [F] · Round ${state.currentRound || 1}`;
+    } else if (state.gameType === 'meteor') {
+      nextTitle = state.coreTier === 5 ? 'CHROME METEOR · MAGNETAR SERAPH' : 'CHROME METEOR';
+      nextSub = state.coreTier === 5
+        ? `⭐ Tier V Supreme Ascendant · Solar Mass-Driver Core · Round ${state.currentRound || 1}`
+        : `Aegis Caldera Core · Molten Bolides · Offense Cannon [F] · Round ${state.currentRound || 1}`;
+    } else if (state.gameType === 'reflex') {
+      nextTitle = 'REFLEX BLITZ';
+      nextSub = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
+    } else if (state.gameType === 'math') {
+      nextTitle = 'MATH OVERDRIVE';
+      nextSub = `Level ${state.mathLevel} · 20 Questions · 10 Mistakes Max`;
+    } else if (state.gameType === 'memory') {
+      nextTitle = 'MEMORY MATRIX';
+      nextSub = '16 Radiant Pure Numbers · Sequence Reproduction (1 Mistake = Game Over)';
+    }
+
+    if (nextTitle) setText('title', dom.gameTitle, nextTitle);
+    if (nextSub) setText('sub', dom.gameSub, nextSub);
+
+    if (dom.scoreVal && c.scoreRaw !== state.score) {
+      c.scoreRaw = state.score;
+      dom.scoreVal.textContent = state.score.toLocaleString();
+    }
+    if (dom.comboVal && c.comboRaw !== state.combo) {
+      c.comboRaw = state.combo;
+      dom.comboVal.textContent = `${state.combo}x`;
+    }
+    const bestRaw = state.bestScores[state.gameType] || 0;
+    if (dom.bestVal && c.bestRaw !== bestRaw) {
+      c.bestRaw = bestRaw;
+      dom.bestVal.textContent = bestRaw.toLocaleString();
+    }
+
+    // Round Progression & Chrome Core Offense Cannon Pills (Memoized — Zero DOM Churn!)
+    const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+    if (dom.roundPill) {
+      const showR = isCoreArcade ? '' : 'none';
+      if (c.roundDisp !== showR) { c.roundDisp = showR; dom.roundPill.style.display = showR; }
+      const isBossAlert = (state.roundPhase === 'warning' || state.roundPhase === 'boss');
+      if (c.roundAlert !== isBossAlert) {
+        c.roundAlert = isBossAlert;
+        dom.roundPill.classList.toggle('boss-alert', isBossAlert);
+      }
+      const rTxt = isBossAlert ? `R${state.currentRound || 1} BOSS` : `R${state.currentRound || 1} · W${state.roundSubWave || 1}`;
+      setText('roundTxt', dom.roundVal, rTxt);
+      setColor('roundCol', dom.roundVal, isBossAlert ? '#fda4af' : ((state.roundSubWave === 3) ? '#fb923c' : '#c084fc'));
+    }
+    if (dom.offensePill) {
+      const showO = isCoreArcade ? '' : 'none';
+      if (c.offDisp !== showO) { c.offDisp = showO; dom.offensePill.style.display = showO; }
+      // === CHANGED (v387): Reflect touch GUN role & desktop [A]/click/[F], format unlimited ammo safely ===
+      const isActive = TouchFireControls.isTouch
+        ? TouchFireControls.isGunHeld()
+        : !!(state.offenseMode || state.pointerFiring || TouchFireControls.isDesktopKeyGunHeld());
+      if (c.offAct !== isActive) {
+        c.offAct = isActive;
+        dom.offensePill.classList.toggle('offense-active', isActive);
+      }
+      const ammoCnt = Number.isFinite(state.coreAmmo) ? Math.max(0, Math.floor(state.coreAmmo)) : 0;
+      const ammoStr = formatAmmoCount(ammoCnt);
+      const oTxt = isActive ? `🔥 ${ammoStr}` : ammoStr;
+      setText('offTxt', dom.offenseVal, oTxt);
+      setColor('offCol', dom.offenseVal, isActive ? '#fde047' : (ammoCnt > 0 ? '#38bdf8' : '#64748b'));
+    }
+    // === CHANGED (v387): Keep touch Kimmy arc & desktop A/S/D skill HUD synced ===
+    TouchFireControls.syncUI();
+
+    // Advanced HUD: Tier, Pulse & Phase
+    if (dom.tierVal && c.tierRaw !== state.coreTier) {
+      c.tierRaw = state.coreTier;
+      const tierMap = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V' };
+      const colorMap = { 1: '#00f0ff', 2: '#38bdf8', 3: '#c084fc', 4: '#fef08a', 5: '#f43f5e' };
+      dom.tierVal.textContent = tierMap[state.coreTier] || 'I';
+      dom.tierVal.style.color = colorMap[state.coreTier] || '#00f0ff';
+      if (!c.tierTitleSet) {
+        c.tierTitleSet = true;
+        const tierPillEl = document.getElementById('cgTierPill');
+        if (tierPillEl) {
+          tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28x+ Supreme Seraphic Ascendant)`;
+        }
+      }
+    }
+    if (dom.pulseVal) {
+      const pulseStr = state.isPulseReady ? 'READY!' : `${Math.min(100, Math.floor(state.pulseMeter || 0))}%`;
+      setText('pulseStr', dom.pulseVal, pulseStr);
+      setColor('pulseColor', dom.pulseVal, state.isPulseReady ? '#fef08a' : '#94a3b8');
+    }
+    if (dom.pulsePill && c.pulseReady !== !!state.isPulseReady) {
+      c.pulseReady = !!state.isPulseReady;
+      dom.pulsePill.classList.toggle('pulse-ready', c.pulseReady);
+    }
+    const activeBuffEl = dom.buffVal;
+    const activeBuffPillEl = dom.buffPill;
+    if (activeBuffEl) {
+      const curNow = performance.now();
+      const activeBuffs = state.getAllActiveBuffs ? state.getAllActiveBuffs(curNow) : [];
+      if (activeBuffs.length > 0) {
+        let buffText = '';
+        if (activeBuffs.length === 1) {
+          const b = activeBuffs[0];
+          const rem = Math.max(0, (b.expiresAt - curNow) / 1000).toFixed(1);
+          buffText = `${b.icon || ''}${rem}s`;
+        } else if (activeBuffs.length === 2) {
+          const b1 = activeBuffs[0];
+          const b2 = activeBuffs[1];
+          const rem1 = Math.max(0, Math.ceil((b1.expiresAt - curNow) / 1000));
+          const rem2 = Math.max(0, Math.ceil((b2.expiresAt - curNow) / 1000));
+          buffText = `${b1.icon || ''}${rem1}s ${b2.icon || ''}${rem2}s`;
+        } else {
+          const b1 = activeBuffs[0];
+          const rem1 = Math.max(0, Math.ceil((b1.expiresAt - curNow) / 1000));
+          buffText = `${b1.icon || ''}${rem1}s +${activeBuffs.length - 1}`;
+        }
+        setText('buffText', activeBuffEl, buffText);
+        if (activeBuffPillEl && (!c.buffTitleTs || curNow - c.buffTitleTs > 250)) {
+          c.buffTitleTs = curNow;
+          const nextBuffTitle = 'Active Surges:\n' + activeBuffs.map(b => `${b.icon || ''} ${b.name}: ${Math.max(0, (b.expiresAt - curNow) / 1000).toFixed(1)}s`).join('\n');
+          if (c.buffTitle !== nextBuffTitle) { c.buffTitle = nextBuffTitle; activeBuffPillEl.title = nextBuffTitle; }
+        }
+        const primary = activeBuffs[0];
+        setColor('buffColor', activeBuffEl, primary.color || '#38bdf8');
+        const nextCls = `game-stat-pill buff-pill buff-active buff-${primary.type}`;
+        if (activeBuffPillEl && c.buffCls !== nextCls) {
+          c.buffCls = nextCls;
+          activeBuffPillEl.className = nextCls;
+        }
+      } else {
+        state.activeBuff = null;
+        if (activeBuffPillEl && c.buffTitle !== 'Active Celestial Surge / Node Buff') {
+          c.buffTitle = 'Active Celestial Surge / Node Buff';
+          activeBuffPillEl.title = c.buffTitle;
+        }
+        if (state.isOverdrive) {
+          setText('buffText', activeBuffEl, '10X');
+          setColor('buffColor', activeBuffEl, '#fef08a');
+          if (activeBuffPillEl && c.buffCls !== 'game-stat-pill buff-pill buff-active buff-hyper') {
+            c.buffCls = 'game-stat-pill buff-pill buff-active buff-hyper';
+            activeBuffPillEl.className = c.buffCls;
+          }
+        } else {
+          setText('buffText', activeBuffEl, 'READY');
+          setColor('buffColor', activeBuffEl, '#64748b');
+          if (activeBuffPillEl && c.buffCls !== 'game-stat-pill buff-pill') {
+            c.buffCls = 'game-stat-pill buff-pill';
+            activeBuffPillEl.className = c.buffCls;
+          }
+        }
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // v383 PERSONALIZED REALM GAME-OVER FX ENGINE (Runs ONLY when overlay open!)
+  // Translucent Holographic Glass Card Ambient Micro-Physics (0% CPU in-game!)
+  // ─────────────────────────────────────────────────────────────────────────
+  const OverlayRealmFX = {
+    rafId: null,
+    realm: null,
+    motes: Array.from({ length: 24 }, (_, i) => ({
+      x: ((i * 53 + 17) % 100) / 100,
+      y: ((i * 71 + 29) % 100) / 100,
+      r: 1.0 + (i % 3) * 0.7,
+      spd: 0.0025 + (i % 4) * 0.0014,
+      phase: i * 1.43
+    })),
+
+    stop() {
+      if (this.rafId) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+      }
+      this.realm = null;
+    },
+
+    start(realm) {
+      this.stop();
+      const canvas = document.getElementById('cgOverlayFxCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      this.realm = realm;
+
+      const tick = (now) => {
+        if (!this.realm) return;
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.max(200, Math.round(rect.width || 460));
+        const h = Math.max(200, Math.round(rect.height || 440));
+        const dpr = Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+        const tw = Math.round(w * dpr);
+        const th = Math.round(h * dpr);
+        if (canvas.width !== tw || canvas.height !== th) {
+          canvas.width = tw;
+          canvas.height = th;
+        }
+
+        ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (this.realm === 'dynamo') {
+          // Subtle Faraday Lichtenberg arcs along top/bottom perimeter + electric cyan/violet sparks
+          const stepTick = Math.floor(now / 95);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let rail = 0; rail < 2; rail++) {
+            const baseY = rail === 0 ? 18 : (h - 18);
+            const segs = 12;
+            ctx.beginPath();
+            for (let s = 0; s <= segs; s++) {
+              const f = s / segs;
+              const px = 28 + (w - 56) * f;
+              const jag = (s === 0 || s === segs) ? 0 : (Math.sin(stepTick * 2.9 + rail * 5.1 + s * 2.13) * 6.5);
+              const py = baseY + jag;
+              if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = rail === 0 ? 'rgba(56, 189, 248, 0.34)' : 'rgba(168, 85, 247, 0.28)';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(224, 242, 254, 0.30)';
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+          }
+          for (let i = 0; i < this.motes.length; i++) {
+            const m = this.motes[i];
+            const mx = ((m.x + Math.sin(now * 0.0007 + m.phase) * 0.04) * w + w) % w;
+            const my = (((m.y - now * 0.00004 * (1 + i % 3)) % 1) + 1) % 1 * h;
+            ctx.globalAlpha = 0.22 + 0.35 * (0.5 + 0.5 * Math.sin(now * 0.005 + m.phase));
+            ctx.fillStyle = (i % 3 === 0) ? '#fde047' : (i % 2 === 0 ? '#38bdf8' : '#c084fc');
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+        } else if (this.realm === 'helix') {
+          // Live Translucent 3D Cyan & Magenta DNA Double-Helix Wave Undulating Across Card Backdrop
+          const steps = 28;
+          const speed = now * 0.0024;
+          const cy = h * 0.30;
+          const amp = 22;
+          ctx.lineCap = 'round';
+          // Subtle base-pair rungs
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (let s = 2; s < steps; s += 3) {
+            const f = s / steps;
+            const x = 16 + (w - 32) * f;
+            const yOff = Math.sin(speed + f * Math.PI * 3.6) * amp;
+            ctx.moveTo(x, cy + yOff);
+            ctx.lineTo(x, cy - yOff);
+          }
+          ctx.stroke();
+          for (let strand = -1; strand <= 1; strand += 2) {
+            ctx.beginPath();
+            for (let s = 0; s <= steps; s++) {
+              const f = s / steps;
+              const x = 16 + (w - 32) * f;
+              const y = cy + Math.sin(speed + f * Math.PI * 3.6) * amp * strand;
+              if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = strand > 0 ? 'rgba(34, 211, 238, 0.32)' : 'rgba(232, 121, 249, 0.32)';
+            ctx.lineWidth = 2.0;
+            ctx.stroke();
+          }
+          for (let i = 0; i < this.motes.length; i++) {
+            const m = this.motes[i];
+            const mx = ((m.x + Math.cos(now * 0.0006 + m.phase) * 0.05) * w + w) % w;
+            const my = (((m.y - now * 0.00003 * (1 + i % 3)) % 1) + 1) % 1 * h;
+            ctx.globalAlpha = 0.24 + 0.32 * (0.5 + 0.5 * Math.sin(now * 0.004 + m.phase));
+            ctx.fillStyle = (i % 2 === 0) ? '#22d3ee' : '#e879f9';
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+        } else if (this.realm === 'meteor') {
+          // Rising Incandescent Molten Solar Embers + Subtle Bottom Thermal Glow
+          const g = ctx.createLinearGradient(0, h, 0, h * 0.55);
+          g.addColorStop(0.0, 'rgba(234, 88, 12, 0.26)');
+          g.addColorStop(0.5, 'rgba(249, 115, 22, 0.10)');
+          g.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, h * 0.55, w, h * 0.45);
+
+          for (let i = 0; i < this.motes.length; i++) {
+            const m = this.motes[i];
+            const progress = (((m.y - now * 0.00008 * (1 + (i % 4) * 0.45)) % 1) + 1) % 1;
+            const mx = (m.x * w) + Math.sin(now * 0.0025 + m.phase) * 14;
+            const my = progress * h;
+            const fade = Math.sin(progress * Math.PI);
+            ctx.globalAlpha = fade * 0.45;
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r * 2.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = fade * 0.85;
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(mx, my, m.r * 0.95, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        ctx.restore();
+        this.rafId = requestAnimationFrame(tick);
+      };
+      this.rafId = requestAnimationFrame(tick);
+    }
+  };
+
+  function startGame(type) {
+    OverlayRealmFX.stop();
+    TouchFireControls.releaseAllPointers();
+    TouchFireControls.clearHeldKeys();
+    state.active = true;
+    state.score = 0;
+    state.combo = 1;
+    updateHeaderUI();
+
+    // === CHANGED (v387): Start realm-specific futuristic music theme for Dynamo / Helix / Meteor ===
+    if (type === 'dynamo' || type === 'realm' || type === 'helix' || type === 'meteor') {
+      RealmMusicEngine.start(type === 'helix' ? 'helix' : (type === 'meteor' ? 'meteor' : 'dynamo'));
+    } else {
+      RealmMusicEngine.stop();
+    }
+
+    if (dom.screenOverlay) {
+      dom.screenOverlay.style.display = 'none';
+      dom.screenOverlay.classList.remove('oc-realm-overlay');
+      dom.screenOverlay.removeAttribute('data-realm');
+    }
+
+    if (type === 'math') {
+      startMathGame();
+    } else if (type === 'memory') {
+      startMemoryGame();
+    } else {
+      // type is 'realm', 'helix', 'meteor', or 'reflex'
+      startReflexGame();
+    }
+  }
+
+  function handleGameOver(title, desc) {
+    state.active = false;
+    // === CHANGED (v387): Stop music, release all pointers & held keys, hide controls on Game Over ===
+    RealmMusicEngine.stop();
+    TouchFireControls.releaseAllPointers();
+    TouchFireControls.clearHeldKeys();
+    TouchFireControls.syncUI();
+    clearInterval(state.mathTimer);
+    if (animFrameId) {
+      cancelAnimationFrame(animFrameId);
+      animFrameId = null;
+    }
+
+    // Track whether player beat their Personal Best before overwriting!
+    const prevBest = state.bestScores[state.gameType] || 0;
+    const isNewRecord = (state.score > prevBest && state.score > 0);
+    if (isNewRecord) {
+      state.bestScores[state.gameType] = state.score;
+      localStorage.setItem(`oc_best_${state.gameType}`, state.score.toString());
+      audio.playVictoryFanfare();
+    }
+
+    updateHeaderUI();
+
+    if (!dom.screenOverlay) return;
+
+    const isCoreRealm = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+    const statusChip = document.getElementById('cgGoStatusChip');
+    const statusText = document.getElementById('cgGoStatusText');
+    const defGlyph = document.getElementById('cgDefaultGlyph');
+    const realmEmbWrap = document.getElementById('cgRealmEmblemWrap');
+    const realmEmbImg = document.getElementById('cgRealmEmblemImg');
+    const recBadge = document.getElementById('cgGoRecordBadge');
+    const telemetry = document.getElementById('cgGoTelemetry');
+    const tipEl = document.getElementById('cgGoTip');
+    const quickRow = document.getElementById('cgGoQuickRow');
+    const kbdHint = document.getElementById('cgGoKbdHint');
+
+    if (isCoreRealm) {
+      const rKey = (state.gameType === 'helix') ? 'helix' : (state.gameType === 'meteor' ? 'meteor' : 'dynamo');
+      const REALM_DEBRIEF = {
+        dynamo: {
+          status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
+          title: 'FARADAY SHIELDS DEPLETED',
+          emblem: 'assets/btn-obj-dynamo-4k.png?v=arcade384',
+          ctaMain: 'RE-IGNITE CHROME DYNAMO',
+          ctaSub: 'FARADAY RAIL-ARC CORE',
+          btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
+          btnGif: 'assets/btn-dynamo-anim.gif?v=arcade384',
+          btnObj: 'assets/btn-obj-dynamo-4k.png?v=arcade384',
+          scienceTip: 'Chain catches trigger Faraday Induction arcs that pull nearby Plasma Orbs closer — hold Click or press [F] to fire your Rail-Arc Cannon!'
+        },
+        helix: {
+          status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
+          title: 'HELIX SHIELDS DEPLETED',
+          emblem: 'assets/btn-obj-helix-4k.png?v=arcade384',
+          ctaMain: 'RE-SEQUENCE CHROME HELIX',
+          ctaSub: 'PHOTONIC DNA LATTICE',
+          btnPng: 'assets/btn-helix-4k.png?v=arcade384',
+          btnGif: 'assets/btn-helix-anim.gif?v=arcade384',
+          btnObj: 'assets/btn-obj-helix-4k.png?v=arcade384',
+          scienceTip: 'Consecutive clean Nucleotide catches stabilize Base-Pair Resonance — unload your Twin-Helix Photonic Lance [F] during Boss telegraph gaps!'
+        },
+        meteor: {
+          status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
+          title: 'CALDERA SHIELDS DEPLETED',
+          emblem: 'assets/btn-obj-meteor-4k.png?v=arcade384',
+          ctaMain: 'RE-LAUNCH CHROME METEOR',
+          ctaSub: 'AEGIS SOLAR CALDERA',
+          btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
+          btnGif: 'assets/btn-meteor-anim.gif?v=arcade384',
+          btnObj: 'assets/btn-obj-meteor-4k.png?v=arcade384',
+          scienceTip: 'Solar Mass-Driver shots splash adjacent Boss Shield Pylons — graze incoming hazards to charge Flux Pulse [Space] for 15-dmg Boss burst!'
+        }
+      };
+      const cfg = REALM_DEBRIEF[rKey];
+      const rnd = state.currentRound || 1;
+      const peakTier = Math.max(state.maxTierReached || 1, state.coreTier || 1);
+      const peakCombo = Math.max(state.maxComboReached || 1, state.combo || 1);
+      const tierRoman = { 1: 'TIER I', 2: 'TIER II', 3: 'TIER III', 4: 'TIER IV', 5: 'TIER V' }[peakTier] || 'TIER I';
+      const nodesCaught = state.nodesCaughtTotal || 0;
+      const bossesSlain = state.bossesDefeated || 0;
+
+      // Calculate Combat Sortie Rank (S+ / S / A / B / C)
+      let grade = 'C', gradeCls = 'oc-go-grade-c';
+      if (rnd >= 5 || state.score >= 50000 || bossesSlain >= 4) { grade = 'S+'; gradeCls = 'oc-go-grade-splus'; }
+      else if (rnd >= 3 || state.score >= 22000 || peakTier >= 5 || bossesSlain >= 2) { grade = 'S'; gradeCls = 'oc-go-grade-s'; }
+      else if (rnd >= 2 || state.score >= 9000 || peakTier >= 4 || bossesSlain >= 1) { grade = 'A'; gradeCls = 'oc-go-grade-a'; }
+      else if (state.score >= 3000 || peakTier >= 2 || nodesCaught >= 10) { grade = 'B'; gradeCls = 'oc-go-grade-b'; }
+
+      // Contextual Boss Near-Miss / Tactical Debrief Message
+      let debriefSub = desc;
+      let bossSubTxt = bossesSlain > 0 ? `${bossesSlain} BOSS${bossesSlain > 1 ? 'ES' : ''} SLAIN` : `W${state.roundSubWave || 1}/3 · ${state.roundNodesCaught || 0}/${state.roundQuota || 48}`;
+      let tacticalTipHtml = `<strong>TACTICAL DEBRIEF:</strong> ${cfg.scienceTip}`;
+
+      if (state.boss && state.boss.phase !== 'defeated') {
+        const remHp = Math.ceil(state.boss.hp);
+        const maxHp = state.boss.maxHp;
+        debriefSub = `Overwhelmed by Round ${rnd} Boss ${state.boss.name} with ${remHp} / ${maxHp} HP remaining.`;
+        bossSubTxt = `BOSS ${remHp}/${maxHp} HP`;
+        if (remHp <= Math.ceil(maxHp * 0.30)) {
+          tacticalTipHtml = `<strong>SO CLOSE!</strong> Only <strong>${remHp} HP</strong> left on ${state.boss.name} — save Flux Pulse <strong>[SPACE]</strong> to clear bullets &amp; deal 15 burst damage!`;
+        } else if ((state.coreAmmo || 0) >= 12) {
+          const arsTip = getRealmArsenal(state.catcherType);
+          tacticalTipHtml = `<strong>UNUSED ARSENAL:</strong> You fell with <strong>${formatAmmoCount(state.coreAmmo)} shots</strong> loaded — fire <strong>${arsTip.gun}</strong> and unleash <strong>${arsTip.skill2}</strong> / <strong>${arsTip.ult}</strong>!`;
+        } else if (state.boss.pylons && state.boss.pylons.some(p => p.hp > 0)) {
+          tacticalTipHtml = `<strong>ARMOR BREAK TIP:</strong> Destroy ${state.boss.name}'s orbiting hexagonal Shield Pylons first for <strong>1.5× Crit</strong> + <strong>+8 Bonus Ammo</strong>!`;
+        }
+      } else {
+        debriefSub = `Containment lost during Round ${rnd} Wave ${state.roundSubWave || 1}/3 (${state.roundNodesCaught || 0}/${state.roundQuota || 48} nodes to Boss).`;
+      }
+
+      dom.screenOverlay.classList.add('oc-realm-overlay');
+      dom.screenOverlay.setAttribute('data-realm', rKey);
+      if (statusChip) statusChip.style.display = 'inline-flex';
+      if (statusText) statusText.textContent = cfg.status;
+      if (defGlyph) defGlyph.style.display = 'none';
+      if (realmEmbWrap) realmEmbWrap.style.display = 'flex';
+      if (realmEmbImg) realmEmbImg.src = cfg.emblem;
+      if (recBadge) recBadge.classList.toggle('show', isNewRecord);
+      if (telemetry) telemetry.style.display = 'grid';
+      if (tipEl) { tipEl.style.display = 'block'; tipEl.innerHTML = tacticalTipHtml; }
+      if (quickRow) {
+        quickRow.style.display = 'flex';
+        quickRow.querySelectorAll('[data-switch-realm]').forEach((btn) => {
+          const targetR = btn.getAttribute('data-switch-realm');
+          btn.classList.toggle('oc-go-hidden', targetR === rKey);
+          btn.onclick = () => openGame(targetR);
+        });
+        const exitBtn = document.getElementById('cgGoExitBtn');
+        if (exitBtn) exitBtn.onclick = closeGame;
+      }
+      if (kbdHint) kbdHint.style.display = 'block';
+
+      const setEl = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+      setEl('cgGoScore', state.score.toLocaleString());
+      setEl('cgGoBestSub', `BEST ${(state.bestScores[state.gameType] || 0).toLocaleString()}`);
+      setEl('cgGoRound', `R${rnd}`);
+      setEl('cgGoBossSub', bossSubTxt);
+      setEl('cgGoTier', tierRoman);
+      setEl('cgGoComboSub', `MAX ${peakCombo}x`);
+      const gradeEl = document.getElementById('cgGoGrade');
+      if (gradeEl) {
+        gradeEl.textContent = grade;
+        gradeEl.className = `oc-go-stat-val ${gradeCls}`;
+      }
+      setEl('cgGoNodesSub', `${nodesCaught} NODES`);
+
+      dom.screenTitle.textContent = cfg.title;
+      dom.screenDesc.textContent = debriefSub;
+      dom.btnStartAction.classList.add('oc-go-cta-4k');
+      dom.btnStartAction.innerHTML = `
+        <img class="oc-go-btn-art-png" src="${cfg.btnPng}" alt="" aria-hidden="true" />
+        <img class="oc-go-btn-art-gif" src="${cfg.btnGif}" alt="" aria-hidden="true" />
+        <span class="oc-go-btn-scrim" aria-hidden="true"></span>
+        <span class="oc-go-btn-obj-wrap" aria-hidden="true">
+          <span class="oc-go-btn-obj-ring"></span>
+          <img class="oc-go-btn-obj" src="${cfg.btnObj}" alt="" />
+        </span>
+        <span class="oc-go-btn-text-wrap">
+          <span class="oc-go-btn-main-txt">${cfg.ctaMain}</span>
+          <span class="oc-go-btn-sub-txt">${cfg.ctaSub}</span>
+        </span>
+        <span class="oc-go-btn-chevron" aria-hidden="true">»</span>
+      `;
+      dom.btnStartAction.onclick = () => startGame(state.gameType);
+      dom.screenOverlay.style.display = 'flex';
+      OverlayRealmFX.start(rKey);
+    } else {
+      // Standard clean overlay for Math Overdrive, Reflex Blitz, and Memory Matrix
+      OverlayRealmFX.stop();
+      dom.screenOverlay.classList.remove('oc-realm-overlay');
+      dom.screenOverlay.removeAttribute('data-realm');
+      dom.btnStartAction.classList.remove('oc-go-cta-4k');
+      if (statusChip) statusChip.style.display = 'none';
+      if (defGlyph) defGlyph.style.display = 'block';
+      if (realmEmbWrap) realmEmbWrap.style.display = 'none';
+      if (recBadge) recBadge.classList.remove('show');
+      if (telemetry) telemetry.style.display = 'none';
+      if (tipEl) tipEl.style.display = 'none';
+      if (quickRow) quickRow.style.display = 'none';
+      if (kbdHint) kbdHint.style.display = 'none';
+
+      dom.screenTitle.textContent = title;
+      dom.screenDesc.textContent = desc;
+      dom.screenOverlay.style.display = 'flex';
+      dom.btnStartAction.textContent = 'RE-ENGAGE (TRY AGAIN)';
+      dom.btnStartAction.onclick = () => startGame(state.gameType);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // GAME 1: MATH OVERDRIVE
+  // ══════════════════════════════════════════════════════════════════════════
+  function startMathGame() {
+    state.mathQuestions = MathEngine.generateLevelSet(state.mathLevel);
+    state.mathQIdx = 0;
+    state.mathMistakes = 0;
+    renderMathShields();
+    loadMathQuestion();
+  }
+
+  function renderMathShields() {
+    if (!dom.mathShields) return;
+    dom.mathShields.innerHTML = '';
+    const remaining = 10 - state.mathMistakes;
+    for (let i = 0; i < 10; i++) {
+      const cell = document.createElement('span');
+      cell.className = `shield-cell ${i < remaining ? 'shield-on' : 'shield-lost'}`;
+      dom.mathShields.appendChild(cell);
+    }
+  }
+
+  function loadMathQuestion() {
+    if (state.mathQIdx >= state.mathQuestions.length) {
+      handleGameOver('SIMULATION COMPLETE!', `Flawless Mastery! Final Score: ${state.score.toLocaleString()} points with ${10 - state.mathMistakes} shields intact.`);
+      return;
+    }
+
+    const q = state.mathQuestions[state.mathQIdx];
+    if (dom.mathProgressLabel) dom.mathProgressLabel.textContent = `QUESTION ${state.mathQIdx + 1} / 20`;
+    if (dom.mathEquation) dom.mathEquation.textContent = `${q.a} ${q.op} ${q.b} = ?`;
+
+    // Populate 4 choice buttons
+    const choices = q.choices || q.options || [];
+    dom.mathOptions.forEach((btn, idx) => {
+      const val = choices[idx] !== undefined ? choices[idx] : 0;
+      btn.dataset.ans = val;
+      const valSpan = btn.querySelector('.opt-val');
+      if (valSpan) valSpan.textContent = val;
+      btn.className = 'math-opt-btn';
+    });
+
+    startMathTimer();
+  }
+
+  function startMathTimer() {
+    clearInterval(state.mathTimer);
+    state.mathTimeLeft = 100;
+    if (dom.mathTimeBar) dom.mathTimeBar.style.width = '100%';
+
+    const speedMs = 70; // ~7 seconds per question
+    state.mathTimer = setInterval(() => {
+      state.mathTimeLeft -= 1.2;
+      if (dom.mathTimeBar) dom.mathTimeBar.style.width = `${Math.max(0, state.mathTimeLeft)}%`;
+
+      if (state.mathTimeLeft <= 0) {
+        clearInterval(state.mathTimer);
+        handleMathMistake(null, true);
+      }
+    }, speedMs);
+  }
+
+  function handleMathChoice(selectedVal, btnElem) {
+    if (!state.active || state.gameType !== 'math') return;
+    clearInterval(state.mathTimer);
+
+    const q = state.mathQuestions[state.mathQIdx];
+    if (parseInt(selectedVal, 10) === q.ans) {
+      // Correct!
+      state.score += 200 * state.combo;
+      state.combo = Math.min(10, state.combo + 1);
+      audio.playCorrectChime(state.combo);
+      if (btnElem) btnElem.classList.add('correct');
+      updateHeaderUI();
+
+      setTimeout(() => {
+        state.mathQIdx++;
+        loadMathQuestion();
+      }, 350);
+    } else {
+      // Incorrect!
+      handleMathMistake(btnElem, false);
+    }
+  }
+
+  function handleMathMistake(btnElem, isTimeout = false) {
+    state.mathMistakes++;
+    state.combo = 1;
+    audio.playMistakeBuzzer();
+    if (btnElem) btnElem.classList.add('wrong');
+    renderMathShields();
+    updateHeaderUI();
+
+    if (state.mathMistakes >= 10) {
+      handleGameOver('NEURAL OVERLOAD (10 STRIKES)', `Shields collapsed on Level ${state.mathLevel}, Q${state.mathQIdx + 1}. Final Score: ${state.score.toLocaleString()}`);
+    } else {
+      setTimeout(() => {
+        state.mathQIdx++;
+        loadMathQuestion();
+      }, 500);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // DEDICATED ARENA ENGINE: CHROME DYNAMO, CHROME HELIX, CHROME METEOR & REFLEX BLITZ
+  // ══════════════════════════════════════════════════════════════════════════
+  function startReflexGame() {
+    state.reflexLives = 3;
+    state.catcherX = 0.5;
+    state.catcherY = 0.82;
+    targetCatcherX = 0.5;
+    currentCatcherX = 0.5;
+    targetCatcherY = 0.82;
+    currentCatcherY = 0.82;
+    state.lastTransmuteTime = performance.now();
+    state.particles = [];
+    state.floatingTexts = [];
+    state.absorptionEffects = [];
+    state.ambientField = [];
+    state.hazardLasers = [];
+    state.empShockwaves = [];
+    state.blinkGhosts = [];
+    state.corruptionBursts = [];
+    state.scienceArcs = [];
+    state.scienceRipples = [];
+    state.empSlowUntil = 0;
+
+    // Session Opening Choreography & Advanced Mechanics
+    state.gameStartTime = performance.now();
+    state.totalNodesSpawned = 0;
+    state.lastSpawnTime = 0;
+    state.isOverdrive = false;
+    state.overdriveEndTime = 0;
+    state.prevCatcherPixelX = null;
+    state.catcherVelocity = 0;
+    state.lastLoopTimestamp = 0;
+
+    // The 5 Advanced Features State
+    state.coreTier = 1; // Tier I, II, III, IV
+    state.consecutivePerfects = 0;
+    state.pulseMeter = 0; // 0 to 100
+    state.isPulseReady = false;
+    state.activeBuffs = {};
+    state.activeBuff = null; // Active Celestial Surge / Power Buff
+    state.resonanceChain = 0;
+
+    state.currentWave = 1;
+    CoreKinematics.reset();
+    MeteorVFXEngine.init();
+
+    // Set designated catcher type per game mode
+    if (state.gameType === 'dynamo' || state.gameType === 'realm') {
+      state.catcherType = 'dynamo';
+    } else if (state.gameType === 'helix') {
+      state.catcherType = 'helix';
+    } else if (state.gameType === 'meteor') {
+      state.catcherType = 'meteor';
+    } else {
+      state.catcherType = 'dynamo';
+    }
+    RoundBossEngine.reset(performance.now());
+    TouchFireControls.syncUI();
+    state._testedBoss = false;
+    state._testedWave = false;
+    state._testedAmmoStandalone = false;
+    state._testedVoidbloom = false;
+    state._testedGameOver = false;
+
+    const picker = document.getElementById('reflexMultiplePicker');
+    const badge = document.getElementById('transmuteIndicator');
+    const startOverlay = document.getElementById('reflexStartOverlay');
+
+    if (state.gameType === 'reflex') {
+      if (picker) picker.style.display = 'none'; // Hidden while choosing multiple on start overlay
+      if (badge) badge.style.display = 'none';
+      // Prompt player to choose 1, 2, 3, 4, 5, 6, 7, 8, 9 FIRST
+      state.isChoosingMultiple = true;
+      if (startOverlay) startOverlay.style.display = 'flex';
+      updateHeaderUI();
+    } else {
+      if (picker) picker.style.display = 'none';
+      if (badge) badge.style.display = 'block';
+      if (startOverlay) startOverlay.style.display = 'none';
+      state.isChoosingMultiple = false;
+    }
+
+    renderReflexShields();
+    updateTransmuteIndicator();
+    resizeCanvas();
+
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    animFrameId = requestAnimationFrame(reflexGameLoop);
+  }
+
+  function renderReflexShields() {
+    if (!dom.reflexShields) return;
+    dom.reflexShields.innerHTML = '';
+    const maxShields = 3;
+    for (let i = 0; i < maxShields; i++) {
+      const cell = document.createElement('span');
+      cell.className = `shield-cell ${i < state.reflexLives ? 'shield-on' : 'shield-lost'}`;
+      dom.reflexShields.appendChild(cell);
+    }
+  }
+
+  function updateTransmuteIndicator() {
+    if (!dom.transmuteIndicator) return;
+    const labels = {
+      dynamo: '⚡ FARADAY SINGULARITY CORE · Capture Plasma Orbs!',
+      realm: '⚡ FARADAY SINGULARITY CORE · Capture Plasma Orbs!',
+      helix: '🧬 HARMONIC BIO-LATTICE CORE · Harmonize Nucleotide Pearls!',
+      meteor: '☄️ AEGIS CALDERA CORE · Deflect Molten Bolides!'
+    };
+
+    if (state.gameType === 'reflex') {
+      const reflexMorphLabels = {
+        realm: '⚡ CORE TRANSMUTED: CHROME DYNAMO (Catch Synapse Waves!)',
+        dynamo: '⚡ CORE TRANSMUTED: CHROME DYNAMO (Catch Synapse Waves!)',
+        helix: '⚡ CORE TRANSMUTED: CHROME HELIX (Catch Dual-Strands!)',
+        meteor: '⚡ CORE TRANSMUTED: CHROME METEOR (Deflect Molten Asteroids!)'
+      };
+      dom.transmuteIndicator.textContent = reflexMorphLabels[state.catcherType];
+    } else {
+      dom.transmuteIndicator.textContent = labels[state.catcherType] || labels.realm;
+    }
+    dom.transmuteIndicator.className = `transmute-badge transmute-${state.catcherType}`;
+  }
+
+  let cachedCanvasRect = { left: 0, top: 0, width: 0, height: 0 };
+  let cachedCanvasDpr = 1;
+  function getRenderDpr() {
+    return Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+  }
+
+  function resizeCanvas() {
+    if (!dom.canvasReflex) return;
+    const dpr = getRenderDpr();
+    cachedCanvasDpr = dpr;
+    dom.canvasReflex._renderDpr = dpr;
+    const rect = dom.canvasReflex.getBoundingClientRect();
+    const w = rect.width > 10 ? rect.width : window.innerWidth;
+    const h = rect.height > 10 ? rect.height : (window.innerHeight - 56);
+    cachedCanvasRect = { left: rect.left, top: rect.top, width: w, height: h };
+    const targetW = Math.max(320, Math.round(w * dpr));
+    const targetH = Math.max(240, Math.round(h * dpr));
+    if (dom.canvasReflex.width !== targetW || dom.canvasReflex.height !== targetH) {
+      dom.canvasReflex.width = targetW;
+      dom.canvasReflex.height = targetH;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // LUXURY OLED COSMIC SPACE ATMOSPHERE (v381 ZERO-LAG GPU CACHE)
+  // Pre-baked 256×256 Offscreen Nebula Blit + Zero-Alloc Starfield
+  // ─────────────────────────────────────────────────────────────
+  const COSMIC_STARS = Array.from({ length: 48 }, (_, i) => ({
+    x: ((i * 73 + 19) % 1000) / 1000,
+    y: ((i * 97 + 37) % 1000) / 1000,
+    baseR: 0.6 + (i % 3) * 0.45,
+    freq: 0.0018 + (i % 5) * 0.0009,
+    phase: i * 1.37
+  }));
+
+  const CosmicNebulaCache = {};
+  function _getCosmicNebulaSprite(mode) {
+    const key = mode === 'helix' ? 'helix' : (mode === 'dynamo' ? 'dynamo' : 'meteor');
+    if (CosmicNebulaCache[key]) return CosmicNebulaCache[key];
+    const sz = 256;
+    const c = document.createElement('canvas');
+    c.width = sz;
+    c.height = sz;
+    const gctx = c.getContext('2d');
+    if (gctx) {
+      const half = sz * 0.5;
+      const g1 = gctx.createRadialGradient(half, half, 4, half, half, half);
+      if (key === 'helix') {
+        g1.addColorStop(0.0, 'rgba(34, 211, 238, 0.042)');
+        g1.addColorStop(0.45, 'rgba(232, 121, 249, 0.024)');
+        g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+      } else if (key === 'dynamo') {
+        g1.addColorStop(0.0, 'rgba(56, 189, 248, 0.042)');
+        g1.addColorStop(0.45, 'rgba(168, 85, 247, 0.024)');
+        g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+      } else {
+        g1.addColorStop(0.0, 'rgba(249, 115, 22, 0.042)');
+        g1.addColorStop(0.45, 'rgba(234, 88, 12, 0.024)');
+        g1.addColorStop(1.0, 'rgba(3, 3, 8, 0)');
+      }
+      gctx.fillStyle = g1;
+      gctx.fillRect(0, 0, sz, sz);
+    }
+    CosmicNebulaCache[key] = c;
+    return c;
+  }
+
+  function renderLuxuryCosmicBackground(ctx, w, h, mode, now) {
+    // 1. Pre-baked GPU Nebula Blit (Zero per-frame radial gradient allocation!)
+    const driftX = Math.sin(now * 0.0004) * 45;
+    const driftY = Math.cos(now * 0.0003) * 35;
+    const nebR = Math.max(w, h) * 0.65;
+    const nebSpr = _getCosmicNebulaSprite(mode);
+
+    ctx.save();
+    ctx.drawImage(nebSpr, (w * 0.5 + driftX) - nebR, (h * 0.35 + driftY) - nebR, nebR * 2, nebR * 2);
+
+    // 2. Anti-aliased micro-stars & diamond stardust (Zero string allocations!)
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < COSMIC_STARS.length; i++) {
+      const s = COSMIC_STARS[i];
+      const sx = s.x * w;
+      const sy = s.y * h;
+      const sinV = 0.5 + 0.5 * Math.sin(now * s.freq + s.phase);
+      const tw = sinV * sinV;
+      ctx.globalAlpha = 0.15 + 0.55 * tw;
+      const r = s.baseR * (0.85 + 0.35 * tw);
+      ctx.beginPath();
+      ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function reflexGameLoop(timestamp) {
+    if (!state.active || (state.gameType !== 'reflex' && state.gameType !== 'realm' && state.gameType !== 'dynamo' && state.gameType !== 'helix' && state.gameType !== 'meteor')) return;
+
+    const ctx = dom.canvasReflex?.getContext('2d');
+    if (!ctx) return;
+
+    if (cachedCanvasRect.width < 10 || dom.canvasReflex.width < 10) {
+      resizeCanvas();
+    }
+    const dpr = cachedCanvasDpr || getRenderDpr();
+    const w = dom.canvasReflex.width / dpr;
+    const h = dom.canvasReflex.height / dpr;
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'medium';
+    ctx.clearRect(0, 0, w, h);
+
+    // ZERO GRIDLINES: Pure OLED True-Black Space with Silky Organic Ambient Nebulas
+    renderLuxuryCosmicBackground(ctx, w, h, state.catcherType, timestamp);
+
+    // Smooth Linear Interpolation (Lerp) with Mode-Specific Kinematics:
+    // - Dynamo: Snappy, agile electromagnetic tracking (0.44 touch / 0.28 mouse)
+    // - Helix: Fluid harmonic gliding with gyroscopic banking tilt (0.36 touch / 0.22 mouse)
+    // - Meteor: Substantial volcanic inertia and high-momentum weight (0.30 touch / 0.18 mouse)
+    // Immediate Capture Center Tracking (1:1 Omnidirectional Freedom):
+    // The capture center tracks pointer/hand input across all 2D axes (X & Y) with critically-damped spring follow for mouse,
+    // and instantaneous zero-lag direct physical tracking for touchscreen & mobile devices!
+    const isEmpSlowed = (state.empSlowUntil && state.empSlowUntil > timestamp && !state.hasBuff('shield', timestamp));
+    if (deviceInputMode === 'touch') {
+      if (isEmpSlowed) {
+        currentCatcherX += (targetCatcherX - currentCatcherX) * 0.34;
+        currentCatcherY += (targetCatcherY - currentCatcherY) * 0.34;
+      } else {
+        currentCatcherX = targetCatcherX;
+        currentCatcherY = targetCatcherY;
+      }
+    } else {
+      const followRate = isEmpSlowed ? 0.28 : 0.92;
+      currentCatcherX += (targetCatcherX - currentCatcherX) * followRate;
+      currentCatcherY += (targetCatcherY - currentCatcherY) * followRate;
+    }
+    state.catcherX = currentCatcherX;
+    state.catcherY = currentCatcherY;
+
+    let catcherPixelX = (deviceInputMode === 'touch')
+      ? Math.max(20, Math.min(w - 20, currentCatcherX * w))
+      : Math.max(55, Math.min(w - 55, currentCatcherX * w));
+    if (state.prevCatcherPixelX !== null) {
+      state.catcherVelocity = catcherPixelX - state.prevCatcherPixelX;
+    }
+    state.prevCatcherPixelX = catcherPixelX;
+    
+    // Cellphone & Mobile Safe-Area Inset:
+    const isCoarse = (deviceInputMode === 'touch') || window.innerWidth <= 768;
+    const catcherBottomMargin = isCoarse ? Math.max(185, Math.round(h * 0.24)) : Math.max(160, Math.round(h * 0.26));
+    const catcherPixelY = (state.gameType === 'reflex')
+      ? (h - catcherBottomMargin)
+      : (deviceInputMode === 'touch'
+          ? Math.max(20, Math.min(h - 20, currentCatcherY * h))
+          : Math.max(70, Math.min(h - 75, currentCatcherY * h)));
+
+    // Dynamic Cursor State: In arcade mode, the Chrome Core IS the cursor itself (1:1 ratio)
+    if (dom.canvasReflex) {
+      if (state.active && state.gameType !== 'reflex') {
+        if (dom.canvasReflex.style.cursor !== 'none') dom.canvasReflex.style.cursor = 'none';
+      } else {
+        if (dom.canvasReflex.style.cursor !== 'default') dom.canvasReflex.style.cursor = 'default';
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MODE A: REFLEX BLITZ — NUMBERS MULTIPLE CATCHER
+    // ─────────────────────────────────────────────────────────────
+    if (state.gameType === 'reflex') {
+      const D = state.targetMultiple || 7;
+
+      // If player is still choosing number (1-9), do not spawn numbers yet
+      if (state.isChoosingMultiple) {
+        // Draw bottom track and waiting paddle
+        ctx.save();
+        ctx.strokeStyle = "rgba(168, 85, 247, 0.25)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(30, catcherPixelY);
+        ctx.lineTo(w - 30, catcherPixelY);
+        ctx.stroke();
+
+        ctx.font = '800 13px "Lexend", sans-serif';
+        ctx.fillStyle = '#a855f7';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚡ SELECT A MULTIPLE (1 — 9) TO BEGIN', w / 2, h / 2);
+        ctx.restore();
+
+        ctx.restore();
+        animFrameId = requestAnimationFrame(reflexGameLoop);
+        return;
+      }
+
+      // Player has chosen! THEN numbers will fall (2-digit numbers 10 to 99)
+      // Spawn falling 2-digit numbers
+      if (Math.random() < 0.045) {
+        let num;
+        // 45% chance: valid 2-digit multiple of D
+        if (Math.random() < 0.45) {
+          const minK = Math.max(2, Math.ceil(10 / D));
+          const maxK = Math.floor(99 / D);
+          if (maxK >= minK) {
+            const k = Math.floor(Math.random() * (maxK - minK + 1)) + minK;
+            num = k * D;
+          } else {
+            num = D * 2;
+          }
+        } else {
+          // 55% chance: non-multiple 2-digit number (10 to 99)
+          let attempts = 0;
+          do {
+            num = Math.floor(Math.random() * 90) + 10;
+            attempts++;
+          } while (num % D === 0 && attempts < 25);
+          if (num % D === 0) num = num === 99 ? 98 : num + 1;
+        }
+
+        const px = Math.random() * (w - 130) + 65;
+        const speed = 2.8 + Math.random() * 2.4;
+        state.particles.push({
+          isNumber: true,
+          num: num,
+          x: px,
+          y: -40,
+          speed: speed,
+          stardust: []
+        });
+      }
+
+      // Draw Futuristic Catcher Paddle for Reflex Numbers
+      ctx.save();
+      // Glowing bottom track
+      ctx.strokeStyle = "rgba(168, 85, 247, 0.25)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(30, catcherPixelY);
+      ctx.lineTo(w - 30, catcherPixelY);
+      ctx.stroke();
+
+      // Catcher Energy Field
+      const paddleW = 120;
+      const paddleH = 26;
+      const paddleX = catcherPixelX - paddleW / 2;
+      const paddleY = catcherPixelY - paddleH / 2;
+
+      // Outer Glow (Zero-Lag Double-Stroke — Zero shadowBlur!)
+      ctx.beginPath();
+      ctx.roundRect(paddleX - 3, paddleY - 3, paddleW + 6, paddleH + 6, 16);
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.18)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(paddleX, paddleY, paddleW, paddleH, 13);
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.30)';
+      ctx.fill();
+
+      // Core Glass Paddle
+      ctx.beginPath();
+      ctx.roundRect(paddleX + 2, paddleY + 2, paddleW - 4, paddleH - 4, 11);
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = '#c084fc';
+      ctx.stroke();
+
+      // Target Multiple Indicator on Paddle
+      ctx.font = '800 11px "Lexend", sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`CATCH MULTIPLES OF ${D}`, catcherPixelX, catcherPixelY);
+      ctx.restore();
+
+      // Update & Render Falling 2-Digit Numbers
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.y += p.speed;
+
+        // Render 2-digit number capsule
+        ctx.save();
+        ctx.translate(p.x, p.y);
+
+        // Cyber Capsule Outer Glow (Zero-Lag Halo — Zero shadowBlur!)
+        const capsuleW = 58;
+        const capsuleH = 38;
+        const isValidMult = (p.num % D === 0);
+        ctx.beginPath();
+        ctx.roundRect(-capsuleW / 2 - 3, -capsuleH / 2 - 3, capsuleW + 6, capsuleH + 6, 15);
+        ctx.fillStyle = isValidMult ? 'rgba(56, 189, 248, 0.22)' : 'rgba(168, 85, 247, 0.18)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.roundRect(-capsuleW / 2, -capsuleH / 2, capsuleW, capsuleH, 12);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+        ctx.fill();
+
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = isValidMult ? '#38bdf8' : 'rgba(192, 132, 252, 0.7)';
+        ctx.stroke();
+
+        // 2-Digit Number Text
+        ctx.font = '800 21px "Lexend", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(p.num.toString(), 0, 1);
+        ctx.restore();
+
+        // Collision Check with Catcher
+        const hitX = Math.abs(p.x - catcherPixelX) < (paddleW / 2 + 10);
+        const hitY = Math.abs(p.y - catcherPixelY) < (paddleH / 2 + 15);
+
+        if (hitX && hitY) {
+          const isMultiple = (p.num % D === 0);
+          if (isMultiple) {
+            // CORRECT CATCH!
+            state.score += 150 * state.combo;
+            state.combo = Math.min(50, state.combo + 1);
+            if (state.combo >= 21) state.isOverdrive = true;
+            audio.playCorrectChime(state.combo);
+            state.floatingTexts.push({
+              text: `+${150 * (state.combo - 1)} [MULTIPLE OF ${D}!]`,
+              x: p.x,
+              y: catcherPixelY - 35,
+              color: '#34d399',
+              alpha: 1.0,
+              vy: -1.6
+            });
+          } else {
+            // MISTAKE! Caught non-multiple
+            state.reflexLives--;
+            state.combo = 1;
+            audio.playMistakeBuzzer();
+            state.floatingTexts.push({
+              text: `STRIKE! ${p.num} is NOT a multiple of ${D}!`,
+              x: p.x,
+              y: catcherPixelY - 35,
+              color: '#f87171',
+              alpha: 1.0,
+              vy: -1.6
+            });
+            renderReflexShields();
+
+            if (state.reflexLives <= 0) {
+              handleGameOver('SHIELDS DEPLETED', `Caught non-multiple numbers. Final Score: ${state.score.toLocaleString()} points.`);
+              ctx.restore();
+              return;
+            }
+          }
+          state.particles.splice(i, 1);
+          updateHeaderUI();
+          continue;
+        }
+
+        // Screen Exit (Past Bottom)
+        if (p.y > h + 50) {
+          const wasMultiple = (p.num % D === 0);
+          if (wasMultiple) {
+            // Player MISSED a valid multiple!
+            state.reflexLives--;
+            state.combo = 1;
+            audio.playMistakeBuzzer();
+            state.floatingTexts.push({
+              text: `MISSED MULTIPLE: ${p.num}!`,
+              x: Math.max(70, Math.min(w - 70, p.x)),
+              y: h - 80,
+              color: '#f87171',
+              alpha: 1.0,
+              vy: -1.2
+            });
+            renderReflexShields();
+
+            if (state.reflexLives <= 0) {
+              handleGameOver('SHIELDS DEPLETED', `Missed valid multiples of ${D}. Final Score: ${state.score.toLocaleString()} points.`);
+              ctx.restore();
+              return;
+            }
+          }
+          // Non-multiples despawn safely with no penalty!
+          state.particles.splice(i, 1);
+          updateHeaderUI();
+        }
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MODE B: CHROME DYNAMO, CHROME HELIX, CHROME METEOR (5 TOP-TIER SYSTEMS)
+    // ─────────────────────────────────────────────────────────────
+    else {
+      const now = timestamp;
+      // FOUNDATION FIX: Delta-Time Normalization across all screens & frame rates
+      const dt = state.lastLoopTimestamp ? Math.min(64, now - state.lastLoopTimestamp) : 16.67;
+      state.lastLoopTimestamp = now;
+      const dtScale = dt / 16.67;
+
+      const elapsedSec = (now - state.gameStartTime) / 1000;
+      const normFactor = Math.max(0.70, Math.min(1.20, h / 800));
+
+      // Calculate Core Evolution Tier (New Rule: Tier II @ 7, Tier III @ 14, Tier IV @ 21, Tier V @ 28)
+      if (state.combo >= 28) {
+        state.coreTier = 5;
+        state.isOverdrive = true;
+      } else if (state.combo >= 21) {
+        state.coreTier = 4;
+        state.isOverdrive = true;
+      } else if (state.combo >= 14) {
+        state.coreTier = 3;
+        state.isOverdrive = false;
+      } else if (state.combo >= 7) {
+        state.coreTier = 2;
+        state.isOverdrive = false;
+      } else {
+        state.coreTier = 1;
+        state.isOverdrive = false;
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // FEATURE 1: FLUX NODE CLASSES SPAWN CHOREOGRAPHY
+      // ─────────────────────────────────────────────────────────────
+      function pickFairLaneX(isHazard = false) {
+        const margin = 70;
+        const minSeparationSame = 85;      // 85px safe lateral clearance between same-type items
+        const minSeparationOpposite = 125;  // 125px guaranteed clearance between hazards & collectibles
+        let bestX = Math.random() * (w - margin * 2) + margin;
+        let maxScore = -99999;
+
+        for (let att = 0; att < 32; att++) {
+          const candidateX = Math.random() * (w - margin * 2) + margin;
+          let isClear = true;
+          let minOppDist = 9999;
+          let minSameDist = 9999;
+
+          for (let pt of state.particles) {
+            if (pt.y < 520) {
+              const ptIsHazard = isHazardNode(pt.nodeClass);
+              const dx = Math.abs(pt.x - candidateX);
+              const requiredSep = (isHazard !== ptIsHazard) ? minSeparationOpposite : minSeparationSame;
+              if (dx < requiredSep) {
+                isClear = false;
+              }
+              if (isHazard !== ptIsHazard) {
+                if (dx < minOppDist) minOppDist = dx;
+              } else {
+                if (dx < minSameDist) minSameDist = dx;
+              }
+            }
+          }
+          if (isClear) return candidateX;
+          const score = minOppDist * 1.6 + minSameDist;
+          if (score > maxScore) {
+            maxScore = score;
+            bestX = candidateX;
+          }
+        }
+        return bestX;
+      }
+
+      function spawnNode(baseSpeed) {
+        let pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
+
+        // Multi-Axis Round & 3-Act Sub-Wave Escalation: Smoothly intensifies speed & hazard depth every Wave & Round!
+        const rnd = state.currentRound || 1;
+        const subWave = state.roundSubWave || 1;
+        const waveSpeedMult = (subWave === 3) ? 1.15 : (subWave === 2 ? 1.08 : 1.0);
+        const speedComboBonus = (1.0 + Math.min(0.45, (state.combo - 1) * 0.016 + (rnd - 1) * 0.10)) * waveSpeedMult;
+        const actualSpeed = baseSpeed * normFactor * speedComboBonus;
+
+        // Balanced Hazard Spawning: Scales smoothly across Round & Sub-Wave (Wave 3 adds peak pre-boss pressure!)
+        const baseMaxHazards = (rnd >= 4) ? 3 : ((rnd >= 2 || state.combo >= 5) ? 2 : 1);
+        const maxHazards = Math.min(4, baseMaxHazards + (subWave === 3 ? 1 : 0));
+        const currentHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
+
+        // Dynamic hazard chance scales across Round & Sub-Wave (15% R1 W1 -> 30% R5+ W3); paused during active Caldera Nova
+        const waveHazBonus = (subWave === 3) ? 0.06 : (subWave === 2 ? 0.03 : 0.0);
+        const hazardChance = Math.min(0.30, 0.15 + (rnd - 1) * 0.025 + waveHazBonus);
+        const canSpawnHazard = (!SkillSystem.activeNova && currentHazards < maxHazards && elapsedSec > 2.6 && Math.random() < hazardChance);
+
+        let nClass = 'standard';
+
+        if (canSpawnHazard) {
+          // Balanced Hazard Ratio: 60% Regular Bad Nodes ('volatile') vs 40% Powered Feature Bad Nodes (Progressive Unlock Per Round!)
+          const rHaz = Math.random();
+          if (rHaz < 0.60) {
+            nClass = 'volatile'; // Classic Normal Bad Node (60% — clearly outnumbers powered hazards)
+          } else if (rnd === 1) {
+            // Round 1 introduces Hyper-Comet & Corruptor Laser cleanly (plus Gravity Well in Wave 3 Apex!)
+            nClass = (subWave === 3 && rHaz >= 0.88) ? 'gravity_well' : ((rHaz < 0.80) ? 'hyper_comet' : 'corruptor_laser');
+          } else if (rnd === 2) {
+            // Round 2 unlocks Gravity Well alongside Hyper-Comet & Corruptor!
+            nClass = (rHaz < 0.74) ? 'hyper_comet' : (rHaz < 0.88 ? 'corruptor_laser' : 'gravity_well');
+          } else if (rHaz < 0.68) {
+            nClass = 'hyper_comet'; // Feature #1: Inferno Hyper-Comet
+          } else if (rHaz < 0.76) {
+            nClass = 'corruptor_laser'; // Feature #2: Corruptor Overlord
+          } else if (rHaz < 0.83) {
+            nClass = 'gravity_well'; // Feature #3: Event-Horizon Singularity
+          } else if (rHaz < 0.90) {
+            nClass = 'emp_detonator'; // Feature #4: Overload EMP Shock-Mine
+          } else if (rHaz < 0.96) {
+            nClass = 'phase_stalker'; // Feature #5: Quantum Blink Stalker
+          } else if (rHaz < 0.98) {
+            nClass = 'seeker';
+          } else {
+            nClass = 'fragmentation';
+          }
+          if (!state._hazardStats) state._hazardStats = { regular: 0, powered: 0, byClass: {} };
+          if (nClass === 'volatile') state._hazardStats.regular++;
+          else state._hazardStats.powered++;
+          state._hazardStats.byClass[nClass] = (state._hazardStats.byClass[nClass] || 0) + 1;
+          window.__CHROME_ARCADE_HAZARD_STATS__ = state._hazardStats;
+        } else {
+          // Balanced Falling Node Archetypes (Standard Nodes + Tactical Power-Ups, boosted slightly in Wave 3 Apex!)
+          const rNode = Math.random();
+          const isCriticalLife = (state.reflexLives <= 1);
+          const pBoost = (subWave === 3) ? 1.25 : 1.0;
+          if (isCriticalLife && rNode < 0.10) {
+            nClass = 'catalyst'; // Critical Pity: Emergency Life Recovery Node (10% when on last life)
+          } else if (rNode < 0.025 * pBoost) {
+            nClass = 'shield'; // 5-Second Aegis Forcefield Shield
+          } else if (rNode < 0.050 * pBoost) {
+            nClass = 'missiles'; // Live Seeking Micro-Missiles
+          } else if (rNode < 0.075 * pBoost) {
+            nClass = 'cluster'; // Bifurcation Flux Node ("Cluster Doubler")
+          } else if (rNode < 0.100 * pBoost) {
+            nClass = 'supercharge'; // Supercharged Hyper-Node (Supernova)
+          } else if (rNode < 0.120 * pBoost) {
+            nClass = 'chronos'; // Chronos Stasis Pearl (Bullet-Time)
+          } else if (rNode < 0.140 * pBoost) {
+            nClass = 'singularity'; // Graviton Singularity Node (Magnetic Vacuum)
+          } else if (rNode < 0.160 * pBoost) {
+            nClass = (state.reflexLives >= 3) ? 'standard' : 'catalyst'; // Ascension Catalyst Star (+1 Life)
+          } else {
+            nClass = 'standard'; // Dominant Standard Target Nodes
+          }
+        }
+
+        // Guaranteed fair lane selection based on final node archetype
+        const px = pickFairLaneX(canSpawnHazard);
+
+        const headRadiusMap = {
+          standard: 26.0,
+          shield: 29.0,
+          missiles: 30.0,
+          cluster: 28.0,
+          supercharge: 30.0,
+          chronos: 25.0,
+          singularity: 27.0,
+          catalyst: 32.0, // Clean, proportional silhouette
+          volatile: 28.0,
+          seeker: 30.0,
+          phantom: 26.0,
+          fragmentation: 32.0,
+          vortex: 33.0,
+          gravity_well: 33.0,
+          pulsar_mine: 30.0,
+          emp_glitch: 30.0,
+          emp_detonator: 31.0,
+          tachyon_fracture: 30.0,
+          phase_stalker: 30.0,
+          plasma_flare: 30.0,
+          hyper_comet: 29.0,
+          corruptor_laser: 32.0
+        };
+
+        const speedMult = (nClass === 'supercharge') ? 1.25
+          : (nClass === 'chronos') ? 0.88
+          : (nClass === 'corruptor_laser') ? 0.72
+          : (nClass === 'gravity_well') ? 0.78
+          : (nClass === 'emp_detonator') ? 0.84
+          : 1.0;
+
+        const p = {
+          type: pType,
+          nodeClass: nClass,
+          x: px,
+          y: (nClass === 'hyper_comet') ? 42 : -48,
+          vx: 0,
+          speed: actualSpeed * speedMult,
+          baseSpeed: baseSpeed,
+          headR: headRadiusMap[nClass] || 26.0,
+          hasSplit: false,
+          hasDetonated: false,
+          hasGrazed: false,
+          phantomAlpha: 1.0,
+          animPhase: Math.random() * Math.PI * 2,
+          tumbleDir: Math.random() < 0.5 ? 1 : -1,
+          // Feature #1: Hyper-Comet Ignition & Live Flame Embers
+          cometPhase: (nClass === 'hyper_comet') ? 'charging' : null,
+          cometChargeEnd: (nClass === 'hyper_comet') ? (now + 850) : 0,
+          cometDiveSpeed: actualSpeed * 3.65,
+          flameEmbers: [],
+          // Feature #2: Corruptor Overlord Multi-Target Laser State
+          laserState: 'idle',
+          laserCharge: 0,
+          laserChargeStart: 0,
+          laserTargets: [],
+          laserSalvosLeft: 2,
+          laserNextReady: now + 650,
+          // Feature #4: EMP Detonator Shockwave Timer
+          empCharge: 0,
+          empNextPulse: now + 1550,
+          // Feature #5: Quantum Blink Stalker Wormhole Teleport State
+          blinkState: 'idle',
+          blinkProgress: 0,
+          blinkStartTime: 0,
+          blinkTargetX: px,
+          blinkTargetY: 160,
+          blinksLeft: (state.currentWave >= 3) ? 2 : 1,
+          spine: [],
+          stardust: []
+        };
+        for (let j = 0; j < 8; j++) {
+          p.spine.push({ x: px, y: -48 - j * 8.5 });
+        }
+        state.particles.push(p);
+        state.totalNodesSpawned++;
+        state.lastSpawnTime = now;
+      }
+
+      // Advance Deterministic Dual-Gated 3-Act Wave Gauntlet Timer (tab-switch proof via clamped dt!)
+      if (state.roundPhase === 'gauntlet') {
+        RoundBossEngine.tickGauntletPacing(dt, now, w);
+      }
+
+      // Immediate spawn at t = 0s:
+      if (state.totalNodesSpawned === 0) {
+        spawnNode(1.95);
+      }
+
+      // 3-Act Wave-Aware Spawn Cadence Engine (Vanguard -> Surge -> Apex Assault):
+      let shouldSpawn = false;
+      let nextBaseSpeed = 2.00;
+      const rndNow = state.currentRound || 1;
+      const subWaveNow = state.roundSubWave || 1;
+      const roundElapsedSec = (state.roundGauntletMs || 0) / 1000;
+
+      // Sync internal intensity wave cleanly for Blink Stalkers & score milestones
+      const calculatedWave = Math.min(10, (rndNow - 1) * 2 + subWaveNow);
+      if (calculatedWave > state.currentWave) {
+        state.currentWave = calculatedWave;
+      }
+
+      if (rndNow === 1 && roundElapsedSec < 5.0) {
+        // Gentle Round 1 opening warm-up (5 seconds)
+        const interval = 740;
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < 3) {
+          shouldSpawn = true;
+          nextBaseSpeed = 1.92 + Math.random() * 0.28;
+        }
+      } else if (subWaveNow === 1) {
+        // ACT 1 · WAVE 1/3 — VANGUARD (Rhythmic build-up, combo & cannon charging)
+        const interval = Math.max(460, 640 - (rndNow - 1) * 30);
+        const maxConcurrent = Math.min(5, 4 + Math.floor((rndNow - 1) / 2));
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < maxConcurrent) {
+          shouldSpawn = true;
+          nextBaseSpeed = 2.05 + (rndNow - 1) * 0.12 + Math.random() * 0.30;
+        }
+      } else if (subWaveNow === 2) {
+        // ACT 2 · WAVE 2/3 — SURGE (Tighter tempo, escalating hazards)
+        const interval = Math.max(400, 530 - (rndNow - 1) * 28);
+        const maxConcurrent = Math.min(6, 5 + Math.floor((rndNow - 1) / 3));
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < maxConcurrent) {
+          shouldSpawn = true;
+          nextBaseSpeed = 2.20 + (rndNow - 1) * 0.14 + Math.random() * 0.32;
+        }
+      } else {
+        // ACT 3 · WAVE 3/3 — APEX ASSAULT (High-energy pre-boss crescendo!)
+        const isBurstBeat = (state.totalNodesSpawned % 4 === 2);
+        const baseInt = Math.max(360, 450 - (rndNow - 1) * 24);
+        const interval = isBurstBeat ? Math.max(290, baseInt - 90) : baseInt;
+        const maxConcurrent = Math.min(6, 5 + Math.floor(rndNow / 2));
+        if ((now - state.lastSpawnTime) >= interval && state.particles.length < maxConcurrent) {
+          shouldSpawn = true;
+          nextBaseSpeed = 2.34 + (rndNow - 1) * 0.15 + Math.random() * 0.35;
+        }
+      }
+
+      // Boss-Phase Flank Ammo Supply Dropper (Guarantees Player Can Always Catch Good Nodes to Reload!)
+      function spawnBossSupplyNode(bossX) {
+        const pType = (state.gameType === 'realm') ? 'dynamo' : state.gameType;
+        const leftSpace = bossX > w * 0.5;
+        const laneX = leftSpace
+          ? (w * 0.14 + Math.random() * (w * 0.24))
+          : (w * 0.62 + Math.random() * (w * 0.24));
+        const rPow = Math.random();
+        let supClass = 'standard';
+        if (state.reflexLives <= 1 && rPow < 0.14) supClass = 'catalyst';
+        else if (rPow < 0.08) supClass = 'shield';
+        else if (rPow < 0.15) supClass = 'missiles';
+        else if (rPow < 0.21) supClass = 'supercharge';
+        const headR = supClass === 'standard' ? 26 : 30;
+        const sp = [];
+        for (let j = 0; j < 6; j++) sp.push({ x: laneX, y: -30 - j * 8 });
+        state.particles.push({
+          type: pType,
+          nodeClass: supClass,
+          x: laneX,
+          y: -30,
+          vx: 0,
+          speed: 2.35 * normFactor,
+          headR: headR,
+          spine: sp,
+          stardust: [],
+          animPhase: Math.random() * Math.PI * 2,
+          tumbleDir: Math.random() < 0.5 ? 1 : -1
+        });
+      }
+
+      if (shouldSpawn && state.roundPhase === 'gauntlet') {
+        spawnNode(nextBaseSpeed);
+      }
+
+      // TEST HARNESS: WAVE / OVERCHARGE PACING VERIFICATION (?test_wave=2|3 or ?test_overcharge=1)
+      if (window.location.search.includes('test_wave=') || window.location.search.includes('test_overcharge=1')) {
+        if (!state._testedWave) {
+          state._testedWave = true;
+          if (window.location.search.includes('test_overcharge=1')) {
+            // Quota already met with 3 seconds remaining on Boss approach timer -> verifies Overcharge countdown -> Boss Warning -> Boss Spawn!
+            state.roundNodesCaught = state.roundQuota;
+            state.roundGauntletMs = Math.max(0, state.roundMinDurationMs - 3000);
+            state.roundSubWave = 3;
+            state.coreAmmo = 64;
+            updateHeaderUI();
+          } else {
+            const mW = window.location.search.match(/test_wave=(\d+)/);
+            const targetW = mW ? parseInt(mW[1], 10) : 2;
+            if (targetW === 2) {
+              state.roundNodesCaught = Math.ceil(state.roundQuota * 0.34);
+              state.roundGauntletMs = Math.ceil(state.roundMinDurationMs * 0.34);
+              RoundBossEngine.tickGauntletPacing(0, now, w);
+            } else if (targetW === 3) {
+              state.roundSubWave = 2;
+              state.roundNodesCaught = Math.ceil(state.roundQuota * 0.68);
+              state.roundGauntletMs = Math.ceil(state.roundMinDurationMs * 0.68);
+              RoundBossEngine.tickGauntletPacing(0, now, w);
+            }
+          }
+        }
+      }
+
+      // TEST HARNESS: DIRECT BOSS SHOWDOWN (?test_boss=1 .. ?test_boss=5) + UNLIMITED AMMO (?test_ammo=N)
+      if (window.location.search.includes('test_boss=')) {
+        if (!state._testedBoss) {
+          state._testedBoss = true;
+          const mBoss = window.location.search.match(/test_boss=(\d+)/);
+          const bRound = mBoss ? Math.max(1, Math.min(5, parseInt(mBoss[1], 10) || 1)) : 1;
+          const mAmmo = window.location.search.match(/test_ammo=(\d+)/);
+          state.currentRound = bRound;
+          // === CHANGED (v387): No 150 cap on ammo even in QA harness (supports >1,000 and >100,000 tests!) ===
+          state.coreAmmo = mAmmo ? Math.max(0, parseInt(mAmmo[1], 10)) : 72;
+          state.offenseMode = !TouchFireControls.isTouch;
+          state.roundBanner = null;
+          RoundBossEngine.spawnBoss(bRound, now, w, h, true);
+          spawnBossSupplyNode(w * 0.5);
+          updateHeaderUI();
+        }
+      } else if (window.location.search.includes('test_ammo=')) {
+        if (!state._testedAmmoStandalone) {
+          state._testedAmmoStandalone = true;
+          const mAmmo = window.location.search.match(/test_ammo=(\d+)/);
+          if (mAmmo) {
+            state.coreAmmo = Math.max(0, parseInt(mAmmo[1], 10));
+            updateHeaderUI();
+          }
+        }
+      }
+
+      // TEST HARNESS: VOIDBLOOM NODE SHOWCASE (?test_voidbloom=1) + MULTI-HAZARD NOVA QA (?test_hazards=1)
+      if (window.location.search.includes('test_voidbloom=1')) {
+        if (!state._testedVoidbloom) {
+          state._testedVoidbloom = true;
+          VoidbloomEngine.scheduleTelegraph(w, h, catcherPixelX, now, w * 0.28);
+          VoidbloomEngine.spawnDirect(w * 0.68, h * 0.34, 3.4, w, h);
+        }
+      }
+      if (window.location.search.includes('test_hazards=1')) {
+        if (!state._testedHazards) {
+          state._testedHazards = true;
+          const pMode = (state.gameType === 'realm') ? 'dynamo' : (state.gameType || 'meteor');
+          const specs = [
+            { cls: 'volatile', x: w * 0.20, y: h * 0.42, r: 28 },
+            { cls: 'hyper_comet', x: w * 0.38, y: h * 0.36, r: 29 },
+            { cls: 'corruptor_laser', x: w * 0.62, y: h * 0.38, r: 32 },
+            { cls: 'gravity_well', x: w * 0.80, y: h * 0.44, r: 33 }
+          ];
+          specs.forEach((sp) => {
+            const spine = [];
+            for (let j = 0; j < 8; j++) spine.push({ x: sp.x, y: sp.y - j * 8 });
+            state.particles.push({
+              type: pMode, nodeClass: sp.cls, x: sp.x, y: sp.y, vx: 0, speed: 0.75, baseSpeed: 1.5,
+              headR: sp.r, hasSplit: false, hasDetonated: false, hasGrazed: false, phantomAlpha: 1.0,
+              animPhase: 0, tumbleDir: 1, cometPhase: sp.cls === 'hyper_comet' ? 'charging' : null,
+              cometChargeEnd: now + 3500, cometDiveSpeed: 4.5, flameEmbers: [],
+              laserState: 'idle', laserCharge: 0, laserChargeStart: 0, laserTargets: [], laserSalvosLeft: 2, laserNextReady: now + 2200,
+              empCharge: 0, empNextPulse: now + 3000, blinkState: 'idle', blinkProgress: 0, blinkStartTime: 0,
+              blinkTargetX: sp.x, blinkTargetY: sp.y, blinksLeft: 1, spine, stardust: []
+            });
+          });
+        }
+      }
+
+      // TEST HARNESS: PERSONALIZED TRANSLUCENT GAME OVER MODAL (?test_gameover=1)
+      if (window.location.search.includes('test_gameover=1')) {
+        if (!state._testedGameOver) {
+          state._testedGameOver = true;
+          state.score = 18450;
+          state.maxComboReached = 24;
+          state.maxTierReached = 4;
+          state.nodesCaughtTotal = 39;
+          state.bossesDefeated = (state.currentRound || 1) > 1 ? ((state.currentRound || 1) - 1) : 1;
+          setTimeout(() => {
+            if (state.active) {
+              if (state.boss) state.boss.hp = Math.max(12, Math.round(state.boss.maxHp * 0.18));
+              handleGameOver('SHIELDS DEPLETED', 'Simulated containment breach for visual QA.');
+            }
+          }, 950);
+        }
+      }
+
+      // Check if any non-volatile node is inside the magnetic horizon for Iris Lock-On
+      const tierHitBonusPre = (state.coreTier - 1) * 12;
+      const gravRadiusPre = 130 + tierHitBonusPre;
+      const isCoreLockedOn = state.particles.some(pt => !isHazardNode(pt.nodeClass) && Math.hypot(catcherPixelX - pt.x, catcherPixelY - pt.y) < gravRadiusPre);
+
+      // ─────────────────────────────────────────────────────────────
+      // TEST HARNESS: LIVE 5 FEATURE BAD NODES, CORRUPTOR LASER & MISSILE SHOWCASE
+      // ─────────────────────────────────────────────────────────────
+      if (window.location.search.includes('test_powerups=1')) {
+        if (!state._testedPowerups) {
+          state._testedPowerups = true;
+          const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+          state.particles = [
+            { type: pMode, nodeClass: 'shield', x: w * 0.08, y: h * 0.46, vx: 0, speed: 0, headR: 29, spine: [], stardust: [], animPhase: 0.2, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'missiles', x: w * 0.19, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 0.8, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'cluster', x: w * 0.30, y: h * 0.46, vx: 0, speed: 0, headR: 28, spine: [], stardust: [], animPhase: 1.4, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'supercharge', x: w * 0.41, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 2.0, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'chronos', x: w * 0.52, y: h * 0.46, vx: 0, speed: 0, headR: 25, spine: [], stardust: [], animPhase: 2.6, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'singularity', x: w * 0.63, y: h * 0.46, vx: 0, speed: 0, headR: 27, spine: [], stardust: [], animPhase: 3.2, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'catalyst', x: w * 0.74, y: h * 0.46, vx: 0, speed: 0, headR: 32, spine: [], stardust: [], animPhase: 3.8, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'seeker', x: w * 0.85, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 4.4, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'fragmentation', x: w * 0.94, y: h * 0.46, vx: 0, speed: 0, headR: 32, hasDetonated: true, spine: [], stardust: [], animPhase: 5.0, tumbleDir: 1 }
+          ];
+          state.lastSpawnTime = now + 999999;
+        }
+      }
+
+      if (window.location.search.includes('test_nodes=1')) {
+        if (!state._testedNodes) {
+          state._testedNodes = true;
+          const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+          state.particles = [
+            { type: pMode, nodeClass: 'standard', x: w * 0.10, y: h * 0.46, vx: 0, speed: 0, headR: 26, spine: [], stardust: [], animPhase: 0.2, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'shield', x: w * 0.23, y: h * 0.46, vx: 0, speed: 0, headR: 29, spine: [], stardust: [], animPhase: 0.9, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'missiles', x: w * 0.36, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 1.6, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'supercharge', x: w * 0.49, y: h * 0.46, vx: 0, speed: 0, headR: 30, spine: [], stardust: [], animPhase: 2.3, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'catalyst', x: w * 0.62, y: h * 0.46, vx: 0, speed: 0, headR: 32, spine: [], stardust: [], animPhase: 3.0, tumbleDir: 1 },
+            { type: pMode, nodeClass: 'volatile', x: w * 0.76, y: h * 0.46, vx: 0, speed: 0, headR: 28, spine: [], stardust: [], animPhase: 3.7, tumbleDir: -1 },
+            { type: pMode, nodeClass: 'corruptor_laser', x: w * 0.90, y: h * 0.46, vx: 0, speed: 0, headR: 32, laserState: 'idle', laserCharge: 0, laserSalvosLeft: 0, laserTargets: [], spine: [], stardust: [], animPhase: 4.4, tumbleDir: 1 }
+          ];
+          state.lastSpawnTime = now + 999999;
+        }
+      }
+
+      if (window.location.search.includes('test_hazards=1')) {
+        if (!state._testedHazards) {
+          state._testedHazards = true;
+          const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+          state.particles = [
+            { type: pMode, nodeClass: 'volatile', x: w * 0.09, y: h * 0.44, vx: 0, speed: 0, headR: 28, spine: [{x: w * 0.09, y: h * 0.44}, {x: w * 0.09, y: h * 0.44 - 30}, {x: w * 0.09, y: h * 0.44 - 55}], stardust: [], animPhase: 0.1 },
+            { type: pMode, nodeClass: 'hyper_comet', x: w * 0.25, y: h * 0.44, vx: 0, speed: 0, headR: 29, cometPhase: 'diving', flameEmbers: [], spine: [], stardust: [], animPhase: 0.4 },
+            { type: pMode, nodeClass: 'corruptor_laser', x: w * 0.41, y: h * 0.44, vx: 0, speed: 0, headR: 32, laserState: 'charging', laserCharge: 0.82, laserSalvosLeft: 0, laserTargets: [], spine: [], stardust: [], animPhase: 1.1 },
+            { type: pMode, nodeClass: 'gravity_well', x: w * 0.58, y: h * 0.44, vx: 0, speed: 0, headR: 33, spine: [], stardust: [], animPhase: 2.0 },
+            { type: pMode, nodeClass: 'emp_detonator', x: w * 0.74, y: h * 0.44, vx: 0, speed: 0, headR: 31, empCharge: 0.85, empNextPulse: now + 600, spine: [], stardust: [], animPhase: 3.1 },
+            { type: pMode, nodeClass: 'phase_stalker', x: w * 0.90, y: h * 0.44, vx: 0, speed: 0, headR: 30, blinkState: 'telegraphing', blinkProgress: 0.75, blinkStartTime: now - 300, blinkTargetX: w * 0.90, blinkTargetY: h * 0.21, blinksLeft: 0, spine: [], stardust: [], animPhase: 4.2 }
+          ];
+          state.empShockwaves.push({ x: w * 0.74, y: h * 0.44, r: 44, maxR: 138, alpha: 0.88, hitPlayer: true, mode: pMode });
+          state.lastSpawnTime = now + 999999;
+        }
+      }
+
+      if (window.location.search.includes('test_corruptor=1')) {
+        if (!state._testedCorruptor) {
+          state._testedCorruptor = true;
+          const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+          state.particles = [
+            { type: pMode, nodeClass: 'corruptor_laser', x: w * 0.50, y: h * 0.24, vx: 0, speed: 0.35, headR: 32, laserState: 'idle', laserCharge: 0, laserChargeStart: 0, laserTargets: [], laserSalvosLeft: 1, laserNextReady: now + 100, spine: [], stardust: [], animPhase: 0.5 },
+            { type: pMode, nodeClass: 'standard', x: w * 0.30, y: h * 0.44, vx: 0, speed: 0.25, headR: 26, spine: [], stardust: [], animPhase: 1.0 },
+            { type: pMode, nodeClass: 'standard', x: w * 0.50, y: h * 0.48, vx: 0, speed: 0.25, headR: 26, spine: [], stardust: [], animPhase: 2.0 },
+            { type: pMode, nodeClass: 'standard', x: w * 0.70, y: h * 0.44, vx: 0, speed: 0.25, headR: 26, spine: [], stardust: [], animPhase: 3.0 },
+            { type: pMode, nodeClass: 'hyper_comet', x: w * 0.14, y: 42, vx: 0, speed: 1.0, headR: 29, cometPhase: 'charging', cometChargeEnd: now + 750, cometDiveSpeed: 9.8, flameEmbers: [], spine: [], stardust: [], animPhase: 0.2 }
+          ];
+          state.lastSpawnTime = now + 999999;
+        }
+      }
+
+      if (window.location.search.includes('test_missiles=1')) {
+        if (!state._testedMissiles) {
+          state._testedMissiles = true;
+          const pMode = (state.catcherType === 'realm') ? 'dynamo' : (state.catcherType || 'dynamo');
+          state.particles = [
+            { type: pMode, nodeClass: 'standard', x: w * 0.50, y: h * 0.40, vx: 0, speed: 0, headR: 26, spine: [], stardust: [] },
+            { type: pMode, nodeClass: 'corruptor_laser', x: w * 0.28, y: h * 0.38, vx: 0, speed: 0, headR: 32, laserState: 'idle', laserSalvosLeft: 0, spine: [], stardust: [] }
+          ];
+          setTimeout(() => {
+            CoreKinematics.fireMissiles(catcherPixelX, catcherPixelY, performance.now(), state.particles, pMode);
+          }, 400);
+          state.lastSpawnTime = now + 999999;
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // OPTIONAL LIVE SHOWCASE RECORDER (?capture=1)
+      // Automatically executes the choreographed test (2s still, sweep left,
+      // reverse sharply right, capture node + hazard passing nearby) & streams frames
+      // ─────────────────────────────────────────────────────────────
+      if (window.location.search.includes('capture=1')) {
+        state.combo = 10;
+        state.coreTier = 4;
+        state.isOverdrive = true;
+        state.reflexLives = 3;
+        const modeName = (state.catcherType === 'realm') ? 'dynamo' : state.catcherType;
+        if (!state._capState || state._capState.mode !== modeName) {
+          CoreKinematics.reset();
+          state._capState = {
+            mode: modeName,
+            startTime: now,
+            frameIdx: 0,
+            lastFrameSent: 0,
+            done: false,
+            offCanvas: document.createElement('canvas')
+          };
+          state._capState.offCanvas.width = 688;
+          state._capState.offCanvas.height = 384;
+          updateHeaderUI();
+
+          // Seed deterministic showcase nodes + nearby hazard
+          state.particles = [
+            {
+              type: modeName, nodeClass: 'cluster',
+              x: w * 0.18, y: 55, vx: 0, speed: 1.55, baseSpeed: 1.55,
+              headR: 28, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
+              animPhase: 0.2, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
+            },
+            {
+              type: modeName, nodeClass: 'supercharge',
+              x: w * 0.34, y: 15, vx: 0, speed: 1.60, baseSpeed: 1.60,
+              headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
+              animPhase: 2.4, tumbleDir: -1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
+            },
+            {
+              // Target capture node at x = 0.64 * w
+              type: modeName, nodeClass: 'standard',
+              x: w * 0.64, y: (catcherPixelY - 78) - 2.20 * (3.45 * 60), vx: 0, speed: 2.20, baseSpeed: 2.20,
+              headR: 26, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
+              animPhase: 4.5, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
+            },
+            {
+              // Nearby hazard at x = 0.85 * w
+              type: modeName, nodeClass: 'seeker',
+              x: w * 0.85, y: (catcherPixelY - 20) - 2.10 * (3.65 * 60), vx: 0, speed: 2.10, baseSpeed: 2.10,
+              headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0,
+              animPhase: 1.3, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: []
+            }
+          ];
+          state.lastSpawnTime = now + 12000;
+        }
+
+        const cs = state._capState;
+        if (!cs.done) {
+          const tCap = (now - cs.startTime) / 1000.0;
+          if (tCap < 2.0) {
+            targetCatcherX = 0.45;
+            currentCatcherX = 0.45;
+          } else if (tCap < 2.65) {
+            const pLeft = (tCap - 2.0) / 0.65;
+            const ease = 0.5 - 0.5 * Math.cos(pLeft * Math.PI);
+            targetCatcherX = 0.45 - 0.23 * ease;
+          } else if (tCap < 3.25) {
+            const pRight = (tCap - 2.65) / 0.60;
+            const ease = 1.0 - Math.pow(1.0 - pRight, 2.6);
+            targetCatcherX = 0.22 + 0.42 * ease;
+          } else {
+            targetCatcherX = 0.64;
+          }
+          currentCatcherX += (targetCatcherX - currentCatcherX) * 0.86;
+          state.catcherX = currentCatcherX;
+          catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
+        } else {
+          targetCatcherX = 0.50;
+          currentCatcherX += (targetCatcherX - currentCatcherX) * 0.22;
+          state.catcherX = currentCatcherX;
+          catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
+          if (!cs.reseededForShot) {
+            cs.reseededForShot = true;
+            state.particles = [
+              { type: modeName, nodeClass: 'cluster', x: w * 0.22, y: 120, vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 28, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 0.4, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
+              { type: modeName, nodeClass: 'supercharge', x: w * 0.40, y: 40,  vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 2.1, tumbleDir: -1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
+              { type: modeName, nodeClass: 'standard', x: w * 0.62, y: 85,  vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 26, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 3.9, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] },
+              { type: modeName, nodeClass: 'seeker',  x: w * 0.82, y: 110, vx: 0, speed: 1.5, baseSpeed: 1.5, headR: 30, hasSplit: false, hasDetonated: false, phantomAlpha: 1.0, animPhase: 1.2, tumbleDir: 1, spine: [{x:0,y:0},{x:0,y:0}], stardust: [] }
+            ];
+          }
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // UPDATE ARTICULATED WING & CORE KINEMATICS + WORLD SPEED STREAKS
+      // ─────────────────────────────────────────────────────────────
+      CoreKinematics.update(catcherPixelX, catcherPixelY, dtScale, now, state.coreTier, (state.catcherType === 'realm' ? 'dynamo' : state.catcherType), state.particles);
+      CoreKinematics.updateAndDrawWorldStreaks(ctx, dtScale);
+
+      // Render Reactive Ion Thruster Exhaust & Graze Sparks in World Coordinates
+      const effDprLoop = cachedCanvasDpr || getRenderDpr();
+      const canvasW = ctx.canvas.width / effDprLoop;
+      const isMobile = canvasW < 600;
+      const drawW = isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060);
+      const u = drawW / 1376.0;
+      CoreKinematics.drawThrusterPlumes(ctx, u);
+      CoreKinematics.drawGrazeSparks(ctx, u);
+
+      // === CHANGED (v387): Global Screen Shake (Caldera Nova, Voidbloom destruction/breach, Seeker launch) ===
+      if (state.globalScreenShake && state.globalScreenShake > 0.25) {
+        const sx = (Math.random() - 0.5) * state.globalScreenShake;
+        const sy = (Math.random() - 0.5) * state.globalScreenShake;
+        ctx.translate(sx, sy);
+        state.globalScreenShake *= Math.pow(0.88, dtScale);
+        if (state.globalScreenShake <= 0.25) state.globalScreenShake = 0;
+      }
+
+      // Update & Render Live Seeking Micro-Missiles
+      CoreKinematics.updateAndDrawMissiles(ctx, dtScale, now, state);
+
+      // === CHANGED (v387): Voidbloom Growing Hazard (renders BEFORE Boss Bar / Top HUD so it never blocks them!) ===
+      VoidbloomEngine.tick(dt, ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h);
+
+      // Update & Render Round Progression, Sovereign Bosses & Active Skills!
+      SkillSystem.tick(dt, ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h);
+      RoundBossEngine.updateAndDrawBossSystem(ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h, spawnBossSupplyNode);
+
+      // ─────────────────────────────────────────────────────────────
+      // DRAW LAYERED CHROME CORE WITH INDEPENDENT INTERNAL ANIMATION
+      // ─────────────────────────────────────────────────────────────
+      ctx.save();
+      if (state.catcherType === 'helix') {
+        QuantumRenderer.drawHelixCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier);
+      } else if (state.catcherType === 'dynamo' || state.catcherType === 'realm') {
+        QuantumRenderer.drawDynamoCore(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier);
+      } else {
+        QuantumRenderer.drawMeteorAsteroid(ctx, catcherPixelX, catcherPixelY, timestamp, 0.5, state.coreTier);
+      }
+      ctx.restore();
+
+      // Render Adaptable Tier I–V Chrome Core Artillery Weapon IN FRONT OF the Core & Wings!
+      RoundBossEngine.updateAndDrawPlayerWeapon(ctx, catcherPixelX, catcherPixelY, u, dtScale, now, w, h);
+
+      // === CHANGED (v390): Caldera Nova Foreground 3D Orbital Shockwave Arc & Ignition Glint (IN FRONT OF Core!) ===
+      SkillSystem.drawNovaForeground(ctx, catcherPixelX, catcherPixelY, now, w, h);
+
+      // ─────────────────────────────────────────────────────────────
+      // ─────────────────────────────────────────────────────────────
+      // FEATURE 4: FLUX PULSE EXPANDING FULL-SCREEN SHOCKWAVE (UNIVERSE / PLANET DESTROYER)
+      // ─────────────────────────────────────────────────────────────
+      if (state.activeFluxPulse) {
+        const fp = state.activeFluxPulse;
+        // Physical expansion at 1350px/sec
+        fp.radius += (fp.speed * dtScale) / 60;
+        fp.alpha -= 0.016 * dtScale;
+        fp.flashAlpha = Math.max(0, (fp.flashAlpha || 0.85) - 0.045 * dtScale);
+        fp.screenShake = (fp.screenShake || 18) * 0.93;
+
+        // Apply screen shake to entire world render
+        if (fp.screenShake > 0.2) {
+          const shakeX = (Math.random() - 0.5) * fp.screenShake;
+          const shakeY = (Math.random() - 0.5) * fp.screenShake;
+          ctx.translate(shakeX, shakeY);
+        }
+
+        // Full-screen Cataclysm Detonation Flash
+        if (fp.flashAlpha > 0.01) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const flashGrad = ctx.createRadialGradient(fp.x, fp.y, 0, fp.x, fp.y, Math.max(w, h));
+          if (fp.mode === 'helix') {
+            flashGrad.addColorStop(0.0, `rgba(255, 255, 255, ${fp.flashAlpha * 0.75})`);
+            flashGrad.addColorStop(0.4, `rgba(34, 211, 238, ${fp.flashAlpha * 0.50})`);
+            flashGrad.addColorStop(1.0, `rgba(244, 63, 94, 0)`);
+          } else if (fp.mode === 'meteor') {
+            flashGrad.addColorStop(0.0, `rgba(255, 255, 255, ${fp.flashAlpha * 0.80})`);
+            flashGrad.addColorStop(0.4, `rgba(251, 146, 60, ${fp.flashAlpha * 0.55})`);
+            flashGrad.addColorStop(1.0, `rgba(220, 38, 38, 0)`);
+          } else {
+            flashGrad.addColorStop(0.0, `rgba(255, 255, 255, ${fp.flashAlpha * 0.80})`);
+            flashGrad.addColorStop(0.4, `rgba(0, 240, 255, ${fp.flashAlpha * 0.55})`);
+            flashGrad.addColorStop(1.0, `rgba(168, 85, 247, 0)`);
+          }
+          ctx.fillStyle = flashGrad;
+          ctx.fillRect(0, 0, w, h);
+          ctx.restore();
+        }
+
+        // ─── UNIVERSE / PLANET DESTROYER HIT DETECTION & VAPORIZATION ───
+        // Wavefront physically destroys all nodes (good & bad) without collecting power-ups!
+        for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+          const pt = state.particles[pIdx];
+          const distToWave = Math.hypot(pt.x - fp.x, pt.y - fp.y);
+          if (distToWave <= fp.radius + 35) {
+            const isHaz = isHazardNode(pt.nodeClass);
+            // Award destruction score
+            const killScore = isHaz ? 200 : 150;
+            state.score += killScore;
+            state.floatingTexts.push({
+              x: pt.x,
+              y: pt.y - 12,
+              text: isHaz ? `+${killScore} VAPORIZED` : `+${killScore} ANNIHILATED`,
+              color: isHaz ? '#f43f5e' : (fp.color || '#38bdf8'),
+              alpha: 1.0,
+              vy: -1.4,
+              life: 0,
+              maxLife: 45
+            });
+
+            // Shatter into 12 radiant kinetic debris shards
+            if (!state.vaporizedShards) state.vaporizedShards = [];
+            for (let sh = 0; sh < 12; sh++) {
+              const sAngle = Math.atan2(pt.y - fp.y, pt.x - fp.x) + (Math.random() - 0.5) * 1.4;
+              const sSpeed = Math.random() * 8.5 + 4.5;
+              state.vaporizedShards.push({
+                x: pt.x,
+                y: pt.y,
+                vx: Math.cos(sAngle) * sSpeed,
+                vy: Math.sin(sAngle) * sSpeed,
+                size: Math.random() * 4.2 + 2.2,
+                color: isHaz ? '#f43f5e' : (fp.mode === 'helix' ? '#22d3ee' : (fp.mode === 'meteor' ? '#fb923c' : '#38bdf8')),
+                life: 0,
+                maxLife: Math.floor(Math.random() * 20 + 25)
+              });
+            }
+
+            // Remove node completely - does NOT grant power-ups/buffs!
+            state.particles.splice(pIdx, 1);
+          }
+        }
+
+        // Smart-Bomb Synergy: Flux Pulse vaporizes Boss Bullets AND slams Active Boss for 15 Damage!
+        if (state.bossBullets && state.bossBullets.length > 0) {
+          for (let bIdx = state.bossBullets.length - 1; bIdx >= 0; bIdx--) {
+            const bb = state.bossBullets[bIdx];
+            if (Math.hypot(bb.x - fp.x, bb.y - fp.y) <= fp.radius + 24) {
+              state.bossBullets.splice(bIdx, 1);
+            }
+          }
+        }
+        if (state.boss && state.boss.phase === 'fighting' && !fp.hitBoss) {
+          const distBoss = Math.hypot(state.boss.x - fp.x, state.boss.y - fp.y);
+          if (distBoss <= fp.radius + (state.boss.hitR || 72)) {
+            fp.hitBoss = true;
+            RoundBossEngine.damageBoss(15, now, true, state.boss.x, state.boss.y);
+          }
+        }
+
+        // ─── CATACLYSMIC WAVEFRONT RENDER ───
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+
+        // 1. Concentric Wavefront Rings
+        ctx.beginPath();
+        ctx.arc(fp.x, fp.y, fp.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = fp.color;
+        ctx.lineWidth = 7;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(fp.x, fp.y, Math.max(0, fp.radius * 0.90), 0, Math.PI * 2);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(fp.x, fp.y, Math.max(0, fp.radius * 0.78), 0, Math.PI * 2);
+        ctx.strokeStyle = (fp.mode === 'meteor' ? '#fde047' : (fp.mode === 'helix' ? '#f43f5e' : '#a855f7'));
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // 2. Mode-Specific Destroyer Graphics
+        if (fp.mode === 'helix') {
+          // Cytogenetic Prismatic Interference Shards
+          const numFacets = 12;
+          for (let f = 0; f < numFacets; f++) {
+            const fa = (f * Math.PI * 2) / numFacets + now * 0.003;
+            const fx = fp.x + Math.cos(fa) * fp.radius;
+            const fy = fp.y + Math.sin(fa) * fp.radius;
+            ctx.beginPath();
+            ctx.arc(fx, fy, 6, 0, Math.PI * 2);
+            ctx.fillStyle = (f % 2 === 0) ? '#22d3ee' : '#f43f5e';
+            ctx.fill();
+          }
+        } else if (fp.mode === 'meteor') {
+          // Solar Hypernova Prominences
+          const numProm = 14;
+          for (let pr = 0; pr < numProm; pr++) {
+            const pa = (pr * Math.PI * 2) / numProm + now * 0.002;
+            const px = fp.x + Math.cos(pa) * fp.radius;
+            const py = fp.y + Math.sin(pa) * fp.radius;
+            const pLen = 28 * Math.sin(now * 0.01 + pr);
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + Math.cos(pa) * pLen, py + Math.sin(pa) * pLen);
+            ctx.strokeStyle = '#fde047';
+            ctx.lineWidth = 3.5;
+            ctx.stroke();
+          }
+        } else {
+          // Dynamo Tachyon Lightning Bolts crackling from core to shockwave
+          const numBolts = 16;
+          for (let b = 0; b < numBolts; b++) {
+            const ba = (b * Math.PI * 2) / numBolts + (Math.sin(b * 31) * 0.2);
+            const rInner = Math.max(10, fp.radius * 0.55);
+            let curBx = fp.x + Math.cos(ba) * rInner;
+            let curBy = fp.y + Math.sin(ba) * rInner;
+            ctx.beginPath();
+            ctx.moveTo(curBx, curBy);
+            const boltSteps = 5;
+            for (let st = 1; st <= boltSteps; st++) {
+              const rCur = rInner + (fp.radius - rInner) * (st / boltSteps);
+              const jitterAngle = (Math.sin(now * 0.03 + b * 13 + st * 7) * 0.25);
+              const nxtBx = fp.x + Math.cos(ba + jitterAngle) * rCur;
+              const nxtBy = fp.y + Math.sin(ba + jitterAngle) * rCur;
+              ctx.lineTo(nxtBx, nxtBy);
+              curBx = nxtBx;
+              curBy = nxtBy;
+            }
+            ctx.strokeStyle = (b % 2 === 0) ? 'rgba(0, 240, 255, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+            ctx.lineWidth = 2.2;
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+
+        if (fp.alpha <= 0 || fp.radius > Math.max(w, h) * 1.35) {
+          state.activeFluxPulse = null;
+        }
+      }
+
+      // ─── RENDER & UPDATE VAPORIZED KINETIC SHARDS ───
+      if (state.vaporizedShards && state.vaporizedShards.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let shIdx = state.vaporizedShards.length - 1; shIdx >= 0; shIdx--) {
+          const s = state.vaporizedShards[shIdx];
+          s.x += s.vx * dtScale;
+          s.y += s.vy * dtScale;
+          s.vy += 0.12 * dtScale; // slight gravity pull
+          s.life += dtScale;
+          const sAlpha = Math.max(0, 1.0 - (s.life / s.maxLife));
+          const sRad = s.size * (0.5 + 0.5 * sAlpha);
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, sRad, 0, Math.PI * 2);
+          ctx.fillStyle = s.color;
+          ctx.globalAlpha = sAlpha;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, sRad * 0.45, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+
+          if (s.life >= s.maxLife) {
+            state.vaporizedShards.splice(shIdx, 1);
+          }
+        }
+        ctx.restore();
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // UPDATE & RENDER WORLD-SPACE FEATURE HAZARD VFX (MODE-MATCHED EMP DOMES, BLINK GHOSTS, CORRUPTION BURSTS)
+      // ─────────────────────────────────────────────────────────────
+      const _getHazVfxPal = (m) => {
+        if (m === 'meteor') {
+          return {
+            p: 'rgba(16, 185, 129, ',   // Abyssal emerald
+            s: 'rgba(168, 85, 247, ',   // Void amethyst
+            a: 'rgba(249, 115, 22, ',   // Magma flare
+            mid: 'rgba(52, 211, 153, ', // Luminous emerald filament
+            hex: '#10b981',
+            empHex: '#34d399'
+          };
+        }
+        if (m === 'helix') {
+          return {
+            p: 'rgba(225, 29, 72, ',    // Blood ruby
+            s: 'rgba(251, 191, 36, ',   // Molten rose-gold
+            a: 'rgba(232, 121, 249, ',  // Bio-magenta
+            mid: 'rgba(253, 164, 175, ', // Ruby-gold filament
+            hex: '#fb7185',
+            empHex: '#e879f9'
+          };
+        }
+        return {
+          p: 'rgba(244, 63, 94, ',      // Dynamo crimson
+          s: 'rgba(192, 132, 252, ',    // Plasma violet
+          a: 'rgba(56, 189, 248, ',     // High-voltage cyan
+          mid: 'rgba(251, 113, 133, ',  // Crimson-rose filament
+          hex: '#f43f5e',
+          empHex: '#38bdf8'
+        };
+      };
+
+      if (state.empShockwaves && state.empShockwaves.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let swIdx = state.empShockwaves.length - 1; swIdx >= 0; swIdx--) {
+          const sw = state.empShockwaves[swIdx];
+          const swPal = _getHazVfxPal(sw.mode || state.catcherType);
+          sw.r += 4.4 * dtScale;
+          const prog = Math.min(1.0, sw.r / sw.maxR);
+          sw.alpha = Math.max(0, 1.0 - Math.pow(prog, 1.4));
+
+          // Kinetic push on nearby good nodes
+          for (let k = 0; k < state.particles.length; k++) {
+            const pt = state.particles[k];
+            if (!isHazardNode(pt.nodeClass)) {
+              const dxs = pt.x - sw.x;
+              const dys = pt.y - sw.y;
+              const ds = Math.hypot(dxs, dys);
+              if (ds > 1 && Math.abs(ds - sw.r) < 28) {
+                pt.x += (dxs / ds) * 2.8 * dtScale;
+                pt.x = Math.max(30, Math.min(w - 30, pt.x));
+              }
+            }
+          }
+
+          // Check EMP Shock Dome wash over Player Core (non-lethal Pulse Drain + brief Thruster Static!)
+          const distSwCore = Math.hypot(catcherPixelX - sw.x, catcherPixelY - sw.y);
+          if (!sw.hitPlayer && Math.abs(distSwCore - sw.r) < 34) {
+            sw.hitPlayer = true;
+            if (!state.hasBuff('shield', now)) {
+              state.pulseMeter = Math.max(0, (state.pulseMeter || 0) - 30);
+              if (state.pulseMeter < 100) state.isPulseReady = false;
+              state.empSlowUntil = now + 650;
+              state.floatingTexts.push({
+                x: catcherPixelX,
+                y: catcherPixelY - 64,
+                text: '⚡ EMP SHOCK! -30% PULSE',
+                color: swPal.empHex,
+                alpha: 1.0,
+                startTime: now
+              });
+              updateHeaderUI();
+            }
+          }
+
+          // Render Thick 3D Volumetric Feathered Mode-Matched EMP Plasma Dome (smooth outer falloff — zero hard edge!)
+          const domeGrad = ctx.createRadialGradient(sw.x, sw.y, Math.max(0, sw.r * 0.48), sw.x, sw.y, sw.r);
+          domeGrad.addColorStop(0.0, `${swPal.a}0)`);
+          domeGrad.addColorStop(0.55, `${swPal.p}${0.18 * sw.alpha})`);
+          domeGrad.addColorStop(0.78, `${swPal.a}${0.54 * sw.alpha})`);
+          domeGrad.addColorStop(0.86, `rgba(255, 255, 255, ${0.68 * sw.alpha})`);
+          domeGrad.addColorStop(0.93, `${swPal.a}${0.26 * sw.alpha})`);
+          domeGrad.addColorStop(1.0, `${swPal.s}0)`);
+          ctx.fillStyle = domeGrad;
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Crawling Mode-Matched Plasma Crest Filaments riding the shockwave perimeter!
+          ctx.lineCap = 'round';
+          const crestR = sw.r * 0.85;
+          for (let ca = 0; ca < 4; ca++) {
+            const a0 = now * 0.004 + ca * (Math.PI * 0.5) + sw.r * 0.02;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.58 * sw.alpha})`;
+            ctx.lineWidth = 2.0;
+            ctx.beginPath();
+            ctx.arc(sw.x, sw.y, crestR, a0, a0 + 0.48);
+            ctx.stroke();
+          }
+
+          if (sw.r >= sw.maxR || sw.alpha <= 0.01) {
+            state.empShockwaves.splice(swIdx, 1);
+          }
+        }
+        ctx.restore();
+      }
+
+      // Render Scientific Passive Resonance Effects (Dynamo Faraday Induction Arcs & Helix Base-Pair Ripples)
+      if (state.scienceArcs && state.scienceArcs.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        for (let aIdx = state.scienceArcs.length - 1; aIdx >= 0; aIdx--) {
+          const arc = state.scienceArcs[aIdx];
+          arc.life += dtScale;
+          const al = Math.max(0, 1.0 - arc.life / arc.maxLife);
+          if (al <= 0.01) {
+            state.scienceArcs.splice(aIdx, 1);
+            continue;
+          }
+          const dx = arc.x2 - arc.x1;
+          const dy = arc.y2 - arc.y1;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy / len;
+          const ny = dx / len;
+          const segs = 6;
+          ctx.beginPath();
+          for (let s = 0; s <= segs; s++) {
+            const f = s / segs;
+            const jag = (s === 0 || s === segs) ? 0 : Math.sin(now * 0.05 + s * 4.3 + aIdx * 7) * 12;
+            const px = arc.x1 + dx * f + nx * jag;
+            const py = arc.y1 + dy * f + ny * jag;
+            if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.strokeStyle = `rgba(56, 189, 248, ${0.82 * al})`;
+          ctx.lineWidth = 4.2;
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.95 * al})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      if (state.scienceRipples && state.scienceRipples.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let rIdx = state.scienceRipples.length - 1; rIdx >= 0; rIdx--) {
+          const rp = state.scienceRipples[rIdx];
+          rp.r += 5.2 * dtScale;
+          const al = Math.max(0, 1.0 - rp.r / rp.maxR);
+          if (al <= 0.01) {
+            state.scienceRipples.splice(rIdx, 1);
+            continue;
+          }
+          const rg = ctx.createRadialGradient(rp.x, rp.y, rp.r * 0.65, rp.x, rp.y, rp.r);
+          rg.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
+          rg.addColorStop(0.75, `rgba(34, 211, 238, ${0.32 * al})`);
+          rg.addColorStop(0.90, `rgba(232, 121, 249, ${0.42 * al})`);
+          rg.addColorStop(1.0, 'rgba(232, 121, 249, 0)');
+          ctx.fillStyle = rg;
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      if (state.blinkGhosts && state.blinkGhosts.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let gIdx = state.blinkGhosts.length - 1; gIdx >= 0; gIdx--) {
+          const g = state.blinkGhosts[gIdx];
+          const gPal = _getHazVfxPal(g.mode || state.catcherType);
+          g.life += dtScale;
+          const ga = Math.max(0, 1.0 - g.life / g.maxLife) * g.initAlpha;
+          if (ga <= 0.01) {
+            state.blinkGhosts.splice(gIdx, 1);
+            continue;
+          }
+          const gg = ctx.createRadialGradient(g.x, g.y, 0, g.x, g.y, g.r);
+          gg.addColorStop(0.0, `rgba(255, 255, 255, ${ga * 0.85})`);
+          gg.addColorStop(0.45, `${gPal.s}${ga * 0.72})`);
+          gg.addColorStop(0.80, `${gPal.p}${ga * 0.35})`);
+          gg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = gg;
+          ctx.beginPath();
+          ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      if (state.corruptionBursts && state.corruptionBursts.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let cbIdx = state.corruptionBursts.length - 1; cbIdx >= 0; cbIdx--) {
+          const cb = state.corruptionBursts[cbIdx];
+          const cbPal = _getHazVfxPal(cb.mode || state.catcherType);
+          cb.r += 3.8 * dtScale;
+          cb.alpha -= 0.048 * dtScale;
+          if (cb.alpha <= 0.01) {
+            state.corruptionBursts.splice(cbIdx, 1);
+            continue;
+          }
+          const cbg = ctx.createRadialGradient(cb.x, cb.y, cb.r * 0.35, cb.x, cb.y, cb.r);
+          cbg.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
+          cbg.addColorStop(0.50, `${cbPal.p}${cb.alpha * 0.72})`);
+          cbg.addColorStop(0.68, `rgba(255, 255, 255, ${cb.alpha * 0.85})`);
+          cbg.addColorStop(0.84, `${cbPal.s}${cb.alpha * 0.34})`);
+          cbg.addColorStop(1.0, `${cbPal.s}0)`);
+          ctx.fillStyle = cbg;
+          ctx.beginPath();
+          ctx.arc(cb.x, cb.y, cb.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // UPDATE & RENDER CELESTIAL FLUX NODES
+      // ─────────────────────────────────────────────────────────────
+      // Effective capture hitRadius (scales with Tier: Tier I=54/80, Tier II=+12px, Tier III=+24px)
+      const tierHitBonus = (state.coreTier - 1) * 12;
+      const hitRadius = ((deviceInputMode === 'touch') ? 80 : 54) + tierHitBonus;
+      const innerSweetSpotRadius = hitRadius * 0.40; // Precision Center Catch sweet spot
+      const gravRadius = 130 + tierHitBonus;
+
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        const isHazard = isHazardNode(p.nodeClass);
+
+        // ═══ FEATURE #1: INFERNO HYPER-COMET (Telegraphed Ultra-Fast Flaming Plunge!) ═══
+        const isComet = (p.nodeClass === 'hyper_comet' || p.nodeClass === 'plasma_flare');
+        if (isComet) {
+          if (!p.flameEmbers) p.flameEmbers = [];
+          // Update existing live flame embers
+          for (let emIdx = p.flameEmbers.length - 1; emIdx >= 0; emIdx--) {
+            const em = p.flameEmbers[emIdx];
+            em.x += em.vx * dtScale;
+            em.y += em.vy * dtScale;
+            em.life += dtScale;
+            if (em.life >= em.maxLife) p.flameEmbers.splice(emIdx, 1);
+          }
+
+          if (p.cometPhase === 'charging') {
+            p.y = 42; // Pin at top ignition corridor while telegraphing lane
+            if (Math.random() < 0.75) {
+              p.flameEmbers.push({
+                x: p.x + (Math.random() - 0.5) * 30,
+                y: p.y + (Math.random() - 0.5) * 16,
+                vx: (Math.random() - 0.5) * 1.4,
+                vy: -1.6 - Math.random() * 2.2,
+                size: 2.5 + Math.random() * 2.5,
+                life: 0,
+                maxLife: 16 + Math.random() * 10
+              });
+            }
+            if (now >= (p.cometChargeEnd || 0)) {
+              p.cometPhase = 'diving';
+              p.speed = p.cometDiveSpeed || Math.max(8.5, p.speed * 3.6);
+              audio.playHyperCometRoar();
+              state.floatingTexts.push({
+                x: p.x, y: p.y + 34,
+                text: '🔥 INFERNO DIVE!',
+                color: '#fb923c',
+                alpha: 1.0,
+                startTime: now
+              });
+            }
+          } else {
+            // Active Supersonic Dive: Stream continuous incandescent molten embers!
+            for (let sE = 0; sE < 2; sE++) {
+              p.flameEmbers.push({
+                x: p.x + (Math.random() - 0.5) * 28,
+                y: p.y - 8 - Math.random() * 14,
+                vx: (Math.random() - 0.5) * 2.2,
+                vy: -2.5 - Math.random() * 3.5,
+                size: 2.8 + Math.random() * 3.0,
+                life: 0,
+                maxLife: 18 + Math.random() * 14
+              });
+            }
+          }
+        }
+
+        // ═══ FEATURE #2: CORRUPTOR OVERLORD (Lasers Several Good Nodes -> Instant Bad Nodes!) ═══
+        if (p.nodeClass === 'corruptor_laser') {
+          if (p.laserState === 'idle' && (p.laserSalvosLeft || 0) > 0 && now >= (p.laserNextReady || 0) && p.y > 70 && p.y < h * 0.60) {
+            // Scan for up to 3 nearby good nodes above the danger floor (never corrupts life catalyst/shield/missiles or nodes right on player)
+            const candidates = [];
+            for (let k = 0; k < state.particles.length; k++) {
+              const other = state.particles[k];
+              if (other !== p && !isHazardNode(other.nodeClass) && !other.hasDetonated &&
+                  other.nodeClass !== 'catalyst' && other.nodeClass !== 'shield' && other.nodeClass !== 'missiles' &&
+                  other.y > 40 && other.y < catcherPixelY - 115) {
+                const distL = Math.hypot(other.x - p.x, other.y - p.y);
+                if (distL < 430) {
+                  candidates.push({ node: other, dist: distL });
+                }
+              }
+            }
+            candidates.sort((a, b) => a.dist - b.dist);
+            if (candidates.length > 0) {
+              p.laserTargets = candidates.slice(0, 3).map(c => c.node);
+              p.laserState = 'charging';
+              p.laserChargeStart = now;
+              p.laserCharge = 0;
+            }
+          } else if (p.laserState === 'charging') {
+            // Keep only targets still alive & still good
+            p.laserTargets = (p.laserTargets || []).filter(t => state.particles.includes(t) && !isHazardNode(t.nodeClass) && !t.hasDetonated);
+            if (p.laserTargets.length === 0) {
+              p.laserState = 'idle';
+              p.laserCharge = 0;
+            } else {
+              p.laserCharge = Math.min(1.0, (now - p.laserChargeStart) / 550);
+
+              // Render Mode-Matched Volumetric Lock-On Focus Cones & Target Corruption Halos during Charge!
+              const cPal = _getHazVfxPal(p.type || state.catcherType);
+              ctx.save();
+              ctx.globalCompositeOperation = 'lighter';
+              for (let tIdx = 0; tIdx < p.laserTargets.length; tIdx++) {
+                const tn = p.laserTargets[tIdx];
+                const dxT = tn.x - p.x;
+                const dyT = tn.y - p.y;
+                const distT = Math.hypot(dxT, dyT) || 1;
+                const nx = -dyT / distT;
+                const ny = dxT / distT;
+                const coneW = (2.5 + p.laserCharge * 5.0);
+
+                const focusGrad = ctx.createLinearGradient(p.x, p.y, tn.x, tn.y);
+                focusGrad.addColorStop(0.0, `rgba(255, 255, 255, ${0.45 + p.laserCharge * 0.50})`);
+                focusGrad.addColorStop(0.45, `${cPal.p}${0.38 + p.laserCharge * 0.45})`);
+                focusGrad.addColorStop(1.0, `${cPal.s}${0.42 + p.laserCharge * 0.45})`);
+                ctx.fillStyle = focusGrad;
+                ctx.beginPath();
+                ctx.moveTo(p.x + nx * coneW * 0.6, p.y + ny * coneW * 0.6);
+                ctx.lineTo(tn.x + nx * coneW * 1.4, tn.y + ny * coneW * 1.4);
+                ctx.lineTo(tn.x - nx * coneW * 1.4, tn.y - ny * coneW * 1.4);
+                ctx.lineTo(p.x - nx * coneW * 0.6, p.y - ny * coneW * 0.6);
+                ctx.closePath();
+                ctx.fill();
+
+                // Swirling mode-matched corruption lock halo around targeted good node
+                const tHaloR = (tn.headR || 26) * (1.35 + 0.35 * p.laserCharge);
+                const thg = ctx.createRadialGradient(tn.x, tn.y, tHaloR * 0.3, tn.x, tn.y, tHaloR);
+                thg.addColorStop(0.0, `${cPal.p}0)`);
+                thg.addColorStop(0.65, `${cPal.p}${0.50 * p.laserCharge})`);
+                thg.addColorStop(1.0, `${cPal.s}0)`);
+                ctx.fillStyle = thg;
+                ctx.beginPath();
+                ctx.arc(tn.x, tn.y, tHaloR, 0, Math.PI * 2);
+                ctx.fill();
+              }
+              ctx.restore();
+
+              // UNLEASH VOLUMETRIC CORRUPTION LASERS & INSTANTLY CONVERT GOOD NODES -> NORMAL BAD NODES!
+              if (p.laserCharge >= 1.0) {
+                audio.playCorruptionLaser();
+                for (let tIdx = 0; tIdx < p.laserTargets.length; tIdx++) {
+                  const tn = p.laserTargets[tIdx];
+                  state.hazardLasers.push({
+                    x1: p.x, y1: p.y,
+                    x2: tn.x, y2: tn.y,
+                    life: 0,
+                    maxLife: 28,
+                    mode: p.type
+                  });
+                  // Instant Conversion to Normal Bad Node ('volatile')!
+                  tn.nodeClass = 'volatile';
+                  tn.headR = 28.0;
+                  tn.justCorruptedUntil = now + 900;
+                  tn.hasGrazed = false;
+                  state.corruptionBursts.push({ x: tn.x, y: tn.y, r: 16, alpha: 1.0, mode: p.type });
+                  state.floatingTexts.push({
+                    x: tn.x, y: tn.y - 24,
+                    text: '⚡ CORRUPTED!',
+                    color: cPal.hex,
+                    alpha: 1.0,
+                    startTime: now
+                  });
+                }
+                p.laserSalvosLeft = Math.max(0, (p.laserSalvosLeft || 1) - 1);
+                p.laserState = 'firing';
+                p.laserFireEnd = now + 380;
+                p.laserNextReady = now + 1850;
+                p.laserTargets = [];
+              }
+            }
+          } else if (p.laserState === 'firing' && now >= (p.laserFireEnd || 0)) {
+            p.laserState = 'idle';
+            p.laserCharge = 0;
+          }
+        }
+
+        // ═══ FEATURE #3: EVENT-HORIZON SINGULARITY (Black Hole Orbital Slingshot & Core Tidal Pull) ═══
+        if (p.nodeClass === 'gravity_well' || p.nodeClass === 'vortex') {
+          for (let k = 0; k < state.particles.length; k++) {
+            const other = state.particles[k];
+            if (other !== p && !isHazardNode(other.nodeClass)) {
+              const dxV = p.x - other.x;
+              const dyV = p.y - other.y;
+              const distV = Math.hypot(dxV, dyV);
+              if (distV < 215 && distV > 32) {
+                const pullFactor = (1.0 - distV / 215);
+                // Inward orbital capture + tangential swirl curve around event horizon
+                const nx = dxV / distV;
+                const ny = dyV / distV;
+                const swirlX = -ny * pullFactor * 2.1 * dtScale;
+                const pullX = nx * pullFactor * 1.85 * dtScale;
+                other.x = Math.max(30, Math.min(w - 30, other.x + pullX + swirlX));
+                other.gravityTuggedUntil = now + 1500;
+              }
+            }
+          }
+          // Subtle Tidal Gravitational Pull on Player Core (when within 230px & unshielded)
+          const distCoreG = Math.hypot(catcherPixelX - p.x, catcherPixelY - p.y);
+          if (distCoreG < 230 && distCoreG > 55 && !state.hasBuff('shield', now)) {
+            const tidalStr = (1.0 - distCoreG / 230) * 0.0042 * dtScale;
+            targetCatcherX = Math.max(0.05, Math.min(0.95, targetCatcherX + Math.sign(p.x - catcherPixelX) * tidalStr));
+          }
+        }
+
+        // ═══ FEATURE #4: OVERLOAD EMP SHOCK-MINE (Timed Expanding Volumetric Plasma EMP Dome) ═══
+        if (p.nodeClass === 'emp_detonator' || p.nodeClass === 'emp_glitch' || p.nodeClass === 'pulsar_mine') {
+          if (!p.empNextPulse) p.empNextPulse = now + 1500;
+          const timeToPulse = p.empNextPulse - now;
+          if (timeToPulse <= 550 && timeToPulse > 0) {
+            p.empCharge = Math.min(1.0, 1.0 - (timeToPulse / 550));
+          } else if (timeToPulse <= 0 && p.y > 55 && p.y < h - 60) {
+            p.empCharge = 0;
+            p.empNextPulse = now + 2100;
+            audio.playEmpShockwave();
+            state.empShockwaves.push({
+              x: p.x, y: p.y,
+              r: 26,
+              maxR: 148,
+              alpha: 1.0,
+              hitPlayer: false,
+              mode: p.type
+            });
+          } else {
+            p.empCharge = 0;
+          }
+        }
+
+        // ═══ FEATURE #5: QUANTUM BLINK STALKER (Telegraphed Exit Wormhole Teleportation!) ═══
+        if (p.nodeClass === 'phase_stalker' || p.nodeClass === 'tachyon_fracture') {
+          if (p.blinkState === 'idle' && (p.blinksLeft || 0) > 0 && p.y > h * 0.22 && p.y < h * 0.56) {
+            // Choose a fair exit lane guaranteed >= 125px laterally away from Player Core
+            let exitX = (p.x < w * 0.5) ? Math.min(w - 75, p.x + 175) : Math.max(75, p.x - 175);
+            if (Math.abs(exitX - catcherPixelX) < 125) {
+              exitX = (catcherPixelX < w * 0.5) ? Math.min(w - 75, catcherPixelX + 155) : Math.max(75, catcherPixelX - 155);
+            }
+            p.blinkTargetX = exitX;
+            p.blinkTargetY = Math.min(h * 0.62, p.y + 52);
+            p.blinkState = 'telegraphing';
+            p.blinkStartTime = now;
+            p.blinkProgress = 0;
+          } else if (p.blinkState === 'telegraphing') {
+            p.blinkProgress = Math.min(1.0, (now - (p.blinkStartTime || now)) / 650);
+
+            // Render Sculpted Mode-Matched 3D Event-Horizon Exit Wormhole Portal + Quantum Entanglement Tether!
+            const wPal = _getHazVfxPal(p.type || state.catcherType);
+            const pAlpha = 0.45 + 0.55 * p.blinkProgress;
+
+            // 0. Shimmering Quantum-Entanglement Vector Tether connecting Stalker -> Exit Portal (clear telegraph!)
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const tGrad = ctx.createLinearGradient(p.x, p.y, p.blinkTargetX, p.blinkTargetY);
+            tGrad.addColorStop(0.0, `${wPal.p}${0.22 * pAlpha})`);
+            tGrad.addColorStop(0.5, `${wPal.s}${0.52 * pAlpha})`);
+            tGrad.addColorStop(1.0, `rgba(255, 255, 255, ${0.65 * pAlpha})`);
+            const dtx = p.blinkTargetX - p.x;
+            const dty = p.blinkTargetY - p.y;
+            const dlen = Math.hypot(dtx, dty) || 1;
+            const tnx = -dty / dlen;
+            const tny = dtx / dlen;
+            ctx.strokeStyle = tGrad;
+            ctx.lineWidth = 2.6;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            for (let ts = 0; ts <= 8; ts++) {
+              const tf = ts / 8;
+              const wave = (ts === 0 || ts === 8) ? 0 : Math.sin(now * 0.025 + tf * Math.PI * 3.0) * 6.5;
+              const qx = p.x + dtx * tf + tnx * wave;
+              const qy = p.y + dty * tf + tny * wave;
+              if (ts === 0) ctx.moveTo(qx, qy); else ctx.lineTo(qx, qy);
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(p.blinkTargetX, p.blinkTargetY);
+            const portalR = (20 + 20 * p.blinkProgress);
+            const pRot = now * 0.0065;
+
+            // 1. Outer Dimensional Halo Bloom
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const pGlow = ctx.createRadialGradient(0, 0, portalR * 0.45, 0, 0, portalR * 1.55);
+            pGlow.addColorStop(0.0, `${wPal.s}${0.48 * pAlpha})`);
+            pGlow.addColorStop(0.45, `${wPal.p}${0.38 * pAlpha})`);
+            pGlow.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = pGlow;
+            ctx.beginPath();
+            ctx.arc(0, 0, portalR * 1.55, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // 2. Pitch-Black Obsidian Dimensional Void Center
+            const voidGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, portalR * 0.78);
+            voidGrad.addColorStop(0.0, 'rgba(3, 2, 8, 0.98)');
+            voidGrad.addColorStop(0.68, 'rgba(10, 4, 22, 0.92)');
+            voidGrad.addColorStop(1.0, 'rgba(10, 4, 22, 0)');
+            ctx.fillStyle = voidGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, portalR * 0.78, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 3. Sculpted Sweeping Vortex Plasma Crescent Arcs Wrapping the Event Rim
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.lineCap = 'round';
+            for (let wl = 0; wl < 3; wl++) {
+              const startA = pRot + wl * (Math.PI * 2 / 3);
+              const endA = startA + 1.38;
+              ctx.strokeStyle = (wl % 2 === 0) ? `${wPal.s}${0.82 * pAlpha})` : `${wPal.p}${0.78 * pAlpha})`;
+              ctx.lineWidth = 4.2;
+              ctx.beginPath();
+              ctx.arc(0, 0, portalR * 0.78, startA, endA);
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.88 * pAlpha})`;
+              ctx.lineWidth = 1.8;
+              ctx.beginPath();
+              ctx.arc(0, 0, portalR * 0.78, startA + 0.25, endA - 0.15);
+              ctx.stroke();
+            }
+            ctx.restore();
+            ctx.restore();
+
+            if (p.blinkProgress >= 1.0 && (p.blinksLeft || 0) > 0) {
+              // Execute Instantaneous Quantum Warp-Jump + Spawn 4 Volumetric Ghost Afterimages!
+              for (let gStep = 0; gStep < 4; gStep++) {
+                const frac = gStep / 3.5;
+                state.blinkGhosts.push({
+                  x: p.x + (p.blinkTargetX - p.x) * frac,
+                  y: p.y + (p.blinkTargetY - p.y) * frac,
+                  r: 28 * (0.75 + 0.35 * frac),
+                  initAlpha: 0.45 + 0.40 * frac,
+                  life: 0,
+                  maxLife: 18 + gStep * 3,
+                  mode: p.type
+                });
+              }
+              audio.playQuantumBlink();
+              p.x = p.blinkTargetX;
+              p.y = p.blinkTargetY;
+              p.spine = [];
+              p.blinksLeft = Math.max(0, (p.blinksLeft || 1) - 1);
+              p.blinkState = 'idle';
+              p.blinkProgress = 0;
+            }
+          }
+        }
+
+        // Classic Hazard Kinematics (Seeker, Fragmentation, Phantom)
+        if (p.nodeClass === 'seeker') {
+          // Tracking Seeker Mine: Horizontally glides towards the core
+          const dxSeek = catcherPixelX - p.x;
+          const steerSpeed = Math.min(2.4, Math.abs(dxSeek) * 0.038) * Math.sign(dxSeek);
+          p.x += steerSpeed * dtScale;
+          p.x = Math.max(30, Math.min(w - 30, p.x));
+        }
+
+        if (p.nodeClass === 'fragmentation' && !p.hasDetonated && p.y > h * 0.38) {
+          // Fragmentation Bolide: Detonates mid-air into 3 angled shrapnel shards!
+          p.hasDetonated = true;
+          audio.playHazardExplosion();
+          const shardAngles = [-0.55, 0, 0.55];
+          for (let sIdx = 0; sIdx < 3; sIdx++) {
+            const ang = shardAngles[sIdx];
+            const sh = {
+              type: p.type,
+              nodeClass: 'volatile',
+              x: p.x + (sIdx - 1) * 16,
+              y: p.y,
+              vx: Math.sin(ang) * 3.2,
+              speed: p.speed * 1.15,
+              baseSpeed: p.baseSpeed,
+              headR: 18.0,
+              isShard: true,
+              animPhase: Math.random() * Math.PI * 2,
+              spine: []
+            };
+            for (let j = 0; j < 6; j++) sh.spine.push({ x: sh.x, y: sh.y - j * 7 });
+            state.particles.push(sh);
+          }
+          state.particles.splice(i, 1);
+          continue;
+        }
+
+        if (p.nodeClass === 'phantom') {
+          // Stealth Phase-Glitch Trap: Dynamic decloaking within 220px of player
+          const distToPlayer = Math.hypot(catcherPixelX - p.x, catcherPixelY - p.y);
+          if (distToPlayer < 220) {
+            p.phantomAlpha = 0.55 + 0.45 * Math.sin(now * 0.02);
+          } else {
+            p.phantomAlpha = 0.08 + 0.14 * (0.5 + 0.5 * Math.sin(now * 0.005 + p.animPhase));
+          }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // UNIVERSAL DYNAMIC ANTI-COLLISION & ANTI-OVERLAP ENGINE
+        // (Skip Hyper-Comet lane push so its telegraphed dive trajectory stays 100% straight & honest!)
+        // ─────────────────────────────────────────────────────────────
+        if (!isComet) {
+          for (let j = 0; j < state.particles.length; j++) {
+            if (i === j) continue;
+            const other = state.particles[j];
+            const otherIsHazard = isHazardNode(other.nodeClass);
+            const isOpposite = (isHazard !== otherIsHazard);
+
+            const dx = p.x - other.x;
+            const dy = p.y - other.y;
+            const dist = Math.hypot(dx, dy);
+            const targetGap = isOpposite ? 115 : 82;
+
+            if (dist < targetGap && Math.abs(dy) < (isOpposite ? 130 : 95) && dist > 0.1) {
+              const dir = (dx !== 0) ? Math.sign(dx) : (i > j ? 1 : -1);
+              if (isOpposite) {
+                if (isHazard) {
+                  const pushFactor = Math.pow(1.0 - (dist / targetGap), 1.3) * 4.2 * dtScale;
+                  p.x += dir * pushFactor;
+                  p.vx = (p.vx || 0) * 0.85 + dir * pushFactor * 0.50;
+                  p.x = Math.max(48, Math.min(w - 48, p.x));
+                }
+              } else {
+                const pushFactor = Math.pow(1.0 - (dist / targetGap), 1.2) * 2.0 * dtScale;
+                p.x += dir * pushFactor * 0.5;
+                p.x = Math.max(40, Math.min(w - 40, p.x));
+              }
+            }
+          }
+        }
+
+        // Apply horizontal velocity
+        if (p.vx) {
+          p.x += p.vx * dtScale;
+          p.vx *= 0.98;
+        }
+
+        // Active Buffs: Bullet-Time (Chronos) & Graviton Vacuum (Singularity)
+        let globalSpeedMultiplier = 1.0;
+        if (state.hasBuff('chronos', now) || state.hasBuff('stasis', now)) {
+          globalSpeedMultiplier = 0.40; // 60% slow motion bullet-time!
+        }
+        if (state.hasBuff('singularity', now)) {
+          if (!isHazardNode(p.nodeClass)) {
+            const dxSing = catcherPixelX - p.x;
+            const dySing = catcherPixelY - p.y;
+            const distSing = Math.hypot(dxSing, dySing);
+            if (distSing > 10) {
+              p.x += (dxSing / distSing) * 6.5 * dtScale;
+              p.y += (dySing / distSing) * 3.5 * dtScale;
+            }
+          }
+        }
+
+        // Near-Core Proximity Slowdown & Tether Attraction
+        const dxToCore = catcherPixelX - p.x;
+        const dyToCore = catcherPixelY - p.y;
+        const distToCore = Math.hypot(dxToCore, dyToCore);
+
+        // Emergency Life Recovery Magnetic Assist (Clutch Save)
+        if (p.nodeClass === 'catalyst' && state.reflexLives < 3 && distToCore < 190 && p.y < catcherPixelY + 30) {
+          const lifeMagnet = (1.0 - (distToCore / 190)) * 1.6;
+          p.x += Math.sign(dxToCore) * Math.min(Math.abs(dxToCore) * 0.20, lifeMagnet * 4.8 * dtScale);
+        }
+
+        // Regular Hazard Proximity Escalation (Dynamic Telegraph when approaching Core within 230px!)
+        if (isHazard) {
+          p._proxHeat = (distToCore < 230) ? Math.max(0, Math.min(1, 1.0 - distToCore / 230)) : 0;
+        }
+
+        let speedFactor = 1.0;
+        if (!isHazard && p.helixStabilizedUntil && now < p.helixStabilizedUntil) {
+          speedFactor *= 0.82; // Helix Chiral Base-Pair Stabilization (-18% gentle fall speed!)
+        }
+        if (distToCore < gravRadius && p.y < catcherPixelY + 20 && !isHazardNode(p.nodeClass)) {
+          speedFactor *= 0.72; // Proximity tether dampening
+          const gravStrength = (1.0 - (distToCore / gravRadius)) * 0.95;
+          p.x += Math.sign(dxToCore) * Math.min(Math.abs(dxToCore) * 0.14, gravStrength * 4.2 * dtScale);
+
+          const modeKey = (p.type === 'helix') ? 'helix' : (p.type === 'meteor' ? 'meteor' : 'dynamo');
+          const proxAng = Math.atan2(p.y - catcherPixelY, p.x - catcherPixelX);
+          const proxR = 68.0 * u;
+          QuantumRenderer.drawContactBurst(ctx, catcherPixelX + Math.cos(proxAng) * proxR, catcherPixelY + Math.sin(proxAng) * proxR, modeKey, gravStrength * 0.65, now, proxAng);
+        }
+
+        // Advance Node using Delta-Time (Charging Hyper-Comet stays pinned at y = 42 until ignition!)
+        if (!(isComet && p.cometPhase === 'charging')) {
+          p.y += p.speed * dtScale * speedFactor * globalSpeedMultiplier;
+        }
+
+        if (!p.spine) p.spine = [];
+        p.spine.unshift({ x: p.x, y: p.y });
+        if (p.spine.length > 14) p.spine.pop();
+
+        // Render Celestial Flux Node / Hazard
+        ctx.save();
+        if (p.type === 'dynamo' || p.type === 'realm') {
+          QuantumRenderer.drawTier3DynamoParticle(ctx, p, timestamp);
+        } else if (p.type === 'helix') {
+          QuantumRenderer.drawTier3HelixParticle(ctx, p, timestamp);
+        } else {
+          QuantumRenderer.drawTier3MeteorParticle(ctx, p, timestamp);
+        }
+        ctx.restore();
+
+        // ─────────────────────────────────────────────────────────────
+        // COLLISION CHECK, PRECISION CATCH & SPECIAL ARCHETYPE POWERS
+        // ─────────────────────────────────────────────────────────────
+        const coreSphereRadius = 68.0 * u;
+        const nodeSphereRadius = p.headR ? (p.headR * (isMobile ? 0.72 : 1.0)) : (isMobile ? 26.0 : 36.0);
+        const hazardContactRadius = coreSphereRadius + nodeSphereRadius;
+        const effectiveHitRadius = isHazard ? hazardContactRadius : hitRadius;
+
+        // Evasion Graze Mechanic for Hazards (Tiered Bonus for Apex Feature Hazards!)
+        if (isHazard && !p.hasGrazed && distToCore >= hazardContactRadius && distToCore < hazardContactRadius + 32.0) {
+          p.hasGrazed = true;
+          const grazeBonus = isComet ? 400
+            : ((p.nodeClass === 'corruptor_laser' || p.nodeClass === 'gravity_well' || p.nodeClass === 'phase_stalker') ? 350 : 250);
+          const grazeLabel = isComet ? '🔥 THERMAL GRAZE +400 (+15% PULSE)'
+            : (grazeBonus === 350 ? '⚡ APEX GRAZE +350' : 'GRAZE +250');
+          state.score += grazeBonus;
+          if (isComet) {
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
+            if (state.pulseMeter >= 100) { state.isPulseReady = true; audio.playPulseCharged(); }
+          }
+          CoreKinematics.triggerGraze(p.x, p.y, now);
+          state.floatingTexts.push({
+            x: p.x,
+            y: p.y,
+            text: grazeLabel,
+            color: isComet ? '#fb923c' : '#38bdf8',
+            alpha: 1.0,
+            startTime: now
+          });
+          audio.playGrazeCatch(state.combo);
+        }
+
+        if (distToCore < effectiveHitRadius) {
+          // Check if player caught a Hazard Trap!
+          if (isHazard) {
+            // Check if 5-Second Aegis Shield is active (independent of any simultaneous power-ups!)
+            if (state.hasBuff('shield', now)) {
+              const wasChargingCorruptor = (p.nodeClass === 'corruptor_laser' && p.laserState === 'charging');
+              const defPts = wasChargingCorruptor ? 450 : 300;
+              state.score += defPts;
+              if (wasChargingCorruptor) {
+                state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
+                if (state.pulseMeter >= 100) state.isPulseReady = true;
+              }
+              CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
+              state.floatingTexts.push({
+                x: p.x,
+                y: p.y,
+                text: wasChargingCorruptor ? '🛡️ SALVO INTERRUPTED +450!' : 'SHIELD DEFLECT +300',
+                color: '#fbbf24',
+                alpha: 1.0,
+                startTime: now
+              });
+              audio.playPerfectCatch(state.combo);
+              state.particles.splice(i, 1);
+              updateHeaderUI();
+              continue;
+            }
+
+            if (p.nodeClass === 'emp_detonator' || p.nodeClass === 'emp_glitch' || p.nodeClass === 'pulsar_mine') {
+              state.pulseMeter = 0;
+              state.isPulseReady = false;
+            }
+
+            if (state.coreTier > 1) {
+              state.coreTier--;
+              const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+              state.combo = tierFloorCombo[state.coreTier] || 0;
+            } else {
+              state.coreTier = 1;
+              state.combo = 0;
+            }
+            state.reflexLives--;
+            state.consecutivePerfects = 0;
+            state.resonanceChain = 0;
+            audio.playHazardExplosion();
+            renderReflexShields();
+
+            if (state.reflexLives <= 0) {
+              const gameNames = { dynamo: 'CHROME DYNAMO', realm: 'CHROME DYNAMO', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
+              handleGameOver('SHIELDS DEPLETED', `${gameNames[state.gameType]} session concluded. Final Score: ${state.score.toLocaleString()} points.`);
+              ctx.restore();
+              return;
+            }
+
+            state.particles.splice(i, 1);
+            updateHeaderUI();
+            continue;
+          }
+
+          // Non-Hazard Interception: Precision Catch Evaluation
+          const isPerfect = (distToCore <= innerSweetSpotRadius);
+          const precisionMultiplier = isPerfect ? 2.0 : 1.0;
+
+          // Recommendation 4: Archetype Multipliers & Active Buff Powers
+          let classMultiplier = 1.0;
+          let clusterBonus = state.hasBuff('cluster', now) ? 2.0 : 1.0;
+
+          if (p.nodeClass === 'cluster') {
+            // DUPLICATE ALL NON-HAZARD NODES ON SCREEN!
+            const toAdd = [];
+            for (let pt of state.particles) {
+              if (!isHazardNode(pt.nodeClass) && pt !== p && !pt.isDuplicate) {
+                // Ensure duplicate spawns in a distinct, non-overlapping lane with at least 95px lateral offset
+                const side = (pt.x > w * 0.5) ? -1 : 1;
+                const dupX = Math.max(50, Math.min(w - 50, pt.x + side * 95));
+                const dupY = Math.max(-20, pt.y - 55);
+                toAdd.push({
+                  ...pt,
+                  x: dupX,
+                  y: dupY,
+                  isDuplicate: true,
+                  spine: []
+                });
+              }
+            }
+            for (let n of toAdd) {
+              for (let j = 0; j < 8; j++) n.spine.push({ x: n.x, y: n.y - j * 8.5 });
+              state.particles.push(n);
+            }
+            state.applyBuff('cluster', '2X CLUSTER', '#38bdf8', '✨', 5000, now);
+            audio.playOverdriveFanfare();
+            classMultiplier = 2.0;
+
+          } else if (p.nodeClass === 'supercharge') {
+            classMultiplier = 8.0;
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 50);
+            if (state.pulseMeter >= 100) { state.isPulseReady = true; audio.playPulseCharged(); }
+            state.applyBuff('hyper', 'HYPER SURGE', '#fbbf24', '⚡', 5000, now);
+            audio.playOverdriveFanfare();
+
+          } else if (p.nodeClass === 'chronos') {
+            state.applyBuff('chronos', 'CHRONOS STASIS', '#22d3ee', '⏳', 4500, now);
+            audio.playPhaseSwitch();
+
+          } else if (p.nodeClass === 'singularity') {
+            state.applyBuff('singularity', 'GRAVITON VACUUM', '#38bdf8', '🧲', 3500, now);
+            audio.playPulseCharged();
+
+          } else if (p.nodeClass === 'catalyst') {
+            const targetTierCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+            state.coreTier = Math.min(5, state.coreTier + 1);
+            state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
+            state.isOverdrive = (state.coreTier >= 4);
+            const prevLives = state.reflexLives;
+            state.reflexLives = Math.min(3, state.reflexLives + 1);
+            renderReflexShields();
+            state.applyBuff('catalyst', 'ASCENSION CATALYST', '#10b981', '💚', 6000, now);
+            if (state.coreTier === 5) audio.playTier5Ascension();
+            else audio.playOverdriveFanfare();
+            state.floatingTexts.push({
+              x: p.x,
+              y: p.y - 20,
+              text: state.reflexLives > prevLives ? '💚 +1 LIFE RESTORED! (TIER +1)' : '💎 ASCENSION TIER +1 (OVERDRIVE)',
+              color: '#34d399',
+              alpha: 1.0,
+              startTime: now
+            });
+
+          } else if (p.nodeClass === 'shield') {
+            state.applyBuff('shield', 'AEGIS SHIELD', '#f59e0b', '🛡️', 5000, now);
+            CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
+            audio.playPulseCharged();
+            classMultiplier = 3.0;
+
+          } else if (p.nodeClass === 'missiles') {
+            const mColor = (state.catcherType === 'meteor') ? '#f97316' : ((state.catcherType === 'helix') ? '#22d3ee' : '#38bdf8');
+            state.applyBuff('missiles', 'ALLIED MISSILES', mColor, '🚀', 4000, now);
+            CoreKinematics.fireMissiles(catcherPixelX, catcherPixelY, now, state.particles, state.catcherType || 'dynamo');
+            audio.playOverdriveFanfare();
+            classMultiplier = 4.0;
+          }
+
+          const basePoints = 300;
+          const finalCatchPoints = Math.floor(basePoints * state.combo * precisionMultiplier * classMultiplier * clusterBonus);
+          state.score += finalCatchPoints;
+          // Load Accumulated Good-Node Ammo into Chrome Core Offense Cannon & Advance Round Quota!
+          RoundBossEngine.onGoodNodeCaught(p.nodeClass, isPerfect, now, w);
+          const prevCombo = state.combo;
+          state.combo = Math.min(50, state.combo + 1);
+          if (prevCombo < 21 && state.combo >= 21) {
+            state.isOverdrive = true;
+            state.overdriveEndTime = 0; // Stays active as long as 21x streak is held!
+            audio.playOverdriveFanfare();
+          } else if (prevCombo < 28 && state.combo >= 28) {
+            audio.playTier5Ascension();
+          }
+
+          // Perfect Catch Charging Flux Pulse (3 in a row fills meter!)
+          if (isPerfect) {
+            state.consecutivePerfects++;
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 34);
+            if (state.pulseMeter >= 100) {
+              state.isPulseReady = true;
+              audio.playPulseCharged();
+            }
+            audio.playPerfectCatch(state.combo);
+          } else {
+            state.consecutivePerfects = 0;
+            audio.playGrazeCatch(state.combo);
+          }
+
+          // ─── SCIENTIFIC REALM-SPECIFIC GOOD-NODE PASSIVE RESONANCES & SLINGSHOT RESCUES ───
+          const catchMode = (p.type === 'helix') ? 'helix' : (p.type === 'meteor' ? 'meteor' : 'dynamo');
+          if (p.gravityTuggedUntil && now < p.gravityTuggedUntil) {
+            state.score += 200;
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 10);
+            if (state.pulseMeter >= 100) state.isPulseReady = true;
+            state.floatingTexts.push({
+              x: p.x, y: p.y - 34,
+              text: '🌌 GRAVITY SLINGSHOT +200!',
+              color: '#38bdf8',
+              alpha: 1.0,
+              startTime: now
+            });
+          } else if (catchMode === 'dynamo') {
+            // DYNAMO SCIENCE: Faraday Chain Induction — arc jumps to nearest good orb within 220px & pulls it toward player!
+            let nearestGood = null;
+            let bestArcDist = 220;
+            for (let k = 0; k < state.particles.length; k++) {
+              const other = state.particles[k];
+              if (other !== p && !isHazardNode(other.nodeClass)) {
+                const dArc = Math.hypot(other.x - p.x, other.y - p.y);
+                if (dArc < bestArcDist) {
+                  bestArcDist = dArc;
+                  nearestGood = other;
+                }
+              }
+            }
+            if (nearestGood) {
+              nearestGood.x += Math.sign(catcherPixelX - nearestGood.x) * Math.min(24, Math.abs(catcherPixelX - nearestGood.x) * 0.25);
+              state.score += 50;
+              state.scienceArcs.push({ x1: p.x, y1: p.y, x2: nearestGood.x, y2: nearestGood.y, life: 0, maxLife: 14 });
+            }
+          } else if (catchMode === 'helix' && isPerfect) {
+            // HELIX SCIENCE: Chiral Base-Pair Stabilization — precision catch slows other falling good pearls by 18% for 1.4s!
+            state.scienceRipples.push({ x: catcherPixelX, y: catcherPixelY, r: 24, maxR: 260 });
+            for (let k = 0; k < state.particles.length; k++) {
+              const other = state.particles[k];
+              if (other !== p && !isHazardNode(other.nodeClass)) {
+                other.helixStabilizedUntil = now + 1400;
+              }
+            }
+          } else if (catchMode === 'meteor' && Math.abs(state.catcherVelocity || 0) > 3.2) {
+            // METEOR SCIENCE: Kinetic Ablation Slingshot — banking swiftly into a molten bolide yields +120 & +6% Pulse!
+            state.score += 120;
+            state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 6);
+            if (state.pulseMeter >= 100) state.isPulseReady = true;
+            state.floatingTexts.push({
+              x: p.x, y: p.y - 30,
+              text: '☄️ KINETIC DEFLECT +120',
+              color: '#fbbf24',
+              alpha: 1.0,
+              startTime: now
+            });
+          }
+
+          // Trigger Mode-Specific Layered Capture Physics at exact directional contact point
+          const catchAngle = Math.atan2(p.y - catcherPixelY, p.x - catcherPixelX);
+          const catchCoreR = 68.0 * u;
+          CoreKinematics.triggerCaptureEffect(p.type, catcherPixelX, catcherPixelY, p.x, p.y, now, u);
+
+          // Spawn Mode-Signature Kinetic Impact Physics Effect anchored at exact contact point on sphere perimeter
+          state.absorptionEffects.push({
+            type: p.type,
+            x: catcherPixelX,
+            y: catcherPixelY,
+            offsetX: Math.cos(catchAngle) * catchCoreR,
+            offsetY: Math.sin(catchAngle) * catchCoreR,
+            contactAngle: catchAngle,
+            radius: isPerfect ? 18 : 12,
+            maxRadius: isPerfect ? 190 : 145,
+            isPerfect,
+            alpha: 1.0,
+            startTime: now
+          });
+
+          state.particles.splice(i, 1);
+          updateHeaderUI();
+          continue;
+        }
+
+        // Screen Exit (Past Bottom)
+        if (p.y > h + 70) {
+          if (isHazardNode(p.nodeClass)) {
+            state.score += 150; // Dodging reward for successfully avoiding hazards!
+            state.particles.splice(i, 1);
+            updateHeaderUI();
+            continue;
+          }
+
+          // Bonus Power-Ups and Cluster Duplicate Nodes do NOT penalize player if missed
+          if (p.isDuplicate || p.nodeClass !== 'standard') {
+            state.particles.splice(i, 1);
+            updateHeaderUI();
+            continue;
+          }
+
+          state.particles.splice(i, 1);
+          state.reflexLives--;
+          state.consecutivePerfects = 0;
+          state.resonanceChain = 0;
+
+          if (state.coreTier > 1) {
+            state.coreTier--;
+            const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+            state.combo = tierFloorCombo[state.coreTier] || 0;
+          } else {
+            state.combo = 0;
+          }
+          state.isOverdrive = false;
+
+          audio.playMistakeBuzzer();
+          renderReflexShields();
+
+          if (state.reflexLives <= 0) {
+            const gameNames = { dynamo: 'CHROME DYNAMO', realm: 'CHROME DYNAMO', helix: 'CHROME HELIX', meteor: 'CHROME METEOR' };
+            handleGameOver('SHIELDS DEPLETED', `${gameNames[state.gameType]} session concluded. Final Score: ${state.score.toLocaleString()} points.`);
+            ctx.restore();
+            return;
+          }
+          updateHeaderUI();
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // RENDER VOLUMETRIC CORRUPTION LASER BEAMS & EMP CORE STATIC
+      // ─────────────────────────────────────────────────────────────
+      if (state.hazardLasers && state.hazardLasers.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let lIdx = state.hazardLasers.length - 1; lIdx >= 0; lIdx--) {
+          const lb = state.hazardLasers[lIdx];
+          lb.life += dtScale;
+          const frac = Math.min(1.0, lb.life / lb.maxLife);
+          const alpha = Math.max(0, 1.0 - Math.pow(frac, 1.5));
+          if (alpha <= 0.01) {
+            state.hazardLasers.splice(lIdx, 1);
+            continue;
+          }
+
+          const dxL = lb.x2 - lb.x1;
+          const dyL = lb.y2 - lb.y1;
+          const lenL = Math.hypot(dxL, dyL) || 1;
+          const nxL = -dyL / lenL;
+          const nyL = dxL / lenL;
+          const widthScale = 1.0 - frac * 0.45;
+
+          const lbPal = _getHazVfxPal(lb.mode || state.catcherType);
+          // Layer 1: Wide Volumetric Outer Plasma Bloom Sheath (22px tapering gradient)
+          const outerW = 13.0 * widthScale;
+          const outerGrad = ctx.createLinearGradient(lb.x1, lb.y1, lb.x2, lb.y2);
+          outerGrad.addColorStop(0.0, `${lbPal.p}${0.74 * alpha})`);
+          outerGrad.addColorStop(0.5, `${lbPal.s}${0.60 * alpha})`);
+          outerGrad.addColorStop(1.0, `${lbPal.p}${0.80 * alpha})`);
+          ctx.fillStyle = outerGrad;
+          ctx.beginPath();
+          ctx.moveTo(lb.x1 + nxL * outerW, lb.y1 + nyL * outerW);
+          ctx.lineTo(lb.x2 + nxL * outerW * 1.15, lb.y2 + nyL * outerW * 1.15);
+          ctx.lineTo(lb.x2 - nxL * outerW * 1.15, lb.y2 - nyL * outerW * 1.15);
+          ctx.lineTo(lb.x1 - nxL * outerW, lb.y1 - nyL * outerW);
+          ctx.closePath();
+          ctx.fill();
+
+          // Layer 2: High-Energy Mid Mode-Matched Beam Core (9px)
+          const midW = 5.5 * widthScale;
+          ctx.fillStyle = `${lbPal.mid}${0.92 * alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(lb.x1 + nxL * midW, lb.y1 + nyL * midW);
+          ctx.lineTo(lb.x2 + nxL * midW, lb.y2 + nyL * midW);
+          ctx.lineTo(lb.x2 - nxL * midW, lb.y2 - nyL * midW);
+          ctx.lineTo(lb.x1 - nxL * midW, lb.y1 - nyL * midW);
+          ctx.closePath();
+          ctx.fill();
+
+          // Layer 3: Blinding White-Hot Laser Filament Core (3.2px)
+          const coreW = 2.0 * widthScale;
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.98 * alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(lb.x1 + nxL * coreW, lb.y1 + nyL * coreW);
+          ctx.lineTo(lb.x2 + nxL * coreW, lb.y2 + nyL * coreW);
+          ctx.lineTo(lb.x2 - nxL * coreW, lb.y2 - nyL * coreW);
+          ctx.lineTo(lb.x1 - nxL * coreW, lb.y1 - nyL * coreW);
+          ctx.closePath();
+          ctx.fill();
+
+          // Layer 4: Mode-Aligned Scientific Beam Signature (Dynamo Lightning / Helix Double-Strand / Meteor Isotope Pulses!)
+          const lbMode = (lb.mode === 'helix') ? 'helix' : (lb.mode === 'meteor' ? 'meteor' : 'dynamo');
+          if (lbMode === 'helix') {
+            // Corrupted Helix Beam: Twin twisting ruby-gold double-helix strands coiling down the laser!
+            ctx.lineCap = 'round';
+            for (let hs = -1; hs <= 1; hs += 2) {
+              ctx.beginPath();
+              for (let s = 0; s <= 14; s++) {
+                const f = s / 14;
+                const off = Math.sin(f * Math.PI * 4.5 - frac * 10.0) * 11.0 * widthScale * hs;
+                const hx = lb.x1 + dxL * f + nxL * off;
+                const hy = lb.y1 + dyL * f + nyL * off;
+                if (s === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+              }
+              ctx.strokeStyle = hs > 0 ? `rgba(251, 191, 36, ${0.82 * alpha})` : `rgba(244, 63, 94, ${0.82 * alpha})`;
+              ctx.lineWidth = 2.4 * widthScale;
+              ctx.stroke();
+            }
+          } else if (lbMode === 'dynamo') {
+            // Corrupted Dynamo Beam: Forked crackling crimson-violet dielectric arc wrapping the laser!
+            ctx.beginPath();
+            for (let s = 0; s <= 10; s++) {
+              const f = s / 10;
+              const jag = (s === 0 || s === 10) ? 0 : Math.sin(now * 0.06 + s * 5.7 + lIdx * 3) * 14.0 * widthScale;
+              const lx = lb.x1 + dxL * f + nxL * jag;
+              const ly = lb.y1 + dyL * f + nyL * jag;
+              if (s === 0) ctx.moveTo(lx, ly); else ctx.lineTo(lx, ly);
+            }
+            ctx.strokeStyle = `rgba(192, 132, 252, ${0.85 * alpha})`;
+            ctx.lineWidth = 2.6 * widthScale;
+            ctx.stroke();
+          }
+
+          // Traveling Plasma / Isotope Energy Pulses along Beam
+          for (let pStep = 0; pStep < 3; pStep++) {
+            const tPos = ((frac * 2.2 + pStep * 0.33) % 1.0);
+            const pxB = lb.x1 + dxL * tPos;
+            const pyB = lb.y1 + dyL * tPos;
+            const pulseG = ctx.createRadialGradient(pxB, pyB, 0, pxB, pyB, 14 * widthScale);
+            pulseG.addColorStop(0.0, `rgba(255, 255, 255, ${0.90 * alpha})`);
+            pulseG.addColorStop(0.45, `${lbPal.p}${0.68 * alpha})`);
+            pulseG.addColorStop(1.0, `${lbPal.s}0)`);
+            ctx.fillStyle = pulseG;
+            ctx.beginPath();
+            ctx.arc(pxB, pyB, 14 * widthScale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Layer 5: Muzzle Flare at Corruptor Eye & Impact Corona at Corrupted Node
+          const endPts = [{ x: lb.x1, y: lb.y1, r: 28 }, { x: lb.x2, y: lb.y2, r: 38 }];
+          for (let eI = 0; eI < endPts.length; eI++) {
+            const ep = endPts[eI];
+            const eg = ctx.createRadialGradient(ep.x, ep.y, 0, ep.x, ep.y, ep.r * widthScale);
+            eg.addColorStop(0.0, `rgba(255, 255, 255, ${0.95 * alpha})`);
+            eg.addColorStop(0.35, `${lbPal.p}${0.82 * alpha})`);
+            eg.addColorStop(0.75, `${lbPal.s}${0.38 * alpha})`);
+            eg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = eg;
+            ctx.beginPath();
+            ctx.arc(ep.x, ep.y, ep.r * widthScale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+      }
+
+      // EMP Thruster Static Halo on Player Core when momentarily dampened by EMP Shockwave
+      if (state.empSlowUntil && state.empSlowUntil > now && !state.hasBuff('shield', now)) {
+        const empFrac = Math.min(1.0, (state.empSlowUntil - now) / 650);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const sR = 76 * u;
+        const empG = ctx.createRadialGradient(catcherPixelX, catcherPixelY, sR * 0.5, catcherPixelX, catcherPixelY, sR * 1.3);
+        empG.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
+        empG.addColorStop(0.55, `rgba(56, 189, 248, ${0.35 * empFrac})`);
+        empG.addColorStop(0.82, `rgba(244, 63, 94, ${0.30 * empFrac})`);
+        empG.addColorStop(1.0, 'rgba(15, 23, 42, 0)');
+        ctx.fillStyle = empG;
+        ctx.beginPath();
+        ctx.arc(catcherPixelX, catcherPixelY, sR * 1.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // RENDER DIRECTIONAL PERIMETER CONTACT FLASH ON NODE INTERCEPTION
+      // ─────────────────────────────────────────────────────────────
+      for (let ab = state.absorptionEffects.length - 1; ab >= 0; ab--) {
+        const eff = state.absorptionEffects[ab];
+        eff.alpha -= 0.065 * dtScale;
+        if (eff.alpha <= 0) {
+          state.absorptionEffects.splice(ab, 1);
+          continue;
+        }
+        const modeKey = (eff.type === 'helix') ? 'helix' : (eff.type === 'meteor' ? 'meteor' : 'dynamo');
+        const cAng = (eff.contactAngle !== undefined) ? eff.contactAngle : -Math.PI * 0.5;
+        const offX = (eff.offsetX !== undefined) ? eff.offsetX : Math.cos(cAng) * 68.0 * u;
+        const offY = (eff.offsetY !== undefined) ? eff.offsetY : Math.sin(cAng) * 68.0 * u;
+        QuantumRenderer.drawContactBurst(ctx, catcherPixelX + offX, catcherPixelY + offY, modeKey, eff.alpha * 1.25, now, cAng);
+      }
+
+      // Stream live showcase frames to local capture server when ?capture=1 is active
+      if (state._capState && !state._capState.done && state.coreTier === 4) {
+        const cs = state._capState;
+        if (!cs.snapshots) cs.snapshots = [];
+        if (now - cs.lastFrameSent >= 55 && cs.snapshots.length < 76) {
+          cs.lastFrameSent = now;
+          const snap = document.createElement('canvas');
+          snap.width = 576;
+          snap.height = 324;
+          const sCtx = snap.getContext('2d');
+          if (sCtx) {
+            sCtx.fillStyle = '#06080f';
+            sCtx.fillRect(0, 0, 576, 324);
+            sCtx.drawImage(dom.canvasReflex, 0, 0, 576, 324);
+            cs.snapshots.push(snap);
+          }
+          if (cs.snapshots.length >= 76) {
+            cs.done = true;
+            const modeToSend = cs.mode;
+            const snaps = cs.snapshots;
+            (async () => {
+              for (let k = 0; k < snaps.length; k++) {
+                const dataUrl = snaps[k].toDataURL('image/jpeg', 0.86);
+                await fetch('/_save_frame', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ mode: modeToSend, idx: k, dataUrl: dataUrl })
+                }).catch(() => {});
+              }
+            })();
+          }
+        }
+      }
+    }
+
+    // Render Floating Texts (Score / Feedback Alerts)
+    for (let f = state.floatingTexts.length - 1; f >= 0; f--) {
+      const ft = state.floatingTexts[f];
+      ft.y += ft.vy;
+      ft.alpha -= 0.02;
+      if (ft.alpha <= 0) {
+        state.floatingTexts.splice(f, 1);
+        continue;
+      }
+      ctx.save();
+      ctx.font = '800 14px "Lexend", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = ft.color;
+      ctx.globalAlpha = ft.alpha;
+      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.restore();
+    }
+
+    ctx.restore();
+    animFrameId = requestAnimationFrame(reflexGameLoop);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // GAME 3: MEMORY MATRIX (16 Boxes 4x4 Array, 1 Mistake Game Over)
+  // ══════════════════════════════════════════════════════════════════════════
+  const MATRIX_PALETTES = [
+    { num: 1, glow: '#38bdf8', to: '#818cf8', freq: 261.63 }, // C4 Cyan
+    { num: 2, glow: '#a855f7', to: '#c084fc', freq: 293.66 }, // D4 Violet
+    { num: 3, glow: '#f59e0b', to: '#fbbf24', freq: 329.63 }, // E4 Amber
+    { num: 4, glow: '#10b981', to: '#34d399', freq: 349.23 }, // F4 Emerald
+    { num: 5, glow: '#f43f5e', to: '#fb7185', freq: 392.00 }, // G4 Rose
+    { num: 6, glow: '#f97316', to: '#fdba74', freq: 440.00 }, // A4 Molten
+    { num: 7, glow: '#6366f1', to: '#a5b4fc', freq: 493.88 }, // B4 Indigo
+    { num: 8, glow: '#14b8a6', to: '#2dd4bf', freq: 523.25 }, // C5 Teal
+    { num: 9, glow: '#84cc16', to: '#a3e635', freq: 587.33 }, // D5 Lime
+    { num: 10, glow: '#d946ef', to: '#f0abfc', freq: 659.25 }, // E5 Fuchsia
+    { num: 11, glow: '#eab308', to: '#fde047', freq: 698.46 }, // F5 Gold
+    { num: 12, glow: '#0284c7', to: '#38bdf8', freq: 783.99 }, // G5 Sky
+    { num: 13, glow: '#e11d48', to: '#fda4af', freq: 880.00 }, // A5 Ruby
+    { num: 14, glow: '#9333ea', to: '#c084fc', freq: 987.77 }, // B5 Purple
+    { num: 15, glow: '#06b6d4', to: '#67e8f9', freq: 1046.50 }, // C6 Turquoise
+    { num: 16, glow: '#ec4899', to: '#f472b6', freq: 1174.66 }  // D6 Pink
+  ];
+
+  function startMemoryGame() {
+    state.memoryRound = 1;
+    state.memorySequence = [];
+    state.playerSequence = [];
+    state.isAcceptingInput = false;
+
+    renderMemoryGrid();
+    advanceMemoryRound();
+  }
+
+  function renderMemoryGrid() {
+    if (!dom.memoryGrid) return;
+    dom.memoryGrid.innerHTML = '';
+
+    for (let i = 0; i < 16; i++) {
+      const box = document.createElement('button');
+      box.type = 'button';
+      box.className = 'matrix-cell';
+      box.dataset.idx = i;
+
+      const pal = MATRIX_PALETTES[i];
+      box.style.setProperty('--cell-glow', pal.glow);
+      box.style.setProperty('--cell-gradient-to', pal.to);
+
+      // Pure radiant number ONLY - no text tags
+      box.innerHTML = `<span class="cell-num">${i + 1}</span>`;
+
+      box.onclick = () => handleMemoryInput(i, box);
+      dom.memoryGrid.appendChild(box);
+    }
+  }
+
+  function advanceMemoryRound() {
+    state.playerSequence = [];
+    state.isAcceptingInput = false;
+    if (dom.memoryRoundLabel) dom.memoryRoundLabel.textContent = `ROUND ${state.memoryRound} · WATCH MATRIX PATTERN`;
+
+    // Add 1 random box to sequence (1-16)
+    const nextIdx = Math.floor(Math.random() * 16);
+    state.memorySequence.push(nextIdx);
+
+    // Playback sequence after short delay
+    setTimeout(() => {
+      playbackMemorySequence(0);
+    }, 600);
+  }
+
+  function playbackMemorySequence(step) {
+    if (!state.active || state.gameType !== 'memory') return;
+
+    if (step >= state.memorySequence.length) {
+      state.isAcceptingInput = true;
+      if (dom.memoryRoundLabel) dom.memoryRoundLabel.textContent = `ROUND ${state.memoryRound} · REPRODUCE PATTERN (${state.memorySequence.length} STEPS)`;
+      return;
+    }
+
+    const boxIdx = state.memorySequence[step];
+    const boxElem = dom.memoryGrid?.querySelector(`[data-idx="${boxIdx}"]`);
+
+    if (boxElem) {
+      boxElem.classList.add('flash-active');
+      audio.playMatrixTone(boxIdx);
+
+      setTimeout(() => {
+        boxElem.classList.remove('flash-active');
+        setTimeout(() => playbackMemorySequence(step + 1), 180);
+      }, 350);
+    } else {
+      playbackMemorySequence(step + 1);
+    }
+  }
+
+  function handleMemoryInput(boxIdx, boxElem) {
+    if (!state.isAcceptingInput || !state.active || state.gameType !== 'memory') return;
+
+    boxElem.classList.add('flash-player');
+    audio.playMatrixTone(boxIdx);
+    setTimeout(() => boxElem.classList.remove('flash-player'), 220);
+
+    state.playerSequence.push(boxIdx);
+    const currStep = state.playerSequence.length - 1;
+
+    if (state.playerSequence[currStep] !== state.memorySequence[currStep]) {
+      // 1 Mistake = Game Over!
+      state.isAcceptingInput = false;
+      audio.playMistakeBuzzer();
+      boxElem.classList.add('flash-wrong');
+
+      handleGameOver('MATRIX DESYNCHRONIZED (1 STRIKE)', `Cognitive breach on Round ${state.memoryRound} at step ${currStep + 1}. Final Score: ${state.score.toLocaleString()} points.`);
+    } else {
+      // Correct Step!
+      state.score += 100 * state.combo;
+      updateHeaderUI();
+
+      if (state.playerSequence.length === state.memorySequence.length) {
+        // Completed Round!
+        state.isAcceptingInput = false;
+        state.score += 500 * state.combo;
+        state.combo = Math.min(10, state.combo + 1);
+        audio.playCorrectChime(state.combo);
+        updateHeaderUI();
+
+        state.memoryRound++;
+        setTimeout(() => advanceMemoryRound(), 900);
+      }
+    }
+  }
+
+  // --- Global Event Listeners & Binding ---
+  function initEvents() {
+    initDOM();
+    // === CHANGED (v385): Initialize STEP 1 touch-primary detector & matchMedia change listeners ===
+    TouchFireControls.init();
+
+    // Close button
+    if (dom.btnClose) dom.btnClose.onclick = closeGame;
+
+    // Fullscreen toggle
+    if (dom.btnFullscreen) dom.btnFullscreen.onclick = toggleAppFullscreen;
+
+    // FEATURE 4: Unleash Supreme Destructive Flux Pulse (Planet / Universe Destroyer)
+    function triggerFluxPulse(force = false) {
+      if (!state.active || (!state.isPulseReady && !force && !window.location.search.includes('pulse=1'))) return;
+      state.isPulseReady = false;
+      state.pulseMeter = 0;
+      const mode = state.catcherType || 'dynamo';
+      audio.playFluxPulseUnleashed(mode);
+
+      const pColor = mode === 'helix' ? '#22d3ee' : (mode === 'meteor' ? '#f97316' : '#00f0ff');
+      const effDpr = cachedCanvasDpr || getRenderDpr();
+      const canvasW = dom.canvasReflex ? (dom.canvasReflex.width / effDpr) : 800;
+      const canvasH = dom.canvasReflex ? (dom.canvasReflex.height / effDpr) : 600;
+      const coreX = (state.catcherX !== undefined ? state.catcherX : 0.5) * canvasW;
+      const coreY = (state.catcherY !== undefined ? state.catcherY : 0.82) * canvasH;
+      
+      state.activeFluxPulse = {
+        x: coreX,
+        y: coreY,
+        radius: 12,
+        speed: 1350,
+        alpha: 1.0,
+        flashAlpha: 0.85,
+        color: pColor,
+        mode: mode,
+        screenShake: (mode === 'meteor' ? 22 : (mode === 'helix' ? 14 : 18)),
+        shatteredSet: new Set()
+      };
+
+      // Floating Cataclysm Banner Text
+      const pulseTitles = {
+        dynamo: '⚡ TACHYON SINGULARITY WAVE UNLEASHED!',
+        helix: '🧬 CYTOGENETIC SHATTER WAVE UNLEASHED!',
+        meteor: '🔥 SOLAR HYPERNOVA CATACLYSM UNLEASHED!'
+      };
+      state.floatingTexts.push({
+        x: coreX,
+        y: coreY - 60,
+        text: pulseTitles[mode] || pulseTitles.dynamo,
+        color: pColor,
+        alpha: 1.0,
+        vy: -1.2,
+        life: 0,
+        maxLife: 60
+      });
+
+      updateHeaderUI();
+    }
+
+    if (dom.pulsePill) dom.pulsePill.onclick = () => triggerFluxPulse(false);
+    if (dom.offensePill) dom.offensePill.onclick = (e) => {
+      e.stopPropagation();
+      // === CHANGED (v385): Touch devices fire manually via #ocTouchFireBtn only (no HUD auto-fire toggle) ===
+      if (TouchFireControls.isTouch) return;
+      RoundBossEngine.toggleOffense(performance.now());
+    };
+    window.triggerFluxPulse = (force = false) => triggerFluxPulse(force);
+    if (window.ReflexArcade) window.ReflexArcade.triggerPulse = (force = false) => triggerFluxPulse(force);
+
+    // Cycle Tier (I -> II -> III -> IV -> V) on clicking the TIER pill or pressing 'T'
+    function cycleCoreTier() {
+      if (!state.active) return;
+      const nextTierCombo = { 1: 7, 2: 14, 3: 21, 4: 28, 5: 0 };
+      state.combo = (nextTierCombo[state.coreTier] !== undefined) ? nextTierCombo[state.coreTier] : 0;
+      state.coreTier = state.combo >= 28 ? 5 : (state.combo >= 21 ? 4 : (state.combo >= 14 ? 3 : (state.combo >= 7 ? 2 : 1)));
+      state.isOverdrive = (state.coreTier >= 4);
+      CoreKinematics.continuousTier = state.coreTier;
+      if (state.coreTier === 5) audio.playTier5Ascension();
+      else if (state.coreTier === 4) audio.playOverdriveFanfare();
+      else audio.playPhaseSwitch();
+      updateHeaderUI();
+    }
+    const tierPillEl = document.getElementById('cgTierPill');
+    if (tierPillEl) {
+      tierPillEl.style.cursor = 'pointer';
+      tierPillEl.onclick = cycleCoreTier;
+    }
+
+    // === CHANGED (v387): Keyboard bindings — keeps existing Space / [F] / [E] / [T] untouched, ADDS [A] Ember Cannon hold, [S] Seeker Comets, [D] Caldera Nova ===
+    window.addEventListener('keydown', (e) => {
+      if (!state.active) {
+        if (dom.screenOverlay && dom.screenOverlay.style.display === 'flex' && dom.modal && dom.modal.classList.contains('active')) {
+          if (e.key === 'Enter' || e.key === 'r' || e.key === 'R') {
+            e.preventDefault();
+            startGame(state.gameType);
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeGame();
+          }
+        }
+        return;
+      }
+      RealmMusicEngine.unlockOnGesture();
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        triggerFluxPulse();
+      } else if (e.key === 'f' || e.key === 'F' || e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        RoundBossEngine.toggleOffense(performance.now());
+      } else if (e.key === 't' || e.key === 'T') {
+        cycleCoreTier();
+      } else if (!TouchFireControls.isTouch && (e.code === 'KeyA' || e.key === 'a' || e.key === 'A')) {
+        // [A] = EMBER CANNON: steady continuous hold fire (manual only, stops immediately on keyup)
+        e.preventDefault();
+        if (!TouchFireControls.heldKeys.has('KeyA')) {
+          TouchFireControls.heldKeys.add('KeyA');
+          if ((state.coreAmmo || 0) <= 0) TouchFireControls.flashEmpty();
+          updateHeaderUI();
+        }
+      } else if (!TouchFireControls.isTouch && (e.code === 'KeyS' || e.key === 's' || e.key === 'S')) {
+        // [S] = SEEKER COMETS (tap only; ignore e.repeat so holding S never spams)
+        e.preventDefault();
+        if (!e.repeat) {
+          TouchFireControls.heldKeys.add('KeyS');
+          SkillSystem.castSeekerComets(performance.now());
+        }
+      } else if (!TouchFireControls.isTouch && (e.code === 'KeyD' || e.key === 'd' || e.key === 'D')) {
+        // [D] = CALDERA NOVA (tap only; ignore e.repeat so holding D never spams)
+        e.preventDefault();
+        if (!e.repeat) {
+          TouchFireControls.heldKeys.add('KeyD');
+          SkillSystem.castCalderaNova(performance.now());
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'KeyA' || e.key === 'a' || e.key === 'A') {
+        if (TouchFireControls.heldKeys.delete('KeyA')) {
+          updateHeaderUI();
+        }
+      } else if (e.code === 'KeyS' || e.key === 's' || e.key === 'S') {
+        TouchFireControls.heldKeys.delete('KeyS');
+      } else if (e.code === 'KeyD' || e.key === 'd' || e.key === 'D') {
+        TouchFireControls.heldKeys.delete('KeyD');
+      }
+    });
+
+    // Window Resize & ResizeObserver Handler to guarantee pixel-perfect resolution with ZERO per-frame reflow!
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+    if (typeof ResizeObserver !== 'undefined' && dom.canvasReflex) {
+      try {
+        const ro = new ResizeObserver(() => resizeCanvas());
+        ro.observe(dom.canvasReflex);
+      } catch (_) {}
+    }
+
+    // Mute toggle (syncs BOTH SFX and Futuristic Realm Music Engine)
+    if (dom.btnMute) {
+      dom.btnMute.onclick = () => {
+        audio.isMuted = !audio.isMuted;
+        dom.btnMute.style.opacity = audio.isMuted ? '0.4' : '1';
+        RealmMusicEngine._syncGain();
+        if (!audio.isMuted && state.active) RealmMusicEngine.unlockOnGesture();
+        RealmMusicEngine.syncBtnUI();
+      };
+    }
+
+    // === CHANGED (v387): Dedicated Futuristic Music Theme Toggle ===
+    const btnMusic = document.getElementById('cgMusicBtn');
+    if (btnMusic) {
+      btnMusic.onclick = (e) => {
+        e.stopPropagation();
+        RealmMusicEngine.toggle();
+      };
+      RealmMusicEngine.syncBtnUI();
+    }
+
+    // Digit Picker Buttons for Reflex Blitz
+    const digitBtnsContainer = document.getElementById('reflexDigitBtns');
+    if (digitBtnsContainer) {
+      digitBtnsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.digit-pill');
+        if (!btn) return;
+        const digit = parseInt(btn.dataset.digit, 10);
+        if (!isNaN(digit) && digit >= 1 && digit <= 9) {
+          state.targetMultiple = digit;
+          digitBtnsContainer.querySelectorAll('.digit-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          audio.playTone(350 + digit * 60, 'sine', 0.15, 0.2);
+          updateHeaderUI();
+        }
+      });
+    }
+
+    // Dedicated Divisor Selection Grid (1 through 9)
+    const startDigitsGrid = document.getElementById('reflexStartDigitsGrid');
+    if (startDigitsGrid) {
+      startDigitsGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.start-digit-btn');
+        if (!btn) return;
+        const choice = parseInt(btn.dataset.choice, 10);
+        if (!isNaN(choice) && choice >= 1 && choice <= 9) {
+          state.targetMultiple = choice;
+          state.isChoosingMultiple = false;
+          
+          const overlay = document.getElementById('reflexStartOverlay');
+          if (overlay) overlay.style.display = 'none';
+          const picker = document.getElementById('reflexMultiplePicker');
+          if (picker) picker.style.display = 'flex';
+
+          // Sync topbar digit pills
+          const pills = document.querySelectorAll('#reflexDigitBtns .digit-pill');
+          pills.forEach(p => p.classList.toggle('active', parseInt(p.dataset.digit, 10) === choice));
+
+          audio.playTone(523.25, 'sine', 0.25, 0.25);
+          updateHeaderUI();
+
+          const effDpr = cachedCanvasDpr || getRenderDpr();
+          state.floatingTexts.push({
+            text: `TARGET: MULTIPLES OF ${choice} · ENGAGE!`,
+            x: (dom.canvasReflex?.width || 800) / (2 * effDpr),
+            y: (dom.canvasReflex?.height || 600) / (2 * effDpr),
+            color: '#c084fc',
+            alpha: 1.0,
+            vy: -1.0
+          });
+        }
+      });
+    }
+
+    // Change Divisor Button
+    const btnChangeDivisor = document.getElementById('btnChangeDivisor');
+    if (btnChangeDivisor) {
+      btnChangeDivisor.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.isChoosingMultiple = true;
+        state.particles = [];
+        const overlay = document.getElementById('reflexStartOverlay');
+        if (overlay) overlay.style.display = 'flex';
+        const picker = document.getElementById('reflexMultiplePicker');
+        if (picker) picker.style.display = 'none';
+        updateHeaderUI();
+      });
+    }
+
+    // Math Choice Buttons
+    dom.mathOptions?.forEach(btn => {
+      btn.onclick = () => {
+        handleMathChoice(btn.dataset.ans, btn);
+      };
+    });
+
+    // Math Level Selector Tabs
+    dom.mathLevelTabs?.forEach(tab => {
+      tab.onclick = () => {
+        const lvl = parseInt(tab.dataset.level, 10);
+        state.mathLevel = lvl;
+        dom.mathLevelTabs.forEach(t => t.classList.toggle('active', t === tab));
+        startMathGame();
+      };
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // UNIFIED POINTER EVENTS ENGINE (Pointer Events, Coalesced, Safe-Area)
+    // ─────────────────────────────────────────────────────────────
+    const getCanvasCoords = (clientX, clientY) => {
+      if (!dom.canvasReflex) return { x: clientX, y: clientY, normX: clientX / window.innerWidth, normY: clientY / window.innerHeight };
+      let rect = cachedCanvasRect;
+      if (!rect || rect.width < 10) {
+        resizeCanvas();
+        rect = cachedCanvasRect;
+      }
+      const normX = (rect.width > 0) ? Math.max(0.01, Math.min(0.99, (clientX - rect.left) / rect.width)) : (clientX / window.innerWidth);
+      const normY = (rect.height > 0) ? Math.max(0.01, Math.min(0.99, (clientY - rect.top) / rect.height)) : (clientY / window.innerHeight);
+      return { x: clientX - rect.left, y: clientY - rect.top, normX, normY };
+    };
+
+    // === CHANGED (v387): STEP 3 — TRUE 5+ FINGER MULTI-TOUCH POINTER MAP ENGINE ===
+    // Every active touch pointerId is mapped to ONE role ('MOVE' | 'GUN' | 'SKILL2' | 'ULT').
+    // No competing legacy touchstart/touchend state overwrites; laptop mouse path untouched!
+    const onPointerDown = (e) => {
+      if (!state.active) return;
+      RealmMusicEngine.unlockOnGesture();
+
+      if (TouchFireControls.isTouch) {
+        // Ignore touches on the Kimmy 3-button arc (handled directly by each pad's setPointerCapture)
+        if (e.target && e.target.closest && e.target.closest('#ocTouchControlCluster')) {
+          return;
+        }
+        // Ignore topbar controls & game-over overlay buttons
+        if (e.target && e.target.closest && e.target.closest('.game-topbar, .game-screen-overlay, .reflex-start-overlay')) {
+          return;
+        }
+        // Ignore if this pointerId already owns a button role
+        if (TouchFireControls.activePointers.has(e.pointerId)) {
+          return;
+        }
+        setDeviceMode('touch');
+
+        // Assign MOVE role if no active MOVE finger exists yet (extra fingers outside buttons never cancel GUN or MOVE!)
+        if (!TouchFireControls.hasRole('MOVE')) {
+          TouchFireControls.activePointers.set(e.pointerId, { role: 'MOVE', el: null });
+          isPointerDown = true;
+          const coords = getCanvasCoords(e.clientX, e.clientY);
+          lastTouchClientX = e.clientX;
+          lastTouchClientY = e.clientY;
+          touchGuidePos = { x: coords.x, y: coords.y, active: true };
+          targetCatcherX = coords.normX;
+          currentCatcherX = coords.normX;
+          targetCatcherY = coords.normY;
+          currentCatcherY = coords.normY;
+        }
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+
+      // Existing non-touch desktop/laptop path (UNTOUCHED)
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        setDeviceMode('touch');
+      } else if (e.pointerType === 'mouse') {
+        setDeviceMode('mouse');
+      }
+
+      isPointerDown = true;
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      lastTouchClientX = e.clientX;
+      lastTouchClientY = e.clientY;
+
+      if (deviceInputMode === 'touch') {
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+        targetCatcherX = coords.normX;
+        currentCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        currentCatcherY = coords.normY;
+      } else {
+        touchGuidePos.active = false;
+        targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        // Desktop Left-Click Hold = Instant Fire; Right-Click on Arena = Toggle Continuous Offense Mode!
+        if (dom.canvasReflex && e.target === dom.canvasReflex) {
+          if (e.button === 2) {
+            RoundBossEngine.toggleOffense(performance.now());
+          } else if (e.button === 0) {
+            state.pointerFiring = true;
+            updateHeaderUI();
+          }
+        }
+      }
+
+      if (e.cancelable && deviceInputMode === 'touch') e.preventDefault();
+    };
+
+    const onPointerMove = (e) => {
+      if (!state.active) return;
+
+      // === CHANGED (v387): Only the pointerId assigned role === 'MOVE' steers the ship on touch ===
+      if (TouchFireControls.isTouch) {
+        const entry = TouchFireControls.activePointers.get(e.pointerId);
+        if (!entry || entry.role !== 'MOVE') return;
+        const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+        const lastEv = events[events.length - 1] || e;
+        const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+        targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        currentCatcherX = coords.normX;
+        currentCatcherY = coords.normY;
+        lastTouchClientX = lastEv.clientX;
+        lastTouchClientY = lastEv.clientY;
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+
+      // Existing non-touch desktop/laptop path (UNTOUCHED)
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        setDeviceMode('touch');
+      } else if (e.pointerType === 'mouse') {
+        setDeviceMode('mouse');
+      }
+
+      const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+      const lastEv = events[events.length - 1] || e;
+
+      if (deviceInputMode === 'touch') {
+        if (!isPointerDown) return;
+        const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
+        touchGuidePos = { x: coords.x, y: coords.y, active: true };
+        targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+        currentCatcherX = coords.normX;
+        currentCatcherY = coords.normY;
+        lastTouchClientX = lastEv.clientX;
+        lastTouchClientY = lastEv.clientY;
+      } else {
+        // Mouse / Trackpad: 1:1 instantaneous omnidirectional tracking across X and Y
+        const coords = getCanvasCoords(lastEv.clientX, lastEv.clientY);
+        touchGuidePos.active = false;
+        targetCatcherX = coords.normX;
+        targetCatcherY = coords.normY;
+      }
+
+      if (e.cancelable && deviceInputMode === 'touch') e.preventDefault();
+    };
+
+    const onPointerUp = (e) => {
+      // === CHANGED (v387): Release ONLY this pointerId's role — never disrupts any other active finger! ===
+      if (TouchFireControls.isTouch) {
+        TouchFireControls.releasePointer(e.pointerId);
+        return;
+      }
+
+      // Existing non-touch desktop/laptop path (UNTOUCHED)
+      isPointerDown = false;
+      touchGuidePos.active = false;
+      if (state.pointerFiring) {
+        state.pointerFiring = false;
+        updateHeaderUI();
+      }
+    };
+
+    if (dom.canvasReflex) {
+      dom.canvasReflex.addEventListener('contextmenu', (e) => {
+        if (state.active) e.preventDefault();
+      });
+    }
+
+    window.addEventListener('pointerdown', onPointerDown, { passive: false });
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointercancel', onPointerUp, { passive: true });
+
+    // === CHANGED (v387): iOS Safari scroll/zoom/callout blocker (passive:false touchmove/touchstart) WITHOUT competing with Pointer Events Map ===
+    const blockIosCanvasTouchScroll = (e) => {
+      if (!state.active) return;
+      if (e.cancelable) e.preventDefault();
+    };
+    if (dom.canvasReflex) {
+      dom.canvasReflex.addEventListener('touchstart', blockIosCanvasTouchScroll, { passive: false });
+      dom.canvasReflex.addEventListener('touchmove', blockIosCanvasTouchScroll, { passive: false });
+      dom.canvasReflex.addEventListener('touchend', blockIosCanvasTouchScroll, { passive: false });
+    }
+    if (dom.viewReflex) {
+      dom.viewReflex.addEventListener('touchmove', (e) => {
+        if (state.active && TouchFireControls.isTouch && e.cancelable) e.preventDefault();
+      }, { passive: false });
+      dom.viewReflex.addEventListener('contextmenu', (e) => {
+        if (state.active) e.preventDefault();
+      });
+    }
+
+    // === CHANGED (v387): Arrow-Key Flight Controls (A/S/D reserved exclusively for Ember Cannon / Seeker Comets / Caldera Nova!) ===
+    window.addEventListener('keydown', (e) => {
+      if (!state.active) return;
+      const step = 0.045;
+      if (e.key === 'ArrowLeft') {
+        targetCatcherX = Math.max(0.04, targetCatcherX - step);
+      } else if (e.key === 'ArrowRight') {
+        targetCatcherX = Math.min(0.96, targetCatcherX + step);
+      } else if (e.key === 'ArrowUp') {
+        targetCatcherY = Math.max(0.06, targetCatcherY - step);
+      } else if (e.key === 'ArrowDown') {
+        targetCatcherY = Math.min(0.94, targetCatcherY + step);
+      }
+    });
+
+    // Designated topbar launch buttons
+    const btnRealm = document.getElementById('btnLaunchGame');
+    const btnHelix = document.getElementById('btnLaunchHelixGame');
+    const btnMeteor = document.getElementById('btnLaunchMeteorGame');
+    const btnMath = document.getElementById('btnLaunchMathGame');
+    const btnReflex = document.getElementById('btnLaunchReflexGame');
+    const btnMemory = document.getElementById('btnLaunchMemoryGame');
+    const btnTopFullscreen = document.getElementById('btnTopbarFullscreen');
+
+    if (btnRealm) btnRealm.onclick = (e) => { e.preventDefault(); openGame('dynamo'); };
+    if (btnHelix) btnHelix.onclick = (e) => { e.preventDefault(); openGame('helix'); };
+    if (btnMeteor) btnMeteor.onclick = (e) => { e.preventDefault(); openGame('meteor'); };
+    if (btnMath) btnMath.onclick = (e) => { e.preventDefault(); openGame('math'); };
+    if (btnReflex) btnReflex.onclick = (e) => { e.preventDefault(); openGame('reflex'); };
+    if (btnMemory) btnMemory.onclick = (e) => { e.preventDefault(); openGame('memory'); };
+    if (btnTopFullscreen) btnTopFullscreen.onclick = toggleAppFullscreen;
+    checkUrlAutoLaunch();
+  }
+
+  // Global Unified API
+  window.chromeSynapseGame = {
+    open: openGame,
+    close: closeGame,
+    toggleFullscreen: toggleAppFullscreen,
+    setLevel: (lvl) => { state.mathLevel = lvl; },
+    getState: () => state,
+    setPointerX: (nx) => { targetCatcherX = Math.max(0.04, Math.min(0.96, nx)); },
+    setPointerY: (ny) => { targetCatcherY = Math.max(0.06, Math.min(0.94, ny)); },
+    setTier: (t) => {
+      const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+      state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
+      state.coreTier = t;
+      CoreKinematics.continuousTier = t;
+      state.isOverdrive = (t >= 4);
+      if (t === 5) audio.playTier5Ascension();
+      updateHeaderUI();
+    }
+  };
+  window.openChromeGame = openGame;
+
+  // ReflexArcade programmatic API & URL auto-launch
+  window.ReflexArcade = {
+    open: openGame,
+    close: closeGame,
+    setTier: function(t) {
+      if (!state.active) return;
+      const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+      state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
+      state.coreTier = t;
+      CoreKinematics.continuousTier = t;
+      state.isOverdrive = (t >= 4);
+      if (t === 5) audio.playTier5Ascension();
+      updateHeaderUI();
+    },
+    getState: function() { return state; }
+  };
+
+  function checkUrlAutoLaunch() {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const arc = p.get('arcade');
+      if (arc) {
+        setTimeout(() => {
+          openGame(arc);
+          const t = parseInt(p.get('tier') || '0', 10);
+          if (t >= 1 && t <= 5) {
+            setTimeout(() => {
+              const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+              state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
+              state.coreTier = t;
+              CoreKinematics.continuousTier = t;
+              state.isOverdrive = (t >= 4);
+              if (t === 5) audio.playTier5Ascension();
+              updateHeaderUI();
+            }, 300);
+          }
+        }, 500);
+      }
+    } catch (e) {}
+  }
+
+  // QuantumGame bridge for full backward compatibility
+  window.quantumGame = {
+    launch: (variant) => {
+      if (variant === 'helix') openGame('helix');
+      else if (variant === 'meteor') openGame('meteor');
+      else openGame('realm');
+    },
+    exit: closeGame,
+    restart: () => startGame(state.gameType),
+    isActive: () => state.active
+  };
+
+  // Antigravity FX dummy stub (ambient particles in workspace are 100% disabled)
+  window.antigravityFX = {
+    isEnabled: () => false,
+    enable: () => {},
+    disable: () => {},
+    toggle: () => false,
+    getParticles: () => []
+  };
+
+  // Dedicated Escape Key Listener to exit cleanly from any active game
+  window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      if (state.active || (dom.modal && dom.modal.classList.contains('active'))) {
+        e.preventDefault();
+        closeGame();
+      }
+    }
+  }, true);
+
+  // Resilient Global Event Delegation for all 6 Game Launchers
+  document.addEventListener('click', function(e) {
+    const realm = e.target.closest('#btnLaunchGame, .qgame-btn-dynamo, .qgame-btn-realm');
+      if (realm) { e.preventDefault(); openGame('dynamo'); return; }
+    const helix = e.target.closest('#btnLaunchHelixGame, .qgame-btn-helix');
+    if (helix) { e.preventDefault(); openGame('helix'); return; }
+    const meteor = e.target.closest('#btnLaunchMeteorGame, .qgame-btn-meteor');
+    if (meteor) { e.preventDefault(); openGame('meteor'); return; }
+    const math = e.target.closest('#btnLaunchMathGame, .btn-game-math');
+    if (math) { e.preventDefault(); openGame('math'); return; }
+    const reflex = e.target.closest('#btnLaunchReflexGame, .btn-game-reflex');
+    if (reflex) { e.preventDefault(); openGame('reflex'); return; }
+    const matrix = e.target.closest('#btnLaunchMemoryGame, .btn-game-memory');
+    if (matrix) { e.preventDefault(); openGame('memory'); return; }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEvents);
+  } else {
+    initEvents();
+  }
+
+  // Expose Core Engines for Native 4K UHD Ultra-Fidelity Rendering & Verification
+  window.QuantumRenderer = QuantumRenderer;
+  window.LayeredT4Assets = LayeredT4Assets;
+  window.CoreKinematics = CoreKinematics;
+  window.RoundBossEngine = RoundBossEngine;
+  window.SkillSystem = SkillSystem;
+})();
+
+
+/* ── STANDALONE QUANTUM MUSIC PLAYER (orlandochrome/music) ── */
+(function initQuantumMusicPlayer() {
+  var playlist = [
+    'music/enchanted.mp3',
+    'music/malibu-nights.mp3',
+    'music/palagi.mp3',
+    'music/okay.mp3',
+    'music/training-season.mp3',
+    'music/na-para-bang.mp3',
+    'music/the-man-who-cant-be-moved.mp3',
+    'music/what-if-i-miss-you.mp3',
+    'music/youre-still-the-one.mp3',
+    'music/stop-the-wedding.mp3'
+  ];
+  var currentTrackIdx = 0;
+  var audio = new Audio();
+  var isPlaying = false;
+
+  audio.addEventListener('ended', function() {
+    nextSong();
+    if (isPlaying) audio.play().catch(function(){});
+  });
+
+  function playSong(trackPath) {
+    if (!trackPath) {
+      trackPath = playlist[currentTrackIdx];
+    }
+    audio.src = trackPath;
+    audio.play().then(function() {
+      isPlaying = true;
+      if (typeof window.syncGameMusicBtn === 'function') window.syncGameMusicBtn();
+    }).catch(function(err) {
+      console.warn('Playback error:', err);
+    });
+  }
+
+  function stopSong() {
+    audio.pause();
+    isPlaying = false;
+    if (typeof window.syncGameMusicBtn === 'function') window.syncGameMusicBtn();
+  }
+
+  function nextSong() {
+    currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
+    return playlist[currentTrackIdx];
+  }
+
+  window.playSong = playSong;
+  window.stopSong = stopSong;
+  window.nextSong = nextSong;
+  window.getIsMusicPlaying = function() { return isPlaying; };
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LUXURY REALM LAUNCHER ENGINE v381 (DYNAMO · HELIX · METEOR)
+   10-Role Studio Upgrade: Live 60FPS QuantumRenderer Tier V Hexa-Wing Portal
+   + Zero-Reflow Cached Topbar Button Micro-Physics (0% CPU when idle/in-game)
+   ══════════════════════════════════════════════════════════════════════════ */
+(function initLuxuryRealmLauncherButtons() {
+  const REALM_META = {
+    dynamo: {
+      title: 'CHROME DYNAMO · SERAPHIC ARCHON',
+      tierTag: '⚡ TIER V SUPREME ASCENDANT',
+      science: 'Faraday–Maxwell Plasma Physics · Branching Lichtenberg Lightning & Chain Induction',
+      bestKey: 'oc_best_realm',
+      portalScale: 0.295,
+      portalCy: 0.64,
+      moteColors: ['#38bdf8', '#c084fc', '#fde68a']
+    },
+    helix: {
+      title: 'CHROME HELIX · PRISM ARCHON',
+      tierTag: '🧬 TIER V SUPREME ASCENDANT',
+      science: 'Quantum Molecular Biogenesis · 3D Photonic DNA Double-Helix & Base-Pair Resonance',
+      bestKey: 'oc_best_helix',
+      portalScale: 0.315,
+      portalCy: 0.61,
+      moteColors: ['#22d3ee', '#e879f9', '#f0f9ff']
+    },
+    meteor: {
+      title: 'CHROME METEOR · MAGNETAR SERAPH',
+      tierTag: '☄️ TIER V SUPREME ASCENDANT',
+      science: 'Hypervelocity Chondritic Ablation · Solar Bow-Shock Fire & Kinetic Slingshot Deflection',
+      bestKey: 'oc_best_meteor',
+      portalScale: 0.35,
+      portalCy: 0.60,
+      moteColors: ['#fde047', '#fb923c', '#f97316']
+    }
+  };
+
+  // Pre-seeded ambient micro-particles for the live Tier V Portal Viewport (Zero runtime allocations)
+  const PORTAL_MOTES = Array.from({ length: 20 }, (_, i) => ({
+    x: ((i * 67 + 23) % 100) / 100,
+    y: ((i * 43 + 17) % 100) / 100,
+    r: 0.8 + (i % 3) * 0.55,
+    spdY: 0.012 + (i % 4) * 0.006,
+    phase: i * 1.19,
+    ci: i % 3
+  }));
+
+  function setup() {
+    const buttons = Array.from(document.querySelectorAll('.oc-realm-btn[data-realm]'));
+    if (!buttons.length) return;
+
+    // 1. Create Reusable Floating Holographic Tier V Portal Card directly on document.body (ZERO topbar clipping!)
+    let portal = document.getElementById('ocRealmPortalCard');
+    if (!portal) {
+      portal = document.createElement('div');
+      portal.id = 'ocRealmPortalCard';
+      portal.setAttribute('aria-hidden', 'true');
+      portal.innerHTML = `
+        <div class="oc-portal-stage">
+          <span class="oc-portal-tier-tag" id="ocPortalTierTag"></span>
+          <canvas id="ocPortalCanvas" class="oc-portal-canvas" aria-hidden="true"></canvas>
+        </div>
+        <div class="oc-portal-title" id="ocPortalTitle"></div>
+        <div class="oc-portal-science" id="ocPortalScience"></div>
+        <div class="oc-portal-footer">
+          <span class="oc-portal-best">BEST SCORE<strong id="ocPortalBest">0</strong></span>
+          <span class="oc-portal-cta">ENTER ARENA →</span>
+        </div>
+      `;
+      document.body.appendChild(portal);
+    }
+
+    const pTag = document.getElementById('ocPortalTierTag');
+    const pCanvas = document.getElementById('ocPortalCanvas');
+    const pCtx = pCanvas ? pCanvas.getContext('2d') : null;
+    const pTitle = document.getElementById('ocPortalTitle');
+    const pSci = document.getElementById('ocPortalScience');
+    const pBest = document.getElementById('ocPortalBest');
+
+    const PORTAL_W = 266;
+    const PORTAL_H = 140;
+    let portalDpr = 1;
+    function syncPortalCanvasSize() {
+      if (!pCanvas) return;
+      portalDpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+      const tw = Math.round(PORTAL_W * portalDpr);
+      const th = Math.round(PORTAL_H * portalDpr);
+      if (pCanvas.width !== tw || pCanvas.height !== th) {
+        pCanvas.width = tw;
+        pCanvas.height = th;
+      }
+      pCanvas._renderDpr = portalDpr;
+    }
+    syncPortalCanvasSize();
+
+    let activeHoverRealm = null;
+    const fxControllers = [];
+
+    function renderPortalFrame(now) {
+      if (!activeHoverRealm || !pCtx || !pCanvas) return;
+      const meta = REALM_META[activeHoverRealm];
+      if (!meta) return;
+
+      const dpr = portalDpr || 1;
+      const w = PORTAL_W;
+      const h = PORTAL_H;
+
+      pCtx.save();
+      pCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      pCtx.clearRect(0, 0, w, h);
+      pCtx.imageSmoothingEnabled = true;
+      pCtx.imageSmoothingQuality = 'medium';
+
+      // Subtle animated cosmic starlight / realm motes behind the Tier V Archon
+      pCtx.save();
+      pCtx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < PORTAL_MOTES.length; i++) {
+        const m = PORTAL_MOTES[i];
+        const drift = (now * 0.001 * m.spdY);
+        const mx = ((m.x + Math.sin(now * 0.0009 + m.phase) * 0.04) * w + w) % w;
+        const my = ((m.y - drift) % 1 + 1) % 1 * h;
+        const tw = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(now * 0.004 + m.phase));
+        pCtx.globalAlpha = tw * 0.65;
+        pCtx.fillStyle = meta.moteColors[m.ci];
+        pCtx.beginPath();
+        pCtx.arc(mx, my, m.r, 0, Math.PI * 2);
+        pCtx.fill();
+      }
+      pCtx.restore();
+
+      // Render the REAL Seamless Tier V Hexa-Wing Supreme Ascendant Archon (ZERO vertical seam!)
+      if (window.QuantumRenderer && typeof window.QuantumRenderer._drawLayeredWingedCore === 'function') {
+        const levY = Math.sin(now * 0.0028) * 2.4;
+        window.QuantumRenderer._drawLayeredWingedCore(
+          pCtx,
+          activeHoverRealm,
+          w * 0.5,
+          h * (meta.portalCy || 0.60) + levY,
+          now,
+          5,
+          meta.portalScale,
+          true
+        );
+      }
+      pCtx.restore();
+    }
+
+    function showPortalFor(btn, realm) {
+      const meta = REALM_META[realm];
+      if (!meta) return;
+      activeHoverRealm = realm;
+      portal.setAttribute('data-realm', realm);
+      if (pTag) pTag.textContent = meta.tierTag;
+      if (pTitle) pTitle.textContent = meta.title;
+      if (pSci) pSci.textContent = meta.science;
+      const bestVal = parseInt(localStorage.getItem(meta.bestKey) || '0', 10) || 0;
+      if (pBest) pBest.textContent = bestVal.toLocaleString();
+
+      const rect = btn.getBoundingClientRect();
+      const cardW = 294;
+      const desiredLeft = rect.left + rect.width * 0.5 - cardW * 0.5;
+      const clampedLeft = Math.max(10, Math.min(window.innerWidth - cardW - 10, desiredLeft));
+      portal.style.left = `${Math.round(clampedLeft)}px`;
+      portal.style.top = `${Math.round(rect.bottom + 8)}px`;
+      syncPortalCanvasSize();
+      renderPortalFrame(performance.now());
+      portal.classList.add('visible');
+    }
+
+    function hidePortal() {
+      activeHoverRealm = null;
+      portal.classList.remove('visible');
+    }
+
+    // 2. Wire Per-Button Live Micro-Physics Canvas + Cached Dimensions (Zero per-frame reflow!)
+    function syncButtonSizes() {
+      const dpr = Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+      for (let i = 0; i < fxControllers.length; i++) {
+        const c = fxControllers[i];
+        const rect = c.btn.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) continue;
+        c.w = rect.width;
+        c.h = rect.height;
+        c.dpr = dpr;
+        const tw = Math.round(rect.width * dpr);
+        const th = Math.round(rect.height * dpr);
+        if (c.canvas.width !== tw || c.canvas.height !== th) {
+          c.canvas.width = tw;
+          c.canvas.height = th;
+        }
+      }
+    }
+
+    buttons.forEach((btn) => {
+      const realm = btn.getAttribute('data-realm');
+      const canvas = btn.querySelector('.oc-realm-btn-fx');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const embers = [];
+      for (let i = 0; i < 8; i++) {
+        embers.push({
+          x: Math.random(),
+          y: Math.random(),
+          spd: 0.008 + Math.random() * 0.013,
+          size: 0.9 + Math.random() * 1.4,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      const ctrl = { btn, realm, canvas, ctx, embers, hovered: false, w: 0, h: 0, dpr: 1 };
+      fxControllers.push(ctrl);
+
+      btn.addEventListener('mouseenter', () => {
+        ctrl.hovered = true;
+        showPortalFor(btn, realm);
+      });
+      btn.addEventListener('mouseleave', () => {
+        ctrl.hovered = false;
+        hidePortal();
+      });
+      btn.addEventListener('focus', () => {
+        ctrl.hovered = true;
+        showPortalFor(btn, realm);
+      });
+      btn.addEventListener('blur', () => {
+        ctrl.hovered = false;
+        hidePortal();
+      });
+      btn.addEventListener('click', () => {
+        ctrl.hovered = false;
+        hidePortal();
+      });
+    });
+
+    syncButtonSizes();
+    window.addEventListener('resize', () => {
+      syncButtonSizes();
+      syncPortalCanvasSize();
+    });
+
+    // 3. Lightweight Adaptive Loop (Auto-Pauses when Arcade Modal is Open or Tab Hidden; 30FPS idle / 60FPS hovered!)
+    const modalEl = document.getElementById('chromeGameModal');
+    function isArcadeOpen() {
+      if (!modalEl) return false;
+      return modalEl.classList.contains('active') || modalEl.classList.contains('open') || modalEl.style.display === 'flex' || modalEl.style.display === 'block';
+    }
+
+    let lastBtnDraw = 0;
+    function renderLoop(now) {
+      requestAnimationFrame(renderLoop);
+      if (document.hidden || isArcadeOpen()) return;
+
+      // Render Live Tier V Portal Viewport at full 60FPS ONLY while hovered!
+      if (activeHoverRealm) {
+        renderPortalFrame(now);
+      }
+
+      // Throttle idle topbar micro-physics to ~30FPS (full 60FPS when hovering any realm button)
+      const minInterval = activeHoverRealm ? 15 : 33;
+      if (now - lastBtnDraw < minInterval) return;
+      lastBtnDraw = now;
+
+      for (let i = 0; i < fxControllers.length; i++) {
+        const c = fxControllers[i];
+        if (c.w < 10 || c.h < 10) {
+          syncButtonSizes();
+          if (c.w < 10 || c.h < 10) continue;
+        }
+        const ctx = c.ctx;
+        const w = c.w;
+        const h = c.h;
+        const dpr = c.dpr || 1;
+        const boost = c.hovered ? 1.65 : 1.0;
+
+        ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (c.realm === 'dynamo') {
+          const tick = Math.floor(now / (c.hovered ? 48 : 82));
+          const bolts = c.hovered ? 2 : 1;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          const startX = w > 50 ? 24 : 6;
+          const endX = w - 6;
+          for (let b = 0; b < bolts; b++) {
+            const segs = 6;
+            ctx.beginPath();
+            for (let s = 0; s <= segs; s++) {
+              const f = s / segs;
+              const px = startX + (endX - startX) * f;
+              const jag = (s === 0) ? 0 : (Math.sin(tick * 3.17 + b * 4.3 + s * 2.29) * 4.8 + Math.cos(tick * 5.1 + s * 3.71) * 2.1);
+              const py = h * 0.5 + jag * (c.hovered ? 1.1 : 0.8);
+              if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = `rgba(56, 189, 248, ${Math.min(0.9, 0.48 * boost)})`;
+            ctx.lineWidth = c.hovered ? 2.2 : 1.6;
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(224, 242, 254, ${Math.min(0.95, 0.42 * boost)})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+
+        } else if (c.realm === 'helix') {
+          const startX = w > 50 ? 22 : 4;
+          const endX = w - 4;
+          const speed = now * (c.hovered ? 0.0052 : 0.0030);
+          const steps = 14;
+          ctx.lineCap = 'round';
+
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.18 * boost})`;
+          ctx.lineWidth = 0.9;
+          ctx.beginPath();
+          for (let s = 2; s < steps; s += 3) {
+            const f = s / steps;
+            const x = startX + (endX - startX) * f;
+            const yOff = Math.sin(speed + f * Math.PI * 3.2) * (h * 0.28);
+            ctx.moveTo(x, h * 0.5 + yOff);
+            ctx.lineTo(x, h * 0.5 - yOff);
+          }
+          ctx.stroke();
+
+          for (let strand = -1; strand <= 1; strand += 2) {
+            ctx.beginPath();
+            for (let s = 0; s <= steps; s++) {
+              const f = s / steps;
+              const x = startX + (endX - startX) * f;
+              const y = h * 0.5 + Math.sin(speed + f * Math.PI * 3.2) * (h * 0.28) * strand;
+              if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = strand > 0
+              ? `rgba(34, 211, 238, ${Math.min(0.9, 0.46 * boost)})`
+              : `rgba(232, 121, 249, ${Math.min(0.9, 0.46 * boost)})`;
+            ctx.lineWidth = c.hovered ? 2.0 : 1.45;
+            ctx.stroke();
+          }
+
+        } else if (c.realm === 'meteor') {
+          ctx.fillStyle = `rgba(249, 115, 22, ${0.14 * boost})`;
+          ctx.fillRect(0, 0, w, h);
+
+          for (let e = 0; e < c.embers.length; e++) {
+            const em = c.embers[e];
+            em.x += em.spd * (c.hovered ? 1.8 : 1.0);
+            em.y -= em.spd * 0.32;
+            if (em.x > 1.05 || em.y < -0.1) {
+              em.x = 0.16 + Math.random() * 0.14;
+              em.y = 0.25 + Math.random() * 0.65;
+            }
+            const ex = em.x * w;
+            const ey = em.y * h + Math.sin(now * 0.008 + em.phase) * 2.0;
+            const ea = Math.min(1, Math.sin(Math.min(1, em.x) * Math.PI) * 0.85 * boost);
+            ctx.globalAlpha = ea * 0.55;
+            ctx.fillStyle = '#fb923c';
+            ctx.beginPath();
+            ctx.arc(ex, ey, em.size * 2.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = ea;
+            ctx.fillStyle = '#fef9c3';
+            ctx.beginPath();
+            ctx.arc(ex, ey, em.size * 0.9, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+      }
+    }
+    requestAnimationFrame(renderLoop);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+})();

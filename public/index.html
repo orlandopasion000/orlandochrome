@@ -4,57 +4,2722 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title id="pageTitle">OrlandoChrome (Main Version)</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=pure73">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=pure73">
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=pure73">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=pure73">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=oc310">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=oc310">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=oc310">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=oc310">
 
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="OrlandoChrome (Main Version)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="OrlandoChrome · Taskbar Chrome Profile Messenger, AI Cooldown Timers & Wispr Flow Pro Dictation Suite.">
-  <link rel="manifest" id="manifestLink" href="manifest.json?v=pure73">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=pure73">
-  <link rel="stylesheet" href="styles.css?v=pure73">
+  <link rel="manifest" id="manifestLink" href="manifest.json?v=oc310">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=oc310">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png?v=oc310">
+  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167x167.png?v=oc310">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png?v=oc310">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png?v=oc310">
+  <link rel="stylesheet" href="styles.css?v=arcade392_arsenal_overhaul">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style id="qgameTopbarInlineStyles">
+    /* 1. Full Viewport Height & Zero Bottom Gap Architecture */
+    html {
+      height: 100% !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    body {
+      height: 100% !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      min-height: 100vh !important;
+      min-height: 100dvh !important;
+      max-height: 100dvh !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      box-sizing: border-box !important;
+    }
+
+    .app-topbar {
+      flex-shrink: 0 !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
+      width: 100% !important;
+      max-width: 100vw !important;
+      box-sizing: border-box !important;
+      padding: 0 max(14px, env(safe-area-inset-right)) 0 max(14px, env(safe-area-inset-left)) !important;
+      gap: 8px !important;
+      overflow: visible !important;
+      position: relative !important;
+      z-index: 9999 !important;
+      background: #000000 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
+
+    .app-workspace {
+      flex: 1 1 0% !important;
+      height: calc(100vh - 44px) !important;
+      height: calc(100dvh - 44px) !important;
+      min-height: 0 !important;
+      width: 100% !important;
+      display: flex !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      background: #000000 !important;
+    }
+
+    .sidebar {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+      background: #000000 !important;
+    }
+
+    .profile-list {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-sizing: border-box !important;
+    }
+
+    .standalone-subapp-dock {
+      flex-shrink: 0 !important;
+      margin-top: auto !important;
+      padding-bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+      box-sizing: border-box !important;
+    }
+
+    .chat-main {
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      background: #000000 !important;
+    }
+
+    .notes-stream {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-sizing: border-box !important;
+    }
+
+    .quick-templates-bar {
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    .composer-bar {
+      flex-shrink: 0 !important;
+      margin-top: auto !important;
+      padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+      box-sizing: border-box !important;
+    }
+
+    /* 2. Topbar No-Overlap & Game Group Architecture */
+    .topbar-left {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      overflow: visible !important;
+    }
+
+    .brand-logo {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      cursor: pointer !important;
+      flex-shrink: 0 !important;
+      margin-left: 2px !important;
+      margin-right: 2px !important;
+      overflow: visible !important;
+    }
+
+    .oc-logo-img {
+      width: 26px !important;
+      height: 26px !important;
+      border-radius: 7px !important;
+      flex-shrink: 0 !important;
+      margin: 1px 0 1px 2px !important;
+      overflow: visible !important;
+    }
+
+    .brand-title {
+      font-family: var(--font-logo, sans-serif) !important;
+      font-size: clamp(0.95rem, 1.2vw, 1.15rem) !important;
+      letter-spacing: 1px !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+    }
+
+    /* Unified 6-Game Suite Cluster: Can shrink to icon-only or scroll horizontally with hidden scrollbar */
+    .topbar-left .qgame-topbar-cluster,
+    .qgame-topbar-cluster {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      margin: 0 !important;
+      padding: 0 2px !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+      -webkit-overflow-scrolling: touch !important;
+      white-space: nowrap !important;
+      contain: paint !important;
+      z-index: 50 !important;
+    }
+
+    .qgame-topbar-cluster::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    .topbar-left .qgame-btn-launch,
+    .qgame-btn-launch {
+      width: auto !important;
+      min-width: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      height: 26px !important;
+      box-sizing: border-box !important;
+      padding: 0 8px !important;
+      border-radius: 9999px !important;
+      font-family: 'Lexend', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      font-size: 0.64rem !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.04em !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      text-decoration: none !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .game-btn-glyph {
+      font-size: 0.72rem !important;
+      line-height: 1 !important;
+    }
+
+    /* 1. Chrome Realm: Electric Cyan Glass */
+    .qgame-btn-dynamo,
+    .qgame-btn-realm {
+      background: rgba(14, 165, 233, 0.16) !important;
+      border: 1px solid rgba(56, 189, 248, 0.55) !important;
+      color: #38bdf8 !important;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.35) !important;
+    }
+    .qgame-btn-dynamo:hover,
+    .qgame-btn-realm:hover {
+      background: rgba(14, 165, 233, 0.32) !important;
+      border-color: #38bdf8 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.75) !important;
+      transform: translateY(-1px);
+    }
+
+    /* 2. Chrome Helix: Radiant Ice Mint & Aqua */
+    .qgame-btn-helix {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+      color: #7dd3fc !important;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
+    }
+    .qgame-btn-helix:hover {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 165, 233, 0.38) 100%) !important;
+      border-color: #38bdf8 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
+      transform: translateY(-1px);
+    }
+
+    /* 3. Chrome Meteor: Radiant Deep Sapphire & Cobalt */
+    .qgame-btn-meteor {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(30, 58, 138, 0.3) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.55) !important;
+      color: #7dd3fc !important;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.35) !important;
+    }
+    .qgame-btn-meteor:hover {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.35) 0%, rgba(30, 58, 138, 0.45) 100%) !important;
+      border-color: #38bdf8 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.75) !important;
+      transform: translateY(-1px);
+    }
+
+    /* 4. Math Overdrive: Emerald Neon Glass */
+    .qgame-btn-math {
+      background: rgba(16, 185, 129, 0.16) !important;
+      border: 1px solid rgba(52, 211, 153, 0.55) !important;
+      color: #34d399 !important;
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.35) !important;
+    }
+    .qgame-btn-math:hover {
+      background: rgba(16, 185, 129, 0.32) !important;
+      border-color: #34d399 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.75) !important;
+      transform: translateY(-1px);
+    }
+
+    /* 5. Reflex Blitz: Electric Cyan Lightning */
+    .qgame-btn-reflex {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(2, 132, 199, 0.25) 100%) !important;
+      border: 1px solid rgba(0, 240, 255, 0.6) !important;
+      color: #67e8f9 !important;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
+    }
+    .qgame-btn-reflex:hover {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.35) 0%, rgba(2, 132, 199, 0.4) 100%) !important;
+      border-color: #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.8) !important;
+      transform: translateY(-1px);
+    }
+
+    /* 6. Memory Matrix: Radiant Mint & Teal Matrix */
+    .qgame-btn-matrix {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.22) 0%, rgba(14, 165, 233, 0.2) 100%) !important;
+      border: 1.5px solid rgba(45, 212, 191, 0.7) !important;
+      color: #5eead4 !important;
+      box-shadow: 0 0 12px rgba(45, 212, 191, 0.4) !important;
+    }
+    .qgame-btn-matrix:hover {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.38) 0%, rgba(14, 165, 233, 0.35) 100%) !important;
+      border-color: #5eead4 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(45, 212, 191, 0.6) !important;
+      transform: translateY(-1px);
+    }
+
+    /* Anchored Topbar Right: Always visible, strictly flex-shrink: 0, margin-left: auto */
+    .topbar-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      flex-shrink: 0 !important;
+      margin-left: auto !important;
+      min-width: max-content !important;
+    }
+
+    .fs-toggle-btn,
+    .btn-topbar-fullscreen,
+    .btn-topbar-quick,
+    .btn-topbar-system {
+      height: 26px !important;
+      padding: 0 8px !important;
+      font-size: 0.66rem !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    .nav-clock-box {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      flex-shrink: 0 !important;
+      font-size: 0.76rem !important;
+      margin-left: 2px !important;
+    }
+
+    .nf-alarm-pill {
+      flex-shrink: 0 !important;
+      height: 26px !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Responsive Rules: Smooth shrinking without overlap from 3440px down to 360px */
+    @media (max-width: 1250px) {
+      .qgame-btn-launch .game-btn-label {
+        display: none !important;
+      }
+      .qgame-btn-launch {
+        padding: 0 !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        justify-content: center !important;
+      }
+    }
+
+    @media (max-width: 1050px) {
+      .nf-alarm-pill .alarm-pill-text {
+        max-width: 85px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+    }
+
+    /* Screen Width <= 850px (Tablets, Split-screen, and when DevTools is open) */
+    @media (max-width: 850px) {
+      .app-topbar {
+        padding: 0 max(12px, env(safe-area-inset-right)) 0 max(14px, env(safe-area-inset-left)) !important;
+        gap: 6px !important;
+      }
+      .brand-title .title-chrome {
+        display: none !important;
+      }
+      .brand-title {
+        font-size: 0.82rem !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+      }
+      .fs-toggle-btn .fs-btn-label {
+        display: none !important;
+      }
+      .fs-toggle-btn .fs-btn-glyph {
+        display: inline-flex !important;
+      }
+      .fs-toggle-btn {
+        padding: 0 !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        justify-content: center !important;
+      }
+      .btn-topbar-quick .quick-btn-label {
+        display: none !important;
+      }
+      .btn-topbar-quick .quick-btn-icon {
+        display: inline-flex !important;
+      }
+      .btn-topbar-quick {
+        padding: 0 !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        justify-content: center !important;
+      }
+      .system-btn-text,
+      .system-caret {
+        display: none !important;
+      }
+      .btn-topbar-system {
+        padding: 0 !important;
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        justify-content: center !important;
+      }
+      .nf-clock-digital .chrome span:nth-last-child(-n+3) {
+        display: none !important;
+      }
+      .nf-clock-digital {
+        font-size: 0.68rem !important;
+      }
+      .nf-alarm-pill .alarm-pill-text {
+        max-width: 48px !important;
+        font-size: 0.60rem !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        white-space: nowrap !important;
+      }
+      .nf-alarm-pill {
+        padding: 0 5px !important;
+        height: 24px !important;
+      }
+      .topbar-right {
+        gap: 3px !important;
+      }
+    }
+
+    /* Mobile Topbar Optimization (<= 550px): Generous space for 3 Flagship Game Launchers */
+    @media (max-width: 550px) {
+      .btn-topbar-quick,
+      .btn-topbar-system {
+        display: none !important;
+      }
+      .brand-title .title-chrome {
+        display: none !important;
+      }
+      .brand-title {
+        font-size: 0.76rem !important;
+        letter-spacing: 0.5px !important;
+      }
+      .topbar-left {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+      }
+      .qgame-topbar-cluster {
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        max-width: 120px !important;
+        overflow-x: auto !important;
+        gap: 4px !important;
+        contain: none !important;
+      }
+      .qgame-btn-launch {
+        width: 28px !important;
+        min-width: 28px !important;
+        height: 28px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+      }
+    }
+
+    /* Ultra-compact Mobile (<= 450px down to 360px) */
+    @media (max-width: 450px) {
+      .app-topbar {
+        padding: 0 max(10px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left)) !important;
+        gap: 3px !important;
+      }
+      .topbar-left {
+        gap: 3px !important;
+      }
+      .brand-logo {
+        gap: 3px !important;
+        margin-left: 0 !important;
+      }
+      .oc-logo-img {
+        width: 22px !important;
+        height: 22px !important;
+        border-radius: 6px !important;
+        margin: 1px 0 1px 1px !important;
+      }
+      .brand-title {
+        font-size: 0.72rem !important;
+      }
+      .qgame-topbar-cluster {
+        gap: 2px !important;
+        padding: 0 !important;
+      }
+      .qgame-btn-launch {
+        width: 22px !important;
+        min-width: 22px !important;
+        height: 24px !important;
+      }
+      .game-btn-glyph {
+        font-size: 0.62rem !important;
+      }
+      .topbar-right {
+        gap: 2px !important;
+      }
+      .fs-toggle-btn,
+      .btn-topbar-fullscreen,
+      .btn-topbar-quick,
+      .btn-topbar-system {
+        width: 24px !important;
+        min-width: 24px !important;
+        height: 24px !important;
+        padding: 0 !important;
+      }
+      .nf-clock-digital {
+        font-size: 0.60rem !important;
+      }
+      .nf-clock-digital .nf-clock-ampm {
+        display: none !important;
+      }
+      .nf-alarm-pill {
+        height: 22px !important;
+        padding: 0 3px !important;
+      }
+      .nf-alarm-pill .alarm-pill-text {
+        max-width: 32px !important;
+        font-size: 0.56rem !important;
+      }
+    }
+    /* Clock & Alarm Pill: Radiant Ice Cyan & Platinum (Zero Amber/Gold) */
+    body .nf-clock-digital .chrome span,
+    body .nav-clock-box .chrome span,
+    body .nav-clock-time {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 20%, #BAE6FD 45%, #38BDF8 75%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.45) !important;
+    }
+    body .nf-clock-digital .nf-clock-ampm,
+    body .nav-clock-box .nav-clock-ampm {
+      color: #38bdf8 !important;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.4) !important;
+    }
+    body .alarm-pill-countdown {
+      background: linear-gradient(180deg, #FFFFFF 0%, #E0F2FE 30%, #38BDF8 70%, #0284C7 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    body .alarm-pill-text {
+      color: #E2E8F0 !important;
+    }
+    body .alarm-pill-icon-svg svg {
+      stroke: #00f0ff !important;
+      filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.85)) !important;
+    }
+
+    /* Voice Commands Filter Row Alignment */
+    body .voice-cheat-filters {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      overflow-x: auto !important;
+      padding: 6px 2px !important;
+      margin: 8px 0 !important;
+      flex-shrink: 0 !important;
+      min-height: 38px !important;
+      scrollbar-width: none !important;
+    }
+    body .voice-filter-pill {
+      flex-shrink: 0 !important;
+      padding: 5px 12px !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      line-height: 1.2 !important;
+    }
+
+    /* Mobile Responsive 2-Row Layout for Arcade Arena (Ultra-Compact, Flexible & Adaptive) */
+    @media (max-width: 650px) {
+      .game-modal-overlay .game-topbar {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        row-gap: 4px !important;
+        column-gap: 6px !important;
+        padding: max(5px, env(safe-area-inset-top, 6px)) 8px 5px 8px !important;
+        height: auto !important;
+        min-height: unset !important;
+      }
+      .game-modal-overlay .game-brand {
+        grid-column: 1 / 2 !important;
+        grid-row: 1 / 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        min-width: 0 !important;
+      }
+      .game-modal-overlay .game-brand-icon {
+        width: 18px !important;
+        height: 18px !important;
+      }
+      .game-modal-overlay .game-brand-text {
+        min-width: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      .game-modal-overlay .game-title {
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.04em !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        line-height: 1.15 !important;
+      }
+      .game-modal-overlay .game-sub {
+        font-size: 8.5px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 140px !important;
+      }
+      .game-modal-overlay .game-controls-actions {
+        grid-column: 2 / 3 !important;
+        grid-row: 1 / 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 4px !important;
+      }
+      .game-modal-overlay .game-ctrl-btn {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 11px !important;
+      }
+      .game-modal-overlay .game-stats-cluster {
+        grid-column: 1 / 3 !important;
+        grid-row: 2 / 3 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 3px !important;
+      }
+      .game-modal-overlay .game-stat-pill {
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        text-align: center !important;
+        padding: 2px 2px !important;
+        border-radius: 4px !important;
+      }
+      .game-modal-overlay .g-stat-label {
+        font-size: 6.5px !important;
+        letter-spacing: 0.2px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+      }
+      .game-modal-overlay .g-stat-val {
+        font-size: 9.5px !important;
+        letter-spacing: -0.2px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+      }
+      .game-modal-overlay .buff-pill {
+        min-width: 0 !important;
+        max-width: none !important;
+      }
+    }
+
+    /* === CHANGED (v387): Complete iOS Safari touch/scroll/zoom/callout hardening during active play === */
+    body.arcade-active,
+    body.arcade-active #chromeGameModal {
+      overscroll-behavior: none !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* 1:1 Instantaneous Mobile Touch & Pointer Direct Flight */
+    .reflex-view-container {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    #cgCanvasReflex {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    /* Safe overflow protection for unlimited ammo HUD counter */
+    #cgOffenseVal {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: clip !important;
+      max-width: 78px !important;
+      display: inline-block !important;
+    }
+
+    /* === CHANGED (v387): MOBILE LEGENDS KIMMY-STYLE 3-BUTTON TOUCH ARC (Created by JS on touch ONLY) === */
+    #ocTouchControlCluster {
+      position: absolute !important;
+      inset: 0 !important;
+      pointer-events: none !important;
+      z-index: 44 !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    #ocTouchControlCluster.oc-touch-hidden {
+      display: none !important;
+    }
+    .oc-touch-pad-wrap {
+      position: absolute !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 4px !important;
+      pointer-events: none !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+    }
+    /* === CHANGED (v388): EXACT MOBILE LEGENDS KIMMY DIAGONAL ARC LAYOUT (matching uploaded reference!) === */
+    /* Right-Handed Default Bottom-Right Curved Quarter-Circle Arc around EMBER CANNON (100% clear of ship!) */
+    .oc-pad-wrap-gun {
+      right: max(10px, env(safe-area-inset-right, 10px)) !important;
+      bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    }
+    /* Diagonal Upper-Left (10:30 o'clock ~138° from gun, matching ML Skill 2 "6" position, 100% clear of ship!) */
+    .oc-pad-wrap-skill2 {
+      right: calc(max(10px, env(safe-area-inset-right, 10px)) + 80px) !important;
+      bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 84px) !important;
+    }
+    /* Upper-Arc Apex (11:30-12:00 o'clock ~94° above gun, matching ML Ult "35" position) */
+    .oc-pad-wrap-ult {
+      right: calc(max(10px, env(safe-area-inset-right, 10px)) + 16px) !important;
+      bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 150px) !important;
+    }
+    /* Left-Handed Mirror Mode (exact symmetric diagonal arc on bottom-left, persisted in localStorage) */
+    #ocTouchControlCluster.left-handed .oc-pad-wrap-gun {
+      right: auto !important;
+      left: max(10px, env(safe-area-inset-left, 10px)) !important;
+    }
+    #ocTouchControlCluster.left-handed .oc-pad-wrap-skill2 {
+      right: auto !important;
+      left: calc(max(10px, env(safe-area-inset-left, 10px)) + 80px) !important;
+    }
+    #ocTouchControlCluster.left-handed .oc-pad-wrap-ult {
+      right: auto !important;
+      left: calc(max(10px, env(safe-area-inset-left, 10px)) + 16px) !important;
+    }
+
+    .oc-touch-pad {
+      position: relative !important;
+      border-radius: 50% !important;
+      pointer-events: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      opacity: 0.88 !important;
+      color: #f8fafc !important;
+      font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      -webkit-user-drag: none !important;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, border-color 0.12s ease, opacity 0.12s ease !important;
+    }
+    /* 3D Specular Glass Dome Highlight across all 3 Kimmy Pads */
+    .oc-touch-pad::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 4% !important;
+      left: 12% !important;
+      right: 12% !important;
+      height: 44% !important;
+      border-radius: 50% !important;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.04) 70%, transparent 100%) !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+    /* 1. EMBER CANNON (96px Main Weapon Pad — Sculpted 3D Molten Chrome Ring) */
+    #ocTouchGunBtn {
+      width: 96px !important;
+      height: 96px !important;
+      background: radial-gradient(circle at 36% 28%, rgba(234, 88, 12, 0.82) 0%, rgba(78, 22, 16, 0.92) 62%, rgba(12, 6, 18, 0.96) 100%) !important;
+      border: 3px solid rgba(251, 191, 36, 0.94) !important;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.78), 0 0 24px rgba(249, 115, 22, 0.50), inset 0 2px 10px rgba(254, 240, 138, 0.40), inset 0 -6px 14px rgba(0, 0, 0, 0.65) !important;
+    }
+    #ocTouchGunBtn.is-held {
+      transform: scale(0.92) !important;
+      opacity: 1 !important;
+      border-color: #fef08a !important;
+      background: radial-gradient(circle at 40% 34%, rgba(251, 146, 60, 0.94) 0%, rgba(154, 52, 18, 0.94) 66%, rgba(45, 10, 16, 0.98) 100%) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.80), 0 0 38px rgba(253, 224, 71, 0.85), 0 0 22px rgba(249, 115, 22, 0.75), inset 0 0 20px rgba(254, 240, 138, 0.50) !important;
+    }
+    #ocTouchGunBtn.is-empty {
+      border-color: rgba(148, 163, 184, 0.52) !important;
+      opacity: 0.74 !important;
+    }
+    #ocTouchGunBtn.oc-fire-empty-flash {
+      transform: scale(0.92) !important;
+      opacity: 1 !important;
+      border-color: #ef4444 !important;
+      background: radial-gradient(circle, rgba(220, 38, 38, 0.90) 0%, rgba(127, 29, 29, 0.94) 72%, rgba(45, 6, 12, 0.98) 100%) !important;
+      box-shadow: 0 0 36px rgba(239, 68, 68, 0.95), inset 0 0 18px rgba(254, 202, 202, 0.45) !important;
+    }
+
+    /* 2. SEEKER COMETS (68px Homing Volley Pad — ML Beveled Sapphire-Gold Frame) */
+    #ocTouchSkill2Btn {
+      width: 68px !important;
+      height: 68px !important;
+      background: radial-gradient(circle at 36% 28%, rgba(14, 165, 233, 0.78) 0%, rgba(15, 34, 72, 0.92) 64%, rgba(5, 10, 26, 0.97) 100%) !important;
+      border: 3px solid rgba(250, 204, 21, 0.88) !important;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.76), 0 0 20px rgba(34, 211, 238, 0.48), inset 0 2px 8px rgba(186, 230, 253, 0.42), inset 0 -5px 12px rgba(0, 0, 0, 0.65) !important;
+    }
+    #ocTouchSkill2Btn.is-held {
+      transform: scale(0.92) !important;
+      opacity: 1 !important;
+      border-color: #67e8f9 !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.78), 0 0 32px rgba(34, 211, 238, 0.88), inset 0 0 16px rgba(165, 243, 252, 0.48) !important;
+    }
+
+    /* 3. CALDERA NOVA (76px Ultimate Shockwave Pad — ML Beveled Imperial Gold-Plasma Frame) */
+    #ocTouchUltBtn {
+      width: 76px !important;
+      height: 76px !important;
+      background: radial-gradient(circle at 36% 28%, rgba(192, 132, 252, 0.76) 0%, rgba(107, 33, 168, 0.92) 56%, rgba(30, 8, 42, 0.97) 100%) !important;
+      border: 3px solid rgba(253, 224, 71, 0.95) !important;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.78), 0 0 24px rgba(232, 121, 249, 0.54), 0 0 14px rgba(250, 204, 21, 0.46), inset 0 2px 10px rgba(254, 249, 195, 0.45), inset 0 -5px 12px rgba(0, 0, 0, 0.65) !important;
+    }
+    #ocTouchUltBtn.is-held {
+      transform: scale(0.92) !important;
+      opacity: 1 !important;
+      border-color: #fef08a !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.80), 0 0 38px rgba(250, 204, 21, 0.90), 0 0 24px rgba(232, 121, 249, 0.75), inset 0 0 18px rgba(254, 249, 195, 0.52) !important;
+    }
+
+    .oc-touch-pad.on-cooldown {
+      opacity: 0.76 !important;
+      filter: saturate(0.65) !important;
+    }
+    .oc-touch-pad .oc-cd-sweep {
+      position: absolute !important;
+      inset: 0 !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+      z-index: 3 !important;
+      background: conic-gradient(rgba(4, 6, 18, 0.82) var(--cd-deg, 0deg), transparent var(--cd-deg, 0deg)) !important;
+    }
+    .oc-touch-pad .oc-cd-text {
+      position: absolute !important;
+      inset: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      color: #ffffff !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.98), 0 0 6px rgba(0, 0, 0, 0.95) !important;
+      pointer-events: none !important;
+      z-index: 4 !important;
+    }
+    .oc-touch-pad .oc-pad-icon {
+      font-size: 20px !important;
+      line-height: 1 !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.85)) !important;
+    }
+    .oc-touch-pad .oc-fire-label {
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.08em !important;
+      line-height: 1 !important;
+      color: #ffffff !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95) !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+    }
+    .oc-touch-pad .oc-fire-ammo {
+      font-size: 17px !important;
+      font-weight: 900 !important;
+      line-height: 1.08 !important;
+      max-width: 82px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-align: center !important;
+      color: #fde68a !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95) !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+    }
+    #ocTouchGunBtn.is-empty .oc-fire-ammo,
+    #ocTouchGunBtn.oc-fire-empty-flash .oc-fire-ammo { color: #fca5a5 !important; }
+    .oc-touch-pad .oc-fire-sub {
+      font-size: 8px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.10em !important;
+      color: rgba(254, 243, 199, 0.82) !important;
+      line-height: 1 !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+    }
+    .oc-pad-caption {
+      font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
+      font-size: 8.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.07em !important;
+      text-transform: uppercase !important;
+      color: rgba(241, 245, 249, 0.90) !important;
+      background: rgba(6, 10, 24, 0.72) !important;
+      border: 1px solid rgba(148, 163, 184, 0.25) !important;
+      border-radius: 6px !important;
+      padding: 1.5px 5px !important;
+      white-space: nowrap !important;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+      pointer-events: none !important;
+    }
+
+    @keyframes ocReadyPulse {
+      0% { transform: scale(1); filter: brightness(1.0); }
+      45% { transform: scale(1.12); filter: brightness(1.45); }
+      100% { transform: scale(1); filter: brightness(1.0); }
+    }
+    @keyframes ocCooldownShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      45% { transform: translateX(4px); }
+      70% { transform: translateX(-3px); }
+    }
+    .oc-ready-pulse { animation: ocReadyPulse 0.42s ease-out !important; }
+    .oc-cd-shake { animation: ocCooldownShake 0.26s ease-in-out !important; }
+
+    /* === CHANGED (v387): DESKTOP-ONLY SKILL COOLDOWN & KEYCAP STRIP (Not touch buttons!) === */
+    #ocDesktopSkillHud {
+      position: absolute !important;
+      right: 18px !important;
+      bottom: 16px !important;
+      z-index: 40 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      pointer-events: none !important;
+      user-select: none !important;
+    }
+    #ocDesktopSkillHud.oc-desk-hidden {
+      display: none !important;
+    }
+    .oc-desk-chip {
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      padding: 6px 10px !important;
+      border-radius: 10px !important;
+      background: rgba(8, 12, 26, 0.80) !important;
+      border: 1.5px solid rgba(148, 163, 184, 0.32) !important;
+      backdrop-filter: blur(8px) !important;
+      font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
+      overflow: hidden !important;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease !important;
+    }
+    .oc-desk-chip[data-skill="gun"] { border-color: rgba(251, 146, 60, 0.55) !important; }
+    .oc-desk-chip[data-skill="skill2"] { border-color: rgba(34, 211, 238, 0.55) !important; }
+    .oc-desk-chip[data-skill="ult"] { border-color: rgba(250, 204, 21, 0.58) !important; }
+    .oc-desk-chip.is-active {
+      border-color: #fde047 !important;
+      box-shadow: 0 0 18px rgba(251, 146, 60, 0.55) !important;
+    }
+    .oc-desk-chip.on-cooldown {
+      opacity: 0.62 !important;
+    }
+    .oc-desk-chip .oc-desk-cdbar {
+      position: absolute !important;
+      left: 0 !important;
+      bottom: 0 !important;
+      height: 3px !important;
+      width: var(--cd-pct, 0%) !important;
+      background: linear-gradient(90deg, #38bdf8, #c084fc) !important;
+      pointer-events: none !important;
+    }
+    .oc-desk-chip[data-skill="ult"] .oc-desk-cdbar {
+      background: linear-gradient(90deg, #facc15, #f97316) !important;
+    }
+    .oc-desk-keycap {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 22px !important;
+      height: 22px !important;
+      padding: 0 5px !important;
+      border-radius: 6px !important;
+      background: rgba(30, 41, 59, 0.92) !important;
+      border: 1px solid rgba(226, 232, 240, 0.35) !important;
+      color: #fef08a !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.5) !important;
+    }
+    .oc-desk-meta {
+      display: flex !important;
+      flex-direction: column !important;
+      line-height: 1.1 !important;
+    }
+    .oc-desk-name {
+      font-size: 9px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.06em !important;
+      color: #cbd5e1 !important;
+    }
+    .oc-desk-status {
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      color: #f8fafc !important;
+      white-space: nowrap !important;
+    }
+    .game-btn-icon.oc-btn-off { opacity: 0.42 !important; }
+    .game-btn-icon.oc-btn-active {
+      border-color: rgba(250, 204, 21, 0.72) !important;
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.35) !important;
+    }
+  </style>
+
+  <!-- QUANTUM CHROMATIC MONOGRAM DESIGN SYSTEM (v311 AUTHORITATIVE THEME) -->
+  <style id="quantumChromaticMasterTheme">
+    /* ==========================================================================
+       QUANTUM CHROMATIC HOROLOGY PALETTE (Matching the Official OC Master Logo)
+       Pillars: Champagne Gold (#d4a853), Liquid Chrome/Platinum (#ffffff, #e2e8f0),
+       Electric Cyan Iris (#00f0ff), Ruby Pivot Jewels (#e11d48),
+       and Prismatic Dispersion (#c084fc, #a855f7) on Obsidian Slate (#060a14).
+       ========================================================================== */
+
+    /* 1. Topbar & Brand Monogram Identity */
+    body .app-topbar {
+      background: linear-gradient(180deg, #080c16 0%, #03060f 100%) !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.28) !important;
+      box-shadow: 0 1px 0 rgba(212, 168, 83, 0.22), 0 4px 24px rgba(0, 0, 0, 0.9) !important;
+    }
+
+    body .app-topbar .brand-logo .oc-logo-img {
+      border: 1.5px solid rgba(212, 168, 83, 0.75) !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.6), 0 0 8px rgba(212, 168, 83, 0.5) !important;
+      image-rendering: -webkit-optimize-contrast !important;
+    }
+
+    @media (max-width: 450px) {
+      body .app-topbar .brand-logo .oc-logo-img {
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 5px !important;
+      }
+    }
+
+    /* ORLANDO: Haute Horlogerie Champagne Gold & Platinum */
+    body .app-topbar .brand-title .title-orlando {
+      background: linear-gradient(180deg, #ffffff 0%, #fef3c7 40%, #d4a853 85%, #926f24 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #d4a853 !important;
+      text-shadow: 0 0 12px rgba(212, 168, 83, 0.3) !important;
+    }
+
+    /* CHROME: Liquid Platinum to Electric Cyan Iris */
+    body .app-topbar .brand-title .title-chrome {
+      background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 35%, #38bdf8 70%, #00f0ff 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #00f0ff !important;
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.35) !important;
+    }
+
+    /* 6 Topbar Launcher Buttons: Rich Multi-Color Chromatic Spectrum */
+    .qgame-btn-dynamo,
+    .qgame-btn-realm {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.18) 0%, rgba(2, 132, 199, 0.22) 100%) !important;
+      border: 1px solid rgba(0, 240, 255, 0.6) !important;
+      color: #38bdf8 !important;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.35) !important;
+    }
+    .qgame-btn-dynamo:hover,
+    .qgame-btn-realm:hover {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.32) 0%, rgba(2, 132, 199, 0.35) 100%) !important;
+      border-color: #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.75) !important;
+    }
+
+    .qgame-btn-helix {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+      color: #7dd3fc !important;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
+    }
+    .qgame-btn-helix:hover {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 165, 233, 0.38) 100%) !important;
+      border-color: #38bdf8 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
+      transform: translateY(-1px);
+    }
+
+    .qgame-btn-meteor {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.22) 0%, rgba(245, 158, 11, 0.18) 100%) !important;
+      border: 1px solid rgba(212, 168, 83, 0.65) !important;
+      color: #fde68a !important;
+      box-shadow: 0 0 10px rgba(212, 168, 83, 0.35) !important;
+    }
+    .qgame-btn-meteor:hover {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.35) 0%, rgba(245, 158, 11, 0.3) 100%) !important;
+      border-color: #fef08a !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(245, 196, 81, 0.75) !important;
+    }
+
+    .qgame-btn-math {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(52, 211, 153, 0.2) 100%) !important;
+      border: 1px solid rgba(52, 211, 153, 0.6) !important;
+      color: #6ee7b7 !important;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.35) !important;
+    }
+    .qgame-btn-math:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.32) 0%, rgba(52, 211, 153, 0.35) 100%) !important;
+      border-color: #34d399 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.75) !important;
+    }
+
+    .qgame-btn-reflex {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(14, 165, 233, 0.25) 100%) !important;
+      border: 1px solid rgba(0, 240, 255, 0.65) !important;
+      color: #67e8f9 !important;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
+    }
+    .qgame-btn-reflex:hover {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.35) 0%, rgba(14, 165, 233, 0.4) 100%) !important;
+      border-color: #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.8) !important;
+    }
+
+    /* MATRIX: Watchmaker Synthetic Ruby Jewel (Matching Logo Balance Jewels) */
+    .qgame-btn-matrix {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.22) 0%, rgba(14, 165, 233, 0.2) 100%) !important;
+      border: 1.5px solid rgba(45, 212, 191, 0.7) !important;
+      color: #5eead4 !important;
+      box-shadow: 0 0 12px rgba(45, 212, 191, 0.4) !important;
+    }
+    .qgame-btn-matrix:hover {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.38) 0%, rgba(14, 165, 233, 0.35) 100%) !important;
+      border-color: #5eead4 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(45, 212, 191, 0.6) !important;
+      transform: translateY(-1px);
+    }
+
+    /* Topbar Alarm Pill: Champagne Gold & Cyan Dual Horology */
+    body .app-topbar .nf-alarm-pill {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.20) 0%, rgba(14, 165, 233, 0.16) 55%, rgba(9, 13, 24, 0.94) 100%) !important;
+      border: 1px solid rgba(212, 168, 83, 0.55) !important;
+      box-shadow: 0 0 12px rgba(212, 168, 83, 0.25), inset 0 1px 0 rgba(254, 240, 138, 0.35) !important;
+      color: #f8fafc !important;
+    }
+    body .app-topbar .nf-alarm-pill:hover {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.35) 0%, rgba(14, 165, 233, 0.28) 60%, rgba(15, 23, 42, 0.96) 100%) !important;
+      border-color: #fef08a !important;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.5), 0 0 12px rgba(212, 168, 83, 0.45) !important;
+    }
+    body .alarm-pill-countdown {
+      background: linear-gradient(180deg, #ffffff 0%, #fef3c7 40%, #d4a853 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+      font-weight: 800 !important;
+    }
+    body .alarm-pill-text {
+      color: #e2e8f0 !important;
+    }
+    body .alarm-pill-icon-svg svg {
+      stroke: #d4a853 !important;
+      filter: drop-shadow(0 0 6px rgba(212, 168, 83, 0.8)) !important;
+    }
+
+    /* 2. Sidebar Omnisearch & Filter Tabs */
+    body .sidebar-header {
+      background: linear-gradient(180deg, #060a14 0%, #03060f 100%) !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.16) !important;
+    }
+
+    body .spotlight-trigger-wrap {
+      background: rgba(9, 14, 26, 0.85) !important;
+      border: 1px solid rgba(56, 189, 248, 0.32) !important;
+    }
+    body .spotlight-trigger-wrap:hover,
+    body .spotlight-trigger-wrap:focus-within {
+      background: rgba(12, 19, 36, 0.95) !important;
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.18), 0 0 16px rgba(56, 189, 248, 0.3) !important;
+    }
+
+    body .filter-tabs-row .filter-tab {
+      background: rgba(12, 17, 30, 0.65) !important;
+      border: 1px solid rgba(148, 163, 184, 0.18) !important;
+      color: #94a3b8 !important;
+    }
+    body .filter-tabs-row .filter-tab:hover {
+      background: rgba(14, 165, 233, 0.12) !important;
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      color: #ffffff !important;
+    }
+
+    /* Selected Filter Tabs: Rich Dual-Horizon Gradients */
+    body .filter-tabs-row .filter-tab.active {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(212, 168, 83, 0.18) 100%) !important;
+      border: 1.5px solid #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.38), inset 0 1px 0 rgba(254, 240, 138, 0.35) !important;
+    }
+
+    /* Pending Filter: Champagne Gold & Cyan Dual Horizon */
+    body .filter-tabs-row .filter-tab.active[data-filter="pending"] {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.26) 0%, rgba(0, 240, 255, 0.20) 100%) !important;
+      border: 1.5px solid #d4a853 !important;
+      color: #fef08a !important;
+      box-shadow: 0 0 14px rgba(212, 168, 83, 0.45) !important;
+    }
+
+    body .tab-red-radiant-dot {
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #fef08a 35%, #d4a853 75%, #00f0ff 100%) !important;
+      box-shadow: 0 0 8px #d4a853, 0 0 14px rgba(0, 240, 255, 0.6) !important;
+    }
+
+    /* 3. Active Workspace (Profile Row) — Quantum Chromatic Identity */
+    body .profile-list .profile-item {
+      border-bottom: 1px solid rgba(56, 189, 248, 0.08) !important;
+    }
+    body .profile-list .profile-item:hover {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.08) 0%, rgba(12, 17, 30, 0.45) 100%) !important;
+    }
+
+    body .profile-list .profile-item.active {
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.16) 0%, rgba(212, 168, 83, 0.12) 48%, rgba(8, 12, 24, 0.5) 100%) !important;
+      border-top: 1px solid rgba(0, 240, 255, 0.35) !important;
+      border-bottom: 1px solid rgba(212, 168, 83, 0.35) !important;
+      box-shadow: inset 0 0 24px rgba(0, 240, 255, 0.08) !important;
+    }
+
+    /* Active Monogram Chromatic Bar matching the Logo */
+    body .profile-list .profile-item.active::before {
+      content: '' !important;
+      width: 4.5px !important;
+      background: linear-gradient(180deg, #fef08a 0%, #d4a853 30%, #00f0ff 65%, #c084fc 100%) !important;
+      box-shadow: 2px 0 16px rgba(0, 240, 255, 0.85), 1px 0 6px rgba(212, 168, 83, 0.7) !important;
+    }
+
+    body .profile-list .profile-item.active .profile-avatar-img {
+      border: 2.5px solid #00f0ff !important;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.75), 0 0 8px rgba(212, 168, 83, 0.6) !important;
+    }
+
+    body .profile-list .profile-item.active .profile-name {
+      color: #ffffff !important;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.35) !important;
+    }
+
+    /* Pending Snippets: Frosted Obsidian Glass with Gold & Cyan Sheen */
+    body .profile-snippet.pending-glow {
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.18) 0%, rgba(14, 165, 233, 0.14) 100%) !important;
+      border: 1px solid rgba(212, 168, 83, 0.45) !important;
+      box-shadow: 0 0 12px rgba(212, 168, 83, 0.22) !important;
+    }
+    body .profile-snippet.pending-glow .snippet-msg-text {
+      color: #fef9c3 !important;
+      font-weight: 700 !important;
+    }
+
+    /* High-End Horology Pending Count Badge */
+    body .badge-pending-count,
+    body .popover-badge-pill,
+    body .back-pending-badge {
+      background: linear-gradient(135deg, #fef08a 0%, #d4a853 52%, #00f0ff 100%) !important;
+      color: #060a14 !important;
+      font-weight: 900 !important;
+      box-shadow: 0 0 14px rgba(212, 168, 83, 0.7), 0 0 6px rgba(0, 240, 255, 0.6) !important;
+    }
+
+    /* Taskbar Slot Badge (#22, W+3, etc.): Haute Champagne Gold */
+    body .profile-slot-badge {
+      background: #060a14 !important;
+      border: 1.5px solid #d4a853 !important;
+      color: #fef08a !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 10px rgba(212, 168, 83, 0.4) !important;
+    }
+
+    /* 4. Chat Header & Avatar Camera Upload Badge */
+    body .chat-header {
+      background: linear-gradient(180deg, #080c16 0%, #000000 100%) !important;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.20) !important;
+    }
+
+    body .chat-header-avatar {
+      border: 2.5px solid #00f0ff !important;
+      box-shadow: 0 0 22px rgba(0, 240, 255, 0.5), 0 0 10px rgba(212, 168, 83, 0.4) !important;
+    }
+
+    body .chat-header-avatar:hover {
+      border-color: #d4a853 !important;
+      box-shadow: 0 0 28px rgba(212, 168, 83, 0.75), 0 0 14px rgba(0, 240, 255, 0.6) !important;
+    }
+
+    body .header-avatar-upload-badge {
+      background: linear-gradient(135deg, #0284c7 0%, #1e1b4b 100%) !important;
+      border: 1.5px solid #d4a853 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 10px rgba(212, 168, 83, 0.5) !important;
+      color: #ffffff !important;
+    }
+
+    body .chat-header-avatar-wrap:hover .header-avatar-upload-badge {
+      transform: scale(1.15) !important;
+      background: linear-gradient(135deg, #d4a853 0%, #00f0ff 100%) !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(212, 168, 83, 0.85) !important;
+    }
+
+    /* 5. Chat Composer & Multi-Tone Quantum Send Button */
+    body .composer-bar {
+      background: linear-gradient(180deg, #040711 0%, #000000 100%) !important;
+      border-top: 1px solid rgba(56, 189, 248, 0.22) !important;
+    }
+
+    body .composer-input-wrap {
+      background: rgba(9, 14, 26, 0.88) !important;
+      border: 1px solid rgba(56, 189, 248, 0.28) !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    body .composer-input-wrap:focus-within {
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.20), 0 0 18px rgba(56, 189, 248, 0.32), 0 0 8px rgba(212, 168, 83, 0.25) !important;
+    }
+    body .composer-input:focus {
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.22), 0 0 16px rgba(56, 189, 248, 0.28) !important;
+      background: #05070f !important;
+    }
+
+    /* Send Button: Quantum Chromatic Fusion (Cyan to Champagne Gold) */
+    body .btn-composer-send,
+    body .btn-antigravity-send {
+      background: linear-gradient(135deg, #00f0ff 0%, #0284c7 45%, #d4a853 85%, #f59e0b 100%) !important;
+      border: 1px solid rgba(254, 240, 138, 0.6) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 16px rgba(0, 240, 255, 0.5), 0 2px 8px rgba(212, 168, 83, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+    }
+    body .btn-composer-send:hover,
+    body .btn-antigravity-send:hover {
+      background: linear-gradient(135deg, #38bdf8 0%, #00f0ff 40%, #fde68a 80%, #d4a853 100%) !important;
+      box-shadow: 0 6px 22px rgba(0, 240, 255, 0.8), 0 0 14px rgba(212, 168, 83, 0.6) !important;
+    }
+
+    /* 6. Pending Tasks Modal Popover */
+    body .pending-tasks-popover {
+      background: linear-gradient(160deg, rgba(11, 17, 32, 0.98) 0%, rgba(6, 10, 20, 0.99) 100%) !important;
+      border: 1px solid rgba(212, 168, 83, 0.45) !important;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.95), 0 0 32px rgba(212, 168, 83, 0.25), 0 0 16px rgba(0, 240, 255, 0.2) !important;
+    }
+    body .btn-popover-all-done {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(14, 165, 233, 0.28) 100%) !important;
+      border: 1px solid rgba(52, 211, 153, 0.55) !important;
+      color: #a7f3d0 !important;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.18) !important;
+    }
+    body .btn-popover-all-done:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.42) 0%, rgba(14, 165, 233, 0.45) 100%) !important;
+      border-color: #34d399 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+    }
+
+    /* 7. Voice Commands & Instructions Manual Modal */
+    body .voice-cheat-modal {
+      background: #060a14 !important;
+      border: 1px solid rgba(56, 189, 248, 0.35) !important;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.95), 0 0 30px rgba(0, 240, 255, 0.2), 0 0 15px rgba(212, 168, 83, 0.2) !important;
+    }
+    body .voice-instructions-banner {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(212, 168, 83, 0.10) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.35) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+    }
+    body .voice-instructions-title {
+      background: linear-gradient(90deg, #00f0ff 0%, #fef08a 100%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #38bdf8 !important;
+      font-weight: 800 !important;
+    }
+    body .voice-instruction-step {
+      background: rgba(15, 23, 42, 0.65) !important;
+      border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    }
+    body .voice-filter-pill:hover,
+    body .voice-filter-pill.active {
+      background: linear-gradient(135deg, #00f0ff 0%, #d4a853 100%) !important;
+      border-color: #fef08a !important;
+      color: #060a14 !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 12px rgba(212, 168, 83, 0.5) !important;
+    }
+    body .voice-cheat-card {
+      background: rgba(11, 18, 32, 0.85) !important;
+      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+    }
+    body .voice-cheat-card:hover {
+      border-color: #d4a853 !important;
+      box-shadow: 0 0 14px rgba(212, 168, 83, 0.3) !important;
+    }
+    body .voice-cheat-num {
+      color: #fef08a !important;
+      background: rgba(212, 168, 83, 0.2) !important;
+      border: 1px solid rgba(212, 168, 83, 0.4) !important;
+      font-weight: 800 !important;
+    }
+    body .voice-cheat-phrase-pill {
+      background: rgba(15, 23, 42, 0.8) !important;
+      border: 1px solid rgba(56, 189, 248, 0.3) !important;
+      color: #67e8f9 !important;
+    }
+    body .voice-cheat-try-btn:hover {
+      background: rgba(0, 240, 255, 0.2) !important;
+      border-color: #00f0ff !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.5) !important;
+    }
+
+    /* 8. System Dropdown Menu: Multi-Color Jewels */
+    body .system-dropdown-menu {
+      background: linear-gradient(160deg, rgba(11, 17, 32, 0.98) 0%, rgba(6, 10, 20, 0.99) 100%) !important;
+      border: 1px solid rgba(212, 168, 83, 0.45) !important;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.92), 0 0 28px rgba(212, 168, 83, 0.25), inset 0 1px 0 rgba(245, 196, 81, 0.25) !important;
+      z-index: 100000 !important;
+    }
+    body .fs-toggle-btn,
+    body .btn-topbar-quick,
+    body .btn-topbar-system {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(9, 13, 24, 0.95) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.32) !important;
+      color: #f1f5f9 !important;
+    }
+    body .fs-toggle-btn:hover,
+    body .btn-topbar-quick:hover,
+    body .btn-topbar-system:hover {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(212, 168, 83, 0.18) 100%) !important;
+      border-color: #d4a853 !important;
+      box-shadow: 0 0 12px rgba(212, 168, 83, 0.38) !important;
+    }
+    body .btn-topbar-system.active {
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.45) !important;
+    }
+    body .fs-toggle-btn .fs-btn-glyph svg path {
+      stroke: #38bdf8 !important;
+    }
+    body .fs-toggle-btn:hover .fs-btn-glyph svg path {
+      stroke: #fef08a !important;
+    }
+
+    /* TOP-TIER ARCHITECTURAL SUITE */
+    body .app-topbar {
+      container-type: inline-size;
+      container-name: topbar;
+    }
+    @container topbar (max-width: 960px) {
+      .brand-title .title-chrome { display: none !important; }
+      .fs-toggle-btn .fs-btn-label,
+      .btn-topbar-quick .quick-btn-label { display: none !important; }
+    }
+    @container topbar (max-width: 720px) {
+      .system-btn-text, .system-caret { display: none !important; }
+      .btn-topbar-system { padding: 0 !important; width: 28px !important; min-width: 28px !important; justify-content: center !important; }
+    }
+
+    @keyframes chromaticTourbillonBreath {
+      0%, 100% { box-shadow: 0 0 12px rgba(212, 168, 83, 0.6), 0 0 6px rgba(0, 240, 255, 0.5); transform: scale(1); }
+      50% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.85), 0 0 12px rgba(254, 240, 138, 0.8); transform: scale(1.05); }
+    }
+    body .badge-pending-count, body .popover-badge-pill {
+      animation: chromaticTourbillonBreath 3.2s ease-in-out infinite !important;
+    }
+
+    @keyframes zenTaskDissolve {
+      0% { opacity: 1; transform: translateX(0) scale(1); background: rgba(15, 23, 42, 0.65); }
+      40% { opacity: 0.9; transform: translateX(8px) scale(1.02); background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(56, 189, 248, 0.24) 100%); border-color: #34d399 !important; box-shadow: 0 0 20px rgba(52, 211, 153, 0.45); }
+      100% { opacity: 0; transform: translateX(28px) scale(0.94); filter: blur(4px); }
+    }
+    body .popover-task-item.task-completing {
+      animation: zenTaskDissolve 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+
+    @keyframes prismaticLightSweep {
+      0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.5)) drop-shadow(0 0 4px rgba(212, 168, 83, 0.5)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.95)) drop-shadow(0 0 12px rgba(254, 240, 138, 0.9)); transform: scale(1.04); }
+    }
+    body .app-topbar .brand-logo:hover .oc-logo-img {
+      animation: prismaticLightSweep 1.2s cubic-bezier(0.16, 1, 0.3, 1) infinite !important;
+    }
+
+    @keyframes tourbillonPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(0, 240, 255, 0.6), 0 0 4px rgba(212, 168, 83, 0.5); transform: scale(1); }
+      50% { box-shadow: 0 0 22px rgba(0, 240, 255, 0.95), 0 0 14px rgba(254, 240, 138, 0.85); transform: scale(1.06); }
+    }
+    body .oc-logo-img.monogram-syncing {
+      animation: tourbillonPulse 1.4s ease-in-out infinite !important;
+      border-color: #00f0ff !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       LUXURY LIVING REALM PORTAL BUTTONS: CHROME DYNAMO · CHROME HELIX · CHROME METEOR
+       (Real Embedded Miniature Chrome Cores + Live 60FPS Micro-Physics Canvas + Tier V Hover Portal)
+       ══════════════════════════════════════════════════════════════════════════ */
+    .qgame-btn-launch.oc-realm-btn {
+      position: relative !important;
+      overflow: hidden !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      height: 30px !important;
+      padding: 0 11px 0 5px !important;
+      border-radius: 9999px !important;
+      isolation: isolate !important;
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.24s ease, filter 0.24s ease !important;
+    }
+    .qgame-btn-launch.oc-realm-btn::before {
+      content: '' !important;
+      position: absolute !important;
+      inset: 0 !important;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.02) 48%, rgba(0, 0, 0, 0.22) 100%) !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+    }
+    .qgame-btn-launch.oc-realm-btn::after {
+      content: '' !important;
+      position: absolute !important;
+      top: -50% !important;
+      left: -120% !important;
+      width: 65% !important;
+      height: 200% !important;
+      background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.28) 50%, transparent 80%) !important;
+      transform: skewX(-18deg) !important;
+      transition: left 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      pointer-events: none !important;
+      z-index: 3 !important;
+    }
+    .qgame-btn-launch.oc-realm-btn:hover::after {
+      left: 140% !important;
+    }
+    .oc-realm-btn-fx {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+      opacity: 0.62 !important;
+      transition: opacity 0.24s ease !important;
+    }
+    .qgame-btn-launch.oc-realm-btn:hover .oc-realm-btn-fx {
+      opacity: 0.92 !important;
+    }
+    .oc-realm-orb {
+      position: relative !important;
+      width: 22px !important;
+      height: 22px !important;
+      border-radius: 50% !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      z-index: 4 !important;
+      pointer-events: none !important;
+      background: radial-gradient(circle, rgba(10, 14, 30, 0.96) 55%, rgba(0, 0, 0, 0.85) 100%) !important;
+    }
+    .oc-realm-orb-clip {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: relative !important;
+      z-index: 2 !important;
+      pointer-events: none !important;
+    }
+    .oc-realm-orb-img {
+      width: 140% !important;
+      height: 140% !important;
+      max-width: none !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      position: relative !important;
+      pointer-events: none !important;
+    }
+    .oc-realm-orb-ring {
+      position: absolute !important;
+      inset: -2px !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+      z-index: 3 !important;
+    }
+    .qgame-btn-launch.oc-realm-btn .oc-realm-label {
+      position: relative !important;
+      z-index: 4 !important;
+      pointer-events: none !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.06em !important;
+      font-size: clamp(0.64rem, 0.74vw, 0.72rem) !important;
+      -webkit-text-fill-color: currentColor !important;
+      background: none !important;
+    }
+
+    /* 1. CHROME DYNAMO — Faraday Singularity (Obsidian Violet, Anode Gold & Electric Cyan) */
+    body .qgame-btn-dynamo.oc-realm-btn,
+    body.light-theme .qgame-btn-dynamo.oc-realm-btn {
+      background: linear-gradient(135deg, #0d0720 0%, #1c1040 52%, #0a203b 100%) !important;
+      border: 1.5px solid rgba(139, 92, 246, 0.82) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55), 0 0 12px rgba(56, 189, 248, 0.34), inset 0 0 10px rgba(139, 92, 246, 0.25) !important;
+      color: #e0f2fe !important;
+    }
+    body .qgame-btn-dynamo.oc-realm-btn:hover,
+    body.light-theme .qgame-btn-dynamo.oc-realm-btn:hover {
+      background: linear-gradient(135deg, #160a33 0%, #2a145c 50%, #0d3258 100%) !important;
+      border-color: #38bdf8 !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), 0 0 22px rgba(56, 189, 248, 0.75), 0 0 12px rgba(192, 132, 252, 0.65), inset 0 0 14px rgba(56, 189, 248, 0.35) !important;
+      transform: translateY(-1.5px) scale(1.03) !important;
+    }
+    .oc-realm-orb-dynamo {
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.75), 0 0 6px rgba(56, 189, 248, 0.55) !important;
+    }
+    .oc-realm-orb-dynamo .oc-realm-orb-img {
+      animation: ocOrbSpinSlow 14s linear infinite !important;
+    }
+    .oc-realm-orb-dynamo .oc-realm-orb-ring {
+      border: 1.4px solid transparent !important;
+      border-top-color: #38bdf8 !important;
+      border-bottom-color: #fbbf24 !important;
+      transform: rotate(-22deg) scaleY(0.68) !important;
+      animation: ocFaradayOrbit 3.4s linear infinite !important;
+    }
+    .qgame-btn-dynamo.oc-realm-btn .oc-realm-label {
+      color: #f0f9ff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.98), 0 0 8px rgba(56, 189, 248, 0.85), 0 0 14px rgba(139, 92, 246, 0.65) !important;
+    }
+
+    /* 2. CHROME HELIX — Harmonic Bio-Lattice (Sapphire Quartz, Bioluminescent Cyan & Magenta DNA) */
+    body .qgame-btn-helix.oc-realm-btn,
+    body.light-theme .qgame-btn-helix.oc-realm-btn {
+      background: linear-gradient(135deg, #06182c 0%, #160c2e 52%, #072838 100%) !important;
+      border: 1.5px solid rgba(34, 211, 238, 0.78) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55), 0 0 12px rgba(232, 121, 249, 0.30), inset 0 0 10px rgba(34, 211, 238, 0.22) !important;
+      color: #f0f9ff !important;
+    }
+    body .qgame-btn-helix.oc-realm-btn:hover,
+    body.light-theme .qgame-btn-helix.oc-realm-btn:hover {
+      background: linear-gradient(135deg, #0a2542 0%, #261248 50%, #0b3a4f 100%) !important;
+      border-color: #e879f9 !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), 0 0 22px rgba(34, 211, 238, 0.72), 0 0 14px rgba(232, 121, 249, 0.65), inset 0 0 14px rgba(232, 121, 249, 0.28) !important;
+      transform: translateY(-1.5px) scale(1.03) !important;
+    }
+    .oc-realm-orb-helix {
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.75), 0 0 6px rgba(232, 121, 249, 0.60) !important;
+    }
+    .oc-realm-orb-helix .oc-realm-orb-img {
+      animation: ocHelixBreath 3.2s ease-in-out infinite !important;
+    }
+    .oc-realm-orb-helix .oc-realm-orb-ring {
+      border: 1.3px solid transparent !important;
+      border-left-color: #22d3ee !important;
+      border-right-color: #e879f9 !important;
+      animation: ocOrbSpinSlow 4.8s linear infinite reverse !important;
+    }
+    .qgame-btn-helix.oc-realm-btn .oc-realm-label {
+      color: #f0fdff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.98), 0 0 8px rgba(34, 211, 238, 0.85), 0 0 14px rgba(232, 121, 249, 0.65) !important;
+    }
+
+    /* 3. CHROME METEOR — Aegis Caldera (Charred Volcanic Basalt, Molten Gold & Ablation Flame) */
+    body .qgame-btn-meteor.oc-realm-btn,
+    body.light-theme .qgame-btn-meteor.oc-realm-btn {
+      background: linear-gradient(135deg, #1b0a04 0%, #2f1205 52%, #190906 100%) !important;
+      border: 1.5px solid rgba(251, 146, 60, 0.84) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.58), 0 0 12px rgba(249, 115, 22, 0.38), inset 0 0 10px rgba(234, 88, 12, 0.28) !important;
+      color: #fef3c7 !important;
+    }
+    body .qgame-btn-meteor.oc-realm-btn:hover,
+    body.light-theme .qgame-btn-meteor.oc-realm-btn:hover {
+      background: linear-gradient(135deg, #2d1106 0%, #481a06 50%, #270d06 100%) !important;
+      border-color: #fde047 !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.68), 0 0 24px rgba(249, 115, 22, 0.80), 0 0 12px rgba(253, 224, 71, 0.65), inset 0 0 14px rgba(251, 146, 60, 0.35) !important;
+      transform: translateY(-1.5px) scale(1.03) !important;
+    }
+    .oc-realm-orb-meteor {
+      box-shadow: 0 0 11px rgba(249, 115, 22, 0.82), 0 0 6px rgba(253, 224, 71, 0.60) !important;
+    }
+    .oc-realm-orb-meteor .oc-realm-orb-img {
+      animation: ocOrbSpinSlow 18s linear infinite !important;
+    }
+    .oc-realm-orb-meteor .oc-realm-orb-ring {
+      border: 1.4px solid transparent !important;
+      border-top-color: #fde047 !important;
+      border-left-color: #f97316 !important;
+      animation: ocOrbSpinSlow 5.5s linear infinite !important;
+    }
+    .qgame-btn-meteor.oc-realm-btn .oc-realm-label {
+      color: #fef9c3 !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.98), 0 0 8px rgba(251, 146, 60, 0.90), 0 0 14px rgba(234, 88, 12, 0.65) !important;
+    }
+
+    @media (max-width: 1180px) {
+      .qgame-btn-launch.oc-realm-btn {
+        padding: 0 !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        height: 32px !important;
+        justify-content: center !important;
+        gap: 0 !important;
+      }
+      .qgame-btn-launch.oc-realm-btn .oc-realm-orb {
+        width: 25px !important;
+        height: 25px !important;
+      }
+    }
+
+    @keyframes ocOrbSpinSlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes ocFaradayOrbit {
+      0% { transform: rotate(-22deg) scaleY(0.68) rotateZ(0deg); }
+      100% { transform: rotate(-22deg) scaleY(0.68) rotateZ(360deg); }
+    }
+    @keyframes ocHelixBreath {
+      0%, 100% { transform: scale(0.96); filter: brightness(1.0); }
+      50% { transform: scale(1.06); filter: brightness(1.18); }
+    }
+
+    /* FLOATING HOLOGRAPHIC TIER V REALM TELEMETRY PREVIEW PORTAL (Live QuantumRenderer Canvas — ZERO Seam, ZERO Clipping!) */
+    #ocRealmPortalCard {
+      position: fixed !important;
+      top: 52px !important;
+      left: 0 !important;
+      width: 294px !important;
+      padding: 13px 14px 12px !important;
+      border-radius: 16px !important;
+      background: radial-gradient(circle at 50% 24%, rgba(24, 18, 52, 0.96) 0%, rgba(7, 10, 22, 0.97) 100%) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.55) !important;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.80), 0 0 32px rgba(56, 189, 248, 0.25) !important;
+      backdrop-filter: blur(18px) !important;
+      -webkit-backdrop-filter: blur(18px) !important;
+      z-index: 99999 !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+      transform: translateY(-6px) scale(0.96) !important;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      color: #f8fafc !important;
+      font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
+    }
+    #ocRealmPortalCard.visible {
+      opacity: 1 !important;
+      transform: translateY(0) scale(1) !important;
+    }
+    #ocRealmPortalCard[data-realm="dynamo"] {
+      background: radial-gradient(circle at 50% 28%, rgba(42, 20, 92, 0.96) 0%, rgba(8, 10, 26, 0.97) 100%) !important;
+      border-color: rgba(139, 92, 246, 0.78) !important;
+      box-shadow: 0 22px 52px rgba(0, 0, 0, 0.85), 0 0 34px rgba(56, 189, 248, 0.30), 0 0 18px rgba(139, 92, 246, 0.35) !important;
+    }
+    #ocRealmPortalCard[data-realm="helix"] {
+      background: radial-gradient(circle at 50% 28%, rgba(16, 42, 68, 0.96) 0%, rgba(12, 8, 28, 0.97) 100%) !important;
+      border-color: rgba(34, 211, 238, 0.78) !important;
+      box-shadow: 0 22px 52px rgba(0, 0, 0, 0.85), 0 0 34px rgba(232, 121, 249, 0.28), 0 0 18px rgba(34, 211, 238, 0.32) !important;
+    }
+    #ocRealmPortalCard[data-realm="meteor"] {
+      background: radial-gradient(circle at 50% 28%, rgba(62, 22, 8, 0.96) 0%, rgba(14, 7, 5, 0.97) 100%) !important;
+      border-color: rgba(251, 146, 60, 0.82) !important;
+      box-shadow: 0 22px 52px rgba(0, 0, 0, 0.85), 0 0 34px rgba(249, 115, 22, 0.36), 0 0 18px rgba(253, 224, 71, 0.25) !important;
+    }
+    .oc-portal-stage {
+      position: relative !important;
+      height: 140px !important;
+      margin-bottom: 9px !important;
+      overflow: hidden !important;
+      border-radius: 12px !important;
+      background: radial-gradient(circle at 50% 56%, rgba(255, 255, 255, 0.06) 0%, rgba(2, 4, 12, 0.96) 72%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.11) !important;
+    }
+    .oc-portal-canvas {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      z-index: 2 !important;
+      pointer-events: none !important;
+    }
+    .oc-portal-tier-tag {
+      position: absolute !important;
+      top: 7px !important;
+      left: 8px !important;
+      font-size: 9px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      padding: 2px 7px !important;
+      border-radius: 999px !important;
+      background: rgba(6, 10, 22, 0.85) !important;
+      border: 1px solid rgba(255, 255, 255, 0.22) !important;
+      color: #fde68a !important;
+      z-index: 4 !important;
+    }
+    .oc-portal-title {
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.04em !important;
+      color: #ffffff !important;
+      margin-bottom: 2px !important;
+    }
+    .oc-portal-science {
+      font-size: 10.5px !important;
+      color: #cbd5e1 !important;
+      line-height: 1.35 !important;
+      margin-bottom: 9px !important;
+    }
+    .oc-portal-footer {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding-top: 8px !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+      font-size: 10.5px !important;
+    }
+    .oc-portal-best {
+      color: #94a3b8 !important;
+      font-weight: 600 !important;
+    }
+    .oc-portal-best strong {
+      color: #34d399 !important;
+      font-weight: 800 !important;
+      margin-left: 4px !important;
+    }
+    .oc-portal-cta {
+      font-weight: 800 !important;
+      letter-spacing: 0.06em !important;
+      color: #38bdf8 !important;
+    }
+    #ocRealmPortalCard[data-realm="helix"] .oc-portal-cta { color: #f0abfc !important; }
+    #ocRealmPortalCard[data-realm="meteor"] .oc-portal-cta { color: #fbbf24 !important; }
+
+    /* ROUND PROGRESSION & CHROME CORE OFFENSE MODE HUD PILLS (v382) */
+    .round-pill {
+      border-color: rgba(168, 85, 247, 0.45) !important;
+      background: linear-gradient(180deg, rgba(30, 16, 58, 0.85), rgba(10, 12, 26, 0.92)) !important;
+    }
+    .round-pill.boss-alert {
+      border-color: rgba(244, 63, 94, 0.92) !important;
+      background: linear-gradient(180deg, rgba(127, 29, 29, 0.82), rgba(28, 7, 14, 0.95)) !important;
+      box-shadow: 0 0 14px rgba(244, 63, 94, 0.55) !important;
+    }
+    .offense-pill {
+      cursor: pointer !important;
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      background: linear-gradient(180deg, rgba(14, 28, 52, 0.88), rgba(8, 12, 24, 0.94)) !important;
+      transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+    }
+    .offense-pill:hover {
+      border-color: rgba(251, 191, 36, 0.85) !important;
+      transform: translateY(-1px) !important;
+    }
+    .offense-pill.offense-active {
+      border-color: #fbbf24 !important;
+      background: linear-gradient(180deg, rgba(124, 45, 18, 0.90), rgba(45, 10, 16, 0.96)) !important;
+      box-shadow: 0 0 16px rgba(249, 115, 22, 0.65), inset 0 0 10px rgba(253, 224, 71, 0.28) !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       v383 FUTURISTIC TRANSLUCENT REALM-PERSONALIZED "SHIELDS DEPLETED" MODAL
+       Bespoke Holographic Glassmorphism for DYNAMO, HELIX & METEOR
+       ══════════════════════════════════════════════════════════════════════════ */
+    #cgScreenOverlay.oc-realm-overlay {
+      background: radial-gradient(circle at 50% 48%, rgba(4, 8, 22, 0.34) 0%, rgba(2, 4, 12, 0.56) 100%) !important;
+      backdrop-filter: blur(5px) !important;
+      -webkit-backdrop-filter: blur(5px) !important;
+      animation: ocOverlayFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+    @keyframes ocOverlayFadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes ocCardSlideIn {
+      0% { opacity: 0; transform: translateY(14px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes ocHoloscan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(220%); }
+    }
+
+    #cgScreenOverlay.oc-realm-overlay .screen-card {
+      position: relative !important;
+      max-width: 472px !important;
+      width: 100% !important;
+      padding: 24px 26px 22px !important;
+      border-radius: 22px !important;
+      overflow: hidden !important;
+      backdrop-filter: blur(18px) saturate(155%) !important;
+      -webkit-backdrop-filter: blur(18px) saturate(155%) !important;
+      animation: ocCardSlideIn 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      isolation: isolate !important;
+    }
+    /* Subtle translucent scanline shimmer sweep */
+    #cgScreenOverlay.oc-realm-overlay .screen-card::before {
+      content: '' !important;
+      position: absolute !important;
+      inset: 0 !important;
+      background: repeating-linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.018) 0px,
+        rgba(255, 255, 255, 0.018) 1px,
+        transparent 1px,
+        transparent 4px
+      ) !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-card::after {
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      top: 0 !important;
+      height: 44% !important;
+      background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.055) 50%, transparent 100%) !important;
+      animation: ocHoloscan 5.2s linear infinite !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+
+    /* Live Ambient Realm FX Canvas behind Card Content */
+    .oc-go-fx-canvas {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      pointer-events: none !important;
+      z-index: 0 !important;
+      opacity: 0.82 !important;
+    }
+    .oc-go-content {
+      position: relative !important;
+      z-index: 3 !important;
+    }
+    /* Illuminated Sci-Fi Corner Brackets */
+    .oc-go-corner {
+      position: absolute !important;
+      width: 18px !important;
+      height: 18px !important;
+      pointer-events: none !important;
+      z-index: 4 !important;
+      opacity: 0.85 !important;
+    }
+    .oc-go-c-tl { top: 10px !important; left: 10px !important; border-top: 2px solid currentColor !important; border-left: 2px solid currentColor !important; border-top-left-radius: 6px !important; }
+    .oc-go-c-tr { top: 10px !important; right: 10px !important; border-top: 2px solid currentColor !important; border-right: 2px solid currentColor !important; border-top-right-radius: 6px !important; }
+    .oc-go-c-bl { bottom: 10px !important; left: 10px !important; border-bottom: 2px solid currentColor !important; border-left: 2px solid currentColor !important; border-bottom-left-radius: 6px !important; }
+    .oc-go-c-br { bottom: 10px !important; right: 10px !important; border-bottom: 2px solid currentColor !important; border-right: 2px solid currentColor !important; border-bottom-right-radius: 6px !important; }
+
+    /* Top Telemetry Status Pill */
+    .oc-go-status-chip {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      padding: 4px 12px !important;
+      border-radius: 999px !important;
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 9.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.14em !important;
+      text-transform: uppercase !important;
+      margin-bottom: 12px !important;
+      background: rgba(6, 10, 24, 0.58) !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    }
+    .oc-go-status-dot {
+      width: 6px !important;
+      height: 6px !important;
+      border-radius: 50% !important;
+      background: #f43f5e !important;
+      box-shadow: 0 0 8px #f43f5e !important;
+    }
+
+    /* Bespoke Animated Core Medallion Emblem (Replaces Plain Clock Icon!) */
+    .oc-go-emblem-wrap {
+      position: relative !important;
+      width: 74px !important;
+      height: 74px !important;
+      margin: 0 auto 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .oc-go-emblem-ring {
+      position: absolute !important;
+      inset: -4px !important;
+      border-radius: 50% !important;
+      border: 1.8px dashed rgba(255, 255, 255, 0.35) !important;
+      animation: ocOrbSpinSlow 11s linear infinite !important;
+    }
+    .oc-go-emblem-ring-inner {
+      position: absolute !important;
+      inset: 3px !important;
+      border-radius: 50% !important;
+      border: 1.5px solid transparent !important;
+      animation: ocOrbSpinSlow 6s linear infinite reverse !important;
+    }
+    .oc-go-emblem-clip {
+      width: 58px !important;
+      height: 58px !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: radial-gradient(circle, rgba(12, 16, 32, 0.9) 40%, rgba(0, 0, 0, 0.7) 100%) !important;
+    }
+    .oc-go-emblem-img {
+      width: 106% !important;
+      height: 106% !important;
+      max-width: none !important;
+      object-fit: cover !important;
+      filter: saturate(1.12) contrast(1.06) !important;
+    }
+
+    /* Record Badge & Boss Near-Miss Callout */
+    .oc-go-record-badge {
+      display: none !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      margin: 0 auto 10px !important;
+      padding: 4px 12px !important;
+      border-radius: 999px !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.10em !important;
+      color: #fef08a !important;
+      background: linear-gradient(90deg, rgba(234, 179, 8, 0.24), rgba(249, 115, 22, 0.28)) !important;
+      border: 1px solid rgba(253, 224, 71, 0.65) !important;
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.28) !important;
+    }
+    .oc-go-record-badge.show { display: inline-flex !important; }
+
+    /* 4-Cell Futuristic Combat Telemetry Grid */
+    .oc-go-telemetry {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 8px !important;
+      margin: 14px 0 12px !important;
+    }
+    .oc-go-stat {
+      padding: 9px 6px 8px !important;
+      border-radius: 12px !important;
+      background: rgba(6, 10, 22, 0.54) !important;
+      border: 1px solid rgba(255, 255, 255, 0.10) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 2px !important;
+    }
+    .oc-go-stat-lbl {
+      font-size: 8.5px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.10em !important;
+      color: #94a3b8 !important;
+      text-transform: uppercase !important;
+    }
+    .oc-go-stat-val {
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      color: #f8fafc !important;
+      line-height: 1.15 !important;
+    }
+    .oc-go-stat-sub {
+      font-size: 8.5px !important;
+      color: #cbd5e1 !important;
+      opacity: 0.8 !important;
+    }
+    .oc-go-grade-splus { color: #fde047 !important; text-shadow: 0 0 12px rgba(253, 224, 71, 0.75) !important; }
+    .oc-go-grade-s { color: #38bdf8 !important; text-shadow: 0 0 12px rgba(56, 189, 248, 0.75) !important; }
+    .oc-go-grade-a { color: #c084fc !important; }
+    .oc-go-grade-b { color: #34d399 !important; }
+    .oc-go-grade-c { color: #fb923c !important; }
+
+    /* Contextual Tactical Diagnostic Tip */
+    .oc-go-tip {
+      margin: 0 0 16px !important;
+      padding: 8px 12px !important;
+      border-radius: 10px !important;
+      background: rgba(4, 8, 20, 0.50) !important;
+      border-left: 2.5px solid rgba(56, 189, 248, 0.75) !important;
+      font-size: 10.5px !important;
+      color: #cbd5e1 !important;
+      text-align: left !important;
+      line-height: 1.4 !important;
+    }
+    .oc-go-tip strong {
+      color: #f8fafc !important;
+      letter-spacing: 0.04em !important;
+    }
+
+    /* Primary & Secondary Quick-Action Controls (v384 — 4K PNG + Cinemagraph GIF + Specific Game Objects) */
+    .oc-go-btn-row {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 11px !important;
+      align-items: center !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k {
+      position: relative !important;
+      width: 100% !important;
+      height: 58px !important;
+      padding: 0 16px 0 10px !important;
+      border-radius: 9999px !important;
+      overflow: hidden !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 10px !important;
+      background: #050814 !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+      isolation: isolate !important;
+      cursor: pointer !important;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.22s ease !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k:hover {
+      transform: translateY(-2px) scale(1.022) !important;
+    }
+    .oc-go-btn-art-png,
+    .oc-go-btn-art-gif {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: 78% 50% !important;
+      pointer-events: none !important;
+      transition: opacity 0.28s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease !important;
+    }
+    .oc-go-btn-art-png {
+      z-index: 0 !important;
+      opacity: 1 !important;
+    }
+    .oc-go-btn-art-gif {
+      z-index: 1 !important;
+      opacity: 0.94 !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k:hover .oc-go-btn-art-gif {
+      opacity: 1 !important;
+      transform: scale(1.045) !important;
+      filter: brightness(1.16) saturate(1.14) !important;
+    }
+    .oc-go-btn-scrim {
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 2 !important;
+      pointer-events: none !important;
+      background: linear-gradient(
+        90deg,
+        rgba(3, 6, 16, 0.72) 0%,
+        rgba(3, 6, 16, 0.56) 46%,
+        rgba(3, 6, 16, 0.24) 76%,
+        rgba(3, 6, 16, 0.44) 100%
+      ) !important;
+    }
+    .oc-go-btn-obj-wrap {
+      position: relative !important;
+      z-index: 4 !important;
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      flex-shrink: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: radial-gradient(circle, rgba(6, 10, 24, 0.92) 50%, rgba(0, 0, 0, 0.65) 100%) !important;
+      pointer-events: none !important;
+    }
+    .oc-go-btn-obj-ring {
+      position: absolute !important;
+      inset: -2px !important;
+      border-radius: 50% !important;
+      border: 1.5px solid transparent !important;
+      animation: ocOrbSpinSlow 5.2s linear infinite !important;
+      pointer-events: none !important;
+    }
+    .oc-go-btn-obj {
+      width: 36px !important;
+      height: 36px !important;
+      object-fit: contain !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+      animation: ocHelixBreath 2.8s ease-in-out infinite !important;
+    }
+    .oc-go-btn-text-wrap {
+      position: relative !important;
+      z-index: 4 !important;
+      flex: 1 1 auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      text-align: left !important;
+      line-height: 1.15 !important;
+      pointer-events: none !important;
+    }
+    .oc-go-btn-main-txt {
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.08em !important;
+      color: #ffffff !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.98), 0 0 12px rgba(0, 0, 0, 0.85) !important;
+    }
+    .oc-go-btn-sub-txt {
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 9px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.14em !important;
+      opacity: 0.92 !important;
+      margin-top: 2px !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.98) !important;
+    }
+    .oc-go-btn-chevron {
+      position: relative !important;
+      z-index: 4 !important;
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50% !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: rgba(6, 10, 24, 0.65) !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      color: #ffffff !important;
+      font-size: 15px !important;
+      font-weight: 900 !important;
+      flex-shrink: 0 !important;
+      transition: transform 0.22s ease, background 0.22s ease !important;
+      pointer-events: none !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay .screen-btn-primary.oc-go-cta-4k:hover .oc-go-btn-chevron {
+      transform: translateX(3px) !important;
+      background: rgba(255, 255, 255, 0.20) !important;
+    }
+
+    /* Secondary Quick-Switch Buttons (4K Specific Objects + Animated GIF Hover!) */
+    .oc-go-quick-row {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+    .oc-go-sec-btn {
+      position: relative !important;
+      height: 36px !important;
+      padding: 0 13px 0 6px !important;
+      border-radius: 9999px !important;
+      overflow: hidden !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      background: rgba(6, 10, 22, 0.80) !important;
+      border: 1.3px solid rgba(255, 255, 255, 0.18) !important;
+      color: #f1f5f9 !important;
+      font-family: 'Lexend', sans-serif !important;
+      font-size: 10.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      cursor: pointer !important;
+      isolation: isolate !important;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    .oc-go-sec-btn.oc-go-hidden {
+      display: none !important;
+    }
+    .oc-go-sec-btn:hover {
+      transform: translateY(-2px) scale(1.035) !important;
+      color: #ffffff !important;
+    }
+    .oc-go-sec-bg-png,
+    .oc-go-sec-bg-gif {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: 65% 50% !important;
+      pointer-events: none !important;
+      transition: opacity 0.24s ease !important;
+    }
+    .oc-go-sec-bg-png { z-index: 0 !important; opacity: 0.42 !important; }
+    .oc-go-sec-bg-gif { z-index: 1 !important; opacity: 0.0 !important; }
+    .oc-go-sec-btn:hover .oc-go-sec-bg-gif { opacity: 0.78 !important; }
+    .oc-go-sec-scrim {
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 2 !important;
+      background: linear-gradient(90deg, rgba(4, 7, 18, 0.78) 0%, rgba(4, 7, 18, 0.56) 65%, rgba(4, 7, 18, 0.35) 100%) !important;
+      pointer-events: none !important;
+    }
+    .oc-go-sec-obj {
+      position: relative !important;
+      z-index: 3 !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      object-fit: contain !important;
+      flex-shrink: 0 !important;
+      pointer-events: none !important;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35)) !important;
+    }
+    .oc-go-sec-lbl {
+      position: relative !important;
+      z-index: 3 !important;
+      pointer-events: none !important;
+      text-shadow: 0 1px 5px rgba(0, 0, 0, 0.98) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="dynamo"] {
+      border-color: rgba(139, 92, 246, 0.62) !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.48), 0 0 10px rgba(56, 189, 248, 0.22) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="dynamo"]:hover {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.55) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="helix"] {
+      border-color: rgba(34, 211, 238, 0.60) !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.48), 0 0 10px rgba(232, 121, 249, 0.22) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="helix"]:hover {
+      border-color: #e879f9 !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(232, 121, 249, 0.55) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="meteor"] {
+      border-color: rgba(251, 146, 60, 0.66) !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.48), 0 0 10px rgba(249, 115, 22, 0.25) !important;
+    }
+    .oc-go-sec-btn[data-switch-realm="meteor"]:hover {
+      border-color: #fde047 !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(249, 115, 22, 0.60) !important;
+    }
+    .oc-go-sec-btn-ws {
+      border-color: rgba(148, 163, 184, 0.35) !important;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(8, 12, 24, 0.90)) !important;
+    }
+    .oc-go-sec-btn-ws:hover {
+      border-color: rgba(212, 168, 83, 0.72) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 0 12px rgba(212, 168, 83, 0.30) !important;
+    }
+    .oc-go-sec-obj-ws {
+      border-radius: 6px !important;
+      border: 1px solid rgba(212, 168, 83, 0.55) !important;
+      width: 22px !important;
+      height: 22px !important;
+    }
+
+    .oc-go-kbd-hint {
+      margin-top: 8px !important;
+      font-size: 9.5px !important;
+      color: #94a3b8 !important;
+      letter-spacing: 0.06em !important;
+    }
+    .oc-go-kbd-hint kbd {
+      display: inline-block !important;
+      padding: 1px 5px !important;
+      border-radius: 4px !important;
+      background: rgba(255, 255, 255, 0.10) !important;
+      border: 1px solid rgba(255, 255, 255, 0.20) !important;
+      color: #e2e8f0 !important;
+      font-family: inherit !important;
+      font-size: 9px !important;
+    }
+
+    /* ─── THEME 1: CHROME DYNAMO (Translucent Faraday Violet · Electric Cyan · Anode Gold) ─── */
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-card {
+      background: linear-gradient(160deg, rgba(24, 12, 58, 0.62) 0%, rgba(8, 12, 32, 0.68) 55%, rgba(10, 26, 52, 0.62) 100%) !important;
+      border: 1.5px solid rgba(139, 92, 246, 0.65) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.68), 0 0 38px rgba(56, 189, 248, 0.24), inset 0 0 28px rgba(139, 92, 246, 0.18) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-corner { color: #38bdf8 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-status-chip { color: #bae6fd !important; border-color: rgba(56, 189, 248, 0.45) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-emblem-ring { border-color: rgba(168, 85, 247, 0.68) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-emblem-ring-inner { border-top-color: #38bdf8 !important; border-bottom-color: #fbbf24 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-emblem-clip { box-shadow: 0 0 22px rgba(139, 92, 246, 0.65), 0 0 12px rgba(56, 189, 248, 0.55) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-title {
+      background: linear-gradient(90deg, #e0f2fe 0%, #38bdf8 48%, #c084fc 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.42)) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-tip { border-left-color: #38bdf8 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .screen-btn-primary.oc-go-cta-4k {
+      border-color: rgba(56, 189, 248, 0.78) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 24px rgba(56, 189, 248, 0.42), 0 0 14px rgba(139, 92, 246, 0.45) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-btn-obj-ring { border-top-color: #38bdf8 !important; border-bottom-color: #fbbf24 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="dynamo"] .oc-go-btn-sub-txt { color: #7dd3fc !important; }
+
+    /* ─── THEME 2: CHROME HELIX (Translucent Sapphire Aqua · Bioluminescent Cyan & Magenta) ─── */
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-card {
+      background: linear-gradient(160deg, rgba(6, 30, 48, 0.60) 0%, rgba(14, 10, 34, 0.68) 55%, rgba(34, 12, 46, 0.60) 100%) !important;
+      border: 1.5px solid rgba(34, 211, 238, 0.64) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.68), 0 0 38px rgba(232, 121, 249, 0.24), inset 0 0 28px rgba(34, 211, 238, 0.16) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-corner { color: #22d3ee !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-status-chip { color: #f5d0fe !important; border-color: rgba(232, 121, 249, 0.48) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-emblem-ring { border-color: rgba(34, 211, 238, 0.68) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-emblem-ring-inner { border-left-color: #22d3ee !important; border-right-color: #e879f9 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-emblem-clip { box-shadow: 0 0 22px rgba(34, 211, 238, 0.62), 0 0 14px rgba(232, 121, 249, 0.55) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-title {
+      background: linear-gradient(90deg, #cffafe 0%, #22d3ee 45%, #f0abfc 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.42)) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-tip { border-left-color: #e879f9 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .screen-btn-primary.oc-go-cta-4k {
+      border-color: rgba(34, 211, 238, 0.78) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 24px rgba(34, 211, 238, 0.38), 0 0 16px rgba(232, 121, 249, 0.42) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-btn-obj-ring { border-left-color: #22d3ee !important; border-right-color: #e879f9 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-btn-sub-txt { color: #f5d0fe !important; }
+
+    /* ─── THEME 3: CHROME METEOR (Translucent Volcanic Basalt · Molten Gold · Solar Crimson) ─── */
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-card {
+      background: linear-gradient(160deg, rgba(46, 16, 6, 0.64) 0%, rgba(16, 8, 6, 0.70) 55%, rgba(44, 12, 8, 0.62) 100%) !important;
+      border: 1.5px solid rgba(251, 146, 60, 0.70) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.72), 0 0 38px rgba(249, 115, 22, 0.30), inset 0 0 28px rgba(234, 88, 12, 0.20) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-corner { color: #fb923c !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-status-chip { color: #fef08a !important; border-color: rgba(251, 146, 60, 0.55) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-emblem-ring { border-color: rgba(249, 115, 22, 0.72) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-emblem-ring-inner { border-top-color: #fde047 !important; border-left-color: #f97316 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-emblem-clip { box-shadow: 0 0 24px rgba(249, 115, 22, 0.72), 0 0 14px rgba(253, 224, 71, 0.52) !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-title {
+      background: linear-gradient(90deg, #fef9c3 0%, #fbbf24 46%, #f97316 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 14px rgba(249, 115, 22, 0.48)) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-tip { border-left-color: #f97316 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .screen-btn-primary.oc-go-cta-4k {
+      border-color: rgba(251, 146, 60, 0.84) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.68), 0 0 24px rgba(249, 115, 22, 0.48), 0 0 14px rgba(253, 224, 71, 0.32) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-btn-obj-ring { border-top-color: #fde047 !important; border-left-color: #f97316 !important; }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-btn-sub-txt { color: #fde68a !important; }
+
+    @media (max-width: 520px) {
+      .oc-go-telemetry { grid-template-columns: repeat(2, 1fr) !important; }
+      #cgScreenOverlay.oc-realm-overlay .screen-card { padding: 18px 16px 16px !important; }
+    }
+
+    svg, svg path, svg line, svg circle, svg polyline, svg rect {
+      vector-effect: non-scaling-stroke;
+    }
+    html, body {
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      text-rendering: optimizeLegibility !important;
+    }
+  </style>
+  
 </head>
 <body class="netflix-messenger-theme">
   <!-- Top Application Bar -->
   <header class="app-topbar">
     <div class="topbar-left">
       <div class="brand-logo" id="logoBtn" title="OrlandoChrome (Main Version)">
-        <img src="oc-logo.png" class="oc-logo-img" alt="OrlandoChrome Logo" onerror="this.onerror=null;this.src='oc-logo.svg'">
+        <img src="oc-logo.png?v=oc310" class="oc-logo-img" alt="OrlandoChrome Logo" onerror="this.onerror=null;this.src='oc-logo.svg?v=oc310'">
         <div class="brand-text-wrap">
           <span class="brand-title"><span class="title-orlando">ORLANDO</span><span class="title-chrome">CHROME</span></span>
         </div>
       </div>
+
+      <!-- Unified 6-Game Futuristic Arcade Suite -->
+      <div class="qgame-topbar-cluster" id="qgameTopbarCluster">
+        <button type="button" class="qgame-btn-launch qgame-btn-dynamo qgame-btn-realm oc-realm-btn" id="btnLaunchGame" data-realm="dynamo" aria-label="Launch Chrome Dynamo: Faraday Singularity Core">
+          <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
+          <span class="oc-realm-orb oc-realm-orb-dynamo" aria-hidden="true">
+            <span class="oc-realm-orb-ring"></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-dynamo-t5.png?v=arcade374" alt="" class="oc-realm-orb-img" /></span>
+          </span>
+          <span class="game-btn-label oc-realm-label">DYNAMO</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-helix oc-realm-btn" id="btnLaunchHelixGame" data-realm="helix" aria-label="Launch Chrome Helix: Harmonic Bio-Lattice Core">
+          <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
+          <span class="oc-realm-orb oc-realm-orb-helix" aria-hidden="true">
+            <span class="oc-realm-orb-ring"></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-helix-t5.png?v=arcade374" alt="" class="oc-realm-orb-img" /></span>
+          </span>
+          <span class="game-btn-label oc-realm-label">HELIX</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-meteor oc-realm-btn" id="btnLaunchMeteorGame" data-realm="meteor" aria-label="Launch Chrome Meteor: Aegis Caldera Core">
+          <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
+          <span class="oc-realm-orb oc-realm-orb-meteor" aria-hidden="true">
+            <span class="oc-realm-orb-ring"></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-meteor-t5.png?v=arcade374" alt="" class="oc-realm-orb-img" /></span>
+          </span>
+          <span class="game-btn-label oc-realm-label">METEOR</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-math" id="btnLaunchMathGame" title="Math Overdrive: Eight-Level Difficulty System (20 Qs · 10 Strikes)" aria-label="Launch Math Overdrive">
+          <span class="game-btn-glyph game-btn-glyph-math" aria-hidden="true">🧮</span>
+          <span class="game-btn-label">MATH</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-reflex" id="btnLaunchReflexGame" title="Reflex Blitz: Numbers Multiple Catcher (Catch 2-Digit Multiples)" aria-label="Launch Reflex Blitz">
+          <svg class="game-btn-glyph game-btn-glyph-reflex" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#00f0ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
+          <span class="game-btn-label">REFLEX</span>
+        </button>
+
+        <button type="button" class="qgame-btn-launch qgame-btn-matrix" id="btnLaunchMemoryGame" title="Memory Matrix: 16 Radiant Pure Numbers (1 Mistake Game Over)" aria-label="Launch Memory Matrix">
+          <span class="game-btn-glyph game-btn-glyph-matrix" aria-hidden="true">⊞</span>
+          <span class="game-btn-label">MATRIX</span>
+        </button>
+      </div>
     </div>
 
     <div class="topbar-right">
-      <!-- Jump to Next Pending / Reset Profile (Alt+N) -->
+      <!-- Fullscreen Toggle Button -->
+      <button type="button" class="btn-topbar-quick btn-topbar-fullscreen fs-toggle-btn" id="btnTopbarFullscreen" title="Toggle Fullscreen Arena Mode">
+        <span class="fs-btn-glyph">
+          <svg class="modern-icon" viewBox="0 0 24 24" fill="none" width="13" height="13">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="fs-btn-label">Full</span>
+      </button>
+
       <button type="button" class="btn-topbar-quick" id="btnNextReady" title="Jump to next profile with Pending Note or Limit Reset (Alt + N)">
-        <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span>Next Ready</span>
+        <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(0, 240, 255, 0.2)"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg> <span>Next</span>
       </button>
 
-      <!-- Open Main Web App Window / PWA Button -->
-      <button type="button" class="btn-topbar-desktop" id="btnTopbarLaunchApp" title="Open OrlandoChrome (Main Web App)">
-        <span class="desktop-btn-icon" id="topbarLaunchIcon"><svg class="modern-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>
-        <span class="desktop-btn-label" id="topbarLaunchLabel">Open Main Web App</span>
-      </button>
+      <!-- Compressed Single "System" Command Button & Floating Futuristic Dropdown -->
+      <div class="system-menu-wrapper" id="systemMenuWrapper">
+        <button type="button" class="btn-topbar-system" id="btnSystemMenu" aria-haspopup="true" aria-expanded="false" title="System Menu (Sync, Voice Commands, Recovery, Centennial, Standalone App)">
+          <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;"><circle cx="12" cy="12" r="3" stroke="#38bdf8" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#38bdf8" stroke-width="1.8"/></svg>
+          <span class="system-btn-text">System</span>
+          <span class="sync-status-dot synced" id="topbarSyncDot" title="Cloud Synchronized"></span>
+          <svg class="system-caret" viewBox="0 0 24 24" width="9" height="9" fill="none"><path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </button>
 
-      <!-- App Distribution, Live QR & Command Suite Trigger -->
-      <button type="button" class="btn-topbar-suite" id="btnOpenAppSuite" title="Open App Distribution, Live QR Scanner &amp; Cross-Device Cloud Sync Suite">
-        <span><svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> App Suite</span>
-        <span class="pwa-ready-mini-badge"><span class="sync-status-dot synced" id="topbarSyncDot"></span> <span id="topbarSyncLabel">Synced</span></span>
-      </button>
+        <!-- Floating Dropdown Menu -->
+        <div class="system-dropdown-menu" id="systemDropdownMenu" role="menu" aria-label="System Menu">
+                    <!-- 1. Real-Time Cross-Device Cloud Sync -->
+          <button type="button" class="system-menu-item" id="btnDropdownSyncNow" role="menuitem" title="Tap to sync instantly between Laptop & iPhone">
+            <div class="menu-item-icon" style="background:rgba(0,240,255,0.18);border:1px solid rgba(0,240,255,0.45);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Cloud Sync Now</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(0,240,255,0.22);color:#00f0ff;font-weight:700;">REALTIME</span>
+              </div>
+              <div class="menu-item-desc">Bidirectional Firestore sync stream between Laptop &amp; iPhone</div>
+            </div>
+          </button>
 
-      <!-- Live Clock & Daily Recharge Alarm Widget -->
-      <div class="nav-clock-box" id="navClockBox">
-        <!-- Rendered dynamically -->
+          <!-- 2. Voice Commands Manual -->
+          <button type="button" class="system-menu-item" id="btnDropdownVoiceGuide" role="menuitem" title="Open Complete Voice Control Manual & Mic Control">
+            <div class="menu-item-icon" style="background:rgba(0,240,255,0.16);border:1px solid rgba(0,240,255,0.45);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="#00f0ff" stroke-width="2"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="#00f0ff" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Voice Command Center</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(0,240,255,0.2);color:#00f0ff;border:1px solid rgba(0,240,255,0.4);font-weight:700;">PRO</span>
+              </div>
+              <div class="menu-item-desc">Hands-free speech automation for profile switching &amp; reminders</div>
+            </div>
+          </button>
+
+          <!-- 3. System Reset & Emergency Recovery -->
+          <button type="button" class="system-menu-item" id="btnDropdownRecovery" role="menuitem" title="Emergency Profile Recovery & State Verification">
+            <div class="menu-item-icon" style="background:rgba(212,168,83,0.18);border:1px solid rgba(212,168,83,0.45);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#d4a853" stroke-width="2"/>
+                <polyline points="9 12 11 14 15 10" stroke="#d4a853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Recovery Vault</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(212,168,83,0.22);color:#fef08a;font-weight:700;">FORTRESS</span>
+              </div>
+              <div class="menu-item-desc">Enterprise data checkpoints, rollbacks &amp; trash audit ledger</div>
+            </div>
+          </button>
+
+          <!-- 4. Two-Step Clean Slate Reset -->
+          <button type="button" class="system-menu-item" id="btnDropdownCleanSlate" role="menuitem" title="Reset all 22 profiles to clean slate with automatic safety checkpoint">
+            <div class="menu-item-icon" style="background:rgba(52,211,153,0.18);border:1px solid rgba(52,211,153,0.45);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3 3v5h5" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16 21h5v-5" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Start Clean Slate</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(52,211,153,0.22);color:#a7f3d0;font-weight:700;">FRESH</span>
+              </div>
+              <div class="menu-item-desc">Clear 0 pendings, 0 timers, and empty trash with instant vault rollback</div>
+            </div>
+          </button>
+
+          <!-- 5. Export JSON Backup -->
+          <button type="button" class="system-menu-item" id="btnDropdownExport" role="menuitem" title="Download encrypted JSON backup of all 22 workspaces">
+            <div class="menu-item-icon" style="background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.45);">
+              <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                <polyline points="7 10 12 15 17 10" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="menu-item-text">
+              <div class="menu-item-title-row">
+                <span class="menu-item-title">Export Backup JSON</span>
+                <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(56,189,248,0.22);color:#38bdf8;font-weight:700;">BACKUP</span>
+              </div>
+              <div class="menu-item-desc">Secure JSON snapshot of profiles, messages, reminders &amp; timers</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Clock & Alarm Display -->
+      <div class="nav-clock-box" id="navClockBox" title="Current Local Time (Asia/Manila)">
+        <span class="nav-clock-time" id="clockTime">--:--</span>
+        <span class="nav-clock-ampm" id="clockAmPm">--</span>
       </div>
     </div>
   </header>
@@ -64,15 +2729,17 @@
     <!-- Left Column: Search, Filters, and Chrome Profiles -->
     <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header">
-        <div class="search-box-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="profileSearch" class="search-input" placeholder="Search profiles or notes... (Alt+↑/↓)">
+        <div class="search-box-wrap spotlight-trigger-wrap" id="spotlightCommandTrigger" title="Deep Search: Messages, notes, reminders, conversations, profiles (Ctrl + K)">
+          <span class="search-icon" id="btnSearchIcon" title="Open Omnisearch (Ctrl + K)" style="cursor:pointer;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="1.8"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.5)"/></svg></span>
+          <input type="text" id="profileSearch" class="search-input spotlight-live-input" placeholder="Search messages, notes, reminders..." autocomplete="off" spellcheck="false">
+          <kbd class="spotlight-capsule-kbd" id="btnCapsuleKbd" title="Launch Spotlight Command Palette (Ctrl + K / ⌘K)">Ctrl K</kbd>
         </div>
 
         <div class="filter-tabs-row">
           <button class="filter-tab active" data-filter="all" id="tabAll">All (<span id="countAll">22</span>)</button>
+          <button class="filter-tab" data-filter="unread" id="tabUnread"><span class="tab-blue-messenger-dot"></span> Unread (<span id="countUnread">0</span>)</button>
           <button class="filter-tab" data-filter="pending" id="tabPending"><span class="tab-red-radiant-dot"></span> Pending (<span id="countPending">0</span>)</button>
-          <button class="filter-tab" data-filter="timers" id="tabTimers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; margin-right:4px;"><path d="M6 3h12M6 21h12" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><path d="M7 4c0 4.5 3.5 6.5 5 8-1.5 1.5-5 3.5-5 8h10c0-4.5-3.5-6.5-5-8 1.5-1.5 5-3.5 5-8H7z" stroke="#38bdf8" stroke-width="1.8" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.15)"/><circle cx="12" cy="12" r="1.5" fill="#f59e0b"/></svg>Timers (<span id="countTimers">0</span>)</button>
+          <button class="filter-tab" data-filter="timers" id="tabTimers"><span class="tab-cyber-clock-wrap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#ffffff" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="1.5" fill="#ffffff"/></svg></span> Timers (<span id="countTimers">0</span>)</button>
         </div>
       </div>
 
@@ -80,11 +2747,40 @@
       <div class="profile-list" id="profileList">
         <!-- Rendered dynamically -->
       </div>
+      <!-- Executive Standalone Sub-App Suite Dock -->
+      <nav class="standalone-subapp-dock" id="sidebarDock" aria-label="Executive Standalone Sub-App Suite">
+        <div class="dock-header-label">
+          <span class="dock-title">EXECUTIVE SUITE</span>
+          <span class="dock-live-pulse" title="Suite Cloud Ready"></span>
+        </div>
+        <div class="dock-pills-row">
+          <a href="https://orlandopasion000.github.io/" class="dock-pill-btn" title="Main Portfolio & Digital Library">
+            <span class="dock-pill-icon">🏛️</span>
+            <span class="dock-pill-text">Hub</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandochrome/" class="dock-pill-btn active" title="OrlandoChrome · 22-Profile Command Center">
+            <span class="dock-pill-icon"><img src="oc-logo.png?v=oc310" alt="OC" style="width:15px;height:15px;border-radius:4px;display:block;object-fit:cover;box-shadow:0 0 6px rgba(0,240,255,0.55);"></span>
+            <span class="dock-pill-text">Chrome</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandorecharge/" class="dock-pill-btn" title="OrlandoRecharge · 23-Block Alarm Cockpit">
+            <span class="dock-pill-icon">⚡</span>
+            <span class="dock-pill-text">Recharge</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandotimer/" class="dock-pill-btn" title="OrlandoTimer · Quantum Focus Horizon">
+            <span class="dock-pill-icon">⏳</span>
+            <span class="dock-pill-text">Timer</span>
+          </a>
+          <a href="https://orlandopasion000.github.io/orlandovault/" class="dock-pill-btn" title="OrlandoVault · Secure Digital Locker">
+            <span class="dock-pill-icon">🔐</span>
+            <span class="dock-pill-text">Vault</span>
+          </a>
+        </div>
+      </nav>
     </aside>
 
     <!-- Draggable Width Resizer Line Between Profiles & Messages -->
     <div class="workspace-resizer" id="workspaceResizer" title="Drag to adjust width · Double-click to reset">
-      <span class="resizer-grip" aria-hidden="true">⋮</span>
+      <span class="resizer-grip" aria-hidden="true"><svg class="resizer-grip-icon" viewBox="0 0 4 14" width="4" height="14" fill="currentColor"><circle cx="2" cy="2" r="1.2"/><circle cx="2" cy="7" r="1.2"/><circle cx="2" cy="12" r="1.2"/></svg></span>
     </div>
 
     <!-- Right Column: Active Chrome Profile Notes & Timers -->
@@ -94,126 +2790,12 @@
   </div>
 
   <!-- 8. APP DISTRIBUTION & COMMAND SUITE (Install, Share, QR, Backup, Blank Edition) -->
-  <section class="app-dist oc-app-dist minimized" id="appDistSection" aria-labelledby="distTitle">
-    <div class="dist-head" id="distHead" role="button" tabindex="0" title="Click header anywhere to toggle App Suite">
-      <div class="dist-head-left">
-        <div class="dist-oc-mini" title="OrlandoChrome">
-          <img src="oc-logo.svg" alt="OC" class="dist-oc-logo-img">
-        </div>
-        <div class="dist-header-text">
-          <div class="dist-title" id="distTitle">
-            <span class="dist-title-name">App Distribution &amp; Live Sync Suite</span>
-            <span class="dist-badge">● PWA READY</span>
-            <span class="dist-collapse-hint" id="distCollapseHint">· 4 Command Tools · Tap to Expand</span>
-          </div>
-          <div class="dist-subtitle" id="distSubtitle">Installed, offline-cached, zero-warning install &amp; holographic device sync</div>
-        </div>
-      </div>
-      <div class="dist-head-actions">
-        <button type="button" class="dist-toggle-btn" id="distMinimizeBtn" title="Toggle Minimized View" aria-expanded="false">
-            <span id="distMinIcon" class="dist-min-icon">▸</span> <span id="distMinText">Expand</span>
-          </button>
-      </div>
-    </div>
-
-    <!-- Collapsible Command Drawer with Fluid Morphing Transition -->
-    <div class="dist-drawer-wrapper" id="distDrawerWrapper">
-      <div class="dist-body" id="distBody">
-      <div class="dist-grid">
-        <!-- Card 1: Main Executive Workspace -->
-        <div class="dist-card" id="distCardMain">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-red">
-              <svg class="modern-icon modern-icon-red" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name" id="distCardMainTitle">OrlandoChrome (Main Version)</div>
-              <div class="dist-desc" id="distCardMainDesc">Complete 22-profile main workspace</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack" id="distMainBtnStack">
-              <a class="primary dist-btn dist-btn-install" id="openMainAppBtn" href="https://orlandopasion000.github.io/orlandochrome/" target="_blank" rel="noopener" title="Open OrlandoChrome (Main Version)">
-                <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                <span>Open Main Web App</span>
-              </a>
-            </div>
-        </div>
-
-        <!-- Card 2: Mobile QR Code & Link Sharing -->
-        <div class="dist-card dist-card-holo" id="cardHoloQr" style="cursor: pointer;" title="Open Holographic QR Scanner">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-red">
-              <svg class="modern-icon modern-icon-red" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name">Holographic QR</div>
-              <div class="dist-desc">Instant phone scanner &amp; device sync</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack">
-            <button type="button" class="ghost dist-btn dist-btn-holo" id="openQrBtn">
-              <svg class="modern-icon modern-icon-cyan" viewBox="0 0 24 24" style="width:14px;height:14px"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-              <span>Open Phone QR</span>
-            </button>
-            <button type="button" class="ghost dist-btn" id="shareAppBtn">
-              <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-              <span>Share / Copy Link</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Card 3: Backup & Restore Workspace -->
-        <div class="dist-card">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-red">
-              <svg class="modern-icon modern-icon-red" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name">Backup &amp; Restore</div>
-              <div class="dist-desc">Encrypted local workspace backup</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack">
-            <div class="dist-btn-row">
-              <button type="button" class="ghost dist-btn" id="exportBackupBtn">
-                <svg class="modern-icon modern-icon-emerald" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                <span>Export</span>
-              </button>
-              <button type="button" class="ghost dist-btn" id="importBackupBtn">
-                <svg class="modern-icon" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <span>Import</span>
-              </button>
-            </div>
-            <input type="file" id="importBackupFile" accept=".json,application/json" style="display:none">
-          </div>
-        </div>
-
-        <!-- Card 4: Clean Blank Edition -->
-        <div class="dist-card dist-card-blank" id="distCardBlank">
-          <div class="dist-card-top">
-            <div class="dist-icon dist-icon-gold">
-              <svg class="modern-icon modern-icon-gold" viewBox="0 0 24 24" style="width:19px;height:19px;margin:0"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            </div>
-            <div class="dist-card-meta">
-              <div class="dist-name" id="distCardBlankTitle" style="color:#ffffff">OrlandoChrome (Blank Canvas)</div>
-              <div class="dist-desc" id="distCardBlankDesc">100% blank canvas (0 notes / clean routine)</div>
-            </div>
-          </div>
-          <div class="dist-btn-stack" id="distBlankBtnStack">
-            <a class="primary dist-btn" id="openBlankAppBtn" href="https://orlandopasion000.github.io/orlandochrome/?edition=blank" target="_blank" rel="noopener">
-              <svg class="modern-icon" viewBox="0 0 24 24" style="width:14px;height:14px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              <span>Open Blank Web App</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-  </section>
+  
   <!-- Hidden Photo Upload Input (Profile Avatar) -->
   <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
-  <!-- Hidden Screenshot / Media Attachment Input (Chat Notes) -->
+  <!-- Hidden Photo / Media Attachment Input (Chat Notes) -->
   <input type="file" id="noteImageInput" accept="image/*" style="display:none;">
+  <input type="file" id="importNotesFileInput" accept=".json,.txt,.md" style="display:none;">
   <!-- Hidden JSON Backup Restore Input -->
   <input type="file" id="backupJsonInput" accept=".json,application/json" style="display:none;">
   <!-- Hidden Chrome Local State / Taskbar Scanner File Input (For Blank Edition Laptop Sync) -->
@@ -223,8 +2805,366 @@
   <div id="toast"></div>
 
   <!-- Scripts -->
-  <script src="sound.js?v=pure73"></script>
+  
+<!-- CHROME SYNAPSE: QUANTUM ARCADE ARENA (TRUE FULLSCREEN 100vw x 100vh) -->
+  <div class="game-modal-overlay" id="chromeGameModal" style="display:none;" role="dialog" aria-modal="true" aria-label="Chrome Synapse Arcade Arena">
+    <div class="game-container-card">
+      <!-- Fullscreen Game Header -->
+      <div class="game-topbar">
+        <div class="game-brand">
+          <div class="game-cyber-glyph" style="display:flex;align-items:center;">
+            <img src="oc-logo.png?v=oc310" alt="OrlandoChrome" style="width:18px;height:18px;border-radius:4px;border:1px solid rgba(212,168,83,0.4);box-shadow:0 0 6px rgba(0,240,255,0.3);">
+          </div>
+          <div class="game-brand-text">
+            <span class="game-title" id="cgGameTitle">CHROME SYNAPSE</span>
+            <span class="game-sub" id="cgGameSub">Quantum Arcade Arena</span>
+          </div>
+        </div>
+
+        <!-- Live Score Cluster & Advanced HUD (Round, Offense Cannon, Tier, Pulse, Surge) -->
+        <div class="game-stats-cluster">
+          <div class="game-stat-pill round-pill" id="cgRoundPill" title="Current Round & Boss Stage — Clear each Round Boss to advance!">
+            <span class="g-stat-label">ROUND</span>
+            <span class="g-stat-val" id="cgRoundVal" style="color:#c084fc;font-weight:900;">R1</span>
+          </div>
+          <div class="game-stat-pill offense-pill" id="cgOffensePill" title="Chrome Core Offense Mode: Catch Good Nodes to load Ammo, then Click/Hold or press [F] to blast Bosses & Hazards!">
+            <span class="g-stat-label">OFFENSE [F]</span>
+            <span class="g-stat-val" id="cgOffenseVal" style="color:#38bdf8;font-weight:900;">0</span>
+          </div>
+          <div class="game-stat-pill score-pill">
+            <span class="g-stat-label">SCORE</span>
+            <span class="g-stat-val" id="cgScoreVal">0</span>
+          </div>
+          <div class="game-stat-pill combo-pill">
+            <span class="g-stat-label">COMBO</span>
+            <span class="g-stat-val" id="cgComboVal">1x</span>
+          </div>
+          <div class="game-stat-pill tier-pill" id="cgTierPill" title="Core Evolution Tier: Tier I (0-6x Combo), Tier II (7-13x Combo), Tier III (14-20x Combo), Tier IV (21-27x Combo), Tier V (28x+ Combo Supreme Seraphic Archon)">
+            <span class="g-stat-label">TIER</span>
+            <span class="g-stat-val" id="cgTierVal" style="color:#00f0ff;font-weight:900;">I</span>
+          </div>
+          <div class="game-stat-pill pulse-pill" id="cgPulsePill" style="cursor:pointer;" title="Flux Pulse: Charges with 3 consecutive Perfect catches. Tap or Spacebar to unleash!">
+            <span class="g-stat-label">PULSE</span>
+            <span class="g-stat-val" id="cgPulseVal" style="color:#94a3b8;">0%</span>
+          </div>
+          <div class="game-stat-pill buff-pill" id="cgBuffPill" title="Active Celestial Surge / Node Buff">
+            <span class="g-stat-label">SURGE</span>
+            <span class="g-stat-val" id="cgBuffVal" style="color:#38bdf8;font-weight:900;">READY</span>
+          </div>
+          <div class="game-stat-pill best-pill">
+            <span class="g-stat-label">BEST</span>
+            <span class="g-stat-val" id="cgBestVal">0</span>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="game-controls-actions">
+          <!-- === CHANGED (v387): Left-Handed Touch Mirror Toggle (visible on touch only) & Futuristic Music Toggle === -->
+          <button type="button" class="game-btn-icon" id="cgLeftHandBtn" style="display:none;" title="Toggle Left-Handed / Right-Handed Touch Layout">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <path d="M7 16l-4-4 4-4M17 8l4 4-4 4M3 12h18" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button type="button" class="game-btn-icon" id="cgMusicBtn" title="Toggle Futuristic Realm Music Theme">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <path d="M9 18V5l12-2v13" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="6" cy="18" r="3" stroke="#38bdf8" stroke-width="2"/>
+              <circle cx="18" cy="16" r="3" stroke="#38bdf8" stroke-width="2"/>
+            </svg>
+          </button>
+          <button type="button" class="game-btn-icon" id="cgFullscreenBtn" title="Toggle Fullscreen">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <path d="M15 3h6v6M9 21H3v-6M21 9l-7 7M3 15l7-7M21 3l-7 7M3 21l7-7" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button type="button" class="game-btn-icon" id="cgMuteBtn" title="Toggle Audio">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="#94a3b8" stroke-width="2" fill="rgba(148,163,184,0.2)"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button type="button" class="game-btn-close" id="cgCloseBtn" title="Return to OrlandoChrome (Esc)">
+            <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+              <path d="M18 6L6 18M6 6l12 12" stroke="#f1f5f9" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Stage Container: Expands to Fill Entire Screen -->
+      <div class="game-arena-stage" id="gameArenaStage">
+        
+        <!-- VIEW 1: Math Overdrive (Eight-Level System) -->
+        <div class="math-view-container" id="cgViewMath" style="display:none;">
+          <!-- 8-Level Selector Bar -->
+          <div class="math-levels-bar">
+            <button type="button" class="math-level-tab active" data-level="1">L1: Very Easy</button>
+            <button type="button" class="math-level-tab" data-level="2">L2: Easy</button>
+            <button type="button" class="math-level-tab" data-level="3">L3: Mod. Easy</button>
+            <button type="button" class="math-level-tab" data-level="4">L4: Moderate</button>
+            <button type="button" class="math-level-tab" data-level="5">L5: Mod. Diff</button>
+            <button type="button" class="math-level-tab" data-level="6">L6: Difficult</button>
+            <button type="button" class="math-level-tab" data-level="7">L7: Very Diff</button>
+            <button type="button" class="math-level-tab" data-level="8">L8: Master</button>
+          </div>
+
+          <!-- Question Progress & 10 Energy Shields Indicator -->
+          <div class="math-hud-meta">
+            <div class="math-progress-chip" id="mathProgressLabel">QUESTION 1 / 20</div>
+            <div class="shields-cluster">
+              <span class="shields-label">SHIELDS (10 STRIKES):</span>
+              <div class="shields-cells" id="mathShields"></div>
+            </div>
+          </div>
+
+          <!-- Countdown Laser Bar -->
+          <div class="math-laser-track">
+            <div class="math-laser-fill" id="mathTimeBar"></div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="math-equation-card">
+            <span class="math-eq-caption">SOLVE QUANTUM SYNAPSE:</span>
+            <div class="math-eq-display" id="mathEquation">4 + 3 = ?</div>
+          </div>
+
+          <!-- 4-Choice Options Grid -->
+          <div class="math-options-array">
+            <button type="button" class="math-opt-btn" data-key="1"><span class="opt-key">1</span><span class="opt-val">7</span></button>
+            <button type="button" class="math-opt-btn" data-key="2"><span class="opt-key">2</span><span class="opt-val">6</span></button>
+            <button type="button" class="math-opt-btn" data-key="3"><span class="opt-key">3</span><span class="opt-val">8</span></button>
+            <button type="button" class="math-opt-btn" data-key="4"><span class="opt-key">4</span><span class="opt-val">9</span></button>
+          </div>
+        </div>
+
+        <!-- VIEW 2: Reflex Blitz (Quantum Catcher Canvas) -->
+        <div class="reflex-view-container" id="cgViewReflex" style="display:none;">
+          <!-- Dedicated Divisor Selection Overlay: Player picks 1 to 9, THEN numbers fall -->
+          <div class="reflex-start-overlay" id="reflexStartOverlay" style="display:none;">
+            <div class="reflex-start-card">
+              <div class="reflex-start-icon">⚡</div>
+              <h2 class="reflex-start-title">REFLEX BLITZ: NUMBERS CATCHER</h2>
+              <p class="reflex-start-desc">Choose your target digit (<strong>1 to 9</strong>). Falling items are <strong>2-digit numbers (10–99)</strong>.<br>You must <strong>ONLY catch numbers that are multiples</strong> of your chosen digit!</p>
+              
+              <div class="reflex-start-selector-label">CHOOSE YOUR MULTIPLE:</div>
+              <div class="reflex-start-digits-grid" id="reflexStartDigitsGrid">
+                <button type="button" class="start-digit-btn" data-choice="1"><span>1</span><small>All Numbers</small></button>
+                <button type="button" class="start-digit-btn" data-choice="2"><span>2</span><small>Even Numbers</small></button>
+                <button type="button" class="start-digit-btn" data-choice="3"><span>3</span><small>Multiples of 3</small></button>
+                <button type="button" class="start-digit-btn" data-choice="4"><span>4</span><small>Multiples of 4</small></button>
+                <button type="button" class="start-digit-btn" data-choice="5"><span>5</span><small>Ends in 0 or 5</small></button>
+                <button type="button" class="start-digit-btn" data-choice="6"><span>6</span><small>Multiples of 6</small></button>
+                <button type="button" class="start-digit-btn" data-choice="7"><span>7</span><small>Multiples of 7</small></button>
+                <button type="button" class="start-digit-btn" data-choice="8"><span>8</span><small>Multiples of 8</small></button>
+                <button type="button" class="start-digit-btn" data-choice="9"><span>9</span><small>Sum of digits 9</small></button>
+              </div>
+              
+              <div class="reflex-start-tips">
+                <span class="tip-item">⚡ 3 Shield Units (Strict 3 Lives)</span>
+                <span class="tip-item">🎯 Catch Multiples for Combos</span>
+                <span class="tip-item">⚠️ Avoid Non-Multiples</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="reflex-hud-banner">
+            <!-- Numbers Mode Multiple Picker: Choose 1, 2, 3, 4, 5, 6, 7, 8, 9 -->
+            <div class="reflex-multiple-picker" id="reflexMultiplePicker">
+              <span class="picker-label">TARGET MULTIPLE:</span>
+              <div class="picker-btns" id="reflexDigitBtns">
+                <button type="button" class="digit-pill" data-digit="1">1</button>
+                <button type="button" class="digit-pill" data-digit="2">2</button>
+                <button type="button" class="digit-pill" data-digit="3">3</button>
+                <button type="button" class="digit-pill" data-digit="4">4</button>
+                <button type="button" class="digit-pill" data-digit="5">5</button>
+                <button type="button" class="digit-pill" data-digit="6">6</button>
+                <button type="button" class="digit-pill" data-digit="7">7</button>
+                <button type="button" class="digit-pill" data-digit="8">8</button>
+                <button type="button" class="digit-pill" data-digit="9">9</button>
+              </div>
+              <button type="button" class="btn-change-divisor" id="btnChangeDivisor" title="Choose a different number (1-9)">Change</button>
+            </div>
+            <!-- Quantum Transmute Badge for Realm/Helix/Meteor -->
+            <div class="transmute-badge" id="transmuteIndicator" style="display:none;">ACTIVE CORE: CHROME DYNAMO</div>
+            
+            <div class="shields-cluster">
+              <span class="shields-label">SHIELDS (3 LIVES):</span>
+              <div class="shields-cells" id="reflexShields"></div>
+            </div>
+          </div>
+          <canvas id="cgCanvasReflex"></canvas>
+        </div>
+
+        <!-- VIEW 3: Memory Matrix (16-Box 4x4 Fullscreen Array Filling Screen) -->
+        <div class="memory-view-container" id="cgViewMemory" style="display:none;">
+          <div class="memory-round-banner" id="memoryRoundLabel">ROUND 1 · WATCH MATRIX SEQUENCE</div>
+          <div class="memory-grid-16" id="memoryGrid"></div>
+        </div>
+
+        <!-- Overlay: Ready / Game Over / Victory (v383 Personalized Realm Glassmorphism) -->
+        <div class="game-screen-overlay" id="cgScreenOverlay" style="display:none;">
+          <div class="screen-card" id="cgScreenCard">
+            <canvas class="oc-go-fx-canvas" id="cgOverlayFxCanvas" aria-hidden="true"></canvas>
+            <span class="oc-go-corner oc-go-c-tl" aria-hidden="true"></span>
+            <span class="oc-go-corner oc-go-c-tr" aria-hidden="true"></span>
+            <span class="oc-go-corner oc-go-c-bl" aria-hidden="true"></span>
+            <span class="oc-go-corner oc-go-c-br" aria-hidden="true"></span>
+
+            <div class="oc-go-content">
+              <div class="oc-go-status-chip" id="cgGoStatusChip" style="display:none;">
+                <span class="oc-go-status-dot"></span>
+                <span id="cgGoStatusText">SYSTEM ALERT</span>
+              </div>
+
+              <div class="screen-glyph" id="cgDefaultGlyph">
+                <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
+                  <circle cx="12" cy="12" r="10" stroke="#00f0ff" stroke-width="2"/>
+                  <path d="M12 6v6l4 2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+
+              <div class="oc-go-emblem-wrap" id="cgRealmEmblemWrap" style="display:none;">
+                <span class="oc-go-emblem-ring"></span>
+                <span class="oc-go-emblem-ring-inner"></span>
+                <span class="oc-go-emblem-clip">
+                  <img id="cgRealmEmblemImg" class="oc-go-emblem-img" src="assets/core-dynamo-t5.png?v=arcade374" alt="" />
+                </span>
+              </div>
+
+              <h2 class="screen-title" id="cgScreenTitle">SIMULATION READY</h2>
+              <div class="oc-go-record-badge" id="cgGoRecordBadge">★ NEW PERSONAL RECORD ★</div>
+              <p class="screen-desc" id="cgScreenDesc">Challenge your computational speed, reflexes, or cognitive pattern recall.</p>
+
+              <div class="oc-go-telemetry" id="cgGoTelemetry" style="display:none;">
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">SCORE</span>
+                  <span class="oc-go-stat-val" id="cgGoScore">0</span>
+                  <span class="oc-go-stat-sub" id="cgGoBestSub">BEST 0</span>
+                </div>
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">ROUND</span>
+                  <span class="oc-go-stat-val" id="cgGoRound">R1</span>
+                  <span class="oc-go-stat-sub" id="cgGoBossSub">GAUNTLET</span>
+                </div>
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">PEAK TIER</span>
+                  <span class="oc-go-stat-val" id="cgGoTier">TIER I</span>
+                  <span class="oc-go-stat-sub" id="cgGoComboSub">MAX 1x</span>
+                </div>
+                <div class="oc-go-stat">
+                  <span class="oc-go-stat-lbl">RANK</span>
+                  <span class="oc-go-stat-val" id="cgGoGrade">A</span>
+                  <span class="oc-go-stat-sub" id="cgGoNodesSub">0 NODES</span>
+                </div>
+              </div>
+
+              <div class="oc-go-tip" id="cgGoTip" style="display:none;"></div>
+
+              <div class="screen-actions oc-go-btn-row">
+                <button type="button" class="screen-btn-primary" id="cgBtnStartAction">ENGAGE</button>
+                <div class="oc-go-quick-row" id="cgGoQuickRow" style="display:none;">
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="dynamo" aria-label="Switch to Chrome Dynamo">
+                    <img class="oc-go-sec-bg-png" src="assets/btn-dynamo-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <img class="oc-go-sec-bg-gif" src="assets/btn-dynamo-anim.gif?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-scrim" aria-hidden="true"></span>
+                    <img class="oc-go-sec-obj" src="assets/btn-obj-dynamo-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">DYNAMO</span>
+                  </button>
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="helix" aria-label="Switch to Chrome Helix">
+                    <img class="oc-go-sec-bg-png" src="assets/btn-helix-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <img class="oc-go-sec-bg-gif" src="assets/btn-helix-anim.gif?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-scrim" aria-hidden="true"></span>
+                    <img class="oc-go-sec-obj" src="assets/btn-obj-helix-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">HELIX</span>
+                  </button>
+                  <button type="button" class="oc-go-sec-btn" data-switch-realm="meteor" aria-label="Switch to Chrome Meteor">
+                    <img class="oc-go-sec-bg-png" src="assets/btn-meteor-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <img class="oc-go-sec-bg-gif" src="assets/btn-meteor-anim.gif?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-scrim" aria-hidden="true"></span>
+                    <img class="oc-go-sec-obj" src="assets/btn-obj-meteor-4k.png?v=arcade384" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">METEOR</span>
+                  </button>
+                  <button type="button" class="oc-go-sec-btn oc-go-sec-btn-ws" id="cgGoExitBtn" aria-label="Return to OrlandoChrome Workspace">
+                    <img class="oc-go-sec-obj oc-go-sec-obj-ws" src="oc-logo.png?v=oc310" alt="" aria-hidden="true" />
+                    <span class="oc-go-sec-lbl">WORKSPACE</span>
+                  </button>
+                </div>
+              </div>
+              <div class="oc-go-kbd-hint" id="cgGoKbdHint" style="display:none;">
+                Press <kbd>ENTER</kbd> or <kbd>R</kbd> to Instant Re-Deploy · <kbd>ESC</kbd> to Exit
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/relative-time.js"></script>
+  <script src="sound.js?v=pure240"></script>
   <script src="qrcode.min.js"></script>
-  <script src="app.js?v=pure73"></script>
+  <script src="app.js?v=arcade392_arsenal_overhaul"></script>
+
+  <!-- BACKUP & RESTORE WORKSPACE MODAL -->
+  <div class="modal-wrap" id="backupRestoreModal" role="dialog" aria-modal="true" aria-label="Backup & Restore Workspace" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
+    <div class="modal-card" style="max-width:440px;width:90%;background:linear-gradient(160deg,#0b101e 0%,#050811 100%);border:1px solid rgba(56,189,248,0.45);border-radius:16px;padding:22px;box-shadow:0 25px 60px rgba(0,0,0,0.9),0 0 28px rgba(56,189,248,0.22);color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="margin:0;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;color:#fff;">
+          <img src="oc-logo.png?v=oc310" alt="OC" style="width:20px;height:20px;border-radius:5px;border:1px solid rgba(212,168,83,0.5);"> Backup &amp; Restore Workspace
+        </h3>
+        <button type="button" id="btnCloseBackupRestoreModal" style="background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;line-height:1;">✕</button>
+      </div>
+      <p style="font-size:12.5px;color:#94a3b8;line-height:1.5;margin-bottom:18px;">
+        Export your entire 22-profile setup, timers, notes, and settings as an encrypted JSON file, or restore an existing backup.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button type="button" class="primary dist-btn" id="modalExportBackupBtn" style="padding:12px;font-weight:700;background:linear-gradient(135deg,#00f0ff,#0284c7,#7c3aed);color:#fff;border-radius:8px;border:1px solid rgba(254,240,138,0.5);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 0 16px rgba(0,240,255,0.35);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Export Workspace Backup (.json)</span>
+        </button>
+        <button type="button" class="ghost dist-btn" id="modalImportBackupBtn" style="padding:12px;font-weight:600;background:rgba(255,255,255,0.06);border:1px solid rgba(56,189,248,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px;color:#e2e8f0;cursor:pointer;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Restore Workspace from File (.json)</span>
+        </button>
+        <input type="file" id="modalImportBackupFile" accept=".json,application/json" style="display:none">
+      </div>
+    </div>
+  </div>
+
+  <!-- SPOTLIGHT COMMAND PALETTE MODAL -->
+  <div class="cmd-palette-modal" id="cmdPaletteModal" role="dialog" aria-modal="true" aria-label="Spotlight Command Palette" style="display:none;">
+    <div class="cmd-palette-backdrop" id="cmdPaletteBackdrop"></div>
+    <div class="cmd-palette-box">
+      <div class="cmd-palette-header">
+        <span class="cmd-palette-search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#38bdf8" stroke-width="2"/><line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="11" r="2" fill="rgba(56,189,248,0.4)"/></svg>
+        </span>
+        <input type="text" id="cmdPaletteInput" class="cmd-palette-input" placeholder="Deep Search: Type any text from messages, reminders, profiles..." autocomplete="off" spellcheck="false">
+        <span class="cmd-palette-esc-badge" id="btnCloseCmdPalette">ESC</span>
+      </div>
+      <div class="cmd-palette-filter-pills" id="cmdFilterPills">
+        <button type="button" class="cmd-filter-pill active" data-cat="all">All Items</button>
+        <button type="button" class="cmd-filter-pill" data-cat="messages">💬 Messages</button>
+        <button type="button" class="cmd-filter-pill" data-cat="reminders">📌 Reminders</button>
+        <button type="button" class="cmd-filter-pill" data-cat="profiles">🌐 Profiles</button>
+        <button type="button" class="cmd-filter-pill" data-cat="actions">⚡ Actions</button>
+      </div>
+      <div class="cmd-palette-results" id="cmdPaletteResults" role="listbox">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="cmd-palette-footer">
+        <div class="cmd-palette-tip">
+          <span><kbd class="cmd-k">↑</kbd><kbd class="cmd-k">↓</kbd> Navigate</span>
+          <span><kbd class="cmd-k">↵</kbd> Select</span>
+          <span><kbd class="cmd-k">Esc</kbd> Close</span>
+        </div>
+        <div class="cmd-palette-brand" style="display:inline-flex;align-items:center;gap:6px;"><img src="oc-logo.png?v=oc310" alt="OC" style="width:14px;height:14px;border-radius:3px;"> ORLANDOCHROME SPOTLIGHT</div>
+      </div>
+    </div>
+  </div>
+  <script src="game.js?v=arcade393_15_chrome_cores"></script>
+  <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
+
 </body>
 </html>
