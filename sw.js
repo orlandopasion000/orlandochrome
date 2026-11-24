@@ -1,13 +1,18 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v388_voidbloom3d';
+const CACHE_NAME = 'orlandochrome-arcade-v389_boss_nova';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade388_voidbloom3d',
-  './game.js?v=arcade388_voidbloom3d',
+  './styles.css?v=arcade389_boss_nova',
+  './game.js?v=arcade389_boss_nova',
   './assets/voidbloom-3d.png?v=arcade388_voidbloom3d',
+  './assets/boss-r1-sentinel.png?v=arcade389_boss_nova',
+  './assets/boss-r2-corruptor.png?v=arcade389_boss_nova',
+  './assets/boss-r3-singularity.png?v=arcade389_boss_nova',
+  './assets/boss-r4-tempest.png?v=arcade389_boss_nova',
+  './assets/boss-r5-omega.png?v=arcade389_boss_nova',
   './qrcode.min.js',
-  './app.js?v=arcade388_voidbloom3d',
+  './app.js?v=arcade389_boss_nova',
   './sound.js?v=pure240',
   './oc-logo.png',
   './oc-logo.svg',

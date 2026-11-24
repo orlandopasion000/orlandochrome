@@ -1861,13 +1861,13 @@
     });
   });
 
-  // Preload all 5 Bespoke Sovereign Round Boss Sprites (Rounds 1 -> 5+)
+  // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
-    1: 'assets/boss-r1-sentinel.png?v=arcade382',
-    2: 'assets/boss-r2-corruptor.png?v=arcade382',
-    3: 'assets/boss-r3-singularity.png?v=arcade382',
-    4: 'assets/boss-r4-tempest.png?v=arcade382',
-    5: 'assets/boss-r5-omega.png?v=arcade382'
+    1: 'assets/boss-r1-sentinel.png?v=arcade389_boss_nova',
+    2: 'assets/boss-r2-corruptor.png?v=arcade389_boss_nova',
+    3: 'assets/boss-r3-singularity.png?v=arcade389_boss_nova',
+    4: 'assets/boss-r4-tempest.png?v=arcade389_boss_nova',
+    5: 'assets/boss-r5-omega.png?v=arcade389_boss_nova'
   };
   Object.keys(BOSS_SPRITE_FILES).forEach((bKey) => {
     const img = new Image();
@@ -4796,6 +4796,7 @@
           amber:   makeGlow([[0, 'rgba(255,250,210,0.92)'], [0.38, 'rgba(251,146,60,0.65)'], [0.75, 'rgba(220,38,38,0.20)'], [1, 'rgba(153,27,27,0)']]),
           gold:    makeGlow([[0, 'rgba(255,253,225,0.95)'], [0.40, 'rgba(250,204,21,0.65)'], [0.78, 'rgba(234,88,12,0.22)'], [1, 'rgba(154,52,18,0)']]),
           crimson: makeGlow([[0, 'rgba(244,63,94,0.54)'], [0.50, 'rgba(159,18,57,0.22)'], [1, 'rgba(136,19,55,0)']]),
+          violet:  makeGlow([[0, 'rgba(245,208,254,0.75)'], [0.42, 'rgba(192,132,252,0.42)'], [0.78, 'rgba(126,34,206,0.18)'], [1, 'rgba(88,28,135,0)']]),
           emerald: makeGlow([[0, 'rgba(16,185,129,0.52)'], [0.48, 'rgba(147,51,234,0.24)'], [1, 'rgba(88,28,135,0)']]),
           emberPt: makeGlow([[0, 'rgba(255,255,235,0.98)'], [0.42, 'rgba(251,146,60,0.78)'], [1, 'rgba(220,38,38,0)']]),
           cyanPt:  makeGlow([[0, 'rgba(240,253,255,0.98)'], [0.42, 'rgba(56,189,248,0.82)'], [1, 'rgba(59,130,246,0)']]),
@@ -6158,11 +6159,12 @@
     },
     ult: {
       cooldownMs: 35000,     // ULT_CD = 35 s
-      bossMaxHpPct: 0.15,    // Deals 15% of boss max HP
-      invulnMs: 1500,        // 1.5 s invulnerability on cast
-      killChargeMs: 1200,    // Optional bonus cooldown charge per destroyed hazard/Voidbloom
-      durationMs: 950,       // Piercing solar beam + shockwave animation duration
-      screenShake: 28
+      bossMaxHpPct: 0.15,    // Deals EXACT certain 15% of boss max HP (no crit / armor-break inflation)
+      bossPylonDmg: 6,       // Certain fixed damage to active shield pylons (no instant wipe)
+      invulnMs: 1650,        // 1.65 s invulnerability on cast
+      killChargeMs: 1200,    // Bonus cooldown charge per destroyed hazard/Voidbloom
+      durationMs: 1200,      // Continuous total-purge solar beam + triple shockwave duration
+      screenShake: 34
     },
     voidbloom: {
       firstSpawnSec: 12,
@@ -6967,7 +6969,7 @@
       const cy = (state.catcherY || 0.82) * h;
 
       this.ultCdMs = CONFIG.ult.cooldownMs;
-      // Grant 1.5 s invulnerability
+      // Grant invulnerability & intense cataclysm recoil
       state.playerInvulnUntil = Math.max(state.playerInvulnUntil || 0, now + CONFIG.ult.invulnMs);
       state.globalScreenShake = Math.max(state.globalScreenShake || 0, CONFIG.ult.screenShake);
 
@@ -6976,52 +6978,39 @@
         y: cy,
         startAt: now,
         durationMs: CONFIG.ult.durationMs,
-        maxRadius: Math.hypot(w, h)
+        maxRadius: Math.hypot(w, h) * 1.15
       };
 
-      // 1. Clear ALL incoming hostile bolides/hazards on screen (never destroys good collectible nodes!)
-      let clearedHazards = 0;
-      for (let i = state.particles.length - 1; i >= 0; i--) {
-        const pt = state.particles[i];
-        if (isHazardNode(pt.nodeClass)) {
-          RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fbbf24', 8);
-          state.score += 300;
-          clearedHazards++;
-          state.particles.splice(i, 1);
-        }
-      }
-      // Clear active boss projectiles & hazard lasers/shockwaves
-      state.bossBullets = [];
-      state.bossBeams = [];
-      state.hazardLasers = [];
-      state.empShockwaves = [];
+      // 1 & 2. TOTAL PURGE of ALL bad nodes, powered hazards, shrapnel, Voidbloom nodes & telegraphs,
+      // hostile boss bullets/beams/shock rings, hazard lasers & EMP shockwaves (never destroys good nodes!)
+      const purge = this._purgeAllBadEntities(now, true);
 
-      // 2. Destroy EVERY Voidbloom Node on screen instantly with full size-scaled rewards!
-      const vbDestroyed = VoidbloomEngine.destroyAllByNova(now);
-
-      // 3. Deal heavy Boss Damage (15% of boss max HP) & shatter active Shield Pylons!
+      // 3. Deal CERTAIN / CAPPED Boss Damage ONLY (exact 15% of boss max HP — zero armor-break/crit inflation!)
+      //    and fixed certain damage (6 dmg) to active Shield Pylons instead of instant-wiping them.
       let bossDmgDealt = 0;
       if (state.boss && state.boss.phase === 'fighting') {
         if (state.boss.pylons) {
+          const pylonDmg = CONFIG.ult.bossPylonDmg || 6;
           for (let i = 0; i < state.boss.pylons.length; i++) {
             if (state.boss.pylons[i].hp > 0) {
-              RoundBossEngine.damagePylon(state.boss.pylons[i], 999, now, state.boss.pylons[i].x, state.boss.pylons[i].y);
+              RoundBossEngine.damagePylon(state.boss.pylons[i], pylonDmg, now, state.boss.pylons[i].x, state.boss.pylons[i].y);
             }
           }
         }
         bossDmgDealt = Math.max(8, Math.round(state.boss.maxHp * CONFIG.ult.bossMaxHpPct));
-        RoundBossEngine.damageBoss(bossDmgDealt, now, true, state.boss.x, state.boss.y);
+        RoundBossEngine.damageBoss(bossDmgDealt, now, true, state.boss.x, state.boss.y, true);
       }
 
       audio.playCalderaNova();
       const summaryParts = [];
       if (bossDmgDealt > 0) summaryParts.push(`-${bossDmgDealt} BOSS HP`);
-      if (vbDestroyed > 0) summaryParts.push(`${vbDestroyed} VOIDBLOOM VAPORIZED`);
-      if (clearedHazards > 0) summaryParts.push(`${clearedHazards} HAZARDS CLEARED`);
+      if (purge.vbDestroyed > 0) summaryParts.push(`${purge.vbDestroyed} VOIDBLOOM PURGED`);
+      if (purge.riftsCollapsed > 0) summaryParts.push(`${purge.riftsCollapsed} RIFT COLLAPSED`);
+      if (purge.clearedHazards > 0) summaryParts.push(`${purge.clearedHazards} BAD NODES DESTROYED`);
       state.floatingTexts.push({
         x: cx,
         y: Math.max(120, cy - 72),
-        text: `☄️ ${CONFIG.names.ult}!` + (summaryParts.length ? ` · ${summaryParts.join(' · ')}` : ' · INVULNERABLE 1.5s'),
+        text: `☄️ ${CONFIG.names.ult}!` + (summaryParts.length ? ` · ${summaryParts.join(' · ')}` : ' · TOTAL PURGE · INVULNERABLE'),
         color: '#fde047',
         alpha: 1.0,
         startTime: now
@@ -7029,6 +7018,58 @@
       updateHeaderUI();
       TouchFireControls.syncSkillCooldownUI();
       return true;
+    },
+
+    // === CHANGED (v389): Guaranteed 100% Bad-Node & Hostile Projectile Purge (called on cast & continuously during Nova!) ===
+    _purgeAllBadEntities(now, isInitialCast = false) {
+      let clearedHazards = 0;
+      if (!state.vaporizedShards) state.vaporizedShards = [];
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const pt = state.particles[i];
+        if (!pt) continue;
+        if (isHazardNode(pt.nodeClass) || pt.isShard) {
+          RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fbbf24', 10);
+          // Burst radiant golden-crimson debris shards so the player sees every bad node disintegrate!
+          for (let sh = 0; sh < 8; sh++) {
+            if (state.vaporizedShards.length >= 160) break;
+            const sAng = Math.random() * Math.PI * 2;
+            const sSpd = 3.5 + Math.random() * 6.5;
+            state.vaporizedShards.push({
+              x: pt.x,
+              y: pt.y,
+              vx: Math.cos(sAng) * sSpd,
+              vy: Math.sin(sAng) * sSpd,
+              size: 2.6 + Math.random() * 3.2,
+              color: (sh % 2 === 0) ? '#fde047' : '#f43f5e',
+              life: 0,
+              maxLife: 22 + Math.floor(Math.random() * 14)
+            });
+          }
+          state.score += 300;
+          clearedHazards++;
+          state.particles.splice(i, 1);
+          this.onEnemyDestroyed();
+        }
+      }
+
+      // Clear ALL hostile projectiles, beams, lasers, EMP shockwaves & hostile Boss shock rings
+      if (state.bossBullets && state.bossBullets.length) state.bossBullets = [];
+      if (state.bossBeams && state.bossBeams.length) state.bossBeams = [];
+      if (state.hazardLasers && state.hazardLasers.length) state.hazardLasers = [];
+      if (state.empShockwaves && state.empShockwaves.length) state.empShockwaves = [];
+      if (state.bossShockRings && state.bossShockRings.length) {
+        state.bossShockRings = state.bossShockRings.filter(r => r && r.harmless === true);
+      }
+
+      // Destroy EVERY live Voidbloom Node AND collapse EVERY incoming Voidbloom Rift Telegraph!
+      const vbRes = VoidbloomEngine.destroyAllByNova(now);
+      const vbDestroyed = (typeof vbRes === 'object' && vbRes) ? (vbRes.nodes || 0) : (vbRes || 0);
+      const riftsCollapsed = (typeof vbRes === 'object' && vbRes) ? (vbRes.rifts || 0) : 0;
+
+      if (!isInitialCast && (clearedHazards > 0 || vbDestroyed > 0 || riftsCollapsed > 0)) {
+        updateHeaderUI();
+      }
+      return { clearedHazards, vbDestroyed, riftsCollapsed };
     },
 
     _getLiveTargetPos(m) {
@@ -7225,49 +7266,90 @@
       }
       ctx.restore();
 
-      // 4. Render Active CALDERA NOVA Piercing Beam + Shockwave + Radiant Flash
+      // 4. Render Active CALDERA NOVA Piercing Beam + Triple Shockwave + Continuous Total Bad-Node Purge!
       if (this.activeNova) {
         const nv = this.activeNova;
         const elapsed = now - nv.startAt;
         if (elapsed >= nv.durationMs) {
           this.activeNova = null;
         } else {
+          // Continuously vaporize ANY bad node, Voidbloom, rift telegraph, or boss projectile during the entire Nova wave!
+          this._purgeAllBadEntities(now, false);
+
           const p = elapsed / nv.durationMs;
-          const fade = 1 - p;
-          const beamW = Math.max(24, (130 * (1 - p * 0.55)));
-          const ringR = nv.maxRadius * Math.pow(p, 0.65);
+          const fade = Math.pow(1 - p, 0.82);
+          const beamW = Math.max(28, 168 * (1 - p * 0.52));
+          const ringR = nv.maxRadius * Math.pow(p, 0.60);
 
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
 
-          // Full-screen Solar Flash
-          if (p < 0.35) {
-            const fAlpha = (1 - p / 0.35) * 0.42;
-            ctx.fillStyle = `rgba(253, 224, 71, ${fAlpha})`;
+          // Full-screen Solar-Caldera Cataclysm Flash
+          if (p < 0.38) {
+            const fAlpha = (1 - p / 0.38) * 0.48;
+            const flashGrad = ctx.createRadialGradient(nv.x, nv.y, 12, nv.x, nv.y, nv.maxRadius * 0.85);
+            flashGrad.addColorStop(0.0, `rgba(255, 255, 255, ${fAlpha * 1.15})`);
+            flashGrad.addColorStop(0.35, `rgba(253, 224, 71, ${fAlpha * 0.9})`);
+            flashGrad.addColorStop(0.75, `rgba(249, 115, 22, ${fAlpha * 0.52})`);
+            flashGrad.addColorStop(1.0, 'rgba(225, 29, 72, 0)');
+            ctx.fillStyle = flashGrad;
             ctx.fillRect(0, 0, w, h);
           }
 
-          // Massive Piercing Vertical Solar-Caldera Beam
-          const beamGrad = ctx.createLinearGradient(nv.x - beamW, 0, nv.x + beamW, 0);
-          beamGrad.addColorStop(0.0, 'rgba(234, 88, 12, 0)');
-          beamGrad.addColorStop(0.25, `rgba(249, 115, 22, ${fade * 0.75})`);
-          beamGrad.addColorStop(0.50, `rgba(255, 255, 255, ${fade * 0.95})`);
-          beamGrad.addColorStop(0.75, `rgba(250, 204, 21, ${fade * 0.75})`);
-          beamGrad.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
-          ctx.fillStyle = beamGrad;
-          ctx.fillRect(nv.x - beamW, 0, beamW * 2, nv.y + 40);
+          // 12 Rotating Radial Solar God-Rays bursting from the Core
+          ctx.save();
+          ctx.translate(nv.x, nv.y);
+          ctx.rotate(p * 0.55);
+          const rayLen = nv.maxRadius * (0.45 + p * 0.72);
+          for (let rIdx = 0; rIdx < 12; rIdx++) {
+            const ang = (rIdx * Math.PI * 2) / 12;
+            const spread = 0.055 * (1 - p * 0.45);
+            ctx.fillStyle = (rIdx % 2 === 0)
+              ? `rgba(253, 224, 71, ${fade * 0.24})`
+              : `rgba(249, 115, 22, ${fade * 0.18})`;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(ang - spread) * rayLen, Math.sin(ang - spread) * rayLen);
+            ctx.lineTo(Math.cos(ang + spread) * rayLen, Math.sin(ang + spread) * rayLen);
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.restore();
 
-          // Expanding Piercing Caldera Shockwave Ring
-          ctx.strokeStyle = `rgba(253, 224, 71, ${fade * 0.92})`;
-          ctx.lineWidth = Math.max(3, 18 * fade);
+          // Massive Piercing Triple-Layer Vertical Solar-Caldera Pillar
+          const beamGrad = ctx.createLinearGradient(nv.x - beamW, 0, nv.x + beamW, 0);
+          beamGrad.addColorStop(0.0, 'rgba(225, 29, 72, 0)');
+          beamGrad.addColorStop(0.18, `rgba(244, 63, 94, ${fade * 0.55})`);
+          beamGrad.addColorStop(0.34, `rgba(249, 115, 22, ${fade * 0.82})`);
+          beamGrad.addColorStop(0.50, `rgba(255, 255, 255, ${fade * 0.98})`);
+          beamGrad.addColorStop(0.66, `rgba(250, 204, 21, ${fade * 0.82})`);
+          beamGrad.addColorStop(0.82, `rgba(244, 63, 94, ${fade * 0.55})`);
+          beamGrad.addColorStop(1.0, 'rgba(225, 29, 72, 0)');
+          ctx.fillStyle = beamGrad;
+          ctx.fillRect(nv.x - beamW, 0, beamW * 2, nv.y + 44);
+
+          // Blinding White-Gold Inner Core Spine
+          const coreW = beamW * 0.28;
+          ctx.fillStyle = `rgba(255, 255, 255, ${fade * 0.90})`;
+          ctx.fillRect(nv.x - coreW, 0, coreW * 2, nv.y + 20);
+
+          // Triple Staggered Expanding Caldera Shockwave Fronts
+          ctx.strokeStyle = `rgba(254, 240, 138, ${fade * 0.96})`;
+          ctx.lineWidth = Math.max(4, 24 * fade);
           ctx.beginPath();
           ctx.arc(nv.x, nv.y, ringR, 0, Math.PI * 2);
           ctx.stroke();
 
-          ctx.strokeStyle = `rgba(244, 63, 94, ${fade * 0.65})`;
+          ctx.strokeStyle = `rgba(249, 115, 22, ${fade * 0.80})`;
+          ctx.lineWidth = Math.max(3, 15 * fade);
+          ctx.beginPath();
+          ctx.arc(nv.x, nv.y, ringR * 0.80, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(244, 63, 94, ${fade * 0.72})`;
           ctx.lineWidth = Math.max(2, 10 * fade);
           ctx.beginPath();
-          ctx.arc(nv.x, nv.y, ringR * 0.78, 0, Math.PI * 2);
+          ctx.arc(nv.x, nv.y, ringR * 0.60, 0, Math.PI * 2);
           ctx.stroke();
 
           ctx.restore();
@@ -7431,6 +7513,7 @@
       updateHeaderUI();
     },
 
+    // === CHANGED (v389): Caldera Nova destroys EVERY live Voidbloom Node AND collapses ALL incoming Voidbloom Rifts! ===
     destroyAllByNova(now) {
       let count = 0;
       for (let i = this.nodes.length - 1; i >= 0; i--) {
@@ -7440,7 +7523,27 @@
         }
       }
       this.nodes = this.nodes.filter(n => n.active);
-      return count;
+
+      let riftCount = 0;
+      for (let t = this.telegraphs.length - 1; t >= 0; t--) {
+        const tg = this.telegraphs[t];
+        this._emitParticles(tg.x, tg.y, '#a3e635', 14, 5.8);
+        this._emitParticles(tg.x, tg.y, '#fde047', 10, 6.4);
+        state.score += 250;
+        RoundBossEngine.addAmmo(6);
+        SkillSystem.onEnemyDestroyed();
+        state.floatingTexts.push({
+          x: tg.x,
+          y: tg.y - 10,
+          text: '☠ VOIDBLOOM RIFT COLLAPSED! +250 · +6 AMMO',
+          color: '#fde047',
+          alpha: 1.0,
+          startTime: now
+        });
+        riftCount++;
+      }
+      this.telegraphs = [];
+      return { nodes: count, rifts: riftCount };
     },
 
     hitByShot(sx, sy, dmg, now, source = 'shot') {
@@ -7516,8 +7619,8 @@
     tick(dt, ctx, cx, cy, u, dtScale, now, w, h) {
       const cfg = CONFIG.voidbloom;
 
-      // 1. Periodic Telegraphed Spawner (respects maxAlive and never spawns during cleared/warning transition)
-      if (state.roundPhase === 'gauntlet' || state.roundPhase === 'boss') {
+      // 1. Periodic Telegraphed Spawner (respects maxAlive, pauses while Caldera Nova is erupting)
+      if ((state.roundPhase === 'gauntlet' || state.roundPhase === 'boss') && !SkillSystem.activeNova) {
         const totalAlive = this.nodes.length + this.telegraphs.length;
         if (totalAlive < cfg.maxAlive) {
           this.nextSpawnInMs -= dt;
@@ -7796,8 +7899,8 @@
       quota: 48,
       minDurationSec: 45,
       baseHp: 50,
-      drawW: 248,
-      hitR: 72,
+      drawW: 266,
+      hitR: 74,
       pylonCount: 0,
       subtitle: 'AEGIS ORBITAL SENTINEL · ROUND 1 BOSS',
       names: { dynamo: 'VOLTAIC WARDEN', helix: 'RIBOSOME GUARDIAN', meteor: 'OBSIDIAN BASALT TITAN' },
@@ -7808,8 +7911,8 @@
       quota: 60,
       minDurationSec: 55,
       baseHp: 85,
-      drawW: 228,
-      hitR: 74,
+      drawW: 248,
+      hitR: 76,
       pylonCount: 0,
       subtitle: 'CORRUPTOR PRISM SOVEREIGN · ROUND 2 BOSS',
       names: { dynamo: 'TESLA ANNIHILATOR', helix: 'MUTAGEN HYDRA', meteor: 'MAGMA RAIL-CARRIER' },
@@ -7820,8 +7923,8 @@
       quota: 72,
       minDurationSec: 65,
       baseHp: 125,
-      drawW: 218,
-      hitR: 78,
+      drawW: 242,
+      hitR: 80,
       pylonCount: 2,
       subtitle: 'SINGULARITY LEVIATHAN · ROUND 3 BOSS',
       names: { dynamo: 'MAGNETAR VORTEX', helix: 'CHIRAL ABYSSAL COIL', meteor: 'ACCRETION DEVOURER' },
@@ -7832,8 +7935,8 @@
       quota: 84,
       minDurationSec: 75,
       baseHp: 175,
-      drawW: 256,
-      hitR: 76,
+      drawW: 274,
+      hitR: 78,
       pylonCount: 2,
       subtitle: 'TEMPEST ARCH-HYDRA · ROUND 4 BOSS',
       names: { dynamo: 'ARCVOLT EMPEROR', helix: 'PRION SERAPH', meteor: 'HYPERNOVA COLOSSUS' },
@@ -7844,8 +7947,8 @@
       quota: 96,
       minDurationSec: 85,
       baseHp: 240,
-      drawW: 300,
-      hitR: 84,
+      drawW: 316,
+      hitR: 86,
       pylonCount: 3,
       subtitle: 'OMEGA ANTICORE · FALLEN CHROME ARCHON',
       names: { dynamo: 'ANTIMATTER SERAPH · OMEGA', helix: 'ENTROPY ARCHON · OMEGA', meteor: 'ECLIPSE MAGNETAR · OMEGA' },
@@ -8031,10 +8134,7 @@
       const spec = this.getSpec(state.currentRound, state.catcherType);
       state.roundPhase = 'warning';
       state.bossWarningUntil = now + 2300;
-      // Clear lingering hazards cleanly so player enters Boss Arena fairly
-      state.particles = state.particles.filter(pt => !isHazardNode(pt.nodeClass));
-      state.hazardLasers = [];
-      state.empShockwaves = [];
+      // === CHANGED (v389): Keep all existing bad nodes, powered hazards, lasers & shockwaves alive when Boss arrives! ===
       state.roundBanner = {
         title: `⚠ WARNING · ROUND ${spec.round} BOSS`,
         // === CHANGED (v387): Theme-aligned skill prompts for touch vs desktop ===
@@ -8064,9 +8164,11 @@
         accent: spec.accent,
         mode: mode,
         x: w * 0.5,
+        prevX: w * 0.5,
         y: skipIntro ? targetY : -140,
         targetY: targetY,
         vx: 0,
+        bankAngle: 0,
         drawW: spec.drawW * scaleM,
         hitR: spec.hitR * scaleM,
         hp: spec.maxHp,
@@ -8081,6 +8183,12 @@
         movePhase: 0,
         nextAttackAt: now + (skipIntro ? 900 : 1900),
         nextSupplyAt: now + 2800,
+        // === CHANGED (v389): Boss active Powered Bad Node production timer & wing-emitter flare ===
+        nextHazardAt: now + (skipIntro ? 1800 : 3200),
+        emitterFlashUntil: 0,
+        emitterFlashX: 0,
+        emitterSide: 1,
+        bossHazardsDeployed: 0,
         spiralAngle: 0,
         attackStep: 0,
         dashState: null,
@@ -8161,30 +8269,33 @@
       }
     },
 
-    damageBoss(rawDmg, now, isSpecial = false, hx = null, hy = null) {
+    damageBoss(rawDmg, now, isSpecial = false, hx = null, hy = null, exactDamage = false) {
       const boss = state.boss;
       if (!boss || boss.phase !== 'fighting') return;
 
       const isArmorBroken = (boss.armorBreakUntil && now < boss.armorBreakUntil);
       const tierCritChance = (state.coreTier >= 5) ? 0.30 : (state.coreTier === 4 ? 0.20 : 0.06);
-      const isCrit = isSpecial || isArmorBroken || (Math.random() < tierCritChance);
-      let finalDmg = rawDmg * (isArmorBroken ? 1.5 : (isCrit && !isSpecial ? 1.5 : 1.0));
+      const isCrit = exactDamage ? false : (isSpecial || isArmorBroken || (Math.random() < tierCritChance));
+      // === CHANGED (v389): Caldera Nova (exactDamage = true) deals exact certain capped damage (no crit/armor-break inflation!) ===
+      const finalDmg = exactDamage
+        ? rawDmg
+        : rawDmg * (isArmorBroken ? 1.5 : (isCrit && !isSpecial ? 1.5 : 1.0));
       boss.hp = Math.max(0, boss.hp - finalDmg);
-      boss.hitFlashUntil = now + 68;
-      boss.recoilY = Math.max(-9, boss.recoilY - 3.8);
+      boss.hitFlashUntil = now + (exactDamage ? 180 : 68);
+      boss.recoilY = Math.max(-12, boss.recoilY - (exactDamage ? 7.5 : 3.8));
 
       const hitX = hx !== null ? hx : boss.x;
       const hitY = hy !== null ? hy : boss.y;
-      this._spawnHitSparks(hitX, hitY, isCrit ? '#fde047' : '#38bdf8', isCrit ? 6 : 3);
-      audio.playBossHit(isCrit);
+      this._spawnHitSparks(hitX, hitY, (exactDamage || isCrit) ? '#fde047' : '#38bdf8', exactDamage ? 14 : (isCrit ? 6 : 3));
+      audio.playBossHit(exactDamage || isCrit);
 
       // Award crisp score tick per hit
       state.score += Math.round(finalDmg * 45);
-      if (isCrit || isSpecial) {
+      if (exactDamage || isCrit || isSpecial) {
         state.floatingTexts.push({
           x: hitX + (Math.random() - 0.5) * 26,
-          y: hitY - 12,
-          text: isSpecial ? `⚡ -${Math.round(finalDmg)} BLAST!` : `CRIT -${finalDmg.toFixed(1)}`,
+          y: hitY - 14,
+          text: exactDamage ? `☄️ NOVA -${Math.round(finalDmg)} HP` : (isSpecial ? `⚡ -${Math.round(finalDmg)} BLAST!` : `CRIT -${finalDmg.toFixed(1)}`),
           color: '#fde047',
           alpha: 1.0,
           startTime: now
@@ -8550,6 +8661,140 @@
       ctx.restore();
     },
 
+    // === CHANGED (v389): BOSS ACTIVE POWERED BAD-NODE DEPLOYMENT ENGINE ===
+    // While fighting, each Sovereign Boss manufactures and launches Round-tailored
+    // Powered Bad Nodes (Hyper-Comet, Corruptor Laser, Gravity Well, EMP Detonator,
+    // Phase Stalker + Round 5+ occasional 3D Voidbloom Rift) directly from its wing emitters!
+    _spawnBossPoweredHazard(boss, now, w, h) {
+      if (!boss || boss.phase !== 'fighting' || SkillSystem.activeNova) return false;
+
+      const maxBossHazards = Math.min(4, 2 + (boss.round >= 3 ? 1 : 0) + (boss.enraged ? 1 : 0));
+      const activeHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
+      if (activeHazards >= maxBossHazards) return false;
+
+      // Alternate left / right Boss wing emitter pods
+      boss.emitterSide = -(boss.emitterSide || 1);
+      const emitterOffsetX = boss.emitterSide * boss.drawW * 0.30;
+      const launchX = Math.max(54, Math.min(w - 54, boss.x + emitterOffsetX));
+      const launchY = Math.max(88, boss.y + boss.hitR * 0.44);
+
+      boss.emitterFlashUntil = now + 560;
+      boss.emitterFlashX = emitterOffsetX;
+      boss.bossHazardsDeployed = (boss.bossHazardsDeployed || 0) + 1;
+
+      // Round 5+ Apex Boss: 22% chance to tear open a 3D Voidbloom Rift directly from its wing emitter!
+      if (boss.bossId >= 5 && Math.random() < 0.22 && (VoidbloomEngine.nodes.length + VoidbloomEngine.telegraphs.length) < CONFIG.voidbloom.maxAlive) {
+        VoidbloomEngine.scheduleTelegraph(w, h, boss.x, now, launchX);
+        this._spawnHitSparks(launchX, launchY, '#a3e635', 12);
+        state.floatingTexts.push({
+          x: launchX,
+          y: launchY + 14,
+          text: '☠ BOSS OPENED VOIDBLOOM RIFT!',
+          color: '#a3e635',
+          alpha: 1.0,
+          startTime: now
+        });
+        return true;
+      }
+
+      // Select Round-tailored Powered Bad Node class
+      const pools = {
+        1: ['hyper_comet', 'corruptor_laser'],
+        2: ['corruptor_laser', 'hyper_comet', 'gravity_well'],
+        3: ['gravity_well', 'emp_detonator', 'hyper_comet'],
+        4: ['phase_stalker', 'hyper_comet', 'emp_detonator', 'corruptor_laser'],
+        5: ['hyper_comet', 'corruptor_laser', 'gravity_well', 'emp_detonator', 'phase_stalker']
+      };
+      const pool = pools[boss.bossId] || pools[5];
+      const nClass = pool[Math.floor(Math.random() * pool.length)];
+
+      const headRadiusMap = {
+        hyper_comet: 29.0,
+        corruptor_laser: 32.0,
+        gravity_well: 33.0,
+        emp_detonator: 31.0,
+        phase_stalker: 30.0
+      };
+      const speedMultMap = {
+        hyper_comet: 1.0,
+        corruptor_laser: 0.72,
+        gravity_well: 0.78,
+        emp_detonator: 0.84,
+        phase_stalker: 0.96
+      };
+      const labelMap = {
+        hyper_comet: 'HYPER-COMET',
+        corruptor_laser: 'CORRUPTOR LASER',
+        gravity_well: 'GRAVITY WELL',
+        emp_detonator: 'EMP DETONATOR',
+        phase_stalker: 'PHASE STALKER'
+      };
+
+      const pType = (state.gameType === 'realm') ? 'dynamo' : (state.gameType || 'meteor');
+      const normFactor = Math.max(0.75, Math.min(1.45, h / 720));
+      const baseSpeed = 2.05 + (boss.round - 1) * 0.14 + (boss.enraged ? 0.25 : 0);
+      const actualSpeed = baseSpeed * normFactor;
+
+      const p = {
+        type: pType,
+        nodeClass: nClass,
+        bossSpawned: true,
+        x: launchX,
+        y: launchY,
+        vx: boss.emitterSide * 0.55,
+        speed: actualSpeed * (speedMultMap[nClass] || 0.9),
+        baseSpeed: baseSpeed,
+        headR: headRadiusMap[nClass] || 30.0,
+        hasSplit: false,
+        hasDetonated: false,
+        hasGrazed: false,
+        phantomAlpha: 1.0,
+        animPhase: Math.random() * Math.PI * 2,
+        tumbleDir: Math.random() < 0.5 ? 1 : -1,
+        cometPhase: (nClass === 'hyper_comet') ? 'charging' : null,
+        cometChargeEnd: (nClass === 'hyper_comet') ? (now + 900) : 0,
+        cometDiveSpeed: actualSpeed * 3.45,
+        flameEmbers: [],
+        laserState: 'idle',
+        laserCharge: 0,
+        laserChargeStart: 0,
+        laserTargets: [],
+        laserSalvosLeft: 2,
+        laserNextReady: now + 750,
+        empCharge: 0,
+        empNextPulse: now + 1500,
+        blinkState: 'idle',
+        blinkProgress: 0,
+        blinkStartTime: 0,
+        blinkTargetX: launchX,
+        blinkTargetY: Math.min(h * 0.45, launchY + 120),
+        blinksLeft: boss.enraged ? 2 : 1,
+        spine: [],
+        stardust: []
+      };
+      for (let j = 0; j < 8; j++) {
+        p.spine.push({ x: launchX, y: launchY - j * 8.0 });
+      }
+      state.particles.push(p);
+
+      // Visual & Audio Boss Deployment Telegraph
+      this._spawnHitSparks(launchX, launchY, boss.accent || '#f43f5e', 12);
+      if (nClass === 'hyper_comet') {
+        audio.playHyperCometRoar();
+      } else {
+        audio.playPhaseSwitch();
+      }
+      state.floatingTexts.push({
+        x: launchX,
+        y: launchY + 16,
+        text: `⚡ BOSS DEPLOYED ${labelMap[nClass] || 'POWERED HAZARD'}!`,
+        color: boss.accent || '#fb923c',
+        alpha: 1.0,
+        startTime: now
+      });
+      return true;
+    },
+
     // ─── BOSS AI, ATTACK PATTERNS, BULLETS, BEAMS & RENDERING ───
     updateAndDrawBossSystem(ctx, cx, cy, u, dtScale, now, w, h, spawnSupplyNodeFn) {
       // 1. Check Transitions (Warning -> Spawn Boss; Cleared -> Advance Round!)
@@ -8596,6 +8841,7 @@
           const speedMult = (boss.enraged ? 1.32 : 1.0) * (1 + (boss.round - 1) * 0.08);
           boss.movePhase += 0.015 * dtScale * speedMult;
 
+          const prevBossX = boss.x;
           // Boss 4 Tempest Dash-Strafe Logic
           if (boss.dashState) {
             const ds = boss.dashState;
@@ -8612,6 +8858,11 @@
             boss.x = w * 0.5 + Math.sin(boss.movePhase) * span;
             boss.y = boss.targetY + Math.sin(boss.movePhase * 1.9) * 14 + boss.recoilY;
           }
+          // Smooth 3D Velocity-Driven Banking Tilt
+          boss.vx = boss.x - prevBossX;
+          boss.prevX = boss.x;
+          const targetBank = Math.max(-0.15, Math.min(0.15, boss.vx * 0.024));
+          boss.bankAngle = (boss.bankAngle || 0) + (targetBank - (boss.bankAngle || 0)) * Math.min(1, 0.14 * dtScale);
 
           // Update Orbiting Shield Pylons
           if (boss.pylons && boss.pylons.length > 0) {
@@ -8631,25 +8882,98 @@
             spawnSupplyNodeFn(boss.x);
           }
 
-          // Execute Round-Specific Boss Attack Choreography
-          if (now >= boss.nextAttackAt) {
+          // === CHANGED (v389): Boss Actively Produces Powered Bad Nodes During Boss Combat! ===
+          if (now >= (boss.nextHazardAt || 0) && !SkillSystem.activeNova) {
+            this._spawnBossPoweredHazard(boss, now, w, h);
+            const hazInterval = boss.enraged
+              ? Math.max(2900, 4300 - boss.round * 220)
+              : Math.max(3900, 5600 - boss.round * 240);
+            boss.nextHazardAt = now + hazInterval;
+          }
+
+          // Execute Round-Specific Boss Attack Choreography (pauses cleanly during Caldera Nova eruption)
+          if (now >= boss.nextAttackAt && !SkillSystem.activeNova) {
             this._executeBossAttack(boss, cx, cy, now, w, h);
           }
         }
 
-        // ─── RENDER BOSS BODY & EFFECTS ───
+        // ─── RENDER 6-LAYER VOLUMETRIC 3D SOVEREIGN BOSS & LIVE SHADER FX (v389) ───
         const bSpr = LayeredT4Assets.bosses[boss.bossId];
         const bLoaded = LayeredT4Assets.loaded.bosses[boss.bossId];
+        const bossPalettes = {
+          1: { ring: 'rgba(244, 63, 94, 0.72)', ring2: 'rgba(56, 189, 248, 0.58)', core: 'crimson', thrust: '#38bdf8' },
+          2: { ring: 'rgba(232, 121, 249, 0.78)', ring2: 'rgba(250, 204, 21, 0.55)', core: 'violet', thrust: '#e879f9' },
+          3: { ring: 'rgba(251, 146, 60, 0.80)', ring2: 'rgba(253, 224, 71, 0.62)', core: 'amber', thrust: '#fb923c' },
+          4: { ring: 'rgba(249, 115, 22, 0.82)', ring2: 'rgba(254, 240, 138, 0.65)', core: 'amber', thrust: '#f97316' },
+          5: { ring: 'rgba(251, 191, 36, 0.88)', ring2: 'rgba(255, 255, 255, 0.72)', core: 'gold', thrust: '#fde047' }
+        };
+        const pal = bossPalettes[boss.bossId] || bossPalettes[1];
+        const breath = 1.0 + Math.sin(now * 0.0042) * 0.024;
+        const aspect = (bSpr && bLoaded && bSpr.naturalWidth > 0) ? (bSpr.naturalHeight / bSpr.naturalWidth) : 1.0;
+        const dw = boss.drawW * breath;
+        const dh = dw * aspect;
+        const bank = (boss.bankAngle || 0) + Math.sin(boss.movePhase) * 0.032;
+        const foreshortenX = 1.0 - Math.abs(bank) * 0.18;
+        const ringSpin = now * (boss.enraged ? 0.0032 : 0.0017);
+        const haloR = boss.drawW * (boss.enraged ? 0.58 : 0.52);
+
         ctx.save();
         ctx.translate(boss.x, boss.y);
 
-        // Ambient Boss Aura Glow (Pre-baked GPU Sprite!)
+        // LAYER 1: Ambient Volumetric Boss Aura Glow (Pre-baked GPU Sprite!)
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const auraSpr = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : (boss.bossId === 5 ? 'amber' : 'crimson'));
-        const aR = boss.drawW * (boss.enraged ? 0.72 : 0.60);
-        ctx.globalAlpha = boss.enraged ? (0.58 + 0.14 * Math.sin(now * 0.012)) : 0.42;
-        ctx.drawImage(auraSpr, -aR, -aR * 0.78, aR * 2, aR * 1.56);
+        const auraSpr = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : pal.core);
+        const aR = boss.drawW * (boss.enraged ? 0.76 : 0.64);
+        ctx.globalAlpha = boss.enraged ? (0.62 + 0.16 * Math.sin(now * 0.012)) : 0.46;
+        ctx.drawImage(auraSpr, -aR, -aR * 0.80, aR * 2, aR * 1.60);
+        ctx.restore();
+
+        // LAYER 2: Back-Plane Tilted 3D Perspective Sovereign Halo Ring (behind hull!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(bank * 0.55);
+        ctx.scale(1.0, 0.34);
+        ctx.strokeStyle = pal.ring;
+        ctx.lineWidth = boss.enraged ? 4.2 : 2.8;
+        ctx.setLineDash([28, 14]);
+        ctx.beginPath();
+        ctx.arc(0, 0, haloR, Math.PI, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = pal.ring2;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(0, 0, haloR * 0.84, Math.PI + ringSpin * 0.4, Math.PI * 2 + ringSpin * 0.4);
+        ctx.stroke();
+        ctx.restore();
+
+        // LAYER 3: Twin Live Volumetric Rear Ion Thruster Exhaust Plumes (calibrated per Boss nozzle!)
+        ctx.save();
+        ctx.rotate(bank);
+        ctx.scale(foreshortenX, 1.0);
+        ctx.globalCompositeOperation = 'lighter';
+        const thrustFlicker = 0.86 + 0.14 * Math.sin(now * 0.038) + Math.min(0.24, Math.abs(boss.vx || 0) * 0.035);
+        const plumeLen = (boss.enraged ? 38 : 26) * thrustFlicker;
+        const nozzleCfg = {
+          1: { ox: 0.145, oy: -0.42 },
+          2: { ox: 0.130, oy: -0.31 },
+          3: { ox: 0.088, oy: -0.42 },
+          4: { ox: 0.065, oy: -0.26 },
+          5: { ox: 0.135, oy: -0.24 }
+        }[boss.bossId] || { ox: 0.14, oy: -0.34 };
+        const plumeOffX = dw * nozzleCfg.ox;
+        const plumeY = dh * nozzleCfg.oy;
+        const jetGlow = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : pal.core);
+        for (let side = -1; side <= 1; side += 2) {
+          const px = side * plumeOffX;
+          ctx.save();
+          ctx.translate(px, plumeY - plumeLen * 0.35);
+          ctx.scale(0.42, 1.15);
+          ctx.globalAlpha = 0.65 * thrustFlicker;
+          ctx.drawImage(jetGlow, -plumeLen * 0.55, -plumeLen * 0.55, plumeLen * 1.1, plumeLen * 1.1);
+          ctx.restore();
+        }
         ctx.restore();
 
         // Armor Break Stagger Ring
@@ -8682,21 +9006,18 @@
           ctx.restore();
         }
 
-        // Draw High-Fidelity Bespoke Boss Sprite
-        const breath = 1.0 + Math.sin(now * 0.0042) * 0.022;
+        // LAYER 4: Photorealistic 3D Sculpted Sovereign Boss Model Sprite
+        ctx.save();
+        ctx.rotate(bank);
+        ctx.scale(foreshortenX, 1.0);
         if (bSpr && bLoaded && bSpr.naturalWidth > 0) {
-          const aspect = bSpr.naturalHeight / bSpr.naturalWidth;
-          const dw = boss.drawW * breath;
-          const dh = dw * aspect;
-          const bank = Math.sin(boss.movePhase) * 0.045;
-          ctx.rotate(bank);
           ctx.drawImage(bSpr, -dw * 0.5, -dh * 0.5, dw, dh);
 
-          // Crisp Zero-Lag Hit-Flash Overlay (Additive second pass for 68ms!)
+          // Crisp Zero-Lag Hit-Flash Overlay (Additive second pass on hit!)
           if (now < boss.hitFlashUntil) {
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
-            ctx.globalAlpha = 0.72;
+            ctx.globalAlpha = 0.78;
             ctx.drawImage(bSpr, -dw * 0.5, -dh * 0.5, dw, dh);
             ctx.restore();
           }
@@ -8706,6 +9027,60 @@
           ctx.arc(0, 0, boss.hitR * 0.8, 0, Math.PI * 2);
           ctx.fill();
         }
+
+        // LAYER 5: Live Pulsing 3D Reactor Core Bloom (syncs with Boss Heart & Enrage!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const corePulse = 0.52 + 0.34 * Math.sin(now * (boss.enraged ? 0.014 : 0.007));
+        const coreGlow = QuantumRenderer._getGlowSprite(boss.enraged ? 'crimson' : pal.core);
+        const coreR = dw * (boss.bossId === 3 ? 0.24 : 0.18) * (0.92 + 0.14 * corePulse);
+        ctx.globalAlpha = corePulse * (boss.enraged ? 0.78 : 0.55);
+        ctx.drawImage(coreGlow, -coreR, -coreR, coreR * 2, coreR * 2);
+        ctx.restore();
+
+        // LAYER 6A: Wing-Emitter Charge & Deployment Flare when Boss Spawns a Powered Bad Node!
+        if (boss.emitterFlashUntil && now < boss.emitterFlashUntil) {
+          const efT = Math.max(0, (boss.emitterFlashUntil - now) / 560);
+          const ex = boss.emitterFlashX || 0;
+          const ey = boss.hitR * 0.42;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const emGlow = QuantumRenderer._getGlowSprite('gold');
+          const er = 48 * (1.35 - efT * 0.5);
+          ctx.globalAlpha = efT * 0.95;
+          ctx.drawImage(emGlow, ex - er, ey - er, er * 2, er * 2);
+          ctx.strokeStyle = `rgba(254, 240, 138, ${efT * 0.95})`;
+          ctx.lineWidth = 3.2 * efT;
+          ctx.beginPath();
+          ctx.arc(ex, ey, 14 + (1 - efT) * 34, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.restore();
+
+        // LAYER 6B: Front-Plane Tilted 3D Perspective Orbital Halo Arc (in FRONT of hull for real 3D depth!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(bank * 0.55);
+        ctx.scale(1.0, 0.34);
+        ctx.strokeStyle = pal.ring;
+        ctx.lineWidth = boss.enraged ? 4.4 : 3.0;
+        ctx.setLineDash([28, 14]);
+        ctx.beginPath();
+        ctx.arc(0, 0, haloR, 0, Math.PI);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Orbiting bright energy node bead sweeping across the front perspective plane
+        const beadAng = ringSpin % (Math.PI * 2);
+        if (beadAng >= 0 && beadAng <= Math.PI) {
+          const bx = Math.cos(beadAng) * haloR;
+          const by = Math.sin(beadAng) * haloR;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(bx, by, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
         ctx.restore();
 
         // Render Orbiting Destructible Shield Pylons
@@ -10782,10 +11157,10 @@
         const maxHazards = Math.min(4, baseMaxHazards + (subWave === 3 ? 1 : 0));
         const currentHazards = state.particles.filter(pt => isHazardNode(pt.nodeClass)).length;
 
-        // Dynamic hazard chance scales across Round & Sub-Wave (15% R1 W1 -> 30% R5+ W3)
+        // Dynamic hazard chance scales across Round & Sub-Wave (15% R1 W1 -> 30% R5+ W3); paused during active Caldera Nova
         const waveHazBonus = (subWave === 3) ? 0.06 : (subWave === 2 ? 0.03 : 0.0);
         const hazardChance = Math.min(0.30, 0.15 + (rnd - 1) * 0.025 + waveHazBonus);
-        const canSpawnHazard = (currentHazards < maxHazards && elapsedSec > 2.6 && Math.random() < hazardChance);
+        const canSpawnHazard = (!SkillSystem.activeNova && currentHazards < maxHazards && elapsedSec > 2.6 && Math.random() < hazardChance);
 
         let nClass = 'standard';
 
@@ -11077,12 +11452,37 @@
         }
       }
 
-      // TEST HARNESS: VOIDBLOOM NODE SHOWCASE (?test_voidbloom=1)
+      // TEST HARNESS: VOIDBLOOM NODE SHOWCASE (?test_voidbloom=1) + MULTI-HAZARD NOVA QA (?test_hazards=1)
       if (window.location.search.includes('test_voidbloom=1')) {
         if (!state._testedVoidbloom) {
           state._testedVoidbloom = true;
           VoidbloomEngine.scheduleTelegraph(w, h, catcherPixelX, now, w * 0.28);
           VoidbloomEngine.spawnDirect(w * 0.68, h * 0.34, 3.4, w, h);
+        }
+      }
+      if (window.location.search.includes('test_hazards=1')) {
+        if (!state._testedHazards) {
+          state._testedHazards = true;
+          const pMode = (state.gameType === 'realm') ? 'dynamo' : (state.gameType || 'meteor');
+          const specs = [
+            { cls: 'volatile', x: w * 0.20, y: h * 0.42, r: 28 },
+            { cls: 'hyper_comet', x: w * 0.38, y: h * 0.36, r: 29 },
+            { cls: 'corruptor_laser', x: w * 0.62, y: h * 0.38, r: 32 },
+            { cls: 'gravity_well', x: w * 0.80, y: h * 0.44, r: 33 }
+          ];
+          specs.forEach((sp) => {
+            const spine = [];
+            for (let j = 0; j < 8; j++) spine.push({ x: sp.x, y: sp.y - j * 8 });
+            state.particles.push({
+              type: pMode, nodeClass: sp.cls, x: sp.x, y: sp.y, vx: 0, speed: 0.75, baseSpeed: 1.5,
+              headR: sp.r, hasSplit: false, hasDetonated: false, hasGrazed: false, phantomAlpha: 1.0,
+              animPhase: 0, tumbleDir: 1, cometPhase: sp.cls === 'hyper_comet' ? 'charging' : null,
+              cometChargeEnd: now + 3500, cometDiveSpeed: 4.5, flameEmbers: [],
+              laserState: 'idle', laserCharge: 0, laserChargeStart: 0, laserTargets: [], laserSalvosLeft: 2, laserNextReady: now + 2200,
+              empCharge: 0, empNextPulse: now + 3000, blinkState: 'idle', blinkProgress: 0, blinkStartTime: 0,
+              blinkTargetX: sp.x, blinkTargetY: sp.y, blinksLeft: 1, spine, stardust: []
+            });
+          });
         }
       }
 
