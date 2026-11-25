@@ -2384,7 +2384,7 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade393';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade400';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2403,21 +2403,21 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade393`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade400`;
 
     for (let t = 1; t <= 5; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade393`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade400`;
 
       if (t >= 2) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade393`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade400`;
       }
     }
   });
@@ -4140,6 +4140,52 @@
   // - Recommendation 3: Real-3D Perspective Foreshortening (foreshortenX, pitch3D, breathScale), Windward Specular Glint (spec3D), and Starlight Vein Shimmer
   // - Intact 4K tier-specific feathers (zero-slice seams!) + Brilliant Ultimate Wing Climax Effects
   // ─────────────────────────────────────────────────────────────
+  // Pre-baked Inner-Eroded Wing Specular & Dark-Metallic AO Shadow Cache (Guarantees ZERO white edge multiplication!)
+  const _wingProcessedCache = {};
+  function _getProcessedWingMaps(mode, tIdx, wSpr) {
+    const key = `${mode}_${tIdx}`;
+    if (_wingProcessedCache[key]) return _wingProcessedCache[key];
+    const sw = wSpr.naturalWidth || 512;
+    const sh = wSpr.naturalHeight || 576;
+    if (sw < 16 || sh < 16) return null;
+
+    // 1. Build Inner-Eroded Specular Sprite (3px inward alpha erosion so additive 'lighter' glints NEVER touch outer edge pixels!)
+    const specCanvas = document.createElement('canvas');
+    specCanvas.width = sw;
+    specCanvas.height = sh;
+    const sCtx = specCanvas.getContext('2d');
+    if (sCtx) {
+      // Intersect 4 diagonal 2.2px-shifted copies using destination-in to erode the alpha silhouette inward by ~2.5px
+      sCtx.drawImage(wSpr, 0, 0);
+      sCtx.globalCompositeOperation = 'destination-in';
+      sCtx.drawImage(wSpr, -2.2, -1.8);
+      sCtx.drawImage(wSpr,  2.2, -1.8);
+      sCtx.drawImage(wSpr, -2.2,  1.8);
+      sCtx.drawImage(wSpr,  2.2,  1.8);
+      // Re-draw original RGB colors strictly inside the eroded interior alpha mask
+      sCtx.globalCompositeOperation = 'source-in';
+      sCtx.drawImage(wSpr, 0, 0);
+    }
+
+    // 2. Build Sub-Feather Dark Metallic Ambient Occlusion (AO) Underlap Silhouette
+    const aoCanvas = document.createElement('canvas');
+    aoCanvas.width = sw;
+    aoCanvas.height = sh;
+    const aCtx = aoCanvas.getContext('2d');
+    if (aCtx) {
+      aCtx.drawImage(wSpr, 0, 0);
+      aCtx.globalCompositeOperation = 'source-in';
+      aCtx.fillStyle = (mode === 'meteor')
+        ? 'rgba(18, 7, 2, 0.72)'
+        : (mode === 'helix' ? 'rgba(10, 15, 38, 0.70)' : 'rgba(14, 10, 34, 0.72)');
+      aCtx.fillRect(0, 0, sw, sh);
+    }
+
+    const entry = { specCanvas, aoCanvas };
+    _wingProcessedCache[key] = entry;
+    return entry;
+  }
+
   function drawArticulatedWings(ctx, mode, u, cySrc, tier, now, isPortalPreview = false) {
     const isUltActive = Boolean(!isPortalPreview && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mode);
     const ultNv = isUltActive ? SkillSystem.activeNova : null;
@@ -4192,19 +4238,18 @@
       const wLoaded = (LayeredT4Assets.loaded.wingRightTiers[mode] && LayeredT4Assets.loaded.wingRightTiers[mode][tIdx]) || LayeredT4Assets.loaded.wingRight[mode];
       if (!wSpr || !wLoaded) return;
 
+      const pMaps = _getProcessedWingMaps(mode, tIdx, wSpr);
+      const specSpr = (pMaps && pMaps.specCanvas) ? pMaps.specCanvas : wSpr;
+      const aoSpr = (pMaps && pMaps.aoCanvas) ? pMaps.aoCanvas : null;
+
       const tierLux = (tIdx === 2) ? 0.38 : (tIdx === 3 ? 0.62 : (tIdx === 4 ? 0.88 : 1.16));
 
       for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
         const dir = (sideIdx === 0) ? 1 : -1; // +1 Right wing, -1 Left wing
         const rootInsetX = (mode === 'meteor') ? (-4 * coreImgScale) : (-2 * coreImgScale);
 
-        // Recommendation 2: ASYMMETRIC DIRECTIONAL KINEMATICS (Left vs Right)
-        // dirLead > 0: Wing is LEADING into the strafe vector (meets oncoming airflow)
-        // dirLead < 0: Wing is TRAILING behind (dragged in slipstream wake)
+        // ASYMMETRIC DIRECTIONAL KINEMATICS (Left vs Right)
         const dirLead = dir * normVx;
-
-        // Leading wing lifts up with aerodynamic ground effect / slipstream lift
-        // Trailing wing sweeps back and drags slightly downward
         const leadLift = Math.max(0, dirLead) * 0.065;
         const trailSweep = Math.min(0, dirLead) * 0.050;
         const asymmetricTilt = leadLift + trailSweep;
@@ -4224,36 +4269,115 @@
         ctx.save();
         ctx.rotate(totalRotation);
         ctx.scale(dir * breathScale * foreshortenX, breathScale * pitch3D);
-        ctx.globalAlpha = finalWingAlpha;
 
-        // 1. Draw the pristine, intact 4K Tier-Specific Wing Sprite (Zero-slice seams!)
+        // ENHANCEMENT #3: Sub-Feather Depth Layering & Ambient Occlusion (AO) Shadow Underlap
+        // Casts a subtle dark-metallic depth shadow beneath overlapping covert/primary feather tiers!
+        if (aoSpr && tIdx >= 3) {
+          ctx.save();
+          ctx.globalAlpha = finalWingAlpha * (0.48 + tierLux * 0.22);
+          ctx.drawImage(aoSpr, rootInsetX + 1.8 * u, -pivotY + 2.8 * u, wingW * 0.99, wingH * 1.01);
+          ctx.restore();
+        }
+
+        // ENHANCEMENT #1: Draw the Chromatically Defringed 4K Tier-Specific Wing Sprite (100% Pure Deep-Space Feather Gaps!)
+        ctx.globalAlpha = finalWingAlpha;
         ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
 
-        // 2. Real-3D Lighting: Windward Leading-Edge Specular Glint (v352 signature!)
+        // ENHANCEMENT #2: Inner-Eroded 3D Windward Leading-Edge Specular Glint (Uses specSpr eroded 2.5px inward so edges NEVER turn white!)
         const lightDot = Math.cos(totalRotation * 1.3 - dir * 0.20 + dirLead * 0.35);
         const specMultiplier = 1.0 + Math.max(0, dirLead) * 0.85 + (isUltActive ? 0.65 * ultAlpha : 0);
         const spec3D = Math.pow(Math.max(0, lightDot), 2.2) * specMultiplier;
         if (spec3D > 0.04) {
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          ctx.globalAlpha = Math.min(0.68, spec3D * 0.44 * finalWingAlpha);
-          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          ctx.globalAlpha = Math.min(0.65, spec3D * 0.42 * finalWingAlpha);
+          ctx.drawImage(specSpr, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         }
 
-        // 3. Sovereign / Seraphic Starlight Vein Shimmer (Tiers III, IV, V + Ultimate!)
+        // Sovereign / Seraphic Starlight Vein Shimmer (Also strictly uses inner-eroded specSpr!)
         if (cTier >= 2.4 || isUltActive) {
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           const shimmerWave = 0.5 + 0.5 * Math.sin(now * (isUltActive ? 0.014 : 0.006) - sideIdx * 1.2);
-          const shimmerBoost = isUltActive ? (0.48 * ultAlpha) : Math.max(0, (cTier - 2.3) * 0.22);
-          ctx.globalAlpha = Math.min(0.75, shimmerBoost * shimmerWave * finalWingAlpha);
-          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          const shimmerBoost = isUltActive ? (0.44 * ultAlpha) : Math.max(0, (cTier - 2.3) * 0.20);
+          ctx.globalAlpha = Math.min(0.70, shimmerBoost * shimmerWave * finalWingAlpha);
+          ctx.drawImage(specSpr, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         }
 
-        // 4. Progressive Diamond Specular Micro-Glints & Traveling Feather Energy Currents
         const maxSpanX = (tIdx === 2 ? 175 : (tIdx === 3 ? 250 : (tIdx === 4 ? 320 : 378))) * coreImgScale;
+
+        // ENHANCEMENT #4: Anisotropic Brushed-Metal Micro-Specularity Along Individual Feather Barbs & Shafts (Rachis)
+        // Slides dynamically along each primary feather's curved ridge as the core banks left and right!
+        const numQuills = (tIdx === 2) ? 2 : (tIdx === 3 ? 4 : (tIdx === 4 ? 5 : 7));
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        const bankGlintShift = Math.sin(bankAngle * 3.2 * dir + now * (isUltActive ? 0.006 : 0.0022)) * 0.22;
+        for (let q = 0; q < numQuills; q++) {
+          const qFrac = (q + 0.35) / numQuills;
+          const qStartX = (66 + q * 15) * coreImgScale;
+          const qEndX = qStartX + (maxSpanX - qStartX) * (0.54 + 0.40 * Math.sin(qFrac * Math.PI * 0.85));
+          const qStartY = (-4 + (q - (numQuills - 1) * 0.45) * 8.5) * coreImgScale;
+          const qPeakY = qStartY - (14 + q * 5.8 + (tIdx >= 4 ? 11 : 0)) * coreImgScale;
+          const qEndY = qPeakY + (5 + q * 4.0) * coreImgScale;
+
+          const barbPulse = 0.45 + 0.55 * Math.sin(now * (isUltActive ? 0.009 : 0.0034) + q * 1.35 + sideIdx * 1.8 + dirLead * 1.5);
+          const qAlpha = Math.min(0.92, (0.20 + tierLux * 0.24) * barbPulse * (isUltActive ? 1.65 : 1.0) * finalWingAlpha);
+          if (qAlpha > 0.03) {
+            const peakStop = Math.max(0.18, Math.min(0.82, 0.48 + bankGlintShift));
+            const qGrad = ctx.createLinearGradient(qStartX, qStartY, qEndX, qEndY);
+            if (mode === 'dynamo') {
+              qGrad.addColorStop(0.0, `rgba(250, 204, 21, ${qAlpha * 0.85})`);
+              qGrad.addColorStop(peakStop, `rgba(224, 242, 254, ${qAlpha})`);
+              qGrad.addColorStop(1.0, 'rgba(56, 189, 248, 0)');
+            } else if (mode === 'helix') {
+              qGrad.addColorStop(0.0, `rgba(165, 243, 252, ${qAlpha * 0.85})`);
+              qGrad.addColorStop(peakStop, (q % 2 === 0) ? `rgba(240, 253, 250, ${qAlpha})` : `rgba(244, 114, 182, ${qAlpha})`);
+              qGrad.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
+            } else {
+              qGrad.addColorStop(0.0, `rgba(249, 115, 22, ${qAlpha * 0.85})`);
+              qGrad.addColorStop(peakStop, `rgba(254, 240, 138, ${qAlpha})`);
+              qGrad.addColorStop(1.0, 'rgba(180, 83, 9, 0)');
+            }
+            ctx.strokeStyle = qGrad;
+            ctx.lineWidth = (1.15 + tierLux * 0.55 + (isUltActive ? 0.6 : 0)) * u;
+            ctx.beginPath();
+            ctx.moveTo(qStartX, qStartY);
+            ctx.quadraticCurveTo((qStartX + qEndX) * 0.52, qPeakY, qEndX, qEndY);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+
+        // ENHANCEMENT #5: Dynamic Fresnel Rim Backlighting From the Central Core & Ultimate Pillar onto Inner Wing Roots
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const rimReachX = (isUltActive ? 210 : (115 + (tIdx - 2) * 24)) * coreImgScale;
+        const rimPulse = 0.78 + 0.22 * Math.sin(now * (isUltActive ? 0.016 : 0.005) + sideIdx);
+        const rimAlpha = Math.min(0.85, (0.22 + tierLux * 0.18) * (isUltActive ? 1.75 : 1.0) * rimPulse * finalWingAlpha);
+        const rimG = ctx.createRadialGradient(64 * coreImgScale, 0, 8 * coreImgScale, 68 * coreImgScale, -4 * coreImgScale, rimReachX);
+        if (mode === 'dynamo') {
+          rimG.addColorStop(0.0, `rgba(253, 224, 71, ${rimAlpha})`);
+          rimG.addColorStop(0.45, `rgba(56, 189, 248, ${rimAlpha * 0.65})`);
+          rimG.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
+        } else if (mode === 'helix') {
+          rimG.addColorStop(0.0, `rgba(103, 232, 249, ${rimAlpha})`);
+          rimG.addColorStop(0.48, `rgba(236, 72, 153, ${rimAlpha * 0.65})`);
+          rimG.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
+        } else {
+          rimG.addColorStop(0.0, `rgba(254, 240, 138, ${Math.min(0.95, rimAlpha * 1.15)})`);
+          rimG.addColorStop(0.45, `rgba(249, 115, 22, ${rimAlpha * 0.78})`);
+          rimG.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+        }
+        ctx.fillStyle = rimG;
+        ctx.beginPath();
+        ctx.ellipse(68 * coreImgScale, -4 * coreImgScale, rimReachX, rimReachX * 0.56, -0.18, -Math.PI * 0.42, Math.PI * 0.42);
+        ctx.fill();
+        ctx.restore();
+
+        // 4. Progressive Diamond Specular Micro-Glints & Traveling Feather Energy Currents
         const numSparkles = isUltActive ? 7 : ((tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 4 : 6)));
         for (let sp = 0; sp < numSparkles; sp++) {
           const spFrac = (sp + 0.5) / numSparkles;
