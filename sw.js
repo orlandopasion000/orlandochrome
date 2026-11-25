@@ -1,10 +1,10 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v396_apex_weapons_missiles';
+const CACHE_NAME = 'orlandochrome-arcade-v397_ult_never_freeze';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade396_apex_weapons_missiles',
-  './game.js?v=arcade396_apex_weapons_missiles',
+  './styles.css?v=arcade397_ult_never_freeze',
+  './game.js?v=arcade397_ult_never_freeze',
   './assets/core-dynamo-t1.png?v=cores15_v1',
   './assets/core-dynamo-t2.png?v=cores15_v1',
   './assets/core-dynamo-t3.png?v=cores15_v1',

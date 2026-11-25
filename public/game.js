@@ -931,13 +931,23 @@
           // 3. Rolling Stereo Thunderhead Sky-Rumble (1.90s clipped brown rumble modulated by 5.8 Hz AM roll)
           const rollL = this._ultClippedNoise(hit + 0.02, 1.88, 0.68, 3.2, 'lowpass', 820, 95, 0.75, 0.015, this._ultPan(dest, -0.65));
           const rollR = this._ultClippedNoise(hit + 0.05, 1.88, 0.66, 3.2, 'lowpass', 780, 90, 0.75, 0.02, this._ultPan(dest, 0.65));
+          const rollModL = ctx.createGain();
+          const rollModR = ctx.createGain();
+          rollModL.gain.value = 0.85;
+          rollModR.gain.value = 0.85;
+          rollL.disconnect();
+          rollR.disconnect();
+          rollL.connect(rollModL);
+          rollR.connect(rollModR);
+          rollModL.connect(this._ultPan(dest, -0.65));
+          rollModR.connect(this._ultPan(dest, 0.65));
           const rollLfo = ctx.createOscillator();
           const rollLfoG = ctx.createGain();
           rollLfo.frequency.value = 5.8;
-          rollLfoG.gain.value = 0.22;
+          rollLfoG.gain.value = 0.14;
           rollLfo.connect(rollLfoG);
-          rollLfoG.connect(rollL.gain);
-          rollLfoG.connect(rollR.gain);
+          rollLfoG.connect(rollModL.gain);
+          rollLfoG.connect(rollModR.gain);
           rollLfo.start(hit);
           rollLfo.stop(hit + 1.92);
 
@@ -1047,13 +1057,16 @@
           this._ultClippedNoise(hit + 0.01, 1.45, 0.38, 2.8, 'lowpass', 240, 95, 0.7, 0.02, dest); // seismic magma rumble bed
           this._ultNoise(hit, 0.7, 0.48, 'highpass', 900, 600, 0.7, 0.003, dest);
           // Roaring fire body with crackling tremolo
-          const fireG = this._ultNoise(hit + 0.02, 1.65, 0.46, 'lowpass', 1100, 420, 0.9, 0.08, dest);
+          const fireMod = ctx.createGain();
+          fireMod.gain.value = 0.88;
+          fireMod.connect(dest);
+          this._ultNoise(hit + 0.02, 1.65, 0.46, 'lowpass', 1100, 420, 0.9, 0.08, fireMod);
           const trem = ctx.createOscillator();
           const tremG = ctx.createGain();
           trem.frequency.value = 11;
-          tremG.gain.value = 0.12;
+          tremG.gain.value = 0.11;
           trem.connect(tremG);
-          tremG.connect(fireG.gain);
+          tremG.connect(fireMod.gain);
           trem.start(hit);
           trem.stop(hit + 1.7);
           // 16 random fire crackle pops across stereo field
@@ -7770,10 +7783,12 @@
         return false;
       }
 
-      const w = cachedCanvasRect.width || window.innerWidth;
-      const h = cachedCanvasRect.height || window.innerHeight;
-      const cx = (state.catcherX || 0.5) * w;
-      const cy = (state.catcherY || 0.82) * h;
+      const w = Math.max(320, cachedCanvasRect.width || window.innerWidth || 800);
+      const h = Math.max(240, cachedCanvasRect.height || window.innerHeight || 600);
+      const rawCx = (Number.isFinite(state.catcherX) ? state.catcherX : 0.5) * w;
+      const rawCy = (Number.isFinite(state.catcherY) ? state.catcherY : 0.82) * h;
+      const cx = Math.max(20, Math.min(w - 20, rawCx));
+      const cy = Math.max(20, Math.min(h - 20, rawCy));
 
       const mMode = (state.catcherType === 'helix') ? 'helix' : (state.catcherType === 'meteor' ? 'meteor' : 'dynamo');
       const ars = getRealmArsenal(mMode);
@@ -7832,10 +7847,12 @@
         return false;
       }
 
-      const w = cachedCanvasRect.width || window.innerWidth;
-      const h = cachedCanvasRect.height || window.innerHeight;
-      const cx = (state.catcherX || 0.5) * w;
-      const cy = (state.catcherY || 0.82) * h;
+      const w = Math.max(320, cachedCanvasRect.width || window.innerWidth || 800);
+      const h = Math.max(240, cachedCanvasRect.height || window.innerHeight || 600);
+      const rawCx = (Number.isFinite(state.catcherX) ? state.catcherX : 0.5) * w;
+      const rawCy = (Number.isFinite(state.catcherY) ? state.catcherY : 0.82) * h;
+      const cx = Math.max(20, Math.min(w - 20, rawCx));
+      const cy = Math.max(20, Math.min(h - 20, rawCy));
 
       this.ultCdMs = CONFIG.ult.cooldownMs;
       // Grant invulnerability & intense cataclysm recoil
@@ -8570,370 +8587,384 @@
       // - Helix (GENESIS NOVA): Radiant cyan-white photonic genesis beam + giant 3D intertwining cyan & magenta DNA double helix with base-pair rungs climbing the beam + flying crystal prism shards + starburst rays
       if (this.activeNova) {
         const nv = this.activeNova;
-        const elapsed = now - nv.startAt;
-        if (elapsed >= nv.durationMs) {
+        const elapsed = Math.max(0, now - (nv.startAt || now));
+        if (!Number.isFinite(elapsed) || elapsed >= (nv.durationMs || 1750)) {
           this.activeNova = null;
         } else {
-          // Continuously vaporize ANY bad node, Voidbloom, rift telegraph, or boss projectile during the entire Nova wave!
-          this._purgeAllBadEntities(now, false);
+          try {
+            // Continuously vaporize ANY bad node, Voidbloom, rift telegraph, or boss projectile during the entire Nova wave!
+            this._purgeAllBadEntities(now, false);
 
-          // Smoothly tether the erupting solar pillar directly to the live Chrome Core position!
-          nv.x += (cx - nv.x) * Math.min(1, 0.36 * dtScale);
-          nv.y += (cy - nv.y) * Math.min(1, 0.36 * dtScale);
+            // Smoothly tether the erupting solar pillar directly to the live Chrome Core position (clamped to valid arena bounds)!
+            const safeCx = Number.isFinite(cx) ? Math.max(20, Math.min(w - 20, cx)) : w * 0.5;
+            const safeCy = Number.isFinite(cy) ? Math.max(20, Math.min(h - 20, cy)) : h * 0.82;
+            nv.x = Number.isFinite(nv.x) ? (nv.x + (safeCx - nv.x) * Math.min(1, 0.36 * dtScale)) : safeCx;
+            nv.y = Number.isFinite(nv.y) ? (nv.y + (safeCy - nv.y) * Math.min(1, 0.36 * dtScale)) : safeCy;
+            nv.x = Math.max(20, Math.min(w - 20, nv.x));
+            nv.y = Math.max(20, Math.min(h - 20, nv.y));
 
-          const p = elapsed / nv.durationMs;
-          // Punchy fast ignition ramp (0..0.08) -> sustained roaring furnace (0.08..0.72) -> dramatic fade (0.72..1.0)
-          const rampIn = Math.min(1, p / 0.08);
-          const fadeOut = (p < 0.65) ? 1.0 : Math.pow(1 - (p - 0.65) / 0.35, 1.15);
-          const alphaEnv = rampIn * fadeOut;
-          const mKey = nv.mode || 'meteor';
-          const isMob = w < 640;
-          const scaleK = isMob ? 0.80 : 1.0;
+            const p = Math.max(0, Math.min(1, elapsed / (nv.durationMs || 1750)));
+            // Punchy fast ignition ramp (0..0.08) -> sustained roaring furnace (0.08..0.72) -> dramatic fade (0.72..1.0)
+            const rampIn = Math.min(1, p / 0.08);
+            const fadeOut = (p < 0.65) ? 1.0 : Math.pow(Math.max(0, 1 - (p - 0.65) / 0.35), 1.15);
+            const alphaEnv = Math.max(0, Math.min(1, rampIn * fadeOut));
+            const mKey = nv.mode || 'meteor';
+            const isMob = w < 640;
+            const scaleK = isMob ? 0.80 : 1.0;
 
-          const palMap = {
-            meteor: {
-              domeOuter: 'rgba(218, 62, 76, ',
-              domeGlow: 'rgba(249, 115, 22, ',
-              ringCore: 'rgba(255, 240, 185, ',
-              ringGlow: 'rgba(251, 146, 60, ',
-              spineEdge: 'rgba(249, 115, 22, ',
-              spineMid: 'rgba(253, 224, 71, ',
-              emberHot: '#fef08a',
-              emberWarm: '#fb923c'
-            },
-            dynamo: {
-              domeOuter: 'rgba(225, 75, 100, ',
-              domeGlow: 'rgba(139, 92, 246, ',
-              ringCore: 'rgba(254, 240, 138, ',
-              ringGlow: 'rgba(56, 189, 248, ',
-              spineEdge: 'rgba(124, 58, 237, ',
-              spineMid: 'rgba(167, 139, 250, ',
-              emberHot: '#e0f2fe',
-              emberWarm: '#c084fc'
-            },
-            helix: {
-              domeOuter: 'rgba(217, 70, 239, ',
-              domeGlow: 'rgba(34, 211, 238, ',
-              ringCore: 'rgba(240, 253, 250, ',
-              ringGlow: 'rgba(232, 121, 249, ',
-              spineEdge: 'rgba(192, 38, 211, ',
-              spineMid: 'rgba(34, 211, 238, ',
-              emberHot: '#cffafe',
-              emberWarm: '#f0abfc'
-            }
-          };
-          const pal = palMap[mKey] || palMap.meteor;
-          // Outer crimson-amber blast dome sweeps crisply across the arena (stays framed in-view longer for cinema impact!)
-          const domeR = nv.maxRadius * (0.24 + Math.pow(p, 0.58) * 0.62);
-          const ellipseRx = (isMob ? 175 : 275) * (0.72 + Math.pow(p, 0.35) * 0.42);
-          const ellipseRy = ellipseRx * 0.36;
-          nv._ellipseRx = ellipseRx;
-          nv._ellipseRy = ellipseRy;
-          nv._alphaEnv = alphaEnv;
-          nv._pal = pal;
+            const palMap = {
+              meteor: {
+                domeOuter: 'rgba(218, 62, 76, ',
+                domeGlow: 'rgba(249, 115, 22, ',
+                ringCore: 'rgba(255, 240, 185, ',
+                ringGlow: 'rgba(251, 146, 60, ',
+                spineEdge: 'rgba(249, 115, 22, ',
+                spineMid: 'rgba(253, 224, 71, ',
+                emberHot: '#fef08a',
+                emberWarm: '#fb923c'
+              },
+              dynamo: {
+                domeOuter: 'rgba(225, 75, 100, ',
+                domeGlow: 'rgba(139, 92, 246, ',
+                ringCore: 'rgba(254, 240, 138, ',
+                ringGlow: 'rgba(56, 189, 248, ',
+                spineEdge: 'rgba(124, 58, 237, ',
+                spineMid: 'rgba(167, 139, 250, ',
+                emberHot: '#e0f2fe',
+                emberWarm: '#c084fc'
+              },
+              helix: {
+                domeOuter: 'rgba(217, 70, 239, ',
+                domeGlow: 'rgba(34, 211, 238, ',
+                ringCore: 'rgba(240, 253, 250, ',
+                ringGlow: 'rgba(232, 121, 249, ',
+                spineEdge: 'rgba(192, 38, 211, ',
+                spineMid: 'rgba(34, 211, 238, ',
+                emberHot: '#cffafe',
+                emberWarm: '#f0abfc'
+              }
+            };
+            const pal = palMap[mKey] || palMap.meteor;
+            const maxR = Math.max(300, Number.isFinite(nv.maxRadius) ? nv.maxRadius : Math.hypot(w, h) * 1.15);
+            const domeR = Math.max(24, maxR * (0.24 + Math.pow(p, 0.58) * 0.62));
+            const ellipseRx = Math.max(40, (isMob ? 175 : 275) * (0.72 + Math.pow(p, 0.35) * 0.42));
+            const ellipseRy = Math.max(14, ellipseRx * 0.36);
+            nv._ellipseRx = ellipseRx;
+            nv._ellipseRy = ellipseRy;
+            nv._alphaEnv = alphaEnv;
+            nv._pal = pal;
 
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-
-          // LAYER 1A: Warm Atmospheric Furnace Ignition Flash
-          if (p < 0.34) {
-            const fAlpha = (1 - p / 0.34) * 0.36;
-            const flashGrad = ctx.createRadialGradient(nv.x, nv.y, 16, nv.x, nv.y, nv.maxRadius * 0.78);
-            flashGrad.addColorStop(0.0, `rgba(255, 255, 245, ${fAlpha * 1.15})`);
-            flashGrad.addColorStop(0.32, `${pal.spineMid}${fAlpha * 0.78})`);
-            flashGrad.addColorStop(0.70, `${pal.domeGlow}${fAlpha * 0.36})`);
-            flashGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-            ctx.fillStyle = flashGrad;
-            ctx.fillRect(0, 0, w, h);
-          }
-
-          // LAYER 1B: Outer Spherical Cataclysm Shockwave Dome (Crisp Crimson-Amber Arena Ring!)
-          const domeFade = Math.pow(1 - p, 0.72);
-          ctx.save();
-          ctx.strokeStyle = `${pal.domeGlow}${domeFade * 0.34})`;
-          ctx.lineWidth = Math.max(8, 24 * domeFade);
-          ctx.beginPath();
-          ctx.arc(nv.x, nv.y, domeR, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.strokeStyle = `${pal.domeOuter}${domeFade * 0.94})`;
-          ctx.lineWidth = Math.max(3, 10 * domeFade);
-          ctx.beginPath();
-          ctx.arc(nv.x, nv.y, domeR, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.restore();
-
-          // LAYER 2: Filled 3D Perspective Energy Vortex Disk + Seamless Back Orbital Ring
-          ctx.save();
-          ctx.translate(nv.x, nv.y);
-          ctx.save();
-          ctx.scale(1, 0.36);
-          const diskGrad = ctx.createRadialGradient(0, 0, 8, 0, 0, ellipseRx);
-          diskGrad.addColorStop(0.0, `rgba(255, 255, 255, ${alphaEnv * 0.92})`);
-          diskGrad.addColorStop(0.22, `${pal.spineMid}${alphaEnv * 0.68})`);
-          diskGrad.addColorStop(0.58, `${pal.domeGlow}${alphaEnv * 0.34})`);
-          diskGrad.addColorStop(0.88, `${pal.domeOuter}${alphaEnv * 0.18})`);
-          diskGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = diskGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, ellipseRx, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 36 rotating 3D perspective radial energy spokes inside the disk
-          ctx.save();
-          ctx.rotate(elapsed * 0.0007);
-          ctx.lineCap = 'round';
-          for (let sp = 0; sp < 36; sp++) {
-            const sa = (sp / 36) * Math.PI * 2;
-            const srOut = ellipseRx * (0.62 + 0.34 * Math.abs(Math.sin(sp * 2.3)));
-            ctx.strokeStyle = (sp % 2 === 0) ? `${pal.ringCore}${alphaEnv * 0.34})` : `${pal.spineMid}${alphaEnv * 0.28})`;
-            ctx.lineWidth = (sp % 3 === 0) ? 3.0 : 1.6;
-            ctx.beginPath();
-            ctx.moveTo(Math.cos(sa) * 24, Math.sin(sa) * 24);
-            ctx.lineTo(Math.cos(sa) * srOut, Math.sin(sa) * srOut);
-            ctx.stroke();
-          }
-          // 2 counter-rotating swirling vortex arcs
-          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.42})`;
-          ctx.lineWidth = 2.6;
-          for (let va = 0; va < 2; va++) {
-            const vr = ellipseRx * (va === 0 ? 0.42 : 0.70);
-            const vStart = elapsed * (va === 0 ? 0.0018 : -0.0012) + va * 2.1;
-            ctx.beginPath();
-            ctx.arc(0, 0, vr, vStart, vStart + Math.PI * 1.15);
-            ctx.stroke();
-          }
-          ctx.restore();
-          ctx.restore();
-
-          // 2B: Seamless Back Half of the 3D Orbital Ring
-          ctx.lineCap = 'round';
-          ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.52})`;
-          ctx.lineWidth = 11;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
-          ctx.stroke();
-          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.96})`;
-          ctx.lineWidth = 3.2;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
-          ctx.stroke();
-          ctx.restore();
-
-          // LAYER 3: Soft-Feathered Offscreen Eruption Column Buffer
-          const pillarH = Math.max(240, nv.y + 4);
-          const basePillarW = (isMob ? 215 : 315) * (0.94 + 0.08 * Math.sin(elapsed * 0.024)) * scaleK;
-          const flameImg = VfxUltraAssets.novaFlame[mKey];
-          const wispsImg = VfxUltraAssets.novaWisps[mKey];
-          const flameReady = VfxUltraAssets.loaded.novaFlame[mKey] && flameImg && flameImg.naturalWidth > 0;
-          const wispsReady = VfxUltraAssets.loaded.novaWisps[mKey] && wispsImg && wispsImg.naturalWidth > 0;
-          const isHelixMode = (mKey === 'helix');
-          const isDynamoMode = (mKey === 'dynamo');
-
-          // Soft royal-violet storm sheath behind Dynamo lightning
-          if (isDynamoMode) {
             ctx.save();
-            ctx.globalCompositeOperation = 'source-over';
-            const shCy = Math.max(80, nv.y * 0.52);
-            const shRy = Math.max(220, nv.y * 0.56);
-            ctx.translate(nv.x, shCy);
-            ctx.scale(0.58, 1.0);
-            const shG = ctx.createRadialGradient(0, 0, 20, 0, 0, shRy);
-            shG.addColorStop(0.0, `rgba(76, 29, 149, ${alphaEnv * 0.46})`);
-            shG.addColorStop(0.55, `rgba(49, 46, 129, ${alphaEnv * 0.24})`);
-            shG.addColorStop(1.0, 'rgba(30, 27, 75, 0)');
-            ctx.fillStyle = shG;
+            ctx.globalCompositeOperation = 'lighter';
+
+            // LAYER 1A: Warm Atmospheric Furnace Ignition Flash
+            if (p < 0.34) {
+              const fAlpha = Math.max(0, Math.min(0.85, (1 - p / 0.34) * 0.36));
+              const flashGrad = ctx.createRadialGradient(nv.x, nv.y, 16, nv.x, nv.y, Math.max(32, maxR * 0.78));
+              flashGrad.addColorStop(0.0, `rgba(255, 255, 245, ${Math.min(1, fAlpha * 1.15)})`);
+              flashGrad.addColorStop(0.32, `${pal.spineMid}${fAlpha * 0.78})`);
+              flashGrad.addColorStop(0.70, `${pal.domeGlow}${fAlpha * 0.36})`);
+              flashGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+              ctx.fillStyle = flashGrad;
+              ctx.fillRect(0, 0, w, h);
+            }
+
+            // LAYER 1B: Outer Spherical Cataclysm Shockwave Dome (Crisp Crimson-Amber Arena Ring!)
+            const domeFade = Math.pow(Math.max(0, 1 - p), 0.72);
+            ctx.save();
+            ctx.strokeStyle = `${pal.domeGlow}${domeFade * 0.34})`;
+            ctx.lineWidth = Math.max(8, 24 * domeFade);
             ctx.beginPath();
-            ctx.arc(0, 0, shRy, 0, Math.PI * 2);
+            ctx.arc(nv.x, nv.y, domeR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = `${pal.domeOuter}${domeFade * 0.94})`;
+            ctx.lineWidth = Math.max(3, 10 * domeFade);
+            ctx.beginPath();
+            ctx.arc(nv.x, nv.y, domeR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+
+            // LAYER 2: Filled 3D Perspective Energy Vortex Disk + Seamless Back Orbital Ring
+            ctx.save();
+            ctx.translate(nv.x, nv.y);
+            ctx.save();
+            ctx.scale(1, 0.36);
+            const diskGrad = ctx.createRadialGradient(0, 0, 8, 0, 0, ellipseRx);
+            diskGrad.addColorStop(0.0, `rgba(255, 255, 255, ${alphaEnv * 0.92})`);
+            diskGrad.addColorStop(0.22, `${pal.spineMid}${alphaEnv * 0.68})`);
+            diskGrad.addColorStop(0.58, `${pal.domeGlow}${alphaEnv * 0.34})`);
+            diskGrad.addColorStop(0.88, `${pal.domeOuter}${alphaEnv * 0.18})`);
+            diskGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = diskGrad;
+            ctx.beginPath();
+            ctx.arc(0, 0, ellipseRx, 0, Math.PI * 2);
             ctx.fill();
-            ctx.restore();
-          }
 
-          const offW = Math.max(260, Math.ceil(basePillarW * 1.45));
-          const offH = Math.max(280, Math.ceil(pillarH + 36));
-          if (!this._novaPillarCanvas) {
-            this._novaPillarCanvas = document.createElement('canvas');
-            this._novaPillarCtx = this._novaPillarCanvas.getContext('2d');
-          }
-          if (this._novaPillarCanvas.width < offW || this._novaPillarCanvas.height < offH) {
-            this._novaPillarCanvas.width = Math.max(this._novaPillarCanvas.width || 0, offW);
-            this._novaPillarCanvas.height = Math.max(this._novaPillarCanvas.height || 0, offH);
-          }
-          const pCtx = this._novaPillarCtx;
-          const midX = offW * 0.5;
-          pCtx.clearRect(0, 0, offW, offH);
-          pCtx.save();
-          pCtx.globalCompositeOperation = 'lighter';
-
-          // Pass 3A: Atmospheric Outer Column Aura
-          const outerW = basePillarW * (isHelixMode ? 0.36 : (isDynamoMode ? 0.60 : 0.68));
-          const outerG = pCtx.createLinearGradient(midX - outerW, 0, midX + outerW, 0);
-          outerG.addColorStop(0.0, 'rgba(0,0,0,0)');
-          outerG.addColorStop(0.28, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.28 : 0.38)})`);
-          outerG.addColorStop(0.50, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.48 : 0.62)})`);
-          outerG.addColorStop(0.72, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.28 : 0.38)})`);
-          outerG.addColorStop(1.0, 'rgba(0,0,0,0)');
-          pCtx.fillStyle = outerG;
-          pCtx.fillRect(midX - outerW, 0, outerW * 2, offH);
-
-          // Pass 3B: Primary Upward-Rushing Seamless Domain-Warped Turbulent Column
-          if (flameReady) {
-            const tileW = basePillarW * (isHelixMode ? 0.42 : (isDynamoMode ? 0.72 : 1.0));
-            const tileH = tileW * 2.0;
-            const scroll1 = (elapsed * 1.05) % tileH;
-            pCtx.globalAlpha = alphaEnv * (isHelixMode ? 0.45 : (isDynamoMode ? 0.72 : 0.98));
-            for (let ty = nv.y + 18 + tileH - scroll1; ty > -tileH; ty -= (tileH - 1)) {
-              pCtx.drawImage(flameImg, midX - tileW * 0.5, ty - tileH, tileW, tileH);
-            }
-            if (!isHelixMode) {
-              const scroll1b = (elapsed * 1.52) % tileH;
-              pCtx.save();
-              pCtx.translate(midX, 0);
-              pCtx.scale(-1.08, 1);
-              pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.32 : 0.65);
-              for (let ty = nv.y + 18 + tileH - scroll1b; ty > -tileH; ty -= (tileH - 1)) {
-                pCtx.drawImage(flameImg, -tileW * 0.5, ty - tileH, tileW, tileH);
-              }
-              pCtx.restore();
-            }
-          }
-
-          // Pass 3C: Curling Licking Flame / Plasma Tendril Ribbons Twisting Up Both Flanks
-          if (wispsReady && !isHelixMode) {
-            const wTileW = basePillarW * (isDynamoMode ? 1.00 : 1.12);
-            const wTileH = wTileW * 2.0;
-            const scroll2 = (elapsed * 1.38) % wTileH;
-            pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.46 : 0.92);
-            for (let ty = nv.y + 18 + wTileH - scroll2; ty > -wTileH; ty -= (wTileH - 1)) {
-              pCtx.drawImage(wispsImg, midX - wTileW * 0.5, ty - wTileH, wTileW, wTileH);
-            }
-          }
-
-          // Pass 3D: Blinding White-Hot Central Laser / Solar / Photonic Core Spine (Matches all 3 reference screenshots!)
-          pCtx.globalAlpha = 1.0;
-          const spineW = (isMob ? (isHelixMode ? 22 : (isDynamoMode ? 32 : 42)) : (isHelixMode ? 28 : (isDynamoMode ? 42 : 56))) * (0.92 + 0.12 * Math.sin(elapsed * 0.035));
-          const spineG = pCtx.createLinearGradient(midX - spineW, 0, midX + spineW, 0);
-          spineG.addColorStop(0.0, 'rgba(255,255,255,0)');
-          spineG.addColorStop(0.22, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.68 : 0.82)})`);
-          spineG.addColorStop(0.40, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
-          spineG.addColorStop(0.50, `rgba(255, 255, 255, ${alphaEnv * 1.0})`);
-          spineG.addColorStop(0.60, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
-          spineG.addColorStop(0.78, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.68 : 0.82)})`);
-          spineG.addColorStop(1.0, 'rgba(255,255,255,0)');
-          pCtx.fillStyle = spineG;
-          pCtx.fillRect(midX - spineW, 0, spineW * 2, offH);
-
-          // Pass 3E: Feathered Conical Base Alpha Mask
-          pCtx.globalCompositeOperation = 'destination-out';
-          const botY0 = Math.max(0, nv.y - 42);
-          const botFade = pCtx.createLinearGradient(0, botY0, 0, offH);
-          botFade.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
-          botFade.addColorStop(0.55, 'rgba(0, 0, 0, 0.72)');
-          botFade.addColorStop(0.85, 'rgba(0, 0, 0, 1.0)');
-          botFade.addColorStop(1.0, 'rgba(0, 0, 0, 1.0)');
-          pCtx.fillStyle = botFade;
-          pCtx.fillRect(0, botY0, offW, offH - botY0);
-
-          const flankY = nv.y + 4;
-          const flankR = offW * 0.46;
-          [0, offW].forEach((cxF) => {
-            const fg = pCtx.createRadialGradient(cxF, flankY, offW * 0.14, cxF, flankY, flankR);
-            fg.addColorStop(0.0, 'rgba(0, 0, 0, 1.0)');
-            fg.addColorStop(0.55, 'rgba(0, 0, 0, 0.55)');
-            fg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-            pCtx.fillStyle = fg;
-            pCtx.fillRect(0, Math.max(0, flankY - flankR), offW, flankR + 36);
-          });
-          pCtx.restore();
-
-          ctx.globalAlpha = 1.0;
-          ctx.drawImage(this._novaPillarCanvas, 0, 0, offW, offH, nv.x - midX, 0, offW, offH);
-
-          // LAYER 4: 360° Base Sunburst + Counter-Rotating Fiery/Plasma Coronas Behind the Wings & Core
-          const baseGlowKey = isDynamoMode ? 'violet' : (isHelixMode ? 'helix' : 'amber');
-          const baseGlowSpr = QuantumRenderer._getGlowSprite(baseGlowKey);
-          const hotBaseSpr = QuantumRenderer._getGlowSprite(isDynamoMode ? 'cyan' : (isHelixMode ? 'helix' : 'gold'));
-          ctx.globalAlpha = alphaEnv * 0.92;
-          ctx.drawImage(baseGlowSpr, nv.x - 165 * scaleK, nv.y - 105 * scaleK, 330 * scaleK, 190 * scaleK);
-          ctx.globalAlpha = alphaEnv * 0.98;
-          ctx.drawImage(hotBaseSpr, nv.x - 95 * scaleK, nv.y - 80 * scaleK, 190 * scaleK, 145 * scaleK);
-          ctx.globalAlpha = 1.0;
-          const corImg = VfxUltraAssets.novaCorona[mKey];
-          const corReady = VfxUltraAssets.loaded.novaCorona[mKey] && corImg && corImg.naturalWidth > 0;
-          if (corReady) {
-            const corBase = (isMob ? 260 : 395) * (0.88 + 0.14 * Math.sin(elapsed * 0.018)) * rampIn;
+            // 36 rotating 3D perspective radial energy spokes inside the disk
             ctx.save();
-            ctx.translate(nv.x, nv.y);
-            ctx.scale(1.34, 0.88);
-            ctx.rotate(elapsed * 0.00055);
-            ctx.globalAlpha = alphaEnv * 0.96;
-            ctx.drawImage(corImg, -corBase * 0.5, -corBase * 0.5, corBase, corBase);
-            ctx.restore();
-            ctx.save();
-            ctx.translate(nv.x, nv.y);
-            ctx.scale(1.06, 0.96);
-            ctx.rotate(-elapsed * 0.00095 + 0.9);
-            ctx.globalAlpha = alphaEnv * 0.78;
-            const corIn = corBase * 0.78;
-            ctx.drawImage(corImg, -corIn * 0.5, -corIn * 0.5, corIn, corIn);
-            ctx.restore();
-          }
-
-          // LAYER 5: Mode-Authentic Rising Particles Constrained Inside the Conical Eruption Funnel
-          if (nv.embers && nv.embers.length) {
+            ctx.rotate(elapsed * 0.0007);
             ctx.lineCap = 'round';
-            for (let eIdx = 0; eIdx < nv.embers.length; eIdx++) {
-              const em = nv.embers[eIdx];
-              em.oy += em.vy * dtScale;
-              em.ox += (em.vx + Math.sin(elapsed * 0.012 + em.phase) * 1.35) * dtScale;
-              if (nv.y + em.oy < -24) {
-                em.oy = -8 - Math.random() * 55;
-                em.ox = (Math.random() - 0.5) * basePillarW * 0.72;
-              }
-              const ey = nv.y + em.oy;
-              if (ey > nv.y + 8) continue;
-              const hFrac = Math.min(1.0, Math.max(0.18, (nv.y - ey) / 190));
-              const ex = nv.x + em.ox * hFrac;
+            for (let sp = 0; sp < 36; sp++) {
+              const sa = (sp / 36) * Math.PI * 2;
+              const srOut = ellipseRx * (0.62 + 0.34 * Math.abs(Math.sin(sp * 2.3)));
+              ctx.strokeStyle = (sp % 2 === 0) ? `${pal.ringCore}${alphaEnv * 0.34})` : `${pal.spineMid}${alphaEnv * 0.28})`;
+              ctx.lineWidth = (sp % 3 === 0) ? 3.0 : 1.6;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(sa) * 24, Math.sin(sa) * 24);
+              ctx.lineTo(Math.cos(sa) * srOut, Math.sin(sa) * srOut);
+              ctx.stroke();
+            }
+            // 2 counter-rotating swirling vortex arcs
+            ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.42})`;
+            ctx.lineWidth = 2.6;
+            for (let va = 0; va < 2; va++) {
+              const vr = ellipseRx * (va === 0 ? 0.42 : 0.70);
+              const vStart = elapsed * (va === 0 ? 0.0018 : -0.0012) + va * 2.1;
+              ctx.beginPath();
+              ctx.arc(0, 0, vr, vStart, vStart + Math.PI * 1.15);
+              ctx.stroke();
+            }
+            ctx.restore();
+            ctx.restore();
 
-              if (isDynamoMode) {
-                ctx.strokeStyle = (eIdx % 5 === 0) ? '#fde047' : (em.bright ? '#7dd3fc' : '#c4b5fd');
-                ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.74);
-                ctx.lineWidth = Math.max(1.2, em.w * 0.85);
-                const zig1 = Math.sin(elapsed * 0.08 + em.phase) * 6;
-                const zig2 = Math.cos(elapsed * 0.09 + eIdx) * 5;
-                ctx.beginPath();
-                ctx.moveTo(ex, ey);
-                ctx.lineTo(ex + zig1, ey + em.len * 0.36);
-                ctx.lineTo(ex - zig2, ey + em.len * 0.72);
-                ctx.lineTo(ex - em.vx * 1.2, ey + em.len);
-                ctx.stroke();
-              } else if (isHelixMode) {
-                const dr = em.w * 1.65;
-                ctx.fillStyle = em.bright ? '#a5f3fc' : '#f5d0fe';
-                ctx.globalAlpha = alphaEnv * (em.bright ? 0.90 : 0.72);
-                ctx.beginPath();
-                ctx.moveTo(ex, ey - dr * 1.8);
-                ctx.lineTo(ex + dr * 0.75, ey);
-                ctx.lineTo(ex, ey + dr * 1.8);
-                ctx.lineTo(ex - dr * 0.75, ey);
-                ctx.closePath();
-                ctx.fill();
-              } else {
-                const curveX = ex + Math.sin(elapsed * 0.02 + em.phase) * 4.5;
-                ctx.strokeStyle = em.bright ? pal.emberHot : pal.emberWarm;
-                ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.75);
-                ctx.lineWidth = em.w;
-                ctx.beginPath();
-                ctx.moveTo(ex, ey);
-                ctx.quadraticCurveTo(curveX, ey + em.len * 0.5, ex - em.vx * 1.6, ey + em.len);
-                ctx.stroke();
+            // 2B: Seamless Back Half of the 3D Orbital Ring
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.52})`;
+            ctx.lineWidth = 11;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
+            ctx.stroke();
+            ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.96})`;
+            ctx.lineWidth = 3.2;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
+            ctx.stroke();
+            ctx.restore();
+
+            // LAYER 3: Soft-Feathered Offscreen Eruption Column Buffer
+            const pillarH = Math.max(240, nv.y + 4);
+            const basePillarW = Math.max(120, (isMob ? 215 : 315) * (0.94 + 0.08 * Math.sin(elapsed * 0.024)) * scaleK);
+            const flameImg = VfxUltraAssets.novaFlame[mKey];
+            const wispsImg = VfxUltraAssets.novaWisps[mKey];
+            const flameReady = VfxUltraAssets.loaded.novaFlame[mKey] && flameImg && flameImg.naturalWidth > 0;
+            const wispsReady = VfxUltraAssets.loaded.novaWisps[mKey] && wispsImg && wispsImg.naturalWidth > 0;
+            const isHelixMode = (mKey === 'helix');
+            const isDynamoMode = (mKey === 'dynamo');
+
+            // Soft royal-violet storm sheath behind Dynamo lightning
+            if (isDynamoMode) {
+              ctx.save();
+              ctx.globalCompositeOperation = 'source-over';
+              const shCy = Math.max(80, nv.y * 0.52);
+              const shRy = Math.max(220, nv.y * 0.56);
+              ctx.translate(nv.x, shCy);
+              ctx.scale(0.58, 1.0);
+              const shG = ctx.createRadialGradient(0, 0, 20, 0, 0, shRy);
+              shG.addColorStop(0.0, `rgba(76, 29, 149, ${alphaEnv * 0.46})`);
+              shG.addColorStop(0.55, `rgba(49, 46, 129, ${alphaEnv * 0.24})`);
+              shG.addColorStop(1.0, 'rgba(30, 27, 75, 0)');
+              ctx.fillStyle = shG;
+              ctx.beginPath();
+              ctx.arc(0, 0, shRy, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+
+            const offW = Math.max(260, Math.min(1024, Math.ceil(basePillarW * 1.45)));
+            const offH = Math.max(280, Math.min(2048, Math.ceil(pillarH + 36)));
+            if (!this._novaPillarCanvas) {
+              this._novaPillarCanvas = document.createElement('canvas');
+              this._novaPillarCtx = this._novaPillarCanvas.getContext('2d');
+            }
+            if (this._novaPillarCanvas.width < offW || this._novaPillarCanvas.height < offH) {
+              this._novaPillarCanvas.width = Math.max(this._novaPillarCanvas.width || 0, offW);
+              this._novaPillarCanvas.height = Math.max(this._novaPillarCanvas.height || 0, offH);
+            }
+            const pCtx = this._novaPillarCtx;
+            const midX = offW * 0.5;
+            pCtx.clearRect(0, 0, offW, offH);
+            pCtx.save();
+            pCtx.globalCompositeOperation = 'lighter';
+
+            // Pass 3A: Atmospheric Outer Column Aura
+            const outerW = Math.max(20, basePillarW * (isHelixMode ? 0.36 : (isDynamoMode ? 0.60 : 0.68)));
+            const outerG = pCtx.createLinearGradient(midX - outerW, 0, midX + outerW, 0);
+            outerG.addColorStop(0.0, 'rgba(0,0,0,0)');
+            outerG.addColorStop(0.28, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.28 : 0.38)})`);
+            outerG.addColorStop(0.50, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.48 : 0.62)})`);
+            outerG.addColorStop(0.72, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.28 : 0.38)})`);
+            outerG.addColorStop(1.0, 'rgba(0,0,0,0)');
+            pCtx.fillStyle = outerG;
+            pCtx.fillRect(midX - outerW, 0, outerW * 2, offH);
+
+            // Pass 3B: Primary Upward-Rushing Seamless Domain-Warped Turbulent Column
+            if (flameReady) {
+              const tileW = Math.max(48, basePillarW * (isHelixMode ? 0.42 : (isDynamoMode ? 0.72 : 1.0)));
+              const tileH = Math.max(96, tileW * 2.0);
+              const stepY = Math.max(32, tileH - 1);
+              const scroll1 = (elapsed * 1.05) % tileH;
+              pCtx.globalAlpha = alphaEnv * (isHelixMode ? 0.45 : (isDynamoMode ? 0.72 : 0.98));
+              let guard = 0;
+              for (let ty = nv.y + 18 + tileH - scroll1; ty > -tileH && guard < 24; ty -= stepY, guard++) {
+                pCtx.drawImage(flameImg, midX - tileW * 0.5, ty - tileH, tileW, tileH);
+              }
+              if (!isHelixMode) {
+                const scroll1b = (elapsed * 1.52) % tileH;
+                pCtx.save();
+                pCtx.translate(midX, 0);
+                pCtx.scale(-1.08, 1);
+                pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.32 : 0.65);
+                let guardB = 0;
+                for (let ty = nv.y + 18 + tileH - scroll1b; ty > -tileH && guardB < 24; ty -= stepY, guardB++) {
+                  pCtx.drawImage(flameImg, -tileW * 0.5, ty - tileH, tileW, tileH);
+                }
+                pCtx.restore();
               }
             }
+
+            // Pass 3C: Curling Licking Flame / Plasma Tendril Ribbons Twisting Up Both Flanks
+            if (wispsReady && !isHelixMode) {
+              const wTileW = Math.max(48, basePillarW * (isDynamoMode ? 1.00 : 1.12));
+              const wTileH = Math.max(96, wTileW * 2.0);
+              const wStepY = Math.max(32, wTileH - 1);
+              const scroll2 = (elapsed * 1.38) % wTileH;
+              pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.46 : 0.92);
+              let guardW = 0;
+              for (let ty = nv.y + 18 + wTileH - scroll2; ty > -wTileH && guardW < 24; ty -= wStepY, guardW++) {
+                pCtx.drawImage(wispsImg, midX - wTileW * 0.5, ty - wTileH, wTileW, wTileH);
+              }
+            }
+
+            // Pass 3D: Blinding White-Hot Central Laser / Solar / Photonic Core Spine
+            pCtx.globalAlpha = 1.0;
+            const spineW = Math.max(10, (isMob ? (isHelixMode ? 22 : (isDynamoMode ? 32 : 42)) : (isHelixMode ? 28 : (isDynamoMode ? 42 : 56))) * (0.92 + 0.12 * Math.sin(elapsed * 0.035)));
+            const spineG = pCtx.createLinearGradient(midX - spineW, 0, midX + spineW, 0);
+            spineG.addColorStop(0.0, 'rgba(255,255,255,0)');
+            spineG.addColorStop(0.22, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.68 : 0.82)})`);
+            spineG.addColorStop(0.40, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
+            spineG.addColorStop(0.50, `rgba(255, 255, 255, ${alphaEnv * 1.0})`);
+            spineG.addColorStop(0.60, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
+            spineG.addColorStop(0.78, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.68 : 0.82)})`);
+            spineG.addColorStop(1.0, 'rgba(255,255,255,0)');
+            pCtx.fillStyle = spineG;
+            pCtx.fillRect(midX - spineW, 0, spineW * 2, offH);
+
+            // Pass 3E: Feathered Conical Base Alpha Mask
+            pCtx.globalCompositeOperation = 'destination-out';
+            const botY0 = Math.max(0, Math.min(offH - 12, nv.y - 42));
+            const botFade = pCtx.createLinearGradient(0, botY0, 0, offH);
+            botFade.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+            botFade.addColorStop(0.55, 'rgba(0, 0, 0, 0.72)');
+            botFade.addColorStop(0.85, 'rgba(0, 0, 0, 1.0)');
+            botFade.addColorStop(1.0, 'rgba(0, 0, 0, 1.0)');
+            pCtx.fillStyle = botFade;
+            pCtx.fillRect(0, botY0, offW, Math.max(1, offH - botY0));
+
+            const flankY = nv.y + 4;
+            const flankR = Math.max(32, offW * 0.46);
+            [0, offW].forEach((cxF) => {
+              const fg = pCtx.createRadialGradient(cxF, flankY, offW * 0.14, cxF, flankY, flankR);
+              fg.addColorStop(0.0, 'rgba(0, 0, 0, 1.0)');
+              fg.addColorStop(0.55, 'rgba(0, 0, 0, 0.55)');
+              fg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+              pCtx.fillStyle = fg;
+              pCtx.fillRect(0, Math.max(0, flankY - flankR), offW, flankR + 36);
+            });
+            pCtx.restore();
+
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(this._novaPillarCanvas, 0, 0, offW, offH, nv.x - midX, 0, offW, offH);
+
+            // LAYER 4: 360° Base Sunburst + Counter-Rotating Fiery/Plasma Coronas Behind the Wings & Core
+            const baseGlowKey = isDynamoMode ? 'violet' : (isHelixMode ? 'helix' : 'amber');
+            const baseGlowSpr = QuantumRenderer._getGlowSprite(baseGlowKey);
+            const hotBaseSpr = QuantumRenderer._getGlowSprite(isDynamoMode ? 'cyan' : (isHelixMode ? 'helix' : 'gold'));
+            ctx.globalAlpha = alphaEnv * 0.92;
+            ctx.drawImage(baseGlowSpr, nv.x - 165 * scaleK, nv.y - 105 * scaleK, 330 * scaleK, 190 * scaleK);
+            ctx.globalAlpha = alphaEnv * 0.98;
+            ctx.drawImage(hotBaseSpr, nv.x - 95 * scaleK, nv.y - 80 * scaleK, 190 * scaleK, 145 * scaleK);
+            ctx.globalAlpha = 1.0;
+            const corImg = VfxUltraAssets.novaCorona[mKey];
+            const corReady = VfxUltraAssets.loaded.novaCorona[mKey] && corImg && corImg.naturalWidth > 0;
+            if (corReady) {
+              const corBase = (isMob ? 260 : 395) * (0.88 + 0.14 * Math.sin(elapsed * 0.018)) * rampIn;
+              ctx.save();
+              ctx.translate(nv.x, nv.y);
+              ctx.scale(1.34, 0.88);
+              ctx.rotate(elapsed * 0.00055);
+              ctx.globalAlpha = alphaEnv * 0.96;
+              ctx.drawImage(corImg, -corBase * 0.5, -corBase * 0.5, corBase, corBase);
+              ctx.restore();
+              ctx.save();
+              ctx.translate(nv.x, nv.y);
+              ctx.scale(1.06, 0.96);
+              ctx.rotate(-elapsed * 0.00095 + 0.9);
+              ctx.globalAlpha = alphaEnv * 0.78;
+              const corIn = corBase * 0.78;
+              ctx.drawImage(corImg, -corIn * 0.5, -corIn * 0.5, corIn, corIn);
+              ctx.restore();
+            }
+
+            // LAYER 5: Mode-Authentic Rising Particles Constrained Inside the Conical Eruption Funnel
+            if (nv.embers && nv.embers.length) {
+              ctx.lineCap = 'round';
+              for (let eIdx = 0; eIdx < nv.embers.length; eIdx++) {
+                const em = nv.embers[eIdx];
+                em.oy += em.vy * dtScale;
+                em.ox += (em.vx + Math.sin(elapsed * 0.012 + em.phase) * 1.35) * dtScale;
+                if (nv.y + em.oy < -24) {
+                  em.oy = -8 - Math.random() * 55;
+                  em.ox = (Math.random() - 0.5) * basePillarW * 0.72;
+                }
+                const ey = nv.y + em.oy;
+                if (ey > nv.y + 8) continue;
+                const hFrac = Math.min(1.0, Math.max(0.18, (nv.y - ey) / 190));
+                const ex = nv.x + em.ox * hFrac;
+
+                if (isDynamoMode) {
+                  ctx.strokeStyle = (eIdx % 5 === 0) ? '#fde047' : (em.bright ? '#7dd3fc' : '#c4b5fd');
+                  ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.74);
+                  ctx.lineWidth = Math.max(1.2, em.w * 0.85);
+                  const zig1 = Math.sin(elapsed * 0.08 + em.phase) * 6;
+                  const zig2 = Math.cos(elapsed * 0.09 + eIdx) * 5;
+                  ctx.beginPath();
+                  ctx.moveTo(ex, ey);
+                  ctx.lineTo(ex + zig1, ey + em.len * 0.36);
+                  ctx.lineTo(ex - zig2, ey + em.len * 0.72);
+                  ctx.lineTo(ex - em.vx * 1.2, ey + em.len);
+                  ctx.stroke();
+                } else if (isHelixMode) {
+                  const dr = em.w * 1.65;
+                  ctx.fillStyle = em.bright ? '#a5f3fc' : '#f5d0fe';
+                  ctx.globalAlpha = alphaEnv * (em.bright ? 0.90 : 0.72);
+                  ctx.beginPath();
+                  ctx.moveTo(ex, ey - dr * 1.8);
+                  ctx.lineTo(ex + dr * 0.75, ey);
+                  ctx.lineTo(ex, ey + dr * 1.8);
+                  ctx.lineTo(ex - dr * 0.75, ey);
+                  ctx.closePath();
+                  ctx.fill();
+                } else {
+                  const curveX = ex + Math.sin(elapsed * 0.02 + em.phase) * 4.5;
+                  ctx.strokeStyle = em.bright ? pal.emberHot : pal.emberWarm;
+                  ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.75);
+                  ctx.lineWidth = em.w;
+                  ctx.beginPath();
+                  ctx.moveTo(ex, ey);
+                  ctx.quadraticCurveTo(curveX, ey + em.len * 0.5, ex - em.vx * 1.6, ey + em.len);
+                  ctx.stroke();
+                }
+              }
+            }
+
+            // LAYER 5B: Bespoke Per-Realm Climax Signature FX (Dynamo Lightning Storm / Helix Giant DNA Beam / Meteor Solar Prominence & Lava)
+            this._drawNovaRealmFX(ctx, nv, elapsed, p, alphaEnv, rampIn, w, h, dtScale, basePillarW, isMob);
+
+            ctx.restore();
+          } catch (novaErr) {
+            try { ctx.restore(); } catch (_) {}
+            this.activeNova = null;
           }
-
-          // LAYER 5B: Bespoke Per-Realm Climax Signature FX (Dynamo Lightning Storm / Helix Giant DNA Beam / Meteor Solar Prominence & Lava)
-          this._drawNovaRealmFX(ctx, nv, elapsed, p, alphaEnv, rampIn, w, h, dtScale, basePillarW, isMob);
-
-          ctx.restore();
         }
       }
     },
@@ -9008,7 +9039,7 @@
         }
         ctx.restore();
 
-        if (!nv._boltAt || elapsed - nv._boltAt > 38) {
+        if (!nv._boltAt || elapsed - nv._boltAt > 56) {
           nv._prevBolts = nv._bolts || null;
           nv._boltAt = elapsed;
           const trunks = [];
@@ -9016,7 +9047,7 @@
           const ground = [];
           const rimArcs = [];
           const topY = -24;
-          const trunkCount = isMob ? 5 : 7;
+          const trunkCount = isMob ? 4 : 6;
 
           for (let t = 0; t < trunkCount; t++) {
             const norm = (t / (trunkCount - 1)) - 0.5;
@@ -9024,12 +9055,12 @@
             const yCore = nv.y - 8;
             const xTop = nv.x + norm * pillarW * 2.5 + (Math.random() - 0.5) * 60;
             trunks.push({
-              pts: this._novaBolt(xTop, topY, xCore, yCore, 66, 5),
+              pts: this._novaBolt(xTop, topY, xCore, yCore, 66, 4),
               style: t % 3
             });
           }
 
-          const branchCount = isMob ? 18 : 28;
+          const branchCount = isMob ? 12 : 18;
           for (let b = 0; b < branchCount; b++) {
             let sx, sy, side, len, ang;
             if (b < Math.floor(branchCount * 0.5)) {
@@ -9041,7 +9072,7 @@
               ang = -Math.PI * 0.5 + side * (0.48 + Math.random() * 0.85);
             } else {
               const tr = trunks[b % trunks.length].pts;
-              const si = 3 + Math.floor(Math.random() * Math.max(2, tr.length - 8));
+              const si = Math.min(tr.length - 1, 2 + Math.floor(Math.random() * Math.max(2, tr.length - 4)));
               const s = tr[si];
               sx = s.x;
               sy = s.y;
@@ -9052,22 +9083,22 @@
             const ex = sx + Math.cos(ang) * len * 1.25;
             const ey = sy + Math.sin(ang) * len * 0.62;
             const style = (b % 5 === 0) ? 2 : (b % 2);
-            const br = this._novaBolt(sx, sy, ex, ey, 34, 4);
+            const br = this._novaBolt(sx, sy, ex, ey, 34, 3);
             branches.push({ pts: br, style });
-            if (Math.random() < 0.65 && br.length > 4) {
+            if (Math.random() < 0.55 && br.length > 4) {
               const tw = br[Math.floor(br.length * (0.35 + Math.random() * 0.35))];
               branches.push({
-                pts: this._novaBolt(tw.x, tw.y, tw.x + side * (48 + Math.random() * 105), tw.y + (Math.random() - 0.55) * 90, 18, 3),
+                pts: this._novaBolt(tw.x, tw.y, tw.x + side * (48 + Math.random() * 105), tw.y + (Math.random() - 0.55) * 90, 18, 2),
                 style: style
               });
             }
           }
 
-          for (let g = 0; g < 14; g++) {
-            const ga = (g / 14) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+          for (let g = 0; g < 10; g++) {
+            const ga = (g / 10) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
             const reach = 0.58 + Math.random() * 0.44;
             ground.push({
-              pts: this._novaBolt(nv.x, nv.y, nv.x + Math.cos(ga) * rx * reach, nv.y + Math.sin(ga) * ry * reach, 22, 4),
+              pts: this._novaBolt(nv.x, nv.y, nv.x + Math.cos(ga) * rx * reach, nv.y + Math.sin(ga) * ry * reach, 22, 3),
               style: g % 4 === 0 ? 2 : (g % 2)
             });
           }
@@ -9075,18 +9106,18 @@
             const a0 = Math.random() * Math.PI * 2;
             const a1 = a0 + 0.45 + Math.random() * 0.55;
             rimArcs.push({
-              pts: this._novaBolt(nv.x + Math.cos(a0) * rx, nv.y + Math.sin(a0) * ry, nv.x + Math.cos(a1) * rx, nv.y + Math.sin(a1) * ry, 14, 3),
+              pts: this._novaBolt(nv.x + Math.cos(a0) * rx, nv.y + Math.sin(a0) * ry, nv.x + Math.cos(a1) * rx, nv.y + Math.sin(a1) * ry, 14, 2),
               style: 2
             });
           }
 
           const arcs = [];
-          for (let c = 0; c < 7; c++) {
+          for (let c = 0; c < 6; c++) {
             const a0 = Math.random() * Math.PI * 2;
             const a1 = a0 + 0.8 + Math.random() * 1.5;
             const r0 = 46 + Math.random() * 18;
             arcs.push({
-              pts: this._novaBolt(nv.x + Math.cos(a0) * r0, nv.y + Math.sin(a0) * r0, nv.x + Math.cos(a1) * r0, nv.y + Math.sin(a1) * r0, 14, 3),
+              pts: this._novaBolt(nv.x + Math.cos(a0) * r0, nv.y + Math.sin(a0) * r0, nv.x + Math.cos(a1) * r0, nv.y + Math.sin(a1) * r0, 14, 2),
               style: c % 3
             });
           }
@@ -9380,60 +9411,61 @@
       const alphaEnv = nv._alphaEnv || 0;
       if (alphaEnv <= 0.01) return;
       const pal = nv._pal;
-      const rx = nv._ellipseRx || 220;
-      const ry = nv._ellipseRy || 80;
-      if (!pal) return;
+      const rx = Math.max(40, nv._ellipseRx || 220);
+      const ry = Math.max(14, nv._ellipseRy || 80);
+      if (!pal || !Number.isFinite(nv.x) || !Number.isFinite(nv.y)) return;
 
       ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
+      try {
+        ctx.globalCompositeOperation = 'lighter';
 
-      // LAYER 6: Front Half (0..PI) of the 3D Orbital Ellipse with round cap & slight overlap
-      ctx.save();
-      ctx.translate(nv.x, nv.y);
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.58})`;
-      ctx.lineWidth = 11;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
-      ctx.stroke();
-
-      ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.98})`;
-      ctx.lineWidth = 3.2;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
-      ctx.stroke();
-
-      // Equatorial horizon node glints + moving front rim glint
-      const gSpr = QuantumRenderer._getGlowSprite('gold');
-      ctx.globalAlpha = alphaEnv * 0.55;
-      ctx.drawImage(gSpr, -rx - 18, -14, 36, 28);
-      ctx.drawImage(gSpr, rx - 18, -14, 36, 28);
-      const glintX = Math.cos(now * 0.005) * rx * 0.72;
-      const glintY = Math.sqrt(Math.max(0, 1 - (glintX * glintX) / (rx * rx))) * ry;
-      ctx.globalAlpha = alphaEnv * 0.85;
-      ctx.drawImage(gSpr, glintX - 24, glintY - 14, 48, 28);
-      ctx.restore();
-
-      // LAYER 7: Core-Hugging Ignition Crown Flare where the Pillar Erupts out of the Top of the Core
-      const topGlow = QuantumRenderer._getGlowSprite(nv.mode === 'meteor' ? 'gold' : (nv.mode === 'helix' ? 'helix' : 'cyan'));
-      ctx.globalAlpha = alphaEnv * 0.78;
-      ctx.drawImage(topGlow, nv.x - 66, nv.y - 78, 132, 104);
-      ctx.globalAlpha = 1.0;
-
-      // LAYER 8: Dynamo — 7 Multi-Hued Crackling Electric Arcs Wrapping Over the Core Surface
-      if (nv.mode === 'dynamo' && nv._coreArcs) {
+        // LAYER 6: Front Half (0..PI) of the 3D Orbital Ellipse with round cap & slight overlap
+        ctx.save();
+        ctx.translate(nv.x, nv.y);
         ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        for (let i = 0; i < nv._coreArcs.length; i++) {
-          const arc = nv._coreArcs[i];
-          const pts = arc.pts || arc;
-          const st = arc.style || 0;
-          const c0 = st === 2 ? 'rgba(245, 158, 11, ' : (st === 1 ? 'rgba(139, 92, 246, ' : 'rgba(59, 130, 246, ');
-          const c1 = st === 2 ? 'rgba(253, 224, 71, ' : (st === 1 ? 'rgba(192, 132, 252, ' : 'rgba(125, 211, 252, ');
-          this._strokeBoltPasses(ctx, pts, alphaEnv * 0.94, 0.56, c0, c1);
-        }
-      }
+        ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.58})`;
+        ctx.lineWidth = 11;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
+        ctx.stroke();
 
+        ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.98})`;
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
+        ctx.stroke();
+
+        // Equatorial horizon node glints + moving front rim glint
+        const gSpr = QuantumRenderer._getGlowSprite('gold');
+        ctx.globalAlpha = alphaEnv * 0.55;
+        ctx.drawImage(gSpr, -rx - 18, -14, 36, 28);
+        ctx.drawImage(gSpr, rx - 18, -14, 36, 28);
+        const glintX = Math.cos(now * 0.005) * rx * 0.72;
+        const glintY = Math.sqrt(Math.max(0, 1 - (glintX * glintX) / (rx * rx))) * ry;
+        ctx.globalAlpha = alphaEnv * 0.85;
+        ctx.drawImage(gSpr, glintX - 24, glintY - 14, 48, 28);
+        ctx.restore();
+
+        // LAYER 7: Core-Hugging Ignition Crown Flare where the Pillar Erupts out of the Top of the Core
+        const topGlow = QuantumRenderer._getGlowSprite(nv.mode === 'meteor' ? 'gold' : (nv.mode === 'helix' ? 'helix' : 'cyan'));
+        ctx.globalAlpha = alphaEnv * 0.78;
+        ctx.drawImage(topGlow, nv.x - 66, nv.y - 78, 132, 104);
+        ctx.globalAlpha = 1.0;
+
+        // LAYER 8: Dynamo — Multi-Hued Crackling Electric Arcs Wrapping Over the Core Surface
+        if (nv.mode === 'dynamo' && nv._coreArcs) {
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let i = 0; i < nv._coreArcs.length; i++) {
+            const arc = nv._coreArcs[i];
+            const pts = arc.pts || arc;
+            const st = arc.style || 0;
+            const c0 = st === 2 ? 'rgba(245, 158, 11, ' : (st === 1 ? 'rgba(139, 92, 246, ' : 'rgba(59, 130, 246, ');
+            const c1 = st === 2 ? 'rgba(253, 224, 71, ' : (st === 1 ? 'rgba(192, 132, 252, ' : 'rgba(125, 211, 252, ');
+            this._strokeBoltPasses(ctx, pts, alphaEnv * 0.94, 0.56, c0, c1);
+          }
+        }
+      } catch (_) {}
       ctx.restore();
     }
   };
@@ -13334,8 +13366,9 @@
     const w = dom.canvasReflex.width / dpr;
     const h = dom.canvasReflex.height / dpr;
 
-    ctx.save();
-    ctx.scale(dpr, dpr);
+    try {
+      ctx.save();
+      ctx.scale(dpr, dpr);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'medium';
     ctx.clearRect(0, 0, w, h);
@@ -15747,26 +15780,33 @@
       }
     }
 
-    // Render Floating Texts (Score / Feedback Alerts)
-    for (let f = state.floatingTexts.length - 1; f >= 0; f--) {
-      const ft = state.floatingTexts[f];
-      ft.y += ft.vy;
-      ft.alpha -= 0.02;
-      if (ft.alpha <= 0) {
-        state.floatingTexts.splice(f, 1);
-        continue;
+      // Render Floating Texts (Score / Feedback Alerts — Fault-Tolerant against missing vy)
+      for (let f = state.floatingTexts.length - 1; f >= 0; f--) {
+        const ft = state.floatingTexts[f];
+        if (!ft) { state.floatingTexts.splice(f, 1); continue; }
+        ft.y = (Number.isFinite(ft.y) ? ft.y : h * 0.5) + (Number.isFinite(ft.vy) ? ft.vy : -1.2);
+        ft.alpha = (Number.isFinite(ft.alpha) ? ft.alpha : 1.0) - 0.02;
+        if (ft.alpha <= 0) {
+          state.floatingTexts.splice(f, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.font = '800 14px "Lexend", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = ft.color || '#fde047';
+        ctx.globalAlpha = Math.max(0, Math.min(1, ft.alpha));
+        ctx.fillText(String(ft.text || ''), Number.isFinite(ft.x) ? ft.x : w * 0.5, ft.y);
+        ctx.restore();
       }
-      ctx.save();
-      ctx.font = '800 14px "Lexend", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = ft.color;
-      ctx.globalAlpha = ft.alpha;
-      ctx.fillText(ft.text, ft.x, ft.y);
-      ctx.restore();
-    }
 
-    ctx.restore();
-    animFrameId = requestAnimationFrame(reflexGameLoop);
+      ctx.restore();
+    } catch (loopErr) {
+      try { ctx.setTransform(1, 0, 0, 1, 0, 0); } catch (_) {}
+      console.warn('[OrlandoChrome] Recovered frame error:', loopErr);
+    }
+    if (state.active) {
+      animFrameId = requestAnimationFrame(reflexGameLoop);
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
