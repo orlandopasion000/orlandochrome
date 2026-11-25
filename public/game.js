@@ -4092,6 +4092,10 @@
   const _meteorDetachedEmbers = [];
   let _lastMeteorEmberSpawn = 0;
 
+  // Offscreen Wing Shimmer Buffer (Guarantees source-atop metallic sheen stays strictly on wing feathers with zero bleed!)
+  let _wingShimmerCanvas = null;
+  let _wingShimmerCtx = null;
+
   function drawArticulatedWings(ctx, mode, u, cySrc, tier, now, isPortalPreview = false) {
     const cTier = isPortalPreview ? tier : CoreKinematics.continuousTier;
     if (cTier <= 1.02) return; // Tier I has no wings!
@@ -4116,7 +4120,19 @@
     // Small mirrored flex with tip lag (kept tight so hinges always remain attached to the bezel/core!)
     const loadFlex = Math.max(-0.045, Math.min(0.055, (CoreKinematics.rootY * 0.0022 - vy * 0.0018) * motionScale));
     const delayedOuterFlex = Math.max(-0.065, Math.min(0.075, (CoreKinematics.tipY * 0.0028 - CoreKinematics.bodyBank * 0.08) * motionScale));
-    const breathFlex = Math.sin(now * 0.0030) * 0.008 * motionScale;
+    const breathFlex = Math.sin(now * 0.0030) * 0.009 * motionScale;
+
+    // Prepare reusable offscreen canvas for physical metallic wing sheen (source-atop masked to the exact wing PNG alpha!)
+    const bufW = Math.max(64, Math.ceil(wingW + 12));
+    const bufH = Math.max(64, Math.ceil(wingH + 12));
+    if (!_wingShimmerCanvas) {
+      _wingShimmerCanvas = document.createElement('canvas');
+      _wingShimmerCtx = _wingShimmerCanvas.getContext('2d');
+    }
+    if (_wingShimmerCanvas.width < bufW || _wingShimmerCanvas.height < bufH) {
+      _wingShimmerCanvas.width = Math.max(_wingShimmerCanvas.width || 0, bufW);
+      _wingShimmerCanvas.height = Math.max(_wingShimmerCanvas.height || 0, bufH);
+    }
 
     const drawSingleTierWingPair = (tIdx, alphaVal) => {
       if (alphaVal <= 0.01) return;
@@ -4124,9 +4140,74 @@
       const wLoaded = LayeredT4Assets.loaded.wingRightTiers[mode] && LayeredT4Assets.loaded.wingRightTiers[mode][tIdx];
       if (!wSpr || !wLoaded) return;
 
+      // Progressive Luxury Multiplier as Tier goes up (Tier II -> III -> IV -> V)
+      const tierLux = (tIdx === 2) ? 0.35 : (tIdx === 3 ? 0.58 : (tIdx === 4 ? 0.82 : 1.10));
+      const ultBoost = isUltActive ? 1.55 : 1.0;
+
       for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
         const dir = (sideIdx === 0) ? 1 : -1; // +1 Right wing, -1 Left wing
         const rootInsetX = (mode === 'meteor') ? (-4 * coreImgScale) : (-2 * coreImgScale);
+
+        // Render base wing + masked metallic specular sheen inside the offscreen wing buffer so alpha edges stay 100% razor-sharp!
+        const wCtx = _wingShimmerCtx;
+        wCtx.clearRect(0, 0, bufW, bufH);
+        wCtx.save();
+        wCtx.drawImage(wSpr, 0, 0, wingW, wingH);
+
+        // Apply progressive luxury anisotropic metallic sheen strictly to opaque wing pixels (source-atop)!
+        wCtx.globalCompositeOperation = 'source-atop';
+
+        // 1. Primary Sweeping Anisotropic Metallic Sheen Band (travels from root collar out to feather tips)
+        const sweepSpeed = (isUltActive ? 0.0022 : (0.00065 + tIdx * 0.00012)) * motionScale;
+        const sweepProg = ((now * sweepSpeed + sideIdx * 0.18) % 1.35) - 0.15;
+        const bandCenter = sweepProg * wingW;
+        const bandHalfW = wingW * (0.18 + tIdx * 0.04);
+        const sheenG = wCtx.createLinearGradient(bandCenter - bandHalfW, pivotY - wingH * 0.3, bandCenter + bandHalfW, pivotY + wingH * 0.2);
+
+        const sheenPeak = Math.min(0.85, (0.20 + tierLux * 0.36) * ultBoost);
+        if (mode === 'dynamo') {
+          sheenG.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
+          sheenG.addColorStop(0.35, `rgba(125, 211, 252, ${sheenPeak * 0.55})`);
+          sheenG.addColorStop(0.50, `rgba(255, 255, 255, ${sheenPeak})`);
+          sheenG.addColorStop(0.68, `rgba(253, 224, 71, ${sheenPeak * 0.60})`);
+          sheenG.addColorStop(1.0, 'rgba(250, 204, 21, 0)');
+        } else if (mode === 'helix') {
+          sheenG.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
+          sheenG.addColorStop(0.32, `rgba(103, 232, 249, ${sheenPeak * 0.65})`);
+          sheenG.addColorStop(0.50, `rgba(255, 255, 255, ${sheenPeak})`);
+          sheenG.addColorStop(0.68, `rgba(244, 114, 182, ${sheenPeak * 0.65})`);
+          sheenG.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
+        } else {
+          sheenG.addColorStop(0.0, 'rgba(234, 88, 12, 0)');
+          sheenG.addColorStop(0.34, `rgba(251, 146, 60, ${sheenPeak * 0.65})`);
+          sheenG.addColorStop(0.50, `rgba(254, 249, 195, ${sheenPeak})`);
+          sheenG.addColorStop(0.68, `rgba(250, 204, 21, ${sheenPeak * 0.70})`);
+          sheenG.addColorStop(1.0, 'rgba(217, 119, 6, 0)');
+        }
+        wCtx.fillStyle = sheenG;
+        wCtx.fillRect(0, 0, wingW, wingH);
+
+        // 2. Tier IV & V Secondary Counter-Sheen & Warm/Iridescent Inner Root Reflection from the Core
+        if (tIdx >= 3) {
+          const rootGlowG = wCtx.createRadialGradient(wingW * 0.14, pivotY, wingW * 0.02, wingW * 0.16, pivotY, wingW * (0.42 + (tIdx - 3) * 0.12));
+          const rootAlpha = (0.14 + (tIdx - 2) * 0.08) * ultBoost * (0.75 + 0.25 * Math.sin(now * 0.005));
+          if (mode === 'dynamo') {
+            rootGlowG.addColorStop(0.0, `rgba(253, 224, 71, ${rootAlpha})`);
+            rootGlowG.addColorStop(0.5, `rgba(56, 189, 248, ${rootAlpha * 0.55})`);
+            rootGlowG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          } else if (mode === 'helix') {
+            rootGlowG.addColorStop(0.0, `rgba(165, 243, 252, ${rootAlpha})`);
+            rootGlowG.addColorStop(0.5, `rgba(232, 121, 249, ${rootAlpha * 0.55})`);
+            rootGlowG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          } else {
+            rootGlowG.addColorStop(0.0, `rgba(254, 240, 138, ${rootAlpha * 1.15})`);
+            rootGlowG.addColorStop(0.5, `rgba(249, 115, 22, ${rootAlpha * 0.70})`);
+            rootGlowG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          }
+          wCtx.fillStyle = rootGlowG;
+          wCtx.fillRect(0, 0, wingW, wingH);
+        }
+        wCtx.restore();
 
         // For Tier IV & V (broader layered wings), render subtle delayed response between inner and outer feathers
         if (tIdx >= 4 && !_prefersReducedMotion) {
@@ -4134,8 +4215,8 @@
           ctx.save();
           ctx.rotate(dir * (loadFlex * 0.65 + delayedOuterFlex + breathFlex));
           ctx.scale(dir, 1);
-          ctx.globalAlpha = alphaVal * 0.96;
-          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          ctx.globalAlpha = alphaVal * 0.98;
+          ctx.drawImage(_wingShimmerCanvas, 0, 0, wingW, wingH, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
 
           // Inner feather & root collar pass (immediate response, clipped to inner 58% of wing span)
@@ -4146,7 +4227,7 @@
           ctx.rect(rootInsetX, -pivotY, wingW * 0.58, wingH);
           ctx.clip();
           ctx.globalAlpha = alphaVal;
-          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          ctx.drawImage(_wingShimmerCanvas, 0, 0, wingW, wingH, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         } else {
           // Single-layer synchronized flex (Tiers II & III)
@@ -4154,25 +4235,60 @@
           ctx.rotate(dir * (loadFlex + breathFlex));
           ctx.scale(dir, 1);
           ctx.globalAlpha = alphaVal;
-          ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
+          ctx.drawImage(_wingShimmerCanvas, 0, 0, wingW, wingH, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         }
 
-        // Material-Specific Surface Lighting & Feather Currents (strictly clipped to the wing's alpha silhouette via source-atop!)
+        // Material-Specific Surface Glints, Feather Ridge Highlights & Diamond Sparkles (Progressive by Tier II -> V!)
         ctx.save();
         ctx.rotate(dir * (loadFlex + (tIdx >= 4 ? delayedOuterFlex * 0.7 : 0) + breathFlex));
         ctx.scale(dir, 1);
+
+        // Progressive Diamond Specular Micro-Glints along the feather ridges (1 in Tier II, 2 in Tier III, 4 in Tier IV, 6 in Tier V)
+        const numSparkles = (tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 4 : 6));
+        const maxSpanX = (tIdx === 2 ? 175 : (tIdx === 3 ? 250 : (tIdx === 4 ? 320 : 375))) * coreImgScale;
+        for (let sp = 0; sp < numSparkles; sp++) {
+          const spFrac = (sp + 0.5) / numSparkles;
+          const spPulse = Math.pow(Math.max(0, Math.sin(now * 0.0042 + sp * 1.95 + sideIdx * 1.3)), 3.0);
+          if (spPulse > 0.12) {
+            const sx = 78 * coreImgScale + spFrac * (maxSpanX - 78 * coreImgScale);
+            const sy = (-10 - Math.sin(spFrac * Math.PI) * (tIdx >= 4 ? 42 : 24) + (sp % 2 === 0 ? -8 : 10)) * coreImgScale;
+            const sr = (1.6 + tierLux * 1.6) * u * spPulse * (isUltActive ? 1.35 : 1.0);
+            const sAlpha = Math.min(1.0, spPulse * (0.45 + tierLux * 0.48) * alphaVal);
+
+            ctx.fillStyle = (mode === 'meteor')
+              ? `rgba(254, 240, 138, ${sAlpha})`
+              : (mode === 'helix'
+                ? (sp % 2 === 0 ? `rgba(165, 243, 252, ${sAlpha})` : `rgba(245, 208, 254, ${sAlpha})`)
+                : (sp % 2 === 0 ? `rgba(224, 242, 254, ${sAlpha})` : `rgba(254, 240, 138, ${sAlpha})`));
+            ctx.beginPath();
+            ctx.moveTo(sx, sy - sr * 2.1);
+            ctx.lineTo(sx + sr * 0.65, sy);
+            ctx.lineTo(sx, sy + sr * 2.1);
+            ctx.lineTo(sx - sr * 0.65, sy);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(sx - sr * 2.1, sy);
+            ctx.lineTo(sx, sy - sr * 0.55);
+            ctx.lineTo(sx + sr * 2.1, sy);
+            ctx.lineTo(sx, sy + sr * 0.55);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
 
         if (mode === 'dynamo') {
           // DYNAMO II: Occasional small blue charge flashes near the fin roots
           if (tIdx === 2) {
             const flashCycle = Math.sin(now * 0.019 + sideIdx * 2.7);
-            if (flashCycle > 0.62) {
-              const fa = ((flashCycle - 0.62) / 0.38) * alphaVal;
+            if (flashCycle > 0.52) {
+              const fa = ((flashCycle - 0.52) / 0.48) * alphaVal;
               const rx = 74 * coreImgScale;
               const ry = -6 * coreImgScale;
-              ctx.strokeStyle = `rgba(186, 230, 253, ${0.88 * fa})`;
-              ctx.lineWidth = 1.4 * u;
+              ctx.strokeStyle = `rgba(186, 230, 253, ${0.92 * fa})`;
+              ctx.lineWidth = 1.6 * u;
               ctx.beginPath();
               ctx.moveTo(rx, ry - 7 * u);
               ctx.lineTo(rx + 6 * u, ry - 1 * u);
@@ -4181,53 +4297,63 @@
               ctx.stroke();
             }
           }
-          // DYNAMO III, IV, V: Faint blue current passing from each wing root toward the tips (+ synchronized wing-light pulse during ultimate in V)
+          // DYNAMO III, IV, V: Live electric plasma veins coursing from wing roots toward feather tips
           if (tIdx >= 3) {
-            const curPhase = ((now * (isUltActive ? 0.0028 : 0.0012) + sideIdx * 0.15) % 1.0);
-            const curX = (72 + curPhase * (tIdx === 3 ? 165 : (tIdx === 4 ? 235 : 270))) * coreImgScale;
-            const curY = (-12 - curPhase * 34) * coreImgScale;
-            const curAlpha = Math.sin(curPhase * Math.PI) * (isUltActive ? 0.62 : 0.34) * alphaVal;
-            if (curAlpha > 0.02) {
-              ctx.strokeStyle = isUltActive ? `rgba(224, 242, 254, ${curAlpha})` : `rgba(125, 211, 252, ${curAlpha})`;
-              ctx.lineWidth = (isUltActive ? 2.0 : 1.3) * u;
-              ctx.beginPath();
-              ctx.moveTo(curX - 14 * coreImgScale, curY + 5 * coreImgScale);
-              ctx.lineTo(curX - 4 * coreImgScale, curY - 2 * coreImgScale);
-              ctx.lineTo(curX + 6 * coreImgScale, curY + 2 * coreImgScale);
-              ctx.lineTo(curX + 16 * coreImgScale, curY - 4 * coreImgScale);
-              ctx.stroke();
+            const numCurrents = (tIdx === 3) ? 1 : (tIdx === 4 ? 2 : 3);
+            for (let cI = 0; cI < numCurrents; cI++) {
+              const curPhase = ((now * (isUltActive ? 0.0028 : 0.0013) + sideIdx * 0.15 + cI * 0.33) % 1.0);
+              const curX = (72 + curPhase * (tIdx === 3 ? 170 : (tIdx === 4 ? 245 : 295))) * coreImgScale;
+              const curY = (-10 - curPhase * (28 + cI * 12) + (cI - 1) * 14) * coreImgScale;
+              const curAlpha = Math.sin(curPhase * Math.PI) * (isUltActive ? 0.85 : (0.42 + tierLux * 0.28)) * alphaVal;
+              if (curAlpha > 0.02) {
+                ctx.strokeStyle = (cI === 2 && tIdx === 5)
+                  ? `rgba(253, 224, 71, ${curAlpha})`
+                  : (isUltActive ? `rgba(224, 242, 254, ${curAlpha})` : `rgba(125, 211, 252, ${curAlpha})`);
+                ctx.lineWidth = (isUltActive ? 2.2 : 1.5) * u;
+                ctx.beginPath();
+                ctx.moveTo(curX - 16 * coreImgScale, curY + 5 * coreImgScale);
+                ctx.lineTo(curX - 5 * coreImgScale, curY - 3 * coreImgScale);
+                ctx.lineTo(curX + 6 * coreImgScale, curY + 2 * coreImgScale);
+                ctx.lineTo(curX + 18 * coreImgScale, curY - 5 * coreImgScale);
+                ctx.stroke();
+              }
             }
           }
         } else if (mode === 'helix') {
-          // HELIX II: Soft traveling glint along each prismatic fin
-          // HELIX III, IV, V: Restrained cyan and lavender caustics shifting across feather edges (+ intensified wing-light pulse during ultimate)
-          const glintProg = ((now * (isUltActive ? 0.0024 : 0.00095) + sideIdx * 0.22) % 1.0);
-          const spanPx = (tIdx === 2 ? 155 : (tIdx === 3 ? 230 : (tIdx === 4 ? 295 : 340))) * coreImgScale;
-          const gx = 72 * coreImgScale + glintProg * spanPx;
-          const gy = (-8 - glintProg * 26) * coreImgScale;
-          const ga = Math.sin(glintProg * Math.PI) * (isUltActive ? 0.52 : 0.28) * alphaVal;
-          if (ga > 0.02) {
-            ctx.strokeStyle = (glintProg < 0.5) ? `rgba(103, 232, 249, ${ga})` : `rgba(216, 180, 254, ${ga})`;
-            ctx.lineWidth = 1.6 * u;
-            ctx.beginPath();
-            ctx.moveTo(gx - 12 * coreImgScale, gy + 4 * coreImgScale);
-            ctx.lineTo(gx + 12 * coreImgScale, gy - 4 * coreImgScale);
-            ctx.stroke();
+          // HELIX II..V: Prismatic chrome caustic ribbons shifting across feather edges
+          const numRibbons = (tIdx === 2) ? 1 : (tIdx <= 4 ? 2 : 3);
+          for (let rI = 0; rI < numRibbons; rI++) {
+            const glintProg = ((now * (isUltActive ? 0.0024 : 0.0011) + sideIdx * 0.22 + rI * 0.33) % 1.0);
+            const spanPx = (tIdx === 2 ? 155 : (tIdx === 3 ? 235 : (tIdx === 4 ? 305 : 355))) * coreImgScale;
+            const gx = 72 * coreImgScale + glintProg * spanPx;
+            const gy = (-8 - glintProg * (24 + rI * 10) + (rI - 0.5) * 14) * coreImgScale;
+            const ga = Math.sin(glintProg * Math.PI) * (isUltActive ? 0.82 : (0.38 + tierLux * 0.28)) * alphaVal;
+            if (ga > 0.02) {
+              ctx.strokeStyle = (rI % 2 === 0) ? `rgba(103, 232, 249, ${ga})` : `rgba(244, 114, 182, ${ga})`;
+              ctx.lineWidth = (1.5 + tierLux * 0.6) * u;
+              ctx.beginPath();
+              ctx.moveTo(gx - 15 * coreImgScale, gy + 5 * coreImgScale);
+              ctx.lineTo(gx + 15 * coreImgScale, gy - 5 * coreImgScale);
+              ctx.stroke();
+            }
           }
         } else if (mode === 'meteor') {
-          // METEOR IV & V: Specular response on feathers & heat reflected on wing tips (strictly on the metal feather surfaces!)
-          if (tIdx >= 4) {
-            const heatPulse = (0.5 + 0.5 * Math.sin(now * (isUltActive ? 0.009 : 0.0035) + sideIdx * 0.7)) * alphaVal;
-            const tipStart = (tIdx === 5 ? 235 : 195) * coreImgScale;
-            const tipEnd = (tIdx === 5 ? 360 : 305) * coreImgScale;
-            ctx.strokeStyle = `rgba(251, 146, 60, ${(tIdx === 5 ? 0.34 : 0.22) * heatPulse})`;
-            ctx.lineWidth = 1.5 * u;
-            ctx.beginPath();
-            ctx.moveTo(tipStart, -26 * coreImgScale);
-            ctx.lineTo(tipEnd, -48 * coreImgScale);
-            ctx.moveTo(tipStart * 0.95, 4 * coreImgScale);
-            ctx.lineTo(tipEnd * 0.92, -10 * coreImgScale);
-            ctx.stroke();
+          // METEOR II..V: Traveling golden-magma thermal reflections & incandescent feather rim ridges
+          const numThermal = (tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 3 : 4));
+          for (let th = 0; th < numThermal; th++) {
+            const thProg = ((now * (isUltActive ? 0.0022 : 0.0010) + sideIdx * 0.18 + th * 0.25) % 1.0);
+            const spanPx = (tIdx === 2 ? 150 : (tIdx === 3 ? 225 : (tIdx === 4 ? 305 : 365))) * coreImgScale;
+            const tx = 74 * coreImgScale + thProg * spanPx;
+            const ty = (-6 - thProg * (26 + th * 8) + (th - 1) * 13) * coreImgScale;
+            const ta = Math.sin(thProg * Math.PI) * (isUltActive ? 0.85 : (0.36 + tierLux * 0.34)) * alphaVal;
+            if (ta > 0.02) {
+              ctx.strokeStyle = (th % 2 === 0) ? `rgba(254, 240, 138, ${ta})` : `rgba(251, 146, 60, ${ta})`;
+              ctx.lineWidth = (1.5 + tierLux * 0.65) * u;
+              ctx.beginPath();
+              ctx.moveTo(tx - 16 * coreImgScale, ty + 4 * coreImgScale);
+              ctx.quadraticCurveTo(tx, ty - 2 * coreImgScale, tx + 16 * coreImgScale, ty - 6 * coreImgScale);
+              ctx.stroke();
+            }
           }
         }
 
@@ -4361,8 +4487,28 @@
 
     // Tier-progressive filament count
     const numArcs = isCore
-      ? (tierIdx === 1 ? 3 : (tierIdx === 2 ? 5 : (tierIdx === 3 ? 6 : (tierIdx === 4 ? 7 : 9)))) + (isUltActive ? 3 : 0)
+      ? (tierIdx === 1 ? 4 : (tierIdx === 2 ? 6 : (tierIdx === 3 ? 7 : (tierIdx === 4 ? 8 : 10)))) + (isUltActive ? 4 : 0)
       : 4;
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Volumetric shifting plasma nebula clouds swirling inside the smoky violet glass globe
+    const nebAng = now * 0.0009 * motionMult + phaseOffset;
+    for (let n = 0; n < 2; n++) {
+      const na = nebAng * (n === 0 ? 1 : -1.3) + n * Math.PI;
+      const nx = Math.cos(na) * maxR * 0.24;
+      const ny = Math.sin(na) * maxR * 0.24;
+      const nr = maxR * (0.68 + 0.12 * Math.sin(now * 0.004 + n));
+      const ng = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+      const nebIntensity = (0.14 + (tierIdx - 1) * 0.04) * (isUltActive ? 1.5 : 1.0);
+      ng.addColorStop(0.0, n === 0 ? `rgba(192, 132, 252, ${nebIntensity})` : `rgba(56, 189, 248, ${nebIntensity * 0.85})`);
+      ng.addColorStop(0.55, `rgba(126, 34, 206, ${nebIntensity * 0.45})`);
+      ng.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = ng;
+      ctx.beginPath();
+      ctx.arc(nx, ny, nr, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     for (let a = 0; a < numArcs; a++) {
       const cycleDuration = (isUltActive ? 220 : 340) + (a * 73) % 190;
@@ -4421,16 +4567,38 @@
         ctx.lineTo(bMidX, bMidY);
         ctx.lineTo(bEndX, bEndY);
         ctx.strokeStyle = isBlueWhite
-          ? `rgba(186, 230, 253, ${0.75 * fadeAlpha})`
-          : `rgba(192, 132, 252, ${0.75 * fadeAlpha})`;
-        ctx.lineWidth = Math.max(0.65, maxR * 0.016);
+          ? `rgba(186, 230, 253, ${0.82 * fadeAlpha})`
+          : `rgba(192, 132, 252, ${0.82 * fadeAlpha})`;
+        ctx.lineWidth = Math.max(0.75, maxR * 0.018);
         ctx.stroke();
+
+        // Sparking electrode contact node where the plasma branch touches the inner glass wall
+        if (reachFrac > 0.85) {
+          const tipX = Math.cos(baseAng) * maxR * 0.88;
+          const tipY = Math.sin(baseAng) * maxR * 0.88;
+          ctx.fillStyle = isBlueWhite ? `rgba(224, 242, 254, ${0.9 * fadeAlpha})` : `rgba(240, 171, 252, ${0.9 * fadeAlpha})`;
+          ctx.beginPath();
+          ctx.arc(tipX, tipY, Math.max(1.2, maxR * 0.032), 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
 
-    // Crisp central violet-white discharge point inside the glass (strongest in Tier V)
-    const ptR = Math.max(1.8, maxR * (tierIdx === 5 ? 0.085 : 0.060));
-    ctx.fillStyle = (tierIdx === 5 || isUltActive) ? 'rgba(243, 232, 255, 0.96)' : 'rgba(233, 213, 255, 0.88)';
+    // Pulsating high-voltage central singularity core inside the glass (strongest in Tier V)
+    const corePulse = 0.82 + 0.18 * Math.sin(now * 0.014);
+    const haloR = maxR * (0.24 + (tierIdx - 1) * 0.035) * corePulse * (isUltActive ? 1.3 : 1.0);
+    const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, haloR);
+    cg.addColorStop(0.0, 'rgba(255, 255, 255, 0.98)');
+    cg.addColorStop(0.35, 'rgba(232, 121, 249, 0.78)');
+    cg.addColorStop(0.72, 'rgba(139, 92, 246, 0.35)');
+    cg.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
+    ctx.fillStyle = cg;
+    ctx.beginPath();
+    ctx.arc(0, 0, haloR, 0, Math.PI * 2);
+    ctx.fill();
+
+    const ptR = Math.max(2.0, maxR * (tierIdx === 5 ? 0.095 : 0.068) * corePulse);
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(0, 0, ptR, 0, Math.PI * 2);
     ctx.fill();
@@ -4620,17 +4788,40 @@
       const xB = -xA;
 
       const rg = ctx.createLinearGradient(xA, yPx, xB, yPx);
-      rg.addColorStop(0.0, 'rgba(34, 211, 238, 0.78)');
-      rg.addColorStop(0.5, 'rgba(203, 213, 225, 0.85)');
-      rg.addColorStop(1.0, 'rgba(232, 121, 249, 0.78)');
+      rg.addColorStop(0.0, 'rgba(34, 211, 238, 0.86)');
+      rg.addColorStop(0.5, 'rgba(241, 245, 249, 0.94)');
+      rg.addColorStop(1.0, 'rgba(232, 121, 249, 0.86)');
 
       ctx.beginPath();
       ctx.moveTo(xA, yPx);
       ctx.lineTo(xB, yPx);
       ctx.strokeStyle = rg;
-      ctx.lineWidth = Math.max(1.1, 1.8 * scaleK);
+      ctx.lineWidth = Math.max(1.2, 2.0 * scaleK);
       ctx.lineCap = 'round';
       ctx.stroke();
+
+      // Traveling photonic energy pulse across each base-pair rung + glowing nucleotide junction nodes
+      const rungPulse = 0.5 + 0.5 * Math.sin(now * 0.006 * motionMult + r * 0.85);
+      const pxPulse = xA + (xB - xA) * rungPulse;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+      ctx.beginPath();
+      ctx.arc(pxPulse, yPx, Math.max(1.1, 1.8 * scaleK), 0, Math.PI * 2);
+      ctx.fill();
+
+      // Nucleotide junction beads where the rung meets Strand A and Strand B
+      const zA = Math.cos(theta);
+      if (zA >= -0.2) {
+        ctx.fillStyle = 'rgba(165, 243, 252, 0.95)';
+        ctx.beginPath();
+        ctx.arc(xA, yPx, Math.max(1.3, 2.2 * scaleK), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (-zA >= -0.2) {
+        ctx.fillStyle = 'rgba(245, 208, 254, 0.95)';
+        ctx.beginPath();
+        ctx.arc(xB, yPx, Math.max(1.3, 2.2 * scaleK), 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     // 3. Front strand segments
@@ -4695,20 +4886,39 @@
     ctx.save();
     // Strict circular silhouette mask so craters and lava relief never deform the sphere!
     ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.96, 0, Math.PI * 2);
+    ctx.arc(0, 0, radius * 0.97, 0, Math.PI * 2);
     ctx.clip();
 
     ctx.rotate(tumbleAngle);
 
     const isUltActive = Boolean(typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === 'meteor');
     const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
-    const freqMult = (isUltActive ? 2.4 : 1.0) * motionMult;
-    const tierHeat = (tierIdx === 1 ? 0.55 : (tierIdx === 2 ? 0.72 : (tierIdx === 3 ? 0.85 : (tierIdx === 4 ? 0.95 : 1.08)))) * (isUltActive ? 1.35 : 1.0);
+    const freqMult = (isUltActive ? 2.4 : 1.15) * motionMult;
+    const tierHeat = (tierIdx === 1 ? 0.72 : (tierIdx === 2 ? 0.88 : (tierIdx === 3 ? 1.02 : (tierIdx === 4 ? 1.16 : 1.32)))) * (isUltActive ? 1.45 : 1.0);
 
-    // Fluctuating heat variation traveling along individual branching lava channels
+    ctx.globalCompositeOperation = 'lighter';
+
+    // 1. Subsurface Molten Mantle Convection Swirls (Counter-rotating thermal magma pockets beneath the crust cracks!)
+    const swirlAng = -tumbleAngle * 1.8 + now * 0.00085 * freqMult;
+    for (let s = 0; s < 3; s++) {
+      const sa = swirlAng + s * ((Math.PI * 2) / 3);
+      const sx = Math.cos(sa) * radius * 0.28;
+      const sy = Math.sin(sa) * radius * 0.28;
+      const sr = radius * (0.48 + 0.10 * Math.sin(now * 0.004 * freqMult + s * 2.1));
+      const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+      sg.addColorStop(0.0, `rgba(251, 146, 60, ${Math.min(0.42, 0.16 * tierHeat)})`);
+      sg.addColorStop(0.55, `rgba(234, 88, 12, ${Math.min(0.28, 0.10 * tierHeat)})`);
+      sg.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
+      ctx.fillStyle = sg;
+      ctx.beginPath();
+      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 2. Branching Lava Channels + Live Flowing White-Hot Magma Surge Packets Traveling Along the Cracks!
     for (let c = 0; c < METEOR_CRACK_PATHS.length; c++) {
       const path = METEOR_CRACK_PATHS[c];
-      const veinPulse = (0.35 + 0.65 * Math.pow(0.5 + 0.5 * Math.sin(now * 0.0048 * freqMult + c * 1.55 + phaseOffset), 1.6)) * tierHeat;
+      const veinPulse = (0.50 + 0.50 * Math.pow(0.5 + 0.5 * Math.sin(now * 0.0052 * freqMult + c * 1.55 + phaseOffset), 1.4)) * tierHeat;
 
       ctx.beginPath();
       for (let k = 0; k < path.length; k++) {
@@ -4717,37 +4927,98 @@
         if (k === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       }
-      const chWidth = Math.max(1.0, radius * (tierIdx === 1 ? 0.032 : (tierIdx >= 4 ? 0.055 : 0.044)));
-      ctx.strokeStyle = `rgba(234, 88, 12, ${Math.min(0.85, 0.42 * veinPulse)})`;
+      const chWidth = Math.max(1.4, radius * (tierIdx === 1 ? 0.045 : (tierIdx >= 4 ? 0.075 : 0.060)));
+      ctx.strokeStyle = `rgba(234, 88, 12, ${Math.min(0.92, 0.54 * veinPulse)})`;
       ctx.lineWidth = chWidth;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
 
-      ctx.strokeStyle = `rgba(254, 240, 138, ${Math.min(0.95, 0.58 * veinPulse)})`;
-      ctx.lineWidth = chWidth * 0.42;
+      ctx.strokeStyle = `rgba(254, 240, 138, ${Math.min(0.98, 0.72 * veinPulse)})`;
+      ctx.lineWidth = chWidth * 0.45;
       ctx.stroke();
-    }
 
-    // Localized crater magma pools (Tiers II -> V)
-    if (tierIdx >= 2) {
-      for (let h = 0; h < METEOR_FISSURE_HOTSPOTS.length; h++) {
-        const hs = METEOR_FISSURE_HOTSPOTS[h];
-        if (tierIdx === 2 && !hs.isPool) continue;
-        const pulse = (0.30 + 0.70 * Math.pow(0.5 + 0.5 * Math.sin(now * hs.freq * freqMult + hs.phase + phaseOffset), 1.5)) * tierHeat;
-        const hx = hs.x * radius;
-        const hy = hs.y * radius;
-        const hr = hs.r * radius * (0.75 + 0.20 * pulse);
+      // Animated Magma Flow Packets visibly streaming along each fissure segment!
+      const numPackets = (tierIdx >= 4) ? 3 : 2;
+      const segCount = path.length - 1;
+      for (let pIdx = 0; pIdx < numPackets; pIdx++) {
+        const flowT = ((now * 0.00058 * freqMult + c * 0.27 + pIdx / numPackets) % 1.0);
+        const segFloat = flowT * segCount;
+        const segI = Math.min(segCount - 1, Math.floor(segFloat));
+        const segFrac = segFloat - segI;
+        const p0 = path[segI];
+        const p1 = path[segI + 1];
+        const fx = (p0.x + (p1.x - p0.x) * segFrac) * radius;
+        const fy = (p0.y + (p1.y - p0.y) * segFrac) * radius;
+        const tailFrac = Math.max(0, segFrac - 0.35);
+        const tx = (p0.x + (p1.x - p0.x) * tailFrac) * radius;
+        const ty = (p0.y + (p1.y - p0.y) * tailFrac) * radius;
+        const flowAlpha = Math.sin(flowT * Math.PI) * Math.min(1.0, 0.85 * tierHeat);
 
-        const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, hr);
-        g.addColorStop(0.0, `rgba(254, 240, 138, ${Math.min(0.82, 0.52 * pulse)})`);
-        g.addColorStop(0.55, `rgba(249, 115, 22, ${Math.min(0.65, 0.38 * pulse)})`);
-        g.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
-        ctx.fillStyle = g;
+        ctx.strokeStyle = `rgba(255, 251, 235, ${flowAlpha})`;
+        ctx.lineWidth = chWidth * 0.62;
         ctx.beginPath();
-        ctx.arc(hx, hy, hr, 0, Math.PI * 2);
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(fx, fy);
+        ctx.stroke();
+
+        // Incandescent magma droplet head
+        const dr = chWidth * 0.75;
+        ctx.fillStyle = `rgba(254, 240, 138, ${flowAlpha})`;
+        ctx.beginPath();
+        ctx.arc(fx, fy, dr, 0, Math.PI * 2);
         ctx.fill();
       }
+    }
+
+    // 3. Churning & Bubbling Molten Crater Magma Pools (Tiers I..V, stronger & deeper in Tiers II -> V)
+    for (let h = 0; h < METEOR_FISSURE_HOTSPOTS.length; h++) {
+      const hs = METEOR_FISSURE_HOTSPOTS[h];
+      if (tierIdx === 1 && !hs.isPool) continue;
+      const pulse = (0.45 + 0.55 * Math.pow(0.5 + 0.5 * Math.sin(now * hs.freq * freqMult + hs.phase + phaseOffset), 1.3)) * tierHeat;
+      const hx = hs.x * radius;
+      const hy = hs.y * radius;
+      const hr = hs.r * radius * (0.78 + 0.24 * pulse);
+
+      const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, hr);
+      g.addColorStop(0.0, `rgba(255, 251, 235, ${Math.min(0.95, 0.68 * pulse)})`);
+      g.addColorStop(0.38, `rgba(254, 240, 138, ${Math.min(0.88, 0.58 * pulse)})`);
+      g.addColorStop(0.72, `rgba(249, 115, 22, ${Math.min(0.72, 0.42 * pulse)})`);
+      g.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(hx, hy, hr, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bubbling solar flare ring inside active crater pools
+      if (hs.isPool && tierIdx >= 2) {
+        const bubProg = ((now * 0.0014 * freqMult + h * 0.43) % 1.0);
+        const bubR = hr * (0.18 + bubProg * 0.65);
+        const bubA = (1.0 - bubProg) * Math.min(0.85, 0.55 * tierHeat);
+        ctx.strokeStyle = `rgba(254, 249, 195, ${bubA})`;
+        ctx.lineWidth = Math.max(1.0, radius * 0.022);
+        ctx.beginPath();
+        ctx.arc(hx, hy, bubR, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    // 4. Internal Rising Micro-Fire tongues inside the lower/equatorial fissures
+    const numFireTongues = (tierIdx >= 4) ? 5 : 3;
+    for (let f = 0; f < numFireTongues; f++) {
+      const fProg = ((now * 0.0018 * freqMult + f * (1 / numFireTongues)) % 1.0);
+      const fSeed = (f * 1.37) - 1.2;
+      const fx0 = Math.sin(fSeed * 2.1) * radius * 0.48;
+      const fy0 = Math.cos(fSeed * 1.7) * radius * 0.48;
+      const fx1 = fx0 + Math.sin(now * 0.008 + f) * radius * 0.10;
+      const fy1 = fy0 - fProg * radius * 0.28;
+      const fa = Math.sin(fProg * Math.PI) * Math.min(0.90, 0.58 * tierHeat);
+      ctx.strokeStyle = (f % 2 === 0) ? `rgba(254, 240, 138, ${fa})` : `rgba(249, 115, 22, ${fa})`;
+      ctx.lineWidth = Math.max(1.2, radius * 0.032 * (1 - fProg * 0.5));
+      ctx.beginPath();
+      ctx.moveTo(fx0, fy0);
+      ctx.quadraticCurveTo(fx1, (fy0 + fy1) * 0.5, fx0 + (fx1 - fx0) * 0.6, fy1);
+      ctx.stroke();
     }
 
     ctx.restore();
@@ -8045,12 +8316,11 @@
       }
       ctx.restore();
 
-      // 4. === ZERO-BLOOM CRISP REALM ULTIMATE (BACK PLANE) ===
-      // Strict adherence to visual constraints:
-      // - Keep all light inside material boundaries or on metal surfaces.
-      // - Use zero bloom, glow halos, outer aura, radial rays, heat haze, or background lighting in every state, including the ultimate!
-      // - Core internal arcs / helix edge refraction / lava channel contrast & synchronized wing-light pulse intensify inside the core renderer while SkillSystem.isUltimateActive() is true.
-      // - Arena sweep is rendered strictly via crisp, unblurred shock rings and discrete unblurred particles/lightning arcs with zero glow sprites or full-screen background flashes.
+      // 4. === GLORIOUS CLIMAX REALM ULTIMATE (BACK PLANE — THE MOST WONDERFUL WEAPON IN THE UNIVERSE!) ===
+      // Matches the 3 reference climax screenshots:
+      // - Dynamo (STORM NOVA): Blinding violet-white core laser beam + massive V-canopy fractal lightning storm + violet-cyan plasma rays + expanding crimson-rose shock dome
+      // - Meteor (CALDERA NOVA): Blazing white-gold solar core column + roaring fluid-fire pillar & curling flame tendrils + solar prominence loops + ballistic lava ejecta + crimson-amber shock dome
+      // - Helix (GENESIS NOVA): Radiant cyan-white photonic genesis beam + giant 3D intertwining cyan & magenta DNA double helix with base-pair rungs climbing the beam + flying crystal prism shards + starburst rays
       if (this.activeNova) {
         const nv = this.activeNova;
         const elapsed = now - nv.startAt;
@@ -8060,75 +8330,360 @@
           // Continuously vaporize ANY bad node, Voidbloom, rift telegraph, or boss projectile during the entire Nova wave!
           this._purgeAllBadEntities(now, false);
 
-          // Smoothly tether to the live Chrome Core position!
+          // Smoothly tether the erupting solar pillar directly to the live Chrome Core position!
           nv.x += (cx - nv.x) * Math.min(1, 0.36 * dtScale);
           nv.y += (cy - nv.y) * Math.min(1, 0.36 * dtScale);
 
           const p = elapsed / nv.durationMs;
+          // Punchy fast ignition ramp (0..0.08) -> sustained roaring furnace (0.08..0.72) -> dramatic fade (0.72..1.0)
           const rampIn = Math.min(1, p / 0.08);
           const fadeOut = (p < 0.65) ? 1.0 : Math.pow(1 - (p - 0.65) / 0.35, 1.15);
           const alphaEnv = rampIn * fadeOut;
           const mKey = nv.mode || 'meteor';
           const isMob = w < 640;
+          const scaleK = isMob ? 0.80 : 1.0;
 
           const palMap = {
             meteor: {
-              domeOuter: 'rgba(234, 88, 12, ',
+              domeOuter: 'rgba(218, 62, 76, ',
               domeGlow: 'rgba(249, 115, 22, ',
-              ringCore: 'rgba(254, 240, 138, ',
+              ringCore: 'rgba(255, 240, 185, ',
               ringGlow: 'rgba(251, 146, 60, ',
+              spineEdge: 'rgba(249, 115, 22, ',
+              spineMid: 'rgba(253, 224, 71, ',
               emberHot: '#fef08a',
               emberWarm: '#fb923c'
             },
             dynamo: {
-              domeOuter: 'rgba(139, 92, 246, ',
-              domeGlow: 'rgba(56, 189, 248, ',
+              domeOuter: 'rgba(225, 75, 100, ',
+              domeGlow: 'rgba(139, 92, 246, ',
               ringCore: 'rgba(254, 240, 138, ',
-              ringGlow: 'rgba(125, 211, 252, ',
+              ringGlow: 'rgba(56, 189, 248, ',
+              spineEdge: 'rgba(124, 58, 237, ',
+              spineMid: 'rgba(167, 139, 250, ',
               emberHot: '#e0f2fe',
-              emberWarm: '#a78bfa'
+              emberWarm: '#c084fc'
             },
             helix: {
               domeOuter: 'rgba(217, 70, 239, ',
               domeGlow: 'rgba(34, 211, 238, ',
-              ringCore: 'rgba(165, 243, 252, ',
+              ringCore: 'rgba(240, 253, 250, ',
               ringGlow: 'rgba(232, 121, 249, ',
+              spineEdge: 'rgba(192, 38, 211, ',
+              spineMid: 'rgba(34, 211, 238, ',
               emberHot: '#cffafe',
               emberWarm: '#f0abfc'
             }
           };
           const pal = palMap[mKey] || palMap.meteor;
-          const domeR = nv.maxRadius * (0.20 + Math.pow(p, 0.58) * 0.64);
-          const ellipseRx = (isMob ? 135 : 195) * (0.72 + Math.pow(p, 0.35) * 0.38);
-          const ellipseRy = ellipseRx * 0.34;
+          // Outer crimson-amber blast dome sweeps crisply across the arena (stays framed in-view longer for cinema impact!)
+          const domeR = nv.maxRadius * (0.24 + Math.pow(p, 0.58) * 0.62);
+          const ellipseRx = (isMob ? 175 : 275) * (0.72 + Math.pow(p, 0.35) * 0.42);
+          const ellipseRy = ellipseRx * 0.36;
           nv._ellipseRx = ellipseRx;
           nv._ellipseRy = ellipseRy;
           nv._alphaEnv = alphaEnv;
           nv._pal = pal;
 
           ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
 
-          // LAYER 1: Crisp Unblurred Expanding Arena Purge Wave Ring (Zero background lighting, zero outer glow halo!)
-          const domeFade = Math.pow(1 - p, 0.75);
-          ctx.strokeStyle = `${pal.domeOuter}${domeFade * 0.65})`;
-          ctx.lineWidth = Math.max(1.5, 2.4 * domeFade);
+          // LAYER 1A: Warm Atmospheric Furnace Ignition Flash
+          if (p < 0.34) {
+            const fAlpha = (1 - p / 0.34) * 0.36;
+            const flashGrad = ctx.createRadialGradient(nv.x, nv.y, 16, nv.x, nv.y, nv.maxRadius * 0.78);
+            flashGrad.addColorStop(0.0, `rgba(255, 255, 245, ${fAlpha * 1.15})`);
+            flashGrad.addColorStop(0.32, `${pal.spineMid}${fAlpha * 0.78})`);
+            flashGrad.addColorStop(0.70, `${pal.domeGlow}${fAlpha * 0.36})`);
+            flashGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = flashGrad;
+            ctx.fillRect(0, 0, w, h);
+          }
+
+          // LAYER 1B: Outer Spherical Cataclysm Shockwave Dome (Crisp Crimson-Amber Arena Ring!)
+          const domeFade = Math.pow(1 - p, 0.72);
+          ctx.save();
+          ctx.strokeStyle = `${pal.domeGlow}${domeFade * 0.34})`;
+          ctx.lineWidth = Math.max(8, 24 * domeFade);
           ctx.beginPath();
           ctx.arc(nv.x, nv.y, domeR, 0, Math.PI * 2);
           ctx.stroke();
-
-          // LAYER 2: Crisp Back Half of the Tilted Perspective Shock Track (behind core & wings)
-          ctx.save();
-          ctx.translate(nv.x, nv.y);
-          ctx.lineCap = 'round';
-          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.55})`;
-          ctx.lineWidth = 1.6;
+          ctx.strokeStyle = `${pal.domeOuter}${domeFade * 0.94})`;
+          ctx.lineWidth = Math.max(3, 10 * domeFade);
           ctx.beginPath();
-          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI, Math.PI * 2);
+          ctx.arc(nv.x, nv.y, domeR, 0, Math.PI * 2);
           ctx.stroke();
           ctx.restore();
 
-          // LAYER 3: Discrete Unblurred Mode-Specific Particles & Crisp Lines (Zero column bloom, zero radial rays!)
-          const basePillarW = (isMob ? 160 : 220);
+          // LAYER 2: Filled 3D Perspective Energy Vortex Disk + Seamless Back Orbital Ring
+          ctx.save();
+          ctx.translate(nv.x, nv.y);
+          ctx.save();
+          ctx.scale(1, 0.36);
+          const diskGrad = ctx.createRadialGradient(0, 0, 8, 0, 0, ellipseRx);
+          diskGrad.addColorStop(0.0, `rgba(255, 255, 255, ${alphaEnv * 0.92})`);
+          diskGrad.addColorStop(0.22, `${pal.spineMid}${alphaEnv * 0.68})`);
+          diskGrad.addColorStop(0.58, `${pal.domeGlow}${alphaEnv * 0.34})`);
+          diskGrad.addColorStop(0.88, `${pal.domeOuter}${alphaEnv * 0.18})`);
+          diskGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = diskGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, ellipseRx, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 36 rotating 3D perspective radial energy spokes inside the disk
+          ctx.save();
+          ctx.rotate(elapsed * 0.0007);
+          ctx.lineCap = 'round';
+          for (let sp = 0; sp < 36; sp++) {
+            const sa = (sp / 36) * Math.PI * 2;
+            const srOut = ellipseRx * (0.62 + 0.34 * Math.abs(Math.sin(sp * 2.3)));
+            ctx.strokeStyle = (sp % 2 === 0) ? `${pal.ringCore}${alphaEnv * 0.34})` : `${pal.spineMid}${alphaEnv * 0.28})`;
+            ctx.lineWidth = (sp % 3 === 0) ? 3.0 : 1.6;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(sa) * 24, Math.sin(sa) * 24);
+            ctx.lineTo(Math.cos(sa) * srOut, Math.sin(sa) * srOut);
+            ctx.stroke();
+          }
+          // 2 counter-rotating swirling vortex arcs
+          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.42})`;
+          ctx.lineWidth = 2.6;
+          for (let va = 0; va < 2; va++) {
+            const vr = ellipseRx * (va === 0 ? 0.42 : 0.70);
+            const vStart = elapsed * (va === 0 ? 0.0018 : -0.0012) + va * 2.1;
+            ctx.beginPath();
+            ctx.arc(0, 0, vr, vStart, vStart + Math.PI * 1.15);
+            ctx.stroke();
+          }
+          ctx.restore();
+          ctx.restore();
+
+          // 2B: Seamless Back Half of the 3D Orbital Ring
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.52})`;
+          ctx.lineWidth = 11;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
+          ctx.stroke();
+          ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.96})`;
+          ctx.lineWidth = 3.2;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, ellipseRx, ellipseRy, 0, Math.PI - 0.06, Math.PI * 2 + 0.06);
+          ctx.stroke();
+          ctx.restore();
+
+          // LAYER 3: Soft-Feathered Offscreen Eruption Column Buffer
+          const pillarH = Math.max(240, nv.y + 4);
+          const basePillarW = (isMob ? 215 : 315) * (0.94 + 0.08 * Math.sin(elapsed * 0.024)) * scaleK;
+          const flameImg = VfxUltraAssets.novaFlame[mKey];
+          const wispsImg = VfxUltraAssets.novaWisps[mKey];
+          const flameReady = VfxUltraAssets.loaded.novaFlame[mKey] && flameImg && flameImg.naturalWidth > 0;
+          const wispsReady = VfxUltraAssets.loaded.novaWisps[mKey] && wispsImg && wispsImg.naturalWidth > 0;
+          const isHelixMode = (mKey === 'helix');
+          const isDynamoMode = (mKey === 'dynamo');
+
+          // Soft royal-violet storm sheath behind Dynamo lightning
+          if (isDynamoMode) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            const shCy = Math.max(80, nv.y * 0.52);
+            const shRy = Math.max(220, nv.y * 0.56);
+            ctx.translate(nv.x, shCy);
+            ctx.scale(0.58, 1.0);
+            const shG = ctx.createRadialGradient(0, 0, 20, 0, 0, shRy);
+            shG.addColorStop(0.0, `rgba(76, 29, 149, ${alphaEnv * 0.46})`);
+            shG.addColorStop(0.55, `rgba(49, 46, 129, ${alphaEnv * 0.24})`);
+            shG.addColorStop(1.0, 'rgba(30, 27, 75, 0)');
+            ctx.fillStyle = shG;
+            ctx.beginPath();
+            ctx.arc(0, 0, shRy, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+
+          const offW = Math.max(260, Math.ceil(basePillarW * 1.45));
+          const offH = Math.max(280, Math.ceil(pillarH + 36));
+          if (!this._novaPillarCanvas) {
+            this._novaPillarCanvas = document.createElement('canvas');
+            this._novaPillarCtx = this._novaPillarCanvas.getContext('2d');
+          }
+          if (this._novaPillarCanvas.width < offW || this._novaPillarCanvas.height < offH) {
+            this._novaPillarCanvas.width = Math.max(this._novaPillarCanvas.width || 0, offW);
+            this._novaPillarCanvas.height = Math.max(this._novaPillarCanvas.height || 0, offH);
+          }
+          const pCtx = this._novaPillarCtx;
+          const midX = offW * 0.5;
+          pCtx.clearRect(0, 0, offW, offH);
+          pCtx.save();
+          pCtx.globalCompositeOperation = 'lighter';
+
+          // Pass 3A: Atmospheric Outer Column Aura
+          const outerW = basePillarW * (isHelixMode ? 0.36 : (isDynamoMode ? 0.60 : 0.68));
+          const outerG = pCtx.createLinearGradient(midX - outerW, 0, midX + outerW, 0);
+          outerG.addColorStop(0.0, 'rgba(0,0,0,0)');
+          outerG.addColorStop(0.28, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.28 : 0.38)})`);
+          outerG.addColorStop(0.50, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.48 : 0.62)})`);
+          outerG.addColorStop(0.72, `${pal.spineEdge}${alphaEnv * (isHelixMode ? 0.28 : 0.38)})`);
+          outerG.addColorStop(1.0, 'rgba(0,0,0,0)');
+          pCtx.fillStyle = outerG;
+          pCtx.fillRect(midX - outerW, 0, outerW * 2, offH);
+
+          // Pass 3B: Primary Upward-Rushing Seamless Domain-Warped Turbulent Column
+          if (flameReady) {
+            const tileW = basePillarW * (isHelixMode ? 0.42 : (isDynamoMode ? 0.72 : 1.0));
+            const tileH = tileW * 2.0;
+            const scroll1 = (elapsed * 1.05) % tileH;
+            pCtx.globalAlpha = alphaEnv * (isHelixMode ? 0.45 : (isDynamoMode ? 0.72 : 0.98));
+            for (let ty = nv.y + 18 + tileH - scroll1; ty > -tileH; ty -= (tileH - 1)) {
+              pCtx.drawImage(flameImg, midX - tileW * 0.5, ty - tileH, tileW, tileH);
+            }
+            if (!isHelixMode) {
+              const scroll1b = (elapsed * 1.52) % tileH;
+              pCtx.save();
+              pCtx.translate(midX, 0);
+              pCtx.scale(-1.08, 1);
+              pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.32 : 0.65);
+              for (let ty = nv.y + 18 + tileH - scroll1b; ty > -tileH; ty -= (tileH - 1)) {
+                pCtx.drawImage(flameImg, -tileW * 0.5, ty - tileH, tileW, tileH);
+              }
+              pCtx.restore();
+            }
+          }
+
+          // Pass 3C: Curling Licking Flame / Plasma Tendril Ribbons Twisting Up Both Flanks
+          if (wispsReady && !isHelixMode) {
+            const wTileW = basePillarW * (isDynamoMode ? 1.00 : 1.12);
+            const wTileH = wTileW * 2.0;
+            const scroll2 = (elapsed * 1.38) % wTileH;
+            pCtx.globalAlpha = alphaEnv * (isDynamoMode ? 0.46 : 0.92);
+            for (let ty = nv.y + 18 + wTileH - scroll2; ty > -wTileH; ty -= (wTileH - 1)) {
+              pCtx.drawImage(wispsImg, midX - wTileW * 0.5, ty - wTileH, wTileW, wTileH);
+            }
+          }
+
+          // Pass 3D: Blinding White-Hot Central Laser / Solar / Photonic Core Spine (Matches all 3 reference screenshots!)
+          pCtx.globalAlpha = 1.0;
+          const spineW = (isMob ? (isHelixMode ? 22 : (isDynamoMode ? 32 : 42)) : (isHelixMode ? 28 : (isDynamoMode ? 42 : 56))) * (0.92 + 0.12 * Math.sin(elapsed * 0.035));
+          const spineG = pCtx.createLinearGradient(midX - spineW, 0, midX + spineW, 0);
+          spineG.addColorStop(0.0, 'rgba(255,255,255,0)');
+          spineG.addColorStop(0.22, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.68 : 0.82)})`);
+          spineG.addColorStop(0.40, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
+          spineG.addColorStop(0.50, `rgba(255, 255, 255, ${alphaEnv * 1.0})`);
+          spineG.addColorStop(0.60, `rgba(255, 255, 245, ${alphaEnv * 0.96})`);
+          spineG.addColorStop(0.78, `${pal.spineMid}${alphaEnv * (isHelixMode ? 0.68 : 0.82)})`);
+          spineG.addColorStop(1.0, 'rgba(255,255,255,0)');
+          pCtx.fillStyle = spineG;
+          pCtx.fillRect(midX - spineW, 0, spineW * 2, offH);
+
+          // Pass 3E: Feathered Conical Base Alpha Mask
+          pCtx.globalCompositeOperation = 'destination-out';
+          const botY0 = Math.max(0, nv.y - 42);
+          const botFade = pCtx.createLinearGradient(0, botY0, 0, offH);
+          botFade.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+          botFade.addColorStop(0.55, 'rgba(0, 0, 0, 0.72)');
+          botFade.addColorStop(0.85, 'rgba(0, 0, 0, 1.0)');
+          botFade.addColorStop(1.0, 'rgba(0, 0, 0, 1.0)');
+          pCtx.fillStyle = botFade;
+          pCtx.fillRect(0, botY0, offW, offH - botY0);
+
+          const flankY = nv.y + 4;
+          const flankR = offW * 0.46;
+          [0, offW].forEach((cxF) => {
+            const fg = pCtx.createRadialGradient(cxF, flankY, offW * 0.14, cxF, flankY, flankR);
+            fg.addColorStop(0.0, 'rgba(0, 0, 0, 1.0)');
+            fg.addColorStop(0.55, 'rgba(0, 0, 0, 0.55)');
+            fg.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+            pCtx.fillStyle = fg;
+            pCtx.fillRect(0, Math.max(0, flankY - flankR), offW, flankR + 36);
+          });
+          pCtx.restore();
+
+          ctx.globalAlpha = 1.0;
+          ctx.drawImage(this._novaPillarCanvas, 0, 0, offW, offH, nv.x - midX, 0, offW, offH);
+
+          // LAYER 4: 360° Base Sunburst + Counter-Rotating Fiery/Plasma Coronas Behind the Wings & Core
+          const baseGlowKey = isDynamoMode ? 'violet' : (isHelixMode ? 'helix' : 'amber');
+          const baseGlowSpr = QuantumRenderer._getGlowSprite(baseGlowKey);
+          const hotBaseSpr = QuantumRenderer._getGlowSprite(isDynamoMode ? 'cyan' : (isHelixMode ? 'helix' : 'gold'));
+          ctx.globalAlpha = alphaEnv * 0.92;
+          ctx.drawImage(baseGlowSpr, nv.x - 165 * scaleK, nv.y - 105 * scaleK, 330 * scaleK, 190 * scaleK);
+          ctx.globalAlpha = alphaEnv * 0.98;
+          ctx.drawImage(hotBaseSpr, nv.x - 95 * scaleK, nv.y - 80 * scaleK, 190 * scaleK, 145 * scaleK);
+          ctx.globalAlpha = 1.0;
+          const corImg = VfxUltraAssets.novaCorona[mKey];
+          const corReady = VfxUltraAssets.loaded.novaCorona[mKey] && corImg && corImg.naturalWidth > 0;
+          if (corReady) {
+            const corBase = (isMob ? 260 : 395) * (0.88 + 0.14 * Math.sin(elapsed * 0.018)) * rampIn;
+            ctx.save();
+            ctx.translate(nv.x, nv.y);
+            ctx.scale(1.34, 0.88);
+            ctx.rotate(elapsed * 0.00055);
+            ctx.globalAlpha = alphaEnv * 0.96;
+            ctx.drawImage(corImg, -corBase * 0.5, -corBase * 0.5, corBase, corBase);
+            ctx.restore();
+            ctx.save();
+            ctx.translate(nv.x, nv.y);
+            ctx.scale(1.06, 0.96);
+            ctx.rotate(-elapsed * 0.00095 + 0.9);
+            ctx.globalAlpha = alphaEnv * 0.78;
+            const corIn = corBase * 0.78;
+            ctx.drawImage(corImg, -corIn * 0.5, -corIn * 0.5, corIn, corIn);
+            ctx.restore();
+          }
+
+          // LAYER 5: Mode-Authentic Rising Particles Constrained Inside the Conical Eruption Funnel
+          if (nv.embers && nv.embers.length) {
+            ctx.lineCap = 'round';
+            for (let eIdx = 0; eIdx < nv.embers.length; eIdx++) {
+              const em = nv.embers[eIdx];
+              em.oy += em.vy * dtScale;
+              em.ox += (em.vx + Math.sin(elapsed * 0.012 + em.phase) * 1.35) * dtScale;
+              if (nv.y + em.oy < -24) {
+                em.oy = -8 - Math.random() * 55;
+                em.ox = (Math.random() - 0.5) * basePillarW * 0.72;
+              }
+              const ey = nv.y + em.oy;
+              if (ey > nv.y + 8) continue;
+              const hFrac = Math.min(1.0, Math.max(0.18, (nv.y - ey) / 190));
+              const ex = nv.x + em.ox * hFrac;
+
+              if (isDynamoMode) {
+                ctx.strokeStyle = (eIdx % 5 === 0) ? '#fde047' : (em.bright ? '#7dd3fc' : '#c4b5fd');
+                ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.74);
+                ctx.lineWidth = Math.max(1.2, em.w * 0.85);
+                const zig1 = Math.sin(elapsed * 0.08 + em.phase) * 6;
+                const zig2 = Math.cos(elapsed * 0.09 + eIdx) * 5;
+                ctx.beginPath();
+                ctx.moveTo(ex, ey);
+                ctx.lineTo(ex + zig1, ey + em.len * 0.36);
+                ctx.lineTo(ex - zig2, ey + em.len * 0.72);
+                ctx.lineTo(ex - em.vx * 1.2, ey + em.len);
+                ctx.stroke();
+              } else if (isHelixMode) {
+                const dr = em.w * 1.65;
+                ctx.fillStyle = em.bright ? '#a5f3fc' : '#f5d0fe';
+                ctx.globalAlpha = alphaEnv * (em.bright ? 0.90 : 0.72);
+                ctx.beginPath();
+                ctx.moveTo(ex, ey - dr * 1.8);
+                ctx.lineTo(ex + dr * 0.75, ey);
+                ctx.lineTo(ex, ey + dr * 1.8);
+                ctx.lineTo(ex - dr * 0.75, ey);
+                ctx.closePath();
+                ctx.fill();
+              } else {
+                const curveX = ex + Math.sin(elapsed * 0.02 + em.phase) * 4.5;
+                ctx.strokeStyle = em.bright ? pal.emberHot : pal.emberWarm;
+                ctx.globalAlpha = alphaEnv * (em.bright ? 0.94 : 0.75);
+                ctx.lineWidth = em.w;
+                ctx.beginPath();
+                ctx.moveTo(ex, ey);
+                ctx.quadraticCurveTo(curveX, ey + em.len * 0.5, ex - em.vx * 1.6, ey + em.len);
+                ctx.stroke();
+              }
+            }
+          }
+
+          // LAYER 5B: Bespoke Per-Realm Climax Signature FX (Dynamo Lightning Storm / Helix Giant DNA Beam / Meteor Solar Prominence & Lava)
           this._drawNovaRealmFX(ctx, nv, elapsed, p, alphaEnv, rampIn, w, h, dtScale, basePillarW, isMob);
 
           ctx.restore();
@@ -8166,12 +8721,14 @@
         for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
         ctx.stroke();
       };
-      // Crisp, unblurred two-tone filament (zero wide outer glow pass!)
-      ctx.strokeStyle = `${midCol}${0.72 * a})`;
-      ctx.lineWidth = Math.max(1.1, 2.2 * scale);
+      ctx.strokeStyle = `${glowCol}${0.26 * a})`;
+      ctx.lineWidth = 11 * scale;
       trace();
-      ctx.strokeStyle = `rgba(255, 255, 255, ${0.95 * a})`;
-      ctx.lineWidth = Math.max(0.8, 1.1 * scale);
+      ctx.strokeStyle = `${midCol}${0.74 * a})`;
+      ctx.lineWidth = 4.2 * scale;
+      trace();
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.96 * a})`;
+      ctx.lineWidth = 1.6 * scale;
       trace();
     },
 
@@ -8183,64 +8740,279 @@
       ctx.lineJoin = 'round';
 
       if (mKey === 'dynamo') {
-        // ⚡ DYNAMO ULTIMATE: Crisp unblurred branching lightning arcs & discrete ground-track arcs (Zero background strobe or tip glow halos!)
-        const rx = nv._ellipseRx || 180;
-        const ry = nv._ellipseRy || 62;
-        if (!nv._boltAt || elapsed - nv._boltAt > 48) {
+        // ⚡ MASSIVE MULTI-HUED V-CANOPY LIGHTNING STORM + RADIAL VIOLET-BLUE PLASMA RAYS (Matches Image 1!)
+        const rx = nv._ellipseRx || 240;
+        const ry = nv._ellipseRy || 86;
+
+        // Radiant violet/cyan starburst rays fanning behind the Dynamo wings
+        ctx.save();
+        ctx.translate(nv.x, nv.y);
+        ctx.scale(1.0, 0.58);
+        ctx.rotate(elapsed * 0.0003);
+        for (let rI = 0; rI < 28; rI++) {
+          const ang = (rI / 28) * Math.PI * 2;
+          const len = (isMob ? 175 : 265) * (0.58 + 0.42 * Math.abs(Math.sin(rI * 2.71))) * rampIn;
+          ctx.strokeStyle = (rI % 2 === 0) ? `rgba(167, 139, 250, ${0.42 * a})` : `rgba(56, 189, 248, ${0.38 * a})`;
+          ctx.lineWidth = (rI % 3 === 0) ? 2.4 : 1.4;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(ang) * 44, Math.sin(ang) * 44);
+          ctx.lineTo(Math.cos(ang) * len, Math.sin(ang) * len);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        if (!nv._boltAt || elapsed - nv._boltAt > 38) {
+          nv._prevBolts = nv._bolts || null;
           nv._boltAt = elapsed;
+          const trunks = [];
+          const branches = [];
+          const ground = [];
           const rimArcs = [];
+          const topY = -24;
+          const trunkCount = isMob ? 5 : 7;
+
+          for (let t = 0; t < trunkCount; t++) {
+            const norm = (t / (trunkCount - 1)) - 0.5;
+            const xCore = nv.x + (t - (trunkCount - 1) * 0.5) * 7;
+            const yCore = nv.y - 8;
+            const xTop = nv.x + norm * pillarW * 2.5 + (Math.random() - 0.5) * 60;
+            trunks.push({
+              pts: this._novaBolt(xTop, topY, xCore, yCore, 66, 5),
+              style: t % 3
+            });
+          }
+
+          const branchCount = isMob ? 18 : 28;
+          for (let b = 0; b < branchCount; b++) {
+            let sx, sy, side, len, ang;
+            if (b < Math.floor(branchCount * 0.5)) {
+              const frac = b / Math.max(1, Math.floor(branchCount * 0.5) - 1);
+              side = (b % 2 === 0) ? -1 : 1;
+              sx = nv.x + side * (12 + Math.random() * 26);
+              sy = nv.y - 18 - frac * 72;
+              len = (isMob ? 130 : 190) + Math.random() * (isMob ? 180 : 280);
+              ang = -Math.PI * 0.5 + side * (0.48 + Math.random() * 0.85);
+            } else {
+              const tr = trunks[b % trunks.length].pts;
+              const si = 3 + Math.floor(Math.random() * Math.max(2, tr.length - 8));
+              const s = tr[si];
+              sx = s.x;
+              sy = s.y;
+              side = (sx < nv.x) ? -1 : ((sx > nv.x) ? 1 : (b % 2 === 0 ? -1 : 1));
+              len = (isMob ? 110 : 160) + Math.random() * (isMob ? 160 : 240);
+              ang = -Math.PI * 0.5 + side * (0.50 + Math.random() * 0.78);
+            }
+            const ex = sx + Math.cos(ang) * len * 1.25;
+            const ey = sy + Math.sin(ang) * len * 0.62;
+            const style = (b % 5 === 0) ? 2 : (b % 2);
+            const br = this._novaBolt(sx, sy, ex, ey, 34, 4);
+            branches.push({ pts: br, style });
+            if (Math.random() < 0.65 && br.length > 4) {
+              const tw = br[Math.floor(br.length * (0.35 + Math.random() * 0.35))];
+              branches.push({
+                pts: this._novaBolt(tw.x, tw.y, tw.x + side * (48 + Math.random() * 105), tw.y + (Math.random() - 0.55) * 90, 18, 3),
+                style: style
+              });
+            }
+          }
+
+          for (let g = 0; g < 14; g++) {
+            const ga = (g / 14) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+            const reach = 0.58 + Math.random() * 0.44;
+            ground.push({
+              pts: this._novaBolt(nv.x, nv.y, nv.x + Math.cos(ga) * rx * reach, nv.y + Math.sin(ga) * ry * reach, 22, 4),
+              style: g % 4 === 0 ? 2 : (g % 2)
+            });
+          }
           for (let ra = 0; ra < 4; ra++) {
             const a0 = Math.random() * Math.PI * 2;
             const a1 = a0 + 0.45 + Math.random() * 0.55;
             rimArcs.push({
-              pts: this._novaBolt(nv.x + Math.cos(a0) * rx, nv.y + Math.sin(a0) * ry, nv.x + Math.cos(a1) * rx, nv.y + Math.sin(a1) * ry, 10, 3),
-              style: ra % 2
+              pts: this._novaBolt(nv.x + Math.cos(a0) * rx, nv.y + Math.sin(a0) * ry, nv.x + Math.cos(a1) * rx, nv.y + Math.sin(a1) * ry, 14, 3),
+              style: 2
             });
           }
-          nv._bolts = { rimArcs };
+
+          const arcs = [];
+          for (let c = 0; c < 7; c++) {
+            const a0 = Math.random() * Math.PI * 2;
+            const a1 = a0 + 0.8 + Math.random() * 1.5;
+            const r0 = 46 + Math.random() * 18;
+            arcs.push({
+              pts: this._novaBolt(nv.x + Math.cos(a0) * r0, nv.y + Math.sin(a0) * r0, nv.x + Math.cos(a1) * r0, nv.y + Math.sin(a1) * r0, 14, 3),
+              style: c % 3
+            });
+          }
+          nv._bolts = { trunks, branches, ground, rimArcs };
+          nv._coreArcs = arcs;
+          nv._strobe = Math.random() < 0.20;
         }
-        const bl = nv._bolts;
-        if (bl && bl.rimArcs) {
-          for (let i = 0; i < bl.rimArcs.length; i++) {
-            const st = bl.rimArcs[i].style;
-            const c0 = st === 0 ? 'rgba(56, 189, 248, ' : 'rgba(253, 224, 71, ';
-            this._strokeBoltPasses(ctx, bl.rimArcs[i].pts, a * 0.75, 0.70, c0, c0);
+
+        const boltPalette = (st) => {
+          if (st === 2) return ['rgba(245, 158, 11, ', 'rgba(253, 224, 71, '];
+          if (st === 1) return ['rgba(124, 58, 237, ', 'rgba(192, 132, 252, '];
+          return ['rgba(99, 102, 241, ', 'rgba(56, 189, 248, '];
+        };
+
+        if (nv._strobe && p < 0.82) {
+          ctx.fillStyle = `rgba(196, 181, 253, ${0.055 * a})`;
+          ctx.fillRect(0, 0, w, h);
+        }
+
+        if (nv._prevBolts) {
+          const prev = nv._prevBolts;
+          for (let i = 0; i < prev.trunks.length; i++) {
+            this._strokeBoltPasses(ctx, prev.trunks[i].pts, a * 0.34, 0.82, 'rgba(109, 40, 217, ', 'rgba(167, 139, 250, ');
+          }
+          for (let i = 0; i < prev.branches.length; i++) {
+            this._strokeBoltPasses(ctx, prev.branches[i].pts, a * 0.30, 0.50, 'rgba(109, 40, 217, ', 'rgba(167, 139, 250, ');
           }
         }
 
+        const bl = nv._bolts;
+        for (let i = 0; i < bl.branches.length; i++) {
+          const cols = boltPalette(bl.branches[i].style);
+          this._strokeBoltPasses(ctx, bl.branches[i].pts, a * 0.90, 0.66, cols[0], cols[1]);
+        }
+        for (let i = 0; i < bl.ground.length; i++) {
+          const cols = boltPalette(bl.ground[i].style);
+          this._strokeBoltPasses(ctx, bl.ground[i].pts, a * 0.84, 0.56, cols[0], cols[1]);
+        }
+        for (let i = 0; i < bl.rimArcs.length; i++) {
+          this._strokeBoltPasses(ctx, bl.rimArcs[i].pts, a * 0.92, 0.62, 'rgba(245, 158, 11, ', 'rgba(253, 224, 71, ');
+        }
+        for (let i = 0; i < bl.trunks.length; i++) {
+          const cols = boltPalette(bl.trunks[i].style);
+          this._strokeBoltPasses(ctx, bl.trunks[i].pts, a, 1.08, cols[0], cols[1]);
+        }
+        const tipSprC = QuantumRenderer._getGlowSprite('cyan');
+        const tipSprV = QuantumRenderer._getGlowSprite('violet');
+        ctx.globalAlpha = a * 0.72;
+        for (let i = 0; i < bl.branches.length; i++) {
+          const pts = bl.branches[i].pts;
+          const tip = pts[pts.length - 1];
+          ctx.drawImage(bl.branches[i].style === 1 ? tipSprV : tipSprC, tip.x - 13, tip.y - 13, 26, 26);
+        }
+        ctx.globalAlpha = 1.0;
+
       } else if (mKey === 'helix') {
-        // 🧬 HELIX ULTIMATE: Crisp concentric bio-lattice ground rings + discrete faceted crystal shards (Zero second helix, zero radial starburst rays!)
-        const rx = nv._ellipseRx || 180;
-        const ry = nv._ellipseRy || 62;
-        for (let rI = 0; rI < 2; rI++) {
-          const ph = ((elapsed * 0.0011) + rI / 2) % 1;
-          const sc = 0.58 + ph * 0.85;
-          ctx.strokeStyle = (rI % 2 === 0) ? `rgba(34, 211, 238, ${a * (1 - ph) * 0.65})` : `rgba(232, 121, 249, ${a * (1 - ph) * 0.65})`;
-          ctx.lineWidth = 1.4;
+        // 🧬 SPIRALLING GIANT DNA DOUBLE HELIX + 3 RISING 3D HARMONIC RINGS + CRYSTAL SHARDS + STARBURST RAYS (Matches Image 3!)
+        const amp = pillarW * 0.30;
+        const step = isMob ? 7 : 6;
+        const k = 0.021;
+        const scroll = elapsed * 0.62;
+        const baseY = nv.y - 22;
+        const frontA = [], backA = [], frontB = [], backB = [], ghostA = [], ghostB = [];
+        const rungs = [];
+        let prev = null;
+        for (let y = baseY; y > -20; y -= step) {
+          const rise = Math.min(1, (baseY - y) / 90);
+          const ph = (y + scroll) * k;
+          const s = Math.sin(ph);
+          const c = Math.cos(ph);
+          const gs = Math.sin(ph + Math.PI * 0.5);
+          const A = amp * (0.35 + 0.65 * rise);
+          const cur = { y, xa: nv.x + s * A, xb: nv.x - s * A, gxa: nv.x + gs * A * 1.32, gxb: nv.x - gs * A * 1.32, za: c, ph };
+          if (prev) {
+            (cur.za >= 0 ? frontA : backA).push([prev.xa, prev.y, cur.xa, cur.y]);
+            (cur.za < 0 ? frontB : backB).push([prev.xb, prev.y, cur.xb, cur.y]);
+            ghostA.push([prev.gxa, prev.y, cur.gxa, cur.y]);
+            ghostB.push([prev.gxb, prev.y, cur.gxb, cur.y]);
+          }
+          if (Math.floor(ph / 0.55) !== Math.floor((prev ? prev.ph : ph - 1) / 0.55)) {
+            rungs.push(cur);
+          }
+          prev = cur;
+        }
+        const strokeSegs = (segs, col, width) => {
+          if (!segs.length) return;
+          ctx.strokeStyle = col;
+          ctx.lineWidth = width;
+          ctx.beginPath();
+          for (let i = 0; i < segs.length; i++) {
+            ctx.moveTo(segs[i][0], segs[i][1]);
+            ctx.lineTo(segs[i][2], segs[i][3]);
+          }
+          ctx.stroke();
+        };
+        strokeSegs(ghostA, `rgba(103, 232, 249, ${0.28 * a})`, 1.6);
+        strokeSegs(ghostB, `rgba(240, 171, 252, ${0.28 * a})`, 1.6);
+        strokeSegs(backA, `rgba(232, 121, 249, ${0.48 * a})`, 3.6);
+        strokeSegs(backB, `rgba(34, 211, 238, ${0.48 * a})`, 3.6);
+        ctx.strokeStyle = `rgba(207, 250, 254, ${0.65 * a})`;
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        for (let i = 0; i < rungs.length; i++) {
+          ctx.moveTo(rungs[i].xa, rungs[i].y);
+          ctx.lineTo(rungs[i].xb, rungs[i].y);
+        }
+        ctx.stroke();
+        strokeSegs(frontA, `rgba(240, 171, 252, ${0.42 * a})`, 14);
+        strokeSegs(frontB, `rgba(103, 232, 249, ${0.42 * a})`, 14);
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        strokeSegs(frontA, `rgba(236, 72, 153, ${0.96 * a})`, 5.4);
+        strokeSegs(frontB, `rgba(6, 182, 212, ${0.96 * a})`, 5.4);
+        strokeSegs(frontA, `rgba(253, 224, 247, ${0.88 * a})`, 1.8);
+        strokeSegs(frontB, `rgba(207, 250, 254, ${0.88 * a})`, 1.8);
+        ctx.restore();
+
+        // 3 Rising 3D Perspective Harmonic Pulse Rings climbing the DNA column
+        for (let hr = 0; hr < 3; hr++) {
+          const ph = ((elapsed * 0.0014) + hr / 3) % 1;
+          const hy = nv.y - 24 - ph * (nv.y + 12);
+          const hrx = pillarW * (0.24 + ph * 0.34);
+          const hry = hrx * 0.34;
+          const hAlpha = a * (1 - ph) * 0.82;
+          ctx.strokeStyle = (hr % 2 === 0) ? `rgba(34, 211, 238, ${hAlpha})` : `rgba(236, 72, 153, ${hAlpha})`;
+          ctx.lineWidth = 2.8;
+          ctx.beginPath();
+          ctx.ellipse(nv.x, hy, hrx, hry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Nucleotide glow beads at front rung ends
+        const beadM = QuantumRenderer._getGlowSprite('magPt');
+        const beadC = QuantumRenderer._getGlowSprite('cyanPt');
+        ctx.globalAlpha = a * 0.9;
+        for (let i = 0; i < rungs.length; i++) {
+          const r = rungs[i];
+          ctx.drawImage(r.za >= 0 ? beadM : beadC, (r.za >= 0 ? r.xa : r.xb) - 7, r.y - 7, 14, 14);
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Ripple of concentric bio-lattice ground rings
+        const rx = nv._ellipseRx || 240;
+        const ry = nv._ellipseRy || 86;
+        for (let rI = 0; rI < 3; rI++) {
+          const ph = ((elapsed * 0.0011) + rI / 3) % 1;
+          const sc = 0.55 + ph * 1.15;
+          ctx.strokeStyle = (rI % 2 === 0) ? `rgba(34, 211, 238, ${a * (1 - ph) * 0.85})` : `rgba(232, 121, 249, ${a * (1 - ph) * 0.85})`;
+          ctx.lineWidth = 2.4;
           ctx.beginPath();
           ctx.ellipse(nv.x, nv.y, rx * sc, ry * sc, 0, 0, Math.PI * 2);
           ctx.stroke();
         }
 
-        // Discrete faceted prismatic shards (no glow sprites!)
+        // Flying prismatic crystal shards bursting outward from the beam
         if (!nv._shards) {
           nv._shards = [];
-          for (let sI = 0; sI < (isMob ? 12 : 18); sI++) {
-            nv._shards.push({ ox: 0, oy: 0, vx: 0, vy: 0, rot: 0, vr: 0, sz: 0, col: 0, init: false });
+          for (let sI = 0; sI < (isMob ? 26 : 40); sI++) {
+            nv._shards.push({ ox: 0, oy: -Math.random() * nv.y, vx: 0, vy: 0, rot: 0, vr: 0, sz: 0, col: 0, init: false });
           }
         }
         for (let sI = 0; sI < nv._shards.length; sI++) {
           const sh = nv._shards[sI];
-          if (!sh.init || Math.hypot(sh.ox, sh.oy) > rx * 1.4) {
-            const ang = Math.random() * Math.PI * 2;
-            sh.ox = Math.cos(ang) * 28;
-            sh.oy = Math.sin(ang) * 16;
-            sh.vx = Math.cos(ang) * (1.8 + Math.random() * 2.2);
-            sh.vy = Math.sin(ang) * (1.0 + Math.random() * 1.6);
+          if (!sh.init || nv.y + sh.oy < -30 || Math.abs(sh.ox) > w * 0.6) {
+            const side = Math.random() < 0.5 ? -1 : 1;
+            sh.ox = side * pillarW * (0.12 + Math.random() * 0.18);
+            sh.oy = -20 - Math.random() * Math.max(120, nv.y - 40);
+            sh.vx = side * (1.6 + Math.random() * 3.2);
+            sh.vy = -(1.2 + Math.random() * 3.0);
             sh.rot = Math.random() * Math.PI;
-            sh.vr = (Math.random() - 0.5) * 0.14;
-            sh.sz = 3.5 + Math.random() * 3.5;
-            sh.col = sI % 3;
+            sh.vr = (Math.random() - 0.5) * 0.18;
+            sh.sz = 6 + Math.random() * 9;
+            sh.col = Math.floor(Math.random() * 3);
             sh.init = true;
           }
           sh.ox += sh.vx * dtScale;
@@ -8250,70 +9022,171 @@
           const sy = nv.y + sh.oy;
           ctx.save();
           ctx.translate(sx, sy);
-          ctx.rotate(sh.rot);
-          ctx.fillStyle = sh.col === 0 ? `rgba(103, 232, 249, ${0.82 * a})` : (sh.col === 1 ? `rgba(240, 171, 252, ${0.82 * a})` : `rgba(255, 255, 255, ${0.88 * a})`);
+          ctx.rotate(Math.atan2(sh.vy, sh.vx) + Math.PI * 0.5 + sh.rot * 0.2);
+          ctx.fillStyle = sh.col === 0 ? `rgba(165, 243, 252, ${0.85 * a})` : (sh.col === 1 ? `rgba(240, 171, 252, ${0.85 * a})` : `rgba(255, 255, 255, ${0.9 * a})`);
           ctx.beginPath();
           ctx.moveTo(0, -sh.sz);
-          ctx.lineTo(sh.sz * 0.36, 0);
-          ctx.lineTo(0, sh.sz * 0.75);
-          ctx.lineTo(-sh.sz * 0.36, 0);
+          ctx.lineTo(sh.sz * 0.32, 0);
+          ctx.lineTo(0, sh.sz * 0.7);
+          ctx.lineTo(-sh.sz * 0.32, 0);
           ctx.closePath();
           ctx.fill();
           ctx.restore();
         }
 
+        // Razor-thin radiant starburst rays fanning from the core
+        ctx.save();
+        ctx.translate(nv.x, nv.y);
+        ctx.scale(1.0, 0.42);
+        ctx.rotate(elapsed * 0.0004);
+        for (let rI = 0; rI < 28; rI++) {
+          const ang = (rI / 28) * Math.PI * 2;
+          const len = (isMob ? 150 : 230) * (0.6 + 0.4 * Math.abs(Math.sin(rI * 2.71))) * rampIn;
+          ctx.strokeStyle = (rI % 2) ? `rgba(165, 243, 252, ${0.42 * a})` : `rgba(240, 171, 252, ${0.38 * a})`;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(ang) * 40, Math.sin(ang) * 40);
+          ctx.lineTo(Math.cos(ang) * len, Math.sin(ang) * len);
+          ctx.stroke();
+        }
+        ctx.restore();
+
       } else {
-        // 🌋 METEOR ULTIMATE: Discrete ballistic molten cinders with short fading wakes (Zero glow sprites!)
+        // 🌋 CALDERA NOVA (Meteor) — 8 Solar Prominence Flame Loops + 3 Rising Molten Shock-Halos + Lava Ejecta (Matches Image 2!)
+        const grow = Math.min(1, elapsed / 420);
+        for (let lI = 0; lI < 8; lI++) {
+          const side = (lI % 2 === 0) ? -1 : 1;
+          const tier = Math.floor(lI / 2);
+          const sway = Math.sin(elapsed * 0.015 + lI * 1.35) * (12 + tier * 5);
+          const baseX = nv.x + side * (18 + tier * 9);
+          const loopH = (isMob ? 105 : 155) * (0.68 + tier * 0.36) * grow;
+          const endX = nv.x + side * (28 + tier * 22) + sway * 0.65;
+          const endY = nv.y - loopH * 1.45;
+          const cp1X = baseX + side * (42 + tier * 18);
+          const cp1Y = nv.y - loopH * 0.42;
+          const cp2X = nv.x + side * (pillarW * (0.14 + tier * 0.06)) - sway * 0.45;
+          const cp2Y = nv.y - loopH * 1.02;
+          ctx.strokeStyle = `rgba(249, 115, 22, ${0.28 * a})`;
+          ctx.lineWidth = 10;
+          ctx.beginPath();
+          ctx.moveTo(baseX, nv.y - 10);
+          ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(253, 186, 116, ${0.65 * a})`;
+          ctx.lineWidth = 3.2;
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(255, 251, 235, ${0.58 * a})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        // 3 Rising 3D Perspective Molten Shock-Halos softly blending into the fire column
+        for (let sr = 0; sr < 3; sr++) {
+          const ph = ((elapsed * 0.0014) + sr / 3) % 1;
+          const sy = nv.y - 20 - ph * (nv.y + 10);
+          const srx = pillarW * (0.26 + ph * 0.38);
+          const sry = srx * 0.34;
+          const sAlpha = a * Math.sin(ph * Math.PI) * 0.58;
+          ctx.strokeStyle = `rgba(249, 115, 22, ${sAlpha * 0.48})`;
+          ctx.lineWidth = 6;
+          ctx.beginPath();
+          ctx.ellipse(nv.x, sy, srx, sry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(254, 240, 138, ${sAlpha})`;
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+        }
+        // Ballistic molten lava ejecta
         if (!nv._lava) {
           nv._lava = [];
-          for (let jI = 0; jI < (isMob ? 12 : 18); jI++) {
-            const ang = -Math.PI * 0.5 + (Math.random() - 0.5) * 2.2;
-            const spd = 4.5 + Math.random() * 6.5;
-            nv._lava.push({ x: nv.x, y: nv.y - 8, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, r: 1.8 + Math.random() * 2.0, px: nv.x, py: nv.y });
+          for (let jI = 0; jI < (isMob ? 18 : 28); jI++) {
+            const ang = -Math.PI * 0.5 + (Math.random() - 0.5) * 2.4;
+            const spd = 6 + Math.random() * 9;
+            nv._lava.push({ x: nv.x, y: nv.y - 10, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd, r: 3 + Math.random() * 4.5, px: nv.x, py: nv.y });
           }
         }
+        const lavaSpr = QuantumRenderer._getGlowSprite('emberPt');
         for (let jI = 0; jI < nv._lava.length; jI++) {
           const lv = nv._lava[jI];
           lv.px = lv.x;
           lv.py = lv.y;
-          lv.vy += 0.26 * dtScale;
+          lv.vy += 0.32 * dtScale;
           lv.x += lv.vx * dtScale;
           lv.y += lv.vy * dtScale;
           if (lv.y > h + 30 || lv.x < -30 || lv.x > w + 30) continue;
-          ctx.strokeStyle = `rgba(234, 88, 12, ${0.65 * a})`;
-          ctx.lineWidth = Math.max(1.0, lv.r * 0.75);
+          ctx.strokeStyle = `rgba(251, 146, 60, ${0.72 * a})`;
+          ctx.lineWidth = lv.r * 0.9;
           ctx.beginPath();
-          ctx.moveTo(lv.px - lv.vx * 1.4, lv.py - lv.vy * 1.4);
+          ctx.moveTo(lv.px - lv.vx * 1.6, lv.py - lv.vy * 1.6);
           ctx.lineTo(lv.x, lv.y);
           ctx.stroke();
-
-          ctx.fillStyle = `rgba(254, 240, 138, ${0.92 * a})`;
-          ctx.beginPath();
-          ctx.arc(lv.x, lv.y, lv.r, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.globalAlpha = a;
+          ctx.drawImage(lavaSpr, lv.x - lv.r * 3, lv.y - lv.r * 3, lv.r * 6, lv.r * 6);
+          ctx.globalAlpha = 1.0;
         }
       }
     },
 
-    // === NOVA 3D FOREGROUND PASS (Crisp Front Shock Ring Only — Zero Glow Halos!) ===
+    // === NOVA 3D FOREGROUND PASS (SEAMLESS FRONT RING + CORE IGNITION CROWN + LIGHTNING ARCS) ===
     drawNovaForeground(ctx, cx, cy, now, w, h) {
       if (!this.activeNova) return;
       const nv = this.activeNova;
       const alphaEnv = nv._alphaEnv || 0;
       if (alphaEnv <= 0.01) return;
       const pal = nv._pal;
-      const rx = nv._ellipseRx || 180;
-      const ry = nv._ellipseRy || 62;
+      const rx = nv._ellipseRx || 220;
+      const ry = nv._ellipseRy || 80;
       if (!pal) return;
 
       ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      // LAYER 6: Front Half (0..PI) of the 3D Orbital Ellipse with round cap & slight overlap
+      ctx.save();
       ctx.translate(nv.x, nv.y);
       ctx.lineCap = 'round';
-      ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.72})`;
-      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = `${pal.ringGlow}${alphaEnv * 0.58})`;
+      ctx.lineWidth = 11;
       ctx.beginPath();
-      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI);
+      ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
       ctx.stroke();
+
+      ctx.strokeStyle = `${pal.ringCore}${alphaEnv * 0.98})`;
+      ctx.lineWidth = 3.2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, -0.05, Math.PI + 0.05);
+      ctx.stroke();
+
+      // Equatorial horizon node glints + moving front rim glint
+      const gSpr = QuantumRenderer._getGlowSprite('gold');
+      ctx.globalAlpha = alphaEnv * 0.55;
+      ctx.drawImage(gSpr, -rx - 18, -14, 36, 28);
+      ctx.drawImage(gSpr, rx - 18, -14, 36, 28);
+      const glintX = Math.cos(now * 0.005) * rx * 0.72;
+      const glintY = Math.sqrt(Math.max(0, 1 - (glintX * glintX) / (rx * rx))) * ry;
+      ctx.globalAlpha = alphaEnv * 0.85;
+      ctx.drawImage(gSpr, glintX - 24, glintY - 14, 48, 28);
+      ctx.restore();
+
+      // LAYER 7: Core-Hugging Ignition Crown Flare where the Pillar Erupts out of the Top of the Core
+      const topGlow = QuantumRenderer._getGlowSprite(nv.mode === 'meteor' ? 'gold' : (nv.mode === 'helix' ? 'helix' : 'cyan'));
+      ctx.globalAlpha = alphaEnv * 0.78;
+      ctx.drawImage(topGlow, nv.x - 66, nv.y - 78, 132, 104);
+      ctx.globalAlpha = 1.0;
+
+      // LAYER 8: Dynamo — 7 Multi-Hued Crackling Electric Arcs Wrapping Over the Core Surface
+      if (nv.mode === 'dynamo' && nv._coreArcs) {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        for (let i = 0; i < nv._coreArcs.length; i++) {
+          const arc = nv._coreArcs[i];
+          const pts = arc.pts || arc;
+          const st = arc.style || 0;
+          const c0 = st === 2 ? 'rgba(245, 158, 11, ' : (st === 1 ? 'rgba(139, 92, 246, ' : 'rgba(59, 130, 246, ');
+          const c1 = st === 2 ? 'rgba(253, 224, 71, ' : (st === 1 ? 'rgba(192, 132, 252, ' : 'rgba(125, 211, 252, ');
+          this._strokeBoltPasses(ctx, pts, alphaEnv * 0.94, 0.56, c0, c1);
+        }
+      }
+
       ctx.restore();
     }
   };
@@ -9430,11 +10303,11 @@
 
       // ─────────────────────────────────────────────────────────────────────────
       // ADAPTABLE TIER I–V CHROME CORE ARTILLERY TURRETS (Rendered IN FRONT of Core & Wings!)
-      // Always visible when ammo > 0, firing, or boss active; dynamically scales & mounts across Tiers I..V!
-      // Strict zero outer bloom: uses crisp metallic barrels, material highlights, and sharp unblurred muzzle shocks.
+      // STRICT USER RULE: The guns ONLY show when actively pressing the "A" or gun button (isFiringActive)!
+      // They do NOT show when not firing.
       // ─────────────────────────────────────────────────────────────────────────
       const hasAmmo = (state.coreAmmo || 0) > 0;
-      const showTurrets = isFiringActive || hasAmmo || (state.boss && state.boss.phase !== 'defeated');
+      const showTurrets = isFiringActive;
       if (showTurrets) {
         const arcR = ((mode === 'dynamo') ? 76 : 70) * u;
         const ammoFrac = Math.min(1, (state.coreAmmo || 0) / 150);
