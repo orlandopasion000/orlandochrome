@@ -6914,6 +6914,7 @@
     skill2SubEl: null,
     skill2CapEl: null,
     gunCapEl: null,
+    gunCrestEl: null,
     deskHudEl: null,
     deskGunChip: null,
     deskGunName: null,
@@ -7098,6 +7099,115 @@
       el.addEventListener('lostpointercapture', releaseThisPointer, { passive: true });
     },
 
+    _buildLuxuryFiligreeSvg(kind) {
+      const strokeCol = kind === 'ult' ? 'rgba(253,224,71,0.52)' : (kind === 'skill2' ? 'rgba(103,232,249,0.48)' : 'rgba(253,224,71,0.44)');
+      return (
+        '<svg class="oc-pad-filigree" viewBox="0 0 100 100" aria-hidden="true">' +
+          '<circle cx="50" cy="50" r="44" fill="none" stroke="' + strokeCol + '" stroke-width="0.9" stroke-dasharray="4 3.5"/>' +
+          '<circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.7"/>' +
+          '<path d="M50 3 L52 8 L50 11 L48 8 Z M50 97 L52 92 L50 89 L48 92 Z M3 50 L8 52 L11 50 L8 48 Z M97 50 L92 52 L89 50 L92 48 Z" fill="' + strokeCol + '"/>' +
+        '</svg>'
+      );
+    },
+
+    _buildTouchPadArtwork(mode, role) {
+      const m = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
+      if (role === 'ult') {
+        return '<img class="oc-ult-mini-core" src="assets/core-' + m + '-t5.png" alt="" draggable="false" />';
+      }
+      if (role === 'skill2') {
+        if (m === 'helix') {
+          // PRISM SWARM: 3D Faceted Iridescent Diamond Bio-Crystal Cluster
+          return (
+            '<svg class="oc-pad-emblem-svg" viewBox="0 0 64 64" aria-hidden="true">' +
+              '<defs>' +
+                '<linearGradient id="ocHxS2C" x1="0%" y1="0%" x2="100%" y2="100%">' +
+                  '<stop offset="0%" stop-color="#ecfeff"/>' +
+                  '<stop offset="45%" stop-color="#22d3ee"/>' +
+                  '<stop offset="100%" stop-color="#a855f7"/>' +
+                '</linearGradient>' +
+                '<linearGradient id="ocHxS2M" x1="100%" y1="0%" x2="0%" y2="100%">' +
+                  '<stop offset="0%" stop-color="#f5d0fe"/>' +
+                  '<stop offset="50%" stop-color="#e879f9"/>' +
+                  '<stop offset="100%" stop-color="#0284c7"/>' +
+                '</linearGradient>' +
+              '</defs>' +
+              '<polygon points="32,5 44,22 32,46 20,22" fill="url(#ocHxS2C)" stroke="#ffffff" stroke-width="1.2"/>' +
+              '<polygon points="32,5 44,22 32,27" fill="rgba(255,255,255,0.45)"/>' +
+              '<polygon points="15,20 24,33 15,50 7,33" fill="url(#ocHxS2M)" stroke="#f0abfc" stroke-width="1"/>' +
+              '<polygon points="49,20 57,33 49,50 40,33" fill="url(#ocHxS2M)" stroke="#67e8f9" stroke-width="1"/>' +
+              '<circle cx="32" cy="22" r="3" fill="#ffffff"/>' +
+            '</svg>'
+          );
+        }
+        if (m === 'meteor') {
+          // SEEKER COMETS: Blazing 3D Molten Bolide Warhead with Golden Bow-Shock Fins
+          return (
+            '<svg class="oc-pad-emblem-svg" viewBox="0 0 64 64" aria-hidden="true">' +
+              '<defs>' +
+                '<radialGradient id="ocMtS2Core" cx="38%" cy="35%" r="65%">' +
+                  '<stop offset="0%" stop-color="#fef08a"/>' +
+                  '<stop offset="45%" stop-color="#f97316"/>' +
+                  '<stop offset="85%" stop-color="#991b1b"/>' +
+                  '<stop offset="100%" stop-color="#450a0a"/>' +
+                '</radialGradient>' +
+                '<linearGradient id="ocMtS2Tail" x1="20%" y1="20%" x2="95%" y2="95%">' +
+                  '<stop offset="0%" stop-color="#fde047"/>' +
+                  '<stop offset="50%" stop-color="#f97316" stop-opacity="0.85"/>' +
+                  '<stop offset="100%" stop-color="#dc2626" stop-opacity="0"/>' +
+                '</linearGradient>' +
+              '</defs>' +
+              '<path d="M18 18 C34 20, 52 34, 58 56 C40 48, 24 36, 18 18 Z" fill="url(#ocMtS2Tail)"/>' +
+              '<path d="M12 28 C28 10, 44 26, 28 44 Z" fill="none" stroke="#fde047" stroke-width="1.6" stroke-opacity="0.8"/>' +
+              '<circle cx="24" cy="24" r="13" fill="url(#ocMtS2Core)" stroke="#fde047" stroke-width="1.3"/>' +
+              '<path d="M16 21 Q24 25 31 19 M19 30 Q25 26 32 31" stroke="#fef9c3" stroke-width="1.5" fill="none" stroke-linecap="round"/>' +
+            '</svg>'
+          );
+        }
+        // DYNAMO — ARC SEEKERS: Twin Golden Faraday Lightning Spearheads & Cyan Plasma Arcs
+        return (
+          '<svg class="oc-pad-emblem-svg" viewBox="0 0 64 64" aria-hidden="true">' +
+            '<defs>' +
+              '<linearGradient id="ocDyS2G" x1="0%" y1="0%" x2="100%" y2="100%">' +
+                '<stop offset="0%" stop-color="#ffffff"/>' +
+                '<stop offset="38%" stop-color="#67e8f9"/>' +
+                '<stop offset="100%" stop-color="#a855f7"/>' +
+              '</linearGradient>' +
+              '<linearGradient id="ocDyS2Gold" x1="0%" y1="0%" x2="0%" y2="100%">' +
+                '<stop offset="0%" stop-color="#fef08a"/>' +
+                '<stop offset="100%" stop-color="#d97706"/>' +
+              '</linearGradient>' +
+            '</defs>' +
+            '<circle cx="32" cy="32" r="22" fill="none" stroke="url(#ocDyS2Gold)" stroke-width="1.5" stroke-dasharray="7 4"/>' +
+            '<polygon points="35,6 16,34 30,34 25,58 48,28 34,28" fill="url(#ocDyS2G)" stroke="#fef08a" stroke-width="1.2" stroke-linejoin="round"/>' +
+          '</svg>'
+        );
+      }
+      // role === 'gun' crest above FIRE
+      if (m === 'helix') {
+        return (
+          '<svg viewBox="0 0 36 24" aria-hidden="true">' +
+            '<path d="M6 18 L18 3 L30 18 L18 14 Z" fill="none" stroke="#67e8f9" stroke-width="1.8"/>' +
+            '<circle cx="18" cy="11" r="3" fill="#f0abfc"/>' +
+          '</svg>'
+        );
+      }
+      if (m === 'meteor') {
+        return (
+          '<svg viewBox="0 0 36 24" aria-hidden="true">' +
+            '<path d="M5 19 L18 3 L31 19 L18 14 Z" fill="rgba(251,146,60,0.45)" stroke="#fde047" stroke-width="1.8"/>' +
+            '<circle cx="18" cy="11" r="3" fill="#fef08a"/>' +
+          '</svg>'
+        );
+      }
+      return (
+        '<svg viewBox="0 0 36 24" aria-hidden="true">' +
+          '<path d="M5 19 L18 3 L31 19 L18 14 Z" fill="rgba(56,189,248,0.40)" stroke="#fde047" stroke-width="1.8"/>' +
+          '<circle cx="18" cy="11" r="3" fill="#e0f2fe"/>' +
+        '</svg>'
+      );
+    },
+
     ensureTouchCluster() {
       // Strictly never create touch buttons on non-touch desktop/laptop devices!
       if (!this.isTouch) return null;
@@ -7106,16 +7216,21 @@
       const host = dom.viewReflex || document.getElementById('cgViewReflex');
       if (!host) return null;
 
+      const rawMode = (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
+      const curMode = (rawMode === 'helix') ? 'helix' : (rawMode === 'meteor' ? 'meteor' : 'dynamo');
+
       const cluster = document.createElement('div');
       cluster.id = 'ocTouchControlCluster';
       cluster.className = 'oc-touch-hidden' + (this.leftHanded ? ' left-handed' : '');
+      cluster.setAttribute('data-realm', curMode);
       cluster.setAttribute('aria-label', 'Touch Combat Controls');
 
-      const ars = getRealmArsenal();
+      const ars = getRealmArsenal(curMode);
       cluster.innerHTML =
         '<div class="oc-touch-pad-wrap oc-pad-wrap-ult">' +
           '<div role="button" tabindex="-1" id="ocTouchUltBtn" class="oc-touch-pad" aria-label="' + ars.ult + '">' +
-            '<span class="oc-pad-icon" id="ocTouchUltIcon">' + ars.ultIcon + '</span>' +
+            this._buildLuxuryFiligreeSvg('ult') +
+            '<span class="oc-pad-icon" id="ocTouchUltIcon">' + this._buildTouchPadArtwork(curMode, 'ult') + '</span>' +
             '<span class="oc-fire-sub">ULT</span>' +
             '<div class="oc-cd-sweep" id="ocTouchUltSweep"></div>' +
             '<div class="oc-cd-text" id="ocTouchUltCdText"></div>' +
@@ -7124,7 +7239,8 @@
         '</div>' +
         '<div class="oc-touch-pad-wrap oc-pad-wrap-skill2">' +
           '<div role="button" tabindex="-1" id="ocTouchSkill2Btn" class="oc-touch-pad" aria-label="' + ars.skill2 + '">' +
-            '<span class="oc-pad-icon" id="ocTouchSkill2Icon">' + ars.s2Icon + '</span>' +
+            this._buildLuxuryFiligreeSvg('skill2') +
+            '<span class="oc-pad-icon" id="ocTouchSkill2Icon">' + this._buildTouchPadArtwork(curMode, 'skill2') + '</span>' +
             '<span class="oc-fire-sub" id="ocTouchSkill2Sub">' + ars.s2Count + '×</span>' +
             '<div class="oc-cd-sweep" id="ocTouchSkill2Sweep"></div>' +
             '<div class="oc-cd-text" id="ocTouchSkill2CdText"></div>' +
@@ -7133,6 +7249,8 @@
         '</div>' +
         '<div class="oc-touch-pad-wrap oc-pad-wrap-gun">' +
           '<div role="button" tabindex="-1" id="ocTouchGunBtn" class="oc-touch-pad" aria-label="' + ars.gun + '">' +
+            this._buildLuxuryFiligreeSvg('gun') +
+            '<span class="oc-gun-crest" id="ocTouchGunCrest">' + this._buildTouchPadArtwork(curMode, 'gun') + '</span>' +
             '<span class="oc-fire-label">FIRE</span>' +
             '<span class="oc-fire-ammo" id="ocTouchFireAmmo">0</span>' +
             '<span class="oc-fire-sub">HOLD</span>' +
@@ -7156,6 +7274,7 @@
       this.skill2SubEl = cluster.querySelector('#ocTouchSkill2Sub');
       this.skill2CapEl = cluster.querySelector('#ocTouchSkill2Cap');
       this.gunCapEl = cluster.querySelector('#ocTouchGunCap');
+      this.gunCrestEl = cluster.querySelector('#ocTouchGunCrest');
 
       // Apply configurable button sizes from CONFIG
       if (this.gunBtn) {
@@ -7264,6 +7383,7 @@
       this.skill2SubEl = null;
       this.skill2CapEl = null;
       this.gunCapEl = null;
+      this.gunCrestEl = null;
       this._cachedAmmoStr = null;
       this._cachedHidden = null;
       this._cachedRealmMode = null;
@@ -7384,13 +7504,15 @@
       if (this._cachedRealmMode === curMode) return;
       this._cachedRealmMode = curMode;
       const ars = getRealmArsenal(curMode);
-      if (this.ultIconEl) this.ultIconEl.textContent = ars.ultIcon;
+      if (this.clusterEl) this.clusterEl.setAttribute('data-realm', curMode);
+      if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult');
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
       if (this.ultBtn) this.ultBtn.setAttribute('aria-label', ars.ult);
-      if (this.skill2IconEl) this.skill2IconEl.textContent = ars.s2Icon;
+      if (this.skill2IconEl) this.skill2IconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'skill2');
       if (this.skill2SubEl) this.skill2SubEl.textContent = `${ars.s2Count}×`;
       if (this.skill2CapEl) this.skill2CapEl.textContent = ars.skill2;
       if (this.skill2Btn) this.skill2Btn.setAttribute('aria-label', ars.skill2);
+      if (this.gunCrestEl) this.gunCrestEl.innerHTML = this._buildTouchPadArtwork(curMode, 'gun');
       if (this.gunCapEl) this.gunCapEl.textContent = ars.gun;
       if (this.gunBtn) this.gunBtn.setAttribute('aria-label', ars.gun);
       if (this.deskGunName) this.deskGunName.textContent = ars.gun;

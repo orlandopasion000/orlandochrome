@@ -1,10 +1,10 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v394_climax_ult_real_cores';
+const CACHE_NAME = 'orlandochrome-arcade-v395_luxury_touch_hud';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade394_climax_ult_real_cores',
-  './game.js?v=arcade394_climax_ult_real_cores',
+  './styles.css?v=arcade395_luxury_touch_hud',
+  './game.js?v=arcade395_luxury_touch_hud',
   './assets/core-dynamo-t1.png?v=cores15_v1',
   './assets/core-dynamo-t2.png?v=cores15_v1',
   './assets/core-dynamo-t3.png?v=cores15_v1',
