@@ -2337,6 +2337,7 @@
     // === CHANGED (v393): 15 Chrome Core Tier-Specific PNGs & Layered Wing/Shell Registry ===
     coreTierSprites: { dynamo: {}, helix: {}, meteor: {} },
     wingRightTiers: { dynamo: {}, helix: {}, meteor: {} },
+    bezelT5: { dynamo: new Image(), helix: new Image() },
     helixGlassShell: new Image(),
     nodeShell: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     hazard: {
@@ -2356,6 +2357,7 @@
       coreBaseT5: { dynamo: false, helix: false, meteor: false },
       coreTierSprites: { dynamo: {}, helix: {}, meteor: {} },
       wingRightTiers: { dynamo: {}, helix: {}, meteor: {} },
+      bezelT5: { dynamo: false, helix: false },
       helixGlassShell: false,
       nodeShell: { dynamo: false, helix: false, meteor: false },
       hazard: {
@@ -2384,7 +2386,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade400';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade401_unified_tiers_v5';
+
+  LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade401_unified_tiers_v5';
+  LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade401_unified_tiers_v5';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2403,21 +2410,21 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade400`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade401_unified_tiers_v5`;
 
     for (let t = 1; t <= 5; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade400`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade401_unified_tiers_v5`;
 
       if (t >= 2) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade400`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade401_unified_tiers_v5`;
       }
     }
   });
@@ -4246,7 +4253,8 @@
 
       for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
         const dir = (sideIdx === 0) ? 1 : -1; // +1 Right wing, -1 Left wing
-        const rootInsetX = (mode === 'meteor') ? (-4 * coreImgScale) : (-2 * coreImgScale);
+        // === CHANGED (v401): Unified wing root anchor across Dynamo, Helix & Meteor ===
+        const rootInsetX = -2 * coreImgScale;
 
         // ASYMMETRIC DIRECTIONAL KINEMATICS (Left vs Right)
         const dirLead = dir * normVx;
@@ -4271,7 +4279,6 @@
         ctx.scale(dir * breathScale * foreshortenX, breathScale * pitch3D);
 
         // ENHANCEMENT #3: Sub-Feather Depth Layering & Ambient Occlusion (AO) Shadow Underlap
-        // Casts a subtle dark-metallic depth shadow beneath overlapping covert/primary feather tiers!
         if (aoSpr && tIdx >= 3) {
           ctx.save();
           ctx.globalAlpha = finalWingAlpha * (0.48 + tierLux * 0.22);
@@ -4279,53 +4286,53 @@
           ctx.restore();
         }
 
-        // ENHANCEMENT #1: Draw the Chromatically Defringed 4K Tier-Specific Wing Sprite (100% Pure Deep-Space Feather Gaps!)
+        // ENHANCEMENT #1: Draw the Chromatically Defringed 4K Tier-Specific Wing Sprite
         ctx.globalAlpha = finalWingAlpha;
         ctx.drawImage(wSpr, rootInsetX, -pivotY, wingW, wingH);
 
-        // ENHANCEMENT #2: Inner-Eroded 3D Windward Leading-Edge Specular Glint (Uses specSpr eroded 2.5px inward so edges NEVER turn white!)
+        // ENHANCEMENT #2 (v401 Glow Reduced): Subtle 3D Windward Specular Glint (keeps feather detail razor-sharp!)
         const lightDot = Math.cos(totalRotation * 1.3 - dir * 0.20 + dirLead * 0.35);
-        const specMultiplier = 1.0 + Math.max(0, dirLead) * 0.85 + (isUltActive ? 0.65 * ultAlpha : 0);
-        const spec3D = Math.pow(Math.max(0, lightDot), 2.2) * specMultiplier;
-        if (spec3D > 0.04) {
+        const specMultiplier = 1.0 + Math.max(0, dirLead) * 0.50 + (isUltActive ? 0.65 * ultAlpha : 0);
+        const spec3D = Math.pow(Math.max(0, lightDot), 2.4) * specMultiplier;
+        if (spec3D > 0.08) {
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          ctx.globalAlpha = Math.min(0.65, spec3D * 0.42 * finalWingAlpha);
+          ctx.globalAlpha = Math.min(isUltActive ? 0.36 : 0.16, spec3D * (isUltActive ? 0.26 : 0.12) * finalWingAlpha);
           ctx.drawImage(specSpr, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         }
 
-        // Sovereign / Seraphic Starlight Vein Shimmer (Also strictly uses inner-eroded specSpr!)
-        if (cTier >= 2.4 || isUltActive) {
+        // Subtle Sovereign Shimmer (greatly reduced in v401 to remove excess glare)
+        if (cTier >= 2.8 || isUltActive) {
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const shimmerWave = 0.5 + 0.5 * Math.sin(now * (isUltActive ? 0.014 : 0.006) - sideIdx * 1.2);
-          const shimmerBoost = isUltActive ? (0.44 * ultAlpha) : Math.max(0, (cTier - 2.3) * 0.20);
-          ctx.globalAlpha = Math.min(0.70, shimmerBoost * shimmerWave * finalWingAlpha);
+          const shimmerWave = 0.5 + 0.5 * Math.sin(now * (isUltActive ? 0.014 : 0.005) - sideIdx * 1.2);
+          const shimmerBoost = isUltActive ? (0.28 * ultAlpha) : Math.max(0, (cTier - 2.6) * 0.055);
+          ctx.globalAlpha = Math.min(isUltActive ? 0.28 : 0.12, shimmerBoost * shimmerWave * finalWingAlpha);
           ctx.drawImage(specSpr, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         }
 
-        const maxSpanX = (tIdx === 2 ? 175 : (tIdx === 3 ? 250 : (tIdx === 4 ? 320 : 378))) * coreImgScale;
+        // === CHANGED (v401): Unified exact wingspan bounds (264 / 346 / 428 / 508) ===
+        const maxSpanX = (tIdx === 2 ? 264 : (tIdx === 3 ? 346 : (tIdx === 4 ? 428 : 508))) * coreImgScale;
 
-        // ENHANCEMENT #4: Anisotropic Brushed-Metal Micro-Specularity Along Individual Feather Barbs & Shafts (Rachis)
-        // Slides dynamically along each primary feather's curved ridge as the core banks left and right!
-        const numQuills = (tIdx === 2) ? 2 : (tIdx === 3 ? 4 : (tIdx === 4 ? 5 : 7));
+        // ENHANCEMENT #4 (v401 Glow Reduced): Delicate Feather Quill Highlights
+        const numQuills = (tIdx === 2) ? 2 : (tIdx === 3 ? 4 : (tIdx === 4 ? 5 : 6));
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         ctx.lineCap = 'round';
         const bankGlintShift = Math.sin(bankAngle * 3.2 * dir + now * (isUltActive ? 0.006 : 0.0022)) * 0.22;
         for (let q = 0; q < numQuills; q++) {
           const qFrac = (q + 0.35) / numQuills;
-          const qStartX = (66 + q * 15) * coreImgScale;
-          const qEndX = qStartX + (maxSpanX - qStartX) * (0.54 + 0.40 * Math.sin(qFrac * Math.PI * 0.85));
-          const qStartY = (-4 + (q - (numQuills - 1) * 0.45) * 8.5) * coreImgScale;
+          const qStartX = (158 + q * 16) * coreImgScale;
+          const qEndX = qStartX + Math.max(12 * coreImgScale, maxSpanX - qStartX) * (0.50 + 0.42 * Math.sin(qFrac * Math.PI * 0.85));
+          const qStartY = (-4 + (q - (numQuills - 1) * 0.45) * 9.5) * coreImgScale;
           const qPeakY = qStartY - (14 + q * 5.8 + (tIdx >= 4 ? 11 : 0)) * coreImgScale;
           const qEndY = qPeakY + (5 + q * 4.0) * coreImgScale;
 
           const barbPulse = 0.45 + 0.55 * Math.sin(now * (isUltActive ? 0.009 : 0.0034) + q * 1.35 + sideIdx * 1.8 + dirLead * 1.5);
-          const qAlpha = Math.min(0.92, (0.20 + tierLux * 0.24) * barbPulse * (isUltActive ? 1.65 : 1.0) * finalWingAlpha);
-          if (qAlpha > 0.03) {
+          const qAlpha = Math.min(isUltActive ? 0.48 : 0.22, (0.09 + tierLux * 0.11) * barbPulse * (isUltActive ? 1.8 : 1.0) * finalWingAlpha);
+          if (qAlpha > 0.025) {
             const peakStop = Math.max(0.18, Math.min(0.82, 0.48 + bankGlintShift));
             const qGrad = ctx.createLinearGradient(qStartX, qStartY, qEndX, qEndY);
             if (mode === 'dynamo') {
@@ -4342,7 +4349,7 @@
               qGrad.addColorStop(1.0, 'rgba(180, 83, 9, 0)');
             }
             ctx.strokeStyle = qGrad;
-            ctx.lineWidth = (1.15 + tierLux * 0.55 + (isUltActive ? 0.6 : 0)) * u;
+            ctx.lineWidth = (0.85 + tierLux * 0.35 + (isUltActive ? 0.5 : 0)) * u;
             ctx.beginPath();
             ctx.moveTo(qStartX, qStartY);
             ctx.quadraticCurveTo((qStartX + qEndX) * 0.52, qPeakY, qEndX, qEndY);
@@ -4351,42 +4358,44 @@
         }
         ctx.restore();
 
-        // ENHANCEMENT #5: Dynamic Fresnel Rim Backlighting From the Central Core & Ultimate Pillar onto Inner Wing Roots
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        const rimReachX = (isUltActive ? 210 : (115 + (tIdx - 2) * 24)) * coreImgScale;
-        const rimPulse = 0.78 + 0.22 * Math.sin(now * (isUltActive ? 0.016 : 0.005) + sideIdx);
-        const rimAlpha = Math.min(0.85, (0.22 + tierLux * 0.18) * (isUltActive ? 1.75 : 1.0) * rimPulse * finalWingAlpha);
-        const rimG = ctx.createRadialGradient(64 * coreImgScale, 0, 8 * coreImgScale, 68 * coreImgScale, -4 * coreImgScale, rimReachX);
-        if (mode === 'dynamo') {
-          rimG.addColorStop(0.0, `rgba(253, 224, 71, ${rimAlpha})`);
-          rimG.addColorStop(0.45, `rgba(56, 189, 248, ${rimAlpha * 0.65})`);
-          rimG.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
-        } else if (mode === 'helix') {
-          rimG.addColorStop(0.0, `rgba(103, 232, 249, ${rimAlpha})`);
-          rimG.addColorStop(0.48, `rgba(236, 72, 153, ${rimAlpha * 0.65})`);
-          rimG.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
-        } else {
-          rimG.addColorStop(0.0, `rgba(254, 240, 138, ${Math.min(0.95, rimAlpha * 1.15)})`);
-          rimG.addColorStop(0.45, `rgba(249, 115, 22, ${rimAlpha * 0.78})`);
-          rimG.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+        // ENHANCEMENT #5 (v401 Glow Removed in Normal Flight): Only during active Ultimate at mild alpha
+        if (isUltActive && ultAlpha > 0.04) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const rimReachX = 210 * coreImgScale;
+          const rimPulse = 0.78 + 0.22 * Math.sin(now * 0.016 + sideIdx);
+          const rimAlpha = Math.min(0.28, 0.26 * ultAlpha * rimPulse * finalWingAlpha);
+          const rimG = ctx.createRadialGradient(164 * coreImgScale, 0, 8 * coreImgScale, 168 * coreImgScale, -4 * coreImgScale, rimReachX);
+          if (mode === 'dynamo') {
+            rimG.addColorStop(0.0, `rgba(253, 224, 71, ${rimAlpha})`);
+            rimG.addColorStop(0.45, `rgba(56, 189, 248, ${rimAlpha * 0.65})`);
+            rimG.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
+          } else if (mode === 'helix') {
+            rimG.addColorStop(0.0, `rgba(103, 232, 249, ${rimAlpha})`);
+            rimG.addColorStop(0.48, `rgba(236, 72, 153, ${rimAlpha * 0.65})`);
+            rimG.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
+          } else {
+            rimG.addColorStop(0.0, `rgba(254, 240, 138, ${rimAlpha})`);
+            rimG.addColorStop(0.45, `rgba(249, 115, 22, ${rimAlpha * 0.78})`);
+            rimG.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
+          }
+          ctx.fillStyle = rimG;
+          ctx.beginPath();
+          ctx.ellipse(168 * coreImgScale, -4 * coreImgScale, rimReachX, rimReachX * 0.56, -0.18, -Math.PI * 0.42, Math.PI * 0.42);
+          ctx.fill();
+          ctx.restore();
         }
-        ctx.fillStyle = rimG;
-        ctx.beginPath();
-        ctx.ellipse(68 * coreImgScale, -4 * coreImgScale, rimReachX, rimReachX * 0.56, -0.18, -Math.PI * 0.42, Math.PI * 0.42);
-        ctx.fill();
-        ctx.restore();
 
-        // 4. Progressive Diamond Specular Micro-Glints & Traveling Feather Energy Currents
-        const numSparkles = isUltActive ? 7 : ((tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 4 : 6)));
+        // 4. Subtle Diamond Specular Micro-Glints (toned down in v401)
+        const numSparkles = isUltActive ? 6 : ((tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 3 : 4)));
         for (let sp = 0; sp < numSparkles; sp++) {
           const spFrac = (sp + 0.5) / numSparkles;
-          const spPulse = Math.pow(Math.max(0, Math.sin(now * (isUltActive ? 0.0085 : 0.0042) + sp * 1.95 + sideIdx * 1.3)), isUltActive ? 1.8 : 2.8);
-          if (spPulse > 0.10) {
-            const sx = 76 * coreImgScale + spFrac * (maxSpanX - 76 * coreImgScale);
+          const spPulse = Math.pow(Math.max(0, Math.sin(now * (isUltActive ? 0.0085 : 0.0042) + sp * 1.95 + sideIdx * 1.3)), 3.2);
+          if (spPulse > 0.16) {
+            const sx = 166 * coreImgScale + spFrac * Math.max(20 * coreImgScale, maxSpanX - 166 * coreImgScale);
             const sy = (-10 - Math.sin(spFrac * Math.PI) * (tIdx >= 4 ? 42 : 24) + (sp % 2 === 0 ? -8 : 10)) * coreImgScale;
-            const sr = (1.7 + tierLux * 1.65) * u * spPulse * (isUltActive ? 1.55 : 1.0);
-            const sAlpha = Math.min(1.0, spPulse * (0.50 + tierLux * 0.45) * finalWingAlpha);
+            const sr = (1.1 + tierLux * 0.95) * u * spPulse * (isUltActive ? 1.45 : 1.0);
+            const sAlpha = Math.min(isUltActive ? 0.72 : 0.36, spPulse * (0.24 + tierLux * 0.22) * finalWingAlpha);
 
             ctx.fillStyle = (mode === 'meteor')
               ? `rgba(254, 240, 138, ${sAlpha})`
@@ -4411,21 +4420,23 @@
           }
         }
 
-        // 5. Mode-Specific Live Feather Conduits (Dynamo Electric Currents / Helix Prismatic Caustics / Meteor Thermal Reflections)
+        // 5. Mode-Specific Live Feather Conduits (v401 Unified Span + Reduced Glare)
         ctx.lineCap = 'round';
+        const unifiedConduitSpan = (tIdx === 2 ? 105 : (tIdx === 3 ? 185 : (tIdx === 4 ? 265 : 345))) * coreImgScale;
+        const conduitStartX = 162 * coreImgScale;
         if (mode === 'dynamo') {
           if (tIdx >= 3 || isUltActive) {
             const numCurrents = isUltActive ? 4 : ((tIdx === 3) ? 1 : (tIdx === 4 ? 2 : 3));
             for (let cI = 0; cI < numCurrents; cI++) {
               const curPhase = ((now * (isUltActive ? 0.0032 : 0.0013) + sideIdx * 0.15 + cI * 0.25) % 1.0);
-              const curX = (72 + curPhase * (tIdx === 3 ? 170 : (tIdx === 4 ? 245 : 295))) * coreImgScale;
+              const curX = conduitStartX + curPhase * unifiedConduitSpan;
               const curY = (-10 - curPhase * (28 + cI * 11) + (cI - 1) * 13) * coreImgScale;
-              const curAlpha = Math.sin(curPhase * Math.PI) * (isUltActive ? 0.92 : (0.46 + tierLux * 0.28)) * finalWingAlpha;
+              const curAlpha = Math.sin(curPhase * Math.PI) * (isUltActive ? 0.85 : (0.28 + tierLux * 0.18)) * finalWingAlpha;
               if (curAlpha > 0.02) {
                 ctx.strokeStyle = (cI % 2 === 1 && (tIdx === 5 || isUltActive))
                   ? `rgba(253, 224, 71, ${curAlpha})`
                   : (isUltActive ? `rgba(224, 242, 254, ${curAlpha})` : `rgba(125, 211, 252, ${curAlpha})`);
-                ctx.lineWidth = (isUltActive ? 2.4 : 1.55) * u;
+                ctx.lineWidth = (isUltActive ? 2.2 : 1.35) * u;
                 ctx.beginPath();
                 ctx.moveTo(curX - 18 * coreImgScale, curY + 5 * coreImgScale);
                 ctx.lineTo(curX - 6 * coreImgScale, curY - 4 * coreImgScale);
@@ -4439,13 +4450,12 @@
           const numRibbons = isUltActive ? 4 : ((tIdx === 2) ? 1 : (tIdx <= 4 ? 2 : 3));
           for (let rI = 0; rI < numRibbons; rI++) {
             const glintProg = ((now * (isUltActive ? 0.0028 : 0.0011) + sideIdx * 0.22 + rI * (1 / numRibbons)) % 1.0);
-            const spanPx = (tIdx === 2 ? 155 : (tIdx === 3 ? 235 : (tIdx === 4 ? 305 : 355))) * coreImgScale;
-            const gx = 72 * coreImgScale + glintProg * spanPx;
+            const gx = conduitStartX + glintProg * unifiedConduitSpan;
             const gy = (-8 - glintProg * (24 + rI * 10) + (rI - 0.5) * 14) * coreImgScale;
-            const ga = Math.sin(glintProg * Math.PI) * (isUltActive ? 0.90 : (0.42 + tierLux * 0.28)) * finalWingAlpha;
+            const ga = Math.sin(glintProg * Math.PI) * (isUltActive ? 0.85 : (0.26 + tierLux * 0.18)) * finalWingAlpha;
             if (ga > 0.02) {
               ctx.strokeStyle = (rI % 2 === 0) ? `rgba(103, 232, 249, ${ga})` : `rgba(244, 114, 182, ${ga})`;
-              ctx.lineWidth = (1.6 + tierLux * 0.65) * u;
+              ctx.lineWidth = (isUltActive ? 2.1 : 1.35) * u;
               ctx.beginPath();
               ctx.moveTo(gx - 17 * coreImgScale, gy + 5 * coreImgScale);
               ctx.quadraticCurveTo(gx, gy - 3 * coreImgScale, gx + 17 * coreImgScale, gy - 6 * coreImgScale);
@@ -4456,13 +4466,12 @@
           const numThermal = isUltActive ? 5 : ((tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 3 : 4)));
           for (let th = 0; th < numThermal; th++) {
             const thProg = ((now * (isUltActive ? 0.0026 : 0.0010) + sideIdx * 0.18 + th * (1 / numThermal)) % 1.0);
-            const spanPx = (tIdx === 2 ? 150 : (tIdx === 3 ? 225 : (tIdx === 4 ? 305 : 365))) * coreImgScale;
-            const tx = 74 * coreImgScale + thProg * spanPx;
+            const tx = conduitStartX + thProg * unifiedConduitSpan;
             const ty = (-6 - thProg * (26 + th * 8) + (th - 1) * 13) * coreImgScale;
-            const ta = Math.sin(thProg * Math.PI) * (isUltActive ? 0.92 : (0.40 + tierLux * 0.35)) * finalWingAlpha;
+            const ta = Math.sin(thProg * Math.PI) * (isUltActive ? 0.85 : (0.26 + tierLux * 0.18)) * finalWingAlpha;
             if (ta > 0.02) {
               ctx.strokeStyle = (th % 2 === 0) ? `rgba(254, 240, 138, ${ta})` : `rgba(251, 146, 60, ${ta})`;
-              ctx.lineWidth = (1.6 + tierLux * 0.70) * u;
+              ctx.lineWidth = (isUltActive ? 2.2 : 1.35) * u;
               ctx.beginPath();
               ctx.moveTo(tx - 18 * coreImgScale, ty + 4 * coreImgScale);
               ctx.quadraticCurveTo(tx, ty - 3 * coreImgScale, tx + 18 * coreImgScale, ty - 7 * coreImgScale);
@@ -5462,139 +5471,36 @@
   }
 
   // ─────────────────────────────────────────────────────────────
-  // ULTRA-FUTURISTIC PHOTONIC RESONANCE AURA ENGINE (v345 RESTORED ONTO THE 15 CHROME CORES)
-  // - High-intensity starlight core corona with Gaussian falloff (matches Evolution Matrix Images 1, 2, 3!)
-  // - Mode-specific chromatic dispersion aura (Cobalt/Violet, Cyan/Magenta, Solar Amber)
-  // - Anamorphic cinematic starlight flare streak
-  // - 8 rotating crystalline starlight diffraction diamond flares
-  // - Concentric Ascension event-horizon shock rings
+  // SUBTLE AMBIENT CORE RIM AURA (v401: Blinding white starburst/laser flare removed!)
   // ─────────────────────────────────────────────────────────────
   function drawFuturisticResonanceAura(ctx, mode, u, now, cTier) {
     const isUltActive = Boolean(typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mode);
     const effCTier = isUltActive ? Math.max(cTier, 4.2) : cTier;
-    if (effCTier <= 1.05) return;
-    const auraMorph = Math.min(1.0, (effCTier - 1.0) / 2.2);
-    const breathe = 1.0 + Math.sin(now * 0.0035) * 0.035 + (CoreKinematics.overdriveFlash || 0) * 0.12 + (isUltActive ? 0.14 : 0);
-    const baseR = 145 * u * (0.65 + 0.55 * auraMorph) * breathe;
+    if (effCTier <= 1.05 && !isUltActive) return;
+    const auraMorph = Math.min(1.0, (effCTier - 1.0) / 3.0);
+    const breathe = 1.0 + Math.sin(now * 0.0032) * 0.025 + (CoreKinematics.overdriveFlash || 0) * 0.06;
+    const baseR = 96 * u * (0.86 + 0.14 * auraMorph) * breathe;
+    const peakA = isUltActive ? 0.24 : (0.06 + 0.06 * auraMorph);
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-
-    // 1. Hyper-Intense Photonic Starlight Core Corona (Volumetric Radial Bloom)
-    const gCore = ctx.createRadialGradient(0, 0, baseR * 0.10, 0, 0, baseR * 1.05);
-    gCore.addColorStop(0.0, `rgba(255, 255, 255, ${0.95 * auraMorph})`);
+    const gCore = ctx.createRadialGradient(0, 0, baseR * 0.55, 0, 0, baseR * 1.15);
+    gCore.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
     if (mode === 'dynamo') {
-      gCore.addColorStop(0.28, `rgba(186, 230, 253, ${0.88 * auraMorph})`);
-      gCore.addColorStop(0.55, `rgba(56, 189, 248, ${0.58 * auraMorph})`);
-      gCore.addColorStop(0.80, `rgba(168, 85, 247, ${0.28 * auraMorph})`);
+      gCore.addColorStop(0.45, `rgba(56, 189, 248, ${peakA * 0.85})`);
+      gCore.addColorStop(0.75, `rgba(168, 85, 247, ${peakA * 0.55})`);
     } else if (mode === 'helix') {
-      gCore.addColorStop(0.28, `rgba(245, 208, 254, ${0.88 * auraMorph})`);
-      gCore.addColorStop(0.55, `rgba(34, 211, 238, ${0.58 * auraMorph})`);
-      gCore.addColorStop(0.80, `rgba(232, 121, 249, ${0.28 * auraMorph})`);
+      gCore.addColorStop(0.45, `rgba(34, 211, 238, ${peakA * 0.85})`);
+      gCore.addColorStop(0.75, `rgba(232, 121, 249, ${peakA * 0.55})`);
     } else {
-      gCore.addColorStop(0.28, `rgba(254, 249, 195, ${0.92 * auraMorph})`);
-      gCore.addColorStop(0.55, `rgba(251, 146, 60, ${0.62 * auraMorph})`);
-      gCore.addColorStop(0.80, `rgba(239, 68, 68, ${0.25 * auraMorph})`);
+      gCore.addColorStop(0.45, `rgba(251, 146, 60, ${peakA * 0.85})`);
+      gCore.addColorStop(0.75, `rgba(239, 68, 68, ${peakA * 0.50})`);
     }
     gCore.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gCore;
     ctx.beginPath();
-    ctx.arc(0, 0, baseR * 1.05, 0, Math.PI * 2);
+    ctx.arc(0, 0, baseR * 1.15, 0, Math.PI * 2);
     ctx.fill();
-
-    // 2. Anamorphic Cinematic Starlight Flare Streak (Horizontal Ethereal Cinema Bloom)
-    if (effCTier >= 2.0) {
-      const flareAlpha = Math.min(0.85, (effCTier - 1.8) * 0.55);
-      const flareLen = baseR * 2.2;
-      const flareH = 14 * u * (0.8 + 0.2 * Math.sin(now * 0.005));
-      const gFlare = ctx.createLinearGradient(-flareLen, 0, flareLen, 0);
-      gFlare.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
-      if (mode === 'dynamo') {
-        gFlare.addColorStop(0.35, `rgba(56, 189, 248, ${0.40 * flareAlpha})`);
-        gFlare.addColorStop(0.50, `rgba(255, 255, 255, ${0.95 * flareAlpha})`);
-        gFlare.addColorStop(0.65, `rgba(168, 85, 247, ${0.40 * flareAlpha})`);
-      } else if (mode === 'helix') {
-        gFlare.addColorStop(0.35, `rgba(232, 121, 249, ${0.40 * flareAlpha})`);
-        gFlare.addColorStop(0.50, `rgba(255, 255, 255, ${0.95 * flareAlpha})`);
-        gFlare.addColorStop(0.65, `rgba(34, 211, 238, ${0.40 * flareAlpha})`);
-      } else {
-        gFlare.addColorStop(0.35, `rgba(249, 115, 22, ${0.40 * flareAlpha})`);
-        gFlare.addColorStop(0.50, `rgba(255, 255, 255, ${0.95 * flareAlpha})`);
-        gFlare.addColorStop(0.65, `rgba(254, 240, 138, ${0.40 * flareAlpha})`);
-      }
-      gFlare.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = gFlare;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, flareLen, flareH, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // 3. Volumetric Crystalline Starlight Diamond Flares (Zero Wire Lines, 100% Smooth Tapered Light)
-    if (effCTier >= 2.2) {
-      const rayAlpha = Math.min(0.85, (effCTier - 2.0) * 0.55);
-      const raySpin = now * 0.0006;
-      ctx.save();
-      ctx.rotate(raySpin);
-      const rays = 8;
-      for (let r = 0; r < rays; r++) {
-        const ang = (r / rays) * Math.PI * 2;
-        const isCardinal = (r % 2 === 0);
-        const rayLen = baseR * (isCardinal ? 1.65 : 1.25) * (1.0 + Math.sin(now * 0.004 + r) * 0.05);
-        const rayW = (isCardinal ? 9.5 : 5.5) * u;
-
-        ctx.save();
-        ctx.rotate(ang);
-        const gRay = ctx.createLinearGradient(baseR * 0.55, 0, rayLen, 0);
-        if (mode === 'dynamo') {
-          gRay.addColorStop(0.0, `rgba(255, 255, 255, ${0.90 * rayAlpha})`);
-          gRay.addColorStop(0.35, `rgba(186, 230, 253, ${0.75 * rayAlpha})`);
-          gRay.addColorStop(0.75, `rgba(56, 189, 248, ${0.35 * rayAlpha})`);
-        } else if (mode === 'helix') {
-          gRay.addColorStop(0.0, `rgba(255, 255, 255, ${0.90 * rayAlpha})`);
-          gRay.addColorStop(0.35, `rgba(245, 208, 254, ${0.75 * rayAlpha})`);
-          gRay.addColorStop(0.75, `rgba(232, 121, 249, ${0.35 * rayAlpha})`);
-        } else {
-          gRay.addColorStop(0.0, `rgba(255, 255, 255, ${0.95 * rayAlpha})`);
-          gRay.addColorStop(0.35, `rgba(254, 240, 138, ${0.80 * rayAlpha})`);
-          gRay.addColorStop(0.75, `rgba(249, 115, 22, ${0.40 * rayAlpha})`);
-        }
-        gRay.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = gRay;
-        ctx.beginPath();
-        ctx.moveTo(baseR * 0.55, 0);
-        ctx.lineTo(baseR * 0.90, -rayW * 0.5);
-        ctx.lineTo(rayLen, 0);
-        ctx.lineTo(baseR * 0.90, rayW * 0.5);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      }
-      ctx.restore();
-    }
-
-    // 4. Soft Concentric Ascension Resonance Ripples in Tier IV & V
-    if (effCTier >= 3.2) {
-      const t4Alpha = Math.min(0.72, (effCTier - 3.0) * 0.65);
-      for (let ring = 0; ring < 2; ring++) {
-        const ringR = baseR * (0.95 + ring * 0.35 + Math.sin(now * 0.002 + ring) * 0.04);
-        const ringGrad = ctx.createRadialGradient(0, 0, ringR - 8 * u, 0, 0, ringR + 8 * u);
-        ringGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
-        if (mode === 'dynamo') {
-          ringGrad.addColorStop(0.5, `rgba(56, 189, 248, ${t4Alpha * (0.6 - ring * 0.2)})`);
-        } else if (mode === 'helix') {
-          ringGrad.addColorStop(0.5, `rgba(232, 121, 249, ${t4Alpha * (0.6 - ring * 0.2)})`);
-        } else {
-          ringGrad.addColorStop(0.5, `rgba(254, 240, 138, ${t4Alpha * (0.6 - ring * 0.2)})`);
-        }
-        ringGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = ringGrad;
-        ctx.beginPath();
-        ctx.arc(0, 0, ringR + 8 * u, 0, Math.PI * 2);
-        ctx.arc(0, 0, Math.max(0, ringR - 8 * u), Math.PI * 2, 0, true);
-        ctx.fill();
-      }
-    }
-
     ctx.restore();
   }
 
@@ -5625,17 +5531,16 @@
       ctx.save();
       ctx.translate(cx, cy);
 
-      // Render Procedural Ultra-Futuristic Photonic Resonance Aura (v345 Evolution Matrix Engineering!)
+      // Render Subtle Ambient Core Rim Aura
       drawFuturisticResonanceAura(ctx, mode, u, now, cTier);
 
-      // Smoothly Morphing Background Starburst Halo (Blooms as continuousTier crosses 2.1 -> 4.0 -> 5.0)
-      if (cTier > 2.05 && LayeredT4Assets.loaded.halo[mode]) {
+      // Background starburst halo disabled in normal flight (v401 glow reduction); subtle 0.18 during active Ult only
+      const isUltHaloActive = Boolean(!isPortalPreview && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mode);
+      if (isUltHaloActive && LayeredT4Assets.loaded.halo[mode]) {
         const haloSpr = LayeredT4Assets.halo[mode];
-        const haloMorph = Math.min(1.0, Math.max(0.0, (cTier - 2.0) / 1.8));
-        const t45Halo = Math.max(0.0, Math.min(1.0, cTier - 4.0));
-        const haloScale = (0.42 + 0.24 * haloMorph + 0.05 * t45Halo) * (1.0 + Math.sin(now * 0.003) * 0.02 + (isPortalPreview ? 0 : CoreKinematics.overdriveFlash * 0.08));
+        const haloScale = 0.62 * (1.0 + Math.sin(now * 0.004) * 0.03);
         ctx.save();
-        ctx.globalAlpha = Math.min(1.0, (cTier - 2.0) * 0.85 + (isPortalPreview ? 0 : CoreKinematics.overdriveFlash * 0.25));
+        ctx.globalAlpha = 0.18;
         ctx.globalCompositeOperation = 'lighter';
         ctx.scale(haloScale, haloScale);
         ctx.drawImage(haloSpr, -344 * u, -344 * u, 688 * u, 688 * u);
@@ -5679,15 +5584,15 @@
       // Differential Core-vs-Wing Bank Rotation (v352 signature: core banks an additional 0.45 * previewBank relative to the wing plane!)
       ctx.rotate(previewBank * 0.45);
 
-      // PASS 3: Central Core Sphere, Bezel, and Internal Energy / Helix / Lava
+      // PASS 3: Central Core Sphere, Bezel, and Internal Energy / Helix / Lava (Unified 152*u Diameter Across All 3 Realms!)
       if (mode === 'dynamo') {
-        // Draw smoky violet glass sphere in its gold bezel (using Tier I core base plate so wings never double-draw)
+        // Draw smoky violet glass sphere in its gold bezel (normalized to 336px diameter = 152.3*u)
         const d1Spr = LayeredT4Assets.coreTierSprites.dynamo && LayeredT4Assets.coreTierSprites.dynamo[1];
         const d1Loaded = LayeredT4Assets.loaded.coreTierSprites.dynamo && LayeredT4Assets.loaded.coreTierSprites.dynamo[1];
         if (d1Spr && d1Loaded) {
           ctx.drawImage(d1Spr, -fullRefW * 0.5, -fullRefH * 0.5, fullRefW, fullRefH);
         } else if (LayeredT4Assets.loaded.coreBase.dynamo) {
-          const dScale = 1.2143;
+          const dScale = 1.05;
           ctx.drawImage(LayeredT4Assets.coreBase.dynamo, -170 * u * dScale, -140 * u * dScale, 340 * u * dScale, 280 * u * dScale);
         }
 
@@ -5719,8 +5624,16 @@
           ctx.restore();
         }
 
+        // Tier V Royal Crown Bezel Upgrade (Crossfades cleanly on Tier IV -> Tier V ascension!)
+        if (cTier > 4.02 && LayeredT4Assets.loaded.bezelT5.dynamo && LayeredT4Assets.bezelT5.dynamo) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, Math.min(1, cTier - 4.0));
+          ctx.drawImage(LayeredT4Assets.bezelT5.dynamo, -fullRefW * 0.5, -fullRefH * 0.5, fullRefW, fullRefH);
+          ctx.restore();
+        }
+
       } else if (mode === 'helix') {
-        // Draw the clean quartz/navy glass shell + stepped chrome bezel (with zero baked helix!)
+        // Draw the clean quartz/navy glass shell + stepped chrome bezel (335px diameter = 151.9*u)
         const shellSize = 400 * coreImgScale;
         if (LayeredT4Assets.loaded.helixGlassShell && LayeredT4Assets.helixGlassShell) {
           ctx.drawImage(LayeredT4Assets.helixGlassShell, -shellSize * 0.5, -shellSize * 0.5, shellSize, shellSize);
@@ -5732,14 +5645,22 @@
         // Single upright cyan-magenta double helix rendered in one pass with one shared transform (never double images!)
         drawRotating3DDNAInsideGlass(ctx, 0, 0, 26 * u, 54 * u, now, 0.0, true, tierIdx);
 
+        // Tier V Ornate Iridescent Chrome Crown Bezel Upgrade
+        if (cTier > 4.02 && LayeredT4Assets.loaded.bezelT5.helix && LayeredT4Assets.bezelT5.helix) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, Math.min(1, cTier - 4.0));
+          ctx.drawImage(LayeredT4Assets.bezelT5.helix, -fullRefW * 0.5, -fullRefH * 0.5, fullRefW, fullRefH);
+          ctx.restore();
+        }
+
       } else {
-        // METEOR: Perfectly spherical iron-basalt core with circular silhouette mask
+        // METEOR: Perfectly spherical iron-basalt core normalized to unified 76.0*u radius (152.0*u diameter!)
         const sr = CoreKinematics.meteorShieldRecoil;
         ctx.save();
         ctx.translate((sr.x || 0) * u * 0.55, (sr.y || 0) * u * 0.55);
         ctx.rotate(sr.tilt * 0.35);
 
-        const sphereR = 68.5 * u;
+        const sphereR = 76.0 * u;
         const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
         const surfaceTurnAngle = now * 0.00035 * motionMult;
 
@@ -5793,7 +5714,7 @@
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         const aimAngle = -Math.PI * 0.5 + Math.max(-0.45, Math.min(0.45, CoreKinematics.lockOnDX * 0.0045));
-        const rimR = (mode === 'helix' ? 82 : 72) * u;
+        const rimR = 80 * u;
         ctx.beginPath();
         ctx.arc(0, 0, rimR, aimAngle - 0.32, aimAngle + 0.32);
         ctx.strokeStyle = `rgba(255, 255, 255, ${CoreKinematics.lockOnProximity * 0.65})`;
