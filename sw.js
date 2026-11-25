@@ -1,10 +1,10 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v398_real_wings_ult';
+const CACHE_NAME = 'orlandochrome-arcade-v399_v352_wings_aura';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade398_real_wings_ult',
-  './game.js?v=arcade398_real_wings_ult',
+  './styles.css?v=arcade399_v352_wings_aura',
+  './game.js?v=arcade399_v352_wings_aura',
   './assets/core-dynamo-t1.png?v=cores15_v1',
   './assets/core-dynamo-t2.png?v=cores15_v1',
   './assets/core-dynamo-t3.png?v=cores15_v1',
