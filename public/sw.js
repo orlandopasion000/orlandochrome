@@ -1,10 +1,10 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v395_luxury_touch_hud';
+const CACHE_NAME = 'orlandochrome-arcade-v396_apex_weapons_missiles';
 const ASSETS = [
   './',
   './index.html',
-  './styles.css?v=arcade395_luxury_touch_hud',
-  './game.js?v=arcade395_luxury_touch_hud',
+  './styles.css?v=arcade396_apex_weapons_missiles',
+  './game.js?v=arcade396_apex_weapons_missiles',
   './assets/core-dynamo-t1.png?v=cores15_v1',
   './assets/core-dynamo-t2.png?v=cores15_v1',
   './assets/core-dynamo-t3.png?v=cores15_v1',

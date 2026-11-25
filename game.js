@@ -3084,7 +3084,7 @@
           ctx.fill();
         }
 
-        // === CHANGED (v392): Mode-Unique Micro-Missile Rendering (Blue Dynamo Torpedo vs Fiery Meteor vs Crystal Helix) ===
+        // === CHANGED (v396): Mode-Unique Micro-Missile Rendering (Blue Dynamo Torpedo vs Fiery Meteor Caldera Bolide vs Crystal Helix) ===
         ctx.save();
         ctx.translate(m.x, m.y);
         ctx.globalAlpha = 1.0;
@@ -3097,21 +3097,27 @@
           ctx.drawImage(mGlow, -28, -28, 56, 56);
           ctx.globalAlpha = 1.0;
           ctx.drawImage(VfxUltraAssets.seekerMissile, -mw * 0.5, -mh * 0.44, mw, mh);
+          // Golden magnetic induction ring & nose arc
+          ctx.strokeStyle = 'rgba(253, 224, 71, 0.90)';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.ellipse(0, -6, 8, 3, Math.sin(now * 0.02) * 0.25, 0, Math.PI * 2);
+          ctx.stroke();
           ctx.restore();
         } else {
         const mGlow = QuantumRenderer._getGlowSprite(mMode === 'meteor' ? 'amber' : (mMode === 'helix' ? 'helix' : 'cyan'));
-        ctx.globalAlpha = 0.75;
-        ctx.drawImage(mGlow, -26, -26, 52, 52);
+        ctx.globalAlpha = 0.78;
+        ctx.drawImage(mGlow, -28, -28, 56, 56);
         ctx.globalAlpha = 1.0;
         ctx.rotate(m.angle);
         ctx.scale(2.15, 2.15);
 
-        // Rocket Motor Flame & Mach Shock Diamonds
+        // Rocket Motor Flame & Supersonic Mach Shock Diamonds
         if (m.stage === 2) {
           ctx.beginPath();
-          ctx.moveTo(-7, -2.2);
-          ctx.lineTo(-17 - Math.random() * 5, 0);
-          ctx.lineTo(-7, 2.2);
+          ctx.moveTo(-7, -2.6);
+          ctx.lineTo(-19 - Math.random() * 6, 0);
+          ctx.lineTo(-7, 2.6);
           ctx.closePath();
           if (mMode === 'meteor') {
             ctx.fillStyle = '#f97316';
@@ -3123,54 +3129,72 @@
           ctx.fill();
 
           ctx.beginPath();
-          ctx.moveTo(-7, -1.2);
-          ctx.lineTo(-12, 0);
-          ctx.lineTo(-7, 1.2);
+          ctx.moveTo(-7, -1.4);
+          ctx.lineTo(-13.5, 0);
+          ctx.lineTo(-7, 1.4);
           ctx.closePath();
           ctx.fillStyle = (mMode === 'meteor') ? '#fef08a' : '#ffffff';
           ctx.fill();
+
+          // 2 Discrete Supersonic Mach Shock Diamonds behind the nozzle
+          for (let md = 1; md <= 2; md++) {
+            const dxM = -8.5 - md * 3.8;
+            const rwM = 1.9 - md * 0.45;
+            ctx.fillStyle = (mMode === 'meteor') ? 'rgba(254, 249, 195, 0.92)' : 'rgba(224, 242, 254, 0.92)';
+            ctx.beginPath();
+            ctx.moveTo(dxM + 1.5, 0);
+            ctx.lineTo(dxM, -rwM);
+            ctx.lineTo(dxM - 1.5, 0);
+            ctx.lineTo(dxM, rwM);
+            ctx.closePath();
+            ctx.fill();
+          }
         }
 
         if (mMode === 'meteor') {
-          // METEOR MISSILE: Dark Obsidian Volcanic Basalt with Molten Magma Seams
-          ctx.fillStyle = '#292524';
+          // METEOR CALDERA BOLIDE MICRO-MISSILE: Sculpted Volcanic Basalt-Lava Warhead + Swept Golden Solar Wings + Bow-Shock Hood
+          // Swept golden-magma solar wings
+          ctx.fillStyle = '#ea580c';
+          ctx.strokeStyle = '#fde047';
+          ctx.lineWidth = 0.65;
           ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(-7, -2.8, 14, 5.6, 1.5); else ctx.rect(-7, -2.8, 14, 5.6);
+          ctx.moveTo(1, -2.5); ctx.lineTo(-9, -8.5); ctx.lineTo(-6, -2.0); ctx.closePath();
+          ctx.fill(); ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(1, 2.5); ctx.lineTo(-9, 8.5); ctx.lineTo(-6, 2.0); ctx.closePath();
+          ctx.fill(); ctx.stroke();
+
+          // Volcanic dark basalt armored body with glowing lava core
+          ctx.fillStyle = '#1c0d06';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 7.5, 4.2, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Magma fissure line along fuselage spine
+          // Glowing branching magma fissures across the basalt shell
+          ctx.strokeStyle = '#fb923c';
+          ctx.lineWidth = 1.15;
           ctx.beginPath();
-          ctx.moveTo(-6, 0);
-          ctx.lineTo(6, 0);
-          ctx.strokeStyle = '#f97316';
-          ctx.lineWidth = 1.2;
+          ctx.moveTo(-5.5, -1.2); ctx.lineTo(0, 0.9); ctx.lineTo(5.5, -1.0);
+          ctx.moveTo(-1.5, -3.4); ctx.lineTo(1.2, 3.4);
           ctx.stroke();
 
-          // Molten Gold Tungsten Penetrator Nosecone
+          // White-hot solar magma furnace heart + forged golden penetrator nose
+          ctx.fillStyle = '#fef08a';
           ctx.beginPath();
-          ctx.moveTo(7, -2.8);
-          ctx.lineTo(14, 0);
-          ctx.lineTo(7, 2.8);
-          ctx.closePath();
+          ctx.arc(1.2, 0, 2.1, 0, Math.PI * 2);
+          ctx.fill();
           ctx.fillStyle = '#fbbf24';
+          ctx.beginPath();
+          ctx.moveTo(6.2, -2.4); ctx.lineTo(13.2, 0); ctx.lineTo(6.2, 2.4); ctx.closePath();
           ctx.fill();
 
-          // Chiseled Volcanic Basalt Fins with Magma Edging
-          ctx.fillStyle = '#ea580c';
+          // Parabolic white-gold atmospheric compression bow-shock crescent ahead of nosecone
+          ctx.strokeStyle = 'rgba(254, 249, 195, 0.92)';
+          ctx.lineWidth = 1.1;
           ctx.beginPath();
-          ctx.moveTo(-5, -2.8); ctx.lineTo(-10, -7.0); ctx.lineTo(-7, -2.8);
-          ctx.closePath(); ctx.fill();
-          ctx.beginPath();
-          ctx.moveTo(-5, 2.8); ctx.lineTo(-10, 7.0); ctx.lineTo(-7, 2.8);
-          ctx.closePath(); ctx.fill();
-
-          // Forward Canards
-          ctx.beginPath();
-          ctx.moveTo(3, -2.8); ctx.lineTo(1, -5.5); ctx.lineTo(5, -2.8);
-          ctx.closePath(); ctx.fill();
-          ctx.beginPath();
-          ctx.moveTo(3, 2.8); ctx.lineTo(1, 5.5); ctx.lineTo(5, 2.8);
-          ctx.closePath(); ctx.fill();
+          ctx.moveTo(8.5, -5.5);
+          ctx.quadraticCurveTo(16.5, 0, 8.5, 5.5);
+          ctx.stroke();
 
         } else if (mMode === 'helix') {
           // HELIX MISSILE: Pearlescent Teal Bio-Resonance Body with Iridescent Helical Stripe
@@ -8199,28 +8223,60 @@
         }
 
         if (hit) {
-          // Realm-Unique Explosive Detonation Signatures!
+          // === CHANGED (v396): Realm-Unique Explosive Detonation Signatures + Meteor Caldera Shrapnel Splash! ===
           if (mMode === 'helix') {
-            RoundBossEngine._spawnHitSparks(m.x, m.y, '#ec4899', 10);
-            RoundBossEngine._spawnHitSparks(m.x, m.y, '#22d3ee', 10);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#ec4899', 12);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#22d3ee', 12);
             if (state.bossShockRings && state.bossShockRings.length < 18) {
-              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 64, alpha: 0.92, speed: 4.8, color: '#ec4899', harmless: true });
-              state.bossShockRings.push({ x: m.x, y: m.y, r: 4, maxR: 46, alpha: 0.88, speed: 4.2, color: '#22d3ee', harmless: true });
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 68, alpha: 0.94, speed: 5.0, color: '#ec4899', harmless: true });
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 4, maxR: 50, alpha: 0.90, speed: 4.4, color: '#22d3ee', harmless: true });
             }
           } else if (mMode === 'meteor') {
-            RoundBossEngine._spawnHitSparks(m.x, m.y, '#f97316', 18);
-            RoundBossEngine._spawnHitSparks(m.x, m.y, '#fde047', 10);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#f97316', 20);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#fde047', 14);
             if (state.bossShockRings && state.bossShockRings.length < 18) {
-              state.bossShockRings.push({ x: m.x, y: m.y, r: 10, maxR: 84, alpha: 0.95, speed: 5.2, color: '#f97316', harmless: true });
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 10, maxR: 92, alpha: 0.96, speed: 5.4, color: '#f97316', harmless: true });
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 5, maxR: 58, alpha: 0.92, speed: 4.6, color: '#fde047', harmless: true });
+            }
+            // Meteor Caldera Shrapnel Cluster Splash: radial molten cinders + 78px thermal blast wave on nearby hazards!
+            if (!state.vaporizedShards) state.vaporizedShards = [];
+            for (let cIdx = 0; cIdx < 8; cIdx++) {
+              if (state.vaporizedShards.length >= 160) break;
+              const cAng = (cIdx / 8) * Math.PI * 2 + (m.seed || 0) * 0.4;
+              const cSpd = 4.2 + (cIdx % 3) * 1.8;
+              state.vaporizedShards.push({
+                x: m.x,
+                y: m.y,
+                vx: Math.cos(cAng) * cSpd,
+                vy: Math.sin(cAng) * cSpd,
+                size: 3.2 + (cIdx % 2) * 1.4,
+                color: (cIdx % 2 === 0) ? '#fde047' : '#f97316',
+                life: 0,
+                maxLife: 20 + (cIdx % 4) * 3
+              });
+            }
+            for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+              const pt = state.particles[pIdx];
+              if (!pt || !isHazardNode(pt.nodeClass)) continue;
+              if (Math.hypot(pt.x - m.x, pt.y - m.y) <= 78) {
+                if (pt.shotHp === undefined) pt.shotHp = (pt.nodeClass === 'volatile') ? 3 : 5;
+                pt.shotHp -= m.dmg * 0.42;
+                if (pt.shotHp <= 0) {
+                  state.score += 180;
+                  RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fb923c', 10);
+                  state.particles.splice(pIdx, 1);
+                  this.onEnemyDestroyed();
+                }
+              }
             }
           } else {
             RoundBossEngine._spawnHitSparks(m.x, m.y, '#a78bfa', 12);
-            RoundBossEngine._spawnHitSparks(m.x, m.y, '#38bdf8', 10);
+            RoundBossEngine._spawnHitSparks(m.x, m.y, '#38bdf8', 12);
             if (state.bossShockRings && state.bossShockRings.length < 18) {
-              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 70, alpha: 0.92, speed: 5.0, color: '#a855f7', harmless: true });
+              state.bossShockRings.push({ x: m.x, y: m.y, r: 8, maxR: 72, alpha: 0.92, speed: 5.0, color: '#a855f7', harmless: true });
             }
             if (this.impactBursts.length < 16) {
-              this.impactBursts.push({ x: m.x, y: m.y, bornAt: now, dur: 150, seed: m.seed || i });
+              this.impactBursts.push({ x: m.x, y: m.y, bornAt: now, dur: 165, seed: m.seed || i });
             }
           }
           m.active = false;
@@ -8301,82 +8357,151 @@
           ctx.restore();
 
         } else if (mMode === 'meteor') {
-          // SEEKER COMETS: Volumetric Volcanic Fire-Comet Plume + 3D Blazing Molten-Lava Meteor Boulder
+          // === CHANGED (v396): SEEKER COMETS — 3D Cracked Obsidian-Magma Meteor Bolide + Mach Shock Diamonds + Orbiting Cinder Rings ===
           if (tLen > 1) {
             for (let ti = 1; ti < tLen; ti++) {
               const frac = ti / tLen;
               const p0 = m.trail[ti - 1];
               const p1 = m.trail[ti];
-              // Wide roaring crimson-orange volcanic comet wake
-              ctx.strokeStyle = `rgba(225, 29, 72, ${frac * 0.45})`;
-              ctx.lineWidth = 4 + frac * 22.0;
+              // Outer deep crimson-volcanic plasma plume
+              ctx.strokeStyle = `rgba(225, 29, 72, ${frac * 0.48})`;
+              ctx.lineWidth = 4.5 + frac * 24.0;
               ctx.beginPath();
               ctx.moveTo(p0.x, p0.y);
               ctx.lineTo(p1.x, p1.y);
               ctx.stroke();
 
-              ctx.strokeStyle = `rgba(249, 115, 22, ${frac * 0.78})`;
-              ctx.lineWidth = 2.5 + frac * 14.0;
+              // Mid solar-orange magma wake
+              ctx.strokeStyle = `rgba(249, 115, 22, ${frac * 0.84})`;
+              ctx.lineWidth = 2.8 + frac * 15.0;
               ctx.beginPath();
               ctx.moveTo(p0.x, p0.y);
               ctx.lineTo(p1.x, p1.y);
               ctx.stroke();
 
-              ctx.strokeStyle = `rgba(254, 240, 138, ${frac * 0.94})`;
-              ctx.lineWidth = 1.2 + frac * 6.5;
+              // Inner white-gold incandescent core stream
+              ctx.strokeStyle = `rgba(254, 240, 138, ${frac * 0.96})`;
+              ctx.lineWidth = 1.4 + frac * 7.2;
               ctx.beginPath();
               ctx.moveTo(p0.x, p0.y);
               ctx.lineTo(p1.x, p1.y);
               ctx.stroke();
 
-              if (ti % 3 === 0) {
-                ctx.fillStyle = `rgba(253, 224, 71, ${frac * 0.85})`;
+              // Supersonic Mach Shock Diamonds & Detaching Cooling Lava Cinders along the wake
+              if (ti % 2 === 0) {
+                const segAng = Math.atan2(p1.y - p0.y, p1.x - p0.x) + Math.PI * 0.5;
+                ctx.save();
+                ctx.translate(p0.x, p0.y);
+                ctx.rotate(segAng);
+                ctx.fillStyle = `rgba(255, 251, 235, ${frac * 0.88})`;
+                const dmW = 5.5 * frac;
+                const dmH = 3.2 * frac;
                 ctx.beginPath();
-                ctx.arc(p0.x + Math.sin(ti * 2.1 + now * 0.03) * 8, p0.y, 2.2 * frac, 0, Math.PI * 2);
+                ctx.moveTo(0, -dmH);
+                ctx.lineTo(dmW, 0);
+                ctx.lineTo(0, dmH);
+                ctx.lineTo(-dmW, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                const cinderOff = Math.sin(ti * 2.4 + now * 0.032 + i) * 12;
+                ctx.fillStyle = (ti % 4 === 0) ? `rgba(253, 224, 71, ${frac * 0.92})` : `rgba(251, 146, 60, ${frac * 0.85})`;
+                ctx.beginPath();
+                ctx.arc(p0.x + cinderOff, p0.y, 2.5 * frac, 0, Math.PI * 2);
                 ctx.fill();
               }
             }
           }
           const mGlow = QuantumRenderer._getGlowSprite('amber');
-          ctx.drawImage(mGlow, m.x - 46, m.y - 46, 92, 92);
+          ctx.drawImage(mGlow, m.x - 50, m.y - 50, 100, 100);
 
-          // Custom Sculpted 3D Blazing Molten-Lava Meteor-Comet (ZERO blue/grey metal rocket!)
+          // Custom Sculpted 3D Blazing Molten-Lava Meteor Bolide with Golden Armored Wings & Orbiting Cinders
           ctx.save();
           ctx.translate(m.x, m.y);
           ctx.rotate(mAngle);
           ctx.scale(pulseM, pulseM);
-          // Roaring twin swept volcanic flame-wings
-          ctx.fillStyle = 'rgba(249, 115, 22, 0.92)';
+
+          // 1. Twin Swept Forged-Gold & Magma Solar Wings
+          ctx.fillStyle = 'rgba(234, 88, 12, 0.94)';
+          ctx.strokeStyle = '#fde047';
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.moveTo(-6, -4); ctx.quadraticCurveTo(-24, 8, -16, 30); ctx.lineTo(-5, 16); ctx.closePath(); ctx.fill();
+          ctx.moveTo(-8, -6); ctx.quadraticCurveTo(-28, 6, -20, 32); ctx.lineTo(-6, 17); ctx.closePath();
+          ctx.fill(); ctx.stroke();
           ctx.beginPath();
-          ctx.moveTo(6, -4); ctx.quadraticCurveTo(24, 8, 16, 30); ctx.lineTo(5, 16); ctx.closePath(); ctx.fill();
-          // Volcanic molten-basalt 3D sphere boulder with live cracked lava fissures
+          ctx.moveTo(8, -6); ctx.quadraticCurveTo(28, 6, 20, 32); ctx.lineTo(6, 17); ctx.closePath();
+          ctx.fill(); ctx.stroke();
+
+          // 2. Volcanic Molten-Basalt 3D Sphere Boulder with Tumbling Lava Fissures & Bubbling Caldera Pockets
           ctx.save();
           ctx.globalCompositeOperation = 'source-over';
-          const mr = 16;
-          ctx.fillStyle = '#29150b';
+          const mr = 17.5;
+          const bodyGrad = ctx.createRadialGradient(-mr * 0.25, -mr * 0.3, mr * 0.1, 0, 0, mr);
+          bodyGrad.addColorStop(0.0, '#431407');
+          bodyGrad.addColorStop(0.7, '#1c0a04');
+          bodyGrad.addColorStop(1.0, '#0c0402');
+          ctx.fillStyle = bodyGrad;
           ctx.beginPath();
           ctx.arc(0, 0, mr, 0, Math.PI * 2);
           ctx.fill();
-          ctx.rotate(now * 0.008 + (m.seed || 0));
-          ctx.strokeStyle = '#fb923c';
-          ctx.lineWidth = 3.0;
+
+          ctx.rotate(now * 0.009 + (m.seed || 0) * 1.7);
+          // Deep orange-red outer magma channels
+          ctx.strokeStyle = '#ea580c';
+          ctx.lineWidth = 4.2;
           ctx.beginPath();
-          ctx.moveTo(-mr * 0.85, -mr * 0.25); ctx.lineTo(0, mr * 0.15); ctx.lineTo(mr * 0.85, -mr * 0.3);
-          ctx.moveTo(0, -mr * 0.88); ctx.lineTo(-mr * 0.15, mr * 0.88);
+          ctx.moveTo(-mr * 0.88, -mr * 0.28); ctx.lineTo(0, mr * 0.18); ctx.lineTo(mr * 0.88, -mr * 0.32);
+          ctx.moveTo(0, -mr * 0.90); ctx.lineTo(-mr * 0.18, mr * 0.90);
+          ctx.moveTo(-mr * 0.62, mr * 0.58); ctx.lineTo(mr * 0.65, mr * 0.45);
           ctx.stroke();
-          ctx.fillStyle = '#fef08a';
+
+          // White-gold superheated inner fissure veins
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 1.9;
+          ctx.stroke();
+
+          // Bubbling molten crater pools
+          ctx.fillStyle = '#fb923c';
           ctx.beginPath();
-          ctx.arc(0, 0, mr * 0.45, 0, Math.PI * 2);
+          ctx.arc(-mr * 0.38, -mr * 0.32, 3.4, 0, Math.PI * 2);
+          ctx.arc(mr * 0.42, mr * 0.28, 3.0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // White-hot incandescent heart + forged golden warhead crown
+          ctx.fillStyle = '#fef9c3';
+          ctx.beginPath();
+          ctx.arc(0, 0, mr * 0.42, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
-          // Blinding white-gold parabolic bow-shock hood ahead of nose
-          ctx.strokeStyle = 'rgba(255, 251, 235, 0.95)';
-          ctx.lineWidth = 3.4;
+
+          // 3. Tilted Orbiting Molten Cinder Ring around the Bolide
+          const orbA = now * 0.016 + (m.seed || 0) * 2.1;
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.78)';
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.moveTo(-18, -2);
-          ctx.quadraticCurveTo(0, -34, 18, -2);
+          ctx.ellipse(0, 0, 23, 7.5, 0.28, 0, Math.PI * 2);
+          ctx.stroke();
+          const cxOrb = Math.cos(orbA) * 23;
+          const cyOrb = Math.sin(orbA) * 7.5;
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(cxOrb, cyOrb, 2.8, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 4. Double Parabolic White-Gold Re-Entry Bow-Shock Hood ahead of the nose
+          ctx.strokeStyle = 'rgba(255, 251, 235, 0.96)';
+          ctx.lineWidth = 3.6;
+          ctx.beginPath();
+          ctx.moveTo(-20, -2);
+          ctx.quadraticCurveTo(0, -36, 20, -2);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(251, 146, 60, 0.82)';
+          ctx.lineWidth = 2.0;
+          ctx.beginPath();
+          ctx.moveTo(-25, 4);
+          ctx.quadraticCurveTo(0, -43, 25, 4);
           ctx.stroke();
           ctx.restore();
 
@@ -10622,54 +10747,94 @@
             }
 
           } else {
-            // METEOR EMBER CANNON: Forged Bronze-Gold Caldera Maw + Curved Volcanic Tusks + Incandescent Breach
-            // 1. Dark basalt-bronze breach block
+            // === CHANGED (v396): METEOR EMBER CANNON — Forged Bronze-Gold Caldera Maw + Vented Cooling Ribs + Pressurized Magma Breach ===
+            // 1. Dark basalt-bronze armored breach block with glowing thermal vent slits
             ctx.fillStyle = '#271206';
-            ctx.strokeStyle = '#d97706';
-            ctx.lineWidth = Math.max(1.3, 1.9 * u);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = Math.max(1.4, 2.0 * u);
             ctx.beginPath();
-            ctx.moveTo(-14 * u, 5 * u);
-            ctx.lineTo(-10 * u, -10 * u);
-            ctx.lineTo(10 * u, -10 * u);
-            ctx.lineTo(14 * u, 5 * u);
+            ctx.moveTo(-14.5 * u, 5 * u);
+            ctx.lineTo(-10.5 * u, -11 * u);
+            ctx.lineTo(10.5 * u, -11 * u);
+            ctx.lineTo(14.5 * u, 5 * u);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
-            // 2. Twin curved bronze-gold volcanic artillery tusks
+            // Glowing lateral thermal cooling vents inside breach housing
+            ctx.strokeStyle = lowAmmo ? '#f43f5e' : '#fb923c';
+            ctx.lineWidth = Math.max(1.1, 1.5 * u);
+            for (let vIdx = 0; vIdx < 2; vIdx++) {
+              const vy = (-2 - vIdx * 3.8) * u;
+              ctx.beginPath();
+              ctx.moveTo(-10.5 * u, vy); ctx.lineTo(-5.5 * u, vy - 1.2 * u);
+              ctx.moveTo(10.5 * u, vy);  ctx.lineTo(5.5 * u, vy - 1.2 * u);
+              ctx.stroke();
+            }
+
+            // 2. Twin curved bronze-gold volcanic artillery tusks with inner magma conduits
             [-1, 1].forEach((side) => {
               ctx.strokeStyle = '#78350f';
-              ctx.lineWidth = Math.max(2.8, 4.4 * u);
+              ctx.lineWidth = Math.max(3.0, 4.8 * u);
               ctx.beginPath();
-              ctx.moveTo(side * 11 * u, -4 * u);
-              ctx.quadraticCurveTo(side * 13 * u, -18 * u, side * 7 * u, -27 * u);
+              ctx.moveTo(side * 11.5 * u, -4 * u);
+              ctx.quadraticCurveTo(side * 14 * u, -18 * u, side * 7.2 * u, -28 * u);
               ctx.stroke();
 
-              ctx.strokeStyle = lowAmmo ? '#f43f5e' : '#fbbf24';
-              ctx.lineWidth = Math.max(1.4, 2.2 * u);
+              ctx.strokeStyle = lowAmmo ? '#f43f5e' : '#fde047';
+              ctx.lineWidth = Math.max(1.5, 2.3 * u);
               ctx.beginPath();
-              ctx.moveTo(side * 11 * u, -4 * u);
-              ctx.quadraticCurveTo(side * 13 * u, -18 * u, side * 7 * u, -27 * u);
+              ctx.moveTo(side * 11.5 * u, -4 * u);
+              ctx.quadraticCurveTo(side * 14 * u, -18 * u, side * 7.2 * u, -28 * u);
+              ctx.stroke();
+
+              // Inner glowing magma acceleration rail
+              ctx.strokeStyle = lowAmmo ? '#fda4af' : '#fb923c';
+              ctx.lineWidth = Math.max(1.0, 1.4 * u);
+              ctx.beginPath();
+              ctx.moveTo(side * 8.5 * u, -7 * u);
+              ctx.quadraticCurveTo(side * 10.2 * u, -17 * u, side * 5.2 * u, -26 * u);
               ctx.stroke();
             });
 
-            // 3. Incandescent molten chamber core inside the tusks
+            // 3. Pressurized incandescent molten chamber core & plasma arc across the caldera jaws
+            const pulseR = (5.4 + 0.7 * Math.sin(now * 0.025)) * u;
             ctx.fillStyle = lowAmmo ? '#f43f5e' : '#ea580c';
             ctx.beginPath();
-            ctx.arc(0, -14 * u, 5.2 * u, 0, Math.PI * 2);
+            ctx.arc(0, -14.5 * u, pulseR, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = lowAmmo ? '#fecdd3' : '#fef08a';
             ctx.beginPath();
-            ctx.arc(0, -14 * u, 2.8 * u, 0, Math.PI * 2);
+            ctx.arc(0, -14.5 * u, pulseR * 0.56, 0, Math.PI * 2);
             ctx.fill();
 
-            // Crisp unblurred compression ring on shot
-            if (mfActive) {
-              ctx.strokeStyle = `rgba(254, 240, 138, ${0.92 * mfT})`;
-              ctx.lineWidth = Math.max(1.4, 2.1 * u);
+            if (isHot || hasAmmo) {
+              ctx.strokeStyle = lowAmmo ? 'rgba(244, 63, 94, 0.9)' : 'rgba(254, 240, 138, 0.92)';
+              ctx.lineWidth = Math.max(1.2, 1.7 * u);
               ctx.beginPath();
-              ctx.ellipse(0, -27 * u, 16 * u * (1.2 - mfT * 0.25), 6 * u, 0, 0, Math.PI * 2);
+              ctx.moveTo(-6.8 * u, -26.5 * u);
+              ctx.quadraticCurveTo(0, (-30.5 + Math.sin(now * 0.06) * 2.2) * u, 6.8 * u, -26.5 * u);
               ctx.stroke();
+            }
+
+            // 4. Crisp volcanic solar flare & compression ring on shot
+            if (mfActive) {
+              ctx.strokeStyle = `rgba(254, 240, 138, ${0.95 * mfT})`;
+              ctx.lineWidth = Math.max(1.5, 2.3 * u);
+              ctx.beginPath();
+              ctx.ellipse(0, -28 * u, 17.5 * u * (1.22 - mfT * 0.25), 6.5 * u, 0, 0, Math.PI * 2);
+              ctx.stroke();
+
+              // Twin lateral volcanic vent flame jets
+              ctx.fillStyle = `rgba(251, 146, 60, ${0.88 * mfT})`;
+              [-1, 1].forEach((side) => {
+                ctx.beginPath();
+                ctx.moveTo(side * 9 * u, -24 * u);
+                ctx.lineTo(side * (21 + mfT * 6) * u, -30 * u);
+                ctx.lineTo(side * 7 * u, -28 * u);
+                ctx.closePath();
+                ctx.fill();
+              });
             }
           }
 
@@ -10898,52 +11063,79 @@
           ctx.restore();
 
         } else if (bMode === 'meteor') {
-          // EMBER CANNON: Tumbling 3D Cracked Molten-Lava Fireball + Bow-Shock Crescent (Zero outer glow halo!)
+          // === CHANGED (v396): EMBER CANNON — 3D Cracked Molten-Lava Fireball + Twin Spiraling Ember Ribbons + Double Bow-Shock ===
           if (bReady) {
             ctx.globalAlpha = 0.96;
             ctx.drawImage(bImg, -bw * 0.54, -bh * 0.34, bw * 1.08, bh * 1.12);
           }
 
-          // Tumbling 3D cracked basalt-lava fireball core at warhead nose
+          // Twin counter-spiraling molten ember ribbons & Mach shock chevrons trailing behind the fireball
           const fbY = -bh * 0.18;
-          const fbR = isSuper ? 13 : (s.heavy ? 10.5 : 8.5);
+          const fbR = isSuper ? 14.0 : (s.heavy ? 11.2 : 9.2);
+          const tailBot = bh * 0.44;
+          ctx.lineCap = 'round';
+          for (let strand = 0; strand < 2; strand++) {
+            const sSign = strand === 0 ? 1 : -1;
+            ctx.strokeStyle = strand === 0 ? 'rgba(251, 146, 60, 0.90)' : 'rgba(253, 224, 71, 0.88)';
+            ctx.lineWidth = isSuper ? 2.6 : 1.9;
+            ctx.beginPath();
+            for (let seg = 0; seg <= 6; seg++) {
+              const frac = seg / 6;
+              const py = fbY + (tailBot - fbY) * frac;
+              const px = sSign * Math.sin(now * 0.032 + s.phase + frac * 4.2) * (fbR * (0.85 - frac * 0.45));
+              if (seg === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+          }
+
+          // Tumbling 3D cracked basalt-lava fireball core at warhead nose
           ctx.save();
           ctx.translate(0, fbY);
           ctx.globalCompositeOperation = 'source-over';
-          ctx.fillStyle = '#29150b';
+          ctx.fillStyle = '#240f05';
           ctx.beginPath();
           ctx.arc(0, 0, fbR, 0, Math.PI * 2);
           ctx.fill();
           // Glowing magma fissures rotating across sphere
-          ctx.rotate(now * 0.012 + s.phase);
-          ctx.strokeStyle = '#fb923c';
-          ctx.lineWidth = 2.4;
+          ctx.rotate(now * 0.014 + s.phase);
+          ctx.strokeStyle = '#ea580c';
+          ctx.lineWidth = 3.0;
           ctx.beginPath();
-          ctx.moveTo(-fbR * 0.85, -fbR * 0.25);
-          ctx.lineTo(-fbR * 0.1, fbR * 0.2);
-          ctx.lineTo(fbR * 0.82, -fbR * 0.3);
+          ctx.moveTo(-fbR * 0.86, -fbR * 0.25);
+          ctx.lineTo(-fbR * 0.1, fbR * 0.22);
+          ctx.lineTo(fbR * 0.84, -fbR * 0.3);
           ctx.moveTo(0, -fbR * 0.88);
-          ctx.lineTo(fbR * 0.15, fbR * 0.85);
+          ctx.lineTo(fbR * 0.15, fbR * 0.86);
           ctx.stroke();
-          ctx.fillStyle = '#fef08a';
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+          ctx.fillStyle = '#fef9c3';
           ctx.beginPath();
-          ctx.arc(0, 0, fbR * 0.42, 0, Math.PI * 2);
+          ctx.arc(0, 0, fbR * 0.44, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
-          // Blazing parabolic bow-shock crescent ahead of the fireball nose
-          ctx.strokeStyle = 'rgba(255, 250, 220, 0.92)';
-          ctx.lineWidth = isSuper ? 3.2 : 2.3;
+          // Double blazing parabolic bow-shock crescent ahead of the fireball nose
+          ctx.strokeStyle = 'rgba(255, 251, 235, 0.95)';
+          ctx.lineWidth = isSuper ? 3.4 : 2.5;
           ctx.beginPath();
-          ctx.moveTo(-fbR * 1.25, fbY - fbR * 0.25);
-          ctx.quadraticCurveTo(0, fbY - fbR * 1.95, fbR * 1.25, fbY - fbR * 0.25);
+          ctx.moveTo(-fbR * 1.32, fbY - fbR * 0.22);
+          ctx.quadraticCurveTo(0, fbY - fbR * 2.05, fbR * 1.32, fbY - fbR * 0.22);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(251, 146, 60, 0.82)';
+          ctx.lineWidth = isSuper ? 2.2 : 1.5;
+          ctx.beginPath();
+          ctx.moveTo(-fbR * 1.58, fbY + fbR * 0.05);
+          ctx.quadraticCurveTo(0, fbY - fbR * 2.45, fbR * 1.58, fbY + fbR * 0.05);
           ctx.stroke();
 
           if (isSuper) {
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.90)';
+            ctx.strokeStyle = 'rgba(253, 224, 71, 0.94)';
             ctx.lineWidth = 2.4;
             ctx.beginPath();
-            ctx.ellipse(0, fbY, fbR * 1.65, fbR * 0.56, 0.22, 0, Math.PI * 2);
+            ctx.ellipse(0, fbY, fbR * 1.75, fbR * 0.58, 0.24, 0, Math.PI * 2);
             ctx.stroke();
           }
 
