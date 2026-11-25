@@ -4134,8 +4134,14 @@
   let _wingShimmerCtx = null;
 
   function drawArticulatedWings(ctx, mode, u, cySrc, tier, now, isPortalPreview = false) {
-    const cTier = isPortalPreview ? tier : CoreKinematics.continuousTier;
-    if (cTier <= 1.02) return; // Tier I has no wings!
+    const isUltActive = Boolean(!isPortalPreview && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mode);
+    const ultNv = isUltActive ? SkillSystem.activeNova : null;
+    const ultAlpha = ultNv ? Math.max(0, Math.min(1, ultNv._alphaEnv || 0.92)) : 0;
+
+    // During Ultimate, even Tier I unfurls radiant spectral Archon wings so every Ultimate cast exhibits brilliant wing effects!
+    const rawCTier = isPortalPreview ? tier : CoreKinematics.continuousTier;
+    const cTier = (isUltActive && rawCTier < 2.0) ? Math.max(rawCTier, 1.0 + 4.0 * ultAlpha) : rawCTier;
+    if (cTier <= 1.02 && !isUltActive) return; // Tier I idle has no wings
 
     // Core visual scale: 1024x576 reference mapped so the central sphere radius (~150px in 1024x576) equals 68 * u
     const coreImgScale = (68.0 / 150.0) * u; // 0.45333 * u
@@ -4152,12 +4158,16 @@
     const motionScale = _prefersReducedMotion ? 0.25 : 1.0;
     const vx = isPortalPreview ? 0 : (CoreKinematics.vx || 0);
     const vy = isPortalPreview ? 0 : (CoreKinematics.vy || 0);
-    const isUltActive = Boolean(typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mode);
+    const speed2D = Math.hypot(vx, vy);
 
-    // Small mirrored flex with tip lag (kept tight so hinges always remain attached to the bezel/core!)
-    const loadFlex = Math.max(-0.045, Math.min(0.055, (CoreKinematics.rootY * 0.0022 - vy * 0.0018) * motionScale));
-    const delayedOuterFlex = Math.max(-0.065, Math.min(0.075, (CoreKinematics.tipY * 0.0028 - CoreKinematics.bodyBank * 0.08) * motionScale));
-    const breathFlex = Math.sin(now * 0.0030) * 0.009 * motionScale;
+    // Physical Multi-Joint Aerodynamic Kinematics:
+    // - Asymmetric lift/tuck when banking left or right (leading wing catches air & tilts into light; trailing wing tucks slightly)
+    // - Ultimate Seraphic Unfurl: wings sweep upward in an authoritative archon pose and pulse with high-energy harmonic resonance
+    const ultUnfurl = isUltActive ? (-0.055 * ultAlpha + Math.sin(now * 0.018) * 0.016 * ultAlpha) : 0;
+    const loadFlex = Math.max(-0.055, Math.min(0.065, (CoreKinematics.rootY * 0.0024 - vy * 0.0020) * motionScale)) + ultUnfurl;
+    const midFlex = Math.max(-0.065, Math.min(0.075, (CoreKinematics.midY * 0.0026 - vy * 0.0014) * motionScale));
+    const delayedOuterFlex = Math.max(-0.080, Math.min(0.090, (CoreKinematics.tipY * 0.0032 - CoreKinematics.bodyBank * 0.09) * motionScale));
+    const breathFlex = (Math.sin(now * 0.0030) * 0.011 + Math.cos(now * 0.0017) * 0.005) * motionScale;
 
     // Prepare reusable offscreen canvas for physical metallic wing sheen (source-atop masked to the exact wing PNG alpha!)
     const bufW = Math.max(64, Math.ceil(wingW + 12));
@@ -4178,120 +4188,237 @@
       if (!wSpr || !wLoaded) return;
 
       // Progressive Luxury Multiplier as Tier goes up (Tier II -> III -> IV -> V)
-      const tierLux = (tIdx === 2) ? 0.35 : (tIdx === 3 ? 0.58 : (tIdx === 4 ? 0.82 : 1.10));
-      const ultBoost = isUltActive ? 1.55 : 1.0;
+      const tierLux = (tIdx === 2) ? 0.38 : (tIdx === 3 ? 0.62 : (tIdx === 4 ? 0.88 : 1.16));
+      const ultBoost = isUltActive ? (1.0 + 0.85 * ultAlpha) : 1.0;
 
       for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
         const dir = (sideIdx === 0) ? 1 : -1; // +1 Right wing, -1 Left wing
         const rootInsetX = (mode === 'meteor') ? (-4 * coreImgScale) : (-2 * coreImgScale);
 
-        // Render base wing + masked metallic specular sheen inside the offscreen wing buffer so alpha edges stay 100% razor-sharp!
+        // Asymmetric aerodynamic bank response: when moving right (vx > 0), right wing (dir = +1) is leading and left wing is trailing
+        const asymAngle = Math.max(-0.028, Math.min(0.028, (vx * dir) * 0.0016 * motionScale));
+        const wingStretchX = 1.0 + Math.max(-0.03, Math.min(0.04, (vx * dir) * 0.0014 * motionScale)) + (isUltActive ? 0.045 * ultAlpha : 0);
+
+        // Render base wing + masked physical PBR metallic specular & subsurface lighting inside the offscreen wing buffer!
         const wCtx = _wingShimmerCtx;
         wCtx.clearRect(0, 0, bufW, bufH);
         wCtx.save();
         wCtx.drawImage(wSpr, 0, 0, wingW, wingH);
 
-        // Apply progressive luxury anisotropic metallic sheen strictly to opaque wing pixels (source-atop)!
+        // Apply physical metallic reflection, feather-interstice AO, and Ultimate internal overcharge strictly to opaque wing pixels (source-atop)!
         wCtx.globalCompositeOperation = 'source-atop';
 
-        // 1. Primary Sweeping Anisotropic Metallic Sheen Band (travels from root collar out to feather tips)
-        const sweepSpeed = (isUltActive ? 0.0022 : (0.00065 + tIdx * 0.00012)) * motionScale;
-        const sweepProg = ((now * sweepSpeed + sideIdx * 0.18) % 1.35) - 0.15;
-        const bandCenter = sweepProg * wingW;
-        const bandHalfW = wingW * (0.18 + tIdx * 0.04);
-        const sheenG = wCtx.createLinearGradient(bandCenter - bandHalfW, pivotY - wingH * 0.3, bandCenter + bandHalfW, pivotY + wingH * 0.2);
+        // 0. Physical Studio Horizon Reflection & Feather-Layer Depth Contrast (Top specular crest + warm lower bounce)
+        const pbrVertG = wCtx.createLinearGradient(0, pivotY - wingH * 0.34, 0, pivotY + wingH * 0.28);
+        const pbrStrength = (0.09 + tierLux * 0.08) * (1.0 + Math.min(0.25, speed2D * 0.03));
+        if (mode === 'dynamo') {
+          pbrVertG.addColorStop(0.0, `rgba(186, 230, 253, ${pbrStrength})`);
+          pbrVertG.addColorStop(0.38, 'rgba(56, 189, 248, 0.01)');
+          pbrVertG.addColorStop(0.68, 'rgba(15, 23, 42, 0.14)');
+          pbrVertG.addColorStop(1.0, `rgba(250, 204, 21, ${pbrStrength * 0.85})`);
+        } else if (mode === 'helix') {
+          pbrVertG.addColorStop(0.0, `rgba(165, 243, 252, ${pbrStrength})`);
+          pbrVertG.addColorStop(0.38, 'rgba(103, 232, 249, 0.02)');
+          pbrVertG.addColorStop(0.68, 'rgba(30, 27, 75, 0.14)');
+          pbrVertG.addColorStop(1.0, `rgba(244, 114, 182, ${pbrStrength * 0.90})`);
+        } else {
+          pbrVertG.addColorStop(0.0, `rgba(253, 224, 71, ${pbrStrength})`);
+          pbrVertG.addColorStop(0.40, 'rgba(245, 158, 11, 0.02)');
+          pbrVertG.addColorStop(0.70, 'rgba(28, 12, 4, 0.18)');
+          pbrVertG.addColorStop(1.0, `rgba(234, 88, 12, ${pbrStrength * 1.15})`);
+        }
+        wCtx.fillStyle = pbrVertG;
+        wCtx.fillRect(0, 0, wingW, wingH);
 
-        const sheenPeak = Math.min(0.85, (0.20 + tierLux * 0.36) * ultBoost);
+        // 1. Primary & Secondary Sweeping Anisotropic Metallic Sheen Bands (tilts dynamically with core bank angle!)
+        const bankShift = (CoreKinematics.bodyBank || 0) * 1.8 * dir;
+        const sweepSpeed = (isUltActive ? 0.0024 : (0.00068 + tIdx * 0.00014)) * motionScale;
+        const sweepProg = ((now * sweepSpeed + sideIdx * 0.18 + bankShift * 0.25) % 1.35) - 0.15;
+        const bandCenter = sweepProg * wingW;
+        const bandHalfW = wingW * (0.14 + tIdx * 0.032);
+        const sheenG = wCtx.createLinearGradient(bandCenter - bandHalfW, pivotY - wingH * 0.32, bandCenter + bandHalfW, pivotY + wingH * 0.22);
+
+        const sheenPeak = Math.min(0.68, (0.18 + tierLux * 0.26) * (isUltActive ? 1.32 : 1.0));
         if (mode === 'dynamo') {
           sheenG.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
-          sheenG.addColorStop(0.35, `rgba(125, 211, 252, ${sheenPeak * 0.55})`);
-          sheenG.addColorStop(0.50, `rgba(255, 255, 255, ${sheenPeak})`);
-          sheenG.addColorStop(0.68, `rgba(253, 224, 71, ${sheenPeak * 0.60})`);
+          sheenG.addColorStop(0.35, `rgba(56, 189, 248, ${sheenPeak * 0.65})`);
+          sheenG.addColorStop(0.50, `rgba(224, 242, 254, ${sheenPeak})`);
+          sheenG.addColorStop(0.68, `rgba(250, 204, 21, ${sheenPeak * 0.68})`);
           sheenG.addColorStop(1.0, 'rgba(250, 204, 21, 0)');
         } else if (mode === 'helix') {
           sheenG.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
-          sheenG.addColorStop(0.32, `rgba(103, 232, 249, ${sheenPeak * 0.65})`);
-          sheenG.addColorStop(0.50, `rgba(255, 255, 255, ${sheenPeak})`);
-          sheenG.addColorStop(0.68, `rgba(244, 114, 182, ${sheenPeak * 0.65})`);
+          sheenG.addColorStop(0.32, `rgba(34, 211, 238, ${sheenPeak * 0.72})`);
+          sheenG.addColorStop(0.50, `rgba(224, 242, 254, ${sheenPeak})`);
+          sheenG.addColorStop(0.68, `rgba(236, 72, 153, ${sheenPeak * 0.72})`);
           sheenG.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
         } else {
           sheenG.addColorStop(0.0, 'rgba(234, 88, 12, 0)');
-          sheenG.addColorStop(0.34, `rgba(251, 146, 60, ${sheenPeak * 0.65})`);
-          sheenG.addColorStop(0.50, `rgba(254, 249, 195, ${sheenPeak})`);
-          sheenG.addColorStop(0.68, `rgba(250, 204, 21, ${sheenPeak * 0.70})`);
+          sheenG.addColorStop(0.34, `rgba(249, 115, 22, ${sheenPeak * 0.78})`);
+          sheenG.addColorStop(0.50, `rgba(253, 224, 71, ${sheenPeak})`);
+          sheenG.addColorStop(0.68, `rgba(234, 88, 12, ${sheenPeak * 0.78})`);
           sheenG.addColorStop(1.0, 'rgba(217, 119, 6, 0)');
         }
         wCtx.fillStyle = sheenG;
         wCtx.fillRect(0, 0, wingW, wingH);
 
-        // 2. Tier IV & V Secondary Counter-Sheen & Warm/Iridescent Inner Root Reflection from the Core
-        if (tIdx >= 3) {
-          const rootGlowG = wCtx.createRadialGradient(wingW * 0.14, pivotY, wingW * 0.02, wingW * 0.16, pivotY, wingW * (0.42 + (tIdx - 3) * 0.12));
-          const rootAlpha = (0.14 + (tIdx - 2) * 0.08) * ultBoost * (0.75 + 0.25 * Math.sin(now * 0.005));
+        // 2. Warm/Iridescent Inner Root Subsurface Reflection from the Central Core + Rich Saturated Ultimate Overcharge
+        if (tIdx >= 2 || isUltActive) {
+          const rootSpan = wingW * (isUltActive ? 0.68 : (0.36 + (tIdx - 2) * 0.11));
+          const rootGlowG = wCtx.createRadialGradient(wingW * 0.13, pivotY, wingW * 0.02, wingW * 0.16, pivotY, rootSpan);
+          const rootAlpha = Math.min(0.64, (0.12 + (tIdx - 2) * 0.065) * (isUltActive ? 1.45 : 1.0) * (0.78 + 0.22 * Math.sin(now * (isUltActive ? 0.016 : 0.005))));
           if (mode === 'dynamo') {
-            rootGlowG.addColorStop(0.0, `rgba(253, 224, 71, ${rootAlpha})`);
-            rootGlowG.addColorStop(0.5, `rgba(56, 189, 248, ${rootAlpha * 0.55})`);
+            rootGlowG.addColorStop(0.0, `rgba(250, 204, 21, ${rootAlpha})`);
+            rootGlowG.addColorStop(0.45, `rgba(56, 189, 248, ${rootAlpha * 0.68})`);
+            rootGlowG.addColorStop(0.78, `rgba(168, 85, 247, ${rootAlpha * (isUltActive ? 0.52 : 0.22)})`);
             rootGlowG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           } else if (mode === 'helix') {
-            rootGlowG.addColorStop(0.0, `rgba(165, 243, 252, ${rootAlpha})`);
-            rootGlowG.addColorStop(0.5, `rgba(232, 121, 249, ${rootAlpha * 0.55})`);
+            rootGlowG.addColorStop(0.0, `rgba(34, 211, 238, ${rootAlpha})`);
+            rootGlowG.addColorStop(0.48, `rgba(236, 72, 153, ${rootAlpha * 0.68})`);
+            rootGlowG.addColorStop(0.80, `rgba(168, 85, 247, ${rootAlpha * (isUltActive ? 0.50 : 0.22)})`);
             rootGlowG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           } else {
-            rootGlowG.addColorStop(0.0, `rgba(254, 240, 138, ${rootAlpha * 1.15})`);
-            rootGlowG.addColorStop(0.5, `rgba(249, 115, 22, ${rootAlpha * 0.70})`);
+            rootGlowG.addColorStop(0.0, `rgba(253, 224, 71, ${Math.min(0.75, rootAlpha * 1.15)})`);
+            rootGlowG.addColorStop(0.44, `rgba(249, 115, 22, ${rootAlpha * 0.85})`);
+            rootGlowG.addColorStop(0.78, `rgba(220, 38, 38, ${rootAlpha * (isUltActive ? 0.60 : 0.28)})`);
             rootGlowG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           }
           wCtx.fillStyle = rootGlowG;
           wCtx.fillRect(0, 0, wingW, wingH);
         }
+
+        // 3. Ultimate High-Frequency Traveling Harmonic Wavefront across the Wing Feathers (saturated metallic gleam, zero white washout!)
+        if (isUltActive) {
+          const waveP = ((now * 0.0042 + sideIdx * 0.12) % 1.0);
+          const wx = wingW * (0.14 + waveP * 0.82);
+          const ww = wingW * 0.14;
+          const wg = wCtx.createLinearGradient(wx - ww, pivotY - wingH * 0.25, wx + ww, pivotY + wingH * 0.15);
+          const wa = Math.sin(waveP * Math.PI) * 0.52 * ultAlpha;
+          wg.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
+          wg.addColorStop(0.5, mode === 'meteor' ? `rgba(251, 146, 60, ${wa})` : (mode === 'helix' ? `rgba(34, 211, 238, ${wa})` : `rgba(56, 189, 248, ${wa})`));
+          wg.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+          wCtx.fillStyle = wg;
+          wCtx.fillRect(0, 0, wingW, wingH);
+        }
+
         wCtx.restore();
 
-        // For Tier IV & V (broader layered wings), render subtle delayed response between inner and outer feathers
-        if (tIdx >= 4 && !_prefersReducedMotion) {
-          // Outer feather pass (delayed response)
+        // 3-ZONE ARTICULATED FEATHER KINEMATICS (Root Collar -> Mid Coverts -> Outer Primaries):
+        // Gives the wings realistic physical weight, whip-lag on reversals, and layered mechanical depth!
+        const baseRot = dir * (loadFlex + breathFlex) + asymAngle;
+        if (tIdx >= 3 && !_prefersReducedMotion) {
+          const outerRot = dir * (loadFlex * 0.55 + midFlex * 0.45 + delayedOuterFlex + breathFlex * 1.25) + asymAngle * 1.3;
+          const midRot = dir * (loadFlex * 0.80 + midFlex * 0.65 + delayedOuterFlex * 0.35 + breathFlex) + asymAngle * 1.1;
+
+          // Zone A: Outer Primary Feather Tips (greatest whip lag & splay)
           ctx.save();
-          ctx.rotate(dir * (loadFlex * 0.65 + delayedOuterFlex + breathFlex));
-          ctx.scale(dir, 1);
+          ctx.rotate(outerRot);
+          ctx.scale(dir * wingStretchX, 1);
           ctx.globalAlpha = alphaVal * 0.98;
           ctx.drawImage(_wingShimmerCanvas, 0, 0, wingW, wingH, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
 
-          // Inner feather & root collar pass (immediate response, clipped to inner 58% of wing span)
+          // Zone B: Mid Secondary Coverts (intermediate lag, clipped to inner 74% of wing span)
+          if (tIdx >= 4) {
+            ctx.save();
+            ctx.rotate(midRot);
+            ctx.scale(dir * (0.5 + 0.5 * wingStretchX), 1);
+            ctx.beginPath();
+            ctx.rect(rootInsetX, -pivotY, wingW * 0.74, wingH);
+            ctx.clip();
+            ctx.globalAlpha = alphaVal * 0.99;
+            ctx.drawImage(_wingShimmerCanvas, 0, 0, wingW, wingH, rootInsetX, -pivotY, wingW, wingH);
+            ctx.restore();
+          }
+
+          // Zone C: Inner Root Collar & Scapulars (locked tightly to the core bezel hinge, inner 46% of wing span)
           ctx.save();
-          ctx.rotate(dir * (loadFlex + breathFlex * 0.5));
+          ctx.rotate(baseRot);
           ctx.scale(dir, 1);
           ctx.beginPath();
-          ctx.rect(rootInsetX, -pivotY, wingW * 0.58, wingH);
+          ctx.rect(rootInsetX, -pivotY, wingW * 0.48, wingH);
           ctx.clip();
           ctx.globalAlpha = alphaVal;
           ctx.drawImage(_wingShimmerCanvas, 0, 0, wingW, wingH, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         } else {
-          // Single-layer synchronized flex (Tiers II & III)
+          // Single-layer synchronized flex (Tier II short fins)
           ctx.save();
-          ctx.rotate(dir * (loadFlex + breathFlex));
-          ctx.scale(dir, 1);
+          ctx.rotate(baseRot);
+          ctx.scale(dir * wingStretchX, 1);
           ctx.globalAlpha = alphaVal;
           ctx.drawImage(_wingShimmerCanvas, 0, 0, wingW, wingH, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         }
 
-        // Material-Specific Surface Glints, Feather Ridge Highlights & Diamond Sparkles (Progressive by Tier II -> V!)
+        // Material-Specific Surface Glints, Feather Rachis Spines, & Brilliant Ultimate Wing Climax Effects!
         ctx.save();
-        ctx.rotate(dir * (loadFlex + (tIdx >= 4 ? delayedOuterFlex * 0.7 : 0) + breathFlex));
-        ctx.scale(dir, 1);
+        ctx.rotate(dir * (loadFlex + (tIdx >= 4 ? delayedOuterFlex * 0.65 : midFlex * 0.35) + breathFlex) + asymAngle);
+        ctx.scale(dir * wingStretchX, 1);
 
-        // Progressive Diamond Specular Micro-Glints along the feather ridges (1 in Tier II, 2 in Tier III, 4 in Tier IV, 6 in Tier V)
-        const numSparkles = (tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 4 : 6));
-        const maxSpanX = (tIdx === 2 ? 175 : (tIdx === 3 ? 250 : (tIdx === 4 ? 320 : 375))) * coreImgScale;
+        const maxSpanX = (tIdx === 2 ? 175 : (tIdx === 3 ? 250 : (tIdx === 4 ? 320 : 378))) * coreImgScale;
+
+        // A. Physical Metallic Feather Rachis (Quill Shaft) Specular Ridges along the Primary Feathers
+        const numQuills = (tIdx === 2) ? 2 : (tIdx === 3 ? 3 : (tIdx === 4 ? 5 : 6));
+        ctx.lineCap = 'round';
+        for (let q = 0; q < numQuills; q++) {
+          const qFrac = (q + 0.35) / numQuills;
+          const qStartX = (66 + q * 16) * coreImgScale;
+          const qEndX = qStartX + (maxSpanX - qStartX) * (0.58 + 0.38 * Math.sin(qFrac * Math.PI * 0.85));
+          const qStartY = (-4 + (q - (numQuills - 1) * 0.45) * 9.5) * coreImgScale;
+          const qPeakY = qStartY - (14 + q * 6.5 + (tIdx >= 4 ? 12 : 0)) * coreImgScale;
+          const qEndY = qPeakY + (6 + q * 4.5) * coreImgScale;
+
+          const quillShimmer = 0.45 + 0.55 * Math.sin(now * (isUltActive ? 0.009 : 0.0032) + q * 1.4 + sideIdx * 1.9);
+          const qAlpha = Math.min(0.95, (0.18 + tierLux * 0.22) * quillShimmer * (isUltActive ? 1.85 : 1.0) * alphaVal);
+          if (qAlpha > 0.03) {
+            const qGrad = ctx.createLinearGradient(qStartX, qStartY, qEndX, qEndY);
+            if (mode === 'dynamo') {
+              qGrad.addColorStop(0.0, `rgba(253, 224, 71, ${qAlpha * 0.95})`);
+              qGrad.addColorStop(0.48, `rgba(224, 242, 254, ${qAlpha})`);
+              qGrad.addColorStop(1.0, `rgba(56, 189, 248, 0)`);
+            } else if (mode === 'helix') {
+              qGrad.addColorStop(0.0, `rgba(255, 255, 255, ${qAlpha * 0.90})`);
+              qGrad.addColorStop(0.50, (q % 2 === 0) ? `rgba(103, 232, 249, ${qAlpha})` : `rgba(244, 114, 182, ${qAlpha})`);
+              qGrad.addColorStop(1.0, `rgba(192, 132, 252, 0)`);
+            } else {
+              qGrad.addColorStop(0.0, `rgba(255, 251, 235, ${qAlpha})`);
+              qGrad.addColorStop(0.50, `rgba(250, 204, 21, ${qAlpha * 0.95})`);
+              qGrad.addColorStop(1.0, `rgba(249, 115, 22, 0)`);
+            }
+            ctx.strokeStyle = qGrad;
+            ctx.lineWidth = (1.1 + tierLux * 0.55 + (isUltActive ? 0.65 : 0)) * u;
+            ctx.beginPath();
+            ctx.moveTo(qStartX, qStartY);
+            ctx.quadraticCurveTo((qStartX + qEndX) * 0.52, qPeakY, qEndX, qEndY);
+            ctx.stroke();
+          }
+        }
+
+        // B. Sculpted Hinged Mechanical Collar Joint Pin where Wing Anchors to Core Bezel
+        const hingeX = 67 * coreImgScale;
+        const hingeY = -2 * coreImgScale;
+        const hingeR = (3.0 + tierLux * 1.3) * u;
+        ctx.fillStyle = (mode === 'helix') ? `rgba(226, 232, 240, ${0.88 * alphaVal})` : `rgba(251, 191, 36, ${0.90 * alphaVal})`;
+        ctx.beginPath();
+        ctx.arc(hingeX, hingeY, hingeR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = (mode === 'meteor')
+          ? `rgba(254, 249, 195, ${0.96 * alphaVal})`
+          : (mode === 'helix' ? `rgba(103, 232, 249, ${0.95 * alphaVal})` : `rgba(224, 242, 254, ${0.95 * alphaVal})`);
+        ctx.beginPath();
+        ctx.arc(hingeX - hingeR * 0.22, hingeY - hingeR * 0.22, hingeR * 0.52, 0, Math.PI * 2);
+        ctx.fill();
+
+        // C. Progressive Diamond Specular Micro-Glints along the feather ridges (1 in Tier II -> 6 in Tier V, 8 during Ultimate)
+        const numSparkles = isUltActive ? 8 : ((tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 4 : 6)));
         for (let sp = 0; sp < numSparkles; sp++) {
           const spFrac = (sp + 0.5) / numSparkles;
-          const spPulse = Math.pow(Math.max(0, Math.sin(now * 0.0042 + sp * 1.95 + sideIdx * 1.3)), 3.0);
-          if (spPulse > 0.12) {
-            const sx = 78 * coreImgScale + spFrac * (maxSpanX - 78 * coreImgScale);
+          const spPulse = Math.pow(Math.max(0, Math.sin(now * (isUltActive ? 0.0085 : 0.0042) + sp * 1.95 + sideIdx * 1.3)), isUltActive ? 1.8 : 3.0);
+          if (spPulse > 0.10) {
+            const sx = 76 * coreImgScale + spFrac * (maxSpanX - 76 * coreImgScale);
             const sy = (-10 - Math.sin(spFrac * Math.PI) * (tIdx >= 4 ? 42 : 24) + (sp % 2 === 0 ? -8 : 10)) * coreImgScale;
-            const sr = (1.6 + tierLux * 1.6) * u * spPulse * (isUltActive ? 1.35 : 1.0);
-            const sAlpha = Math.min(1.0, spPulse * (0.45 + tierLux * 0.48) * alphaVal);
+            const sr = (1.6 + tierLux * 1.65) * u * spPulse * (isUltActive ? 1.55 : 1.0);
+            const sAlpha = Math.min(1.0, spPulse * (0.48 + tierLux * 0.48) * (isUltActive ? 1.25 : 1.0) * alphaVal);
 
             ctx.fillStyle = (mode === 'meteor')
               ? `rgba(254, 240, 138, ${sAlpha})`
@@ -4299,25 +4426,25 @@
                 ? (sp % 2 === 0 ? `rgba(165, 243, 252, ${sAlpha})` : `rgba(245, 208, 254, ${sAlpha})`)
                 : (sp % 2 === 0 ? `rgba(224, 242, 254, ${sAlpha})` : `rgba(254, 240, 138, ${sAlpha})`));
             ctx.beginPath();
-            ctx.moveTo(sx, sy - sr * 2.1);
+            ctx.moveTo(sx, sy - sr * 2.15);
             ctx.lineTo(sx + sr * 0.65, sy);
-            ctx.lineTo(sx, sy + sr * 2.1);
+            ctx.lineTo(sx, sy + sr * 2.15);
             ctx.lineTo(sx - sr * 0.65, sy);
             ctx.closePath();
             ctx.fill();
 
             ctx.beginPath();
-            ctx.moveTo(sx - sr * 2.1, sy);
+            ctx.moveTo(sx - sr * 2.15, sy);
             ctx.lineTo(sx, sy - sr * 0.55);
-            ctx.lineTo(sx + sr * 2.1, sy);
+            ctx.lineTo(sx + sr * 2.15, sy);
             ctx.lineTo(sx, sy + sr * 0.55);
             ctx.closePath();
             ctx.fill();
           }
         }
 
+        // D. Mode-Specific Live Energy Conduits along the Wing Feathers
         if (mode === 'dynamo') {
-          // DYNAMO II: Occasional small blue charge flashes near the fin roots
           if (tIdx === 2) {
             const flashCycle = Math.sin(now * 0.019 + sideIdx * 2.7);
             if (flashCycle > 0.52) {
@@ -4334,64 +4461,207 @@
               ctx.stroke();
             }
           }
-          // DYNAMO III, IV, V: Live electric plasma veins coursing from wing roots toward feather tips
-          if (tIdx >= 3) {
-            const numCurrents = (tIdx === 3) ? 1 : (tIdx === 4 ? 2 : 3);
+          if (tIdx >= 3 || isUltActive) {
+            const numCurrents = isUltActive ? 4 : ((tIdx === 3) ? 1 : (tIdx === 4 ? 2 : 3));
             for (let cI = 0; cI < numCurrents; cI++) {
-              const curPhase = ((now * (isUltActive ? 0.0028 : 0.0013) + sideIdx * 0.15 + cI * 0.33) % 1.0);
+              const curPhase = ((now * (isUltActive ? 0.0032 : 0.0013) + sideIdx * 0.15 + cI * 0.25) % 1.0);
               const curX = (72 + curPhase * (tIdx === 3 ? 170 : (tIdx === 4 ? 245 : 295))) * coreImgScale;
-              const curY = (-10 - curPhase * (28 + cI * 12) + (cI - 1) * 14) * coreImgScale;
-              const curAlpha = Math.sin(curPhase * Math.PI) * (isUltActive ? 0.85 : (0.42 + tierLux * 0.28)) * alphaVal;
+              const curY = (-10 - curPhase * (28 + cI * 11) + (cI - 1) * 13) * coreImgScale;
+              const curAlpha = Math.sin(curPhase * Math.PI) * (isUltActive ? 0.92 : (0.44 + tierLux * 0.28)) * alphaVal;
               if (curAlpha > 0.02) {
-                ctx.strokeStyle = (cI === 2 && tIdx === 5)
+                ctx.strokeStyle = (cI % 2 === 1 && (tIdx === 5 || isUltActive))
                   ? `rgba(253, 224, 71, ${curAlpha})`
                   : (isUltActive ? `rgba(224, 242, 254, ${curAlpha})` : `rgba(125, 211, 252, ${curAlpha})`);
-                ctx.lineWidth = (isUltActive ? 2.2 : 1.5) * u;
+                ctx.lineWidth = (isUltActive ? 2.4 : 1.55) * u;
                 ctx.beginPath();
-                ctx.moveTo(curX - 16 * coreImgScale, curY + 5 * coreImgScale);
-                ctx.lineTo(curX - 5 * coreImgScale, curY - 3 * coreImgScale);
-                ctx.lineTo(curX + 6 * coreImgScale, curY + 2 * coreImgScale);
-                ctx.lineTo(curX + 18 * coreImgScale, curY - 5 * coreImgScale);
+                ctx.moveTo(curX - 18 * coreImgScale, curY + 5 * coreImgScale);
+                ctx.lineTo(curX - 6 * coreImgScale, curY - 4 * coreImgScale);
+                ctx.lineTo(curX + 6 * coreImgScale, curY + 3 * coreImgScale);
+                ctx.lineTo(curX + 20 * coreImgScale, curY - 6 * coreImgScale);
                 ctx.stroke();
               }
             }
           }
         } else if (mode === 'helix') {
-          // HELIX II..V: Prismatic chrome caustic ribbons shifting across feather edges
-          const numRibbons = (tIdx === 2) ? 1 : (tIdx <= 4 ? 2 : 3);
+          const numRibbons = isUltActive ? 4 : ((tIdx === 2) ? 1 : (tIdx <= 4 ? 2 : 3));
           for (let rI = 0; rI < numRibbons; rI++) {
-            const glintProg = ((now * (isUltActive ? 0.0024 : 0.0011) + sideIdx * 0.22 + rI * 0.33) % 1.0);
+            const glintProg = ((now * (isUltActive ? 0.0028 : 0.0011) + sideIdx * 0.22 + rI * (1 / numRibbons)) % 1.0);
             const spanPx = (tIdx === 2 ? 155 : (tIdx === 3 ? 235 : (tIdx === 4 ? 305 : 355))) * coreImgScale;
             const gx = 72 * coreImgScale + glintProg * spanPx;
             const gy = (-8 - glintProg * (24 + rI * 10) + (rI - 0.5) * 14) * coreImgScale;
-            const ga = Math.sin(glintProg * Math.PI) * (isUltActive ? 0.82 : (0.38 + tierLux * 0.28)) * alphaVal;
+            const ga = Math.sin(glintProg * Math.PI) * (isUltActive ? 0.90 : (0.40 + tierLux * 0.28)) * alphaVal;
             if (ga > 0.02) {
               ctx.strokeStyle = (rI % 2 === 0) ? `rgba(103, 232, 249, ${ga})` : `rgba(244, 114, 182, ${ga})`;
-              ctx.lineWidth = (1.5 + tierLux * 0.6) * u;
+              ctx.lineWidth = (1.6 + tierLux * 0.65) * u;
               ctx.beginPath();
-              ctx.moveTo(gx - 15 * coreImgScale, gy + 5 * coreImgScale);
-              ctx.lineTo(gx + 15 * coreImgScale, gy - 5 * coreImgScale);
+              ctx.moveTo(gx - 17 * coreImgScale, gy + 5 * coreImgScale);
+              ctx.quadraticCurveTo(gx, gy - 3 * coreImgScale, gx + 17 * coreImgScale, gy - 6 * coreImgScale);
               ctx.stroke();
             }
           }
         } else if (mode === 'meteor') {
-          // METEOR II..V: Traveling golden-magma thermal reflections & incandescent feather rim ridges
-          const numThermal = (tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 3 : 4));
+          const numThermal = isUltActive ? 5 : ((tIdx === 2) ? 1 : (tIdx === 3 ? 2 : (tIdx === 4 ? 3 : 4)));
           for (let th = 0; th < numThermal; th++) {
-            const thProg = ((now * (isUltActive ? 0.0022 : 0.0010) + sideIdx * 0.18 + th * 0.25) % 1.0);
+            const thProg = ((now * (isUltActive ? 0.0026 : 0.0010) + sideIdx * 0.18 + th * (1 / numThermal)) % 1.0);
             const spanPx = (tIdx === 2 ? 150 : (tIdx === 3 ? 225 : (tIdx === 4 ? 305 : 365))) * coreImgScale;
             const tx = 74 * coreImgScale + thProg * spanPx;
             const ty = (-6 - thProg * (26 + th * 8) + (th - 1) * 13) * coreImgScale;
-            const ta = Math.sin(thProg * Math.PI) * (isUltActive ? 0.85 : (0.36 + tierLux * 0.34)) * alphaVal;
+            const ta = Math.sin(thProg * Math.PI) * (isUltActive ? 0.92 : (0.38 + tierLux * 0.35)) * alphaVal;
             if (ta > 0.02) {
               ctx.strokeStyle = (th % 2 === 0) ? `rgba(254, 240, 138, ${ta})` : `rgba(251, 146, 60, ${ta})`;
-              ctx.lineWidth = (1.5 + tierLux * 0.65) * u;
+              ctx.lineWidth = (1.6 + tierLux * 0.70) * u;
               ctx.beginPath();
-              ctx.moveTo(tx - 16 * coreImgScale, ty + 4 * coreImgScale);
-              ctx.quadraticCurveTo(tx, ty - 2 * coreImgScale, tx + 16 * coreImgScale, ty - 6 * coreImgScale);
+              ctx.moveTo(tx - 18 * coreImgScale, ty + 4 * coreImgScale);
+              ctx.quadraticCurveTo(tx, ty - 3 * coreImgScale, tx + 18 * coreImgScale, ty - 7 * coreImgScale);
               ctx.stroke();
             }
           }
+        }
+
+        // E. BRILLIANT ULTIMATE WING CLIMAX EFFECTS (Active when pressing [D] / Ultimate button!)
+        // Turns both wings into glorious active energy conduits driving the Ultimate!
+        if (isUltActive && ultAlpha > 0.02) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const uA = ultAlpha * alphaVal;
+
+          if (mode === 'dynamo') {
+            // ⚡ DYNAMO STORM NOVA WING OVERCHARGE:
+            // High-voltage branching Tesla lightning arcs crawling from the gold root collar across every primary feather tip + upward wingtip discharge!
+            const numArcTracks = 3;
+            for (let aI = 0; aI < numArcTracks; aI++) {
+              const segs = 7;
+              const startX = 68 * coreImgScale;
+              const startY = (-4 + (aI - 1) * 14) * coreImgScale;
+              const endX = maxSpanX * (0.78 + aI * 0.11);
+              const endY = (-36 - aI * 22) * coreImgScale;
+
+              // Outer electric blue-violet plasma sheath
+              ctx.beginPath();
+              ctx.moveTo(startX, startY);
+              for (let s = 1; s <= segs; s++) {
+                const f = s / segs;
+                const jit = (s === segs) ? 0 : Math.sin(now * 0.065 + s * 3.7 + aI * 2.3 + sideIdx * 4.1) * (10 + f * 8) * coreImgScale;
+                const px = startX + (endX - startX) * f;
+                const py = startY + (endY - startY) * f - Math.sin(f * Math.PI) * 18 * coreImgScale + jit;
+                ctx.lineTo(px, py);
+              }
+              ctx.strokeStyle = (aI === 1) ? `rgba(250, 204, 21, ${0.85 * uA})` : `rgba(56, 189, 248, ${0.88 * uA})`;
+              ctx.lineWidth = 3.4 * u;
+              ctx.stroke();
+
+              // Razor-sharp white-hot core filament
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.96 * uA})`;
+              ctx.lineWidth = 1.35 * u;
+              ctx.stroke();
+
+              // Upward feather-tip corona discharge spark
+              const tipPulse = 0.6 + 0.4 * Math.sin(now * 0.04 + aI * 2.1 + sideIdx);
+              const tipR = (3.8 + aI * 0.8) * u * tipPulse;
+              ctx.fillStyle = (aI === 1) ? `rgba(254, 240, 138, ${0.95 * uA})` : `rgba(224, 242, 254, ${0.95 * uA})`;
+              ctx.beginPath();
+              ctx.arc(endX, endY, tipR, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+          } else if (mode === 'helix') {
+            // 🧬 HELIX GENESIS NOVA WING OVERCHARGE:
+            // Intertwining cyan & magenta double-helix light ribbons weaving along the wing span + ascending crystalline prism feathers!
+            const steps = 16;
+            const startX = 68 * coreImgScale;
+            const endX = maxSpanX * 0.98;
+            for (let strand = 0; strand < 2; strand++) {
+              const sSign = (strand === 0) ? 1 : -1;
+              ctx.beginPath();
+              for (let s = 0; s <= steps; s++) {
+                const f = s / steps;
+                const px = startX + (endX - startX) * f;
+                const baseArcY = (-12 - Math.sin(f * Math.PI * 0.85) * 44) * coreImgScale;
+                const waveY = Math.sin(f * Math.PI * 3.5 - now * 0.018 + sideIdx) * 14 * coreImgScale * sSign;
+                const py = baseArcY + waveY;
+                if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+              }
+              ctx.strokeStyle = (strand === 0) ? `rgba(34, 211, 238, ${0.90 * uA})` : `rgba(236, 72, 153, ${0.90 * uA})`;
+              ctx.lineWidth = 2.8 * u;
+              ctx.stroke();
+
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.88 * uA})`;
+              ctx.lineWidth = 1.1 * u;
+              ctx.stroke();
+            }
+
+            // 5 Radiant Prismatic Diamond Shards launching upward from the primary feather tips
+            for (let pf = 0; pf < 5; pf++) {
+              const pfProg = ((now * 0.0032 + pf * 0.20 + sideIdx * 0.15) % 1.0);
+              const fFrac = 0.25 + (pf / 4) * 0.72;
+              const fx = startX + (endX - startX) * fFrac + pfProg * 14 * coreImgScale;
+              const fy = (-22 - Math.sin(fFrac * Math.PI) * 38 - pfProg * 52) * coreImgScale;
+              const fa = Math.sin(pfProg * Math.PI) * 0.95 * uA;
+              const fr = (3.4 + (1.0 - pfProg) * 2.6) * u;
+              ctx.fillStyle = (pf % 2 === 0) ? `rgba(165, 243, 252, ${fa})` : `rgba(245, 208, 254, ${fa})`;
+              ctx.beginPath();
+              ctx.moveTo(fx, fy - fr * 1.9);
+              ctx.lineTo(fx + fr * 0.75, fy);
+              ctx.lineTo(fx, fy + fr * 1.9);
+              ctx.lineTo(fx - fr * 0.75, fy);
+              ctx.closePath();
+              ctx.fill();
+            }
+
+          } else {
+            // 🌋 METEOR CALDERA NOVA WING OVERCHARGE:
+            // White-hot solar magma veins erupting along every golden feather ridge + licking solar prominence flame tongues rising off the upper wing edge!
+            const numVeins = 4;
+            const startX = 68 * coreImgScale;
+            const endX = maxSpanX * 0.98;
+            for (let vI = 0; vI < numVeins; vI++) {
+              const vFrac = (vI + 0.3) / numVeins;
+              const vx1 = startX + (endX - startX) * (0.55 + vFrac * 0.45);
+              const vy0 = (-4 + (vI - 1.5) * 11) * coreImgScale;
+              const vyPeak = vy0 - (24 + vI * 11) * coreImgScale;
+              const vy1 = vyPeak + (4 + vI * 5) * coreImgScale;
+
+              // Outer molten orange-gold magma glow
+              ctx.strokeStyle = `rgba(249, 115, 22, ${0.88 * uA})`;
+              ctx.lineWidth = 3.8 * u;
+              ctx.beginPath();
+              ctx.moveTo(startX, vy0);
+              ctx.quadraticCurveTo((startX + vx1) * 0.5, vyPeak, vx1, vy1);
+              ctx.stroke();
+
+              // White-hot solar core filament
+              ctx.strokeStyle = `rgba(254, 249, 195, ${0.96 * uA})`;
+              ctx.lineWidth = 1.5 * u;
+              ctx.stroke();
+            }
+
+            // 5 Licking Solar Flame Tongues & Incandescent Embers rising from the upper wing feathers
+            for (let fl = 0; fl < 5; fl++) {
+              const flProg = ((now * 0.0036 + fl * 0.20 + sideIdx * 0.13) % 1.0);
+              const fFrac = 0.22 + (fl / 4) * 0.74;
+              const fx0 = startX + (endX - startX) * fFrac;
+              const fy0 = (-18 - Math.sin(fFrac * Math.PI) * 34) * coreImgScale;
+              const sway = Math.sin(now * 0.024 + fl * 1.7 + sideIdx) * 12 * coreImgScale;
+              const fx1 = fx0 + sway;
+              const fy1 = fy0 - (22 + flProg * 54) * coreImgScale;
+              const fa = Math.sin(flProg * Math.PI) * 0.92 * uA;
+
+              ctx.strokeStyle = (fl % 2 === 0) ? `rgba(254, 240, 138, ${fa})` : `rgba(251, 146, 60, ${fa})`;
+              ctx.lineWidth = (2.8 * (1.0 - flProg * 0.55)) * u;
+              ctx.beginPath();
+              ctx.moveTo(fx0, fy0);
+              ctx.quadraticCurveTo(fx0 - sway * 0.5, (fy0 + fy1) * 0.5, fx1, fy1);
+              ctx.stroke();
+
+              // Glowing solar ember spark at flame tip
+              ctx.fillStyle = `rgba(255, 251, 235, ${fa})`;
+              ctx.beginPath();
+              ctx.arc(fx1, fy1, Math.max(1.2, 2.2 * (1.0 - flProg * 0.4) * u), 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          ctx.restore();
         }
 
         ctx.restore();
@@ -9451,6 +9721,49 @@
         ctx.globalAlpha = alphaEnv * 0.78;
         ctx.drawImage(topGlow, nv.x - 66, nv.y - 78, 132, 104);
         ctx.globalAlpha = 1.0;
+
+        // LAYER 7B: Twin Wing-to-Pillar Synchro-Energy Conduit Arcs (Bridges Both Wingtips into the Rising Ultimate Beam!)
+        const wingSpanX = Math.min(w * 0.36, 152);
+        const wingArchY = nv.y - 42;
+        const beamConvergeY = Math.max(24, nv.y - 165);
+        ctx.lineCap = 'round';
+        for (let side = -1; side <= 1; side += 2) {
+          const wx0 = nv.x + side * 52;
+          const wy0 = nv.y - 12;
+          const wxTip = nv.x + side * wingSpanX;
+          const wyTip = wingArchY + Math.sin(now * 0.016 + side) * 6;
+          const wxBeam = nv.x + side * 26;
+
+          if (nv.mode === 'dynamo') {
+            // Crackling high-voltage wingtip-to-pillar lightning bridge
+            const bridgePts = this._novaBolt(wxTip, wyTip, wxBeam, beamConvergeY, 16, 3);
+            this._strokeBoltPasses(ctx, bridgePts, alphaEnv * 0.90, 0.58, 'rgba(56, 189, 248, ', 'rgba(253, 224, 71, ');
+          } else if (nv.mode === 'helix') {
+            // Prismatic cyan-magenta harmonic ribbon arching from each wingtip into the DNA pillar
+            ctx.strokeStyle = (side < 0) ? `rgba(34, 211, 238, ${alphaEnv * 0.72})` : `rgba(236, 72, 153, ${alphaEnv * 0.72})`;
+            ctx.lineWidth = 4.2;
+            ctx.beginPath();
+            ctx.moveTo(wx0, wy0);
+            ctx.quadraticCurveTo(wxTip, wyTip - 24, wxBeam, beamConvergeY);
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(255, 255, 255, ${alphaEnv * 0.88})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          } else {
+            // Blazing solar prominence fire-arch rising from each golden wingtip into the Caldera column
+            ctx.strokeStyle = `rgba(249, 115, 22, ${alphaEnv * 0.76})`;
+            ctx.lineWidth = 5.0;
+            ctx.beginPath();
+            ctx.moveTo(wx0, wy0);
+            ctx.quadraticCurveTo(wxTip, wyTip - 28, wxBeam, beamConvergeY);
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(254, 249, 195, ${alphaEnv * 0.92})`;
+            ctx.lineWidth = 1.7;
+            ctx.stroke();
+          }
+        }
 
         // LAYER 8: Dynamo — Multi-Hued Crackling Electric Arcs Wrapping Over the Core Surface
         if (nv.mode === 'dynamo' && nv._coreArcs) {
