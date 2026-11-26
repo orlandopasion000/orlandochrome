@@ -1,5 +1,5 @@
 {
-  "version": "v402_wings_connected_db",
+  "version": "v403_uncut_t4_wings",
   "refCanvasW": 1024,
   "refCanvasH": 576,
   "wingCanvasW": 512,
@@ -33,7 +33,7 @@
       "2": {
         "fullW": 514,
         "fullH": 426,
-        "wingMinX": 110,
+        "wingMinX": 111,
         "wingMaxX": 256,
         "eqRootX": 137.0,
         "minY": 76,
@@ -46,6 +46,7 @@
           "t": 76,
           "b": 74
         },
+        "maxFlatWallR": 25,
         "overlapDepthPx": 17,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -55,7 +56,7 @@
       "3": {
         "fullW": 674,
         "fullH": 426,
-        "wingMinX": 97,
+        "wingMinX": 78,
         "wingMaxX": 336,
         "eqRootX": 137.0,
         "minY": 76,
@@ -68,6 +69,7 @@
           "t": 76,
           "b": 74
         },
+        "maxFlatWallR": 24,
         "overlapDepthPx": 16,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -76,20 +78,21 @@
       },
       "4": {
         "fullW": 834,
-        "fullH": 510,
-        "wingMinX": 97,
+        "fullH": 503,
+        "wingMinX": 43,
         "wingMaxX": 416,
-        "eqRootX": 136.0,
+        "eqRootX": 137.0,
         "minY": 20,
-        "maxY": 529,
+        "maxY": 522,
         "halfTopY": 268,
-        "halfBotY": 241,
+        "halfBotY": 234,
         "edgeMargins": {
           "l": 95,
           "r": 95,
           "t": 20,
-          "b": 46
+          "b": 53
         },
+        "maxFlatWallR": 13,
         "overlapDepthPx": 17,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -112,6 +115,7 @@
           "t": 31,
           "b": 65
         },
+        "maxFlatWallR": 11,
         "overlapDepthPx": 48,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -151,7 +155,8 @@
           "t": 119,
           "b": 118
         },
-        "overlapDepthPx": 15,
+        "maxFlatWallR": 29,
+        "overlapDepthPx": 17,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
         "gapFlapNeg10Rows": 0,
@@ -173,6 +178,7 @@
           "t": 119,
           "b": 118
         },
+        "maxFlatWallR": 13,
         "overlapDepthPx": 16,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -182,7 +188,7 @@
       "4": {
         "fullW": 832,
         "fullH": 388,
-        "wingMinX": 97,
+        "wingMinX": 72,
         "wingMaxX": 415,
         "eqRootX": 135.0,
         "minY": 77,
@@ -195,6 +201,7 @@
           "t": 77,
           "b": 111
         },
+        "maxFlatWallR": 13,
         "overlapDepthPx": 17,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -217,6 +224,7 @@
           "t": 43,
           "b": 52
         },
+        "maxFlatWallR": 5,
         "overlapDepthPx": 53,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -243,7 +251,7 @@
       "2": {
         "fullW": 514,
         "fullH": 348,
-        "wingMinX": 98,
+        "wingMinX": 93,
         "wingMaxX": 256,
         "eqRootX": 138.0,
         "minY": 115,
@@ -256,6 +264,7 @@
           "t": 115,
           "b": 113
         },
+        "maxFlatWallR": 4,
         "overlapDepthPx": 17,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -264,20 +273,21 @@
       },
       "3": {
         "fullW": 674,
-        "fullH": 348,
-        "wingMinX": 97,
+        "fullH": 356,
+        "wingMinX": 90,
         "wingMaxX": 336,
         "eqRootX": 138.0,
-        "minY": 115,
-        "maxY": 462,
-        "halfTopY": 173,
-        "halfBotY": 174,
+        "minY": 111,
+        "maxY": 466,
+        "halfTopY": 177,
+        "halfBotY": 178,
         "edgeMargins": {
           "l": 175,
           "r": 175,
-          "t": 115,
-          "b": 113
+          "t": 111,
+          "b": 109
         },
+        "maxFlatWallR": 2,
         "overlapDepthPx": 17,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -300,6 +310,7 @@
           "t": 115,
           "b": 113
         },
+        "maxFlatWallR": 9,
         "overlapDepthPx": 19,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,
@@ -322,6 +333,7 @@
           "t": 45,
           "b": 113
         },
+        "maxFlatWallR": 17,
         "overlapDepthPx": 18,
         "gapRestRows": 0,
         "gapFlapPos10Rows": 0,

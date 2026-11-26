@@ -13,6 +13,19 @@ MIN_EDGE_MARGIN = 12
 MIN_OVERLAP_PX = 12
 SPHERE_PARITY_TOL = 2
 SPAN_PARITY_TOL = 2
+MAX_FLAT_WALL_R = 31
+
+
+def max_contig_wall(mask, x_col, tol=0):
+    col = mask[:, max(0, x_col - tol):x_col + 1].any(axis=1)
+    best = cur = 0
+    for v in col:
+        if v:
+            cur += 1
+            best = max(best, cur)
+        else:
+            cur = 0
+    return best
 
 
 def rotate_wing(wing_img, angle_deg, hinge_x):
@@ -68,8 +81,8 @@ def main():
         "meteor": None,
     }
 
-    print(f"{'MODEL':14s} {'FULL WxH':11s} {'MARGINS (L/R/T/B)':19s} {'TIP_X':6s} {'OVLP':5s} {'GAP(0/+10/-10)':15s} {'STATUS'}")
-    print("-" * 82)
+    print(f"{'MODEL':14s} {'FULL WxH':11s} {'MARGINS (L/R/T/B)':19s} {'TIP_X':6s} {'WALL_R':7s} {'OVLP':5s} {'GAP(0/+10/-10)':15s} {'STATUS'}")
+    print("-" * 90)
 
     sphere_widths = []
     for t in tiers:
@@ -96,6 +109,7 @@ def main():
                 notes.append(f"db_mismatch({entry['fullW']}x{entry['fullH']} vs {fw}x{fh})")
 
             tip_str = "-"
+            wall_str = "-"
             ov_str = "-"
             gap_str = "-"
 
@@ -110,6 +124,12 @@ def main():
                 wtip = int(wxs.max())
                 wtop, wbot = int(wys.min()), int(wys.max())
                 tip_str = str(wtip)
+
+                wall_r = max_contig_wall(np.array(wim)[:, :, 3] > 20, wtip, tol=0)
+                wall_str = str(wall_r)
+                if wall_r > MAX_FLAT_WALL_R:
+                    ok = False
+                    notes.append(f"flat_cut_wall_r={wall_r}>{MAX_FLAT_WALL_R}")
 
                 if abs(wtip - db["tierMaxTipXRef"][str(t)]) > SPAN_PARITY_TOL:
                     ok = False
@@ -132,7 +152,7 @@ def main():
             status = "PASS" if ok else "FAIL: " + ",".join(notes)
             if not ok:
                 failures.append(f"{m}-t{t}: {status}")
-            print(f"{m:6s}-t{t:<6d} {fw:4d}x{fh:<4d}  {ml:3d}/{mr:3d}/{mt:3d}/{mb:3d}         {tip_str:6s} {ov_str:5s} {gap_str:15s} {status}")
+            print(f"{m:6s}-t{t:<6d} {fw:4d}x{fh:<4d}  {ml:3d}/{mr:3d}/{mt:3d}/{mb:3d}         {tip_str:6s} {wall_str:7s} {ov_str:5s} {gap_str:15s} {status}")
 
         w_vals = [w for _, w in tier_full_widths]
         if max(w_vals) - min(w_vals) > SPAN_PARITY_TOL * 2:
