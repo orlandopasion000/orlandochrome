@@ -1,5 +1,5 @@
 {
-  "version": "v405_smooth_zero_lag",
+  "version": "v406_tier6_grand_3d",
   "refCanvasW": 1024,
   "refCanvasH": 576,
   "wingCanvasW": 512,
@@ -252,7 +252,7 @@
       "2": {
         "fullW": 514,
         "fullH": 348,
-        "wingMinX": 93,
+        "wingMinX": 133,
         "wingMaxX": 256,
         "eqRootX": 138.0,
         "minY": 115,
@@ -274,19 +274,19 @@
       },
       "3": {
         "fullW": 674,
-        "fullH": 356,
-        "wingMinX": 90,
+        "fullH": 348,
+        "wingMinX": 133,
         "wingMaxX": 336,
         "eqRootX": 138.0,
-        "minY": 111,
-        "maxY": 466,
-        "halfTopY": 177,
-        "halfBotY": 178,
+        "minY": 115,
+        "maxY": 462,
+        "halfTopY": 173,
+        "halfBotY": 174,
         "edgeMargins": {
           "l": 175,
           "r": 175,
-          "t": 111,
-          "b": 109
+          "t": 115,
+          "b": 113
         },
         "maxFlatWallR": 2,
         "overlapDepthPx": 17,

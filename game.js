@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade405_smooth_zero_lag')
+      fetch('assets/core-geometry-db.json?v=arcade406_tier6_3d_articulated')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2657,12 +2657,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade405_smooth_zero_lag';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade406_tier6_3d_articulated';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade405_smooth_zero_lag';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade406_tier6_3d_articulated';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade405_smooth_zero_lag';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade406_tier6_3d_articulated';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2681,21 +2681,21 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade405_smooth_zero_lag`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade406_tier6_3d_articulated`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade405_smooth_zero_lag`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade406_tier6_3d_articulated`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade405_smooth_zero_lag`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade406_tier6_3d_articulated`;
       }
     }
   });
@@ -5974,50 +5974,301 @@
       this.drawDynamoCore(ctx, cx, cy, now, progress);
     },
 
-    // Playable Tier VI Model Renderer (Meteor Dragon · Helix Unicorn · Dynamo Princess)
-    _drawTier6Character(ctx, mode, cx, cy, u, now, isPortalPreview = false, opts = null) {
-      const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+    // Runtime Soft-Socketed 3D Anatomical Decomposition Cache for Tier VI Characters
+    _tier6RigCache: {},
+
+    _getTier6ArticulatedRig(mKey) {
+      if (this._tier6RigCache[mKey]) return this._tier6RigCache[mKey];
       const spr = LayeredT4Assets.coreTierSprites[mKey] && LayeredT4Assets.coreTierSprites[mKey][6];
       const sprLoaded = LayeredT4Assets.loaded.coreTierSprites[mKey] && LayeredT4Assets.loaded.coreTierSprites[mKey][6];
-      if (!spr || !sprLoaded) {
+      if (!spr || !sprLoaded) return null;
+
+      const W = 1024, H = 682;
+      const extractSoftRegion = (polyPts, featherPx) => {
+        const c = document.createElement('canvas');
+        c.width = W; c.height = H;
+        const g = c.getContext('2d');
+        if (!g) return c;
+        g.save();
+        if (featherPx > 0 && typeof g.filter === 'string') {
+          g.filter = `blur(${featherPx}px)`;
+        }
+        g.fillStyle = '#ffffff';
+        g.beginPath();
+        for (let i = 0; i < polyPts.length; i++) {
+          if (i === 0) g.moveTo(polyPts[i][0], polyPts[i][1]);
+          else g.lineTo(polyPts[i][0], polyPts[i][1]);
+        }
+        g.closePath();
+        g.fill();
+        g.restore();
+        g.globalCompositeOperation = 'source-in';
+        g.drawImage(spr, 0, 0, W, H);
+        g.globalCompositeOperation = 'source-over';
+        return c;
+      };
+
+      const rig = { full: spr, W, H };
+      if (mKey === 'dynamo') {
+        rig.pivots = {
+          wingL: { x: 376, y: 245 },
+          wingR: { x: 648, y: 245 },
+          cannonL: { x: 365, y: 205 },
+          cannonR: { x: 659, y: 205 },
+          head: { x: 512, y: 235 },
+          armL: { x: 446, y: 235 },
+          armR: { x: 578, y: 235 },
+          tailMid: { x: 512, y: 345 },
+          tailTip: { x: 512, y: 475 }
+        };
+        rig.wingL = extractSoftRegion([[90, 115], [322, 175], [392, 232], [385, 345], [328, 435], [105, 425]], 8);
+        rig.wingR = extractSoftRegion([[934, 115], [702, 175], [632, 232], [639, 345], [696, 435], [919, 425]], 8);
+        rig.cannonL = extractSoftRegion([[308, 10], [422, 10], [412, 222], [318, 222]], 6);
+        rig.cannonR = extractSoftRegion([[602, 10], [716, 10], [706, 222], [612, 222]], 6);
+        rig.armL = extractSoftRegion([[405, 138], [462, 138], [462, 245], [408, 245]], 5);
+        rig.armR = extractSoftRegion([[562, 138], [619, 138], [616, 245], [562, 245]], 5);
+        rig.head = extractSoftRegion([[452, 165], [572, 165], [566, 272], [458, 272]], 6);
+        rig.tailMid = extractSoftRegion([[310, 325], [714, 325], [720, 505], [304, 505]], 10);
+        rig.tailTip = extractSoftRegion([[300, 465], [724, 465], [680, 675], [344, 675]], 10);
+        rig.torso = extractSoftRegion([[375, 215], [649, 215], [645, 395], [379, 395]], 10);
+      } else if (mKey === 'helix') {
+        rig.pivots = {
+          wingL: { x: 432, y: 262 },
+          wingR: { x: 592, y: 262 },
+          cannonL: { x: 406, y: 222 },
+          cannonR: { x: 618, y: 222 },
+          head: { x: 512, y: 225 },
+          armL: { x: 438, y: 305 },
+          armR: { x: 586, y: 305 },
+          tailMid: { x: 512, y: 355 },
+          tailTip: { x: 512, y: 485 }
+        };
+        rig.wingL = extractSoftRegion([[75, 135], [362, 185], [438, 245], [428, 345], [85, 365]], 8);
+        rig.wingR = extractSoftRegion([[949, 135], [662, 185], [586, 245], [596, 345], [939, 365]], 8);
+        rig.cannonL = extractSoftRegion([[355, 140], [446, 140], [446, 238], [358, 238]], 6);
+        rig.cannonR = extractSoftRegion([[578, 140], [669, 140], [666, 238], [578, 238]], 6);
+        rig.head = extractSoftRegion([[448, 15], [576, 15], [568, 252], [456, 252]], 7);
+        rig.armL = extractSoftRegion([[408, 295], [462, 295], [462, 418], [408, 418]], 6);
+        rig.armR = extractSoftRegion([[562, 295], [616, 295], [616, 418], [562, 418]], 6);
+        rig.tailMid = extractSoftRegion([[418, 345], [606, 345], [596, 520], [428, 520]], 9);
+        rig.tailTip = extractSoftRegion([[425, 475], [599, 475], [585, 672], [439, 672]], 9);
+        rig.torso = extractSoftRegion([[422, 215], [602, 215], [592, 385], [432, 385]], 10);
+      } else {
+        rig.pivots = {
+          wingL: { x: 405, y: 205 },
+          wingR: { x: 619, y: 205 },
+          cannonL: { x: 385, y: 175 },
+          cannonR: { x: 636, y: 175 },
+          head: { x: 512, y: 158 },
+          armL: { x: 418, y: 222 },
+          armR: { x: 606, y: 222 },
+          tailMid: { x: 512, y: 365 },
+          tailTip: { x: 512, y: 485 }
+        };
+        rig.wingL = extractSoftRegion([[40, 28], [342, 42], [352, 165], [408, 205], [322, 275], [295, 365], [40, 365]], 8);
+        rig.wingR = extractSoftRegion([[984, 28], [682, 42], [672, 165], [616, 205], [702, 275], [729, 365], [984, 365]], 8);
+        rig.cannonL = extractSoftRegion([[338, 82], [425, 82], [422, 198], [342, 198]], 6);
+        rig.cannonR = extractSoftRegion([[599, 82], [686, 82], [682, 198], [602, 198]], 6);
+        rig.head = extractSoftRegion([[448, 32], [576, 32], [572, 178], [452, 178]], 7);
+        rig.armL = extractSoftRegion([[314, 202], [438, 202], [432, 342], [314, 342]], 6);
+        rig.armR = extractSoftRegion([[586, 202], [710, 202], [710, 342], [592, 342]], 6);
+        rig.tailMid = extractSoftRegion([[385, 325], [639, 325], [625, 495], [399, 495]], 9);
+        rig.tailTip = extractSoftRegion([[445, 465], [579, 465], [568, 668], [456, 668]], 9);
+        rig.torso = extractSoftRegion([[412, 155], [612, 155], [596, 375], [428, 375]], 10);
+      }
+      this._tier6RigCache[mKey] = rig;
+      return rig;
+    },
+
+    // Playable Tier VI Multi-Joint Articulated 3D Model Renderer (Meteor Dragon · Helix Unicorn · Dynamo Princess)
+    _drawTier6Character(ctx, mode, cx, cy, u, now, isPortalPreview = false, opts = null) {
+      const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+      const rig = this._getTier6ArticulatedRig(mKey);
+      if (!rig || !rig.full) {
         // Fallback smoothly to Tier V if Tier VI image is still streaming
         this._drawLayeredWingedCore(ctx, mKey, cx, cy, now, 5, null, isPortalPreview, true);
         return;
       }
 
       const lay = CoreGeometryDB.getTier6DrawLayout(mKey, u);
+      const scale = lay.scale;
+      const ancX = lay.spec.anchorX;
+      const ancY = lay.spec.anchorY;
       const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
-      const bank = isPortalPreview ? (Math.sin(now * 0.0019) * 0.03) : ((CoreKinematics.bodyBank || 0) * 0.42);
-      const levY = Math.sin(now * 0.0038) * 2.6 * u * motionMult;
-      const breath = 1.0 + Math.sin(now * 0.0044) * 0.012 * motionMult;
-      const strafeLag = isPortalPreview ? 0 : Math.max(-18 * u, Math.min(18 * u, -(CoreKinematics.vx || 0) * 1.45 * u));
+      const bank = isPortalPreview ? (Math.sin(now * 0.0019) * 0.03) : ((CoreKinematics.bodyBank || 0) * 0.44);
+      const pitchCompY = isPortalPreview ? 1.0 : (1.0 - Math.abs(CoreKinematics.pitchAngle || 0) * 0.16);
+      const levY = Math.sin(now * 0.0038) * 3.0 * u * motionMult;
+      const breath = 1.0 + Math.sin(now * 0.0046) * 0.014 * motionMult;
+      const vxNorm = isPortalPreview ? Math.sin(now * 0.0015) * 0.25 : Math.max(-1.0, Math.min(1.0, (CoreKinematics.vx || 0) * 0.048));
+      const vyNorm = isPortalPreview ? 0 : Math.max(-1.0, Math.min(1.0, (CoreKinematics.vy || 0) * 0.045));
+
+      const pRev = (opts && typeof opts.revealProgress === 'number') ? Math.max(0, Math.min(1, opts.revealProgress)) : 1.0;
+      const easeRev = 1.0 - Math.pow(1.0 - pRev, 3);
+      const isUltActive = Boolean(!isPortalPreview && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mKey);
+
+      // 3D Wingbeat Kinematics (Perspective foreshortening + angular elevation + emergence unfurl!)
+      const flapFreq = (isUltActive ? 0.0095 : 0.0052) * motionMult;
+      const flapPhase = now * flapFreq;
+      const flapSin = Math.sin(flapPhase);
+      const flapCos = Math.cos(flapPhase);
+      const unfurlSpread = 0.42 + 0.58 * easeRev + Math.sin(easeRev * Math.PI) * 0.10;
+      const wing3DScaleX = (0.87 + 0.15 * flapCos) * unfurlSpread;
+      const wingFlapRot = (flapSin * 0.14 + (1.0 - easeRev) * 0.32) * motionMult;
+      const wingLiftY = -flapSin * 8.0 * motionMult;
+
+      // Coordinated Head Turn & Pitch into Flight Vector
+      const headYawRot = (vxNorm * 0.11 + Math.sin(now * 0.0026) * 0.024) * motionMult;
+      const headShiftX = vxNorm * 9.5;
+      const headShiftY = vyNorm * 6.0;
+
+      // Multi-Segment S-Curve Pendulum Physics for Braids / Mane / Royal Gown / Tail
+      const wave1 = (Math.sin(now * 0.0054 - 0.6) * 0.065 - vxNorm * 0.16) * motionMult;
+      const wave2 = (Math.sin(now * 0.0054 - 1.5) * 0.115 - vxNorm * 0.26) * motionMult;
+
+      // Independent Gimbal Aim & Hydraulic Firing Recoil on Twin Shoulder Weapons
+      const gunRecoil = (!isPortalPreview && typeof SkillSystem !== 'undefined' && SkillSystem.gunRecoil) ? SkillSystem.gunRecoil : 0;
+      const aimYaw = (!isPortalPreview && CoreKinematics.lockOnProximity > 0.1)
+        ? Math.max(-0.22, Math.min(0.22, (CoreKinematics.lockOnDX || 0) * 0.0018))
+        : (vxNorm * 0.06);
+      const recL = gunRecoil * 16.0 * (0.85 + 0.3 * Math.sin(now * 0.055));
+      const recR = gunRecoil * 16.0 * (0.85 + 0.3 * Math.cos(now * 0.055));
+
+      const drawPart = (partCanvas, pivot, rotRad, scX, scY, offX, offY, extraAlpha) => {
+        if (!partCanvas) return;
+        ctx.save();
+        const px = (pivot.x - ancX + (offX || 0)) * scale;
+        const py = (pivot.y - ancY + (offY || 0)) * scale;
+        ctx.translate(px, py);
+        if (rotRad) ctx.rotate(rotRad);
+        if (scX !== 1 || scY !== 1) ctx.scale(scX, scY);
+        if (typeof extraAlpha === 'number') ctx.globalAlpha *= extraAlpha;
+        ctx.drawImage(partCanvas, -pivot.x * scale, -pivot.y * scale, rig.W * scale, rig.H * scale);
+        ctx.restore();
+      };
 
       ctx.save();
       ctx.translate(cx, cy + levY);
       ctx.rotate(bank);
-      ctx.scale(breath, 2.0 - breath * 0.99);
+      ctx.scale(breath, (2.0 - breath * 0.99) * pitchCompY);
 
-      // Subtle delayed trailing micro-motifs (tail / mane / braid motion lag behind torso, zero obstruction!)
-      if (!isPortalPreview && (Math.abs(strafeLag) > 1.2 || (opts && opts.revealProgress !== undefined))) {
+      // 1. Subtle 3D Sovereign Resonance Halo Beneath Character
+      const pCol = (mKey === 'meteor') ? '#fb923c' : (mKey === 'helix' ? '#22d3ee' : '#c084fc');
+      const aCol = (mKey === 'meteor') ? '#fef08a' : (mKey === 'helix' ? '#f472b6' : '#38bdf8');
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const haloR = 88 * u * (0.96 + 0.04 * Math.sin(now * 0.0045));
+      const hGrad = ctx.createRadialGradient(0, 0, haloR * 0.15, 0, 0, haloR);
+      hGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.18)');
+      hGrad.addColorStop(0.45, mKey === 'meteor' ? 'rgba(249, 115, 22, 0.24)' : (mKey === 'helix' ? 'rgba(34, 211, 238, 0.22)' : 'rgba(192, 132, 252, 0.24)'));
+      hGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = hGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, haloR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 2. Independently Articulated Lower Tail / Royal Gown Train / Hindlimbs
+      drawPart(rig.tailTip, rig.pivots.tailTip, wave2, 1.0, 1.0, -vxNorm * 14.0, 0, 1.0);
+      drawPart(rig.tailMid, rig.pivots.tailMid, wave1, 1.0, 1.0, -vxNorm * 7.0, 0, 1.0);
+
+      // 3. Independently Flapping 3D Multi-Joint Left & Right Wings + Windward Specular Sheen
+      const leftWingRot = -wingFlapRot + vxNorm * 0.08;
+      const rightWingRot = wingFlapRot + vxNorm * 0.08;
+      drawPart(rig.wingL, rig.pivots.wingL, leftWingRot, wing3DScaleX, 1.0, 0, wingLiftY, 1.0);
+      drawPart(rig.wingR, rig.pivots.wingR, rightWingRot, wing3DScaleX, 1.0, 0, wingLiftY, 1.0);
+
+      if (flapCos > 0.05 || isUltActive) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const trailX = strafeLag * 0.85;
-        const tailBaseY = (lay.drawH - lay.anchorOffY) * 0.72;
-        const pCol = (mKey === 'meteor')
-          ? 'rgba(251, 146, 60, 0.42)'
-          : (mKey === 'helix' ? 'rgba(103, 232, 249, 0.38)' : 'rgba(216, 180, 254, 0.38)');
-        ctx.fillStyle = pCol;
-        for (let k = 0; k < 3; k++) {
-          const kf = (k + 1) / 3;
-          ctx.beginPath();
-          ctx.arc(trailX * kf, tailBaseY + k * 7 * u, Math.max(1.2, (3.2 - k * 0.7) * u), 0, Math.PI * 2);
-          ctx.fill();
-        }
+        const specA = Math.min(0.35, Math.max(0.08, flapCos * 0.22) + (isUltActive ? 0.16 : 0));
+        drawPart(rig.wingL, rig.pivots.wingL, leftWingRot, wing3DScaleX, 1.0, 0, wingLiftY, specA);
+        drawPart(rig.wingR, rig.pivots.wingR, rightWingRot, wing3DScaleX, 1.0, 0, wingLiftY, specA);
         ctx.restore();
       }
 
-      // Draw exact torso-anchored transparent Tier VI PNG (all wings, limbs, horn/crown, twin shoulder guns untouched)
-      ctx.drawImage(spr, -lay.anchorOffX, -lay.anchorOffY, lay.drawW, lay.drawH);
+      // 4. Independently Articulated Forelimbs / Uplifted Arms
+      const stride = Math.sin(now * 0.0072) * motionMult;
+      drawPart(rig.armL, rig.pivots.armL, stride * 0.07 - vxNorm * 0.09, 1.0, 1.0, 0, stride * 4.5, 1.0);
+      drawPart(rig.armR, rig.pivots.armR, -stride * 0.07 - vxNorm * 0.09, 1.0, 1.0, 0, -stride * 4.5, 1.0);
+
+      // 5. Breathing Central Torso & Live Dorsal Material Energy
+      drawPart(rig.torso, { x: ancX, y: ancY }, 0, 1.0, 1.0, 0, 0, 1.0);
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      if (mKey === 'meteor') {
+        // Traveling incandescent plasma pulses ascending the Meteor Dragon's dorsal spine
+        for (let sp = 0; sp < 6; sp++) {
+          const spProg = ((now * 0.0022 + sp / 6) % 1.0);
+          const spy = (145 - spProg * 235) * scale;
+          const spR = (7.5 - spProg * 3.0) * scale;
+          const spG = ctx.createRadialGradient(0, spy, 0, 0, spy, spR * 2.2);
+          spG.addColorStop(0.0, '#ffffff');
+          spG.addColorStop(0.45, aCol);
+          spG.addColorStop(1.0, 'rgba(249, 115, 22, 0)');
+          ctx.fillStyle = spG;
+          ctx.beginPath();
+          ctx.arc(0, spy, spR * 2.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        // Pulsing dorsal heart-gem singularity on Helix Unicorn / Dynamo Princess
+        const gemY = (mKey === 'helix' ? -4 : 12) * scale;
+        const gemR = (22 + Math.sin(now * 0.009) * 5) * scale;
+        const gemG = ctx.createRadialGradient(0, gemY, 0, 0, gemY, gemR);
+        gemG.addColorStop(0.0, '#ffffff');
+        gemG.addColorStop(0.45, pCol);
+        gemG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gemG;
+        ctx.beginPath();
+        ctx.arc(0, gemY, gemR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 6. Coordinated Head, Crown/Horn & Expressive Reactive Eyes/Optics
+      drawPart(rig.head, rig.pivots.head, headYawRot, 1.0, 1.0, headShiftX, headShiftY, 1.0);
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const hPx = (rig.pivots.head.x - ancX + headShiftX) * scale;
+      const hPy = (rig.pivots.head.y - ancY + headShiftY) * scale;
+      ctx.translate(hPx, hPy);
+      ctx.rotate(headYawRot);
+      if (mKey === 'helix') {
+        const hornPulseY = -(115 + ((now * 0.08) % 90)) * scale;
+        const hornG = ctx.createRadialGradient(0, hornPulseY, 0, 0, hornPulseY, 18 * scale);
+        hornG.addColorStop(0.0, '#ffffff');
+        hornG.addColorStop(0.5, '#22d3ee');
+        hornG.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
+        ctx.fillStyle = hornG;
+        ctx.beginPath();
+        ctx.arc(0, hornPulseY, 18 * scale, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (mKey === 'meteor') {
+        const eyeInt = Math.min(1.0, 0.70 + 0.30 * Math.sin(now * 0.012));
+        for (let es = -1; es <= 1; es += 2) {
+          ctx.fillStyle = `rgba(254, 240, 138, ${eyeInt})`;
+          ctx.beginPath();
+          ctx.arc(es * 24 * scale, -72 * scale, 4.5 * scale, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        const crownG = ctx.createRadialGradient(0, -48 * scale, 0, 0, -48 * scale, 16 * scale);
+        crownG.addColorStop(0.0, '#ffffff');
+        crownG.addColorStop(0.5, aCol);
+        crownG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = crownG;
+        ctx.beginPath();
+        ctx.arc(0, -48 * scale, 16 * scale, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 7. Independently Gimbaled Twin Shoulder Weapons with Hydraulic Firing Recoil
+      drawPart(rig.cannonL, rig.pivots.cannonL, aimYaw, 1.0, 1.0, 0, recL, 1.0);
+      drawPart(rig.cannonR, rig.pivots.cannonR, aimYaw, 1.0, 1.0, 0, recR, 1.0);
+
       ctx.restore();
     },
 
@@ -6551,39 +6802,45 @@
 
       if (!isHazard) {
         if (mode === 'dynamo' || mode === 'realm') {
-          // Iconic Quantum Plasma Purple Glass Orb (enhanced with Dual-Polarity Anode-Gold / Cathode-Cyan Rim!)
+          // High-Clarity 3D Sapphire-Violet Refractive Glass Orb with Outer Bloom, Internal Tesla Singularity & Dual-Polarity Rim!
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(this._getGlowSprite('helix'), -targetR * 1.16, -targetR * 1.16, targetR * 2.32, targetR * 2.32);
+          ctx.restore();
+
           if (LayeredT4Assets.loaded.nodeShell.dynamo) {
             ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
-          } else {
-            // High-fidelity procedural fallback: deep cosmic purple glass plasma sphere
-            const pOrb = ctx.createRadialGradient(-targetR * 0.28, -targetR * 0.32, targetR * 0.05, 0, 0, targetR);
-            pOrb.addColorStop(0.0, 'rgba(216, 180, 254, 0.95)');
-            pOrb.addColorStop(0.28, 'rgba(147, 51, 234, 0.92)');
-            pOrb.addColorStop(0.68, 'rgba(88, 28, 135, 0.95)');
-            pOrb.addColorStop(0.95, 'rgba(59, 7, 100, 1.0)');
-            pOrb.addColorStop(1.0, 'rgba(30, 4, 55, 0.85)');
-            ctx.fillStyle = pOrb;
-            ctx.beginPath();
-            ctx.arc(0, 0, targetR, 0, Math.PI * 2);
-            ctx.fill();
           }
-          drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.86, now, animPhase, false, 4);
+          // Luminous 3D Volumetric Sapphire-Violet Plasma Core Fill (guarantees high contrast against deep space!)
+          const pOrb = ctx.createRadialGradient(-targetR * 0.22, -targetR * 0.25, targetR * 0.04, 0, 0, targetR);
+          pOrb.addColorStop(0.0, 'rgba(255, 255, 255, 0.96)');
+          pOrb.addColorStop(0.24, 'rgba(125, 211, 252, 0.88)');
+          pOrb.addColorStop(0.55, 'rgba(147, 51, 234, 0.78)');
+          pOrb.addColorStop(0.88, 'rgba(30, 58, 138, 0.82)');
+          pOrb.addColorStop(1.0, 'rgba(56, 189, 248, 0.90)');
+          ctx.fillStyle = pOrb;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 0.94, 0, Math.PI * 2);
+          ctx.fill();
 
-          // Dual-Polarity Fresnel Rim Polarization (Matches uploaded Dynamo concept images #3 & #4!)
+          drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.88, now, animPhase, false, 4);
+
+          // Dual-Polarity Fresnel Rim Polarization (24K Gold Anode & Electric Cyan Cathode Rim!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           ctx.lineCap = 'round';
           // Left-bottom Warm Gold Anode Rim
           ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.96, Math.PI * 0.62, Math.PI * 1.48);
-          ctx.strokeStyle = 'rgba(251, 146, 60, 0.58)';
-          ctx.lineWidth = 2.4 * scale;
+          ctx.arc(0, 0, targetR * 0.96, Math.PI * 0.55, Math.PI * 1.48);
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.88)';
+          ctx.lineWidth = 2.8 * scale;
           ctx.stroke();
           // Right-top Cool Electric-Cyan Cathode Rim
           ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.96, -Math.PI * 0.38, Math.PI * 0.45);
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.62)';
-          ctx.lineWidth = 2.4 * scale;
+          ctx.arc(0, 0, targetR * 0.96, -Math.PI * 0.45, Math.PI * 0.48);
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.92)';
+          ctx.lineWidth = 2.8 * scale;
           ctx.stroke();
           ctx.restore();
 
@@ -13361,10 +13618,10 @@
       return;
     }
 
-    const nextTier = (c >= 50) ? 6 : (c >= 28 ? 5 : (c >= 21 ? 4 : (c >= 14 ? 3 : (c >= 7 ? 2 : 1))));
+    const nextTier = (c >= 35) ? 6 : (c >= 28 ? 5 : (c >= 21 ? 4 : (c >= 14 ? 3 : (c >= 7 ? 2 : 1))));
     if (nextTier === 6) {
-      const crossedFifty = (prevC < 50 && c >= 50);
-      if (allowHatch && !state.tier6HatchLock && (crossedFifty || (state.coreTier || 1) < 6)) {
+      const crossedThreshold = (prevC < 35 && c >= 35);
+      if (allowHatch && !state.tier6HatchLock && (crossedThreshold || (state.coreTier || 1) < 6)) {
         state.tier6HatchLock = true;
         state.coreTier = 6;
         state.isOverdrive = true;
@@ -13380,9 +13637,9 @@
         if (!allowHatch && typeof CoreKinematics !== 'undefined') CoreKinematics.continuousTier = 6;
       }
     } else {
-      if (state.coreTier >= 6 || c < 50) {
-        if (c < 50) state.tier6HatchLock = false;
-        if (typeof Tier6HatchSystem !== 'undefined' && c < 50) Tier6HatchSystem.cancel();
+      if (state.coreTier >= 6 || c < 35) {
+        if (c < 35) state.tier6HatchLock = false;
+        if (typeof Tier6HatchSystem !== 'undefined' && c < 35) Tier6HatchSystem.cancel();
       }
       state.coreTier = nextTier;
       state.isOverdrive = (nextTier >= 4);
@@ -13497,7 +13754,20 @@
         c.tierTitleSet = true;
         const tierPillEl = document.getElementById('cgTierPill');
         if (tierPillEl) {
-          tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28-49x Supreme Seraphic Ascendant), Tier VI (50x+ Mythic Cosmic Hatch)`;
+          tierPillEl.style.cursor = 'pointer';
+          tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28-34x Supreme Seraphic Ascendant), Tier VI (35x+ Mythic Cosmic Hatch — Click to Cycle Tier I→VI!)`;
+          if (!tierPillEl._tierClickBound) {
+            tierPillEl._tierClickBound = true;
+            tierPillEl.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              const nextT = ((state.coreTier || 1) >= 6) ? 1 : ((state.coreTier || 1) + 1);
+              const comboForTier = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28, 6: 35 };
+              state.combo = comboForTier[nextT] || 0;
+              if (nextT < 6) state.tier6HatchLock = false;
+              evaluateCoreTierFromCombo(performance.now(), true);
+              updateHeaderUI();
+            });
+          }
         }
       }
     }
