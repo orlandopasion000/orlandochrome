@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade406_tier6_grand_3d')
+      fetch('assets/core-geometry-db.json?v=arcade407_strip_mesh')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2661,12 +2661,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade406_tier6_grand_3d';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade407_strip_mesh';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade406_tier6_grand_3d';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade407_strip_mesh';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade406_tier6_grand_3d';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade407_strip_mesh';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2685,27 +2685,27 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade406_tier6_grand_3d`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade407_strip_mesh`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade406_tier6_grand_3d`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade407_strip_mesh`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade406_tier6_grand_3d`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade407_strip_mesh`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade406_tier6_grand_3d`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade407_strip_mesh`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade406_tier6_grand_3d`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade407_strip_mesh`;
       }
     }
   });
@@ -5954,7 +5954,7 @@
       this.drawDynamoCore(ctx, cx, cy, now, progress);
     },
 
-    // Runtime Soft-Socketed 3D Anatomical Decomposition Cache for Tier VI Characters
+    // Seamless 1:1 Partition Strip-Mesh 3D Tier VI Rig Cache (Zero polygon-cutout braid/claw shearing!)
     _tier6RigCache: {},
 
     _getTier6ArticulatedRig(mKey) {
@@ -5970,109 +5970,109 @@
       if (!spr || !sprLoaded) return null;
 
       const W = 1024, H = 682;
-      const extractSoftRegion = (polyPts, featherPx, sourceImg = spr) => {
-        const c = document.createElement('canvas');
-        c.width = W; c.height = H;
-        const g = c.getContext('2d');
-        if (!g) return c;
-        g.save();
-        if (featherPx > 0 && typeof g.filter === 'string') {
-          g.filter = `blur(${featherPx}px)`;
-        }
-        g.fillStyle = '#ffffff';
-        g.beginPath();
-        for (let i = 0; i < polyPts.length; i++) {
-          if (i === 0) g.moveTo(polyPts[i][0], polyPts[i][1]);
-          else g.lineTo(polyPts[i][0], polyPts[i][1]);
-        }
-        g.closePath();
-        g.fill();
-        g.restore();
-        g.globalCompositeOperation = 'source-in';
-        g.drawImage(sourceImg, 0, 0, W, H);
-        g.globalCompositeOperation = 'source-over';
-        return c;
+      const cfgMap = {
+        dynamo: { seamL: 356, seamR: 668, seamBotY: 408, gunPivotL: { x: 372, y: 200 }, gunPivotR: { x: 651, y: 200 }, headY: 225, flapAmp: 24, tailAmp: 15 },
+        helix:  { seamL: 426, seamR: 598, seamBotY: 390, gunPivotL: { x: 406, y: 212 }, gunPivotR: { x: 617, y: 212 }, headY: 210, flapAmp: 26, tailAmp: 16 },
+        meteor: { seamL: 412, seamR: 612, seamBotY: 395, gunPivotL: { x: 386, y: 154 }, gunPivotR: { x: 637, y: 154 }, headY: 158, flapAmp: 28, tailAmp: 16 }
       };
-
-      const gunSrc = gunsOk ? gunsSpr : spr;
-      const rig = { full: spr, gunSrc, hasSplitLayers: (bodyOk && gunsOk), W, H };
-      if (mKey === 'dynamo') {
-        rig.pivots = {
-          wingL: { x: 376, y: 245 },
-          wingR: { x: 648, y: 245 },
-          cannonL: { x: 365, y: 205 },
-          cannonR: { x: 659, y: 205 },
-          head: { x: 512, y: 235 },
-          armL: { x: 446, y: 235 },
-          armR: { x: 578, y: 235 },
-          tailMid: { x: 512, y: 345 },
-          tailTip: { x: 512, y: 475 }
-        };
-        rig.wingL = extractSoftRegion([[90, 115], [322, 175], [392, 232], [385, 345], [328, 435], [105, 425]], 8);
-        rig.wingR = extractSoftRegion([[934, 115], [702, 175], [632, 232], [639, 345], [696, 435], [919, 425]], 8);
-        rig.cannonL = extractSoftRegion([[308, 4], [422, 4], [412, 232], [318, 232]], 4, gunSrc);
-        rig.cannonR = extractSoftRegion([[602, 4], [716, 4], [706, 232], [612, 232]], 4, gunSrc);
-        rig.armL = extractSoftRegion([[405, 138], [462, 138], [462, 245], [408, 245]], 5);
-        rig.armR = extractSoftRegion([[562, 138], [619, 138], [616, 245], [562, 245]], 5);
-        rig.head = extractSoftRegion([[452, 165], [572, 165], [566, 272], [458, 272]], 6);
-        rig.tailMid = extractSoftRegion([[310, 325], [714, 325], [720, 505], [304, 505]], 10);
-        rig.tailTip = extractSoftRegion([[300, 465], [724, 465], [680, 675], [344, 675]], 10);
-        rig.torso = extractSoftRegion([[375, 215], [649, 215], [645, 395], [379, 395]], 10);
-      } else if (mKey === 'helix') {
-        rig.pivots = {
-          wingL: { x: 432, y: 262 },
-          wingR: { x: 592, y: 262 },
-          cannonL: { x: 406, y: 222 },
-          cannonR: { x: 618, y: 222 },
-          head: { x: 512, y: 225 },
-          armL: { x: 438, y: 305 },
-          armR: { x: 586, y: 305 },
-          tailMid: { x: 512, y: 355 },
-          tailTip: { x: 512, y: 485 }
-        };
-        rig.wingL = extractSoftRegion([[75, 135], [362, 185], [438, 245], [428, 345], [85, 365]], 8);
-        rig.wingR = extractSoftRegion([[949, 135], [662, 185], [586, 245], [596, 345], [939, 365]], 8);
-        rig.cannonL = extractSoftRegion([[355, 134], [452, 134], [452, 238], [358, 238]], 4, gunSrc);
-        rig.cannonR = extractSoftRegion([[572, 134], [669, 134], [666, 238], [572, 238]], 4, gunSrc);
-        rig.head = extractSoftRegion([[448, 15], [576, 15], [568, 252], [456, 252]], 7);
-        rig.armL = extractSoftRegion([[408, 295], [462, 295], [462, 418], [408, 418]], 6);
-        rig.armR = extractSoftRegion([[562, 295], [616, 295], [616, 418], [562, 418]], 6);
-        rig.tailMid = extractSoftRegion([[418, 345], [606, 345], [596, 520], [428, 520]], 9);
-        rig.tailTip = extractSoftRegion([[425, 475], [599, 475], [585, 672], [439, 672]], 9);
-        rig.torso = extractSoftRegion([[422, 215], [602, 215], [592, 385], [432, 385]], 10);
-      } else {
-        rig.pivots = {
-          wingL: { x: 405, y: 205 },
-          wingR: { x: 619, y: 205 },
-          cannonL: { x: 385, y: 175 },
-          cannonR: { x: 636, y: 175 },
-          head: { x: 512, y: 158 },
-          armL: { x: 418, y: 222 },
-          armR: { x: 606, y: 222 },
-          tailMid: { x: 512, y: 365 },
-          tailTip: { x: 512, y: 485 }
-        };
-        rig.wingL = extractSoftRegion([[40, 28], [342, 42], [352, 165], [408, 205], [322, 275], [295, 365], [40, 365]], 8);
-        rig.wingR = extractSoftRegion([[984, 28], [682, 42], [672, 165], [616, 205], [702, 275], [729, 365], [984, 365]], 8);
-        rig.cannonL = extractSoftRegion([[338, 74], [430, 74], [425, 198], [342, 198]], 4, gunSrc);
-        rig.cannonR = extractSoftRegion([[594, 74], [686, 74], [682, 198], [599, 198]], 4, gunSrc);
-        rig.head = extractSoftRegion([[448, 32], [576, 32], [572, 178], [452, 178]], 7);
-        rig.armL = extractSoftRegion([[314, 202], [438, 202], [432, 342], [314, 342]], 6);
-        rig.armR = extractSoftRegion([[586, 202], [710, 202], [710, 342], [592, 342]], 6);
-        rig.tailMid = extractSoftRegion([[385, 325], [639, 325], [625, 495], [399, 495]], 9);
-        rig.tailTip = extractSoftRegion([[445, 465], [579, 465], [568, 668], [456, 668]], 9);
-        rig.torso = extractSoftRegion([[412, 155], [612, 155], [596, 375], [428, 375]], 10);
-      }
+      const scratch = (cached && cached.bodyScratch) || document.createElement('canvas');
+      scratch.width = W; scratch.height = H;
+      const rig = {
+        full: spr,
+        body: spr,
+        guns: (gunsOk ? gunsSpr : null),
+        hasSplitLayers: Boolean(bodyOk && gunsOk),
+        W,
+        H,
+        cfg: cfgMap[mKey] || cfgMap.dynamo,
+        bodyScratch: scratch,
+        bodyScratchCtx: scratch.getContext('2d')
+      };
       this._tier6RigCache[mKey] = rig;
       return rig;
     },
 
-    // Playable Tier VI Multi-Joint Articulated 3D Model Renderer (Meteor Dragon · Helix Unicorn · Dynamo Princess)
+    _renderTier6StripMeshToScratch(rig, flapPhase, tailPhase, vxNorm, bankAngle, easeRev) {
+      const bCtx = rig.bodyScratchCtx;
+      if (!bCtx || !rig.body) return false;
+      const W = rig.W, H = rig.H;
+      const cfg = rig.cfg;
+      const sL = cfg.seamL, sR = cfg.seamR, sBotY = cfg.seamBotY;
+      const spanL = sL, spanR = W - sR, spanTail = H - sBotY;
+      const flapSin = Math.sin(flapPhase);
+      const flapAbs = Math.abs(flapSin);
+      const ampPx = cfg.flapAmp * (0.45 + 0.55 * easeRev);
+      const unfurlSpread = 0.52 + 0.48 * easeRev + Math.sin(easeRev * Math.PI) * 0.08;
+      const stepX = 14;
+
+      bCtx.clearRect(0, 0, W, H);
+
+      // 1. Left Wing Strips (x = 0 .. seamL): C1 zero-displacement at seamL
+      let prevDx = sL;
+      const numL = Math.ceil(spanL / stepX);
+      for (let i = 0; i < numL; i++) {
+        const sx1 = Math.max(0, sL - i * stepX);
+        const sx0 = Math.max(0, sL - (i + 1) * stepX);
+        const sw = sx1 - sx0;
+        if (sw <= 0) continue;
+        const uOut = Math.min(1.0, (sL - (sx0 + sw * 0.5)) / spanL);
+        const wave = Math.sin(flapPhase - uOut * 1.15);
+        const dy = -wave * ampPx * Math.pow(uOut, 1.55) - bankAngle * 22 * uOut + (1.0 - easeRev) * 26 * uOut;
+        const fore = (1.0 - 0.095 * flapAbs * Math.pow(uOut, 1.25)) * unfurlSpread;
+        const nextDx = Math.round(sL - (sL - sx0) * fore);
+        const dw = prevDx - nextDx;
+        if (dw >= 1) {
+          bCtx.drawImage(rig.body, sx0, 0, sw, H, nextDx, dy, dw, H);
+          prevDx = nextDx;
+        }
+      }
+
+      // 2. Right Wing Strips (x = seamR .. W): symmetric C1 zero-displacement at seamR
+      prevDx = sR;
+      const numR = Math.ceil(spanR / stepX);
+      for (let j = 0; j < numR; j++) {
+        const rx0 = sR + j * stepX;
+        const rx1 = Math.min(W, rx0 + stepX);
+        const rw = rx1 - rx0;
+        if (rw <= 0) continue;
+        const uOutR = Math.min(1.0, ((rx0 + rw * 0.5) - sR) / spanR);
+        const waveR = Math.sin(flapPhase - uOutR * 1.15);
+        const dyR = -waveR * ampPx * Math.pow(uOutR, 1.55) + bankAngle * 22 * uOutR + (1.0 - easeRev) * 26 * uOutR;
+        const foreR = (1.0 - 0.095 * flapAbs * Math.pow(uOutR, 1.25)) * unfurlSpread;
+        const nextDxR = Math.round(sR + (rx1 - sR) * foreR);
+        const dwR = nextDxR - prevDx;
+        if (dwR >= 1) {
+          bCtx.drawImage(rig.body, rx0, 0, rw, H, prevDx, dyR, dwR, H);
+          prevDx = nextDxR;
+        }
+      }
+
+      // 3. Lower Tail / Royal Gown Horizontal Strips (y = seamBotY .. H) with C1 zero-sway at seamBotY
+      const centerW = sR - sL;
+      const stepY = 14;
+      let prevDy = sBotY;
+      const numT = Math.ceil(spanTail / stepY);
+      for (let k = 0; k < numT; k++) {
+        const sy0 = sBotY + k * stepY;
+        const sy1 = Math.min(H, sy0 + stepY);
+        const sh = sy1 - sy0;
+        if (sh <= 0) continue;
+        const vOut = Math.min(1.0, ((sy0 + sh * 0.5) - sBotY) / spanTail);
+        const tailDx = Math.sin(tailPhase - vOut * 2.1) * cfg.tailAmp * Math.pow(vOut, 1.45) - vxNorm * 22 * Math.pow(vOut, 1.3);
+        bCtx.drawImage(rig.body, sL, sy0, centerW, sh, sL + tailDx, prevDy, centerW, sh);
+        prevDy += sh;
+      }
+
+      // 4. Rigid Central Torso, Head, Crown & Overlapping Braids (x = sL .. sR, y = 0 .. seamBotY)
+      bCtx.drawImage(rig.body, sL, 0, centerW, sBotY, sL, 0, centerW, sBotY);
+      return true;
+    },
+
+    // Playable Tier VI Seamless Strip-Mesh 3D Model Renderer (Meteor Dragon · Helix Unicorn · Dynamo Princess)
     _drawTier6Character(ctx, mode, cx, cy, u, now, isPortalPreview = false, opts = null) {
       const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
       const rig = this._getTier6ArticulatedRig(mKey);
-      if (!rig || !rig.full) {
-        // Fallback smoothly to Tier V if Tier VI image is still streaming
+      if (!rig || !rig.body) {
         this._drawLayeredWingedCore(ctx, mKey, cx, cy, now, 5, null, isPortalPreview, true);
         return;
       }
@@ -6087,32 +6087,16 @@
       const levY = Math.sin(now * 0.0038) * 3.0 * u * motionMult;
       const breath = 1.0 + Math.sin(now * 0.0046) * 0.014 * motionMult;
       const vxNorm = isPortalPreview ? Math.sin(now * 0.0015) * 0.25 : Math.max(-1.0, Math.min(1.0, (CoreKinematics.vx || 0) * 0.048));
-      const vyNorm = isPortalPreview ? 0 : Math.max(-1.0, Math.min(1.0, (CoreKinematics.vy || 0) * 0.045));
 
       const pRev = (opts && typeof opts.revealProgress === 'number') ? Math.max(0, Math.min(1, opts.revealProgress)) : 1.0;
       const easeRev = 1.0 - Math.pow(1.0 - pRev, 3);
       const isUltActive = Boolean(!isPortalPreview && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === mKey);
 
-      // 3D Wingbeat Kinematics (Perspective foreshortening + angular elevation + emergence unfurl!)
       const flapFreq = (isUltActive ? 0.0095 : 0.0052) * motionMult;
       const flapPhase = now * flapFreq;
-      const flapSin = Math.sin(flapPhase);
       const flapCos = Math.cos(flapPhase);
-      const unfurlSpread = 0.42 + 0.58 * easeRev + Math.sin(easeRev * Math.PI) * 0.10;
-      const wing3DScaleX = (0.87 + 0.15 * flapCos) * unfurlSpread;
-      const wingFlapRot = (flapSin * 0.14 + (1.0 - easeRev) * 0.32) * motionMult;
-      const wingLiftY = -flapSin * 8.0 * motionMult;
+      const tailPhase = now * 0.0054 * motionMult;
 
-      // Coordinated Head Turn & Pitch into Flight Vector
-      const headYawRot = (vxNorm * 0.11 + Math.sin(now * 0.0026) * 0.024) * motionMult;
-      const headShiftX = vxNorm * 9.5;
-      const headShiftY = vyNorm * 6.0;
-
-      // Multi-Segment S-Curve Pendulum Physics for Braids / Mane / Royal Gown / Tail
-      const wave1 = (Math.sin(now * 0.0054 - 0.6) * 0.065 - vxNorm * 0.16) * motionMult;
-      const wave2 = (Math.sin(now * 0.0054 - 1.5) * 0.115 - vxNorm * 0.26) * motionMult;
-
-      // Independent Gimbal Aim & Hydraulic Firing Recoil on Twin Shoulder Weapons
       const gunRecoil = (!isPortalPreview && typeof SkillSystem !== 'undefined' && SkillSystem.gunRecoil) ? SkillSystem.gunRecoil : 0;
       const aimYaw = (!isPortalPreview && CoreKinematics.lockOnProximity > 0.1)
         ? Math.max(-0.22, Math.min(0.22, (CoreKinematics.lockOnDX || 0) * 0.0018))
@@ -6120,25 +6104,12 @@
       const recL = gunRecoil * 16.0 * (0.85 + 0.3 * Math.sin(now * 0.055));
       const recR = gunRecoil * 16.0 * (0.85 + 0.3 * Math.cos(now * 0.055));
 
-      const drawPart = (partCanvas, pivot, rotRad, scX, scY, offX, offY, extraAlpha) => {
-        if (!partCanvas) return;
-        ctx.save();
-        const px = (pivot.x - ancX + (offX || 0)) * scale;
-        const py = (pivot.y - ancY + (offY || 0)) * scale;
-        ctx.translate(px, py);
-        if (rotRad) ctx.rotate(rotRad);
-        if (scX !== 1 || scY !== 1) ctx.scale(scX, scY);
-        if (typeof extraAlpha === 'number') ctx.globalAlpha *= extraAlpha;
-        ctx.drawImage(partCanvas, -pivot.x * scale, -pivot.y * scale, rig.W * scale, rig.H * scale);
-        ctx.restore();
-      };
-
       ctx.save();
       ctx.translate(cx, cy + levY);
       ctx.rotate(bank);
       ctx.scale(breath, (2.0 - breath * 0.99) * pitchCompY);
 
-      // 1. 3D Spatial Foreshortened Sovereign Halo Ring (Back Arc behind wings & torso + subtle resonance)
+      // 1. 3D Spatial Foreshortened Sovereign Halo Ring (Back Arc behind wings & torso)
       const pCol = (mKey === 'meteor') ? '#fb923c' : (mKey === 'helix' ? '#22d3ee' : '#c084fc');
       const aCol = (mKey === 'meteor') ? '#fef08a' : (mKey === 'helix' ? '#f472b6' : '#38bdf8');
       const ultRamp3d = isUltActive ? Math.min(1, (now - SkillSystem.activeNova.startAt) / 220) : 0;
@@ -6161,37 +6132,22 @@
       ctx.stroke();
       ctx.restore();
 
-      // 2. Independently Articulated Lower Tail / Royal Gown Train / Hindlimbs
-      drawPart(rig.tailTip, rig.pivots.tailTip, wave2, 1.0, 1.0, -vxNorm * 14.0, 0, 1.0);
-      drawPart(rig.tailMid, rig.pivots.tailMid, wave1, 1.0, 1.0, -vxNorm * 7.0, 0, 1.0);
+      // 2. Seamless 1:1 Partition Strip-Mesh Body & Wings (Zero polygon shearing!)
+      this._renderTier6StripMeshToScratch(rig, flapPhase, tailPhase, vxNorm, bank, easeRev);
+      ctx.drawImage(rig.bodyScratch, -ancX * scale, -ancY * scale, rig.W * scale, rig.H * scale);
 
-      // 3. Independently Flapping 3D Multi-Joint Left & Right Wings + Windward Specular Sheen
-      const leftWingRot = -wingFlapRot + vxNorm * 0.08;
-      const rightWingRot = wingFlapRot + vxNorm * 0.08;
-      drawPart(rig.wingL, rig.pivots.wingL, leftWingRot, wing3DScaleX, 1.0, 0, wingLiftY, 1.0);
-      drawPart(rig.wingR, rig.pivots.wingR, rightWingRot, wing3DScaleX, 1.0, 0, wingLiftY, 1.0);
-
-      if (flapCos > 0.05 || isUltActive) {
+      if (flapCos > 0.08 || isUltActive) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const specA = Math.min(0.35, Math.max(0.08, flapCos * 0.22) + (isUltActive ? 0.16 : 0));
-        drawPart(rig.wingL, rig.pivots.wingL, leftWingRot, wing3DScaleX, 1.0, 0, wingLiftY, specA);
-        drawPart(rig.wingR, rig.pivots.wingR, rightWingRot, wing3DScaleX, 1.0, 0, wingLiftY, specA);
+        ctx.globalAlpha = Math.min(0.28, Math.max(0.06, flapCos * 0.18) + (isUltActive ? 0.14 : 0));
+        ctx.drawImage(rig.bodyScratch, -ancX * scale, -ancY * scale, rig.W * scale, rig.H * scale);
         ctx.restore();
       }
 
-      // 4. Independently Articulated Forelimbs / Uplifted Arms
-      const stride = Math.sin(now * 0.0072) * motionMult;
-      drawPart(rig.armL, rig.pivots.armL, stride * 0.07 - vxNorm * 0.09, 1.0, 1.0, 0, stride * 4.5, 1.0);
-      drawPart(rig.armR, rig.pivots.armR, -stride * 0.07 - vxNorm * 0.09, 1.0, 1.0, 0, -stride * 4.5, 1.0);
-
-      // 5. Breathing Central Torso & Live Dorsal Material Energy
-      drawPart(rig.torso, { x: ancX, y: ancY }, 0, 1.0, 1.0, 0, 0, 1.0);
-
+      // 3. Live Dorsal Material Energy & Expressive Reactive Optics / Crown / Horn
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       if (mKey === 'meteor') {
-        // Traveling incandescent plasma pulses ascending the Meteor Dragon's dorsal spine
         for (let sp = 0; sp < 6; sp++) {
           const spProg = ((now * 0.0022 + sp / 6) % 1.0);
           const spy = (145 - spProg * 235) * scale;
@@ -6205,10 +6161,37 @@
           ctx.arc(0, spy, spR * 2.2, 0, Math.PI * 2);
           ctx.fill();
         }
+        const eyeInt = Math.min(1.0, 0.70 + 0.30 * Math.sin(now * 0.012));
+        for (let es = -1; es <= 1; es += 2) {
+          ctx.fillStyle = `rgba(254, 240, 138, ${eyeInt})`;
+          ctx.beginPath();
+          ctx.arc(es * 24 * scale, (rig.cfg.headY - ancY - 72) * scale, 4.2 * scale, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (mKey === 'helix') {
+        const gemGY = -4 * scale;
+        const gemGR = (20 + Math.sin(now * 0.009) * 4) * scale;
+        const gemGG = ctx.createRadialGradient(0, gemGY, 0, 0, gemGY, gemGR);
+        gemGG.addColorStop(0.0, '#ffffff');
+        gemGG.addColorStop(0.45, pCol);
+        gemGG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gemGG;
+        ctx.beginPath();
+        ctx.arc(0, gemGY, gemGR, 0, Math.PI * 2);
+        ctx.fill();
+
+        const hornPulseY = -(110 + ((now * 0.08) % 90)) * scale;
+        const hornG = ctx.createRadialGradient(0, hornPulseY, 0, 0, hornPulseY, 16 * scale);
+        hornG.addColorStop(0.0, '#ffffff');
+        hornG.addColorStop(0.5, '#22d3ee');
+        hornG.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
+        ctx.fillStyle = hornG;
+        ctx.beginPath();
+        ctx.arc(0, hornPulseY, 16 * scale, 0, Math.PI * 2);
+        ctx.fill();
       } else {
-        // Pulsing dorsal heart-gem singularity on Helix Unicorn / Dynamo Princess
-        const gemY = (mKey === 'helix' ? -4 : 12) * scale;
-        const gemR = (22 + Math.sin(now * 0.009) * 5) * scale;
+        const gemY = 12 * scale;
+        const gemR = (20 + Math.sin(now * 0.009) * 4) * scale;
         const gemG = ctx.createRadialGradient(0, gemY, 0, 0, gemY, gemR);
         gemG.addColorStop(0.0, '#ffffff');
         gemG.addColorStop(0.45, pCol);
@@ -6217,60 +6200,44 @@
         ctx.beginPath();
         ctx.arc(0, gemY, gemR, 0, Math.PI * 2);
         ctx.fill();
-      }
-      ctx.restore();
 
-      // 6. Coordinated Head, Crown/Horn & Expressive Reactive Eyes/Optics
-      drawPart(rig.head, rig.pivots.head, headYawRot, 1.0, 1.0, headShiftX, headShiftY, 1.0);
-
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      const hPx = (rig.pivots.head.x - ancX + headShiftX) * scale;
-      const hPy = (rig.pivots.head.y - ancY + headShiftY) * scale;
-      ctx.translate(hPx, hPy);
-      ctx.rotate(headYawRot);
-      if (mKey === 'helix') {
-        const hornPulseY = -(115 + ((now * 0.08) % 90)) * scale;
-        const hornG = ctx.createRadialGradient(0, hornPulseY, 0, 0, hornPulseY, 18 * scale);
-        hornG.addColorStop(0.0, '#ffffff');
-        hornG.addColorStop(0.5, '#22d3ee');
-        hornG.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
-        ctx.fillStyle = hornG;
-        ctx.beginPath();
-        ctx.arc(0, hornPulseY, 18 * scale, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (mKey === 'meteor') {
-        const eyeInt = Math.min(1.0, 0.70 + 0.30 * Math.sin(now * 0.012));
-        for (let es = -1; es <= 1; es += 2) {
-          ctx.fillStyle = `rgba(254, 240, 138, ${eyeInt})`;
-          ctx.beginPath();
-          ctx.arc(es * 24 * scale, -72 * scale, 4.5 * scale, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else {
-        const crownG = ctx.createRadialGradient(0, -48 * scale, 0, 0, -48 * scale, 16 * scale);
+        const crownG = ctx.createRadialGradient(0, -48 * scale, 0, 0, -48 * scale, 15 * scale);
         crownG.addColorStop(0.0, '#ffffff');
         crownG.addColorStop(0.5, aCol);
         crownG.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = crownG;
         ctx.beginPath();
-        ctx.arc(0, -48 * scale, 16 * scale, 0, Math.PI * 2);
+        ctx.arc(0, -48 * scale, 15 * scale, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
 
-      // 7. Twin Shoulder Weapons: Strictly hidden while idle; emerge & gimbal ONLY while pressing/using!
+      // 4. Twin Shoulder Weapons: Strictly hidden while idle; emerge & gimbal ONLY while pressing/using!
       const s2Deploy = Boolean(!isPortalPreview && state.tier6Skill2CastUntil && now < state.tier6Skill2CastUntil);
       const isT6UltCast = Boolean(isUltActive && SkillSystem.activeNova && SkillSystem.activeNova.isTier6);
       const gunDeployAlpha = isPortalPreview ? 0 : Math.max(state.gunDeployT || 0, (s2Deploy || isT6UltCast) ? 1.0 : 0);
-      if (gunDeployAlpha > 0.02) {
+      if (gunDeployAlpha > 0.02 && rig.guns) {
         const emergeDrop = (1.0 - gunDeployAlpha) * 20.0;
         const gAlpha = Math.min(1.0, gunDeployAlpha * 1.35);
-        drawPart(rig.cannonL, rig.pivots.cannonL, aimYaw, 1.0, 1.0, 0, recL + emergeDrop, gAlpha);
-        drawPart(rig.cannonR, rig.pivots.cannonR, aimYaw, 1.0, 1.0, 0, recR + emergeDrop, gAlpha);
+        const pivL = rig.cfg.gunPivotL;
+        const pivR = rig.cfg.gunPivotR;
+        const halfW = rig.W * 0.5;
+        ctx.save();
+        ctx.globalAlpha *= gAlpha;
+        ctx.translate((pivL.x - ancX) * scale, (pivL.y - ancY + recL + emergeDrop) * scale);
+        ctx.rotate(aimYaw);
+        ctx.drawImage(rig.guns, 0, 0, halfW, rig.H, -pivL.x * scale, -pivL.y * scale, halfW * scale, rig.H * scale);
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha *= gAlpha;
+        ctx.translate((pivR.x - ancX) * scale, (pivR.y - ancY + recR + emergeDrop) * scale);
+        ctx.rotate(aimYaw);
+        ctx.drawImage(rig.guns, halfW, 0, halfW, rig.H, (halfW - pivR.x) * scale, -pivR.y * scale, halfW * scale, rig.H * scale);
+        ctx.restore();
       }
 
-      // 8. 3D Foreground Half of Orbiting Halo Ring (passes OVER lower skirt/tail for true 3D occlusion!)
+      // 5. 3D Foreground Half of Orbiting Halo Ring (passes OVER lower skirt/tail for true 3D occlusion!)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       ctx.translate(0, ringY);
