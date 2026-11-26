@@ -2327,6 +2327,126 @@
   // 4. Progressive Internal Core Complexity Across Tiers I -> II -> III -> IV
   // 5. Pre-Impact "Magnetic Lock-On" Core Anticipation & Tier IV Harmonic Resonance Flash
   // ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  // CHROME CORE GEOMETRY DATABASE & COMPLETE-WINGS GUARD (v402)
+  // Ensures zero wing clipping at sprite/viewport edges and unified size scaling across all realms & tiers
+  // ─────────────────────────────────────────────────────────────
+  const CORE_GEOMETRY_DB = {
+    version: 'v402_wings_connected_db',
+    refCanvasW: 1024,
+    refCanvasH: 576,
+    wingCanvasW: 512,
+    wingCanvasH: 576,
+    sphereRadiusRef: 168,
+    hingeXRef: 148,
+    tipXRef: { 1: 168, 2: 256, 3: 336, 4: 416, 5: 496 },
+    halfTopRef: { 1: 215, 2: 215, 3: 215, 4: 245, 5: 270 },
+    halfBotRef: { 1: 215, 2: 215, 3: 215, 4: 235, 5: 260 }
+  };
+
+  const CoreGeometryDB = {
+    data: null,
+    load() {
+      if (typeof fetch !== 'function') return;
+      fetch('assets/core-geometry-db.json?v=arcade402_wings_connected_db')
+        .then((r) => (r && r.ok ? r.json() : null))
+        .then((json) => {
+          if (!json || !json.tierMaxTipXRef) return;
+          this.data = json;
+          if (typeof json.hingeXRef === 'number') CORE_GEOMETRY_DB.hingeXRef = json.hingeXRef;
+          if (typeof json.sphereRadiusRef === 'number') CORE_GEOMETRY_DB.sphereRadiusRef = json.sphereRadiusRef;
+          for (let t = 1; t <= 5; t++) {
+            const key = String(t);
+            if (typeof json.tierMaxTipXRef[key] === 'number') {
+              CORE_GEOMETRY_DB.tipXRef[t] = json.tierMaxTipXRef[key];
+            }
+            if (json.models) {
+              let maxTop = CORE_GEOMETRY_DB.halfTopRef[t];
+              let maxBot = CORE_GEOMETRY_DB.halfBotRef[t];
+              ['dynamo', 'helix', 'meteor'].forEach((m) => {
+                const entry = json.models[m] && json.models[m][key];
+                if (entry) {
+                  if (typeof entry.halfTopY === 'number') maxTop = Math.max(maxTop, entry.halfTopY);
+                  if (typeof entry.halfBotY === 'number') maxBot = Math.max(maxBot, entry.halfBotY);
+                }
+              });
+              CORE_GEOMETRY_DB.halfTopRef[t] = maxTop;
+              CORE_GEOMETRY_DB.halfBotRef[t] = maxBot;
+            }
+          }
+        })
+        .catch(() => {});
+    },
+    _interpMetric(map, tierVal) {
+      const c = Math.max(1, Math.min(5, Number.isFinite(tierVal) ? tierVal : 1));
+      const lo = Math.floor(c);
+      const hi = Math.min(5, lo + 1);
+      const frac = c - lo;
+      return map[lo] + (map[hi] - map[lo]) * frac;
+    },
+    computeCoreMetrics(canvasW, canvasH, tier, isTouchMode, customScale = null) {
+      const w = Math.max(240, canvasW || 1280);
+      const h = Math.max(240, canvasH || 720);
+      const isMobile = isTouchMode || w < 600;
+      const baseDrawW = isMobile ? Math.min(w * 0.80, 340) : Math.min(w * 0.64, 780);
+      let u = customScale || (baseDrawW / 1376.0);
+      const tCur = Math.max(1, Math.min(5, Number.isFinite(tier) ? tier : 1));
+      const tipX = this._interpMetric(CORE_GEOMETRY_DB.tipXRef, tCur);
+      const halfTopRef = this._interpMetric(CORE_GEOMETRY_DB.halfTopRef, tCur);
+      const halfBotRef = this._interpMetric(CORE_GEOMETRY_DB.halfBotRef, tCur);
+
+      const hEnv = 1.12;
+      const vEnv = 1.10;
+      let coreImgScale = (68.0 / 150.0) * u;
+      if (!customScale) {
+        const maxAllowedW = w * 0.68;
+        const maxAllowedH = h * 0.34;
+        const curSpanW = tipX * 2 * hEnv * coreImgScale;
+        const curSpanH = (halfTopRef + halfBotRef) * vEnv * coreImgScale;
+        let capFactor = 1.0;
+        if (curSpanW > maxAllowedW && curSpanW > 0) capFactor = Math.min(capFactor, maxAllowedW / curSpanW);
+        if (curSpanH > maxAllowedH && curSpanH > 0) capFactor = Math.min(capFactor, maxAllowedH / curSpanH);
+        if (capFactor < 1.0) {
+          u *= capFactor;
+          coreImgScale = (68.0 / 150.0) * u;
+        }
+      }
+
+      const halfSpanPx = tipX * hEnv * coreImgScale;
+      const halfTopPx = halfTopRef * vEnv * coreImgScale;
+      const halfBotPx = halfBotRef * vEnv * coreImgScale;
+      return {
+        u,
+        coreImgScale,
+        halfSpanPx,
+        halfTopPx,
+        halfBotPx,
+        safePadX: Math.ceil(halfSpanPx + 10),
+        safePadTop: Math.ceil(halfTopPx + 54),
+        safePadBottom: Math.ceil(halfBotPx + 12)
+      };
+    },
+    clampCatcherPosition(rawX, rawY, canvasW, canvasH, tier, isTouchMode, isReflexMode, reflexBottomMargin) {
+      const m = this.computeCoreMetrics(canvasW, canvasH, tier, isTouchMode, null);
+      const minX = m.safePadX;
+      const maxX = Math.max(minX, canvasW - m.safePadX);
+      const clampedX = (minX >= canvasW * 0.5)
+        ? canvasW * 0.5
+        : Math.max(minX, Math.min(maxX, rawX));
+
+      let clampedY;
+      if (isReflexMode) {
+        clampedY = canvasH - reflexBottomMargin;
+      } else {
+        const minY = m.safePadTop;
+        const maxY = Math.max(minY, canvasH - m.safePadBottom);
+        clampedY = (minY >= maxY) ? canvasH * 0.72 : Math.max(minY, Math.min(maxY, rawY));
+      }
+      return { x: clampedX, y: clampedY, metrics: m };
+    }
+  };
+  CoreGeometryDB.load();
+
   const LayeredT4Assets = {
     halo: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     wingRight: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
@@ -2386,12 +2506,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade401_unified_tiers_v5';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade402_wings_connected_db';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade401_unified_tiers_v5';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade402_wings_connected_db';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade401_unified_tiers_v5';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade402_wings_connected_db';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2410,21 +2530,21 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade401_unified_tiers_v5`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade402_wings_connected_db`;
 
     for (let t = 1; t <= 5; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade401_unified_tiers_v5`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade402_wings_connected_db`;
 
       if (t >= 2) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade401_unified_tiers_v5`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade402_wings_connected_db`;
       }
     }
   });
@@ -4253,8 +4373,9 @@
 
       for (let sideIdx = 0; sideIdx < 2; sideIdx++) {
         const dir = (sideIdx === 0) ? 1 : -1; // +1 Right wing, -1 Left wing
-        // === CHANGED (v401): Unified wing root anchor across Dynamo, Helix & Meteor ===
-        const rootInsetX = -2 * coreImgScale;
+        // === CHANGED (v402): Hinge-locked wing pivot strictly inside sphere rim so wings NEVER detach under flap/foreshortening ===
+        const hingeX = CORE_GEOMETRY_DB.hingeXRef * coreImgScale;
+        const rootInsetX = 0;
 
         // ASYMMETRIC DIRECTIONAL KINEMATICS (Left vs Right)
         const dirLead = dir * normVx;
@@ -4275,8 +4396,10 @@
         const finalWingAlpha = Math.max(0, Math.min(1, alphaVal * slipstreamAlpha));
 
         ctx.save();
+        ctx.translate(dir * hingeX, 0);
         ctx.rotate(totalRotation);
         ctx.scale(dir * breathScale * foreshortenX, breathScale * pitch3D);
+        ctx.translate(-hingeX, 0);
 
         // ENHANCEMENT #3: Sub-Feather Depth Layering & Ambient Occlusion (AO) Shadow Underlap
         if (aoSpr && tIdx >= 3) {
@@ -4313,8 +4436,8 @@
           ctx.restore();
         }
 
-        // === CHANGED (v401): Unified exact wingspan bounds (264 / 346 / 428 / 508) ===
-        const maxSpanX = (tIdx === 2 ? 264 : (tIdx === 3 ? 346 : (tIdx === 4 ? 428 : 508))) * coreImgScale;
+        // === CHANGED (v402): Unified exact wingspan bounds matching core-geometry-db.json (256 / 336 / 416 / 496) ===
+        const maxSpanX = (tIdx === 2 ? 256 : (tIdx === 3 ? 336 : (tIdx === 4 ? 416 : 496))) * coreImgScale;
 
         // ENHANCEMENT #4 (v401 Glow Reduced): Delicate Feather Quill Highlights
         const numQuills = (tIdx === 2) ? 2 : (tIdx === 3 ? 4 : (tIdx === 4 ? 5 : 6));
@@ -4420,9 +4543,9 @@
           }
         }
 
-        // 5. Mode-Specific Live Feather Conduits (v401 Unified Span + Reduced Glare)
+        // 5. Mode-Specific Live Feather Conduits (v402 Unified Span + Reduced Glare)
         ctx.lineCap = 'round';
-        const unifiedConduitSpan = (tIdx === 2 ? 105 : (tIdx === 3 ? 185 : (tIdx === 4 ? 265 : 345))) * coreImgScale;
+        const unifiedConduitSpan = (tIdx === 2 ? 96 : (tIdx === 3 ? 176 : (tIdx === 4 ? 256 : 336))) * coreImgScale;
         const conduitStartX = 162 * coreImgScale;
         if (mode === 'dynamo') {
           if (tIdx >= 3 || isUltActive) {
@@ -5517,14 +5640,15 @@
         : ((CoreKinematics && CoreKinematics.continuousTier !== undefined && Math.abs(CoreKinematics.continuousTier - tierIdx) < 1.2) ? CoreKinematics.continuousTier : tierIdx);
       const effDpr = (ctx.canvas && ctx.canvas._renderDpr) ? ctx.canvas._renderDpr : Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
       const canvasW = ctx.canvas.width / effDpr;
+      const canvasH = ctx.canvas.height / effDpr;
       const isMobile = canvasW < 600;
 
-      const drawW = customScale ? (customScale * 1376.0) : (isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060));
-      const u = customScale || (drawW / 1376.0);
+      const coreMetrics = CoreGeometryDB.computeCoreMetrics(canvasW, canvasH, cTier, isMobile, customScale);
+      const u = coreMetrics.u;
       const cySrc = (mode === 'meteor') ? 586.0 : (mode === 'helix' ? 568.0 : 590.0);
 
       // Core 1024x576 reference scale so the central sphere radius (150px in 1024x576) equals 68 * u
-      const coreImgScale = (68.0 / 150.0) * u;
+      const coreImgScale = coreMetrics.coreImgScale;
       const fullRefW = 1024 * coreImgScale;
       const fullRefH = 576 * coreImgScale;
 
@@ -13758,22 +13882,27 @@
     state.catcherX = currentCatcherX;
     state.catcherY = currentCatcherY;
 
-    let catcherPixelX = (deviceInputMode === 'touch')
-      ? Math.max(20, Math.min(w - 20, currentCatcherX * w))
-      : Math.max(55, Math.min(w - 55, currentCatcherX * w));
+    // Cellphone & Mobile Safe-Area Inset + Complete-Wings Viewport Clamping (v402):
+    const isTouchEnv = (deviceInputMode === 'touch');
+    const isCoarse = isTouchEnv || window.innerWidth <= 768;
+    const catcherBottomMargin = isCoarse ? Math.max(185, Math.round(h * 0.24)) : Math.max(160, Math.round(h * 0.26));
+    const clampTier = Math.max(state.coreTier || 1, (CoreKinematics && CoreKinematics.continuousTier) ? CoreKinematics.continuousTier : 1);
+    const clampedPos = CoreGeometryDB.clampCatcherPosition(
+      currentCatcherX * w,
+      currentCatcherY * h,
+      w,
+      h,
+      clampTier,
+      isTouchEnv,
+      state.gameType === 'reflex',
+      catcherBottomMargin
+    );
+    let catcherPixelX = clampedPos.x;
     if (state.prevCatcherPixelX !== null) {
       state.catcherVelocity = catcherPixelX - state.prevCatcherPixelX;
     }
     state.prevCatcherPixelX = catcherPixelX;
-    
-    // Cellphone & Mobile Safe-Area Inset:
-    const isCoarse = (deviceInputMode === 'touch') || window.innerWidth <= 768;
-    const catcherBottomMargin = isCoarse ? Math.max(185, Math.round(h * 0.24)) : Math.max(160, Math.round(h * 0.26));
-    const catcherPixelY = (state.gameType === 'reflex')
-      ? (h - catcherBottomMargin)
-      : (deviceInputMode === 'touch'
-          ? Math.max(20, Math.min(h - 20, currentCatcherY * h))
-          : Math.max(70, Math.min(h - 75, currentCatcherY * h)));
+    const catcherPixelY = clampedPos.y;
 
     // Dynamic Cursor State: In arcade mode, the Chrome Core IS the cursor itself (1:1 ratio)
     if (dom.canvasReflex) {
@@ -14604,12 +14733,12 @@
           }
           currentCatcherX += (targetCatcherX - currentCatcherX) * 0.86;
           state.catcherX = currentCatcherX;
-          catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
+          catcherPixelX = CoreGeometryDB.clampCatcherPosition(currentCatcherX * w, catcherPixelY, w, h, clampTier, isTouchEnv, false, catcherBottomMargin).x;
         } else {
           targetCatcherX = 0.50;
           currentCatcherX += (targetCatcherX - currentCatcherX) * 0.22;
           state.catcherX = currentCatcherX;
-          catcherPixelX = Math.max(55, Math.min(w - 55, currentCatcherX * w));
+          catcherPixelX = CoreGeometryDB.clampCatcherPosition(currentCatcherX * w, catcherPixelY, w, h, clampTier, isTouchEnv, false, catcherBottomMargin).x;
           if (!cs.reseededForShot) {
             cs.reseededForShot = true;
             state.particles = [
@@ -14631,9 +14760,9 @@
       // Render Reactive Ion Thruster Exhaust & Graze Sparks in World Coordinates
       const effDprLoop = cachedCanvasDpr || getRenderDpr();
       const canvasW = ctx.canvas.width / effDprLoop;
+      const canvasH = ctx.canvas.height / effDprLoop;
       const isMobile = canvasW < 600;
-      const drawW = isMobile ? Math.min(canvasW * 0.96, 420) : Math.min(canvasW * 0.86, 1060);
-      const u = drawW / 1376.0;
+      const u = CoreGeometryDB.computeCoreMetrics(canvasW, canvasH, CoreKinematics.continuousTier || state.coreTier, isMobile, null).u;
       CoreKinematics.drawThrusterPlumes(ctx, u);
       CoreKinematics.drawGrazeSparks(ctx, u);
 
@@ -15116,9 +15245,9 @@
       // ─────────────────────────────────────────────────────────────
       // UPDATE & RENDER CELESTIAL FLUX NODES
       // ─────────────────────────────────────────────────────────────
-      // Effective capture hitRadius (scales with Tier: Tier I=54/80, Tier II=+12px, Tier III=+24px)
-      const tierHitBonus = (state.coreTier - 1) * 12;
-      const hitRadius = ((deviceInputMode === 'touch') ? 80 : 54) + tierHitBonus;
+      // Effective capture hitRadius (scaled cleanly to reduced v402 Chrome Core proportions)
+      const tierHitBonus = (state.coreTier - 1) * 10;
+      const hitRadius = ((deviceInputMode === 'touch') ? 68 : 46) + tierHitBonus;
       const innerSweetSpotRadius = hitRadius * 0.40; // Precision Center Catch sweet spot
       const gravRadius = 130 + tierHitBonus;
 
@@ -16974,8 +17103,8 @@
       tierTag: '⚡ TIER V SUPREME ASCENDANT',
       science: 'Faraday–Maxwell Plasma Physics · Branching Lichtenberg Lightning & Chain Induction',
       bestKey: 'oc_best_realm',
-      portalScale: 0.295,
-      portalCy: 0.64,
+      portalScale: 0.245,
+      portalCy: 0.54,
       moteColors: ['#38bdf8', '#c084fc', '#fde68a']
     },
     helix: {
@@ -16983,8 +17112,8 @@
       tierTag: '🧬 TIER V SUPREME ASCENDANT',
       science: 'Quantum Molecular Biogenesis · 3D Photonic DNA Double-Helix & Base-Pair Resonance',
       bestKey: 'oc_best_helix',
-      portalScale: 0.315,
-      portalCy: 0.61,
+      portalScale: 0.245,
+      portalCy: 0.54,
       moteColors: ['#22d3ee', '#e879f9', '#f0f9ff']
     },
     meteor: {
@@ -16992,8 +17121,8 @@
       tierTag: '☄️ TIER V SUPREME ASCENDANT',
       science: 'Hypervelocity Chondritic Ablation · Solar Bow-Shock Fire & Kinetic Slingshot Deflection',
       bestKey: 'oc_best_meteor',
-      portalScale: 0.35,
-      portalCy: 0.60,
+      portalScale: 0.245,
+      portalCy: 0.54,
       moteColors: ['#fde047', '#fb923c', '#f97316']
     }
   };

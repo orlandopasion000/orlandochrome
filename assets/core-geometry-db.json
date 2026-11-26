@@ -1,0 +1,333 @@
+{
+  "version": "v402_wings_connected_db",
+  "refCanvasW": 1024,
+  "refCanvasH": 576,
+  "wingCanvasW": 512,
+  "wingCanvasH": 576,
+  "sphereRadiusRef": 168,
+  "hingeXRef": 148,
+  "tierMaxTipXRef": {
+    "1": 168,
+    "2": 256,
+    "3": 336,
+    "4": 416,
+    "5": 496
+  },
+  "models": {
+    "dynamo": {
+      "1": {
+        "fullW": 337,
+        "fullH": 426,
+        "minY": 76,
+        "maxY": 501,
+        "halfTopY": 212,
+        "halfBotY": 213,
+        "edgeMargins": {
+          "l": 344,
+          "r": 343,
+          "t": 76,
+          "b": 74
+        },
+        "complete": true
+      },
+      "2": {
+        "fullW": 514,
+        "fullH": 426,
+        "wingMinX": 110,
+        "wingMaxX": 256,
+        "eqRootX": 137.0,
+        "minY": 76,
+        "maxY": 501,
+        "halfTopY": 212,
+        "halfBotY": 213,
+        "edgeMargins": {
+          "l": 255,
+          "r": 255,
+          "t": 76,
+          "b": 74
+        },
+        "overlapDepthPx": 17,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "3": {
+        "fullW": 674,
+        "fullH": 426,
+        "wingMinX": 97,
+        "wingMaxX": 336,
+        "eqRootX": 137.0,
+        "minY": 76,
+        "maxY": 501,
+        "halfTopY": 212,
+        "halfBotY": 213,
+        "edgeMargins": {
+          "l": 175,
+          "r": 175,
+          "t": 76,
+          "b": 74
+        },
+        "overlapDepthPx": 16,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "4": {
+        "fullW": 834,
+        "fullH": 510,
+        "wingMinX": 97,
+        "wingMaxX": 416,
+        "eqRootX": 136.0,
+        "minY": 20,
+        "maxY": 529,
+        "halfTopY": 268,
+        "halfBotY": 241,
+        "edgeMargins": {
+          "l": 95,
+          "r": 95,
+          "t": 20,
+          "b": 46
+        },
+        "overlapDepthPx": 17,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "5": {
+        "fullW": 994,
+        "fullH": 480,
+        "wingMinX": 131,
+        "wingMaxX": 496,
+        "eqRootX": 135.0,
+        "minY": 31,
+        "maxY": 510,
+        "halfTopY": 257,
+        "halfBotY": 222,
+        "edgeMargins": {
+          "l": 15,
+          "r": 15,
+          "t": 31,
+          "b": 65
+        },
+        "overlapDepthPx": 48,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      }
+    },
+    "helix": {
+      "1": {
+        "fullW": 337,
+        "fullH": 339,
+        "minY": 119,
+        "maxY": 457,
+        "halfTopY": 169,
+        "halfBotY": 169,
+        "edgeMargins": {
+          "l": 344,
+          "r": 343,
+          "t": 119,
+          "b": 118
+        },
+        "complete": true
+      },
+      "2": {
+        "fullW": 514,
+        "fullH": 339,
+        "wingMinX": 117,
+        "wingMaxX": 256,
+        "eqRootX": 136.0,
+        "minY": 119,
+        "maxY": 457,
+        "halfTopY": 169,
+        "halfBotY": 169,
+        "edgeMargins": {
+          "l": 255,
+          "r": 255,
+          "t": 119,
+          "b": 118
+        },
+        "overlapDepthPx": 15,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "3": {
+        "fullW": 674,
+        "fullH": 339,
+        "wingMinX": 115,
+        "wingMaxX": 336,
+        "eqRootX": 137.0,
+        "minY": 119,
+        "maxY": 457,
+        "halfTopY": 169,
+        "halfBotY": 169,
+        "edgeMargins": {
+          "l": 175,
+          "r": 175,
+          "t": 119,
+          "b": 118
+        },
+        "overlapDepthPx": 16,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "4": {
+        "fullW": 832,
+        "fullH": 388,
+        "wingMinX": 97,
+        "wingMaxX": 415,
+        "eqRootX": 135.0,
+        "minY": 77,
+        "maxY": 464,
+        "halfTopY": 211,
+        "halfBotY": 176,
+        "edgeMargins": {
+          "l": 96,
+          "r": 96,
+          "t": 77,
+          "b": 111
+        },
+        "overlapDepthPx": 17,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "5": {
+        "fullW": 994,
+        "fullH": 481,
+        "wingMinX": 131,
+        "wingMaxX": 496,
+        "eqRootX": 135.0,
+        "minY": 43,
+        "maxY": 523,
+        "halfTopY": 245,
+        "halfBotY": 235,
+        "edgeMargins": {
+          "l": 15,
+          "r": 15,
+          "t": 43,
+          "b": 52
+        },
+        "overlapDepthPx": 53,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      }
+    },
+    "meteor": {
+      "1": {
+        "fullW": 337,
+        "fullH": 348,
+        "minY": 115,
+        "maxY": 462,
+        "halfTopY": 173,
+        "halfBotY": 174,
+        "edgeMargins": {
+          "l": 344,
+          "r": 343,
+          "t": 115,
+          "b": 113
+        },
+        "complete": true
+      },
+      "2": {
+        "fullW": 514,
+        "fullH": 348,
+        "wingMinX": 98,
+        "wingMaxX": 256,
+        "eqRootX": 138.0,
+        "minY": 115,
+        "maxY": 462,
+        "halfTopY": 173,
+        "halfBotY": 174,
+        "edgeMargins": {
+          "l": 255,
+          "r": 255,
+          "t": 115,
+          "b": 113
+        },
+        "overlapDepthPx": 17,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "3": {
+        "fullW": 674,
+        "fullH": 348,
+        "wingMinX": 97,
+        "wingMaxX": 336,
+        "eqRootX": 138.0,
+        "minY": 115,
+        "maxY": 462,
+        "halfTopY": 173,
+        "halfBotY": 174,
+        "edgeMargins": {
+          "l": 175,
+          "r": 175,
+          "t": 115,
+          "b": 113
+        },
+        "overlapDepthPx": 17,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "4": {
+        "fullW": 834,
+        "fullH": 348,
+        "wingMinX": 104,
+        "wingMaxX": 416,
+        "eqRootX": 135.0,
+        "minY": 115,
+        "maxY": 462,
+        "halfTopY": 173,
+        "halfBotY": 174,
+        "edgeMargins": {
+          "l": 95,
+          "r": 95,
+          "t": 115,
+          "b": 113
+        },
+        "overlapDepthPx": 19,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      },
+      "5": {
+        "fullW": 994,
+        "fullH": 418,
+        "wingMinX": 119,
+        "wingMaxX": 496,
+        "eqRootX": 135.0,
+        "minY": 45,
+        "maxY": 462,
+        "halfTopY": 243,
+        "halfBotY": 174,
+        "edgeMargins": {
+          "l": 15,
+          "r": 15,
+          "t": 45,
+          "b": 113
+        },
+        "overlapDepthPx": 18,
+        "gapRestRows": 0,
+        "gapFlapPos10Rows": 0,
+        "gapFlapNeg10Rows": 0,
+        "complete": true
+      }
+    }
+  }
+}
