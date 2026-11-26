@@ -2408,7 +2408,7 @@
   // Ensures zero wing clipping at sprite/viewport edges and unified size scaling across all realms & tiers
   // ─────────────────────────────────────────────────────────────
   const CORE_GEOMETRY_DB = {
-    version: 'v406_tier6_grand_3d',
+    version: 'v408_tier6_showcase',
     refCanvasW: 1024,
     refCanvasH: 576,
     wingCanvasW: 512,
@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade407_strip_mesh')
+      fetch('assets/core-geometry-db.json?v=arcade408_tier6_showcase')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2609,6 +2609,7 @@
     coreTierSprites: { dynamo: {}, helix: {}, meteor: {} },
     coreT6Body: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     coreT6Guns: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    coreT6Showcase: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     wingRightTiers: { dynamo: {}, helix: {}, meteor: {} },
     bezelT5: { dynamo: new Image(), helix: new Image() },
     helixGlassShell: new Image(),
@@ -2631,6 +2632,7 @@
       coreTierSprites: { dynamo: {}, helix: {}, meteor: {} },
       coreT6Body: { dynamo: false, helix: false, meteor: false },
       coreT6Guns: { dynamo: false, helix: false, meteor: false },
+      coreT6Showcase: { dynamo: false, helix: false, meteor: false },
       wingRightTiers: { dynamo: {}, helix: {}, meteor: {} },
       bezelT5: { dynamo: false, helix: false },
       helixGlassShell: false,
@@ -2661,12 +2663,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade407_strip_mesh';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade408_tier6_showcase';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade407_strip_mesh';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade408_tier6_showcase';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade407_strip_mesh';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade408_tier6_showcase';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2685,27 +2687,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade407_strip_mesh`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade408_tier6_showcase`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade407_strip_mesh`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade408_tier6_showcase`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade407_strip_mesh`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade408_tier6_showcase`;
+
+    LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade408_tier6_showcase`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade407_strip_mesh`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade408_tier6_showcase`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade407_strip_mesh`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade408_tier6_showcase`;
       }
     }
   });
@@ -5965,9 +5970,9 @@
       const cached = this._tier6RigCache[mKey];
       if (cached && cached.hasSplitLayers === (bodyOk && gunsOk)) return cached;
 
-      const spr = bodyOk ? bodySpr : (LayeredT4Assets.coreTierSprites[mKey] && LayeredT4Assets.coreTierSprites[mKey][6]);
-      const sprLoaded = bodyOk || (LayeredT4Assets.loaded.coreTierSprites[mKey] && LayeredT4Assets.loaded.coreTierSprites[mKey][6]);
-      if (!spr || !sprLoaded) return null;
+      // Strictly require weaponless coreT6Body so idle In-Game Model never renders shoulder weapons
+      if (!bodyOk || !bodySpr) return null;
+      const spr = bodySpr;
 
       const W = 1024, H = 682;
       const cfgMap = {
@@ -6068,9 +6073,49 @@
       return true;
     },
 
-    // Playable Tier VI Seamless Strip-Mesh 3D Model Renderer (Meteor Dragon · Helix Unicorn · Dynamo Princess)
+    // Character Showcase Render (Three-Quarter Front Presentation View: Face, Crystal Horn/Crown, Wings & Armor)
+    drawCharacterShowcase(ctx, mode, cx, cy, maxW, maxH, now) {
+      const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+      const scImg = LayeredT4Assets.coreT6Showcase && LayeredT4Assets.coreT6Showcase[mKey];
+      const scOk = !!(LayeredT4Assets.loaded.coreT6Showcase && LayeredT4Assets.loaded.coreT6Showcase[mKey] && scImg && scImg.naturalWidth > 0);
+      if (!scOk) {
+        this._drawLayeredWingedCore(ctx, mKey, cx, cy, now, 5, 0.23, true, true);
+        return false;
+      }
+
+      const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+      const levY = Math.sin(now * 0.0028) * 3.2 * motionMult;
+      const breath = 1.0 + Math.sin(now * 0.0036) * 0.012 * motionMult;
+      const fitScale = Math.min(maxW / scImg.naturalWidth, maxH / scImg.naturalHeight) * breath;
+      const dw = scImg.naturalWidth * fitScale;
+      const dh = scImg.naturalHeight * fitScale;
+
+      ctx.save();
+      ctx.translate(cx, cy + levY);
+
+      // Subtle presentation backlight aura behind the three-quarter Showcase Render
+      const glowSpr = this._getGlowSprite(mKey === 'meteor' ? 'amber' : (mKey === 'helix' ? 'helix' : 'violet'));
+      if (glowSpr) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.42;
+        const gr = Math.min(dw, dh) * 0.78;
+        ctx.drawImage(glowSpr, -gr, -gr * 0.85, gr * 2, gr * 1.7);
+        ctx.restore();
+      }
+
+      ctx.drawImage(scImg, -dw * 0.5, -dh * 0.5, dw, dh);
+      ctx.restore();
+      return true;
+    },
+
+    // Playable Tier VI Seamless Strip-Mesh 3D In-Game Model Renderer (Centered Rear Gameplay View)
     _drawTier6Character(ctx, mode, cx, cy, u, now, isPortalPreview = false, opts = null) {
       const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+      if (isPortalPreview) {
+        this.drawCharacterShowcase(ctx, mKey, cx, cy, 250 * u, 168 * u, now);
+        return;
+      }
       const rig = this._getTier6ArticulatedRig(mKey);
       if (!rig || !rig.body) {
         this._drawLayeredWingedCore(ctx, mKey, cx, cy, now, 5, null, isPortalPreview, true);
@@ -11851,19 +11896,19 @@
         ? isGunTouchHeld
         : !!(state.pointerFiring || isKeyAHeld);
 
-      if (isFiringActive) {
-        state.gunDeployT = 1.0;
-      } else {
-        const retractStep = 0.35 * Math.max(0.5, Math.min(2.5, dtScale || 1));
-        state.gunDeployT = Math.max(0, (state.gunDeployT || 0) - retractStep);
-      }
-
       // Flash red when holding gun at 0 ammo WITHOUT dropping the held touch pointer!
       if ((isGunTouchHeld || isKeyAHeld) && (state.coreAmmo || 0) <= 0) {
         TouchFireControls.flashEmpty();
       }
 
       const wantsFire = isFiringActive && (state.coreAmmo || 0) > 0 && state.roundPhase !== 'cleared';
+      // Strictly hide weapons while idle (including 0-ammo dry holds); show ONLY while firing or casting!
+      if (wantsFire) {
+        state.gunDeployT = 1.0;
+      } else {
+        const retractStep = 0.35 * Math.max(0.5, Math.min(2.5, dtScale || 1));
+        state.gunDeployT = Math.max(0, (state.gunDeployT || 0) - retractStep);
+      }
       const tier = state.coreTier || 1;
       const cTier = (CoreKinematics && CoreKinematics.continuousTier !== undefined) ? CoreKinematics.continuousTier : tier;
       const fireInterval = (isTouchMode || isKeyAHeld)
@@ -13847,6 +13892,7 @@
       state.coreTier = nextTier;
       state.isOverdrive = (nextTier >= 4);
     }
+    state.maxTierReached = Math.max(state.maxTierReached || 1, state.coreTier || 1);
     state.prevEvaluatedCombo = c;
   }
 
@@ -14284,7 +14330,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/btn-obj-dynamo-4k.png?v=arcade384',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade408_tier6_showcase',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -14295,7 +14341,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/btn-obj-helix-4k.png?v=arcade384',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade408_tier6_showcase',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -14306,7 +14352,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/btn-obj-meteor-4k.png?v=arcade384',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade408_tier6_showcase',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
@@ -14319,13 +14365,13 @@
       const rnd = state.currentRound || 1;
       const peakTier = Math.max(state.maxTierReached || 1, state.coreTier || 1);
       const peakCombo = Math.max(state.maxComboReached || 1, state.combo || 1);
-      const tierRoman = { 1: 'TIER I', 2: 'TIER II', 3: 'TIER III', 4: 'TIER IV', 5: 'TIER V' }[peakTier] || 'TIER I';
+      const tierRoman = { 1: 'TIER I', 2: 'TIER II', 3: 'TIER III', 4: 'TIER IV', 5: 'TIER V', 6: 'TIER VI' }[peakTier] || 'TIER I';
       const nodesCaught = state.nodesCaughtTotal || 0;
       const bossesSlain = state.bossesDefeated || 0;
 
       // Calculate Combat Sortie Rank (S+ / S / A / B / C)
       let grade = 'C', gradeCls = 'oc-go-grade-c';
-      if (rnd >= 5 || state.score >= 50000 || bossesSlain >= 4) { grade = 'S+'; gradeCls = 'oc-go-grade-splus'; }
+      if (rnd >= 5 || state.score >= 50000 || bossesSlain >= 4 || peakTier >= 6) { grade = 'S+'; gradeCls = 'oc-go-grade-splus'; }
       else if (rnd >= 3 || state.score >= 22000 || peakTier >= 5 || bossesSlain >= 2) { grade = 'S'; gradeCls = 'oc-go-grade-s'; }
       else if (rnd >= 2 || state.score >= 9000 || peakTier >= 4 || bossesSlain >= 1) { grade = 'A'; gradeCls = 'oc-go-grade-a'; }
       else if (state.score >= 3000 || peakTier >= 2 || nodesCaught >= 10) { grade = 'B'; gradeCls = 'oc-go-grade-b'; }
@@ -14357,7 +14403,10 @@
       if (statusChip) statusChip.style.display = 'inline-flex';
       if (statusText) statusText.textContent = cfg.status;
       if (defGlyph) defGlyph.style.display = 'none';
-      if (realmEmbWrap) realmEmbWrap.style.display = 'flex';
+      if (realmEmbWrap) {
+        realmEmbWrap.style.display = 'flex';
+        realmEmbWrap.classList.add('oc-showcase-stage');
+      }
       if (realmEmbImg) realmEmbImg.src = cfg.emblem;
       if (recBadge) recBadge.classList.toggle('show', isNewRecord);
       if (telemetry) telemetry.style.display = 'grid';
@@ -17952,30 +18001,30 @@
 (function initLuxuryRealmLauncherButtons() {
   const REALM_META = {
     dynamo: {
-      title: 'CHROME DYNAMO · SERAPHIC ARCHON',
-      tierTag: '⚡ TIER V SUPREME ASCENDANT',
-      science: 'Faraday–Maxwell Plasma Physics · Branching Lichtenberg Lightning & Chain Induction',
+      title: 'CHROME DYNAMO · DYNAMO PRINCESS',
+      tierTag: '⚡ TIER VI SHOWCASE',
+      science: 'Faraday–Maxwell Plasma Physics · Crystal Wings, Twin Tesla Cannons & Storm Astrolabe',
       bestKey: 'oc_best_realm',
       portalScale: 0.245,
-      portalCy: 0.54,
+      portalCy: 0.53,
       moteColors: ['#38bdf8', '#c084fc', '#fde68a']
     },
     helix: {
-      title: 'CHROME HELIX · PRISM ARCHON',
-      tierTag: '🧬 TIER V SUPREME ASCENDANT',
-      science: 'Quantum Molecular Biogenesis · 3D Photonic DNA Double-Helix & Base-Pair Resonance',
+      title: 'CHROME HELIX · HELIX UNICORN',
+      tierTag: '🧬 TIER VI SHOWCASE',
+      science: 'Quantum Molecular Biogenesis · Cyan Crystal Horn, Iridescent Wings & Chiral Prism',
       bestKey: 'oc_best_helix',
       portalScale: 0.245,
-      portalCy: 0.54,
+      portalCy: 0.53,
       moteColors: ['#22d3ee', '#e879f9', '#f0f9ff']
     },
     meteor: {
-      title: 'CHROME METEOR · MAGNETAR SERAPH',
-      tierTag: '☄️ TIER V SUPREME ASCENDANT',
-      science: 'Hypervelocity Chondritic Ablation · Solar Bow-Shock Fire & Kinetic Slingshot Deflection',
+      title: 'CHROME METEOR · METEOR DRAGON',
+      tierTag: '☄️ TIER VI SHOWCASE',
+      science: 'Hypervelocity Chondritic Ablation · Volcanic Armor, Magma Wings & Caldera Breath',
       bestKey: 'oc_best_meteor',
       portalScale: 0.245,
-      portalCy: 0.54,
+      portalCy: 0.53,
       moteColors: ['#fde047', '#fb923c', '#f97316']
     }
   };
@@ -18023,7 +18072,7 @@
     const pBest = document.getElementById('ocPortalBest');
 
     const PORTAL_W = 266;
-    const PORTAL_H = 140;
+    const PORTAL_H = 176;
     let portalDpr = 1;
     function syncPortalCanvasSize() {
       if (!pCanvas) return;
@@ -18073,18 +18122,16 @@
       }
       pCtx.restore();
 
-      // Render the REAL Seamless Tier V Hexa-Wing Supreme Ascendant Archon (ZERO vertical seam!)
-      if (window.QuantumRenderer && typeof window.QuantumRenderer._drawLayeredWingedCore === 'function') {
-        const levY = Math.sin(now * 0.0028) * 2.4;
-        window.QuantumRenderer._drawLayeredWingedCore(
+      // Presentation View: Render full-body three-quarter Tier VI Character Showcase Render!
+      if (window.QuantumRenderer && typeof window.QuantumRenderer.drawCharacterShowcase === 'function') {
+        window.QuantumRenderer.drawCharacterShowcase(
           pCtx,
           activeHoverRealm,
           w * 0.5,
-          h * (meta.portalCy || 0.60) + levY,
-          now,
-          5,
-          meta.portalScale,
-          true
+          h * (meta.portalCy || 0.53),
+          w * 0.94,
+          h * 0.88,
+          now
         );
       }
       pCtx.restore();

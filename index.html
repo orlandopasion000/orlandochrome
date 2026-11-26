@@ -1968,7 +1968,7 @@
     }
     .oc-portal-stage {
       position: relative !important;
-      height: 140px !important;
+      height: 176px !important;
       margin-bottom: 9px !important;
       overflow: hidden !important;
       border-radius: 12px !important;
@@ -2216,6 +2216,40 @@
       max-width: none !important;
       object-fit: cover !important;
       filter: saturate(1.12) contrast(1.06) !important;
+    }
+    @keyframes ocShowcaseFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    .oc-go-emblem-wrap.oc-showcase-stage {
+      width: 232px !important;
+      height: 154px !important;
+      margin: 0 auto 8px !important;
+    }
+    .oc-go-emblem-wrap.oc-showcase-stage .oc-go-emblem-ring,
+    .oc-go-emblem-wrap.oc-showcase-stage .oc-go-emblem-ring-inner {
+      display: none !important;
+    }
+    .oc-go-emblem-wrap.oc-showcase-stage .oc-go-emblem-clip {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 14px !important;
+      overflow: visible !important;
+      background: radial-gradient(ellipse at 50% 54%, rgba(139, 92, 246, 0.22) 0%, rgba(0, 0, 0, 0) 70%) !important;
+      box-shadow: none !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="helix"] .oc-go-emblem-wrap.oc-showcase-stage .oc-go-emblem-clip {
+      background: radial-gradient(ellipse at 50% 54%, rgba(34, 211, 238, 0.22) 0%, rgba(0, 0, 0, 0) 70%) !important;
+    }
+    #cgScreenOverlay.oc-realm-overlay[data-realm="meteor"] .oc-go-emblem-wrap.oc-showcase-stage .oc-go-emblem-clip {
+      background: radial-gradient(ellipse at 50% 54%, rgba(249, 115, 22, 0.25) 0%, rgba(0, 0, 0, 0) 70%) !important;
+    }
+    .oc-go-emblem-wrap.oc-showcase-stage .oc-go-emblem-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+      animation: ocShowcaseFloat 3.4s ease-in-out infinite !important;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65)) saturate(1.06) !important;
     }
 
     /* Record Badge & Boss Near-Miss Callout */
@@ -2678,7 +2712,7 @@
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-dynamo" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <span class="oc-realm-orb-clip"><img src="assets/core-dynamo-t5.png?v=arcade407_strip_mesh" alt="" class="oc-realm-orb-img" /></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-dynamo-t5.png?v=arcade408_tier6_showcase" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">DYNAMO</span>
         </button>
@@ -2687,7 +2721,7 @@
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-helix" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <span class="oc-realm-orb-clip"><img src="assets/core-helix-t5.png?v=arcade407_strip_mesh" alt="" class="oc-realm-orb-img" /></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-helix-t5.png?v=arcade408_tier6_showcase" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">HELIX</span>
         </button>
@@ -2696,7 +2730,7 @@
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-meteor" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <span class="oc-realm-orb-clip"><img src="assets/core-meteor-t5.png?v=arcade407_strip_mesh" alt="" class="oc-realm-orb-img" /></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-meteor-t5.png?v=arcade408_tier6_showcase" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">METEOR</span>
         </button>
@@ -3144,7 +3178,7 @@
                 <span class="oc-go-emblem-ring"></span>
                 <span class="oc-go-emblem-ring-inner"></span>
                 <span class="oc-go-emblem-clip">
-                  <img id="cgRealmEmblemImg" class="oc-go-emblem-img" src="assets/core-dynamo-t5.png?v=arcade407_strip_mesh" alt="" />
+                  <img id="cgRealmEmblemImg" class="oc-go-emblem-img" src="assets/core-dynamo-t6-showcase.png?v=arcade408_tier6_showcase" alt="" />
                 </span>
               </div>
 
@@ -3280,7 +3314,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade407_strip_mesh"></script>
+  <script src="game.js?v=arcade408_tier6_showcase"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 
 </body>
