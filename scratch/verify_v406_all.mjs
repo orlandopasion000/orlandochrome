@@ -48,7 +48,7 @@ function startStaticServer() {
       if (err) {
         res.writeHead(404);
         res.end('Not found');
-        if (!cleanUrl.includes('favicon')) httpErrors.push(`404 ${req.url}`);
+        if (!cleanUrl.includes('favicon') && !cleanUrl.startsWith('/avatars/')) httpErrors.push(`404 ${req.url}`);
         return;
       }
       const ext = path.extname(filePath).toLowerCase();
@@ -159,6 +159,8 @@ async function main() {
     await cdp.send('Runtime.enable');
     await cdp.send('Log.enable');
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
+    await cdp.send('Emulation.setFocusEmulationEnabled', { enabled: true });
+    await cdp.send('Page.bringToFront');
 
     cdp.ws.addEventListener('message', (ev) => {
       const msg = JSON.parse(ev.data);
@@ -199,9 +201,25 @@ async function main() {
         window._v406CanvasTexts = [];
         return true;
       })()`);
-      // Move pointer to upper-center safe position so ship sits cleanly mid-frame
-      await cdp.eval(`(() => { window.chromeSynapseGame.setPointerX(0.5); window.chromeSynapseGame.setPointerY(0.66); })()`);
+      // Ensure target tier & upper-center safe position so ship sits cleanly mid-frame
+      await cdp.eval(`(() => { window.chromeSynapseGame.setTier(${tier}, false); window.chromeSynapseGame.setPointerX(0.5); window.chromeSynapseGame.setPointerY(0.66); })()`);
       await sleep(300);
+    }
+
+    async function waitForGunState(expectActive) {
+      const deadline = Date.now() + 1200;
+      let last = null;
+      while (Date.now() < deadline) {
+        last = await cdp.eval(`(() => {
+          const s = window.chromeSynapseGame.getState();
+          return { gunDeployT: s.gunDeployT || 0, shots: s.playerShots.length, offenseMode: s.offenseMode };
+        })()`);
+        if (expectActive ? (last.gunDeployT >= 0.95 && last.shots > 0) : (last.gunDeployT <= 0.02)) {
+          return last;
+        }
+        await sleep(50);
+      }
+      return last;
     }
 
     // 1. Meteor T2 & T3 Clean Sphere Verification
@@ -216,23 +234,16 @@ async function main() {
       if (st.gunDeployT > 0.02) failures.push(`Meteor T${tier} gunDeployT=${st.gunDeployT} while idle`);
       if (st.texts.length > 0) failures.push(`Meteor T${tier} drew unexpected canvas texts: ${st.texts.join(', ')}`);
       await cdp.screenshot(path.join(SCRATCH_DIR, `v406_meteor_t${tier}.png`));
+      await sleep(80);
 
       // Verify [A] shows guns, release hides guns
       await cdp.key('keyDown', 'KeyA', 'a', 65);
-      await sleep(320);
-      const firingSt = await cdp.eval(`(() => {
-        const s = window.chromeSynapseGame.getState();
-        return { gunDeployT: s.gunDeployT, shots: s.playerShots.length };
-      })()`);
+      const firingSt = await waitForGunState(true);
       if (tier === 3) await cdp.screenshot(path.join(SCRATCH_DIR, 'v406_meteor_t3_fireA.png'));
       await cdp.key('keyUp', 'KeyA', 'a', 65);
-      await sleep(420);
-      const releaseSt = await cdp.eval(`(() => {
-        const s = window.chromeSynapseGame.getState();
-        return { gunDeployT: s.gunDeployT, offenseMode: s.offenseMode };
-      })()`);
+      const releaseSt = await waitForGunState(false);
       console.log(`[CHECK Meteor T${tier} Gun A] fire=${JSON.stringify(firingSt)} release=${JSON.stringify(releaseSt)}`);
-      if (firingSt.gunDeployT < 0.85 || firingSt.shots <= 0) failures.push(`Meteor T${tier} KeyA did not deploy/fire`);
+      if (firingSt.gunDeployT < 0.95 || firingSt.shots <= 0) failures.push(`Meteor T${tier} KeyA did not deploy/fire`);
       if (releaseSt.gunDeployT > 0.02) failures.push(`Meteor T${tier} gun failed to retract on release (${releaseSt.gunDeployT})`);
     }
 
@@ -247,14 +258,12 @@ async function main() {
     if (stickyCheck !== false) failures.push('offenseMode should remain false after [E] and pill click');
 
     await cdp.key('keyDown', 'KeyF', 'f', 70);
-    await sleep(320);
-    const holdF = await cdp.eval(`(() => { const s = window.chromeSynapseGame.getState(); return { g: s.gunDeployT, sh: s.playerShots.length }; })()`);
+    const holdF = await waitForGunState(true);
     await cdp.key('keyUp', 'KeyF', 'f', 70);
-    await sleep(420);
-    const relF = await cdp.eval(`(() => { const s = window.chromeSynapseGame.getState(); return { g: s.gunDeployT, om: s.offenseMode }; })()`);
+    const relF = await waitForGunState(false);
     console.log(`[CHECK KeyF Hold] hold=${JSON.stringify(holdF)} release=${JSON.stringify(relF)}`);
-    if (holdF.g < 0.85 || holdF.sh <= 0) failures.push('KeyF did not hold-fire');
-    if (relF.g > 0.02 || relF.om !== false) failures.push('KeyF stuck active after keyUp');
+    if (holdF.gunDeployT < 0.95 || holdF.shots <= 0) failures.push('KeyF did not hold-fire');
+    if (relF.gunDeployT > 0.02 || relF.offenseMode !== false) failures.push('KeyF stuck active after keyUp');
 
     // 3. Tier VI All 3 Modes: Idle vs Firing [A] vs Grand 3D Ultimate [D] + CPU Timing
     for (const mode of ['meteor', 'helix', 'dynamo']) {
@@ -270,21 +279,18 @@ async function main() {
         return { tier: s.coreTier, gunDeployT: s.gunDeployT || 0, texts: window._v406CanvasTexts.slice() };
       })()`);
       await cdp.screenshot(path.join(SCRATCH_DIR, `v406_${mode}_t6_idle.png`));
+      await sleep(80);
       if (t6Idle.tier !== 6) failures.push(`${mode} failed to set Tier 6`);
       if (t6Idle.gunDeployT > 0.02) failures.push(`${mode} T6 idle gunDeployT=${t6Idle.gunDeployT}`);
       if (t6Idle.texts.length > 0) failures.push(`${mode} T6 idle drew canvas texts: ${t6Idle.texts.join(', ')}`);
 
       // Hold [A] to deploy twin Tier VI shoulder guns
       await cdp.key('keyDown', 'KeyA', 'a', 65);
-      await sleep(320);
-      const t6Fire = await cdp.eval(`(() => {
-        const s = window.chromeSynapseGame.getState();
-        return { gunDeployT: s.gunDeployT, shots: s.playerShots.length };
-      })()`);
+      const t6Fire = await waitForGunState(true);
       await cdp.screenshot(path.join(SCRATCH_DIR, `v406_${mode}_t6_fireA.png`));
       await cdp.key('keyUp', 'KeyA', 'a', 65);
-      await sleep(420);
-      if (t6Fire.gunDeployT < 0.85 || t6Fire.shots <= 0) failures.push(`${mode} T6 [A] failed to deploy/fire`);
+      await waitForGunState(false);
+      if (t6Fire.gunDeployT < 0.95 || t6Fire.shots <= 0) failures.push(`${mode} T6 [A] failed to deploy/fire`);
 
       // Cast [D] Grand 3D Tier VI Ultimate + Benchmark CPU time
       await cdp.eval(`window._v406FrameSamples = []; window._v406MeasureActive = true; window._v406CanvasTexts = [];`);

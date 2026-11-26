@@ -1,44 +1,50 @@
 /* OrlandoChrome · Offline-First Service Worker (PWA Ready) */
-const CACHE_NAME = 'orlandochrome-arcade-v405_smooth_zero_lag';
+const CACHE_NAME = 'orlandochrome-arcade-v406_tier6_grand_3d';
 const ASSETS = [
   './',
   './index.html',
   './styles.css?v=arcade392_arsenal_overhaul',
-  './game.js?v=arcade406_tier6_3d_articulated',
-  './assets/core-geometry-db.json?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-t1.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-t2.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-t3.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-t4.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-t6.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-t1.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-t2.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-t3.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-t4.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-t6.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-t1.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-t2.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-t3.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-t4.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-t6.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-wing-r-t2.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-wing-r-t3.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-wing-r-t4.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-wing-r-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-wing-r-t2.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-wing-r-t3.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-wing-r-t4.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-wing-r-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-wing-r-t2.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-wing-r-t3.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-wing-r-t4.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-meteor-wing-r-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-dynamo-bezel-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-bezel-t5.png?v=arcade406_tier6_3d_articulated',
-  './assets/core-helix-glass-shell.png?v=arcade406_tier6_3d_articulated',
+  './game.js?v=arcade406_tier6_grand_3d',
+  './assets/core-geometry-db.json?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t1.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t2.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t3.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t4.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t6.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t6-body.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-t6-guns.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t1.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t2.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t3.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t4.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t6.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t6-body.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-t6-guns.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t1.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t2.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t3.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t4.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t6.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t6-body.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-t6-guns.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-wing-r-t2.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-wing-r-t3.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-wing-r-t4.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-wing-r-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-wing-r-t2.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-wing-r-t3.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-wing-r-t4.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-wing-r-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-wing-r-t2.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-wing-r-t3.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-wing-r-t4.png?v=arcade406_tier6_grand_3d',
+  './assets/core-meteor-wing-r-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-dynamo-bezel-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-bezel-t5.png?v=arcade406_tier6_grand_3d',
+  './assets/core-helix-glass-shell.png?v=arcade406_tier6_grand_3d',
   './assets/voidbloom-3d.png?v=arcade388_voidbloom3d',
   './assets/boss-r1-sentinel.png?v=arcade389_boss_nova',
   './assets/boss-r2-corruptor.png?v=arcade389_boss_nova',
@@ -99,7 +105,7 @@ self.addEventListener('fetch', (event) => {
   // Navigation requests: always fetch fresh from network to prevent stale HTML
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-cache' })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
@@ -111,7 +117,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'no-cache' })
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
