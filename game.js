@@ -2408,7 +2408,7 @@
   // Ensures zero wing clipping at sprite/viewport edges and unified size scaling across all realms & tiers
   // ─────────────────────────────────────────────────────────────
   const CORE_GEOMETRY_DB = {
-    version: 'v404_tier6_hatching',
+    version: 'v405_smooth_zero_lag',
     refCanvasW: 1024,
     refCanvasH: 576,
     wingCanvasW: 512,
@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade404_tier6_hatching')
+      fetch('assets/core-geometry-db.json?v=arcade405_smooth_zero_lag')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2657,12 +2657,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade404_tier6_hatching';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade405_smooth_zero_lag';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade404_tier6_hatching';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade405_smooth_zero_lag';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade404_tier6_hatching';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade405_smooth_zero_lag';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2681,21 +2681,21 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade404_tier6_hatching`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade405_smooth_zero_lag`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade404_tier6_hatching`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade405_smooth_zero_lag`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade404_tier6_hatching`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade405_smooth_zero_lag`;
       }
     }
   });
@@ -3630,13 +3630,6 @@
                 if (state.pulseMeter >= 100) state.isPulseReady = true;
               }
               this.triggerGraze(pt.x, pt.y, now);
-              state.floatingTexts.push({
-                x: pt.x, y: pt.y,
-                text: wasChargingCorruptor ? '+450 SALVO INTERRUPTED!' : (isApex ? `+${bonusPts} THREAT VAPORIZED` : '+200 NEUTRALIZED'),
-                color: wasChargingCorruptor ? '#fbbf24' : blastColor,
-                alpha: 1.0,
-                startTime: now
-              });
               audio.playMissileHit();
               updateHeaderUI();
             } else {
@@ -3665,14 +3658,6 @@
                 audio.playCorrectChime(state.combo);
               }
 
-              state.floatingTexts.push({
-                x: pt.x, y: pt.y,
-                text: `COMBO ${state.combo}x (+${pts})`,
-                color: blastColor,
-                alpha: 1.0,
-                startTime: now
-              });
-
               if (pt.nodeClass === 'cluster') {
                 state.applyBuff('cluster', '2X CLUSTER', '#38bdf8', '✨', 5000, now);
               } else if (pt.nodeClass === 'supercharge') {
@@ -3682,9 +3667,11 @@
               } else if (pt.nodeClass === 'singularity') {
                 state.applyBuff('singularity', 'GRAVITON VACUUM', '#38bdf8', '🧲', 3500, now);
               } else if (pt.nodeClass === 'catalyst') {
-                const targetTierCombo = { 2: 7, 3: 14, 4: 21, 5: 28 };
-                state.coreTier = Math.min(5, state.coreTier + 1);
-                state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
+                const targetTierCombo = { 2: 7, 3: 14, 4: 21, 5: 28, 6: 50 };
+                if (state.coreTier < 5) {
+                  state.coreTier = Math.min(5, state.coreTier + 1);
+                  state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
+                }
                 state.isOverdrive = (state.coreTier >= 4);
                 state.reflexLives = Math.min(3, state.reflexLives + 1);
                 renderReflexShields();
@@ -3718,234 +3705,50 @@
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = 'lighter';
 
-      // 1. High-Visibility Enveloping Spherical Dome
       const baseRadius = Math.max(92, 142 * u);
-      const pulse = 1.0 + 0.045 * Math.sin(now * 0.008);
+      const pulse = 1.0 + 0.03 * Math.sin(now * 0.008);
       const r = baseRadius * pulse;
-      const rot = now * 0.0028;
-
-      // Warning pulse when < 1.2s remaining
       const isExpiring = timeLeft < 1200;
       const warnPulse = isExpiring ? (0.5 + 0.5 * Math.sin(now * 0.025)) : 1.0;
-      const secondsLeft = Math.max(0, (timeLeft / 1000)).toFixed(1);
 
-      if (mode === 'dynamo' || mode === 'realm') {
-        // ─── CHROME DYNAMO: QUANTUM FARADAY CAGE AEGIS ───
-        // High-frequency electromagnetic containment grid & perimeter lightning
-        const grad = ctx.createRadialGradient(0, 0, r * 0.40, 0, 0, r * 1.08);
-        grad.addColorStop(0.0, 'rgba(0, 240, 255, 0.03)');
-        grad.addColorStop(0.60, `rgba(56, 189, 248, ${0.16 * warnPulse})`);
-        grad.addColorStop(0.85, `rgba(14, 165, 233, ${0.30 * warnPulse})`);
-        grad.addColorStop(0.96, `rgba(224, 242, 254, ${0.60 * warnPulse})`);
-        grad.addColorStop(1.0, 'rgba(56, 189, 248, 0.0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
-        ctx.fill();
+      const isDyn = (mode === 'dynamo' || mode === 'realm');
+      const isHel = (mode === 'helix');
+      const sprKey = isDyn ? 'cyan' : (isHel ? 'helix' : 'amber');
+      const ringCol = isDyn ? `rgba(56, 189, 248, ${0.88 * warnPulse})` : (isHel ? `rgba(34, 211, 238, ${0.88 * warnPulse})` : `rgba(251, 191, 36, ${0.90 * warnPulse})`);
+      const innerCol = isDyn ? `rgba(192, 132, 252, ${0.58 * warnPulse})` : (isHel ? `rgba(110, 231, 183, ${0.58 * warnPulse})` : `rgba(249, 115, 22, ${0.65 * warnPulse})`);
 
-        // 4 Rotating Electromagnetic Faraday Latitudinal Rings
-        for (let l = -2; l <= 2; l++) {
-          const yOff = (l / 2.5) * (r * 0.72);
-          const latR = Math.sqrt(Math.max(0, r * r - yOff * yOff));
-          ctx.save();
-          ctx.translate(0, yOff);
-          ctx.beginPath();
-          ctx.ellipse(0, 0, latR, latR * 0.36, rot * (l % 2 === 0 ? 1 : -1), 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(103, 232, 249, ${(0.55 + 0.35 * Math.abs(l / 2.5)) * warnPulse})`;
-          ctx.lineWidth = 1.8 * Math.max(0.7, u);
-          ctx.stroke();
+      // 1. Pre-baked GPU halo blit (zero per-frame gradient allocation!)
+      ctx.globalAlpha = 0.35 * warnPulse;
+      ctx.drawImage(QuantumRenderer._getGlowSprite(sprKey), -r * 1.1, -r * 1.1, r * 2.2, r * 2.2);
+      ctx.globalAlpha = 1.0;
 
-          // Induction Polar Vertices
-          for (let v = 0; v < 4; v++) {
-            const va = rot * (l % 2 === 0 ? 1 : -1) + v * (Math.PI / 2);
-            const vx = Math.cos(va) * latR;
-            const vy = Math.sin(va) * latR * 0.36;
-            ctx.beginPath();
-            ctx.arc(vx, vy, 2.2 * Math.max(0.7, u), 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-          }
-          ctx.restore();
-        }
+      // 2. Crisp solid outer containment ring
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = ringCol;
+      ctx.lineWidth = 3.0;
+      ctx.stroke();
 
-        // Surface-Crawling Faraday Electrical Arcs
-        const numArcs = 5;
-        for (let a = 0; a < numArcs; a++) {
-          const arcBase = now * 0.0055 + a * (Math.PI * 2 / numArcs);
-          const arcSpan = 0.75 + 0.25 * Math.sin(now * 0.009 + a);
-          ctx.beginPath();
-          for (let s = 0; s <= 10; s++) {
-            const t = s / 10;
-            const ang = arcBase + t * arcSpan;
-            const jitter = (Math.sin(now * 0.035 + s * 2.3 + a) - 0.5) * 6.0;
-            const rad = r + jitter;
-            const ax = Math.cos(ang) * rad;
-            const ay = Math.sin(ang) * rad;
-            if (s === 0) ctx.moveTo(ax, ay); else ctx.lineTo(ax, ay);
-          }
-          ctx.strokeStyle = `rgba(255, 255, 255, ${0.90 * warnPulse})`;
-          ctx.lineWidth = 2.2;
-          ctx.stroke();
-        }
+      // 3. Counter-rotating dashed inner energy ring
+      ctx.save();
+      ctx.setLineDash([10, 8]);
+      ctx.lineDashOffset = -now * 0.03;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.88, 0, Math.PI * 2);
+      ctx.strokeStyle = innerCol;
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
 
-        // Heavy Cyan/White Barrier Rim
-        ctx.beginPath();
-        ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(56, 189, 248, ${0.92 * warnPulse})`;
-        ctx.lineWidth = 3.4;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(0, 0, r + 2.5, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(224, 242, 254, ${0.65 * warnPulse})`;
-        ctx.lineWidth = 1.4;
-        ctx.stroke();
-
-        this._drawAegisHudBadge(ctx, r, u, `🛡️ FARADAY AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#00f0ff', '#38bdf8', 'rgba(14, 165, 233, 0.40)');
-
-      } else if (mode === 'helix') {
-        // ─── CHROME HELIX: HARMONIC BIO-LATTICE BARRIER ───
-        // Interlocking crystalline aquamarine and rose-quartz helical boundary ribbons
-        const grad = ctx.createRadialGradient(0, 0, r * 0.40, 0, 0, r * 1.08);
-        grad.addColorStop(0.0, 'rgba(34, 211, 238, 0.03)');
-        grad.addColorStop(0.60, `rgba(110, 231, 183, ${0.16 * warnPulse})`);
-        grad.addColorStop(0.85, `rgba(34, 211, 238, ${0.30 * warnPulse})`);
-        grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.55 * warnPulse})`);
-        grad.addColorStop(1.0, 'rgba(34, 211, 238, 0.0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Hexagonal Prismatic Crystal Lattice Ribs
-        for (let l = -2; l <= 2; l++) {
-          const yOff = (l / 2.6) * (r * 0.74);
-          const latR = Math.sqrt(Math.max(0, r * r - yOff * yOff));
-          ctx.save();
-          ctx.translate(0, yOff);
-          ctx.rotate(rot * (l % 2 === 0 ? 1 : -1));
-          ctx.beginPath();
-          for (let h = 0; h < 6; h++) {
-            const ha = h * Math.PI / 3;
-            const hx = Math.cos(ha) * latR;
-            const hy = Math.sin(ha) * latR * 0.38;
-            if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
-          }
-          ctx.closePath();
-          ctx.strokeStyle = `rgba(110, 231, 183, ${(0.55 + 0.35 * Math.abs(l / 2.6)) * warnPulse})`;
-          ctx.lineWidth = 1.9 * Math.max(0.7, u);
-          ctx.stroke();
-
-          // Diamond Node Vertices
-          for (let h = 0; h < 6; h++) {
-            const ha = h * Math.PI / 3;
-            const hx = Math.cos(ha) * latR;
-            const hy = Math.sin(ha) * latR * 0.38;
-            ctx.beginPath();
-            ctx.arc(hx, hy, 2.5 * Math.max(0.7, u), 0, Math.PI * 2);
-            ctx.fillStyle = '#fef08a';
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-
-        // Twin Counter-Rotating Helical Perimeter Boundary Ribbons
-        const ribbonRot = now * 0.0035;
-        for (let strand = 0; strand < 2; strand++) {
-          const sOff = strand * Math.PI;
-          ctx.beginPath();
-          for (let k = 0; k <= 32; k++) {
-            const t = k / 32;
-            const ang = ribbonRot + t * Math.PI * 2;
-            const zMod = Math.sin(ang * 3 + sOff) * 12 * u;
-            const rad = r + zMod;
-            const kx = Math.cos(ang) * rad;
-            const ky = Math.sin(ang) * rad * 0.75;
-            if (k === 0) ctx.moveTo(kx, ky); else ctx.lineTo(kx, ky);
-          }
-          ctx.closePath();
-          ctx.strokeStyle = strand === 0 ? `rgba(34, 211, 238, ${0.80 * warnPulse})` : `rgba(254, 240, 138, ${0.75 * warnPulse})`;
-          ctx.lineWidth = 2.0 * Math.max(0.7, u);
-          ctx.stroke();
-        }
-
-        // Outer Bio-Lattice Barrier Rim
-        ctx.beginPath();
-        ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(34, 211, 238, ${0.90 * warnPulse})`;
-        ctx.lineWidth = 3.2;
-        ctx.stroke();
-
-        this._drawAegisHudBadge(ctx, r, u, `🛡️ HARMONIC AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#22d3ee', '#6ee7b7', 'rgba(13, 148, 136, 0.40)');
-
-      } else {
-        // ─── CHROME METEOR: CALDERA THERMAL MAGMA AEGIS ───
-        // Volcanic basalt tectonic shield plates floating over molten magma envelope
-        const grad = ctx.createRadialGradient(0, 0, r * 0.38, 0, 0, r * 1.08);
-        grad.addColorStop(0.0, 'rgba(254, 240, 138, 0.05)');
-        grad.addColorStop(0.55, `rgba(249, 115, 22, ${0.22 * warnPulse})`);
-        grad.addColorStop(0.85, `rgba(234, 88, 12, ${0.38 * warnPulse})`);
-        grad.addColorStop(0.96, `rgba(254, 240, 138, ${0.68 * warnPulse})`);
-        grad.addColorStop(1.0, 'rgba(234, 88, 12, 0.0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 8 Interlocking Basalt Tectonic Plates around the Perimeter
-        const numPlates = 8;
-        const plateRot = now * 0.002;
-        ctx.save();
-        ctx.rotate(plateRot);
-        for (let p = 0; p < numPlates; p++) {
-          const pAng1 = p * (Math.PI * 2 / numPlates) + 0.04;
-          const pAng2 = (p + 1) * (Math.PI * 2 / numPlates) - 0.04;
-          const rPlateIn = r * 0.82;
-          const rPlateOut = r * 1.02;
-
-          ctx.beginPath();
-          ctx.arc(0, 0, rPlateOut, pAng1, pAng2);
-          ctx.arc(0, 0, rPlateIn, pAng2, pAng1, true);
-          ctx.closePath();
-          ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
-          ctx.fill();
-          ctx.strokeStyle = `rgba(251, 146, 60, ${0.85 * warnPulse})`;
-          ctx.lineWidth = 2.0;
-          ctx.stroke();
-
-          // Incandescent Magma Fissure in the Center of each Plate
-          const midAng = (pAng1 + pAng2) * 0.5;
-          const fX1 = Math.cos(midAng) * rPlateIn;
-          const fY1 = Math.sin(midAng) * rPlateIn;
-          const fX2 = Math.cos(midAng) * rPlateOut;
-          const fY2 = Math.sin(midAng) * rPlateOut;
-          ctx.beginPath();
-          ctx.moveTo(fX1, fY1);
-          ctx.lineTo(fX2, fY2);
-          ctx.strokeStyle = `rgba(254, 240, 138, ${0.92 * warnPulse})`;
-          ctx.lineWidth = 2.4;
-          ctx.stroke();
-        }
-        ctx.restore();
-
-        // Molten Solar Gold Perimeter Ring
-        ctx.beginPath();
-        ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(251, 191, 36, ${0.95 * warnPulse})`;
-        ctx.lineWidth = 3.6;
-        ctx.stroke();
-
-        this._drawAegisHudBadge(ctx, r, u, `🛡️ CALDERA AEGIS · ${secondsLeft}s`, timeLeft, isExpiring, '#fbbf24', '#f97316', 'rgba(194, 65, 12, 0.40)');
-      }
-
-      // Shield Deflection Shockwave Flash (Shared Across Modes)
+      // 4. Shield Deflection Shockwave Flash (Shared Across Modes)
       if (this.shieldDeflectFlash > 0.02) {
         ctx.beginPath();
         ctx.arc(0, 0, r * (1.1 + (1.0 - this.shieldDeflectFlash) * 0.4), 0, Math.PI * 2);
-        const flashColor = (mode === 'dynamo' || mode === 'realm') ? '#38bdf8' : (mode === 'helix' ? '#22d3ee' : '#fbbf24');
+        const flashColor = isDyn ? '#38bdf8' : (isHel ? '#22d3ee' : '#fbbf24');
         ctx.strokeStyle = flashColor;
         ctx.globalAlpha = this.shieldDeflectFlash * 0.95;
-        ctx.lineWidth = 5.0;
+        ctx.lineWidth = 4.5;
         ctx.stroke();
       }
 
@@ -4113,6 +3916,7 @@
         const tangX = -Math.sin(contactAng);
         const tangY = Math.cos(contactAng);
         for (let k = 0; k < 14; k++) {
+          if (this.impactCinders.length >= 16) this.impactCinders.shift();
           const spreadAngle = contactAng + (Math.random() - 0.5) * 1.35;
           const speed = 3.2 + Math.random() * 4.4;
           const tJitter = (Math.random() - 0.5) * 14;
@@ -4255,15 +4059,9 @@
         if (alpha <= 0.03) continue;
 
         if (st.type === 'speedline' || st.kind === 'dynamoSpeedline') {
-          // Soft vertical cyan motion speedline (matches user reference image!)
           const syBot = st.y;
           const syTop = syBot - st.len;
-          const grad = ctx.createLinearGradient(st.x, syTop, st.x, syBot);
-          grad.addColorStop(0.0, 'rgba(0, 240, 255, 0)');
-          grad.addColorStop(0.45, `rgba(56, 189, 248, ${alpha * 0.72})`);
-          grad.addColorStop(0.85, `rgba(224, 242, 254, ${alpha * 0.90})`);
-          grad.addColorStop(1.0, 'rgba(0, 240, 255, 0)');
-          ctx.strokeStyle = grad;
+          ctx.strokeStyle = `rgba(125, 211, 252, ${alpha * 0.72})`;
           ctx.lineWidth = 1.6;
           ctx.beginPath();
           ctx.moveTo(st.x, syTop);
@@ -4556,7 +4354,7 @@
         const lightDot = Math.cos(totalRotation * 1.3 - dir * 0.20 + dirLead * 0.35);
         const specMultiplier = 1.0 + Math.max(0, dirLead) * 0.50 + (isUltActive ? 0.65 * ultAlpha : 0);
         const spec3D = Math.pow(Math.max(0, lightDot), 2.4) * specMultiplier;
-        if (spec3D > 0.08) {
+        if (spec3D > 0.14) {
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           ctx.globalAlpha = Math.min(isUltActive ? 0.36 : 0.16, spec3D * (isUltActive ? 0.26 : 0.12) * finalWingAlpha);
@@ -4564,61 +4362,18 @@
           ctx.restore();
         }
 
-        // Subtle Sovereign Shimmer (greatly reduced in v401 to remove excess glare)
-        if (cTier >= 2.8 || isUltActive) {
+        // Subtle Sovereign Shimmer ONLY during active Ultimate
+        if (isUltActive) {
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const shimmerWave = 0.5 + 0.5 * Math.sin(now * (isUltActive ? 0.014 : 0.005) - sideIdx * 1.2);
-          const shimmerBoost = isUltActive ? (0.28 * ultAlpha) : Math.max(0, (cTier - 2.6) * 0.055);
-          ctx.globalAlpha = Math.min(isUltActive ? 0.28 : 0.12, shimmerBoost * shimmerWave * finalWingAlpha);
+          const shimmerWave = 0.5 + 0.5 * Math.sin(now * 0.014 - sideIdx * 1.2);
+          ctx.globalAlpha = Math.min(0.28, 0.28 * ultAlpha * shimmerWave * finalWingAlpha);
           ctx.drawImage(specSpr, rootInsetX, -pivotY, wingW, wingH);
           ctx.restore();
         }
 
         // === CHANGED (v402): Unified exact wingspan bounds matching core-geometry-db.json (256 / 336 / 416 / 496) ===
         const maxSpanX = (tIdx === 2 ? 256 : (tIdx === 3 ? 336 : (tIdx === 4 ? 416 : 496))) * coreImgScale;
-
-        // ENHANCEMENT #4 (v401 Glow Reduced): Delicate Feather Quill Highlights
-        const numQuills = (tIdx === 2) ? 2 : (tIdx === 3 ? 4 : (tIdx === 4 ? 5 : 6));
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.lineCap = 'round';
-        const bankGlintShift = Math.sin(bankAngle * 3.2 * dir + now * (isUltActive ? 0.006 : 0.0022)) * 0.22;
-        for (let q = 0; q < numQuills; q++) {
-          const qFrac = (q + 0.35) / numQuills;
-          const qStartX = (158 + q * 16) * coreImgScale;
-          const qEndX = qStartX + Math.max(12 * coreImgScale, maxSpanX - qStartX) * (0.50 + 0.42 * Math.sin(qFrac * Math.PI * 0.85));
-          const qStartY = (-4 + (q - (numQuills - 1) * 0.45) * 9.5) * coreImgScale;
-          const qPeakY = qStartY - (14 + q * 5.8 + (tIdx >= 4 ? 11 : 0)) * coreImgScale;
-          const qEndY = qPeakY + (5 + q * 4.0) * coreImgScale;
-
-          const barbPulse = 0.45 + 0.55 * Math.sin(now * (isUltActive ? 0.009 : 0.0034) + q * 1.35 + sideIdx * 1.8 + dirLead * 1.5);
-          const qAlpha = Math.min(isUltActive ? 0.48 : 0.22, (0.09 + tierLux * 0.11) * barbPulse * (isUltActive ? 1.8 : 1.0) * finalWingAlpha);
-          if (qAlpha > 0.025) {
-            const peakStop = Math.max(0.18, Math.min(0.82, 0.48 + bankGlintShift));
-            const qGrad = ctx.createLinearGradient(qStartX, qStartY, qEndX, qEndY);
-            if (mode === 'dynamo') {
-              qGrad.addColorStop(0.0, `rgba(250, 204, 21, ${qAlpha * 0.85})`);
-              qGrad.addColorStop(peakStop, `rgba(224, 242, 254, ${qAlpha})`);
-              qGrad.addColorStop(1.0, 'rgba(56, 189, 248, 0)');
-            } else if (mode === 'helix') {
-              qGrad.addColorStop(0.0, `rgba(165, 243, 252, ${qAlpha * 0.85})`);
-              qGrad.addColorStop(peakStop, (q % 2 === 0) ? `rgba(240, 253, 250, ${qAlpha})` : `rgba(244, 114, 182, ${qAlpha})`);
-              qGrad.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
-            } else {
-              qGrad.addColorStop(0.0, `rgba(249, 115, 22, ${qAlpha * 0.85})`);
-              qGrad.addColorStop(peakStop, `rgba(254, 240, 138, ${qAlpha})`);
-              qGrad.addColorStop(1.0, 'rgba(180, 83, 9, 0)');
-            }
-            ctx.strokeStyle = qGrad;
-            ctx.lineWidth = (0.85 + tierLux * 0.35 + (isUltActive ? 0.5 : 0)) * u;
-            ctx.beginPath();
-            ctx.moveTo(qStartX, qStartY);
-            ctx.quadraticCurveTo((qStartX + qEndX) * 0.52, qPeakY, qEndX, qEndY);
-            ctx.stroke();
-          }
-        }
-        ctx.restore();
 
         // ENHANCEMENT #5 (v401 Glow Removed in Normal Flight): Only during active Ultimate at mild alpha
         if (isUltActive && ultAlpha > 0.04) {
@@ -5003,28 +4758,24 @@
     // Tier-progressive filament count
     const numArcs = isCore
       ? (tierIdx === 1 ? 4 : (tierIdx === 2 ? 6 : (tierIdx === 3 ? 7 : (tierIdx === 4 ? 8 : 10)))) + (isUltActive ? 4 : 0)
-      : 4;
+      : 3;
 
     ctx.globalCompositeOperation = 'lighter';
 
-    // Volumetric shifting plasma nebula clouds swirling inside the smoky violet glass globe
+    // Volumetric shifting plasma nebula clouds swirling inside the smoky violet glass globe (pre-baked GPU blits!)
     const nebAng = now * 0.0009 * motionMult + phaseOffset;
-    for (let n = 0; n < 2; n++) {
+    const nebIntensity = Math.min(0.45, (0.18 + (tierIdx - 1) * 0.05) * (isUltActive ? 1.5 : 1.0));
+    for (let n = 0; n < (isCore ? 2 : 1); n++) {
       const na = nebAng * (n === 0 ? 1 : -1.3) + n * Math.PI;
       const nx = Math.cos(na) * maxR * 0.24;
       const ny = Math.sin(na) * maxR * 0.24;
-      const nr = maxR * (0.68 + 0.12 * Math.sin(now * 0.004 + n));
-      const ng = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
-      const nebIntensity = (0.14 + (tierIdx - 1) * 0.04) * (isUltActive ? 1.5 : 1.0);
-      ng.addColorStop(0.0, n === 0 ? `rgba(192, 132, 252, ${nebIntensity})` : `rgba(56, 189, 248, ${nebIntensity * 0.85})`);
-      ng.addColorStop(0.55, `rgba(126, 34, 206, ${nebIntensity * 0.45})`);
-      ng.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = ng;
-      ctx.beginPath();
-      ctx.arc(nx, ny, nr, 0, Math.PI * 2);
-      ctx.fill();
+      const nr = maxR * (0.72 + 0.10 * Math.sin(now * 0.004 + n));
+      ctx.globalAlpha = nebIntensity;
+      ctx.drawImage(QuantumRenderer._getGlowSprite(n === 0 ? 'indigo' : 'cyan'), nx - nr, ny - nr, nr * 2, nr * 2);
     }
+    ctx.globalAlpha = 1.0;
 
+    const segs = isCore ? 6 : 4;
     for (let a = 0; a < numArcs; a++) {
       const cycleDuration = (isUltActive ? 220 : 340) + (a * 73) % 190;
       const localTime = (now * motionMult + phaseOffset * 420 + a * 211);
@@ -5033,14 +4784,13 @@
 
       // Brief irregular burst envelope: rapid growth (0..0.28), fork (0.18..0.75), and decay (0.75..1.0)
       const burstSeed = Math.abs(pseudoSin(cycleIdx * 13 + a * 29));
-      if (tierIdx === 1 && burstSeed < 0.25) continue; // Irregular brief pauses in Tier I
+      if (tierIdx === 1 && burstSeed < 0.25) continue;
 
       const reachFrac = Math.min(1.0, cycleProg / 0.28);
       const fadeAlpha = Math.sin(cycleProg * Math.PI);
       if (fadeAlpha <= 0.04) continue;
 
       const baseAng = (a / numArcs) * Math.PI * 2 + pseudoSin(cycleIdx * 7 + a * 19) * 0.55;
-      const segs = 6;
       let forkX = 0, forkY = 0;
 
       ctx.beginPath();
@@ -5052,7 +4802,7 @@
         const sx = Math.cos(baseAng + jitter) * rDist;
         const sy = Math.sin(baseAng + jitter) * rDist;
         ctx.lineTo(sx, sy);
-        if (s === 3) {
+        if (isCore && s === 3) {
           forkX = sx;
           forkY = sy;
         }
@@ -5068,8 +4818,8 @@
       ctx.lineJoin = 'round';
       ctx.stroke();
 
-      // Forking secondary sub-branches
-      if (cycleProg > 0.18 && reachFrac > 0.55) {
+      // Forking secondary sub-branches (core only for fast falling nodes!)
+      if (isCore && cycleProg > 0.18 && reachFrac > 0.55) {
         const bAng = baseAng + (a % 2 === 0 ? 0.48 : -0.48);
         const bLen = maxR * (tierIdx >= 2 ? 0.42 : 0.30) * Math.min(1.0, (cycleProg - 0.18) / 0.35);
         const bMidX = forkX + Math.cos(bAng + 0.18) * (bLen * 0.52);
@@ -5099,18 +4849,12 @@
       }
     }
 
-    // Pulsating high-voltage central singularity core inside the glass (strongest in Tier V)
+    // Pulsating high-voltage central singularity core inside the glass (GPU blit!)
     const corePulse = 0.82 + 0.18 * Math.sin(now * 0.014);
-    const haloR = maxR * (0.24 + (tierIdx - 1) * 0.035) * corePulse * (isUltActive ? 1.3 : 1.0);
-    const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, haloR);
-    cg.addColorStop(0.0, 'rgba(255, 255, 255, 0.98)');
-    cg.addColorStop(0.35, 'rgba(232, 121, 249, 0.78)');
-    cg.addColorStop(0.72, 'rgba(139, 92, 246, 0.35)');
-    cg.addColorStop(1.0, 'rgba(88, 28, 135, 0)');
-    ctx.fillStyle = cg;
-    ctx.beginPath();
-    ctx.arc(0, 0, haloR, 0, Math.PI * 2);
-    ctx.fill();
+    const haloR = maxR * (0.26 + (tierIdx - 1) * 0.035) * corePulse * (isUltActive ? 1.3 : 1.0);
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(QuantumRenderer._getGlowSprite('magPt'), -haloR, -haloR, haloR * 2, haloR * 2);
+    ctx.globalAlpha = 1.0;
 
     const ptR = Math.max(2.0, maxR * (tierIdx === 5 ? 0.095 : 0.068) * corePulse);
     ctx.fillStyle = '#ffffff';
@@ -5225,17 +4969,19 @@
     ctx.translate(cx, cy);
 
     const clipR = Math.max(radiusX, radiusY) * 0.98;
-    ctx.beginPath();
-    ctx.arc(0, 0, clipR, 0, Math.PI * 2);
-    ctx.clip();
+    if (isCore) {
+      ctx.beginPath();
+      ctx.arc(0, 0, clipR, 0, Math.PI * 2);
+      ctx.clip();
+    }
 
     const isUltActive = Boolean(isCore && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === 'helix');
     const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
     // Both strands and their rungs rotate together slowly around one vertical axis
     const rotPhase = now * (isCore ? 0.0018 : 0.0028) * motionMult + phaseOffset;
 
-    const numRungs = isCore ? 8 : 6;
-    const strandSteps = 32;
+    const numRungs = isCore ? 8 : 5;
+    const strandSteps = isCore ? 26 : 12;
     const twistFactor = 3.25; // Matches the upright 1.5-turn double helix in the reference PNGs
     const strandA = [];
     const strandB = [];
@@ -5302,26 +5048,23 @@
       const xA = Math.sin(theta) * ampX;
       const xB = -xA;
 
-      const rg = ctx.createLinearGradient(xA, yPx, xB, yPx);
-      rg.addColorStop(0.0, 'rgba(34, 211, 238, 0.86)');
-      rg.addColorStop(0.5, 'rgba(241, 245, 249, 0.94)');
-      rg.addColorStop(1.0, 'rgba(232, 121, 249, 0.86)');
-
       ctx.beginPath();
       ctx.moveTo(xA, yPx);
       ctx.lineTo(xB, yPx);
-      ctx.strokeStyle = rg;
+      ctx.strokeStyle = (r % 2 === 0) ? 'rgba(165, 243, 252, 0.88)' : 'rgba(245, 208, 254, 0.88)';
       ctx.lineWidth = Math.max(1.2, 2.0 * scaleK);
       ctx.lineCap = 'round';
       ctx.stroke();
 
-      // Traveling photonic energy pulse across each base-pair rung + glowing nucleotide junction nodes
-      const rungPulse = 0.5 + 0.5 * Math.sin(now * 0.006 * motionMult + r * 0.85);
-      const pxPulse = xA + (xB - xA) * rungPulse;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-      ctx.beginPath();
-      ctx.arc(pxPulse, yPx, Math.max(1.1, 1.8 * scaleK), 0, Math.PI * 2);
-      ctx.fill();
+      if (isCore) {
+        // Traveling photonic energy pulse across each base-pair rung + glowing nucleotide junction nodes
+        const rungPulse = 0.5 + 0.5 * Math.sin(now * 0.006 * motionMult + r * 0.85);
+        const pxPulse = xA + (xB - xA) * rungPulse;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        ctx.beginPath();
+        ctx.arc(pxPulse, yPx, Math.max(1.1, 1.8 * scaleK), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Nucleotide junction beads where the rung meets Strand A and Strand B
       const zA = Math.cos(theta);
@@ -5397,41 +5140,42 @@
     [ {x: -0.26, y: -0.14}, {x: -0.32, y:  0.08}, {x: -0.28, y: 0.22}, {x: -0.56, y: 0.36} ]
   ];
 
-  function drawMeteorMagmaFissuresAndPlates(ctx, radius, now, phaseOffset, tumbleAngle, tierIdx = 4) {
+  function drawMeteorMagmaFissuresAndPlates(ctx, radius, now, phaseOffset, tumbleAngle, tierIdx = 4, isCore = true) {
     ctx.save();
-    // Strict circular silhouette mask so craters and lava relief never deform the sphere!
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.97, 0, Math.PI * 2);
-    ctx.clip();
+    if (isCore) {
+      // Strict circular silhouette mask so craters and lava relief never deform the core sphere!
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.97, 0, Math.PI * 2);
+      ctx.clip();
+    }
 
     ctx.rotate(tumbleAngle);
 
-    const isUltActive = Boolean(typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === 'meteor');
+    const isUltActive = Boolean(isCore && typeof SkillSystem !== 'undefined' && SkillSystem.activeNova && SkillSystem.activeNova.mode === 'meteor');
     const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
     const freqMult = (isUltActive ? 2.4 : 1.15) * motionMult;
     const tierHeat = (tierIdx === 1 ? 0.72 : (tierIdx === 2 ? 0.88 : (tierIdx === 3 ? 1.02 : (tierIdx === 4 ? 1.16 : 1.32)))) * (isUltActive ? 1.45 : 1.0);
 
     ctx.globalCompositeOperation = 'lighter';
 
-    // 1. Subsurface Molten Mantle Convection Swirls (Counter-rotating thermal magma pockets beneath the crust cracks!)
-    const swirlAng = -tumbleAngle * 1.8 + now * 0.00085 * freqMult;
-    for (let s = 0; s < 3; s++) {
-      const sa = swirlAng + s * ((Math.PI * 2) / 3);
-      const sx = Math.cos(sa) * radius * 0.28;
-      const sy = Math.sin(sa) * radius * 0.28;
-      const sr = radius * (0.48 + 0.10 * Math.sin(now * 0.004 * freqMult + s * 2.1));
-      const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
-      sg.addColorStop(0.0, `rgba(251, 146, 60, ${Math.min(0.42, 0.16 * tierHeat)})`);
-      sg.addColorStop(0.55, `rgba(234, 88, 12, ${Math.min(0.28, 0.10 * tierHeat)})`);
-      sg.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
-      ctx.fillStyle = sg;
-      ctx.beginPath();
-      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
-      ctx.fill();
+    // 1. Subsurface Molten Mantle Convection Swirls (Core only, GPU sprite blit!)
+    if (isCore) {
+      const swirlAng = -tumbleAngle * 1.8 + now * 0.00085 * freqMult;
+      const ambSpr = QuantumRenderer._getGlowSprite('amber');
+      ctx.globalAlpha = Math.min(0.45, 0.22 * tierHeat);
+      for (let s = 0; s < 3; s++) {
+        const sa = swirlAng + s * ((Math.PI * 2) / 3);
+        const sx = Math.cos(sa) * radius * 0.28;
+        const sy = Math.sin(sa) * radius * 0.28;
+        const sr = radius * (0.48 + 0.10 * Math.sin(now * 0.004 * freqMult + s * 2.1));
+        ctx.drawImage(ambSpr, sx - sr, sy - sr, sr * 2, sr * 2);
+      }
+      ctx.globalAlpha = 1.0;
     }
 
-    // 2. Branching Lava Channels + Live Flowing White-Hot Magma Surge Packets Traveling Along the Cracks!
-    for (let c = 0; c < METEOR_CRACK_PATHS.length; c++) {
+    // 2. Branching Lava Channels + Live Flowing White-Hot Magma Surge Packets (Core only)
+    const maxCracks = isCore ? METEOR_CRACK_PATHS.length : 3;
+    for (let c = 0; c < maxCracks; c++) {
       const path = METEOR_CRACK_PATHS[c];
       const veinPulse = (0.50 + 0.50 * Math.pow(0.5 + 0.5 * Math.sin(now * 0.0052 * freqMult + c * 1.55 + phaseOffset), 1.4)) * tierHeat;
 
@@ -5449,64 +5193,62 @@
       ctx.lineJoin = 'round';
       ctx.stroke();
 
-      ctx.strokeStyle = `rgba(254, 240, 138, ${Math.min(0.98, 0.72 * veinPulse)})`;
-      ctx.lineWidth = chWidth * 0.45;
-      ctx.stroke();
-
-      // Animated Magma Flow Packets visibly streaming along each fissure segment!
-      const numPackets = (tierIdx >= 4) ? 3 : 2;
-      const segCount = path.length - 1;
-      for (let pIdx = 0; pIdx < numPackets; pIdx++) {
-        const flowT = ((now * 0.00058 * freqMult + c * 0.27 + pIdx / numPackets) % 1.0);
-        const segFloat = flowT * segCount;
-        const segI = Math.min(segCount - 1, Math.floor(segFloat));
-        const segFrac = segFloat - segI;
-        const p0 = path[segI];
-        const p1 = path[segI + 1];
-        const fx = (p0.x + (p1.x - p0.x) * segFrac) * radius;
-        const fy = (p0.y + (p1.y - p0.y) * segFrac) * radius;
-        const tailFrac = Math.max(0, segFrac - 0.35);
-        const tx = (p0.x + (p1.x - p0.x) * tailFrac) * radius;
-        const ty = (p0.y + (p1.y - p0.y) * tailFrac) * radius;
-        const flowAlpha = Math.sin(flowT * Math.PI) * Math.min(1.0, 0.85 * tierHeat);
-
-        ctx.strokeStyle = `rgba(255, 251, 235, ${flowAlpha})`;
-        ctx.lineWidth = chWidth * 0.62;
-        ctx.beginPath();
-        ctx.moveTo(tx, ty);
-        ctx.lineTo(fx, fy);
+      if (isCore) {
+        ctx.strokeStyle = `rgba(254, 240, 138, ${Math.min(0.98, 0.72 * veinPulse)})`;
+        ctx.lineWidth = chWidth * 0.45;
         ctx.stroke();
 
-        // Incandescent magma droplet head
-        const dr = chWidth * 0.75;
-        ctx.fillStyle = `rgba(254, 240, 138, ${flowAlpha})`;
-        ctx.beginPath();
-        ctx.arc(fx, fy, dr, 0, Math.PI * 2);
-        ctx.fill();
+        // Animated Magma Flow Packets visibly streaming along each fissure segment!
+        const numPackets = (tierIdx >= 4) ? 3 : 2;
+        const segCount = path.length - 1;
+        for (let pIdx = 0; pIdx < numPackets; pIdx++) {
+          const flowT = ((now * 0.00058 * freqMult + c * 0.27 + pIdx / numPackets) % 1.0);
+          const segFloat = flowT * segCount;
+          const segI = Math.min(segCount - 1, Math.floor(segFloat));
+          const segFrac = segFloat - segI;
+          const p0 = path[segI];
+          const p1 = path[segI + 1];
+          const fx = (p0.x + (p1.x - p0.x) * segFrac) * radius;
+          const fy = (p0.y + (p1.y - p0.y) * segFrac) * radius;
+          const tailFrac = Math.max(0, segFrac - 0.35);
+          const tx = (p0.x + (p1.x - p0.x) * tailFrac) * radius;
+          const ty = (p0.y + (p1.y - p0.y) * tailFrac) * radius;
+          const flowAlpha = Math.sin(flowT * Math.PI) * Math.min(1.0, 0.85 * tierHeat);
+
+          ctx.strokeStyle = `rgba(255, 251, 235, ${flowAlpha})`;
+          ctx.lineWidth = chWidth * 0.62;
+          ctx.beginPath();
+          ctx.moveTo(tx, ty);
+          ctx.lineTo(fx, fy);
+          ctx.stroke();
+
+          // Incandescent magma droplet head
+          const dr = chWidth * 0.75;
+          ctx.fillStyle = `rgba(254, 240, 138, ${flowAlpha})`;
+          ctx.beginPath();
+          ctx.arc(fx, fy, dr, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
 
-    // 3. Churning & Bubbling Molten Crater Magma Pools (Tiers I..V, stronger & deeper in Tiers II -> V)
-    for (let h = 0; h < METEOR_FISSURE_HOTSPOTS.length; h++) {
+    // 3. Churning & Bubbling Molten Crater Magma Pools (GPU sprite blits!)
+    const maxHotspots = isCore ? METEOR_FISSURE_HOTSPOTS.length : 2;
+    const emberPtSpr = QuantumRenderer._getGlowSprite('emberPt');
+    for (let h = 0; h < maxHotspots; h++) {
       const hs = METEOR_FISSURE_HOTSPOTS[h];
-      if (tierIdx === 1 && !hs.isPool) continue;
+      if (isCore && tierIdx === 1 && !hs.isPool) continue;
       const pulse = (0.45 + 0.55 * Math.pow(0.5 + 0.5 * Math.sin(now * hs.freq * freqMult + hs.phase + phaseOffset), 1.3)) * tierHeat;
       const hx = hs.x * radius;
       const hy = hs.y * radius;
       const hr = hs.r * radius * (0.78 + 0.24 * pulse);
 
-      const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, hr);
-      g.addColorStop(0.0, `rgba(255, 251, 235, ${Math.min(0.95, 0.68 * pulse)})`);
-      g.addColorStop(0.38, `rgba(254, 240, 138, ${Math.min(0.88, 0.58 * pulse)})`);
-      g.addColorStop(0.72, `rgba(249, 115, 22, ${Math.min(0.72, 0.42 * pulse)})`);
-      g.addColorStop(1.0, 'rgba(185, 28, 28, 0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(hx, hy, hr, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.globalAlpha = Math.min(0.95, 0.68 * pulse);
+      ctx.drawImage(emberPtSpr, hx - hr, hy - hr, hr * 2, hr * 2);
 
-      // Bubbling solar flare ring inside active crater pools
-      if (hs.isPool && tierIdx >= 2) {
+      // Bubbling solar flare ring inside active crater pools (Core only!)
+      if (isCore && hs.isPool && tierIdx >= 2) {
+        ctx.globalAlpha = 1.0;
         const bubProg = ((now * 0.0014 * freqMult + h * 0.43) % 1.0);
         const bubR = hr * (0.18 + bubProg * 0.65);
         const bubA = (1.0 - bubProg) * Math.min(0.85, 0.55 * tierHeat);
@@ -5517,6 +5259,7 @@
         ctx.stroke();
       }
     }
+    ctx.globalAlpha = 1.0;
 
     // 4. Internal Rising Micro-Fire tongues inside the lower/equatorial fissures
     const numFireTongues = (tierIdx >= 4) ? 5 : 3;
@@ -6284,7 +6027,7 @@
       const cTier = isPortalPreview
         ? tierIdx
         : ((CoreKinematics && CoreKinematics.continuousTier !== undefined && Math.abs(CoreKinematics.continuousTier - tierIdx) < 1.2) ? CoreKinematics.continuousTier : tierIdx);
-      const effDpr = (ctx.canvas && ctx.canvas._renderDpr) ? ctx.canvas._renderDpr : Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+      const effDpr = (ctx.canvas && ctx.canvas._renderDpr) ? ctx.canvas._renderDpr : Math.min(1.25, Math.max(1, window.devicePixelRatio || 1));
       const canvasW = ctx.canvas.width / effDpr;
       const canvasH = ctx.canvas.height / effDpr;
       const isMobile = canvasW < 600;
@@ -6297,28 +6040,20 @@
       if (!skipHatchOverride) {
         if (!isPortalPreview && Tier6HatchSystem.isActive(mode, now)) {
           Tier6HatchSystem.render(ctx, mode, cx, cy, u, now);
-          ctx.save();
-          ctx.translate(cx, cy);
-          CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
           const activeShieldH = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
           if (activeShieldH && activeShieldH.expiresAt > now) {
-            CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, activeShieldH.expiresAt - now, mode);
+            CoreKinematics.drawAegisForcefield(ctx, cx, cy, u, now, activeShieldH.expiresAt - now, mode);
           }
-          ctx.restore();
           Tier6HatchSystem.renderBanner(ctx, cx, cy, u, now);
           return;
         }
         if (tierIdx >= 6) {
           this._drawTier6Character(ctx, mode, cx, cy, u, now, isPortalPreview);
           if (!isPortalPreview) {
-            ctx.save();
-            ctx.translate(cx, cy);
-            CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
             const activeShield6 = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
             if (activeShield6 && activeShield6.expiresAt > now) {
-              CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, activeShield6.expiresAt - now, mode);
+              CoreKinematics.drawAegisForcefield(ctx, cx, cy, u, now, activeShield6.expiresAt - now, mode);
             }
-            ctx.restore();
             Tier6HatchSystem.renderBanner(ctx, cx, cy, u, now);
           }
           return;
@@ -6529,9 +6264,6 @@
       ctx.restore(); // End shared core/wing bank
 
       if (!isPortalPreview) {
-        // 1:1 Tactical Crosshair Reticle around Core Cursor
-        CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
-
         // Mode-Specific 5-Second Aegis Spherical Geodesic Forcefield (only when Shield power-up is active)
         const activeShield = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
         if (activeShield && activeShield.expiresAt > now) {
@@ -6774,6 +6506,20 @@
       ctx.restore();
     },
 
+    _badgeWidthCache: new Map(),
+    _getBadgeWidth(ctx, font, text) {
+      const key = font + '|' + text;
+      let w = this._badgeWidthCache.get(key);
+      if (w === undefined) {
+        ctx.font = font;
+        w = ctx.measureText(text).width;
+        this._badgeWidthCache.set(key, w);
+      } else {
+        ctx.font = font;
+      }
+      return w;
+    },
+
     _drawLayeredNodeOrHazard(ctx, mode, p, now, customR = null) {
       const isHazard = isHazardNode(p.nodeClass);
       const isPoweredGood = (!isHazard && p.nodeClass !== 'standard');
@@ -6877,18 +6623,11 @@
           }
           drawRotating3DDNAInsideGlass(ctx, 0, 0, targetR * 0.36, targetR * 0.78, now, animPhase, false, 4);
 
-          // Bioluminescent Quartz Glass Rim & Swirling Core Highlight (Matches uploaded Helix images #1 & #6!)
+          // Bioluminescent Quartz Glass Rim & Swirling Core Highlight (GPU sprite blit!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const hRim = ctx.createRadialGradient(-targetR * 0.25, -targetR * 0.30, targetR * 0.08, 0, 0, targetR * 1.04);
-          hRim.addColorStop(0.0, 'rgba(255, 255, 255, 0.28)');
-          hRim.addColorStop(0.55, 'rgba(232, 121, 249, 0.14)');
-          hRim.addColorStop(0.88, 'rgba(34, 211, 238, 0.34)');
-          hRim.addColorStop(1.0, 'rgba(34, 211, 238, 0)');
-          ctx.fillStyle = hRim;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 1.04, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.globalAlpha = 0.52;
+          ctx.drawImage(this._getGlowSprite('helix'), -targetR * 1.04, -targetR * 1.04, targetR * 2.08, targetR * 2.08);
           ctx.restore();
         } else {
           const tumbleDir = p.tumbleDir || 1;
@@ -6901,19 +6640,13 @@
           }
           ctx.restore();
 
-          drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4);
+          drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4, false);
 
-          // Incandescent Atmospheric Bow-Shock Plasma Rim hugging leading lower edge (Matches uploaded Meteor images #2 & #5!)
+          // Incandescent Atmospheric Bow-Shock Plasma Rim hugging leading lower edge (GPU sprite blit!)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const bowGlow = ctx.createRadialGradient(0, targetR * 0.35, targetR * 0.12, 0, targetR * 0.25, targetR * 1.18);
-          bowGlow.addColorStop(0.0, 'rgba(254, 249, 195, 0.42)');
-          bowGlow.addColorStop(0.45, 'rgba(251, 146, 60, 0.28)');
-          bowGlow.addColorStop(1.0, 'rgba(234, 88, 12, 0)');
-          ctx.fillStyle = bowGlow;
-          ctx.beginPath();
-          ctx.arc(0, targetR * 0.25, targetR * 1.18, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.globalAlpha = 0.56;
+          ctx.drawImage(this._getGlowSprite('gold'), -targetR * 1.18, targetR * 0.25 - targetR * 1.18, targetR * 2.36, targetR * 2.36);
           ctx.restore();
         }
 
@@ -6929,37 +6662,25 @@
           ctx.lineWidth = 1.4 * scale;
           ctx.stroke();
 
-          // Twin phase-locked bifurcation twin orbs orbiting 180° apart
+          // Twin phase-locked bifurcation twin orbs orbiting 180° apart (GPU sprite blits!)
           const bAng = now * 0.0042 + animPhase;
+          const twinR = 7.5 * scale;
           for (let bSide = -1; bSide <= 1; bSide += 2) {
             const bx = Math.cos(bAng) * pulseR * bSide;
             const by = Math.sin(bAng) * pulseR * 0.62 * bSide;
-            const bGlow = ctx.createRadialGradient(bx, by, 0, bx, by, 7.5 * scale);
-            bGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
-            bGlow.addColorStop(0.45, bSide > 0 ? 'rgba(56, 189, 248, 0.85)' : 'rgba(232, 121, 249, 0.85)');
-            bGlow.addColorStop(1.0, 'rgba(192, 132, 252, 0)');
-            ctx.fillStyle = bGlow;
-            ctx.beginPath();
-            ctx.arc(bx, by, 7.5 * scale, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.drawImage(this._getGlowSprite(bSide > 0 ? 'cyanPt' : 'magPt'), bx - twinR, by - twinR, twinR * 2, twinR * 2);
           }
           ctx.restore();
 
         } else if (p.nodeClass === 'supercharge') {
-          // DELUXE SOLAR HYPER-SURGE CORE: Warm golden solar plasma & elegant prominence loops (No harsh white washout, zero rigid spikes!)
+          // DELUXE SOLAR HYPER-SURGE CORE: Warm golden solar plasma & elegant prominence loops
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          // 1. Soft atmospheric solar plasma corona
+          // 1. Soft atmospheric solar plasma corona (GPU sprite blit!)
           const coronaR = targetR * (1.18 + 0.12 * Math.sin(now * 0.007 + animPhase));
-          const gradCorona = ctx.createRadialGradient(0, 0, targetR * 0.25, 0, 0, coronaR);
-          gradCorona.addColorStop(0.0, 'rgba(254, 240, 138, 0.45)');
-          gradCorona.addColorStop(0.4, 'rgba(245, 158, 11, 0.38)');
-          gradCorona.addColorStop(0.8, 'rgba(217, 119, 6, 0.18)');
-          gradCorona.addColorStop(1.0, 'rgba(180, 83, 9, 0)');
-          ctx.fillStyle = gradCorona;
-          ctx.beginPath();
-          ctx.arc(0, 0, coronaR, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.globalAlpha = 0.58;
+          ctx.drawImage(this._getGlowSprite('gold'), -coronaR, -coronaR, coronaR * 2, coronaR * 2);
+          ctx.globalAlpha = 1.0;
 
           // 2. Three Organic Curving Solar Prominence Arches (Magnetic loops)
           const promAngle = now * 0.0022 + animPhase;
@@ -7103,24 +6824,19 @@
             ctx.stroke();
           }
 
-          // Central Radiant Vitality Heart-Light Core
-          const heartGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, gemR * 0.65);
-          heartGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
-          heartGlow.addColorStop(0.40, 'rgba(52, 211, 153, 0.75)');
-          heartGlow.addColorStop(0.75, 'rgba(16, 185, 129, 0.35)');
-          heartGlow.addColorStop(1.0, 'rgba(5, 150, 105, 0.0)');
-          ctx.fillStyle = heartGlow;
-          ctx.beginPath();
-          ctx.arc(0, 0, gemR * 0.65, 0, Math.PI * 2);
-          ctx.fill();
+          // Central Radiant Vitality Heart-Light Core (GPU sprite blit!)
+          const hGlowR = gemR * 0.65;
+          ctx.globalAlpha = 0.95;
+          ctx.drawImage(this._getGlowSprite('emPt'), -hGlowR, -hGlowR, hGlowR * 2, hGlowR * 2);
+          ctx.globalAlpha = 1.0;
           ctx.restore();
 
-          // 3. Floating Vitality Badge ("💚 +1 LIFE") — render in source-over so pill pops cleanly over bright flames!
+          // 3. Floating Vitality Badge ("💚 +1 LIFE") — cached width + source-over
           ctx.save();
           ctx.globalCompositeOperation = 'source-over';
           const badgeText = '💚 +1 LIFE';
-          ctx.font = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
-          const textW = ctx.measureText(badgeText).width;
+          const bFont = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
+          const textW = this._getBadgeWidth(ctx, bFont, badgeText);
           const padX = 7 * scale;
           const padY = 3.5 * scale;
           ctx.translate(0, -targetR * 1.35);
@@ -7172,14 +6888,9 @@
           ctx.fill();
 
           const pCoreR = targetR * (0.45 + 0.15 * Math.sin(now * 0.009));
-          const shGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, pCoreR);
-          shGrad.addColorStop(0.0, '#ffffff');
-          shGrad.addColorStop(0.5, '#fef08a');
-          shGrad.addColorStop(1.0, 'rgba(245, 158, 11, 0)');
-          ctx.fillStyle = shGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, pCoreR, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.globalAlpha = 0.92;
+          ctx.drawImage(this._getGlowSprite('gold'), -pCoreR, -pCoreR, pCoreR * 2, pCoreR * 2);
+          ctx.globalAlpha = 1.0;
           ctx.restore();
 
         } else if (p.nodeClass === 'missiles') {
@@ -7272,8 +6983,8 @@
           ctx.save();
           ctx.globalCompositeOperation = 'source-over';
           ctx.translate(0, -targetR * 1.46 - 3);
-          ctx.font = `bold ${Math.round(11 * bScale)}px system-ui, -apple-system, sans-serif`;
-          const textW = ctx.measureText(b.text).width;
+          const bFont = `bold ${Math.round(11 * bScale)}px system-ui, -apple-system, sans-serif`;
+          const textW = this._getBadgeWidth(ctx, bFont, b.text);
           const padX = 7.5 * bScale;
           const padY = 4 * bScale;
 
@@ -8541,6 +8252,7 @@
       this._cachedAmmoStr = null;
       this._cachedHidden = null;
       this._cachedRealmMode = null;
+      this._cdCache = {};
     },
 
     destroyDesktopHud() {
@@ -8561,6 +8273,7 @@
       this.deskUltBar = null;
       this._cachedDeskHidden = null;
       this._cachedRealmMode = null;
+      this._cdCache = {};
     },
 
     releasePointer(pointerId) {
@@ -8676,6 +8389,7 @@
 
     syncSkillCooldownUI() {
       this._syncRealmLabels();
+      const cache = this._cdCache || (this._cdCache = {});
       const s2Rem = Math.max(0, SkillSystem.skill2CdMs || 0);
       const s2Max = CONFIG.skill2.cooldownMs;
       const uRem = Math.max(0, SkillSystem.ultCdMs || 0);
@@ -8684,50 +8398,98 @@
       if (this.isTouch) {
         if (this.skill2Btn) {
           const onCd = s2Rem > 0;
-          this.skill2Btn.classList.toggle('on-cooldown', onCd);
+          if (cache.tS2OnCd !== onCd) {
+            cache.tS2OnCd = onCd;
+            this.skill2Btn.classList.toggle('on-cooldown', onCd);
+          }
           if (this.skill2SweepEl) {
             const deg = onCd ? Math.round((s2Rem / s2Max) * 360) : 0;
-            this.skill2SweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+            if (cache.tS2Deg !== deg) {
+              cache.tS2Deg = deg;
+              this.skill2SweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+            }
           }
           if (this.skill2CdTextEl) {
             const txt = onCd ? String(Math.ceil(s2Rem / 1000)) : '';
-            if (this.skill2CdTextEl.textContent !== txt) this.skill2CdTextEl.textContent = txt;
+            if (cache.tS2Txt !== txt) {
+              cache.tS2Txt = txt;
+              this.skill2CdTextEl.textContent = txt;
+            }
           }
         }
         if (this.ultBtn) {
           const onCd = uRem > 0;
-          this.ultBtn.classList.toggle('on-cooldown', onCd);
+          if (cache.tUltOnCd !== onCd) {
+            cache.tUltOnCd = onCd;
+            this.ultBtn.classList.toggle('on-cooldown', onCd);
+          }
           if (this.ultSweepEl) {
             const deg = onCd ? Math.round((uRem / uMax) * 360) : 0;
-            this.ultSweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+            if (cache.tUltDeg !== deg) {
+              cache.tUltDeg = deg;
+              this.ultSweepEl.style.setProperty('--cd-deg', `${deg}deg`);
+            }
           }
           if (this.ultCdTextEl) {
             const txt = onCd ? String(Math.ceil(uRem / 1000)) : '';
-            if (this.ultCdTextEl.textContent !== txt) this.ultCdTextEl.textContent = txt;
+            if (cache.tUltTxt !== txt) {
+              cache.tUltTxt = txt;
+              this.ultCdTextEl.textContent = txt;
+            }
           }
         }
       } else if (this.deskHudEl) {
         if (this.deskGunChip) {
-          const activeGun = this.isDesktopKeyGunHeld() || !!state.offenseMode || !!state.pointerFiring;
-          this.deskGunChip.classList.toggle('is-active', activeGun && (state.coreAmmo || 0) > 0);
+          const activeGun = (this.isDesktopKeyGunHeld() || !!state.offenseMode || !!state.pointerFiring) && (state.coreAmmo || 0) > 0;
+          if (cache.dGunActive !== activeGun) {
+            cache.dGunActive = activeGun;
+            this.deskGunChip.classList.toggle('is-active', activeGun);
+          }
           if (this.deskGunStatus) {
             const gTxt = (state.coreAmmo || 0) <= 0 ? 'EMPTY' : formatAmmoCount(state.coreAmmo);
-            if (this.deskGunStatus.textContent !== gTxt) this.deskGunStatus.textContent = gTxt;
+            if (cache.dGunTxt !== gTxt) {
+              cache.dGunTxt = gTxt;
+              this.deskGunStatus.textContent = gTxt;
+            }
           }
         }
         if (this.deskSkill2Chip) {
           const onCd = s2Rem > 0;
-          this.deskSkill2Chip.classList.toggle('on-cooldown', onCd);
+          if (cache.dS2OnCd !== onCd) {
+            cache.dS2OnCd = onCd;
+            this.deskSkill2Chip.classList.toggle('on-cooldown', onCd);
+          }
           const txt = onCd ? `${Math.ceil(s2Rem / 1000)}s` : 'READY';
-          if (this.deskSkill2Status && this.deskSkill2Status.textContent !== txt) this.deskSkill2Status.textContent = txt;
-          if (this.deskSkill2Bar) this.deskSkill2Bar.style.setProperty('--cd-pct', onCd ? `${Math.round((s2Rem / s2Max) * 100)}%` : '0%');
+          if (this.deskSkill2Status && cache.dS2Txt !== txt) {
+            cache.dS2Txt = txt;
+            this.deskSkill2Status.textContent = txt;
+          }
+          if (this.deskSkill2Bar) {
+            const pct = onCd ? Math.round((s2Rem / s2Max) * 100) : 0;
+            if (cache.dS2Pct !== pct) {
+              cache.dS2Pct = pct;
+              this.deskSkill2Bar.style.setProperty('--cd-pct', `${pct}%`);
+            }
+          }
         }
         if (this.deskUltChip) {
           const onCd = uRem > 0;
-          this.deskUltChip.classList.toggle('on-cooldown', onCd);
+          if (cache.dUltOnCd !== onCd) {
+            cache.dUltOnCd = onCd;
+            this.deskUltChip.classList.toggle('on-cooldown', onCd);
+          }
           const txt = onCd ? `${Math.ceil(uRem / 1000)}s` : 'READY';
-          if (this.deskUltStatus && this.deskUltStatus.textContent !== txt) this.deskUltStatus.textContent = txt;
-          if (this.deskUltBar) this.deskUltBar.style.setProperty('--cd-pct', onCd ? `${Math.round((uRem / uMax) * 100)}%` : '0%');
+          if (this.deskUltStatus && cache.dUltTxt !== txt) {
+            cache.dUltTxt = txt;
+            this.deskUltStatus.textContent = txt;
+          }
+          if (this.deskUltBar) {
+            const pct = onCd ? Math.round((uRem / uMax) * 100) : 0;
+            if (cache.dUltPct !== pct) {
+              cache.dUltPct = pct;
+              this.deskUltBar.style.setProperty('--cd-pct', `${pct}%`);
+            }
+          }
         }
       }
     },
@@ -9035,21 +8797,7 @@
         RoundBossEngine.damageBoss(bossDmgDealt, now, true, state.boss.x, state.boss.y, true);
       }
 
-      const novaArs = getRealmArsenal(novaMode);
       audio.playCalderaNova(novaMode);
-      const summaryParts = [];
-      if (bossDmgDealt > 0) summaryParts.push(`-${bossDmgDealt} BOSS HP`);
-      if (purge.vbDestroyed > 0) summaryParts.push(`${purge.vbDestroyed} VOIDBLOOM PURGED`);
-      if (purge.riftsCollapsed > 0) summaryParts.push(`${purge.riftsCollapsed} RIFT COLLAPSED`);
-      if (purge.clearedHazards > 0) summaryParts.push(`${purge.clearedHazards} BAD NODES DESTROYED`);
-      state.floatingTexts.push({
-        x: cx,
-        y: Math.max(120, cy - 72),
-        text: `${novaArs.ultIcon} ${novaArs.ult}!` + (summaryParts.length ? ` · ${summaryParts.join(' · ')}` : ' · TOTAL PURGE · INVULNERABLE'),
-        color: '#fde047',
-        alpha: 1.0,
-        startTime: now
-      });
       updateHeaderUI();
       TouchFireControls.syncSkillCooldownUI();
       return true;
@@ -9066,7 +8814,7 @@
           RoundBossEngine._spawnHitSparks(pt.x, pt.y, '#fbbf24', 10);
           // Burst radiant golden-crimson debris shards so the player sees every bad node disintegrate!
           for (let sh = 0; sh < 8; sh++) {
-            if (state.vaporizedShards.length >= 160) break;
+            if (state.vaporizedShards.length >= 48) break;
             const sAng = Math.random() * Math.PI * 2;
             const sSpd = 3.5 + Math.random() * 6.5;
             state.vaporizedShards.push({
@@ -10784,19 +10532,9 @@
       audio.playVoidbloomDestroy(vb.scale);
       state.globalScreenShake = Math.max(state.globalScreenShake || 0, sizeT >= 0.5 ? 14 : 6);
 
-      this._emitParticles(vb.x, vb.y, '#a3e635', 16, 6.5);
-      this._emitParticles(vb.x, vb.y, '#a855f7', 14, 5.5);
-      this._emitParticles(vb.x, vb.y, '#fde047', sizeT >= 0.5 ? 14 : 6, 7.2);
-
-      const tierTag = sizeT >= 0.65 ? 'HUGE VOIDBLOOM PURGED!' : (sizeT >= 0.3 ? 'VOIDBLOOM SHATTERED!' : 'VOIDBLOOM CLEARED!');
-      state.floatingTexts.push({
-        x: vb.x,
-        y: vb.y - 12,
-        text: `☠ ${tierTag} +${scoreGain.toLocaleString()} · +${ammoGain} AMMO`,
-        color: sizeT >= 0.5 ? '#fde047' : '#a3e635',
-        alpha: 1.0,
-        startTime: now
-      });
+      this._emitParticles(vb.x, vb.y, '#a3e635', 14, 6.5);
+      this._emitParticles(vb.x, vb.y, '#a855f7', 10, 5.5);
+      this._emitParticles(vb.x, vb.y, '#fde047', sizeT >= 0.5 ? 10 : 5, 7.2);
       updateHeaderUI();
     },
 
@@ -10814,19 +10552,11 @@
       let riftCount = 0;
       for (let t = this.telegraphs.length - 1; t >= 0; t--) {
         const tg = this.telegraphs[t];
-        this._emitParticles(tg.x, tg.y, '#a3e635', 14, 5.8);
-        this._emitParticles(tg.x, tg.y, '#fde047', 10, 6.4);
+        this._emitParticles(tg.x, tg.y, '#a3e635', 12, 5.8);
+        this._emitParticles(tg.x, tg.y, '#fde047', 8, 6.4);
         state.score += 250;
         RoundBossEngine.addAmmo(6);
         SkillSystem.onEnemyDestroyed();
-        state.floatingTexts.push({
-          x: tg.x,
-          y: tg.y - 10,
-          text: '☠ VOIDBLOOM RIFT COLLAPSED! +250 · +6 AMMO',
-          color: '#fde047',
-          alpha: 1.0,
-          startTime: now
-        });
         riftCount++;
       }
       this.telegraphs = [];
@@ -10897,7 +10627,7 @@
       state.floatingTexts.push({
         x: cx,
         y: cy - 42,
-        text: `☠ VOIDBLOOM BREACH! -1 SHIELD` + (drained > 0 ? ` · -${formatAmmoCount(drained)} AMMO` : ''),
+        text: '-1 SHIELD',
         color: '#a3e635',
         alpha: 1.0,
         startTime: now
@@ -10971,13 +10701,6 @@
         ctx.arc(0, 0, r * 0.68, now * 0.01, now * 0.01 + Math.PI * 1.4);
         ctx.stroke();
         ctx.restore();
-
-        ctx.globalAlpha = 0.95;
-        ctx.font = '800 9.5px "Lexend", sans-serif';
-        ctx.fillStyle = '#d9f99d';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('VOIDBLOOM RIFT', tg.x, tg.y - 24);
         ctx.restore();
       }
 
@@ -11307,11 +11030,11 @@
       state.playerShots = [];
       state.bossHitSparks = [];
       state.roundBanner = {
-        title: 'ROUND 1 · WAVE 1/3 · VANGUARD',
-        sub: `Survive 3 Waves (${spec.minDurationSec}s) & Catch ${spec.quota} Good Nodes to Challenge Boss (${spec.maxHp} HP)`,
+        title: 'ROUND 1 · WAVE 1/3',
+        sub: `${spec.quota} Nodes to Boss (${spec.maxHp} HP)`,
         color: '#38bdf8',
         startTime: now || performance.now(),
-        duration: 2600
+        duration: 1500
       };
     },
 
@@ -11321,16 +11044,6 @@
       if (TouchFireControls.isTouch) return;
       state.offenseMode = !state.offenseMode;
       audio.playPhaseSwitch();
-      if (state.offenseMode && state.coreAmmo <= 0) {
-        state.floatingTexts.push({
-          x: (cachedCanvasRect.width || 800) * (state.catcherX || 0.5),
-          y: (cachedCanvasRect.height || 600) * (state.catcherY || 0.8) - 54,
-          text: '⚡ CATCH GOOD NODES TO RELOAD CANNON!',
-          color: '#fbbf24',
-          alpha: 1.0,
-          startTime: now || performance.now()
-        });
-      }
       updateHeaderUI();
     },
 
@@ -11353,21 +11066,13 @@
         const wasQuotaMet = (state.roundNodesCaught || 0) >= (state.roundQuota || 48);
         state.roundNodesCaught = (state.roundNodesCaught || 0) + 1;
 
-        // If player cleared node quota ahead of the Boss approach timer, reward OVERCHARGE bonus!
+        // If player cleared node quota ahead of the Boss approach timer, reward OVERCHARGE bonus quietly (no stacking text!)
         if (wasQuotaMet && (state.roundGauntletMs || 0) < (state.roundMinDurationMs || 45000)) {
           state.roundOverchargeBonusCount = (state.roundOverchargeBonusCount || 0) + 1;
           state.score += 250;
           this.addAmmo(2);
           state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 5);
           if (state.pulseMeter >= 100) state.isPulseReady = true;
-          state.floatingTexts.push({
-            x: (cachedCanvasRect.width || w || 800) * (state.catcherX || 0.5),
-            y: (cachedCanvasRect.height || 600) * (state.catcherY || 0.8) - 52,
-            text: '⚡ OVERCHARGE +250 · +2 AMMO',
-            color: '#fde047',
-            alpha: 1.0,
-            startTime: now || performance.now()
-          });
         }
 
         // Check sub-wave milestone & dual-gated Boss unlock
@@ -11396,10 +11101,10 @@
         audio.playPhaseSwitch();
         state.roundBanner = {
           title: `ROUND ${rnd} · WAVE 2/3 · SURGE`,
-          sub: `+${wBonus.toLocaleString()} WAVE BONUS · +6 AMMO · HAZARD CADENCE ESCALATING!`,
+          sub: `+${wBonus.toLocaleString()} · +6 AMMO`,
           color: '#c084fc',
           startTime: now || performance.now(),
-          duration: 2100
+          duration: 1450
         };
         updateHeaderUI();
       } else if ((state.roundSubWave || 1) === 2 && effectivePct >= 0.667) {
@@ -11409,11 +11114,11 @@
         this.addAmmo(8);
         audio.playPhaseSwitch();
         state.roundBanner = {
-          title: `ROUND ${rnd} · WAVE 3/3 · APEX ASSAULT`,
-          sub: `+${wBonus.toLocaleString()} WAVE BONUS · +8 AMMO · BOSS SIGNAL DETECTED — HOLD THE LINE!`,
+          title: `ROUND ${rnd} · WAVE 3/3 · APEX`,
+          sub: `+${wBonus.toLocaleString()} · +8 AMMO`,
           color: '#fb923c',
           startTime: now || performance.now(),
-          duration: 2300
+          duration: 1450
         };
         updateHeaderUI();
       }
@@ -11427,18 +11132,13 @@
     startBossWarning(now, w) {
       const spec = this.getSpec(state.currentRound, state.catcherType);
       state.roundPhase = 'warning';
-      state.bossWarningUntil = now + 2300;
-      // === CHANGED (v389): Keep all existing bad nodes, powered hazards, lasers & shockwaves alive when Boss arrives! ===
-      const ars = getRealmArsenal(state.catcherType);
+      state.bossWarningUntil = now + 1800;
       state.roundBanner = {
-        title: `⚠ WARNING · ROUND ${spec.round} BOSS`,
-        // === CHANGED (v392): Per-realm skill prompts for touch vs desktop ===
-        sub: TouchFireControls.isTouch
-          ? `${spec.name} · ${spec.maxHp} HP — HOLD ${ars.gun} · TAP SKILLS`
-          : `${spec.name} · ${spec.maxHp} HP — Hold Click/[F]/[A] · [S] ${ars.skill2} · [D] ${ars.ult}`,
+        title: `ROUND ${spec.round} BOSS INCOMING`,
+        sub: `${spec.name} · ${spec.maxHp} HP`,
         color: '#f43f5e',
         startTime: now,
-        duration: 2300
+        duration: 1700
       };
       audio.playBossWarningSiren();
       updateHeaderUI();
@@ -11551,11 +11251,11 @@
         if (state.boss) {
           state.boss.armorBreakUntil = now + 2600;
         }
-        this._spawnHitSparks(pyl.x, pyl.y, '#fbbf24', 16);
+        this._spawnHitSparks(pyl.x, pyl.y, '#fbbf24', 14);
         audio.playArmorBreak();
         state.floatingTexts.push({
           x: pyl.x, y: pyl.y - 10,
-          text: '💥 PYLON SHATTERED! ARMOR BREAK 1.5X (+8 AMMO)',
+          text: 'ARMOR BREAK 1.5X',
           color: '#fbbf24',
           alpha: 1.0,
           startTime: now
@@ -11581,21 +11281,11 @@
 
       const hitX = hx !== null ? hx : boss.x;
       const hitY = hy !== null ? hy : boss.y;
-      this._spawnHitSparks(hitX, hitY, (exactDamage || isCrit) ? '#fde047' : '#38bdf8', exactDamage ? 14 : (isCrit ? 6 : 3));
+      this._spawnHitSparks(hitX, hitY, (exactDamage || isCrit) ? '#fde047' : '#38bdf8', exactDamage ? 12 : (isCrit ? 5 : 3));
       audio.playBossHit(exactDamage || isCrit);
 
       // Award crisp score tick per hit
       state.score += Math.round(finalDmg * 45);
-      if (exactDamage || isCrit || isSpecial) {
-        state.floatingTexts.push({
-          x: hitX + (Math.random() - 0.5) * 26,
-          y: hitY - 14,
-          text: exactDamage ? `☄️ NOVA -${Math.round(finalDmg)} HP` : (isSpecial ? `⚡ -${Math.round(finalDmg)} BLAST!` : `CRIT -${finalDmg.toFixed(1)}`),
-          color: '#fde047',
-          alpha: 1.0,
-          startTime: now
-        });
-      }
 
       // Check Phase 2 Enrage (<50% HP) & Phase 3 Final Eclipse (<33% HP on Round 5+)
       const hpRatio = boss.hp / boss.maxHp;
@@ -11605,7 +11295,7 @@
         audio.playHyperCometRoar();
         state.floatingTexts.push({
           x: boss.x, y: boss.y + boss.hitR * 0.55,
-          text: '🔥 PHASE 2 ENRAGE!',
+          text: 'PHASE 2 ENRAGE',
           color: '#f43f5e',
           alpha: 1.0,
           startTime: now
@@ -11620,7 +11310,7 @@
         audio.playTier5Ascension();
         state.floatingTexts.push({
           x: boss.x, y: boss.y + boss.hitR * 0.72,
-          text: '☄️ PHASE 3 · FINAL ECLIPSE!',
+          text: 'PHASE 3 ECLIPSE',
           color: '#fbbf24',
           alpha: 1.0,
           startTime: now
@@ -12184,15 +11874,8 @@
               consumed = true;
               if (pt.shotHp <= 0) {
                 state.score += 250;
-                this._spawnHitSparks(pt.x, pt.y, '#fbbf24', 12);
+                this._spawnHitSparks(pt.x, pt.y, '#fbbf24', 10);
                 audio.playMissileHit();
-                state.floatingTexts.push({
-                  x: pt.x, y: pt.y - 10,
-                  text: '💥 HAZARD SHATTERED +250',
-                  color: '#38bdf8',
-                  alpha: 1.0,
-                  startTime: now
-                });
                 state.particles.splice(pIdx, 1);
                 SkillSystem.onEnemyDestroyed();
                 updateHeaderUI();
@@ -12471,15 +12154,7 @@
       // Round 5+ Apex Boss: 22% chance to tear open a 3D Voidbloom Rift directly from its wing emitter!
       if (boss.bossId >= 5 && Math.random() < 0.22 && (VoidbloomEngine.nodes.length + VoidbloomEngine.telegraphs.length) < CONFIG.voidbloom.maxAlive) {
         VoidbloomEngine.scheduleTelegraph(w, h, boss.x, now, launchX);
-        this._spawnHitSparks(launchX, launchY, '#a3e635', 12);
-        state.floatingTexts.push({
-          x: launchX,
-          y: launchY + 14,
-          text: '☠ BOSS OPENED VOIDBLOOM RIFT!',
-          color: '#a3e635',
-          alpha: 1.0,
-          startTime: now
-        });
+        this._spawnHitSparks(launchX, launchY, '#a3e635', 10);
         return true;
       }
 
@@ -12564,20 +12239,12 @@
       state.particles.push(p);
 
       // Visual & Audio Boss Deployment Telegraph
-      this._spawnHitSparks(launchX, launchY, boss.accent || '#f43f5e', 12);
+      this._spawnHitSparks(launchX, launchY, boss.accent || '#f43f5e', 10);
       if (nClass === 'hyper_comet') {
         audio.playHyperCometRoar();
       } else {
         audio.playPhaseSwitch();
       }
-      state.floatingTexts.push({
-        x: launchX,
-        y: launchY + 16,
-        text: `⚡ BOSS DEPLOYED ${labelMap[nClass] || 'POWERED HAZARD'}!`,
-        color: boss.accent || '#fb923c',
-        alpha: 1.0,
-        startTime: now
-      });
       return true;
     },
 
@@ -13197,7 +12864,7 @@
       renderReflexShields();
       state.floatingTexts.push({
         x: cx, y: cy - 36,
-        text: '⚠ HULL BREACH! -1 SHIELD',
+        text: '-1 SHIELD',
         color: '#f43f5e',
         alpha: 1.0,
         startTime: now
@@ -13341,32 +13008,13 @@
         ctx.fillRect(bx + bw * 0.50, barY + 1, 2, bh - 2);
         if (boss.bossId === 5) ctx.fillRect(bx + bw * 0.33, barY + 1, 2, bh - 2);
 
-        // Compact Control Hint right below Boss Bar
-        ctx.font = '700 10px "Lexend", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        const ammoDisp = formatAmmoCount(state.coreAmmo || 0);
-        const promptMaxW = Math.max(220, w - 24);
-        const ars = getRealmArsenal(state.catcherType);
+        // Only alert when ammo runs out (keeps Boss arena clean)
         if ((state.coreAmmo || 0) <= 0) {
+          ctx.font = '700 10px "Lexend", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
           ctx.fillStyle = '#fbbf24';
-          ctx.fillText('⚡ AMMO EMPTY — CATCH FALLING GOOD NODES TO RELOAD!', w * 0.5, barY + bh + 5, promptMaxW);
-        } else if (TouchFireControls.isTouch) {
-          // === CHANGED (v392): Touch-only Kimmy combat prompt text per realm ===
-          if (!TouchFireControls.isGunHeld()) {
-            ctx.fillStyle = '#7dd3fc';
-            ctx.fillText(`HOLD ${ars.gun} · TAP SKILLS`, w * 0.5, barY + bh + 5, promptMaxW);
-          } else {
-            ctx.fillStyle = '#fde68a';
-            ctx.fillText(`🔥 ${ars.gun} ACTIVE · ${ammoDisp} SHOTS`, w * 0.5, barY + bh + 5, promptMaxW);
-          }
-        } else if (!state.offenseMode && !state.pointerFiring && !TouchFireControls.isDesktopKeyGunHeld()) {
-          // === CHANGED (v392): Keep original click/[F] prompt + add realm-specific A/S/D skill hints ===
-          ctx.fillStyle = '#7dd3fc';
-          ctx.fillText(`🔫 ${ammoDisp} SHOTS READY — HOLD CLICK OR PRESS [F] TO BLAST BOSS! · [A] ${ars.gun} · [S] ${ars.skill2} · [D] ${ars.ult}`, w * 0.5, barY + bh + 5, promptMaxW);
-        } else {
-          ctx.fillStyle = '#fde68a';
-          ctx.fillText(`🔥 ${ars.gun} ACTIVE · ${ammoDisp} SHOTS REMAINING`, w * 0.5, barY + bh + 5, promptMaxW);
+          ctx.fillText('AMMO EMPTY · CATCH NODES', w * 0.5, barY + bh + 5, Math.max(200, w - 24));
         }
       }
 
@@ -13669,7 +13317,7 @@
     const picker = document.getElementById('reflexMultiplePicker');
     const badge = document.getElementById('transmuteIndicator');
     if (picker) picker.style.display = type === 'reflex' ? 'flex' : 'none';
-    if (badge) badge.style.display = (type === 'realm' || type === 'dynamo' || type === 'helix' || type === 'meteor') ? 'block' : 'none';
+    if (badge) badge.style.display = 'none';
 
     updateHeaderUI();
     startGame(type);
@@ -14494,7 +14142,7 @@
       updateHeaderUI();
     } else {
       if (picker) picker.style.display = 'none';
-      if (badge) badge.style.display = 'block';
+      if (badge) badge.style.display = 'none';
       if (startOverlay) startOverlay.style.display = 'none';
       state.isChoosingMultiple = false;
     }
@@ -14520,31 +14168,24 @@
 
   function updateTransmuteIndicator() {
     if (!dom.transmuteIndicator) return;
-    const labels = {
-      dynamo: '⚡ FARADAY SINGULARITY CORE · Capture Plasma Orbs!',
-      realm: '⚡ FARADAY SINGULARITY CORE · Capture Plasma Orbs!',
-      helix: '🧬 HARMONIC BIO-LATTICE CORE · Harmonize Nucleotide Pearls!',
-      meteor: '☄️ AEGIS CALDERA CORE · Deflect Molten Bolides!'
-    };
-
-    if (state.gameType === 'reflex') {
-      const reflexMorphLabels = {
-        realm: '⚡ CORE TRANSMUTED: CHROME DYNAMO (Catch Synapse Waves!)',
-        dynamo: '⚡ CORE TRANSMUTED: CHROME DYNAMO (Catch Synapse Waves!)',
-        helix: '⚡ CORE TRANSMUTED: CHROME HELIX (Catch Dual-Strands!)',
-        meteor: '⚡ CORE TRANSMUTED: CHROME METEOR (Deflect Molten Asteroids!)'
-      };
-      dom.transmuteIndicator.textContent = reflexMorphLabels[state.catcherType];
-    } else {
-      dom.transmuteIndicator.textContent = labels[state.catcherType] || labels.realm;
+    if (state.gameType !== 'reflex') {
+      dom.transmuteIndicator.style.display = 'none';
+      return;
     }
+    const reflexMorphLabels = {
+      realm: '⚡ CORE TRANSMUTED: CHROME DYNAMO (Catch Synapse Waves!)',
+      dynamo: '⚡ CORE TRANSMUTED: CHROME DYNAMO (Catch Synapse Waves!)',
+      helix: '⚡ CORE TRANSMUTED: CHROME HELIX (Catch Dual-Strands!)',
+      meteor: '⚡ CORE TRANSMUTED: CHROME METEOR (Deflect Molten Asteroids!)'
+    };
+    dom.transmuteIndicator.textContent = reflexMorphLabels[state.catcherType] || 'ACTIVE CORE';
     dom.transmuteIndicator.className = `transmute-badge transmute-${state.catcherType}`;
   }
 
   let cachedCanvasRect = { left: 0, top: 0, width: 0, height: 0 };
   let cachedCanvasDpr = 1;
   function getRenderDpr() {
-    return Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+    return Math.min(1.25, Math.max(1, window.devicePixelRatio || 1));
   }
 
   function resizeCanvas() {
@@ -14568,7 +14209,7 @@
   // LUXURY OLED COSMIC SPACE ATMOSPHERE (v381 ZERO-LAG GPU CACHE)
   // Pre-baked 256×256 Offscreen Nebula Blit + Zero-Alloc Starfield
   // ─────────────────────────────────────────────────────────────
-  const COSMIC_STARS = Array.from({ length: 48 }, (_, i) => ({
+  const COSMIC_STARS = Array.from({ length: 28 }, (_, i) => ({
     x: ((i * 73 + 19) % 1000) / 1000,
     y: ((i * 97 + 37) % 1000) / 1000,
     baseR: 0.6 + (i % 3) * 0.45,
@@ -14629,9 +14270,7 @@
       const tw = sinV * sinV;
       ctx.globalAlpha = 0.15 + 0.55 * tw;
       const r = s.baseR * (0.85 + 0.35 * tw);
-      ctx.beginPath();
-      ctx.arc(sx, sy, r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
     }
     ctx.restore();
   }
@@ -14653,7 +14292,6 @@
       ctx.save();
       ctx.scale(dpr, dpr);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'medium';
     ctx.clearRect(0, 0, w, h);
 
     // ZERO GRIDLINES: Pure OLED True-Black Space with Silky Organic Ambient Nebulas
@@ -15642,20 +15280,11 @@
             // Award destruction score
             const killScore = isHaz ? 200 : 150;
             state.score += killScore;
-            state.floatingTexts.push({
-              x: pt.x,
-              y: pt.y - 12,
-              text: isHaz ? `+${killScore} VAPORIZED` : `+${killScore} ANNIHILATED`,
-              color: isHaz ? '#f43f5e' : (fp.color || '#38bdf8'),
-              alpha: 1.0,
-              vy: -1.4,
-              life: 0,
-              maxLife: 45
-            });
 
-            // Shatter into 12 radiant kinetic debris shards
+            // Shatter into radiant kinetic debris shards (strictly capped for zero lag)
             if (!state.vaporizedShards) state.vaporizedShards = [];
-            for (let sh = 0; sh < 12; sh++) {
+            for (let sh = 0; sh < 8; sh++) {
+              if (state.vaporizedShards.length >= 32) break;
               const sAngle = Math.atan2(pt.y - fp.y, pt.x - fp.x) + (Math.random() - 0.5) * 1.4;
               const sSpeed = Math.random() * 8.5 + 4.5;
               state.vaporizedShards.push({
@@ -15777,6 +15406,9 @@
 
       // ─── RENDER & UPDATE VAPORIZED KINETIC SHARDS ───
       if (state.vaporizedShards && state.vaporizedShards.length > 0) {
+        if (state.vaporizedShards.length > 32) {
+          state.vaporizedShards.splice(0, state.vaporizedShards.length - 32);
+        }
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         for (let shIdx = state.vaporizedShards.length - 1; shIdx >= 0; shIdx--) {
@@ -16071,13 +15703,6 @@
               p.cometPhase = 'diving';
               p.speed = p.cometDiveSpeed || Math.max(8.5, p.speed * 3.6);
               audio.playHyperCometRoar();
-              state.floatingTexts.push({
-                x: p.x, y: p.y + 34,
-                text: '🔥 INFERNO DIVE!',
-                color: '#fb923c',
-                alpha: 1.0,
-                startTime: now
-              });
             }
           } else {
             // Active Supersonic Dive: Stream continuous incandescent molten embers!
@@ -16184,13 +15809,6 @@
                   tn.justCorruptedUntil = now + 900;
                   tn.hasGrazed = false;
                   state.corruptionBursts.push({ x: tn.x, y: tn.y, r: 16, alpha: 1.0, mode: p.type });
-                  state.floatingTexts.push({
-                    x: tn.x, y: tn.y - 24,
-                    text: '⚡ CORRUPTED!',
-                    color: cPal.hex,
-                    alpha: 1.0,
-                    startTime: now
-                  });
                 }
                 p.laserSalvosLeft = Math.max(0, (p.laserSalvosLeft || 1) - 1);
                 p.laserState = 'firing';
@@ -16544,22 +16162,12 @@
           p.hasGrazed = true;
           const grazeBonus = isComet ? 400
             : ((p.nodeClass === 'corruptor_laser' || p.nodeClass === 'gravity_well' || p.nodeClass === 'phase_stalker') ? 350 : 250);
-          const grazeLabel = isComet ? '🔥 THERMAL GRAZE +400 (+15% PULSE)'
-            : (grazeBonus === 350 ? '⚡ APEX GRAZE +350' : 'GRAZE +250');
           state.score += grazeBonus;
           if (isComet) {
             state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
             if (state.pulseMeter >= 100) { state.isPulseReady = true; audio.playPulseCharged(); }
           }
           CoreKinematics.triggerGraze(p.x, p.y, now);
-          state.floatingTexts.push({
-            x: p.x,
-            y: p.y,
-            text: grazeLabel,
-            color: isComet ? '#fb923c' : '#38bdf8',
-            alpha: 1.0,
-            startTime: now
-          });
           audio.playGrazeCatch(state.combo);
         }
 
@@ -16576,14 +16184,6 @@
                 if (state.pulseMeter >= 100) state.isPulseReady = true;
               }
               CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
-              state.floatingTexts.push({
-                x: p.x,
-                y: p.y,
-                text: wasChargingCorruptor ? '🛡️ SALVO INTERRUPTED +450!' : 'SHIELD DEFLECT +300',
-                color: '#fbbf24',
-                alpha: 1.0,
-                startTime: now
-              });
               audio.playPerfectCatch(state.combo);
               state.particles.splice(i, 1);
               updateHeaderUI();
@@ -16671,9 +16271,11 @@
             audio.playPulseCharged();
 
           } else if (p.nodeClass === 'catalyst') {
-            const targetTierCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
-            state.coreTier = Math.min(5, state.coreTier + 1);
-            state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
+            const targetTierCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28, 6: 50 };
+            if (state.coreTier < 5) {
+              state.coreTier = Math.min(5, state.coreTier + 1);
+              state.combo = Math.max(state.combo, targetTierCombo[state.coreTier] || state.combo);
+            }
             state.isOverdrive = (state.coreTier >= 4);
             const prevLives = state.reflexLives;
             state.reflexLives = Math.min(3, state.reflexLives + 1);
@@ -16681,14 +16283,16 @@
             state.applyBuff('catalyst', 'ASCENSION CATALYST', '#10b981', '💚', 6000, now);
             if (state.coreTier === 5) audio.playTier5Ascension();
             else audio.playOverdriveFanfare();
-            state.floatingTexts.push({
-              x: p.x,
-              y: p.y - 20,
-              text: state.reflexLives > prevLives ? '💚 +1 LIFE RESTORED! (TIER +1)' : '💎 ASCENSION TIER +1 (OVERDRIVE)',
-              color: '#34d399',
-              alpha: 1.0,
-              startTime: now
-            });
+            if (state.reflexLives > prevLives) {
+              state.floatingTexts.push({
+                x: p.x,
+                y: p.y - 20,
+                text: '+1 LIFE',
+                color: '#34d399',
+                alpha: 1.0,
+                startTime: now
+              });
+            }
 
           } else if (p.nodeClass === 'shield') {
             state.applyBuff('shield', 'AEGIS SHIELD', '#f59e0b', '🛡️', 5000, now);
@@ -16740,13 +16344,6 @@
             state.score += 200;
             state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 10);
             if (state.pulseMeter >= 100) state.isPulseReady = true;
-            state.floatingTexts.push({
-              x: p.x, y: p.y - 34,
-              text: '🌌 GRAVITY SLINGSHOT +200!',
-              color: '#38bdf8',
-              alpha: 1.0,
-              startTime: now
-            });
           } else if (catchMode === 'dynamo') {
             // DYNAMO SCIENCE: Faraday Chain Induction — arc jumps to nearest good orb within 220px & pulls it toward player!
             let nearestGood = null;
@@ -16780,13 +16377,6 @@
             state.score += 120;
             state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 6);
             if (state.pulseMeter >= 100) state.isPulseReady = true;
-            state.floatingTexts.push({
-              x: p.x, y: p.y - 30,
-              text: '☄️ KINETIC DEFLECT +120',
-              color: '#fbbf24',
-              alpha: 1.0,
-              startTime: now
-            });
           }
 
           // Trigger Mode-Specific Layered Capture Physics at exact directional contact point
@@ -17012,6 +16602,9 @@
       // ─────────────────────────────────────────────────────────────
       // RENDER DIRECTIONAL PERIMETER CONTACT FLASH ON NODE INTERCEPTION
       // ─────────────────────────────────────────────────────────────
+      if (state.absorptionEffects.length > 6) {
+        state.absorptionEffects.splice(0, state.absorptionEffects.length - 6);
+      }
       for (let ab = state.absorptionEffects.length - 1; ab >= 0; ab--) {
         const eff = state.absorptionEffects[ab];
         eff.alpha -= 0.065 * dtScale;
@@ -17061,22 +16654,28 @@
       }
     }
 
-      // Render Floating Texts (Score / Feedback Alerts — Fault-Tolerant against missing vy)
-      for (let f = state.floatingTexts.length - 1; f >= 0; f--) {
-        const ft = state.floatingTexts[f];
-        if (!ft) { state.floatingTexts.splice(f, 1); continue; }
-        ft.y = (Number.isFinite(ft.y) ? ft.y : h * 0.5) + (Number.isFinite(ft.vy) ? ft.vy : -1.2);
-        ft.alpha = (Number.isFinite(ft.alpha) ? ft.alpha : 1.0) - 0.02;
-        if (ft.alpha <= 0) {
-          state.floatingTexts.splice(f, 1);
-          continue;
-        }
+      // Render Floating Texts (Strictly capped to 3 simultaneous items for crisp playfield)
+      if (state.floatingTexts.length > 3) {
+        state.floatingTexts.splice(0, state.floatingTexts.length - 3);
+      }
+      if (state.floatingTexts.length > 0) {
+        const ftStep = Math.max(0.5, Math.min(2.2, dtScale || 1));
         ctx.save();
-        ctx.font = '800 14px "Lexend", sans-serif';
+        ctx.font = '800 13px "Lexend", sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillStyle = ft.color || '#fde047';
-        ctx.globalAlpha = Math.max(0, Math.min(1, ft.alpha));
-        ctx.fillText(String(ft.text || ''), Number.isFinite(ft.x) ? ft.x : w * 0.5, ft.y);
+        for (let f = state.floatingTexts.length - 1; f >= 0; f--) {
+          const ft = state.floatingTexts[f];
+          if (!ft) { state.floatingTexts.splice(f, 1); continue; }
+          ft.y = (Number.isFinite(ft.y) ? ft.y : h * 0.5) + (Number.isFinite(ft.vy) ? ft.vy : -1.2) * ftStep;
+          ft.alpha = (Number.isFinite(ft.alpha) ? ft.alpha : 1.0) - 0.025 * ftStep;
+          if (ft.alpha <= 0) {
+            state.floatingTexts.splice(f, 1);
+            continue;
+          }
+          ctx.fillStyle = ft.color || '#fde047';
+          ctx.globalAlpha = Math.max(0, Math.min(1, ft.alpha));
+          ctx.fillText(String(ft.text || ''), Number.isFinite(ft.x) ? ft.x : w * 0.5, ft.y);
+        }
         ctx.restore();
       }
 
@@ -17259,23 +16858,6 @@
         screenShake: (mode === 'meteor' ? 22 : (mode === 'helix' ? 14 : 18)),
         shatteredSet: new Set()
       };
-
-      // Floating Cataclysm Banner Text
-      const pulseTitles = {
-        dynamo: '⚡ TACHYON SINGULARITY WAVE UNLEASHED!',
-        helix: '🧬 CYTOGENETIC SHATTER WAVE UNLEASHED!',
-        meteor: '🔥 SOLAR HYPERNOVA CATACLYSM UNLEASHED!'
-      };
-      state.floatingTexts.push({
-        x: coreX,
-        y: coreY - 60,
-        text: pulseTitles[mode] || pulseTitles.dynamo,
-        color: pColor,
-        alpha: 1.0,
-        vy: -1.2,
-        life: 0,
-        maxLife: 60
-      });
 
       updateHeaderUI();
     }
@@ -18019,7 +17601,7 @@
       pCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
       pCtx.clearRect(0, 0, w, h);
       pCtx.imageSmoothingEnabled = true;
-      pCtx.imageSmoothingQuality = 'medium';
+      pCtx.imageSmoothingEnabled = true;
 
       // Subtle animated cosmic starlight / realm motes behind the Tier V Archon
       pCtx.save();
@@ -18084,7 +17666,7 @@
 
     // 2. Wire Per-Button Live Micro-Physics Canvas + Cached Dimensions (Zero per-frame reflow!)
     function syncButtonSizes() {
-      const dpr = Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+      const dpr = Math.min(1.25, Math.max(1, window.devicePixelRatio || 1));
       for (let i = 0; i < fxControllers.length; i++) {
         const c = fxControllers[i];
         const rect = c.btn.getBoundingClientRect();
