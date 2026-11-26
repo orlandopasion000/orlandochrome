@@ -275,6 +275,82 @@
       this._vibrate([30, 20, 30, 20, 60]);
     }
 
+    // === CHANGED (v404): Grand 1.4s Tier V -> Tier VI Hatching Soundscape (Mode-Tailored, Rich Low-End & Warm Harmony) ===
+    playTier6Hatch(mode = 'dynamo') {
+      if (this.isMuted) return;
+      this.init();
+      try {
+        const ac = this.ctx;
+        const t0 = ac.currentTime;
+        // Stage 1 (0 - 350ms): Inward sub-bass tension charge swell
+        const chargeOsc = ac.createOscillator();
+        const chargeGain = ac.createGain();
+        chargeOsc.type = 'triangle';
+        chargeOsc.frequency.setValueAtTime(68, t0);
+        chargeOsc.frequency.exponentialRampToValueAtTime(148, t0 + 0.34);
+        chargeGain.gain.setValueAtTime(0.01, t0);
+        chargeGain.gain.linearRampToValueAtTime(0.24, t0 + 0.28);
+        chargeGain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.37);
+        chargeOsc.connect(chargeGain);
+        chargeGain.connect(ac.destination);
+        chargeOsc.start(t0);
+        chargeOsc.stop(t0 + 0.38);
+
+        // Stage 2 (350ms): Shell crack/shatter burst (filtered noise + warm impact punch)
+        const crackAt = t0 + 0.35;
+        const dur = 0.26;
+        const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 1.8);
+        }
+        const noise = ac.createBufferSource();
+        noise.buffer = buf;
+        const filter = ac.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(mode === 'meteor' ? 420 : (mode === 'helix' ? 1150 : 880), crackAt);
+        filter.Q.value = mode === 'meteor' ? 1.4 : 2.2;
+        const nGain = ac.createGain();
+        nGain.gain.setValueAtTime(0.26, crackAt);
+        nGain.gain.exponentialRampToValueAtTime(0.001, crackAt + dur);
+        noise.connect(filter);
+        filter.connect(nGain);
+        nGain.connect(ac.destination);
+        noise.start(crackAt);
+
+        const impactOsc = ac.createOscillator();
+        const impactGain = ac.createGain();
+        impactOsc.type = 'sine';
+        impactOsc.frequency.setValueAtTime(mode === 'meteor' ? 140 : 190, crackAt);
+        impactOsc.frequency.exponentialRampToValueAtTime(48, crackAt + 0.32);
+        impactGain.gain.setValueAtTime(0.32, crackAt);
+        impactGain.gain.exponentialRampToValueAtTime(0.001, crackAt + 0.34);
+        impactOsc.connect(impactGain);
+        impactGain.connect(ac.destination);
+        impactOsc.start(crackAt);
+        impactOsc.stop(crackAt + 0.35);
+
+        // Stage 3 & 4 (620ms - 1250ms): Heroic ascending Tier VI reveal fanfare
+        const root = (mode === 'meteor') ? 196.00 : (mode === 'helix' ? 246.94 : 220.00);
+        const ratios = [1.0, 1.25, 1.5, 2.0, 2.25];
+        ratios.forEach((r, idx) => {
+          const nt = t0 + 0.62 + idx * 0.085;
+          const o = ac.createOscillator();
+          const g = ac.createGain();
+          o.type = (idx < 2) ? 'triangle' : 'sine';
+          o.frequency.setValueAtTime(root * r, nt);
+          g.gain.setValueAtTime(0.001, nt);
+          g.gain.linearRampToValueAtTime(0.14, nt + 0.03);
+          g.gain.exponentialRampToValueAtTime(0.0008, nt + 0.52);
+          o.connect(g);
+          g.connect(ac.destination);
+          o.start(nt);
+          o.stop(nt + 0.54);
+        });
+      } catch (e) {}
+      this._vibrate([25, 35, 70, 25, 45, 25, 80]);
+    }
+
     playPhaseSwitch() {
       if (this.isMuted) return;
       this.init();
@@ -2332,30 +2408,65 @@
   // Ensures zero wing clipping at sprite/viewport edges and unified size scaling across all realms & tiers
   // ─────────────────────────────────────────────────────────────
   const CORE_GEOMETRY_DB = {
-    version: 'v403_uncut_t4_wings',
+    version: 'v404_tier6_hatching',
     refCanvasW: 1024,
     refCanvasH: 576,
     wingCanvasW: 512,
     wingCanvasH: 576,
     sphereRadiusRef: 168,
     hingeXRef: 148,
-    tipXRef: { 1: 168, 2: 256, 3: 336, 4: 416, 5: 496 },
-    halfTopRef: { 1: 215, 2: 215, 3: 215, 4: 245, 5: 270 },
-    halfBotRef: { 1: 215, 2: 215, 3: 215, 4: 235, 5: 260 }
+    tipXRef: { 1: 168, 2: 256, 3: 336, 4: 416, 5: 496, 6: 516 },
+    halfTopRef: { 1: 215, 2: 215, 3: 215, 4: 245, 5: 270, 6: 315 },
+    halfBotRef: { 1: 215, 2: 215, 3: 215, 4: 235, 5: 260, 6: 435 }
+  };
+
+  // Verified pixel anchors & shoulder-cannon muzzles measured on 1024x682 Tier VI PNGs
+  const TIER6_SPECS = {
+    meteor: {
+      name: 'METEOR DRAGON',
+      width: 1024,
+      height: 682,
+      anchorX: 512,
+      anchorY: 265,
+      muzzleL: { x: 385, y: 95 },
+      muzzleR: { x: 636, y: 95 },
+      scaleMult: 1.06
+    },
+    helix: {
+      name: 'HELIX UNICORN',
+      width: 1024,
+      height: 682,
+      anchorX: 512,
+      anchorY: 268,
+      muzzleL: { x: 406, y: 148 },
+      muzzleR: { x: 617, y: 148 },
+      scaleMult: 1.08
+    },
+    dynamo: {
+      name: 'DYNAMO PRINCESS',
+      width: 1024,
+      height: 682,
+      anchorX: 512,
+      anchorY: 278,
+      muzzleL: { x: 373, y: 19 },
+      muzzleR: { x: 650, y: 19 },
+      scaleMult: 1.12
+    }
   };
 
   const CoreGeometryDB = {
     data: null,
+    TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade403_uncut_t4_wings')
+      fetch('assets/core-geometry-db.json?v=arcade404_tier6_hatching')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
           this.data = json;
           if (typeof json.hingeXRef === 'number') CORE_GEOMETRY_DB.hingeXRef = json.hingeXRef;
           if (typeof json.sphereRadiusRef === 'number') CORE_GEOMETRY_DB.sphereRadiusRef = json.sphereRadiusRef;
-          for (let t = 1; t <= 5; t++) {
+          for (let t = 1; t <= 6; t++) {
             const key = String(t);
             if (typeof json.tierMaxTipXRef[key] === 'number') {
               CORE_GEOMETRY_DB.tipXRef[t] = json.tierMaxTipXRef[key];
@@ -2374,13 +2485,25 @@
               CORE_GEOMETRY_DB.halfBotRef[t] = maxBot;
             }
           }
+          if (json.tier6Specs) {
+            ['meteor', 'helix', 'dynamo'].forEach((m) => {
+              const s = json.tier6Specs[m];
+              if (s && TIER6_SPECS[m]) {
+                if (typeof s.anchorX === 'number') TIER6_SPECS[m].anchorX = s.anchorX;
+                if (typeof s.anchorY === 'number') TIER6_SPECS[m].anchorY = s.anchorY;
+                if (s.muzzleL) TIER6_SPECS[m].muzzleL = s.muzzleL;
+                if (s.muzzleR) TIER6_SPECS[m].muzzleR = s.muzzleR;
+                if (typeof s.scaleMult === 'number') TIER6_SPECS[m].scaleMult = s.scaleMult;
+              }
+            });
+          }
         })
         .catch(() => {});
     },
     _interpMetric(map, tierVal) {
-      const c = Math.max(1, Math.min(5, Number.isFinite(tierVal) ? tierVal : 1));
+      const c = Math.max(1, Math.min(6, Number.isFinite(tierVal) ? tierVal : 1));
       const lo = Math.floor(c);
-      const hi = Math.min(5, lo + 1);
+      const hi = Math.min(6, lo + 1);
       const frac = c - lo;
       return map[lo] + (map[hi] - map[lo]) * frac;
     },
@@ -2390,7 +2513,7 @@
       const isMobile = isTouchMode || w < 600;
       const baseDrawW = isMobile ? Math.min(w * 0.80, 340) : Math.min(w * 0.64, 780);
       let u = customScale || (baseDrawW / 1376.0);
-      const tCur = Math.max(1, Math.min(5, Number.isFinite(tier) ? tier : 1));
+      const tCur = Math.max(1, Math.min(6, Number.isFinite(tier) ? tier : 1));
       const tipX = this._interpMetric(CORE_GEOMETRY_DB.tipXRef, tCur);
       const halfTopRef = this._interpMetric(CORE_GEOMETRY_DB.halfTopRef, tCur);
       const halfBotRef = this._interpMetric(CORE_GEOMETRY_DB.halfBotRef, tCur);
@@ -2400,7 +2523,7 @@
       let coreImgScale = (68.0 / 150.0) * u;
       if (!customScale) {
         const maxAllowedW = w * 0.68;
-        const maxAllowedH = h * 0.34;
+        const maxAllowedH = h * (tCur >= 5.2 ? 0.38 : 0.34);
         const curSpanW = tipX * 2 * hEnv * coreImgScale;
         const curSpanH = (halfTopRef + halfBotRef) * vEnv * coreImgScale;
         let capFactor = 1.0;
@@ -2425,6 +2548,34 @@
         safePadTop: Math.ceil(halfTopPx + 54),
         safePadBottom: Math.ceil(halfBotPx + 12)
       };
+    },
+    getTier6DrawLayout(mode, u) {
+      const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+      const spec = TIER6_SPECS[mKey] || TIER6_SPECS.dynamo;
+      const scale = (68.0 / 150.0) * u * (spec.scaleMult || 1.08);
+      return {
+        spec,
+        scale,
+        drawW: spec.width * scale,
+        drawH: spec.height * scale,
+        anchorOffX: spec.anchorX * scale,
+        anchorOffY: spec.anchorY * scale
+      };
+    },
+    getTier6Muzzles(mode, u, cx, cy, bankAngle = 0) {
+      const lay = this.getTier6DrawLayout(mode, u);
+      const rot = bankAngle || 0;
+      const cosR = Math.cos(rot);
+      const sinR = Math.sin(rot);
+      const toWorld = (m) => {
+        const lx = (m.x - lay.spec.anchorX) * lay.scale;
+        const ly = (m.y - lay.spec.anchorY) * lay.scale;
+        return {
+          x: cx + lx * cosR - ly * sinR,
+          y: cy + lx * sinR + ly * cosR
+        };
+      };
+      return { left: toWorld(lay.spec.muzzleL), right: toWorld(lay.spec.muzzleR), layout: lay };
     },
     clampCatcherPosition(rawX, rawY, canvasW, canvasH, tier, isTouchMode, isReflexMode, reflexBottomMargin) {
       const m = this.computeCoreMetrics(canvasW, canvasH, tier, isTouchMode, null);
@@ -2506,12 +2657,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade403_uncut_t4_wings';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade404_tier6_hatching';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade403_uncut_t4_wings';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade404_tier6_hatching';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade403_uncut_t4_wings';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade404_tier6_hatching';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2530,21 +2681,21 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade403_uncut_t4_wings`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade404_tier6_hatching`;
 
-    for (let t = 1; t <= 5; t++) {
+    for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade403_uncut_t4_wings`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade404_tier6_hatching`;
 
-      if (t >= 2) {
+      if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade403_uncut_t4_wings`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade404_tier6_hatching`;
       }
     }
   });
@@ -2768,9 +2919,9 @@
       this.pitchAngleVel = (this.pitchAngleVel + (targetPitch - this.pitchAngle) * 0.25 * dt) * Math.pow(0.72, dt);
       this.pitchAngle += this.pitchAngleVel * dt;
 
-      // UPGRADE 1: Real-Time Morphing "Ascension Unfurl" Spring (Tier I <-> II <-> III <-> IV <-> V)
-      if (targetTier > this.lastTargetTier) {
-        // Trigger Ascension Unfurl Burst Ring!
+      // UPGRADE 1: Real-Time Morphing "Ascension Unfurl" Spring (Tier I <-> II <-> III <-> IV <-> V <-> VI)
+      if (targetTier > this.lastTargetTier && targetTier <= 5) {
+        // Trigger Ascension Unfurl Burst Ring (Tier VI uses dedicated Tier6HatchSystem)!
         this.ascensionRings.push({
           tierReached: targetTier,
           radius: 36,
@@ -2795,7 +2946,7 @@
       } else if (prevCTier >= targetTier && this.continuousTier < targetTier) {
         this.continuousTier = targetTier;
       }
-      this.continuousTier = Math.max(1.0, Math.min(5.0, this.continuousTier));
+      this.continuousTier = Math.max(1.0, Math.min(6.0, this.continuousTier));
 
       for (let i = this.ascensionRings.length - 1; i >= 0; i--) {
         const ar = this.ascensionRings[i];
@@ -3496,24 +3647,12 @@
                 RoundBossEngine.onGoodNodeCaught(pt.nodeClass, false, now, (cachedCanvasRect.width || 800));
               }
               const prevCombo = state.combo;
-              state.combo = Math.min(50, state.combo + 1);
-
-              // Recalculate Core Evolution Tier immediately based on updated combo
-              if (state.combo >= 28) {
-                state.coreTier = 5;
-                state.isOverdrive = true;
-              } else if (state.combo >= 21) {
-                state.coreTier = 4;
-                state.isOverdrive = true;
-              } else if (state.combo >= 14) {
-                state.coreTier = 3;
-                state.isOverdrive = false;
-              } else if (state.combo >= 7) {
-                state.coreTier = 2;
-                state.isOverdrive = false;
+              state.combo = Math.min(999, state.combo + 1);
+              if (typeof evaluateCoreTierFromCombo === 'function') {
+                evaluateCoreTierFromCombo(now, true);
               } else {
-                state.coreTier = 1;
-                state.isOverdrive = false;
+                state.coreTier = state.combo >= 50 ? 6 : (state.combo >= 28 ? 5 : (state.combo >= 21 ? 4 : (state.combo >= 14 ? 3 : (state.combo >= 7 ? 2 : 1))));
+                state.isOverdrive = (state.coreTier >= 4);
               }
               CoreKinematics.continuousTier = state.coreTier;
 
@@ -5627,14 +5766,521 @@
     ctx.restore();
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // TIER V -> TIER VI GRAND HATCHING CHOREOGRAPHY ENGINE (v404)
+  // 4-Phase 1.4s Morph attached dynamically to the moving player:
+  //   1. Charge (0 - 350ms): Tier V egg contracts; branching fissures ignite inside cracks
+  //   2. Break Open (350 - 650ms): 6 clipped Tier V shell wedges blast/spin apart + mode bursts
+  //   3. Reveal (650 - 1100ms): Torso-anchored Tier VI character emerges with clean masked reveal
+  //   4. Settle (1100 - 1400ms): Fragments clear cleanly; brief "TIER VI" label fades out
+  // ══════════════════════════════════════════════════════════════════════════
+  const Tier6HatchSystem = {
+    DURATION_MS: 1400,
+    BANNER_END_MS: 1580,
+    active: false,
+    mode: 'dynamo',
+    startTime: 0,
+    eggCanvas: null,
+    eggSnapshotU: 0.36,
+    wedges: [],
+    sparks: [],
+
+    _initFractures() {
+      const baseAngles = [-2.62, -1.62, -0.58, 0.52, 1.54, 2.58];
+      this.wedges = baseAngles.map((a0, i) => {
+        const a1 = (i < baseAngles.length - 1) ? baseAngles[i + 1] : (baseAngles[0] + Math.PI * 2);
+        const mid = (a0 + a1) * 0.5;
+        // Jagged crack spine shared by Phase 1 crack lines & Phase 2 wedge polygons
+        const buildEdge = (ang) => [
+          { r: 0.0, a: ang },
+          { r: 0.32, a: ang + (i % 2 === 0 ? 0.09 : -0.09) },
+          { r: 0.66, a: ang + (i % 2 === 0 ? -0.08 : 0.08) },
+          { r: 1.18, a: ang + (i % 2 === 0 ? 0.04 : -0.04) }
+        ];
+        return {
+          idx: i,
+          a0,
+          a1,
+          mid,
+          edgeA: buildEdge(a0),
+          edgeB: buildEdge(a1),
+          speed: 0.78 + ((i * 37) % 10) * 0.055,
+          spin: ((i % 2 === 0) ? 1 : -1) * (1.1 + ((i * 29) % 7) * 0.28),
+          liftBias: (Math.sin(mid) - 0.15) * 0.25
+        };
+      });
+    },
+
+    _captureEggSnapshot(mode, now) {
+      const cw = 420;
+      const ch = 260;
+      if (!this.eggCanvas) {
+        this.eggCanvas = document.createElement('canvas');
+        this.eggCanvas.width = cw;
+        this.eggCanvas.height = ch;
+      }
+      const eCtx = this.eggCanvas.getContext('2d');
+      if (!eCtx) return;
+      eCtx.clearRect(0, 0, cw, ch);
+      // Draw real Tier V core + wings scaled neatly into the offscreen shell canvas
+      const snapU = 0.72;
+      this.eggSnapshotU = snapU;
+      QuantumRenderer._drawLayeredWingedCore(eCtx, mode, cw * 0.5, ch * 0.5, now, 5, snapU, true, true);
+    },
+
+    _seedParticles(mode) {
+      this.sparks = [];
+      for (let i = 0; i < 24; i++) {
+        const ang = (i / 24) * Math.PI * 2 + (i % 3) * 0.17;
+        this.sparks.push({
+          ang,
+          speed: 0.65 + (i % 5) * 0.26,
+          size: 2.2 + (i % 4) * 1.15,
+          rot: i * 0.9,
+          rotSpd: ((i % 2 === 0) ? 1 : -1) * (3.2 + (i % 3) * 1.4),
+          delay: (i % 4) * 0.035,
+          kind: i % 3
+        });
+      }
+    },
+
+    start(mode, now) {
+      const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+      this._initFractures();
+      this._captureEggSnapshot(mKey, now);
+      this._seedParticles(mKey);
+      this.active = true;
+      this.mode = mKey;
+      this.startTime = now;
+      this.bannerUntil = now + this.BANNER_END_MS;
+      state.globalScreenShake = Math.max(state.globalScreenShake || 0, 11);
+      if (typeof audio !== 'undefined' && audio.playTier6Hatch) {
+        audio.playTier6Hatch(mKey);
+      }
+    },
+
+    cancel() {
+      this.active = false;
+      this.bannerUntil = 0;
+    },
+
+    reset() {
+      this.active = false;
+      this.bannerUntil = 0;
+      this.sparks = [];
+    },
+
+    isActive(mode = null, now = performance.now()) {
+      if (!this.active) return false;
+      if (mode && this.mode !== (mode === 'realm' ? 'dynamo' : mode)) return false;
+      const elapsed = now - this.startTime;
+      if (elapsed >= this.DURATION_MS) {
+        this.active = false;
+        return false;
+      }
+      return true;
+    },
+
+    _easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); },
+    _easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; },
+    _easeOutBack(t) {
+      const c1 = 1.45;
+      const c3 = c1 + 1;
+      return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+    },
+
+    _drawFissures(ctx, mode, prog, radius, alpha) {
+      if (alpha <= 0.02 || prog <= 0.01) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const mainCol = (mode === 'meteor')
+        ? `rgba(249, 115, 22, ${0.95 * alpha})`
+        : (mode === 'helix' ? `rgba(34, 211, 238, ${0.92 * alpha})` : `rgba(192, 132, 252, ${0.92 * alpha})`);
+      const coreCol = (mode === 'meteor')
+        ? `rgba(254, 240, 138, ${alpha})`
+        : (mode === 'helix' ? `rgba(244, 114, 182, ${alpha})` : `rgba(224, 242, 254, ${alpha})`);
+
+      for (let i = 0; i < this.wedges.length; i++) {
+        const pts = this.wedges[i].edgeA;
+        const maxSeg = prog * (pts.length - 1);
+        const rxScale = (ang) => {
+          const ca = Math.cos(ang);
+          const sa = Math.sin(ang);
+          return radius * (0.68 + 0.34 * ca * ca - 0.14 * sa * sa);
+        };
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        for (let k = 1; k < pts.length; k++) {
+          const prev = pts[k - 1];
+          const cur = pts[k];
+          const segFrac = Math.max(0, Math.min(1, maxSeg - (k - 1)));
+          if (segFrac <= 0) break;
+          const aCur = prev.a + (cur.a - prev.a) * segFrac;
+          const rCur = (prev.r + (cur.r - prev.r) * segFrac) * rxScale(aCur) * 0.72;
+          ctx.lineTo(Math.cos(aCur) * rCur, Math.sin(aCur) * rCur);
+        }
+        ctx.strokeStyle = mainCol;
+        ctx.lineWidth = 3.8;
+        ctx.stroke();
+        ctx.strokeStyle = coreCol;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Fine secondary branching crack strictly inside the egg silhouette
+        if (prog > 0.35) {
+          const bFrac = Math.min(1, (prog - 0.35) / 0.65);
+          const pMid = pts[1];
+          const rMid = pMid.r * rxScale(pMid.a) * 0.72;
+          const bx0 = Math.cos(pMid.a) * rMid;
+          const by0 = Math.sin(pMid.a) * rMid;
+          const bAng = pMid.a + ((i % 2 === 0) ? 0.52 : -0.52);
+          const bx1 = bx0 + Math.cos(bAng) * radius * 0.24 * bFrac;
+          const by1 = by0 + Math.sin(bAng) * radius * 0.20 * bFrac;
+          ctx.beginPath();
+          ctx.moveTo(bx0, by0);
+          ctx.lineTo(bx1, by1);
+          ctx.strokeStyle = mainCol;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    },
+
+    _drawShellFragments(ctx, mode, u, fracProg, fragAlpha) {
+      if (!this.eggCanvas || fragAlpha <= 0.02) return;
+      const cw = this.eggCanvas.width;
+      const ch = this.eggCanvas.height;
+      const drawScale = u / (this.eggSnapshotU || 0.72);
+      const dw = cw * drawScale;
+      const dh = ch * drawScale;
+      const polyR = Math.max(dw, dh) * 0.62;
+      const spreadDist = 115 * u * this._easeOutCubic(fracProg);
+
+      ctx.save();
+      for (let i = 0; i < this.wedges.length; i++) {
+        const w = this.wedges[i];
+        const dx = Math.cos(w.mid) * spreadDist * w.speed;
+        const dy = Math.sin(w.mid) * spreadDist * w.speed + fracProg * fracProg * 38 * u * w.liftBias;
+        const rot = w.spin * fracProg;
+
+        ctx.save();
+        ctx.translate(dx, dy);
+        ctx.rotate(rot);
+        ctx.globalAlpha = fragAlpha;
+
+        // Clip wedge polygon generously so no wingtip of eggCanvas is clipped
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        for (let k = 1; k < w.edgeA.length; k++) {
+          const pt = w.edgeA[k];
+          const rr = (k === w.edgeA.length - 1) ? polyR : pt.r * polyR * 0.68;
+          ctx.lineTo(Math.cos(pt.a) * rr, Math.sin(pt.a) * rr);
+        }
+        ctx.arc(0, 0, polyR, w.edgeA[w.edgeA.length - 1].a, w.edgeB[w.edgeB.length - 1].a, false);
+        for (let k = w.edgeB.length - 1; k >= 1; k--) {
+          const pt = w.edgeB[k];
+          const rr = (k === w.edgeB.length - 1) ? polyR : pt.r * polyR * 0.68;
+          ctx.lineTo(Math.cos(pt.a) * rr, Math.sin(pt.a) * rr);
+        }
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(this.eggCanvas, -dw * 0.5, -dh * 0.5, dw, dh);
+        ctx.restore();
+
+        // Crisp illuminated inner fracture seam ONLY along the broken shell split (never outer empty arc)
+        const seamR = 54 * u;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = (mode === 'meteor')
+          ? `rgba(251, 146, 60, ${0.88 * fragAlpha})`
+          : (mode === 'helix' ? `rgba(103, 232, 249, ${0.82 * fragAlpha})` : `rgba(165, 243, 252, ${0.88 * fragAlpha})`);
+        ctx.lineWidth = Math.max(1.4, 2.2 * u);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        for (let k = 1; k < w.edgeA.length; k++) {
+          const pt = w.edgeA[k];
+          const rr = Math.min(seamR, pt.r * seamR * 0.85);
+          ctx.lineTo(Math.cos(pt.a) * rr, Math.sin(pt.a) * rr);
+        }
+        ctx.moveTo(0, 0);
+        for (let k = 1; k < w.edgeB.length; k++) {
+          const pt = w.edgeB[k];
+          const rr = Math.min(seamR, pt.r * seamR * 0.85);
+          ctx.lineTo(Math.cos(pt.a) * rr, Math.sin(pt.a) * rr);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore();
+    },
+
+    _drawModeBreakEffects(ctx, mode, u, elapsedMs, pBreak) {
+      // 1. Outward shards / ember trails / sparks
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.sparks.length; i++) {
+        const s = this.sparks[i];
+        const tLoc = Math.max(0, Math.min(1, (pBreak - s.delay) / Math.max(0.25, 1.0 - s.delay)));
+        if (tLoc <= 0 || tLoc >= 1) continue;
+        const dist = (24 + 135 * this._easeOutCubic(tLoc) * s.speed) * u;
+        const sx = Math.cos(s.ang) * dist;
+        const sy = Math.sin(s.ang) * dist + (mode === 'meteor' ? tLoc * tLoc * 24 * u : 0);
+        const sa = Math.sin(tLoc * Math.PI) * 0.92;
+        const sr = s.size * u * (1.1 - tLoc * 0.45);
+
+        ctx.save();
+        ctx.translate(sx, sy);
+        ctx.rotate(s.rot + s.rotSpd * tLoc);
+        if (mode === 'meteor') {
+          // Short ember trail behind basalt chunk
+          ctx.fillStyle = `rgba(254, 240, 138, ${sa})`;
+          ctx.fillRect(-sr * 0.8, -sr * 0.5, sr * 1.6, sr);
+          ctx.strokeStyle = `rgba(249, 115, 22, ${sa * 0.85})`;
+          ctx.lineWidth = Math.max(1.2, 1.8 * u);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(-Math.cos(s.ang) * 16 * u, -Math.sin(s.ang) * 16 * u);
+          ctx.stroke();
+        } else if (mode === 'helix') {
+          ctx.fillStyle = (s.kind % 2 === 0) ? `rgba(103, 232, 249, ${sa})` : `rgba(244, 114, 182, ${sa})`;
+          ctx.beginPath();
+          ctx.moveTo(0, -sr * 1.7);
+          ctx.lineTo(sr * 0.75, 0);
+          ctx.lineTo(0, sr * 1.7);
+          ctx.lineTo(-sr * 0.75, 0);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.strokeStyle = (s.kind % 2 === 0) ? `rgba(224, 242, 254, ${sa})` : `rgba(192, 132, 252, ${sa})`;
+          ctx.lineWidth = Math.max(1.4, 2.0 * u);
+          ctx.beginPath();
+          ctx.moveTo(-sr * 1.6, 0);
+          ctx.lineTo(sr * 1.6, 0);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // 2. Mode-Signature Structural Break Accent:
+      if (mode === 'helix' && pBreak < 0.88) {
+        // Helix: One crisp paired cyan & magenta spiral briefly unwinds from the crystal shell
+        const spAlpha = Math.sin(Math.min(1, pBreak / 0.88) * Math.PI) * 0.90;
+        const maxR = (38 + pBreak * 95) * u;
+        for (let strand = 0; strand < 2; strand++) {
+          const offsetA = strand * Math.PI + pBreak * 4.4;
+          ctx.beginPath();
+          for (let st = 0; st <= 22; st++) {
+            const f = st / 22;
+            const r = f * maxR;
+            const a = offsetA + f * Math.PI * 2.2;
+            const px = Math.cos(a) * r;
+            const py = Math.sin(a) * r * 0.78;
+            if (st === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.strokeStyle = (strand === 0) ? `rgba(34, 211, 238, ${spAlpha})` : `rgba(244, 114, 182, ${spAlpha})`;
+          ctx.lineWidth = Math.max(1.8, 2.8 * u);
+          ctx.stroke();
+        }
+      } else if (mode === 'dynamo' && pBreak < 0.82) {
+        // Dynamo: Short blue-white electric arcs leaping across separating panels
+        const arcAlpha = Math.sin(Math.min(1, pBreak / 0.82) * Math.PI) * 0.95;
+        const spread = (32 + pBreak * 92) * u;
+        for (let i = 0; i < this.wedges.length; i++) {
+          const w1 = this.wedges[i];
+          const w2 = this.wedges[(i + 1) % this.wedges.length];
+          const p1x = Math.cos(w1.mid) * spread * w1.speed * 0.75;
+          const p1y = Math.sin(w1.mid) * spread * w1.speed * 0.75;
+          const p2x = Math.cos(w2.mid) * spread * w2.speed * 0.75;
+          const p2y = Math.sin(w2.mid) * spread * w2.speed * 0.75;
+          ctx.beginPath();
+          ctx.moveTo(p1x, p1y);
+          for (let k = 1; k <= 3; k++) {
+            const fk = k / 4;
+            const jx = Math.sin(elapsedMs * 0.08 + i * 3.1 + k * 2.3) * 8 * u;
+            const jy = Math.cos(elapsedMs * 0.07 + i * 2.7 + k * 1.9) * 8 * u;
+            ctx.lineTo(p1x + (p2x - p1x) * fk + jx, p1y + (p2y - p1y) * fk + jy);
+          }
+          ctx.lineTo(p2x, p2y);
+          ctx.strokeStyle = `rgba(125, 211, 252, ${arcAlpha})`;
+          ctx.lineWidth = Math.max(1.6, 2.4 * u);
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(255, 255, 255, ${arcAlpha * 0.9})`;
+          ctx.lineWidth = Math.max(0.9, 1.1 * u);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    },
+
+    render(ctx, mode, cx, cy, u, now) {
+      const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+      const elapsed = Math.max(0, now - this.startTime);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      if (elapsed < 350) {
+        // PHASE 1: CHARGE (0 - 350ms)
+        const p1 = elapsed / 350;
+        const contract = 1.0 - 0.08 * this._easeInOutQuad(p1);
+        const jitterX = Math.sin(elapsed * 0.095) * (1.2 + p1 * 2.6) * u;
+        const jitterY = Math.cos(elapsed * 0.11) * (1.0 + p1 * 2.0) * u;
+        ctx.save();
+        ctx.translate(jitterX, jitterY);
+        ctx.scale(contract, contract);
+        if (this.eggCanvas) {
+          const drawScale = u / (this.eggSnapshotU || 0.72);
+          const dw = this.eggCanvas.width * drawScale;
+          const dh = this.eggCanvas.height * drawScale;
+          ctx.drawImage(this.eggCanvas, -dw * 0.5, -dh * 0.5, dw, dh);
+        } else {
+          QuantumRenderer._drawLayeredWingedCore(ctx, mKey, 0, 0, now, 5, u, false, true);
+        }
+        this._drawFissures(ctx, mKey, p1, 135 * u, Math.min(1, p1 * 1.35));
+        ctx.restore();
+      } else {
+        // PHASES 2 -> 4 (350 - 1400ms)
+        const pBreak = Math.min(1, (elapsed - 350) / 850);
+        const fragAlpha = (elapsed < 650)
+          ? 1.0
+          : Math.max(0, 1.0 - (elapsed - 650) / 600);
+
+        // Background fragment dispersion pass
+        if (fragAlpha > 0.02) {
+          this._drawShellFragments(ctx, mKey, u, pBreak, fragAlpha);
+        }
+
+        // Character Reveal Pass (starts opening at 540ms, full wings spread by 1100ms, settled by 1400ms)
+        if (elapsed >= 520) {
+          const pRev = Math.max(0, Math.min(1, (elapsed - 520) / 580));
+          const pSettle = (elapsed >= 1100) ? Math.min(1, (elapsed - 1100) / 300) : 1;
+          // Short forward emergence lift then settle back cleanly into hover
+          const emergeY = (1.0 - this._easeOutBack(pRev)) * 22 * u - Math.sin(pRev * Math.PI) * 10 * u;
+          const revealAlpha = Math.min(1, pRev * 1.85);
+          // Restrained body-first scale easing
+          const wingSpreadX = (mKey === 'meteor')
+            ? (0.82 + 0.21 * this._easeOutCubic(Math.min(1, pRev / 0.85)) - 0.03 * Math.max(0, (pRev - 0.85) / 0.15))
+            : (mKey === 'dynamo' ? (0.86 + 0.14 * this._easeOutCubic(pRev)) : (0.90 + 0.10 * this._easeOutCubic(pRev)));
+          const revealScaleY = (mKey === 'helix')
+            ? (0.92 + 0.08 * this._easeOutBack(pRev))
+            : (0.90 + 0.10 * this._easeOutCubic(pRev));
+
+          const lay = CoreGeometryDB.getTier6DrawLayout(mKey, u);
+          const halfClipW = (75 * u) + Math.max(0, (pRev - 0.18) / 0.82) * (lay.drawW * 0.56);
+          const halfClipH = (elapsed >= 1060)
+            ? lay.drawH * 0.90
+            : ((95 * u) + Math.min(1, pRev / 0.65) * (lay.drawH * 0.72));
+
+          ctx.save();
+          ctx.translate(0, emergeY);
+          ctx.scale(wingSpreadX, revealScaleY);
+          ctx.globalAlpha = revealAlpha;
+          ctx.beginPath();
+          ctx.rect(-halfClipW, -halfClipH, halfClipW * 2, halfClipH * 2);
+          ctx.clip();
+          QuantumRenderer._drawTier6Character(ctx, mKey, 0, 0, u, now, false, { revealProgress: pRev, settleProgress: pSettle });
+          ctx.restore();
+        }
+
+        // Foreground localized shatter & mode effects pass
+        if (elapsed < 1080) {
+          this._drawModeBreakEffects(ctx, mKey, u, elapsed, Math.min(1, (elapsed - 350) / 700));
+        }
+      }
+
+      ctx.restore();
+    },
+
+    renderBanner(ctx, cx, cy, u, now) {
+      if (!this.bannerUntil || now > this.bannerUntil) return;
+      const elapsed = now - this.startTime;
+      if (elapsed < 860) return;
+      const bElapsed = elapsed - 860;
+      const bDur = this.BANNER_END_MS - 860;
+      const bProg = Math.max(0, Math.min(1, bElapsed / bDur));
+      const bAlpha = (bProg < 0.20)
+        ? (bProg / 0.20)
+        : (bProg > 0.72 ? Math.max(0, (1 - bProg) / 0.28) : 1.0);
+      if (bAlpha <= 0.01) return;
+
+      const riseY = -98 * u - bProg * 20 * u;
+      const spec = TIER6_SPECS[this.mode] || TIER6_SPECS.dynamo;
+      const col = (this.mode === 'meteor') ? '#fbbf24' : (this.mode === 'helix' ? '#67e8f9' : '#e879f9');
+
+      ctx.save();
+      ctx.globalAlpha = bAlpha;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const fSize = Math.max(15, Math.round(22 * Math.max(0.75, u)));
+      ctx.font = `900 ${fSize}px "Lexend", sans-serif`;
+      ctx.lineWidth = Math.max(3, 4.5 * u);
+      ctx.strokeStyle = 'rgba(2, 6, 23, 0.92)';
+      ctx.strokeText(`TIER VI · ${spec.name}`, cx, cy + riseY);
+      ctx.fillStyle = col;
+      ctx.fillText(`TIER VI · ${spec.name}`, cx, cy + riseY);
+      ctx.restore();
+    }
+  };
+
   const QuantumRenderer = {
     drawQuantumAtomic(ctx, cx, cy, now, progress = 0) {
       this.drawDynamoCore(ctx, cx, cy, now, progress);
     },
 
-    // Master Multi-Layered Chrome Core Renderer (Dynamo, Helix, Meteor — Tiers I through V)
-    _drawLayeredWingedCore(ctx, mode, cx, cy, now, tier = 4, customScale = null, isPortalPreview = false) {
-      const tierIdx = Math.min(5, Math.max(1, tier | 0));
+    // Playable Tier VI Model Renderer (Meteor Dragon · Helix Unicorn · Dynamo Princess)
+    _drawTier6Character(ctx, mode, cx, cy, u, now, isPortalPreview = false, opts = null) {
+      const mKey = (mode === 'realm') ? 'dynamo' : (mode || 'dynamo');
+      const spr = LayeredT4Assets.coreTierSprites[mKey] && LayeredT4Assets.coreTierSprites[mKey][6];
+      const sprLoaded = LayeredT4Assets.loaded.coreTierSprites[mKey] && LayeredT4Assets.loaded.coreTierSprites[mKey][6];
+      if (!spr || !sprLoaded) {
+        // Fallback smoothly to Tier V if Tier VI image is still streaming
+        this._drawLayeredWingedCore(ctx, mKey, cx, cy, now, 5, null, isPortalPreview, true);
+        return;
+      }
+
+      const lay = CoreGeometryDB.getTier6DrawLayout(mKey, u);
+      const motionMult = _prefersReducedMotion ? 0.25 : 1.0;
+      const bank = isPortalPreview ? (Math.sin(now * 0.0019) * 0.03) : ((CoreKinematics.bodyBank || 0) * 0.42);
+      const levY = Math.sin(now * 0.0038) * 2.6 * u * motionMult;
+      const breath = 1.0 + Math.sin(now * 0.0044) * 0.012 * motionMult;
+      const strafeLag = isPortalPreview ? 0 : Math.max(-18 * u, Math.min(18 * u, -(CoreKinematics.vx || 0) * 1.45 * u));
+
+      ctx.save();
+      ctx.translate(cx, cy + levY);
+      ctx.rotate(bank);
+      ctx.scale(breath, 2.0 - breath * 0.99);
+
+      // Subtle delayed trailing micro-motifs (tail / mane / braid motion lag behind torso, zero obstruction!)
+      if (!isPortalPreview && (Math.abs(strafeLag) > 1.2 || (opts && opts.revealProgress !== undefined))) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const trailX = strafeLag * 0.85;
+        const tailBaseY = (lay.drawH - lay.anchorOffY) * 0.72;
+        const pCol = (mKey === 'meteor')
+          ? 'rgba(251, 146, 60, 0.42)'
+          : (mKey === 'helix' ? 'rgba(103, 232, 249, 0.38)' : 'rgba(216, 180, 254, 0.38)');
+        ctx.fillStyle = pCol;
+        for (let k = 0; k < 3; k++) {
+          const kf = (k + 1) / 3;
+          ctx.beginPath();
+          ctx.arc(trailX * kf, tailBaseY + k * 7 * u, Math.max(1.2, (3.2 - k * 0.7) * u), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // Draw exact torso-anchored transparent Tier VI PNG (all wings, limbs, horn/crown, twin shoulder guns untouched)
+      ctx.drawImage(spr, -lay.anchorOffX, -lay.anchorOffY, lay.drawW, lay.drawH);
+      ctx.restore();
+    },
+
+    // Master Multi-Layered Chrome Core Renderer (Dynamo, Helix, Meteor — Tiers I through VI)
+    _drawLayeredWingedCore(ctx, mode, cx, cy, now, tier = 4, customScale = null, isPortalPreview = false, skipHatchOverride = false) {
+      const tierIdx = Math.min(6, Math.max(1, tier | 0));
       const cTier = isPortalPreview
         ? tierIdx
         : ((CoreKinematics && CoreKinematics.continuousTier !== undefined && Math.abs(CoreKinematics.continuousTier - tierIdx) < 1.2) ? CoreKinematics.continuousTier : tierIdx);
@@ -5646,6 +6292,38 @@
       const coreMetrics = CoreGeometryDB.computeCoreMetrics(canvasW, canvasH, cTier, isMobile, customScale);
       const u = coreMetrics.u;
       const cySrc = (mode === 'meteor') ? 586.0 : (mode === 'helix' ? 568.0 : 590.0);
+
+      // Delegate to Grand Hatching Choreography OR Playable Tier VI Character when active/unlocked!
+      if (!skipHatchOverride) {
+        if (!isPortalPreview && Tier6HatchSystem.isActive(mode, now)) {
+          Tier6HatchSystem.render(ctx, mode, cx, cy, u, now);
+          ctx.save();
+          ctx.translate(cx, cy);
+          CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
+          const activeShieldH = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
+          if (activeShieldH && activeShieldH.expiresAt > now) {
+            CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, activeShieldH.expiresAt - now, mode);
+          }
+          ctx.restore();
+          Tier6HatchSystem.renderBanner(ctx, cx, cy, u, now);
+          return;
+        }
+        if (tierIdx >= 6) {
+          this._drawTier6Character(ctx, mode, cx, cy, u, now, isPortalPreview);
+          if (!isPortalPreview) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            CoreKinematics.drawCursorReticle(ctx, 0, 0, u, now);
+            const activeShield6 = state.getBuff ? state.getBuff('shield', now) : (state.activeBuff?.type === 'shield' ? state.activeBuff : null);
+            if (activeShield6 && activeShield6.expiresAt > now) {
+              CoreKinematics.drawAegisForcefield(ctx, 0, 0, u, now, activeShield6.expiresAt - now, mode);
+            }
+            ctx.restore();
+            Tier6HatchSystem.renderBanner(ctx, cx, cy, u, now);
+          }
+          return;
+        }
+      }
 
       // Core 1024x576 reference scale so the central sphere radius (150px in 1024x576) equals 68 * u
       const coreImgScale = coreMetrics.coreImgScale;
@@ -8250,6 +8928,15 @@
       const n = volley.targets.length;
       const baseDmg = ars.s2Dmg || CONFIG.skill2.damageMultiplier;
       const spreadStep = (n > 4) ? 0.30 : 0.42;
+      const isT6Launch = ((state.coreTier || 1) >= 6);
+      let t6Muzzles = null;
+      if (isT6Launch && typeof CoreGeometryDB !== 'undefined') {
+        const w = Math.max(320, cachedCanvasRect.width || window.innerWidth || 800);
+        const h = Math.max(240, cachedCanvasRect.height || window.innerHeight || 600);
+        const uNow = CoreGeometryDB.computeCoreMetrics(w, h, 6, w < 600, null).u;
+        const bank = (CoreKinematics && CoreKinematics.bodyBank) ? (CoreKinematics.bodyBank * 0.42) : 0;
+        t6Muzzles = CoreGeometryDB.getTier6Muzzles(vMode, uNow, cx, cy, bank);
+      }
       for (let i = 0; i < n; i++) {
         // Grab free slot from pre-allocated pool
         let slot = null;
@@ -8261,8 +8948,14 @@
         slot.active = true;
         slot.mode = vMode;
         slot.seed = i;
-        slot.x = cx + (i - (n - 1) * 0.5) * (n > 4 ? 12 : 16);
-        slot.y = cy - 26;
+        if (t6Muzzles) {
+          const muz = (i % 2 === 0) ? t6Muzzles.left : t6Muzzles.right;
+          slot.x = muz.x + (Math.floor(i / 2) - 0.5) * 6;
+          slot.y = muz.y;
+        } else {
+          slot.x = cx + (i - (n - 1) * 0.5) * (n > 4 ? 12 : 16);
+          slot.y = cy - 26;
+        }
         slot.vx = Math.cos(fanAngle) * (CONFIG.skill2.speed * 0.68);
         slot.vy = Math.sin(fanAngle) * (CONFIG.skill2.speed * 0.68);
         slot.dmg = baseDmg;
@@ -10183,12 +10876,19 @@
 
       if (state.coreTier > 1) {
         state.coreTier--;
-        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28, 6: 50 };
         state.combo = tierFloorCombo[state.coreTier] || 0;
+        if (state.coreTier < 6) {
+          state.tier6HatchLock = false;
+          if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.cancel();
+        }
       } else {
         state.coreTier = 1;
         state.combo = 0;
+        state.tier6HatchLock = false;
+        if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.cancel();
       }
+      state.prevEvaluatedCombo = state.combo;
       state.reflexLives--;
       state.consecutivePerfects = 0;
       audio.playVoidbloomDrain();
@@ -11005,7 +11705,7 @@
       const cTier = (CoreKinematics && CoreKinematics.continuousTier !== undefined) ? CoreKinematics.continuousTier : tier;
       const fireInterval = (isTouchMode || isKeyAHeld)
         ? FIRE_DELAY
-        : ((tier >= 5) ? 88 : (tier === 4 ? 98 : (tier >= 2 ? 108 : 122)));
+        : ((tier >= 6) ? 82 : ((tier >= 5) ? 88 : (tier === 4 ? 98 : (tier >= 2 ? 108 : 122))));
 
       // Top bezel clearance radius per mode: Dynamo's jeweled crown reaches -85*u; Helix/Meteor spheres reach -68*u
       const coreCrownY = (mode === 'dynamo') ? (-86 * u) : (-69 * u);
@@ -11040,7 +11740,18 @@
         const centerTipOy = coreCrownY - 14 * u;
         const flankTipOy = wingMuzzleY - 12 * u;
 
-        if (tier <= 1) {
+        if (tier >= 6 && typeof CoreGeometryDB !== 'undefined') {
+          const t6Bank = (CoreKinematics && CoreKinematics.bodyBank) ? (CoreKinematics.bodyBank * 0.42) : 0;
+          const mzs = CoreGeometryDB.getTier6Muzzles(mode, u, cx, cy, t6Bank);
+          const lx = mzs.left.x - cx;
+          const ly = mzs.left.y - cy - 4 * u;
+          const rx = mzs.right.x - cx;
+          const ry = mzs.right.y - cy - 4 * u;
+          pushShot(lx, ly, 0, 0.72, true, 0);
+          pushShot(rx, ry, 0, 0.72, true, Math.PI);
+          pushShot(lx - 10 * u, ly + 8 * u, -1.35, 0.34, false, 1.1);
+          pushShot(rx + 10 * u, ry + 8 * u, 1.35, 0.34, false, 2.2);
+        } else if (tier <= 1) {
           pushShot(0, centerTipOy, 0, 1.0, true, 0);
         } else if (tier <= 3) {
           pushShot(-wingMuzzleX, flankTipOy, 0, 0.58, true, 0);
@@ -11355,12 +12066,33 @@
           ctx.restore();
         };
 
-        // Mount Configuration Adaptable to Tiers I through V:
-        // - Tier I: Primary forward crown turret at (0, coreCrownY)
-        // - Tiers II & III: Primary forward crown turret + Twin wing-shoulder artillery turrets at (±wingMuzzleX, wingMuzzleY)
-        // - Tier IV: Heavy forward crown turret + Twin broader wing-collar artillery turrets at (±wingMuzzleX, wingMuzzleY)
-        // - Tier V: Twin crown dual-linked turrets (±15*u, coreCrownY) + Twin outer wing-collar turrets (±wingMuzzleX, wingMuzzleY)
-        if (tier <= 1) {
+        // Mount Configuration Adaptable to Tiers I through VI:
+        // - Tier VI: Built-in Twin Shoulder Weapons remain completely unobstructed; brief localized muzzle flash at exact cannon tips!
+        if (tier >= 6 && typeof CoreGeometryDB !== 'undefined') {
+          if (mfActive) {
+            const mzs = CoreGeometryDB.getTier6Muzzles(mode, u, 0, 0, 0);
+            const flashCol = lowAmmo ? '#f43f5e' : (mode === 'meteor' ? '#fde047' : (mode === 'helix' ? '#67e8f9' : '#e0f2fe'));
+            const ringCol = mode === 'meteor' ? `rgba(251, 146, 60, ${0.9 * mfT})` : (mode === 'helix' ? `rgba(244, 114, 182, ${0.9 * mfT})` : `rgba(56, 189, 248, ${0.9 * mfT})`);
+            [mzs.left, mzs.right].forEach((mTip) => {
+              ctx.save();
+              ctx.translate(mTip.x, mTip.y);
+              ctx.strokeStyle = ringCol;
+              ctx.lineWidth = Math.max(1.5, 2.2 * u);
+              ctx.beginPath();
+              ctx.ellipse(0, -4 * u, 13 * u * (1.2 - mfT * 0.25), 5 * u, 0, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.fillStyle = flashCol;
+              ctx.beginPath();
+              ctx.moveTo(0, -16 * u);
+              ctx.lineTo(4.5 * u, -2 * u);
+              ctx.lineTo(0, 3 * u);
+              ctx.lineTo(-4.5 * u, -2 * u);
+              ctx.closePath();
+              ctx.fill();
+              ctx.restore();
+            });
+          }
+        } else if (tier <= 1) {
           drawMaterialTurret(0, coreCrownY, 1.0, true);
         } else if (tier <= 3) {
           drawMaterialTurret(0, coreCrownY, 0.92, true);
@@ -12446,12 +13178,19 @@
 
       if (state.coreTier > 1) {
         state.coreTier--;
-        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+        const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28, 6: 50 };
         state.combo = tierFloorCombo[state.coreTier] || 0;
+        if (state.coreTier < 6) {
+          state.tier6HatchLock = false;
+          if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.cancel();
+        }
       } else {
         state.coreTier = 1;
         state.combo = 0;
+        state.tier6HatchLock = false;
+        if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.cancel();
       }
+      state.prevEvaluatedCombo = state.combo;
       state.reflexLives--;
       state.consecutivePerfects = 0;
       audio.playHazardExplosion();
@@ -12703,6 +13442,8 @@
     gameType: 'math',
     score: 0,
     combo: 1,
+    prevEvaluatedCombo: 1,
+    tier6HatchLock: false,
     targetMultiple: 7, // Chosen multiple for Reflex Numbers Blitz (1 to 9)
     isChoosingMultiple: false, // True until player chooses 1-9
     floatingTexts: [],
@@ -12943,6 +13684,7 @@
     TouchFireControls.syncUI();
     if (typeof OverlayRealmFX !== 'undefined') OverlayRealmFX.stop();
     document.body.classList.remove('arcade-active');
+    if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.reset();
     clearInterval(state.mathTimer);
     if (animFrameId) {
       cancelAnimationFrame(animFrameId);
@@ -12953,6 +13695,51 @@
       dom.modal.style.display = 'none';
     }
     document.body.style.overflow = '';
+  }
+
+  // Centralized Combo -> Core Tier Progression Evaluator with One-Shot 50x Tier VI Hatching Lock
+  function evaluateCoreTierFromCombo(now = performance.now(), allowHatch = true) {
+    const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+    const c = Number.isFinite(state.combo) ? state.combo : 0;
+    const prevC = Number.isFinite(state.prevEvaluatedCombo) ? state.prevEvaluatedCombo : 0;
+
+    if (!isCoreArcade) {
+      if (c >= 28) { state.coreTier = 5; state.isOverdrive = true; }
+      else if (c >= 21) { state.coreTier = 4; state.isOverdrive = true; }
+      else if (c >= 14) { state.coreTier = 3; state.isOverdrive = false; }
+      else if (c >= 7) { state.coreTier = 2; state.isOverdrive = false; }
+      else { state.coreTier = 1; state.isOverdrive = false; }
+      state.prevEvaluatedCombo = c;
+      return;
+    }
+
+    const nextTier = (c >= 50) ? 6 : (c >= 28 ? 5 : (c >= 21 ? 4 : (c >= 14 ? 3 : (c >= 7 ? 2 : 1))));
+    if (nextTier === 6) {
+      const crossedFifty = (prevC < 50 && c >= 50);
+      if (allowHatch && !state.tier6HatchLock && (crossedFifty || (state.coreTier || 1) < 6)) {
+        state.tier6HatchLock = true;
+        state.coreTier = 6;
+        state.isOverdrive = true;
+        if (typeof CoreKinematics !== 'undefined') CoreKinematics.continuousTier = 6;
+        const mMode = (state.catcherType === 'helix') ? 'helix' : (state.catcherType === 'meteor' ? 'meteor' : 'dynamo');
+        if (typeof Tier6HatchSystem !== 'undefined') {
+          Tier6HatchSystem.start(mMode, now);
+        }
+      } else {
+        state.tier6HatchLock = true;
+        state.coreTier = 6;
+        state.isOverdrive = true;
+        if (!allowHatch && typeof CoreKinematics !== 'undefined') CoreKinematics.continuousTier = 6;
+      }
+    } else {
+      if (state.coreTier >= 6 || c < 50) {
+        if (c < 50) state.tier6HatchLock = false;
+        if (typeof Tier6HatchSystem !== 'undefined' && c < 50) Tier6HatchSystem.cancel();
+      }
+      state.coreTier = nextTier;
+      state.isOverdrive = (nextTier >= 4);
+    }
+    state.prevEvaluatedCombo = c;
   }
 
   function updateHeaderUI() {
@@ -12969,20 +13756,26 @@
     let nextTitle = '';
     let nextSub = '';
     if (state.gameType === 'dynamo' || state.gameType === 'realm') {
-      nextTitle = state.coreTier === 5 ? 'CHROME DYNAMO · SERAPHIC ARCHON' : 'CHROME DYNAMO';
-      nextSub = state.coreTier === 5
-        ? `⭐ Tier V Supreme Ascendant · Faraday Rail-Arc Core · Round ${state.currentRound || 1}`
-        : `Faraday Singularity Core · Plasma Orbs · Offense Cannon [F] · Round ${state.currentRound || 1}`;
+      nextTitle = state.coreTier >= 6 ? 'CHROME DYNAMO · DYNAMO PRINCESS' : (state.coreTier === 5 ? 'CHROME DYNAMO · SERAPHIC ARCHON' : 'CHROME DYNAMO');
+      nextSub = state.coreTier >= 6
+        ? `👑 Tier VI Mythic Ascension · Crystal Twin-Cannon Maiden · Round ${state.currentRound || 1}`
+        : (state.coreTier === 5
+          ? `⭐ Tier V Supreme Ascendant · Faraday Rail-Arc Core · Round ${state.currentRound || 1}`
+          : `Faraday Singularity Core · Plasma Orbs · Offense Cannon [F] · Round ${state.currentRound || 1}`);
     } else if (state.gameType === 'helix') {
-      nextTitle = state.coreTier === 5 ? 'CHROME HELIX · PRISM ARCHON' : 'CHROME HELIX';
-      nextSub = state.coreTier === 5
-        ? `⭐ Tier V Supreme Ascendant · Twin-Helix Photonic Lance · Round ${state.currentRound || 1}`
-        : `Harmonic Bio-Lattice Core · Nucleotide Pearls · Offense Cannon [F] · Round ${state.currentRound || 1}`;
+      nextTitle = state.coreTier >= 6 ? 'CHROME HELIX · HELIX UNICORN' : (state.coreTier === 5 ? 'CHROME HELIX · PRISM ARCHON' : 'CHROME HELIX');
+      nextSub = state.coreTier >= 6
+        ? `👑 Tier VI Mythic Ascension · Pearlescent Spiral Pegasus · Round ${state.currentRound || 1}`
+        : (state.coreTier === 5
+          ? `⭐ Tier V Supreme Ascendant · Twin-Helix Photonic Lance · Round ${state.currentRound || 1}`
+          : `Harmonic Bio-Lattice Core · Nucleotide Pearls · Offense Cannon [F] · Round ${state.currentRound || 1}`);
     } else if (state.gameType === 'meteor') {
-      nextTitle = state.coreTier === 5 ? 'CHROME METEOR · MAGNETAR SERAPH' : 'CHROME METEOR';
-      nextSub = state.coreTier === 5
-        ? `⭐ Tier V Supreme Ascendant · Solar Mass-Driver Core · Round ${state.currentRound || 1}`
-        : `Aegis Caldera Core · Molten Bolides · Offense Cannon [F] · Round ${state.currentRound || 1}`;
+      nextTitle = state.coreTier >= 6 ? 'CHROME METEOR · METEOR DRAGON' : (state.coreTier === 5 ? 'CHROME METEOR · MAGNETAR SERAPH' : 'CHROME METEOR');
+      nextSub = state.coreTier >= 6
+        ? `👑 Tier VI Mythic Ascension · Hornless Caldera Wyrm · Round ${state.currentRound || 1}`
+        : (state.coreTier === 5
+          ? `⭐ Tier V Supreme Ascendant · Solar Mass-Driver Core · Round ${state.currentRound || 1}`
+          : `Aegis Caldera Core · Molten Bolides · Offense Cannon [F] · Round ${state.currentRound || 1}`);
     } else if (state.gameType === 'reflex') {
       nextTitle = 'REFLEX BLITZ';
       nextSub = state.isChoosingMultiple ? 'Choose a Divisor (1 to 9) to Begin' : `Numbers Multiple Catcher · Catch 2-Digit Multiples of ${state.targetMultiple || 7}`;
@@ -13048,15 +13841,15 @@
     // Advanced HUD: Tier, Pulse & Phase
     if (dom.tierVal && c.tierRaw !== state.coreTier) {
       c.tierRaw = state.coreTier;
-      const tierMap = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V' };
-      const colorMap = { 1: '#00f0ff', 2: '#38bdf8', 3: '#c084fc', 4: '#fef08a', 5: '#f43f5e' };
+      const tierMap = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI' };
+      const colorMap = { 1: '#00f0ff', 2: '#38bdf8', 3: '#c084fc', 4: '#fef08a', 5: '#f43f5e', 6: '#f472b6' };
       dom.tierVal.textContent = tierMap[state.coreTier] || 'I';
       dom.tierVal.style.color = colorMap[state.coreTier] || '#00f0ff';
       if (!c.tierTitleSet) {
         c.tierTitleSet = true;
         const tierPillEl = document.getElementById('cgTierPill');
         if (tierPillEl) {
-          tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28x+ Supreme Seraphic Ascendant)`;
+          tierPillEl.title = `Core Evolution Tier: Tier I (0-6x), Tier II (7-13x), Tier III (14-20x), Tier IV (21-27x Sovereign Overdrive), Tier V (28-49x Supreme Seraphic Ascendant), Tier VI (50x+ Mythic Cosmic Hatch)`;
         }
       }
     }
@@ -13296,6 +14089,9 @@
     state.active = true;
     state.score = 0;
     state.combo = 1;
+    state.prevEvaluatedCombo = 1;
+    state.tier6HatchLock = false;
+    if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.reset();
     updateHeaderUI();
 
     // === CHANGED (v387): Start realm-specific futuristic music theme for Dynamo / Helix / Meteor ===
@@ -13323,6 +14119,8 @@
 
   function handleGameOver(title, desc) {
     state.active = false;
+    if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.reset();
+    state.tier6HatchLock = false;
     // === CHANGED (v387): Stop music, release all pointers & held keys, hide controls on Game Over ===
     RealmMusicEngine.stop();
     TouchFireControls.releaseAllPointers();
@@ -13649,8 +14447,10 @@
     state.catcherVelocity = 0;
     state.lastLoopTimestamp = 0;
 
-    // The 5 Advanced Features State
-    state.coreTier = 1; // Tier I, II, III, IV
+    // The 5+1 Advanced Features State (Tiers I - VI)
+    state.coreTier = 1; // Tier I, II, III, IV, V, VI
+    state.tier6HatchLock = false;
+    state.prevEvaluatedCombo = state.combo || 1;
     state.consecutivePerfects = 0;
     state.pulseMeter = 0; // 0 to 100
     state.isPulseReady = false;
@@ -13660,6 +14460,7 @@
 
     state.currentWave = 1;
     CoreKinematics.reset();
+    if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.reset();
     MeteorVFXEngine.init();
 
     // Set designated catcher type per game mode
@@ -14145,23 +14946,8 @@
       const elapsedSec = (now - state.gameStartTime) / 1000;
       const normFactor = Math.max(0.70, Math.min(1.20, h / 800));
 
-      // Calculate Core Evolution Tier (New Rule: Tier II @ 7, Tier III @ 14, Tier IV @ 21, Tier V @ 28)
-      if (state.combo >= 28) {
-        state.coreTier = 5;
-        state.isOverdrive = true;
-      } else if (state.combo >= 21) {
-        state.coreTier = 4;
-        state.isOverdrive = true;
-      } else if (state.combo >= 14) {
-        state.coreTier = 3;
-        state.isOverdrive = false;
-      } else if (state.combo >= 7) {
-        state.coreTier = 2;
-        state.isOverdrive = false;
-      } else {
-        state.coreTier = 1;
-        state.isOverdrive = false;
-      }
+      // Calculate Core Evolution Tier (Tiers I-V @ 0/7/14/21/28, Tier VI Hatch @ 50x)
+      evaluateCoreTierFromCombo(now, true);
 
       // ─────────────────────────────────────────────────────────────
       // FEATURE 1: FLUX NODE CLASSES SPAWN CHOREOGRAPHY
@@ -15245,8 +16031,8 @@
       // ─────────────────────────────────────────────────────────────
       // UPDATE & RENDER CELESTIAL FLUX NODES
       // ─────────────────────────────────────────────────────────────
-      // Effective capture hitRadius (scaled cleanly to reduced v402 Chrome Core proportions)
-      const tierHitBonus = (state.coreTier - 1) * 10;
+      // Effective capture hitRadius (scaled cleanly to reduced v402 Chrome Core proportions; capped cleanly at Tier V radius for fair Tier VI hazards)
+      const tierHitBonus = Math.min(4, Math.max(0, (state.coreTier || 1) - 1)) * 10;
       const hitRadius = ((deviceInputMode === 'touch') ? 68 : 46) + tierHitBonus;
       const innerSweetSpotRadius = hitRadius * 0.40; // Precision Center Catch sweet spot
       const gravRadius = 130 + tierHitBonus;
@@ -15924,7 +16710,8 @@
           // Load Accumulated Good-Node Ammo into Chrome Core Offense Cannon & Advance Round Quota!
           RoundBossEngine.onGoodNodeCaught(p.nodeClass, isPerfect, now, w);
           const prevCombo = state.combo;
-          state.combo = Math.min(50, state.combo + 1);
+          state.combo = Math.min(999, state.combo + 1);
+          evaluateCoreTierFromCombo(now, true);
           if (prevCombo < 21 && state.combo >= 21) {
             state.isOverdrive = true;
             state.overdriveEndTime = 0; // Stays active as long as 21x streak is held!
@@ -16050,12 +16837,19 @@
 
           if (state.coreTier > 1) {
             state.coreTier--;
-            const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
+            const tierFloorCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28, 6: 50 };
             state.combo = tierFloorCombo[state.coreTier] || 0;
+            if (state.coreTier < 6) {
+              state.tier6HatchLock = false;
+              if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.cancel();
+            }
           } else {
             state.combo = 0;
+            state.tier6HatchLock = false;
+            if (typeof Tier6HatchSystem !== 'undefined') Tier6HatchSystem.cancel();
           }
-          state.isOverdrive = false;
+          state.prevEvaluatedCombo = state.combo;
+          state.isOverdrive = (state.coreTier >= 4);
 
           audio.playMistakeBuzzer();
           renderReflexShields();
@@ -16496,17 +17290,18 @@
     window.triggerFluxPulse = (force = false) => triggerFluxPulse(force);
     if (window.ReflexArcade) window.ReflexArcade.triggerPulse = (force = false) => triggerFluxPulse(force);
 
-    // Cycle Tier (I -> II -> III -> IV -> V) on clicking the TIER pill or pressing 'T'
+    // Cycle Tier (I -> II -> III -> IV -> V -> VI) on clicking the TIER pill or pressing 'T'
     function cycleCoreTier() {
       if (!state.active) return;
-      const nextTierCombo = { 1: 7, 2: 14, 3: 21, 4: 28, 5: 0 };
+      const nextTierCombo = { 1: 7, 2: 14, 3: 21, 4: 28, 5: 50, 6: 0 };
       state.combo = (nextTierCombo[state.coreTier] !== undefined) ? nextTierCombo[state.coreTier] : 0;
-      state.coreTier = state.combo >= 28 ? 5 : (state.combo >= 21 ? 4 : (state.combo >= 14 ? 3 : (state.combo >= 7 ? 2 : 1)));
-      state.isOverdrive = (state.coreTier >= 4);
-      CoreKinematics.continuousTier = state.coreTier;
-      if (state.coreTier === 5) audio.playTier5Ascension();
-      else if (state.coreTier === 4) audio.playOverdriveFanfare();
-      else audio.playPhaseSwitch();
+      evaluateCoreTierFromCombo(performance.now(), true);
+      if (state.coreTier < 6) {
+        CoreKinematics.continuousTier = state.coreTier;
+        if (state.coreTier === 5) audio.playTier5Ascension();
+        else if (state.coreTier === 4) audio.playOverdriveFanfare();
+        else audio.playPhaseSwitch();
+      }
       updateHeaderUI();
     }
     const tierPillEl = document.getElementById('cgTierPill');
@@ -16923,15 +17718,34 @@
     getState: () => state,
     setPointerX: (nx) => { targetCatcherX = Math.max(0.04, Math.min(0.96, nx)); },
     setPointerY: (ny) => { targetCatcherY = Math.max(0.06, Math.min(0.94, ny)); },
-    setTier: (t) => {
-      const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
-      state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
-      state.coreTier = t;
-      CoreKinematics.continuousTier = t;
-      state.isOverdrive = (t >= 4);
-      if (t === 5) audio.playTier5Ascension();
+    setTier: (t, allowHatch = true) => {
+      const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28, 6: 50 };
+      state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 50;
+      evaluateCoreTierFromCombo(performance.now(), allowHatch);
+      if (state.coreTier < 6) {
+        CoreKinematics.continuousTier = state.coreTier;
+        if (state.coreTier === 5) audio.playTier5Ascension();
+      }
       updateHeaderUI();
-    }
+    },
+    setCombo: (n, allowHatch = true) => {
+      state.combo = Math.max(0, Math.min(999, Math.floor(Number(n) || 0)));
+      evaluateCoreTierFromCombo(performance.now(), allowHatch);
+      updateHeaderUI();
+    },
+    addCombo: (delta = 1, allowHatch = true) => {
+      state.combo = Math.max(0, Math.min(999, (state.combo || 0) + (Number(delta) || 0)));
+      evaluateCoreTierFromCombo(performance.now(), allowHatch);
+      updateHeaderUI();
+    },
+    getHatchState: () => ({
+      tier: state.coreTier,
+      combo: state.combo,
+      prevEvaluatedCombo: state.prevEvaluatedCombo,
+      lock: state.tier6HatchLock,
+      hatching: (typeof Tier6HatchSystem !== 'undefined') ? Tier6HatchSystem.isActive() : false,
+      hatchMode: (typeof Tier6HatchSystem !== 'undefined') ? Tier6HatchSystem.mode : null
+    })
   };
   window.openChromeGame = openGame;
 
@@ -16939,15 +17753,17 @@
   window.ReflexArcade = {
     open: openGame,
     close: closeGame,
-    setTier: function(t) {
+    setTier: function(t, allowHatch = true) {
       if (!state.active) return;
-      const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
-      state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
-      state.coreTier = t;
-      CoreKinematics.continuousTier = t;
-      state.isOverdrive = (t >= 4);
-      if (t === 5) audio.playTier5Ascension();
-      updateHeaderUI();
+      window.chromeSynapseGame.setTier(t, allowHatch);
+    },
+    setCombo: function(n, allowHatch = true) {
+      if (!state.active) return;
+      window.chromeSynapseGame.setCombo(n, allowHatch);
+    },
+    addCombo: function(delta = 1, allowHatch = true) {
+      if (!state.active) return;
+      window.chromeSynapseGame.addCombo(delta, allowHatch);
     },
     getState: function() { return state; }
   };
@@ -16960,14 +17776,16 @@
         setTimeout(() => {
           openGame(arc);
           const t = parseInt(p.get('tier') || '0', 10);
-          if (t >= 1 && t <= 5) {
+          const cParam = parseInt(p.get('combo') || '0', 10);
+          if (cParam >= 1 || (t >= 1 && t <= 6)) {
             setTimeout(() => {
-              const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28 };
-              state.combo = (nextCombo[t] !== undefined) ? nextCombo[t] : 28;
-              state.coreTier = t;
-              CoreKinematics.continuousTier = t;
-              state.isOverdrive = (t >= 4);
-              if (t === 5) audio.playTier5Ascension();
+              const nextCombo = { 1: 0, 2: 7, 3: 14, 4: 21, 5: 28, 6: 50 };
+              const targetC = (cParam >= 1) ? cParam : ((nextCombo[t] !== undefined) ? nextCombo[t] : 50);
+              state.combo = targetC;
+              state.prevEvaluatedCombo = targetC;
+              evaluateCoreTierFromCombo(performance.now(), false);
+              CoreKinematics.continuousTier = state.coreTier;
+              if (state.coreTier === 5) audio.playTier5Ascension();
               updateHeaderUI();
             }, 300);
           }

@@ -164,13 +164,32 @@ def main():
 
     print("-" * 82)
     print(f"T1 Sphere Widths: {sphere_widths}")
+
+    # Verify Tier VI Hatching Assets & Calibrated Specs
+    t6_specs = db.get("tier6Specs", {})
+    for m in realms:
+        t6_path = os.path.join(ASSET_DIR, f"core-{m}-t6.png")
+        if not os.path.exists(t6_path):
+            failures.append(f"Missing Tier VI sprite: {t6_path}")
+            continue
+        t6_im = Image.open(t6_path).convert("RGBA")
+        t6_arr = np.array(t6_im)
+        corners_ok = (t6_arr[0, 0, 3] == 0 and t6_arr[0, -1, 3] == 0 and t6_arr[-1, 0, 3] == 0 and t6_arr[-1, -1, 3] == 0)
+        if not corners_ok:
+            failures.append(f"core-{m}-t6.png corners not transparent")
+        sp = t6_specs.get(m)
+        if not sp or sp.get("width") != t6_im.width or sp.get("height") != t6_im.height:
+            failures.append(f"tier6Specs mismatch for {m}")
+        else:
+            print(f"{m:6s}-t6      {t6_im.width:4d}x{t6_im.height:<4d} anchor=({sp['anchorX']},{sp['anchorY']}) muzzleL=({sp['muzzleL']['x']},{sp['muzzleL']['y']}) muzzleR=({sp['muzzleR']['x']},{sp['muzzleR']['y']}) PASS")
+
     if failures:
         print(f"RESULT: FAILED ({len(failures)} issues)")
         for fmsg in failures:
             print("  -", fmsg)
         return 1
 
-    print("RESULT: 15/15 MODELS PASSED ALL WING ATTACHMENT, CLIPPING, PARITY & DB CHECKS!")
+    print("RESULT: ALL 15 TIER I-V MODELS + 3 TIER VI MODELS PASSED VALIDATION!")
     return 0
 
 
