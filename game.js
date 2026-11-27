@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade417_sculpted_bad_cores')
+      fetch('assets/core-geometry-db.json?v=arcade418_apex_bad_vfx')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2683,12 +2683,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade417_sculpted_bad_cores';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade418_apex_bad_vfx';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade417_sculpted_bad_cores';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade418_apex_bad_vfx';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade417_sculpted_bad_cores';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade418_apex_bad_vfx';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2707,30 +2707,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade418_apex_bad_vfx`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade418_apex_bad_vfx`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade418_apex_bad_vfx`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade418_apex_bad_vfx`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade417_sculpted_bad_cores`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade418_apex_bad_vfx`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade417_sculpted_bad_cores`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade418_apex_bad_vfx`;
       }
     }
   });
@@ -2776,27 +2776,27 @@
       LayeredT4Assets.poweredHazard[m][hk] = img;
       LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
-      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade417_sculpted_bad_cores`;
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade418_apex_bad_vfx`;
     });
 
     // v420 Luxury 3D Active Shield Barrier Rings, Heraldic Shield Relics & Upgraded 3D Hazard Cores
     LayeredT4Assets.shieldBarrier[m].onload = () => { LayeredT4Assets.loaded.shieldBarrier[m] = true; };
-    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade418_apex_bad_vfx`;
 
     LayeredT4Assets.powerupShield[m].onload = () => { LayeredT4Assets.loaded.powerupShield[m] = true; };
-    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade418_apex_bad_vfx`;
 
     LayeredT4Assets.hazardCore3D[m].onload = () => { LayeredT4Assets.loaded.hazardCore3D[m] = true; };
-    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade418_apex_bad_vfx`;
   });
 
   ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity', 'catalyst'].forEach((pk) => {
     LayeredT4Assets.powerupRelics[pk].onload = () => { LayeredT4Assets.loaded.powerupRelics[pk] = true; };
-    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade417_sculpted_bad_cores`;
+    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade418_apex_bad_vfx`;
   });
 
   LayeredT4Assets.hazardSeekerRing.onload = () => { LayeredT4Assets.loaded.hazardSeekerRing = true; };
-  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade417_sculpted_bad_cores';
+  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade418_apex_bad_vfx';
 
   // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
@@ -7846,9 +7846,21 @@
             ctx.restore();
           }
 
-          // Subtle Re-Entry Heat Sheen hugging leading bottom edge
+          // v418: Supersonic Plasma Bow-Shock Arc + Re-Entry Heat Sheen hugging leading edge
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.arc(0, targetR * 0.24, targetR * 1.16, 0.20 * Math.PI, 0.80 * Math.PI);
+          ctx.strokeStyle = `rgba(254, 240, 138, ${0.85 * flicker})`;
+          ctx.lineWidth = 3.2 * scale;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(0, targetR * 0.28, targetR * 1.24, 0.24 * Math.PI, 0.76 * Math.PI);
+          ctx.strokeStyle = `rgba(249, 115, 22, ${0.58 * flicker})`;
+          ctx.lineWidth = 5.4 * scale;
+          ctx.stroke();
+
           const leadGlow = ctx.createRadialGradient(0, targetR * 0.45, 0, 0, targetR * 0.35, targetR * 1.25);
           leadGlow.addColorStop(0.0, `rgba(255, 245, 210, ${0.42 * flicker})`);
           leadGlow.addColorStop(0.48, `rgba(249, 115, 22, ${0.26 * flicker})`);
@@ -7892,9 +7904,20 @@
             ctx.restore();
           }
 
-          // 3. Blinding Live Optical Emitter Pulse & Anamorphic Lens Flare on Charge / Laser Fire
+          // 3. v418 Counter-Rotating Dreadnought Optical Target Lock Reticle + Lens Flare
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
+          ctx.lineCap = 'round';
+          const lockRot = -now * 0.0018 + animPhase;
+          const lockR = targetR * (1.26 + charge * 0.14);
+          for (let q = 0; q < 4; q++) {
+            const qa = lockRot + q * (Math.PI * 0.5);
+            ctx.beginPath();
+            ctx.arc(0, 0, lockR, qa - 0.24, qa + 0.24);
+            ctx.strokeStyle = (q % 2 === 0) ? `${mPal.primary}${0.72 + charge * 0.25})` : `rgba(253, 224, 71, ${0.65 + charge * 0.30})`;
+            ctx.lineWidth = 2.4 * scale;
+            ctx.stroke();
+          }
           const eyePulse = 0.78 + 0.22 * Math.sin(now * 0.014 + animPhase);
           const eyeR = targetR * (0.36 + charge * 0.38 + (isFiring ? 0.26 : 0));
           const eyeGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, eyeR);
@@ -7925,9 +7948,18 @@
           // ═══ FEATURE BAD NODE #3: EVENT-HORIZON SINGULARITY (Game-Matched Luxury Raytraced Black Hole + Tidal Swirl) ═══
           const swirlRot = now * 0.0022 + animPhase;
 
-          // 1. Soft Volumetric Tidal Gravity Distortion Aura
+          // 1. Soft Volumetric Tidal Gravity Distortion Aura + 3D Relativistic Photon Lensing Ring (v418)
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
+          ctx.save();
+          ctx.rotate((modeKey === 'dynamo') ? -0.30 : (modeKey === 'meteor' ? -0.18 : 0.14));
+          ctx.scale(1.0, 0.38);
+          ctx.strokeStyle = (modeKey === 'meteor') ? 'rgba(168, 85, 247, 0.72)' : 'rgba(244, 63, 94, 0.72)';
+          ctx.lineWidth = 3.2 * scale;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.56, Math.PI, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
           const tidalR = targetR * (2.05 + 0.16 * Math.sin(now * 0.006));
           const tidalGrad = ctx.createRadialGradient(0, 0, targetR * 0.55, 0, 0, tidalR);
           tidalGrad.addColorStop(0.0, `${mPal.primary}0.32)`);
@@ -7951,8 +7983,18 @@
             ctx.restore();
           }
 
-          // 3. Tilted Relativistic Accretion Streaks Spiraling Inward Into Event Horizon
+          // 3. Tilted Relativistic Front Photon Ring + Accretion Streaks Spiraling Inward
           ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.save();
+          ctx.rotate((modeKey === 'dynamo') ? -0.30 : (modeKey === 'meteor' ? -0.18 : 0.14));
+          ctx.scale(1.0, 0.38);
+          ctx.strokeStyle = (modeKey === 'meteor') ? 'rgba(52, 211, 153, 0.85)' : 'rgba(253, 224, 71, 0.82)';
+          ctx.lineWidth = 2.8 * scale;
+          ctx.beginPath();
+          ctx.arc(0, 0, targetR * 1.56, 0, Math.PI);
+          ctx.stroke();
+          ctx.restore();
           ctx.globalCompositeOperation = 'lighter';
           const tiltAngle = (modeKey === 'dynamo') ? -0.30 : (modeKey === 'meteor' ? -0.18 : 0);
           ctx.rotate(tiltAngle);
@@ -8013,6 +8055,27 @@
             ctx.restore();
           }
 
+          // 2b. v418 Live Crackling Perimeter Coil Overload Arcs
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.lineCap = 'round';
+          const empTick = Math.floor(now / 56);
+          const coilR = targetR * 1.24;
+          for (let c = 0; c < 4; c++) {
+            const ca0 = mineRot + c * (Math.PI * 0.5) + 0.18;
+            const ca1 = ca0 + 0.42;
+            const cam = (ca0 + ca1) * 0.5;
+            const jit = Math.sin(empTick * 4.1 + c * 2.9) * 5.5 * scale;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(ca0) * coilR, Math.sin(ca0) * coilR);
+            ctx.lineTo(Math.cos(cam) * (coilR + jit), Math.sin(cam) * (coilR + jit));
+            ctx.lineTo(Math.cos(ca1) * coilR, Math.sin(ca1) * coilR);
+            ctx.strokeStyle = `${empOuterCol}${0.72 + empCharge * 0.25})`;
+            ctx.lineWidth = 2.0 * scale;
+            ctx.stroke();
+          }
+          ctx.restore();
+
           // 3. Central Pressurized Reactor Surge Flash when approaching 100% charge
           if (empCharge > 0.15) {
             ctx.save();
@@ -8049,15 +8112,22 @@
           ctx.fill();
           ctx.restore();
 
-          // 2. Game-Matched Luxury Raytraced Split Rift Core Sprite with Quantum Phase Breathing!
+          // 2. Game-Matched Luxury Raytraced Split Rift Core Sprite + Twin Quantum Phase Ghost Echoes (v418)!
           const phSpr = LayeredT4Assets.poweredHazard[modeKey] && LayeredT4Assets.poweredHazard[modeKey].phase_stalker;
           const phLoaded = LayeredT4Assets.loaded.poweredHazard[modeKey] && LayeredT4Assets.loaded.poweredHazard[modeKey].phase_stalker;
           if (phSpr && phLoaded) {
             const basePhSize = (modeKey === 'helix' || modeKey === 'meteor') ? 178 : 166;
             const sprSize = basePhSize * scale * (1.0 + Math.sin(now * 0.008 + animPhase) * 0.035);
             const swayAng = Math.sin(now * 0.0025 + animPhase) * 0.14;
+            const echoShift = (6.0 + 4.5 * Math.sin(now * 0.018 + animPhase) + blinkProg * 12) * scale;
             ctx.save();
-            // Subtle phase-flicker while keeping luxury split-core silhouette sharp & legible!
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = 0.22 + blinkProg * 0.16;
+            ctx.drawImage(phSpr, -sprSize * 0.5 - echoShift, -sprSize * 0.5, sprSize, sprSize);
+            ctx.drawImage(phSpr, -sprSize * 0.5 + echoShift, -sprSize * 0.5, sprSize, sprSize);
+            ctx.restore();
+
+            ctx.save();
             if (isTelegraphing) {
               ctx.globalAlpha = Math.max(0.74, 1.0 - blinkProg * 0.22 + Math.sin(now * 0.045) * 0.08);
             }
@@ -8930,8 +9000,8 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 6
-          ? `assets/core-${m}-t6-showcase.png?v=arcade417_sculpted_bad_cores`
-          : `assets/core-${m}-t5.png?v=arcade417_sculpted_bad_cores`;
+          ? `assets/core-${m}-t6-showcase.png?v=arcade418_apex_bad_vfx`
+          : `assets/core-${m}-t5.png?v=arcade418_apex_bad_vfx`;
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -9052,8 +9122,8 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 6
-        ? `assets/core-${curMode}-t6-showcase.png?v=arcade417_sculpted_bad_cores`
-        : `assets/core-${curMode}-t5.png?v=arcade417_sculpted_bad_cores`;
+        ? `assets/core-${curMode}-t6-showcase.png?v=arcade418_apex_bad_vfx`
+        : `assets/core-${curMode}-t5.png?v=arcade418_apex_bad_vfx`;
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -9453,8 +9523,8 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = isT6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade417_sculpted_bad_cores`
-          : `assets/core-${curMode}-t5.png?v=arcade417_sculpted_bad_cores`;
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade418_apex_bad_vfx`
+          : `assets/core-${curMode}-t5.png?v=arcade418_apex_bad_vfx`;
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -15159,7 +15229,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade417_sculpted_bad_cores',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade418_apex_bad_vfx',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -15170,7 +15240,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade417_sculpted_bad_cores',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade418_apex_bad_vfx',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -15181,7 +15251,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade417_sculpted_bad_cores',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade418_apex_bad_vfx',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
