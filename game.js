@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade413_shield_relics')
+      fetch('assets/core-geometry-db.json?v=arcade414_sanctuary_aegis')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2683,12 +2683,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade413_shield_relics';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade414_sanctuary_aegis';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade413_shield_relics';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade414_sanctuary_aegis';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade413_shield_relics';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade414_sanctuary_aegis';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2707,30 +2707,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade414_sanctuary_aegis`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade414_sanctuary_aegis`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade414_sanctuary_aegis`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade414_sanctuary_aegis`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade413_shield_relics`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade414_sanctuary_aegis`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade413_shield_relics`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade414_sanctuary_aegis`;
       }
     }
   });
@@ -2776,27 +2776,27 @@
       LayeredT4Assets.poweredHazard[m][hk] = img;
       LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
-      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade413_shield_relics`;
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade414_sanctuary_aegis`;
     });
 
     // v420 Luxury 3D Active Shield Barrier Rings, Heraldic Shield Relics & Upgraded 3D Hazard Cores
     LayeredT4Assets.shieldBarrier[m].onload = () => { LayeredT4Assets.loaded.shieldBarrier[m] = true; };
-    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade414_sanctuary_aegis`;
 
     LayeredT4Assets.powerupShield[m].onload = () => { LayeredT4Assets.loaded.powerupShield[m] = true; };
-    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade414_sanctuary_aegis`;
 
     LayeredT4Assets.hazardCore3D[m].onload = () => { LayeredT4Assets.loaded.hazardCore3D[m] = true; };
-    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade414_sanctuary_aegis`;
   });
 
   ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity', 'catalyst'].forEach((pk) => {
     LayeredT4Assets.powerupRelics[pk].onload = () => { LayeredT4Assets.loaded.powerupRelics[pk] = true; };
-    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade413_shield_relics`;
+    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade414_sanctuary_aegis`;
   });
 
   LayeredT4Assets.hazardSeekerRing.onload = () => { LayeredT4Assets.loaded.hazardSeekerRing = true; };
-  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade413_shield_relics';
+  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade414_sanctuary_aegis';
 
   // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
@@ -3830,22 +3830,52 @@
       const maxDur = (typeof state !== 'undefined' && state.getBuff) ? (state.getBuff('shield', now)?.maxDur || 5000) : 5000;
       const pctLeft = Math.max(0.02, Math.min(1, timeLeft / Math.max(5000, maxDur)));
 
-      // LAYER 1: Radiant Sanctuary Dome Aura + Soft Interior Jewel Sheen
+      // LAYER 1: 3D Spherical Fresnel Refractive Force-Dome Lens & Glass Crescent Caustics (v414)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      ctx.globalAlpha = 0.28 * warnPulse;
+      ctx.globalAlpha = 0.26 * warnPulse;
       const sprKey = isDyn ? 'cyan' : (isHel ? 'helix' : 'gold');
       ctx.drawImage(QuantumRenderer._getGlowSprite(sprKey), -r * 1.25, -r * 1.25, r * 2.5, r * 2.5);
+      ctx.globalAlpha = 1.0;
 
-      const sheen = ctx.createRadialGradient(0, -r * 0.18, r * 0.45, 0, 0, r * 0.94);
-      sheen.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
-      sheen.addColorStop(0.74, isDyn ? `rgba(56, 189, 248, ${0.07 * warnPulse})` : (isHel ? `rgba(34, 211, 238, ${0.08 * warnPulse})` : `rgba(251, 191, 36, ${0.08 * warnPulse})`));
-      sheen.addColorStop(0.95, isDyn ? `rgba(251, 191, 36, ${0.14 * warnPulse})` : (isHel ? `rgba(232, 121, 249, ${0.14 * warnPulse})` : `rgba(251, 146, 60, ${0.15 * warnPulse})`));
+      // Convex spherical dome interior Fresnel tint + caustic glow
+      const sheen = ctx.createRadialGradient(-r * 0.22, -r * 0.26, r * 0.08, 0, 0, r * 0.88);
+      sheen.addColorStop(0.0, isDyn ? `rgba(224, 242, 254, ${0.05 * warnPulse})` : (isHel ? `rgba(207, 250, 254, ${0.06 * warnPulse})` : `rgba(254, 249, 195, ${0.05 * warnPulse})`));
+      sheen.addColorStop(0.55, isDyn ? `rgba(56, 189, 248, ${0.06 * warnPulse})` : (isHel ? `rgba(192, 132, 252, ${0.07 * warnPulse})` : `rgba(251, 146, 60, ${0.06 * warnPulse})`));
+      sheen.addColorStop(0.88, isDyn ? `rgba(251, 191, 36, ${0.16 * warnPulse})` : (isHel ? `rgba(34, 211, 238, ${0.16 * warnPulse})` : `rgba(253, 224, 71, ${0.18 * warnPulse})`));
       sheen.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = sheen;
       ctx.beginPath();
-      ctx.arc(0, 0, r * 0.94, 0, Math.PI * 2);
+      ctx.arc(0, 0, r * 0.88, 0, Math.PI * 2);
       ctx.fill();
+
+      // Upper-left convex crystal-dome specular crescent reflection + faint lower caustic bounce
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.78, -Math.PI * 0.82, -Math.PI * 0.36);
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.28 * warnPulse})`;
+      ctx.lineWidth = 4.2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.76, -Math.PI * 0.78, -Math.PI * 0.42);
+      ctx.strokeStyle = isDyn ? `rgba(125, 211, 252, ${0.22 * warnPulse})` : (isHel ? `rgba(240, 171, 252, ${0.22 * warnPulse})` : `rgba(254, 240, 138, ${0.24 * warnPulse})`);
+      ctx.lineWidth = 8.5;
+      ctx.stroke();
+
+      // Subtle breathing geodesic hex-lattice caustics inside the sanctuary dome
+      const hexRot = now * 0.00035;
+      ctx.strokeStyle = isDyn ? `rgba(56, 189, 248, ${0.09 * warnPulse})` : (isHel ? `rgba(103, 232, 249, ${0.10 * warnPulse})` : `rgba(251, 191, 36, ${0.09 * warnPulse})`);
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      for (let h = 0; h < 6; h++) {
+        const ha = hexRot + (h * Math.PI / 3);
+        const hx = Math.cos(ha) * r * 0.74;
+        const hy = Math.sin(ha) * r * 0.74;
+        if (h === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
+      ctx.stroke();
       ctx.restore();
 
       // LAYER 2: Counter-Rotating 24K Champagne-Gold Filigree Inner Gyro Ring + Diamond Glints
@@ -3900,21 +3930,15 @@
       ctx.globalCompositeOperation = 'lighter';
       ctx.lineCap = 'round';
       if (effMode === 'dynamo') {
-        // Fine crackling Faraday arcs skipping around the 8 sapphire cabochon mounts
-        const tick = Math.floor(now / 58);
-        for (let k = 0; k < 8; k++) {
-          if (((tick + k) % 3) !== 0) continue;
-          const a0 = k * (Math.PI * 0.25) - 0.10;
-          const a1 = k * (Math.PI * 0.25) + 0.10;
-          const am = (a0 + a1) * 0.5;
-          const jit = Math.sin(tick * 4.3 + k * 2.7) * 6.5;
+        // v414: Smooth Tangent Faraday Plasma Arcs + Sapphire Mount Star-Glints (Zero Jagged Corners!)
+        for (let k = 0; k < 4; k++) {
+          const baseA = now * 0.0012 + k * (Math.PI * 0.5);
           ctx.beginPath();
-          ctx.moveTo(Math.cos(a0) * r * 0.99, Math.sin(a0) * r * 0.99);
-          ctx.lineTo(Math.cos(am) * (r * 1.03 + jit), Math.sin(am) * (r * 1.03 + jit));
-          ctx.lineTo(Math.cos(a1) * r * 0.99, Math.sin(a1) * r * 0.99);
-          ctx.strokeStyle = `rgba(125, 211, 252, ${0.92 * warnPulse})`;
-          ctx.lineWidth = 2.0;
+          ctx.arc(0, 0, r * 0.98, baseA - 0.14, baseA + 0.14);
+          ctx.strokeStyle = `rgba(125, 211, 252, ${0.78 * warnPulse})`;
+          ctx.lineWidth = 2.2;
           ctx.stroke();
+          this._drawStarGlint(ctx, Math.cos(baseA) * r * 0.98, Math.sin(baseA) * r * 0.98, 5.2 * warnPulse, (k % 2 === 0) ? '#fde047' : '#e0f2fe');
         }
       } else if (effMode === 'helix') {
         // Orbiting iridescent cyan & amethyst diamond star-glints
@@ -3964,31 +3988,28 @@
           const iy = Math.sin(imp.angle) * r;
           const crushCol = (effMode === 'helix') ? '#67e8f9' : ((effMode === 'meteor') ? '#fbbf24' : '#38bdf8');
 
+          // v414: Concentric Dual-Wave 24K Gold & Jewel Shock-Ripples + Crisp Outward Anvil Sparks
           ctx.globalAlpha = fade * 0.95;
           ctx.strokeStyle = '#fef9c3';
-          ctx.lineWidth = 3.8 * fade;
+          ctx.lineWidth = 3.6 * fade;
           ctx.beginPath();
-          ctx.arc(0, 0, r * (1.03 + prog * 0.14), imp.angle - 0.52, imp.angle + 0.52);
+          ctx.arc(0, 0, r * (1.02 + prog * 0.12), imp.angle - 0.48, imp.angle + 0.48);
           ctx.stroke();
 
           ctx.strokeStyle = crushCol;
-          ctx.lineWidth = 5.2 * fade;
+          ctx.lineWidth = 4.2 * fade;
           ctx.beginPath();
-          ctx.arc(ix, iy, 12 + prog * 42, imp.angle - 1.15, imp.angle + 1.15);
+          ctx.arc(ix, iy, 10 + prog * 44, imp.angle - 1.25, imp.angle + 1.25);
           ctx.stroke();
 
-          for (let ray = -2; ray <= 2; ray++) {
-            const ra = imp.angle + ray * 0.28;
-            const r0 = 8 + prog * 14;
-            const r1 = 24 + prog * 48;
-            ctx.beginPath();
-            ctx.moveTo(ix + Math.cos(ra) * r0, iy + Math.sin(ra) * r0);
-            ctx.lineTo(ix + Math.cos(ra) * r1, iy + Math.sin(ra) * r1);
-            ctx.strokeStyle = (ray % 2 === 0) ? '#ffffff' : crushCol;
-            ctx.lineWidth = 2.4 * fade;
-            ctx.stroke();
-          }
-          this._drawStarGlint(ctx, ix, iy, 14 * fade, '#ffffff');
+          ctx.strokeStyle = '#fde047';
+          ctx.lineWidth = 2.2 * fade;
+          ctx.beginPath();
+          ctx.arc(ix, iy, 6 + prog * 28, imp.angle - 0.95, imp.angle + 0.95);
+          ctx.stroke();
+
+          this._drawStarGlint(ctx, ix, iy, 15 * fade, '#ffffff');
+          this._drawStarGlint(ctx, ix + Math.cos(imp.angle) * (12 + prog * 24), iy + Math.sin(imp.angle) * (12 + prog * 24), 8 * fade, crushCol);
         }
         ctx.restore();
       }
@@ -8807,8 +8828,8 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 6
-          ? `assets/core-${m}-t6-showcase.png?v=arcade413_shield_relics`
-          : `assets/core-${m}-t5.png?v=arcade413_shield_relics`;
+          ? `assets/core-${m}-t6-showcase.png?v=arcade414_sanctuary_aegis`
+          : `assets/core-${m}-t5.png?v=arcade414_sanctuary_aegis`;
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -8929,8 +8950,8 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 6
-        ? `assets/core-${curMode}-t6-showcase.png?v=arcade413_shield_relics`
-        : `assets/core-${curMode}-t5.png?v=arcade413_shield_relics`;
+        ? `assets/core-${curMode}-t6-showcase.png?v=arcade414_sanctuary_aegis`
+        : `assets/core-${curMode}-t5.png?v=arcade414_sanctuary_aegis`;
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -9330,8 +9351,8 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = isT6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade413_shield_relics`
-          : `assets/core-${curMode}-t5.png?v=arcade413_shield_relics`;
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade414_sanctuary_aegis`
+          : `assets/core-${curMode}-t5.png?v=arcade414_sanctuary_aegis`;
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -15036,7 +15057,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade413_shield_relics',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade414_sanctuary_aegis',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -15047,7 +15068,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade413_shield_relics',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade414_sanctuary_aegis',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -15058,7 +15079,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade413_shield_relics',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade414_sanctuary_aegis',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
