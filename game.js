@@ -2408,7 +2408,7 @@
   // Ensures zero wing clipping at sprite/viewport edges and unified size scaling across all realms & tiers
   // ─────────────────────────────────────────────────────────────
   const CORE_GEOMETRY_DB = {
-    version: 'v409_tier6_true3d',
+    version: 'v410_luxury_joystick',
     refCanvasW: 1024,
     refCanvasH: 576,
     wingCanvasW: 512,
@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade409_tier6_true3d')
+      fetch('assets/core-geometry-db.json?v=arcade410_luxury_joystick')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2663,12 +2663,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade409_tier6_true3d';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade410_luxury_joystick';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade409_tier6_true3d';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade410_luxury_joystick';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade409_tier6_true3d';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade410_luxury_joystick';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2687,30 +2687,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade409_tier6_true3d`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade410_luxury_joystick`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade409_tier6_true3d`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade410_luxury_joystick`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade409_tier6_true3d`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade410_luxury_joystick`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade409_tier6_true3d`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade410_luxury_joystick`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade409_tier6_true3d`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade410_luxury_joystick`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade409_tier6_true3d`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade410_luxury_joystick`;
       }
     }
   });
@@ -8145,12 +8145,17 @@
       meteor: { gun: 'EMBER CANNON',  skill2: 'SEEKER COMETS', ult: 'CALDERA NOVA', s2Icon: '☄️', ultIcon: '🌋', s2Count: 4, s2Dmg: 3.0 }
     },
     ui: {
-      gunBtnSize: 96,
-      skill2BtnSize: 68,
-      ultBtnSize: 76,
-      btnOpacity: 0.85,
+      gunBtnSize: 104,
+      skill2BtnSize: 72,
+      ultBtnSize: 82,
+      pulseBtnSize: 56,
+      btnOpacity: 0.90,
       pressedScale: 0.92,
-      leftHandedKey: 'oc_left_handed_controls'
+      leftHandedKey: 'oc_left_handed_controls',
+      moveModeKey: 'oc_touch_move_mode',
+      joyMaxRadius: 50,
+      joyDeadZone: 6,
+      joyMaxSpeedPx: 820
     },
     gun: {
       fireDelayMs: 120,      // FIRE_DELAY = 120 ms (requestAnimationFrame gated, never setInterval)
@@ -8231,15 +8236,15 @@
   // === CHANGED (v387): STEP 2 — TOUCH-PRIMARY DEVICE DETECTION ===
   function detectTouchPrimary() {
     try {
-      // Explicit QA preview flag (?touch_preview=1) for automated visual verification only; never set in normal play
       if (window.location.search.includes('touch_preview=1')) return true;
     } catch (_) {}
     if (typeof window.matchMedia === 'function') {
       const mqCoarse = window.matchMedia('(pointer: coarse)');
       const mqHoverNone = window.matchMedia('(hover: none)');
       const mqFine = window.matchMedia('(pointer: fine)');
+      if (mqCoarse.matches && !mqFine.matches) return true;
       if (mqCoarse.matches && mqHoverNone.matches) return true;
-      if (mqFine.matches || mqCoarse.matches) return false;
+      if (mqFine.matches) return false;
     }
     return (navigator.maxTouchPoints > 0) && ('ontouchstart' in window);
   }
@@ -8255,12 +8260,30 @@
     leftHanded: (() => {
       try { return localStorage.getItem(CONFIG.ui.leftHandedKey) === '1'; } catch (_) { return false; }
     })(),
-    activePointers: new Map(), // pointerId -> { role: 'MOVE'|'GUN'|'SKILL2'|'ULT', el }
-    heldKeys: new Set(),       // Desktop held keyboard codes ('KeyA', etc.)
+    moveMode: (() => {
+      try {
+        const saved = localStorage.getItem(CONFIG.ui.moveModeKey);
+        return (saved === 'onpoint' || saved === 'joystick') ? saved : 'joystick';
+      } catch (_) { return 'joystick'; }
+    })(),
+    activePointers: new Map(), // pointerId -> { role: 'JOYSTICK'|'MOVE'|'GUN'|'SKILL2'|'ULT'|'PULSE', el }
+    heldKeys: new Set(),       // Desktop held keyboard codes ('KeyA', 'KeyF', etc.)
+    joyState: { active: false, pointerId: null, dx: 0, dy: 0, ux: 0, uy: 0, mag: 0, angleDeg: 0, centerX: 0, centerY: 0 },
     clusterEl: null,
+    joyWrapEl: null,
+    joyEl: null,
+    joyDirArcEl: null,
+    joyKnobEl: null,
+    joyKnobImgEl: null,
+    modePillEl: null,
+    modeBtnStick: null,
+    modeBtnOnPoint: null,
     gunBtn: null,
     skill2Btn: null,
     ultBtn: null,
+    pulseBtn: null,
+    pulseSweepEl: null,
+    pulsePctEl: null,
     ammoEl: null,
     skill2SweepEl: null,
     skill2CdTextEl: null,
@@ -8290,6 +8313,7 @@
     _cachedHidden: null,
     _cachedDeskHidden: null,
     _cachedRealmMode: null,
+    _cachedVisualTier: null,
 
     init() {
       if (this._initialized) return;
@@ -8297,7 +8321,6 @@
 
       this.isTouch = detectTouchPrimary();
 
-      // Re-check automatically on matchMedia change events (e.g. tablet keyboard dock/undock)
       if (typeof window.matchMedia === 'function') {
         const mqCoarse = window.matchMedia('(pointer: coarse)');
         const mqHoverNone = window.matchMedia('(hover: none)');
@@ -8311,7 +8334,6 @@
         }
       }
 
-      // iOS Safari Hardening: block pinch-zoom gestures, selection, and callouts during active touch play
       const preventIosGesture = (e) => {
         if (this.isTouch && state.active && e.cancelable) e.preventDefault();
       };
@@ -8322,7 +8344,6 @@
         if (state.active && document.body.classList.contains('arcade-active')) e.preventDefault();
       });
 
-      // Clear all active pointers & held keyboard keys on window blur or tab switch so gun NEVER sticks!
       const clearAllInputs = () => {
         this.releaseAllPointers();
         this.clearHeldKeys();
@@ -8337,7 +8358,14 @@
         }
       });
 
-      // Wire Left-Handed layout toggle button (visible on touch only)
+      const moveModeBtn = document.getElementById('cgMoveModeBtn');
+      if (moveModeBtn) {
+        moveModeBtn.onclick = (e) => {
+          e.stopPropagation();
+          this.toggleMoveMode();
+        };
+      }
+
       const leftBtn = document.getElementById('cgLeftHandBtn');
       if (leftBtn) {
         leftBtn.onclick = (e) => {
@@ -8347,6 +8375,18 @@
       }
 
       this.syncUI();
+    },
+
+    promoteToTouchOnRealTouch() {
+      if (this.isTouch) return;
+      this.isTouch = true;
+      this.releaseAllPointers();
+      this.clearHeldKeys();
+      this.destroyDesktopHud();
+      state.offenseMode = false;
+      state.pointerFiring = false;
+      this.syncUI();
+      if (typeof updateHeaderUI === 'function') updateHeaderUI();
     },
 
     hasRole(role) {
@@ -8369,6 +8409,47 @@
         if (entry.role === 'MOVE') return pid;
       }
       return null;
+    },
+
+    setMoveMode(nextMode) {
+      const m = (nextMode === 'onpoint') ? 'onpoint' : 'joystick';
+      if (this.moveMode === m) {
+        this._syncMoveModeUI();
+        return;
+      }
+      this.moveMode = m;
+      try { localStorage.setItem(CONFIG.ui.moveModeKey, m); } catch (_) {}
+      // Cleanly reset any active steering pointer when switching mode
+      const steerIds = [];
+      for (const [pid, entry] of this.activePointers.entries()) {
+        if (entry.role === 'MOVE' || entry.role === 'JOYSTICK') steerIds.push(pid);
+      }
+      steerIds.forEach((pid) => this.releasePointer(pid));
+      this._resetJoystickVisual();
+      this._syncMoveModeUI();
+      if (typeof updateTargetText === 'function') updateTargetText();
+    },
+
+    toggleMoveMode() {
+      this.setMoveMode(this.moveMode === 'joystick' ? 'onpoint' : 'joystick');
+    },
+
+    _syncMoveModeUI() {
+      const isStick = (this.moveMode === 'joystick');
+      if (this.clusterEl) {
+        this.clusterEl.setAttribute('data-move-mode', this.moveMode);
+      }
+      if (this.modeBtnStick) this.modeBtnStick.classList.toggle('is-active', isStick);
+      if (this.modeBtnOnPoint) this.modeBtnOnPoint.classList.toggle('is-active', !isStick);
+      const topBtn = document.getElementById('cgMoveModeBtn');
+      if (topBtn) {
+        const isCoreArcade = (state.gameType === 'dynamo' || state.gameType === 'realm' || state.gameType === 'helix' || state.gameType === 'meteor');
+        topBtn.style.display = (this.isTouch && isCoreArcade) ? '' : 'none';
+        topBtn.classList.toggle('oc-btn-active', isStick);
+        topBtn.title = isStick
+          ? 'Touch Steering: Virtual Joystick ON (Tap to switch to On-Point Touch)'
+          : 'Touch Steering: On-Point Touch ON (Tap to switch to Virtual Joystick)';
+      }
     },
 
     toggleLeftHanded() {
@@ -8409,8 +8490,110 @@
       if (typeof updateHeaderUI === 'function') updateHeaderUI();
     },
 
+    _resetJoystickVisual() {
+      this.joyState.active = false;
+      this.joyState.pointerId = null;
+      this.joyState.dx = 0;
+      this.joyState.dy = 0;
+      this.joyState.ux = 0;
+      this.joyState.uy = 0;
+      this.joyState.mag = 0;
+      if (this.joyEl) {
+        this.joyEl.classList.remove('is-active');
+        this.joyEl.style.setProperty('--joy-x', '0px');
+        this.joyEl.style.setProperty('--joy-y', '0px');
+        this.joyEl.style.setProperty('--joy-mag', '0');
+      }
+    },
+
+    _updateJoystickVector(clientX, clientY) {
+      if (!this.joyEl) return;
+      const rect = this.joyEl.getBoundingClientRect();
+      const cx = rect.width > 10 ? (rect.left + rect.width * 0.5) : this.joyState.centerX;
+      const cy = rect.height > 10 ? (rect.top + rect.height * 0.5) : this.joyState.centerY;
+      this.joyState.centerX = cx;
+      this.joyState.centerY = cy;
+
+      const maxR = Math.min(CONFIG.ui.joyMaxRadius || 50, Math.max(32, (rect.width || 148) * 0.34));
+      const dead = CONFIG.ui.joyDeadZone || 6;
+      const rawDx = clientX - cx;
+      const rawDy = clientY - cy;
+      const dist = Math.hypot(rawDx, rawDy);
+      const angleRad = Math.atan2(rawDy, rawDx);
+      const clampedR = Math.min(maxR, dist);
+      const visX = dist > 0.001 ? Math.cos(angleRad) * clampedR : 0;
+      const visY = dist > 0.001 ? Math.sin(angleRad) * clampedR : 0;
+
+      let ux = 0;
+      let uy = 0;
+      let mag = 0;
+      if (dist > dead) {
+        mag = Math.min(1, (dist - dead) / Math.max(8, maxR - dead));
+        ux = Math.cos(angleRad);
+        uy = Math.sin(angleRad);
+      }
+
+      // Rotate directional highlight arc so conic wedge centers on pointer angle
+      const angleDeg = (angleRad * 180 / Math.PI) + 90 - 90;
+      this.joyState.dx = visX;
+      this.joyState.dy = visY;
+      this.joyState.ux = ux;
+      this.joyState.uy = uy;
+      this.joyState.mag = mag;
+      this.joyState.angleDeg = angleDeg;
+
+      this.joyEl.style.setProperty('--joy-x', `${visX.toFixed(1)}px`);
+      this.joyEl.style.setProperty('--joy-y', `${visY.toFixed(1)}px`);
+      this.joyEl.style.setProperty('--joy-angle', `${angleDeg.toFixed(1)}deg`);
+      this.joyEl.style.setProperty('--joy-mag', mag.toFixed(3));
+    },
+
+    _bindJoystickEvents(joyEl) {
+      ['touchstart', 'touchmove', 'touchend'].forEach((evt) => {
+        joyEl.addEventListener(evt, (e) => {
+          if (e.cancelable) e.preventDefault();
+          e.stopPropagation();
+        }, { passive: false });
+      });
+      joyEl.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
+
+      joyEl.addEventListener('pointerdown', (e) => {
+        if (!this.isTouch || !state.active || this.moveMode !== 'joystick') return;
+        e.preventDefault();
+        e.stopPropagation();
+        RealmMusicEngine.unlockOnGesture();
+
+        if (this.joyState.active && this.joyState.pointerId !== null && this.joyState.pointerId !== e.pointerId) {
+          this.releasePointer(this.joyState.pointerId);
+        }
+        this.activePointers.set(e.pointerId, { role: 'JOYSTICK', el: joyEl });
+        try { joyEl.setPointerCapture(e.pointerId); } catch (_) {}
+        joyEl.classList.add('is-active');
+        this.joyState.active = true;
+        this.joyState.pointerId = e.pointerId;
+        this._updateJoystickVector(e.clientX, e.clientY);
+      }, { passive: false });
+
+      joyEl.addEventListener('pointermove', (e) => {
+        if (!this.isTouch || !state.active || this.moveMode !== 'joystick') return;
+        if (this.joyState.pointerId !== e.pointerId) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+        const lastEv = events[events.length - 1] || e;
+        this._updateJoystickVector(lastEv.clientX, lastEv.clientY);
+      }, { passive: false });
+
+      const onRelease = (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (e && e.pointerId !== undefined) this.releasePointer(e.pointerId);
+      };
+      joyEl.addEventListener('pointerup', onRelease, { passive: true });
+      joyEl.addEventListener('pointercancel', onRelease, { passive: true });
+      joyEl.addEventListener('lostpointercapture', onRelease, { passive: true });
+    },
+
     _bindPadPointerEvents(el, role, onDownAction) {
-      // Prevent iOS Safari native touchstart/touchmove long-press cancellation, callout, scroll & double-tap zoom
       el.addEventListener('touchstart', (e) => {
         if (e.cancelable) e.preventDefault();
         e.stopPropagation();
@@ -8432,7 +8615,6 @@
         e.stopPropagation();
         RealmMusicEngine.unlockOnGesture();
 
-        // Store strictly by pointerId — never interferes with any other finger or role!
         this.activePointers.set(e.pointerId, { role, el });
         try { el.setPointerCapture(e.pointerId); } catch (_) {}
         el.classList.add('is-held');
@@ -8458,24 +8640,68 @@
     },
 
     _buildLuxuryFiligreeSvg(kind) {
-      const strokeCol = kind === 'ult' ? 'rgba(253,224,71,0.52)' : (kind === 'skill2' ? 'rgba(103,232,249,0.48)' : 'rgba(253,224,71,0.44)');
+      const strokeCol = kind === 'ult'
+        ? 'rgba(253,224,71,0.62)'
+        : (kind === 'skill2' ? 'rgba(103,232,249,0.56)' : (kind === 'pulse' ? 'rgba(110,231,183,0.56)' : 'rgba(253,224,71,0.54)'));
       return (
         '<svg class="oc-pad-filigree" viewBox="0 0 100 100" aria-hidden="true">' +
-          '<circle cx="50" cy="50" r="44" fill="none" stroke="' + strokeCol + '" stroke-width="0.9" stroke-dasharray="4 3.5"/>' +
-          '<circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.7"/>' +
-          '<path d="M50 3 L52 8 L50 11 L48 8 Z M50 97 L52 92 L50 89 L48 92 Z M3 50 L8 52 L11 50 L8 48 Z M97 50 L92 52 L89 50 L92 48 Z" fill="' + strokeCol + '"/>' +
+          '<circle cx="50" cy="50" r="45" fill="none" stroke="' + strokeCol + '" stroke-width="1.1" stroke-dasharray="14 4 3 4"/>' +
+          '<circle cx="50" cy="50" r="39" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.7"/>' +
+          '<path d="M50 2 L53 8 L50 12 L47 8 Z M50 98 L53 92 L50 88 L47 92 Z M2 50 L8 53 L12 50 L8 47 Z M98 50 L92 53 L88 50 L92 47 Z" fill="' + strokeCol + '"/>' +
         '</svg>'
       );
     },
 
-    _buildTouchPadArtwork(mode, role) {
+    _buildGunCrownFrameSvg(mode) {
+      const accent = mode === 'helix' ? '#67e8f9' : (mode === 'meteor' ? '#fb923c' : '#38bdf8');
+      return (
+        '<svg class="oc-gun-crown-frame" viewBox="0 0 128 128" aria-hidden="true">' +
+          '<defs>' +
+            '<linearGradient id="ocGoldRim" x1="0%" y1="0%" x2="100%" y2="100%">' +
+              '<stop offset="0%" stop-color="#fef08a"/>' +
+              '<stop offset="50%" stop-color="#f59e0b"/>' +
+              '<stop offset="100%" stop-color="#fde047"/>' +
+            '</linearGradient>' +
+          '</defs>' +
+          '<path d="M22 106 L10 92 L18 84 L30 98 Z M106 22 L118 36 L110 44 L98 30 Z M16 26 L28 14 L38 20 L24 34 Z" fill="url(#ocGoldRim)" opacity="0.82"/>' +
+          '<path d="M18 64 A46 46 0 0 1 64 18 M110 64 A46 46 0 0 1 64 110" fill="none" stroke="' + accent + '" stroke-width="1.6" stroke-linecap="round" opacity="0.72"/>' +
+          '<polygon points="64,3 69,11 64,15 59,11" fill="#fef08a"/>' +
+          '<polygon points="3,64 11,59 15,64 11,69" fill="#fef08a"/>' +
+        '</svg>'
+      );
+    },
+
+    _buildJoyDialSvg(mode) {
+      const tint = mode === 'helix' ? 'rgba(103,232,249,0.48)' : (mode === 'meteor' ? 'rgba(251,146,60,0.48)' : 'rgba(56,189,248,0.48)');
+      return (
+        '<svg class="oc-joy-dial-svg" viewBox="0 0 140 140" aria-hidden="true">' +
+          '<circle cx="70" cy="70" r="64" fill="none" stroke="rgba(253,224,71,0.34)" stroke-width="1" stroke-dasharray="10 6"/>' +
+          '<circle cx="70" cy="70" r="48" fill="none" stroke="' + tint + '" stroke-width="0.9" stroke-dasharray="2 5"/>' +
+          '<path d="M70 8 L74 16 L66 16 Z M70 132 L74 124 L66 124 Z M8 70 L16 66 L16 74 Z M132 70 L124 66 L124 74 Z" fill="rgba(254,240,138,0.68)"/>' +
+        '</svg>'
+      );
+    },
+
+    _buildTouchPadArtwork(mode, role, tierOverride) {
       const m = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
-      if (role === 'ult') {
-        return '<img class="oc-ult-mini-core" src="assets/core-' + m + '-t5.png" alt="" draggable="false" />';
+      const curTier = tierOverride || ((typeof state !== 'undefined' && state.coreTier) || 1);
+      if (role === 'ult' || role === 'joyknob') {
+        const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
+        const src = curTier >= 6
+          ? `assets/core-${m}-t6-showcase.png?v=arcade410_luxury_joystick`
+          : `assets/core-${m}-t5.png?v=arcade410_luxury_joystick`;
+        return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
+      }
+      if (role === 'pulse') {
+        return (
+          '<svg class="oc-pad-emblem-svg" viewBox="0 0 48 48" aria-hidden="true">' +
+            '<defs><linearGradient id="ocPulseGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef9c3"/><stop offset="50%" stop-color="#34d399"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>' +
+            '<polygon points="26,4 11,26 23,26 19,44 37,20 25,20" fill="url(#ocPulseGrad)" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round"/>' +
+          '</svg>'
+        );
       }
       if (role === 'skill2') {
         if (m === 'helix') {
-          // PRISM SWARM: 3D Faceted Iridescent Diamond Bio-Crystal Cluster
           return (
             '<svg class="oc-pad-emblem-svg" viewBox="0 0 64 64" aria-hidden="true">' +
               '<defs>' +
@@ -8499,7 +8725,6 @@
           );
         }
         if (m === 'meteor') {
-          // SEEKER COMETS: Blazing 3D Molten Bolide Warhead with Golden Bow-Shock Fins
           return (
             '<svg class="oc-pad-emblem-svg" viewBox="0 0 64 64" aria-hidden="true">' +
               '<defs>' +
@@ -8522,7 +8747,6 @@
             '</svg>'
           );
         }
-        // DYNAMO — ARC SEEKERS: Twin Golden Faraday Lightning Spearheads & Cyan Plasma Arcs
         return (
           '<svg class="oc-pad-emblem-svg" viewBox="0 0 64 64" aria-hidden="true">' +
             '<defs>' +
@@ -8541,33 +8765,32 @@
           '</svg>'
         );
       }
-      // role === 'gun' crest above FIRE
+      // role === 'gun' ornate realm weapon crest
       if (m === 'helix') {
         return (
-          '<svg viewBox="0 0 36 24" aria-hidden="true">' +
-            '<path d="M6 18 L18 3 L30 18 L18 14 Z" fill="none" stroke="#67e8f9" stroke-width="1.8"/>' +
-            '<circle cx="18" cy="11" r="3" fill="#f0abfc"/>' +
+          '<svg viewBox="0 0 40 26" aria-hidden="true">' +
+            '<path d="M7 21 L14 4 L20 14 L26 4 L33 21 L20 16 Z" fill="rgba(103,232,249,0.34)" stroke="#a5f3fc" stroke-width="1.6" stroke-linejoin="round"/>' +
+            '<circle cx="20" cy="11" r="3.2" fill="#f0abfc" stroke="#ffffff" stroke-width="0.9"/>' +
           '</svg>'
         );
       }
       if (m === 'meteor') {
         return (
-          '<svg viewBox="0 0 36 24" aria-hidden="true">' +
-            '<path d="M5 19 L18 3 L31 19 L18 14 Z" fill="rgba(251,146,60,0.45)" stroke="#fde047" stroke-width="1.8"/>' +
-            '<circle cx="18" cy="11" r="3" fill="#fef08a"/>' +
+          '<svg viewBox="0 0 40 26" aria-hidden="true">' +
+            '<path d="M6 21 L14 4 L20 13 L26 4 L34 21 L20 15 Z" fill="rgba(251,146,60,0.48)" stroke="#fde047" stroke-width="1.7" stroke-linejoin="round"/>' +
+            '<circle cx="20" cy="11" r="3.4" fill="#fef08a"/>' +
           '</svg>'
         );
       }
       return (
-        '<svg viewBox="0 0 36 24" aria-hidden="true">' +
-          '<path d="M5 19 L18 3 L31 19 L18 14 Z" fill="rgba(56,189,248,0.40)" stroke="#fde047" stroke-width="1.8"/>' +
-          '<circle cx="18" cy="11" r="3" fill="#e0f2fe"/>' +
+        '<svg viewBox="0 0 40 26" aria-hidden="true">' +
+          '<path d="M6 21 L14 4 L20 13 L26 4 L34 21 L20 15 Z" fill="rgba(56,189,248,0.44)" stroke="#fde047" stroke-width="1.7" stroke-linejoin="round"/>' +
+          '<circle cx="20" cy="11" r="3.2" fill="#e0f2fe"/>' +
         '</svg>'
       );
     },
 
     ensureTouchCluster() {
-      // Strictly never create touch buttons on non-touch desktop/laptop devices!
       if (!this.isTouch) return null;
       if (this.clusterEl && this.clusterEl.isConnected) return this.clusterEl;
 
@@ -8576,19 +8799,47 @@
 
       const rawMode = (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
       const curMode = (rawMode === 'helix') ? 'helix' : (rawMode === 'meteor' ? 'meteor' : 'dynamo');
+      const curTier = (typeof state !== 'undefined' && state.coreTier) || 1;
+      const ars = getRealmArsenal(curMode);
 
       const cluster = document.createElement('div');
       cluster.id = 'ocTouchControlCluster';
       cluster.className = 'oc-touch-hidden' + (this.leftHanded ? ' left-handed' : '');
       cluster.setAttribute('data-realm', curMode);
-      cluster.setAttribute('aria-label', 'Touch Combat Controls');
+      cluster.setAttribute('data-move-mode', this.moveMode);
+      cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
-      const ars = getRealmArsenal(curMode);
+      const knobSrc = curTier >= 6
+        ? `assets/core-${curMode}-t6-showcase.png?v=arcade410_luxury_joystick`
+        : `assets/core-${curMode}-t5.png?v=arcade410_luxury_joystick`;
+
       cluster.innerHTML =
+        '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
+          '<button type="button" class="oc-mode-seg' + (this.moveMode === 'joystick' ? ' is-active' : '') + '" id="ocModeSegStick" data-mode="joystick">STICK</button>' +
+          '<button type="button" class="oc-mode-seg' + (this.moveMode === 'onpoint' ? ' is-active' : '') + '" id="ocModeSegOnPoint" data-mode="onpoint">ON-POINT</button>' +
+        '</div>' +
+        '<div id="ocVirtualJoystickWrap">' +
+          '<div id="ocVirtualJoystick" role="slider" aria-label="Virtual Flight Joystick" aria-valuemin="0" aria-valuemax="100">' +
+            this._buildJoyDialSvg(curMode) +
+            '<div id="ocJoyDirArc"></div>' +
+            '<div id="ocVirtualJoyKnob">' +
+              '<img class="oc-joy-knob-img" id="ocJoyKnobImg" src="' + knobSrc + '" alt="" draggable="false" />' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="oc-touch-pad-wrap oc-pad-wrap-pulse">' +
+          '<div role="button" tabindex="-1" id="ocTouchPulseBtn" class="oc-touch-pad is-charging" aria-label="Flux Pulse">' +
+            this._buildLuxuryFiligreeSvg('pulse') +
+            '<div class="oc-pulse-sweep" id="ocTouchPulseSweep"></div>' +
+            '<span class="oc-pad-icon">' + this._buildTouchPadArtwork(curMode, 'pulse', curTier) + '</span>' +
+            '<span class="oc-pulse-pct" id="ocTouchPulsePct">0%</span>' +
+          '</div>' +
+          '<span class="oc-pad-caption">PULSE</span>' +
+        '</div>' +
         '<div class="oc-touch-pad-wrap oc-pad-wrap-ult">' +
           '<div role="button" tabindex="-1" id="ocTouchUltBtn" class="oc-touch-pad" aria-label="' + ars.ult + '">' +
             this._buildLuxuryFiligreeSvg('ult') +
-            '<span class="oc-pad-icon" id="ocTouchUltIcon">' + this._buildTouchPadArtwork(curMode, 'ult') + '</span>' +
+            '<span class="oc-pad-icon" id="ocTouchUltIcon">' + this._buildTouchPadArtwork(curMode, 'ult', curTier) + '</span>' +
             '<span class="oc-fire-sub">ULT</span>' +
             '<div class="oc-cd-sweep" id="ocTouchUltSweep"></div>' +
             '<div class="oc-cd-text" id="ocTouchUltCdText"></div>' +
@@ -8598,7 +8849,7 @@
         '<div class="oc-touch-pad-wrap oc-pad-wrap-skill2">' +
           '<div role="button" tabindex="-1" id="ocTouchSkill2Btn" class="oc-touch-pad" aria-label="' + ars.skill2 + '">' +
             this._buildLuxuryFiligreeSvg('skill2') +
-            '<span class="oc-pad-icon" id="ocTouchSkill2Icon">' + this._buildTouchPadArtwork(curMode, 'skill2') + '</span>' +
+            '<span class="oc-pad-icon" id="ocTouchSkill2Icon">' + this._buildTouchPadArtwork(curMode, 'skill2', curTier) + '</span>' +
             '<span class="oc-fire-sub" id="ocTouchSkill2Sub">' + ars.s2Count + '×</span>' +
             '<div class="oc-cd-sweep" id="ocTouchSkill2Sweep"></div>' +
             '<div class="oc-cd-text" id="ocTouchSkill2CdText"></div>' +
@@ -8606,9 +8857,10 @@
           '<span class="oc-pad-caption" id="ocTouchSkill2Cap">' + ars.skill2 + '</span>' +
         '</div>' +
         '<div class="oc-touch-pad-wrap oc-pad-wrap-gun">' +
+          this._buildGunCrownFrameSvg(curMode) +
           '<div role="button" tabindex="-1" id="ocTouchGunBtn" class="oc-touch-pad" aria-label="' + ars.gun + '">' +
             this._buildLuxuryFiligreeSvg('gun') +
-            '<span class="oc-gun-crest" id="ocTouchGunCrest">' + this._buildTouchPadArtwork(curMode, 'gun') + '</span>' +
+            '<span class="oc-gun-crest" id="ocTouchGunCrest">' + this._buildTouchPadArtwork(curMode, 'gun', curTier) + '</span>' +
             '<span class="oc-fire-label">FIRE</span>' +
             '<span class="oc-fire-ammo" id="ocTouchFireAmmo">0</span>' +
             '<span class="oc-fire-sub">HOLD</span>' +
@@ -8618,6 +8870,17 @@
 
       host.appendChild(cluster);
       this.clusterEl = cluster;
+      this.joyWrapEl = cluster.querySelector('#ocVirtualJoystickWrap');
+      this.joyEl = cluster.querySelector('#ocVirtualJoystick');
+      this.joyDirArcEl = cluster.querySelector('#ocJoyDirArc');
+      this.joyKnobEl = cluster.querySelector('#ocVirtualJoyKnob');
+      this.joyKnobImgEl = cluster.querySelector('#ocJoyKnobImg');
+      this.modePillEl = cluster.querySelector('#ocTouchModePill');
+      this.modeBtnStick = cluster.querySelector('#ocModeSegStick');
+      this.modeBtnOnPoint = cluster.querySelector('#ocModeSegOnPoint');
+      this.pulseBtn = cluster.querySelector('#ocTouchPulseBtn');
+      this.pulseSweepEl = cluster.querySelector('#ocTouchPulseSweep');
+      this.pulsePctEl = cluster.querySelector('#ocTouchPulsePct');
       this.gunBtn = cluster.querySelector('#ocTouchGunBtn');
       this.skill2Btn = cluster.querySelector('#ocTouchSkill2Btn');
       this.ultBtn = cluster.querySelector('#ocTouchUltBtn');
@@ -8634,21 +8897,15 @@
       this.gunCapEl = cluster.querySelector('#ocTouchGunCap');
       this.gunCrestEl = cluster.querySelector('#ocTouchGunCrest');
 
-      // Apply configurable button sizes from CONFIG
-      if (this.gunBtn) {
-        this.gunBtn.style.setProperty('width', `${CONFIG.ui.gunBtnSize}px`, 'important');
-        this.gunBtn.style.setProperty('height', `${CONFIG.ui.gunBtnSize}px`, 'important');
-      }
-      if (this.skill2Btn) {
-        this.skill2Btn.style.setProperty('width', `${CONFIG.ui.skill2BtnSize}px`, 'important');
-        this.skill2Btn.style.setProperty('height', `${CONFIG.ui.skill2BtnSize}px`, 'important');
-      }
-      if (this.ultBtn) {
-        this.ultBtn.style.setProperty('width', `${CONFIG.ui.ultBtnSize}px`, 'important');
-        this.ultBtn.style.setProperty('height', `${CONFIG.ui.ultBtnSize}px`, 'important');
-      }
+      if (this.joyEl) this._bindJoystickEvents(this.joyEl);
 
-      // Bind true multi-touch independent roles via pointerId Map
+      if (this.modePillEl) {
+        this.modePillEl.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+        this.modePillEl.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
+      }
+      if (this.modeBtnStick) this.modeBtnStick.onclick = (e) => { e.stopPropagation(); this.setMoveMode('joystick'); };
+      if (this.modeBtnOnPoint) this.modeBtnOnPoint.onclick = (e) => { e.stopPropagation(); this.setMoveMode('onpoint'); };
+
       this._bindPadPointerEvents(this.gunBtn, 'GUN');
       this._bindPadPointerEvents(this.skill2Btn, 'SKILL2', () => {
         SkillSystem.castSeekerComets(performance.now());
@@ -8656,28 +8913,37 @@
       this._bindPadPointerEvents(this.ultBtn, 'ULT', () => {
         SkillSystem.castCalderaNova(performance.now());
       });
+      this._bindPadPointerEvents(this.pulseBtn, 'PULSE', () => {
+        if (typeof window.triggerFluxPulse === 'function') window.triggerFluxPulse(false);
+      });
 
+      this._syncMoveModeUI();
       this._cachedAmmoStr = null;
       this._cachedHidden = true;
       this._cachedRealmMode = null;
+      this._cachedVisualTier = curTier;
       return cluster;
     },
 
     ensureDesktopHud() {
-      // Strictly non-touch desktop/laptop ONLY — displays A/S/D keycap hints & skill cooldowns (not touch buttons!)
       if (this.isTouch) return null;
       if (this.deskHudEl && this.deskHudEl.isConnected) return this.deskHudEl;
 
       const host = dom.viewReflex || document.getElementById('cgViewReflex');
       if (!host) return null;
 
-      const ars = getRealmArsenal();
+      const rawMode = (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
+      const curMode = (rawMode === 'helix') ? 'helix' : (rawMode === 'meteor' ? 'meteor' : 'dynamo');
+      const curTier = (typeof state !== 'undefined' && state.coreTier) || 1;
+      const ars = getRealmArsenal(curMode);
+
       const hud = document.createElement('div');
       hud.id = 'ocDesktopSkillHud';
       hud.className = 'oc-desk-hidden';
       hud.innerHTML =
         '<div class="oc-desk-chip" data-skill="gun" id="ocDeskGunChip">' +
           '<span class="oc-desk-keycap">A</span>' +
+          '<span class="oc-desk-emblem" id="ocDeskGunEmb">' + this._buildTouchPadArtwork(curMode, 'gun', curTier) + '</span>' +
           '<div class="oc-desk-meta">' +
             '<span class="oc-desk-name" id="ocDeskGunName">' + ars.gun + '</span>' +
             '<span class="oc-desk-status" id="ocDeskGunStatus">HOLD</span>' +
@@ -8685,6 +8951,7 @@
         '</div>' +
         '<div class="oc-desk-chip" data-skill="skill2" id="ocDeskSkill2Chip">' +
           '<span class="oc-desk-keycap">S</span>' +
+          '<span class="oc-desk-emblem" id="ocDeskSkill2Emb">' + this._buildTouchPadArtwork(curMode, 'skill2', curTier) + '</span>' +
           '<div class="oc-desk-meta">' +
             '<span class="oc-desk-name" id="ocDeskSkill2Name">' + ars.skill2 + '</span>' +
             '<span class="oc-desk-status" id="ocDeskSkill2Status">READY</span>' +
@@ -8693,6 +8960,7 @@
         '</div>' +
         '<div class="oc-desk-chip" data-skill="ult" id="ocDeskUltChip">' +
           '<span class="oc-desk-keycap">D</span>' +
+          '<span class="oc-desk-emblem" id="ocDeskUltEmb">' + this._buildTouchPadArtwork(curMode, 'ult', curTier) + '</span>' +
           '<div class="oc-desk-meta">' +
             '<span class="oc-desk-name" id="ocDeskUltName">' + ars.ult + '</span>' +
             '<span class="oc-desk-status" id="ocDeskUltStatus">READY</span>' +
@@ -8703,18 +8971,54 @@
       host.appendChild(hud);
       this.deskHudEl = hud;
       this.deskGunChip = hud.querySelector('#ocDeskGunChip');
+      this.deskGunEmb = hud.querySelector('#ocDeskGunEmb');
       this.deskGunName = hud.querySelector('#ocDeskGunName');
       this.deskGunStatus = hud.querySelector('#ocDeskGunStatus');
       this.deskSkill2Chip = hud.querySelector('#ocDeskSkill2Chip');
+      this.deskSkill2Emb = hud.querySelector('#ocDeskSkill2Emb');
       this.deskSkill2Name = hud.querySelector('#ocDeskSkill2Name');
       this.deskSkill2Status = hud.querySelector('#ocDeskSkill2Status');
       this.deskSkill2Bar = hud.querySelector('#ocDeskSkill2Bar');
       this.deskUltChip = hud.querySelector('#ocDeskUltChip');
+      this.deskUltEmb = hud.querySelector('#ocDeskUltEmb');
       this.deskUltName = hud.querySelector('#ocDeskUltName');
       this.deskUltStatus = hud.querySelector('#ocDeskUltStatus');
       this.deskUltBar = hud.querySelector('#ocDeskUltBar');
+
+      // Interactive mouse click/hold on enhanced desktop skill cards
+      if (this.deskGunChip) {
+        this.deskGunChip.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0 || !state.active) return;
+          e.stopPropagation();
+          state.pointerFiring = true;
+          if ((state.coreAmmo || 0) <= 0) this.flashEmpty();
+          updateHeaderUI();
+        });
+        const stopDeskGun = () => {
+          if (state.pointerFiring) {
+            state.pointerFiring = false;
+            updateHeaderUI();
+          }
+        };
+        this.deskGunChip.addEventListener('pointerup', stopDeskGun);
+        this.deskGunChip.addEventListener('pointerleave', stopDeskGun);
+      }
+      if (this.deskSkill2Chip) {
+        this.deskSkill2Chip.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (state.active) SkillSystem.castSeekerComets(performance.now());
+        });
+      }
+      if (this.deskUltChip) {
+        this.deskUltChip.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (state.active) SkillSystem.castCalderaNova(performance.now());
+        });
+      }
+
       this._cachedDeskHidden = true;
       this._cachedRealmMode = null;
+      this._cachedVisualTier = curTier;
       return hud;
     },
 
@@ -8727,6 +9031,17 @@
         this.clusterEl.parentNode.removeChild(this.clusterEl);
       }
       this.clusterEl = null;
+      this.joyWrapEl = null;
+      this.joyEl = null;
+      this.joyDirArcEl = null;
+      this.joyKnobEl = null;
+      this.joyKnobImgEl = null;
+      this.modePillEl = null;
+      this.modeBtnStick = null;
+      this.modeBtnOnPoint = null;
+      this.pulseBtn = null;
+      this.pulseSweepEl = null;
+      this.pulsePctEl = null;
       this.gunBtn = null;
       this.skill2Btn = null;
       this.ultBtn = null;
@@ -8745,7 +9060,9 @@
       this._cachedAmmoStr = null;
       this._cachedHidden = null;
       this._cachedRealmMode = null;
+      this._cachedVisualTier = null;
       this._cdCache = {};
+      this._resetJoystickVisual();
     },
 
     destroyDesktopHud() {
@@ -8754,18 +9071,22 @@
       }
       this.deskHudEl = null;
       this.deskGunChip = null;
+      this.deskGunEmb = null;
       this.deskGunName = null;
       this.deskGunStatus = null;
       this.deskSkill2Chip = null;
+      this.deskSkill2Emb = null;
       this.deskSkill2Name = null;
       this.deskSkill2Status = null;
       this.deskSkill2Bar = null;
       this.deskUltChip = null;
+      this.deskUltEmb = null;
       this.deskUltName = null;
       this.deskUltStatus = null;
       this.deskUltBar = null;
       this._cachedDeskHidden = null;
       this._cachedRealmMode = null;
+      this._cachedVisualTier = null;
       this._cdCache = {};
     },
 
@@ -8792,6 +9113,10 @@
           isPointerDown = false;
           touchGuidePos.active = false;
         }
+      } else if (entry.role === 'JOYSTICK') {
+        if (!this.hasRole('JOYSTICK')) {
+          this._resetJoystickVisual();
+        }
       }
     },
 
@@ -8801,12 +9126,14 @@
         this.releasePointer(pids[i]);
       }
       this.activePointers.clear();
+      this._resetJoystickVisual();
       state.touchFireHeld = false;
       isPointerDown = false;
       touchGuidePos.active = false;
       if (this.gunBtn) this.gunBtn.classList.remove('is-held');
       if (this.skill2Btn) this.skill2Btn.classList.remove('is-held');
       if (this.ultBtn) this.ultBtn.classList.remove('is-held');
+      if (this.pulseBtn) this.pulseBtn.classList.remove('is-held');
     },
 
     releaseFire() {
@@ -8861,23 +9188,44 @@
     _syncRealmLabels() {
       const raw = (typeof state !== 'undefined' && (state.catcherType || state.gameType)) || 'dynamo';
       const curMode = (raw === 'helix') ? 'helix' : (raw === 'meteor' ? 'meteor' : 'dynamo');
-      if (this._cachedRealmMode === curMode) return;
+      const isT6 = ((typeof state !== 'undefined' && state.coreTier) || 1) >= 6;
+      const visualKey = `${curMode}:${isT6 ? 't6' : 't5'}`;
+      if (this._cachedRealmMode === curMode && this._cachedVisualTier === visualKey) return;
       this._cachedRealmMode = curMode;
+      this._cachedVisualTier = visualKey;
       const ars = getRealmArsenal(curMode);
-      if (this.clusterEl) this.clusterEl.setAttribute('data-realm', curMode);
-      if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult');
+      const tierNum = isT6 ? 6 : 5;
+
+      if (this.clusterEl) {
+        this.clusterEl.setAttribute('data-realm', curMode);
+        const dialSvg = this.clusterEl.querySelector('.oc-joy-dial-svg');
+        if (dialSvg && this.joyEl) {
+          dialSvg.outerHTML = this._buildJoyDialSvg(curMode);
+        }
+        const crownEl = this.clusterEl.querySelector('.oc-gun-crown-frame');
+        if (crownEl) crownEl.outerHTML = this._buildGunCrownFrameSvg(curMode);
+      }
+      if (this.joyKnobImgEl) {
+        this.joyKnobImgEl.src = isT6
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade410_luxury_joystick`
+          : `assets/core-${curMode}-t5.png?v=arcade410_luxury_joystick`;
+      }
+      if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
       if (this.ultBtn) this.ultBtn.setAttribute('aria-label', ars.ult);
-      if (this.skill2IconEl) this.skill2IconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'skill2');
+      if (this.skill2IconEl) this.skill2IconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'skill2', tierNum);
       if (this.skill2SubEl) this.skill2SubEl.textContent = `${ars.s2Count}×`;
       if (this.skill2CapEl) this.skill2CapEl.textContent = ars.skill2;
       if (this.skill2Btn) this.skill2Btn.setAttribute('aria-label', ars.skill2);
-      if (this.gunCrestEl) this.gunCrestEl.innerHTML = this._buildTouchPadArtwork(curMode, 'gun');
+      if (this.gunCrestEl) this.gunCrestEl.innerHTML = this._buildTouchPadArtwork(curMode, 'gun', tierNum);
       if (this.gunCapEl) this.gunCapEl.textContent = ars.gun;
       if (this.gunBtn) this.gunBtn.setAttribute('aria-label', ars.gun);
       if (this.deskGunName) this.deskGunName.textContent = ars.gun;
       if (this.deskSkill2Name) this.deskSkill2Name.textContent = ars.skill2;
       if (this.deskUltName) this.deskUltName.textContent = ars.ult;
+      if (this.deskGunEmb) this.deskGunEmb.innerHTML = this._buildTouchPadArtwork(curMode, 'gun', tierNum);
+      if (this.deskSkill2Emb) this.deskSkill2Emb.innerHTML = this._buildTouchPadArtwork(curMode, 'skill2', tierNum);
+      if (this.deskUltEmb) this.deskUltEmb.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
     },
 
     syncSkillCooldownUI() {
@@ -8928,6 +9276,29 @@
             if (cache.tUltTxt !== txt) {
               cache.tUltTxt = txt;
               this.ultCdTextEl.textContent = txt;
+            }
+          }
+        }
+        if (this.pulseBtn) {
+          const pPct = state.isPulseReady ? 100 : Math.min(99, Math.round(((state.pulseMeter || 0) / 3) * 100));
+          const pReady = !!state.isPulseReady;
+          if (cache.tPulseReady !== pReady) {
+            cache.tPulseReady = pReady;
+            this.pulseBtn.classList.toggle('is-ready', pReady);
+            this.pulseBtn.classList.toggle('is-charging', !pReady);
+          }
+          if (this.pulseSweepEl) {
+            const pDeg = Math.round((pPct / 100) * 360);
+            if (cache.tPulseDeg !== pDeg) {
+              cache.tPulseDeg = pDeg;
+              this.pulseSweepEl.style.setProperty('--pulse-deg', `${pDeg}deg`);
+            }
+          }
+          if (this.pulsePctEl) {
+            const pTxt = pReady ? 'READY' : `${pPct}%`;
+            if (cache.tPulseTxt !== pTxt) {
+              cache.tPulseTxt = pTxt;
+              this.pulsePctEl.textContent = pTxt;
             }
           }
         }
@@ -8992,6 +9363,7 @@
       const overlayVisible = !!(dom.screenOverlay && dom.screenOverlay.style.display === 'flex');
       const shouldShow = !!(state.active && isCoreArcade && !overlayVisible);
       this._syncLeftHandBtn();
+      this._syncMoveModeUI();
 
       if (!this.isTouch) {
         if (this.clusterEl) this.destroyTouchCluster();
@@ -9011,7 +9383,6 @@
         return;
       }
 
-      // Touch mode: remove desktop HUD if present
       if (this.deskHudEl) this.destroyDesktopHud();
 
       if (!shouldShow) {
@@ -13922,7 +14293,9 @@
     if (!sub) return;
     const isTouch = deviceInputMode === 'touch';
     const targetHint = isTouch
-      ? 'DRAG TO ALIGN CHROME CORE · INTERCEPT CELESTIAL FLUX NODES'
+      ? (TouchFireControls.moveMode === 'joystick'
+          ? 'STEER VIA VIRTUAL JOYSTICK · SWITCH TO ON-POINT ANYTIME'
+          : 'TOUCH & GLIDE ON-POINT · SWITCH TO JOYSTICK ANYTIME')
       : 'ALIGN CHROME CORE WITH CURSOR · INTERCEPT CELESTIAL FLUX NODES';
     sub.setAttribute('data-device-hint', targetHint);
   }
@@ -14533,7 +14906,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade409_tier6_true3d',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade410_luxury_joystick',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -14544,7 +14917,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade409_tier6_true3d',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade410_luxury_joystick',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -14555,7 +14928,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade409_tier6_true3d',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade410_luxury_joystick',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
@@ -15030,7 +15403,18 @@
     // The capture center tracks pointer/hand input across all 2D axes (X & Y) with critically-damped spring follow for mouse,
     // and instantaneous zero-lag direct physical tracking for touchscreen & mobile devices!
     const isEmpSlowed = (state.empSlowUntil && state.empSlowUntil > timestamp && !state.hasBuff('shield', timestamp));
-    if (deviceInputMode === 'touch') {
+    const joyDt = Math.min(0.05, Math.max(0.004, (timestamp - (state._lastJoyTs || timestamp - 16)) / 1000));
+    state._lastJoyTs = timestamp;
+    if (TouchFireControls.isTouch && TouchFireControls.moveMode === 'joystick' && TouchFireControls.joyState.active && TouchFireControls.joyState.mag > 0) {
+      const j = TouchFireControls.joyState;
+      const speedCurve = j.mag * (0.32 + 0.68 * j.mag);
+      const maxSpd = isEmpSlowed ? 430 : (CONFIG.ui.joyMaxSpeedPx || 820);
+      const spdPx = maxSpd * speedCurve * joyDt;
+      targetCatcherX = Math.max(0.04, Math.min(0.96, targetCatcherX + (j.ux * spdPx) / Math.max(320, w)));
+      targetCatcherY = Math.max(0.06, Math.min(0.94, targetCatcherY + (j.uy * spdPx) / Math.max(320, h)));
+      currentCatcherX = targetCatcherX;
+      currentCatcherY = targetCatcherY;
+    } else if (deviceInputMode === 'touch') {
       if (isEmpSlowed) {
         currentCatcherX += (targetCatcherX - currentCatcherX) * 0.34;
         currentCatcherY += (targetCatcherY - currentCatcherY) * 0.34;
@@ -17798,23 +18182,24 @@
       if (!state.active) return;
       RealmMusicEngine.unlockOnGesture();
 
+      if (e.pointerType === 'touch' && !TouchFireControls.isTouch) {
+        setDeviceMode('touch');
+        TouchFireControls.promoteToTouchOnRealTouch();
+      }
       if (TouchFireControls.isTouch) {
-        // Ignore touches on the Kimmy 3-button arc (handled directly by each pad's setPointerCapture)
         if (e.target && e.target.closest && e.target.closest('#ocTouchControlCluster')) {
           return;
         }
-        // Ignore topbar controls & game-over overlay buttons
         if (e.target && e.target.closest && e.target.closest('.game-topbar, .game-screen-overlay, .reflex-start-overlay')) {
           return;
         }
-        // Ignore if this pointerId already owns a button role
         if (TouchFireControls.activePointers.has(e.pointerId)) {
           return;
         }
         setDeviceMode('touch');
 
-        // Assign MOVE role if no active MOVE finger exists yet (extra fingers outside buttons never cancel GUN or MOVE!)
-        if (!TouchFireControls.hasRole('MOVE')) {
+        // Only move on-point across the playfield when player has selected ON-POINT mode!
+        if (TouchFireControls.moveMode === 'onpoint' && !TouchFireControls.hasRole('MOVE')) {
           TouchFireControls.activePointers.set(e.pointerId, { role: 'MOVE', el: null });
           isPointerDown = true;
           const coords = getCanvasCoords(e.clientX, e.clientY);
@@ -18003,6 +18388,7 @@
     toggleFullscreen: toggleAppFullscreen,
     setLevel: (lvl) => { state.mathLevel = lvl; },
     getState: () => state,
+    getTouchControls: () => TouchFireControls,
     setPointerX: (nx) => { targetCatcherX = Math.max(0.04, Math.min(0.96, nx)); },
     setPointerY: (ny) => { targetCatcherY = Math.max(0.06, Math.min(0.94, ny)); },
     setTier: (t, allowHatch = true) => {

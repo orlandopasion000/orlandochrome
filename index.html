@@ -750,7 +750,7 @@
       display: inline-block !important;
     }
 
-    /* === CHANGED (v395): LUXURY TRANSLUCENT CRYSTAL TOUCH CONTROLS WITH BESPOKE REALM EMBLEMS === */
+    /* === CHANGED (v410): LUXURY COLLECTOR CRYSTAL VIRTUAL JOYSTICK, MODE PILL & ENHANCED COMBAT BUTTONS === */
     #ocTouchControlCluster {
       position: absolute !important;
       inset: 0 !important;
@@ -765,45 +765,235 @@
     #ocTouchControlCluster.oc-touch-hidden {
       display: none !important;
     }
+
+    /* --- 1. TOUCH STEERING MODE SWITCHER (STICK | ON-POINT) --- */
+    #ocTouchModePill {
+      position: absolute !important;
+      left: max(18px, env(safe-area-inset-left, 18px)) !important;
+      bottom: calc(max(18px, env(safe-area-inset-bottom, 18px)) + 158px) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 2px !important;
+      padding: 3px !important;
+      border-radius: 999px !important;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(5, 8, 20, 0.94) 100%) !important;
+      border: 1.4px solid rgba(253, 224, 71, 0.45) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 0 14px rgba(56, 189, 248, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
+      pointer-events: auto !important;
+      touch-action: none !important;
+      z-index: 46 !important;
+      transition: bottom 0.22s cubic-bezier(0.22, 1, 0.36, 1), left 0.22s ease, right 0.22s ease !important;
+    }
+    #ocTouchControlCluster[data-move-mode="onpoint"] #ocTouchModePill {
+      bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    }
+    #ocTouchControlCluster.left-handed #ocTouchModePill {
+      left: auto !important;
+      right: max(18px, env(safe-area-inset-right, 18px)) !important;
+    }
+    .oc-mode-seg {
+      border: 1px solid transparent !important;
+      background: transparent !important;
+      color: rgba(203, 213, 225, 0.78) !important;
+      font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
+      font-size: 8.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      padding: 4px 9px !important;
+      border-radius: 999px !important;
+      cursor: pointer !important;
+      touch-action: none !important;
+      transition: all 0.16s ease !important;
+    }
+    .oc-mode-seg.is-active {
+      color: #0b1020 !important;
+      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 65%, #d97706 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
+      box-shadow: 0 0 12px rgba(250, 204, 21, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.75) !important;
+    }
+    #ocTouchControlCluster[data-realm="helix"] .oc-mode-seg.is-active {
+      background: linear-gradient(135deg, #ecfeff 0%, #67e8f9 55%, #c084fc 100%) !important;
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+    }
+
+    /* --- 2. LUXURY BOTTOM-LEFT FLOATING ANALOG VIRTUAL JOYSTICK --- */
+    #ocVirtualJoystickWrap {
+      position: absolute !important;
+      left: max(18px, env(safe-area-inset-left, 18px)) !important;
+      bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
+      width: 148px !important;
+      height: 148px !important;
+      pointer-events: none !important;
+      touch-action: none !important;
+      z-index: 45 !important;
+    }
+    #ocTouchControlCluster[data-move-mode="onpoint"] #ocVirtualJoystickWrap {
+      display: none !important;
+    }
+    #ocTouchControlCluster.left-handed #ocVirtualJoystickWrap {
+      left: auto !important;
+      right: max(18px, env(safe-area-inset-right, 18px)) !important;
+    }
+    #ocVirtualJoystick {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 50% !important;
+      pointer-events: auto !important;
+      touch-action: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -webkit-touch-callout: none !important;
+      background: radial-gradient(circle at 50% 42%, rgba(56, 189, 248, 0.14) 0%, rgba(12, 18, 42, 0.24) 64%, rgba(6, 10, 26, 0.36) 100%) !important;
+      border: 1.8px solid rgba(253, 224, 71, 0.52) !important;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.48), 0 0 22px rgba(56, 189, 248, 0.20), inset 0 2px 14px rgba(254, 240, 138, 0.18), inset 0 -8px 18px rgba(0, 0, 0, 0.42) !important;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease !important;
+    }
+    #ocTouchControlCluster[data-realm="helix"] #ocVirtualJoystick {
+      background: radial-gradient(circle at 50% 42%, rgba(192, 132, 252, 0.16) 0%, rgba(12, 20, 44, 0.24) 64%, rgba(6, 10, 26, 0.36) 100%) !important;
+      border-color: rgba(165, 243, 252, 0.58) !important;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.48), 0 0 22px rgba(34, 211, 238, 0.22), inset 0 2px 14px rgba(224, 242, 254, 0.22), inset 0 -8px 18px rgba(0, 0, 0, 0.40) !important;
+    }
+    #ocTouchControlCluster[data-realm="meteor"] #ocVirtualJoystick {
+      background: radial-gradient(circle at 50% 42%, rgba(251, 146, 60, 0.17) 0%, rgba(42, 14, 14, 0.24) 64%, rgba(14, 6, 10, 0.38) 100%) !important;
+      border-color: rgba(253, 224, 71, 0.56) !important;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.50), 0 0 22px rgba(249, 115, 22, 0.24), inset 0 2px 14px rgba(254, 240, 138, 0.20), inset 0 -8px 18px rgba(0, 0, 0, 0.44) !important;
+    }
+    #ocVirtualJoystick.is-active {
+      border-color: rgba(254, 240, 138, 0.88) !important;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.56), 0 0 32px rgba(250, 204, 21, 0.36), 0 0 18px rgba(56, 189, 248, 0.32), inset 0 2px 16px rgba(255, 255, 255, 0.24) !important;
+    }
+    #ocTouchControlCluster[data-realm="helix"] #ocVirtualJoystick.is-active {
+      border-color: #a5f3fc !important;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.56), 0 0 32px rgba(34, 211, 238, 0.42), 0 0 18px rgba(232, 121, 249, 0.32), inset 0 2px 16px rgba(255, 255, 255, 0.28) !important;
+    }
+    .oc-joy-dial-svg {
+      position: absolute !important;
+      inset: 3px !important;
+      width: calc(100% - 6px) !important;
+      height: calc(100% - 6px) !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+    #ocJoyDirArc {
+      position: absolute !important;
+      inset: -3px !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+      z-index: 2 !important;
+      opacity: calc(var(--joy-mag, 0) * 0.95) !important;
+      transform: rotate(var(--joy-angle, 0deg)) !important;
+      background: conic-gradient(from 42deg, rgba(254, 240, 138, 0.92) 0deg, rgba(56, 189, 248, 0.65) 48deg, rgba(254, 240, 138, 0.85) 96deg, transparent 122deg, transparent 360deg) !important;
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px)) !important;
+      mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px)) !important;
+      filter: drop-shadow(0 0 8px rgba(253, 224, 71, 0.72)) !important;
+    }
+    #ocVirtualJoyKnob {
+      position: absolute !important;
+      left: 50% !important;
+      top: 50% !important;
+      width: 64px !important;
+      height: 64px !important;
+      margin: -32px 0 0 -32px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      pointer-events: none !important;
+      z-index: 4 !important;
+      overflow: hidden !important;
+      transform: translate3d(var(--joy-x, 0px), var(--joy-y, 0px), 0) !important;
+      transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.14s ease !important;
+      background: radial-gradient(circle at 35% 28%, rgba(254, 240, 138, 0.38) 0%, rgba(30, 58, 138, 0.68) 54%, rgba(6, 10, 24, 0.92) 100%) !important;
+      border: 2px solid rgba(253, 224, 71, 0.86) !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 16px rgba(253, 224, 71, 0.42), inset 0 2px 6px rgba(255, 255, 255, 0.42) !important;
+    }
+    #ocTouchControlCluster[data-realm="helix"] #ocVirtualJoyKnob {
+      background: radial-gradient(circle at 35% 28%, rgba(224, 242, 254, 0.44) 0%, rgba(126, 34, 206, 0.62) 56%, rgba(8, 12, 30, 0.92) 100%) !important;
+      border-color: rgba(165, 243, 252, 0.90) !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 18px rgba(34, 211, 238, 0.46), inset 0 2px 6px rgba(255, 255, 255, 0.45) !important;
+    }
+    #ocTouchControlCluster[data-realm="meteor"] #ocVirtualJoyKnob {
+      background: radial-gradient(circle at 35% 28%, rgba(254, 240, 138, 0.42) 0%, rgba(154, 52, 18, 0.72) 56%, rgba(20, 6, 8, 0.94) 100%) !important;
+      border-color: rgba(253, 224, 71, 0.90) !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.68), 0 0 18px rgba(249, 115, 22, 0.52), inset 0 2px 6px rgba(255, 255, 255, 0.42) !important;
+    }
+    #ocVirtualJoystick.is-active #ocVirtualJoyKnob {
+      transition: box-shadow 0.12s ease !important;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.72), 0 0 26px rgba(253, 224, 71, 0.76), inset 0 2px 8px rgba(255, 255, 255, 0.52) !important;
+    }
+    .oc-joy-knob-img {
+      width: 44px !important;
+      height: 44px !important;
+      object-fit: contain !important;
+      pointer-events: none !important;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.45)) contrast(1.06) !important;
+    }
+
+    /* --- 3. RIGHT-HAND COLLECTOR COMBAT ARC (GUN + SKILL2 + ULT + PULSE) --- */
     .oc-touch-pad-wrap {
       position: absolute !important;
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
-      gap: 5px !important;
+      gap: 4px !important;
       pointer-events: none !important;
       touch-action: none !important;
       user-select: none !important;
       -webkit-user-select: none !important;
       -webkit-touch-callout: none !important;
     }
-    /* === CHANGED (v388/v395): EXACT MOBILE LEGENDS KIMMY DIAGONAL ARC LAYOUT (Zero Caption Overlap) === */
     .oc-pad-wrap-gun {
-      right: max(10px, env(safe-area-inset-right, 10px)) !important;
-      bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+      right: max(14px, env(safe-area-inset-right, 14px)) !important;
+      bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
     }
     .oc-pad-wrap-skill2 {
-      right: calc(max(10px, env(safe-area-inset-right, 10px)) + 90px) !important;
-      bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 88px) !important;
+      right: calc(max(14px, env(safe-area-inset-right, 14px)) + 98px) !important;
+      bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 94px) !important;
     }
     .oc-pad-wrap-ult {
-      right: calc(max(10px, env(safe-area-inset-right, 10px)) + 14px) !important;
-      bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 162px) !important;
+      right: calc(max(14px, env(safe-area-inset-right, 14px)) + 16px) !important;
+      bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 172px) !important;
+    }
+    .oc-pad-wrap-pulse {
+      right: calc(max(14px, env(safe-area-inset-right, 14px)) + 132px) !important;
+      bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
     }
     #ocTouchControlCluster.left-handed .oc-pad-wrap-gun {
       right: auto !important;
-      left: max(10px, env(safe-area-inset-left, 10px)) !important;
+      left: max(14px, env(safe-area-inset-left, 14px)) !important;
     }
     #ocTouchControlCluster.left-handed .oc-pad-wrap-skill2 {
       right: auto !important;
-      left: calc(max(10px, env(safe-area-inset-left, 10px)) + 90px) !important;
+      left: calc(max(14px, env(safe-area-inset-left, 14px)) + 98px) !important;
     }
     #ocTouchControlCluster.left-handed .oc-pad-wrap-ult {
       right: auto !important;
-      left: calc(max(10px, env(safe-area-inset-left, 10px)) + 14px) !important;
+      left: calc(max(14px, env(safe-area-inset-left, 14px)) + 16px) !important;
+    }
+    #ocTouchControlCluster.left-handed .oc-pad-wrap-pulse {
+      right: auto !important;
+      left: calc(max(14px, env(safe-area-inset-left, 14px)) + 132px) !important;
     }
 
-    /* === LUXURY TRANSLUCENT HOROLOGY & JEWEL CRYSTAL PADS === */
+    /* Ornate Winged-Diamond Collector Frame Behind Primary Fire Button */
+    .oc-gun-crown-frame {
+      position: absolute !important;
+      left: 50% !important;
+      top: 50% !important;
+      width: 128px !important;
+      height: 128px !important;
+      margin: -64px 0 0 -64px !important;
+      pointer-events: none !important;
+      z-index: 0 !important;
+      filter: drop-shadow(0 0 10px rgba(253, 224, 71, 0.35)) !important;
+      transition: transform 0.14s ease, filter 0.14s ease !important;
+    }
+    .oc-pad-wrap-gun:has(#ocTouchGunBtn.is-held) .oc-gun-crown-frame {
+      transform: scale(0.95) !important;
+      filter: drop-shadow(0 0 18px rgba(253, 224, 71, 0.78)) !important;
+    }
+
     .oc-touch-pad {
       position: relative !important;
       border-radius: 50% !important;
@@ -813,7 +1003,7 @@
       align-items: center !important;
       justify-content: center !important;
       overflow: hidden !important;
-      opacity: 0.94 !important;
+      opacity: 0.96 !important;
       color: #f8fafc !important;
       font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
       touch-action: none !important;
@@ -822,9 +1012,9 @@
       -webkit-touch-callout: none !important;
       -webkit-tap-highlight-color: transparent !important;
       -webkit-user-drag: none !important;
+      z-index: 1 !important;
       transition: transform 0.09s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.14s ease, border-color 0.14s ease, opacity 0.14s ease, background 0.18s ease !important;
     }
-    /* Top Sapphire-Crystal Dome Specular Crescent */
     .oc-touch-pad::before {
       content: '' !important;
       position: absolute !important;
@@ -833,111 +1023,149 @@
       right: 11% !important;
       height: 38% !important;
       border-radius: 50% !important;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.06) 52%, transparent 100%) !important;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.06) 52%, transparent 100%) !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
-    /* Inner Beveled Metallic Filigree Ring */
     .oc-touch-pad::after {
       content: '' !important;
       position: absolute !important;
       inset: 3px !important;
       border-radius: 50% !important;
-      border: 1px solid rgba(255, 255, 255, 0.22) !important;
-      box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.20), inset 0 -2px 6px rgba(0, 0, 0, 0.35) !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.24), inset 0 -2px 7px rgba(0, 0, 0, 0.40) !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
 
-    /* 1. PRIMARY WEAPON PAD (96px Translucent Luxury Crystal Trigger) */
+    /* 1. PRIMARY WEAPON PAD (104px Collector Trigger) */
     #ocTouchGunBtn {
-      width: 96px !important;
-      height: 96px !important;
-      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.24) 0%, rgba(124, 45, 18, 0.18) 55%, rgba(10, 14, 32, 0.26) 100%) !important;
-      border: 1.8px solid rgba(253, 224, 71, 0.68) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 16px rgba(249, 115, 22, 0.24), inset 0 2px 10px rgba(254, 240, 138, 0.22), inset 0 -6px 12px rgba(0, 0, 0, 0.32) !important;
+      width: 104px !important;
+      height: 104px !important;
+      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.28) 0%, rgba(124, 45, 18, 0.22) 55%, rgba(10, 14, 32, 0.34) 100%) !important;
+      border: 2px solid rgba(253, 224, 71, 0.78) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), 0 0 18px rgba(249, 115, 22, 0.28), inset 0 2px 12px rgba(254, 240, 138, 0.26), inset 0 -6px 14px rgba(0, 0, 0, 0.36) !important;
     }
-    /* Realm-Tailored Luxury Gun Pad Variants */
     #ocTouchControlCluster[data-realm="dynamo"] #ocTouchGunBtn {
-      background: radial-gradient(circle at 35% 28%, rgba(56, 189, 248, 0.22) 0%, rgba(88, 28, 135, 0.18) 56%, rgba(8, 12, 30, 0.26) 100%) !important;
-      border-color: rgba(253, 224, 71, 0.68) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 18px rgba(56, 189, 248, 0.26), 0 0 10px rgba(250, 204, 21, 0.20), inset 0 2px 10px rgba(186, 230, 253, 0.24), inset 0 -6px 12px rgba(0, 0, 0, 0.34) !important;
+      background: radial-gradient(circle at 35% 28%, rgba(56, 189, 248, 0.26) 0%, rgba(88, 28, 135, 0.22) 56%, rgba(8, 12, 30, 0.32) 100%) !important;
+      border-color: rgba(253, 224, 71, 0.78) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), 0 0 20px rgba(56, 189, 248, 0.30), 0 0 12px rgba(250, 204, 21, 0.24), inset 0 2px 12px rgba(186, 230, 253, 0.28), inset 0 -6px 14px rgba(0, 0, 0, 0.38) !important;
     }
     #ocTouchControlCluster[data-realm="helix"] #ocTouchGunBtn {
-      background: radial-gradient(circle at 35% 28%, rgba(34, 211, 238, 0.22) 0%, rgba(192, 38, 211, 0.16) 56%, rgba(8, 14, 34, 0.25) 100%) !important;
-      border-color: rgba(165, 243, 252, 0.72) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), 0 0 18px rgba(34, 211, 238, 0.26), 0 0 12px rgba(232, 121, 249, 0.22), inset 0 2px 10px rgba(224, 242, 254, 0.26), inset 0 -6px 12px rgba(0, 0, 0, 0.34) !important;
+      background: radial-gradient(circle at 35% 28%, rgba(34, 211, 238, 0.26) 0%, rgba(192, 38, 211, 0.20) 56%, rgba(8, 14, 34, 0.32) 100%) !important;
+      border-color: rgba(165, 243, 252, 0.80) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), 0 0 20px rgba(34, 211, 238, 0.30), 0 0 14px rgba(232, 121, 249, 0.26), inset 0 2px 12px rgba(224, 242, 254, 0.30), inset 0 -6px 14px rgba(0, 0, 0, 0.36) !important;
     }
     #ocTouchControlCluster[data-realm="meteor"] #ocTouchGunBtn {
-      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.24) 0%, rgba(154, 52, 18, 0.20) 56%, rgba(18, 8, 12, 0.28) 100%) !important;
-      border-color: rgba(253, 224, 71, 0.70) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.44), 0 0 18px rgba(249, 115, 22, 0.28), inset 0 2px 10px rgba(254, 240, 138, 0.24), inset 0 -6px 12px rgba(0, 0, 0, 0.36) !important;
+      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.28) 0%, rgba(154, 52, 18, 0.24) 56%, rgba(18, 8, 12, 0.34) 100%) !important;
+      border-color: rgba(253, 224, 71, 0.80) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.50), 0 0 20px rgba(249, 115, 22, 0.32), inset 0 2px 12px rgba(254, 240, 138, 0.28), inset 0 -6px 14px rgba(0, 0, 0, 0.40) !important;
     }
     #ocTouchGunBtn.is-held {
       transform: scale(0.92) !important;
-      opacity: 0.98 !important;
+      opacity: 1 !important;
       border-color: #fef08a !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55), 0 0 32px rgba(253, 224, 71, 0.68), 0 0 18px rgba(56, 189, 248, 0.48), inset 0 0 16px rgba(254, 240, 138, 0.38) !important;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.58), 0 0 36px rgba(253, 224, 71, 0.75), 0 0 20px rgba(56, 189, 248, 0.52), inset 0 0 18px rgba(254, 240, 138, 0.42) !important;
     }
     #ocTouchGunBtn.is-empty {
-      border-color: rgba(148, 163, 184, 0.38) !important;
-      opacity: 0.64 !important;
+      border-color: rgba(148, 163, 184, 0.42) !important;
+      opacity: 0.66 !important;
     }
     #ocTouchGunBtn.oc-fire-empty-flash {
       transform: scale(0.92) !important;
-      opacity: 0.95 !important;
+      opacity: 0.96 !important;
       border-color: #f87171 !important;
-      background: radial-gradient(circle, rgba(220, 38, 38, 0.42) 0%, rgba(127, 29, 29, 0.36) 72%, rgba(30, 6, 12, 0.44) 100%) !important;
-      box-shadow: 0 0 28px rgba(239, 68, 68, 0.74), inset 0 0 14px rgba(254, 202, 202, 0.35) !important;
+      background: radial-gradient(circle, rgba(220, 38, 38, 0.44) 0%, rgba(127, 29, 29, 0.38) 72%, rgba(30, 6, 12, 0.48) 100%) !important;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.78), inset 0 0 14px rgba(254, 202, 202, 0.38) !important;
     }
 
-    /* 2. SKILL 2 PAD (68px Translucent Jewel Homing Volley Pad) */
+    /* 2. SKILL 2 PAD (72px Jewel Volley Pad) */
     #ocTouchSkill2Btn {
-      width: 68px !important;
-      height: 68px !important;
-      background: radial-gradient(circle at 35% 28%, rgba(34, 211, 238, 0.22) 0%, rgba(15, 34, 72, 0.20) 62%, rgba(6, 10, 26, 0.28) 100%) !important;
-      border: 1.8px solid rgba(250, 204, 21, 0.64) !important;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.42), 0 0 14px rgba(34, 211, 238, 0.24), inset 0 2px 8px rgba(186, 230, 253, 0.24), inset 0 -5px 10px rgba(0, 0, 0, 0.34) !important;
+      width: 72px !important;
+      height: 72px !important;
+      background: radial-gradient(circle at 35% 28%, rgba(34, 211, 238, 0.26) 0%, rgba(15, 34, 72, 0.24) 62%, rgba(6, 10, 26, 0.34) 100%) !important;
+      border: 2px solid rgba(250, 204, 21, 0.72) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.46), 0 0 16px rgba(34, 211, 238, 0.28), inset 0 2px 9px rgba(186, 230, 253, 0.28), inset 0 -5px 11px rgba(0, 0, 0, 0.38) !important;
     }
     #ocTouchControlCluster[data-realm="helix"] #ocTouchSkill2Btn {
-      background: radial-gradient(circle at 35% 28%, rgba(56, 189, 248, 0.22) 0%, rgba(147, 51, 234, 0.18) 62%, rgba(6, 12, 28, 0.26) 100%) !important;
-      border-color: rgba(165, 243, 252, 0.68) !important;
+      background: radial-gradient(circle at 35% 28%, rgba(56, 189, 248, 0.26) 0%, rgba(147, 51, 234, 0.22) 62%, rgba(6, 12, 28, 0.32) 100%) !important;
+      border-color: rgba(165, 243, 252, 0.74) !important;
     }
     #ocTouchControlCluster[data-realm="meteor"] #ocTouchSkill2Btn {
-      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.24) 0%, rgba(124, 45, 18, 0.20) 62%, rgba(18, 8, 12, 0.28) 100%) !important;
-      border-color: rgba(251, 191, 36, 0.68) !important;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.44), 0 0 14px rgba(249, 115, 22, 0.26), inset 0 2px 8px rgba(254, 240, 138, 0.22), inset 0 -5px 10px rgba(0, 0, 0, 0.36) !important;
+      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.28) 0%, rgba(124, 45, 18, 0.24) 62%, rgba(18, 8, 12, 0.34) 100%) !important;
+      border-color: rgba(251, 191, 36, 0.74) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.48), 0 0 16px rgba(249, 115, 22, 0.30), inset 0 2px 9px rgba(254, 240, 138, 0.26), inset 0 -5px 11px rgba(0, 0, 0, 0.40) !important;
     }
     #ocTouchSkill2Btn.is-held {
       transform: scale(0.92) !important;
-      opacity: 0.98 !important;
+      opacity: 1 !important;
       border-color: #67e8f9 !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 0 26px rgba(34, 211, 238, 0.72), inset 0 0 12px rgba(165, 243, 252, 0.38) !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.58), 0 0 28px rgba(34, 211, 238, 0.78), inset 0 0 14px rgba(165, 243, 252, 0.42) !important;
     }
 
-    /* 3. ULTIMATE PAD (76px Translucent Imperial Core Crown Pad) */
+    /* 3. ULTIMATE PAD (82px Imperial Crown Pad) */
     #ocTouchUltBtn {
-      width: 76px !important;
-      height: 76px !important;
-      background: radial-gradient(circle at 35% 28%, rgba(192, 132, 252, 0.24) 0%, rgba(88, 28, 135, 0.20) 56%, rgba(16, 8, 30, 0.28) 100%) !important;
-      border: 1.8px solid rgba(253, 224, 71, 0.72) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.44), 0 0 18px rgba(232, 121, 249, 0.28), 0 0 10px rgba(250, 204, 21, 0.22), inset 0 2px 8px rgba(254, 249, 195, 0.26), inset 0 -5px 10px rgba(0, 0, 0, 0.34) !important;
+      width: 82px !important;
+      height: 82px !important;
+      background: radial-gradient(circle at 35% 28%, rgba(192, 132, 252, 0.28) 0%, rgba(88, 28, 135, 0.24) 56%, rgba(16, 8, 30, 0.34) 100%) !important;
+      border: 2px solid rgba(253, 224, 71, 0.80) !important;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.48), 0 0 20px rgba(232, 121, 249, 0.32), 0 0 12px rgba(250, 204, 21, 0.26), inset 0 2px 10px rgba(254, 249, 195, 0.30), inset 0 -5px 12px rgba(0, 0, 0, 0.38) !important;
     }
     #ocTouchControlCluster[data-realm="helix"] #ocTouchUltBtn {
-      background: radial-gradient(circle at 35% 28%, rgba(34, 211, 238, 0.22) 0%, rgba(168, 85, 247, 0.20) 56%, rgba(10, 12, 32, 0.26) 100%) !important;
-      border-color: rgba(224, 242, 254, 0.74) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.44), 0 0 18px rgba(34, 211, 238, 0.28), 0 0 12px rgba(232, 121, 249, 0.24), inset 0 2px 8px rgba(224, 242, 254, 0.28), inset 0 -5px 10px rgba(0, 0, 0, 0.34) !important;
+      background: radial-gradient(circle at 35% 28%, rgba(34, 211, 238, 0.26) 0%, rgba(168, 85, 247, 0.24) 56%, rgba(10, 12, 32, 0.32) 100%) !important;
+      border-color: rgba(224, 242, 254, 0.82) !important;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.48), 0 0 20px rgba(34, 211, 238, 0.32), 0 0 14px rgba(232, 121, 249, 0.28), inset 0 2px 10px rgba(224, 242, 254, 0.32), inset 0 -5px 12px rgba(0, 0, 0, 0.38) !important;
     }
     #ocTouchControlCluster[data-realm="meteor"] #ocTouchUltBtn {
-      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.26) 0%, rgba(153, 27, 27, 0.20) 56%, rgba(22, 8, 10, 0.28) 100%) !important;
-      border-color: rgba(253, 224, 71, 0.74) !important;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.46), 0 0 18px rgba(249, 115, 22, 0.30), 0 0 10px rgba(250, 204, 21, 0.24), inset 0 2px 8px rgba(254, 240, 138, 0.28), inset 0 -5px 10px rgba(0, 0, 0, 0.36) !important;
+      background: radial-gradient(circle at 35% 28%, rgba(251, 146, 60, 0.30) 0%, rgba(153, 27, 27, 0.24) 56%, rgba(22, 8, 10, 0.34) 100%) !important;
+      border-color: rgba(253, 224, 71, 0.82) !important;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.50), 0 0 20px rgba(249, 115, 22, 0.34), 0 0 12px rgba(250, 204, 21, 0.28), inset 0 2px 10px rgba(254, 240, 138, 0.30), inset 0 -5px 12px rgba(0, 0, 0, 0.40) !important;
     }
     #ocTouchUltBtn.is-held {
       transform: scale(0.92) !important;
       opacity: 1 !important;
       border-color: #fef08a !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.68), 0 0 36px rgba(250, 204, 21, 0.82), 0 0 22px rgba(232, 121, 249, 0.65), inset 0 0 16px rgba(254, 249, 195, 0.46) !important;
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.68), 0 0 38px rgba(250, 204, 21, 0.86), 0 0 24px rgba(232, 121, 249, 0.68), inset 0 0 18px rgba(254, 249, 195, 0.48) !important;
+    }
+
+    /* 4. FLUX PULSE BATTLE-SPELL PAD (56px Collector Spell Orb) */
+    #ocTouchPulseBtn {
+      width: 56px !important;
+      height: 56px !important;
+      background: radial-gradient(circle at 35% 28%, rgba(16, 185, 129, 0.26) 0%, rgba(14, 116, 144, 0.24) 58%, rgba(6, 12, 26, 0.36) 100%) !important;
+      border: 1.8px solid rgba(103, 232, 249, 0.56) !important;
+      box-shadow: 0 5px 16px rgba(0, 0, 0, 0.46), 0 0 12px rgba(34, 211, 238, 0.22), inset 0 2px 8px rgba(207, 250, 254, 0.24) !important;
+    }
+    #ocTouchPulseBtn.is-ready {
+      border-color: #fde047 !important;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.54), 0 0 24px rgba(250, 204, 21, 0.72), 0 0 14px rgba(34, 211, 238, 0.52), inset 0 0 14px rgba(254, 240, 138, 0.42) !important;
+      animation: ocReadyPulse 1.6s ease-in-out infinite !important;
+    }
+    #ocTouchPulseBtn.is-charging {
+      opacity: 0.78 !important;
+    }
+    .oc-pulse-sweep {
+      position: absolute !important;
+      inset: 0 !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+      z-index: 4 !important;
+      background: conic-gradient(rgba(34, 211, 238, 0.28) var(--pulse-deg, 0deg), rgba(4, 8, 22, 0.58) var(--pulse-deg, 0deg)) !important;
+    }
+    #ocTouchPulseBtn.is-ready .oc-pulse-sweep {
+      background: none !important;
+    }
+    .oc-pulse-pct {
+      font-size: 9px !important;
+      font-weight: 900 !important;
+      color: #a5f3fc !important;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+      z-index: 5 !important;
+      line-height: 1 !important;
+      margin-top: 1px !important;
+    }
+    #ocTouchPulseBtn.is-ready .oc-pulse-pct {
+      color: #fef08a !important;
     }
 
     /* Translucent Filigree SVG Dial & Custom Artwork Inside Pads */
@@ -948,11 +1176,11 @@
       height: calc(100% - 8px) !important;
       pointer-events: none !important;
       z-index: 1 !important;
-      opacity: 0.72 !important;
+      opacity: 0.78 !important;
       transition: transform 0.35s ease, opacity 0.2s ease !important;
     }
     .oc-touch-pad.is-held .oc-pad-filigree {
-      opacity: 0.96 !important;
+      opacity: 1 !important;
       transform: rotate(22deg) scale(1.03) !important;
     }
     .oc-touch-pad .oc-pad-icon {
@@ -965,17 +1193,22 @@
       line-height: 1 !important;
       pointer-events: none !important;
       z-index: 2 !important;
-      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.75)) !important;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.78)) !important;
     }
     #ocTouchUltBtn .oc-pad-icon {
-      width: 48px !important;
-      height: 46px !important;
+      width: 52px !important;
+      height: 50px !important;
       margin-top: -2px !important;
     }
     #ocTouchSkill2Btn .oc-pad-icon {
-      width: 36px !important;
-      height: 36px !important;
+      width: 38px !important;
+      height: 38px !important;
       margin-top: -1px !important;
+    }
+    #ocTouchPulseBtn .oc-pad-icon {
+      width: 24px !important;
+      height: 24px !important;
+      z-index: 5 !important;
     }
     .oc-pad-emblem-svg {
       width: 100% !important;
@@ -984,22 +1217,22 @@
       overflow: visible !important;
     }
     .oc-ult-mini-core {
-      width: 46px !important;
-      height: 46px !important;
+      width: 50px !important;
+      height: 50px !important;
       object-fit: contain !important;
       display: block !important;
-      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.42)) contrast(1.08) saturate(1.12) !important;
+      filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.48)) contrast(1.08) saturate(1.12) !important;
     }
     .oc-gun-crest {
-      width: 24px !important;
-      height: 18px !important;
+      width: 28px !important;
+      height: 20px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
       margin-bottom: 1px !important;
       pointer-events: none !important;
       z-index: 2 !important;
-      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.75)) !important;
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.78)) !important;
     }
     .oc-gun-crest svg {
       width: 100% !important;
@@ -1008,8 +1241,8 @@
     }
 
     .oc-touch-pad.on-cooldown {
-      opacity: 0.72 !important;
-      filter: saturate(0.68) !important;
+      opacity: 0.74 !important;
+      filter: saturate(0.70) !important;
     }
     .oc-touch-pad .oc-cd-sweep {
       position: absolute !important;
@@ -1017,7 +1250,7 @@
       border-radius: 50% !important;
       pointer-events: none !important;
       z-index: 4 !important;
-      background: conic-gradient(rgba(4, 8, 22, 0.64) var(--cd-deg, 0deg), transparent var(--cd-deg, 0deg)) !important;
+      background: conic-gradient(rgba(4, 8, 22, 0.66) var(--cd-deg, 0deg), transparent var(--cd-deg, 0deg)) !important;
     }
     .oc-touch-pad .oc-cd-text {
       position: absolute !important;
@@ -1038,7 +1271,7 @@
       letter-spacing: 0.12em !important;
       line-height: 1 !important;
       color: #ffffff !important;
-      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.92), 0 0 8px rgba(253, 224, 71, 0.35) !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.92), 0 0 8px rgba(253, 224, 71, 0.40) !important;
       pointer-events: none !important;
       z-index: 2 !important;
     }
@@ -1047,18 +1280,18 @@
       font-weight: 900 !important;
       font-variant-numeric: tabular-nums !important;
       line-height: 1.06 !important;
-      max-width: 82px !important;
+      max-width: 86px !important;
       white-space: nowrap !important;
       overflow: hidden !important;
       text-align: center !important;
       color: #fef08a !important;
-      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(250, 204, 21, 0.42) !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(250, 204, 21, 0.46) !important;
       pointer-events: none !important;
       z-index: 2 !important;
     }
     #ocTouchControlCluster[data-realm="helix"] .oc-touch-pad .oc-fire-ammo {
       color: #a5f3fc !important;
-      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(34, 211, 238, 0.48) !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(34, 211, 238, 0.50) !important;
     }
     #ocTouchGunBtn.is-empty .oc-fire-ammo,
     #ocTouchGunBtn.oc-fire-empty-flash .oc-fire-ammo { color: #fca5a5 !important; }
@@ -1066,11 +1299,11 @@
       font-size: 7.5px !important;
       font-weight: 800 !important;
       letter-spacing: 0.12em !important;
-      color: rgba(254, 249, 195, 0.94) !important;
-      background: rgba(6, 10, 26, 0.48) !important;
-      border: 1px solid rgba(255, 255, 255, 0.20) !important;
+      color: rgba(254, 249, 195, 0.95) !important;
+      background: rgba(6, 10, 26, 0.52) !important;
+      border: 1px solid rgba(255, 255, 255, 0.22) !important;
       border-radius: 999px !important;
-      padding: 1.5px 5.5px !important;
+      padding: 1.5px 6px !important;
       margin-top: 1px !important;
       line-height: 1 !important;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95) !important;
@@ -1083,10 +1316,10 @@
       font-weight: 800 !important;
       letter-spacing: 0.09em !important;
       text-transform: uppercase !important;
-      color: rgba(248, 250, 252, 0.94) !important;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(4, 8, 20, 0.90) 100%) !important;
-      border: 1px solid rgba(253, 224, 71, 0.32) !important;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.16) !important;
+      color: rgba(248, 250, 252, 0.96) !important;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(4, 8, 20, 0.94) 100%) !important;
+      border: 1px solid rgba(253, 224, 71, 0.38) !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
       border-radius: 999px !important;
       padding: 2px 7px !important;
       white-space: nowrap !important;
@@ -1094,12 +1327,107 @@
       pointer-events: none !important;
     }
     #ocTouchControlCluster[data-realm="helix"] .oc-pad-caption {
-      border-color: rgba(103, 232, 249, 0.36) !important;
+      border-color: rgba(103, 232, 249, 0.42) !important;
+    }
+
+    /* Compact Phone Responsive Safeguard (iPhone SE 667x375 & 390x844 portrait) */
+    @media (max-width: 460px) {
+      .game-modal-overlay .game-controls-actions {
+        gap: 2px !important;
+      }
+      body .game-modal-overlay .game-controls-actions .game-btn-icon,
+      body .game-modal-overlay .game-controls-actions .game-btn-close {
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        padding: 0 !important;
+        border-radius: 6px !important;
+      }
+      body .game-modal-overlay .game-controls-actions .game-btn-icon svg,
+      body .game-modal-overlay .game-controls-actions .game-btn-close svg {
+        width: 12px !important;
+        height: 12px !important;
+      }
+    }
+    @media (max-width: 720px) and (max-height: 440px), (max-width: 460px) {
+      #ocVirtualJoystickWrap {
+        width: 124px !important;
+        height: 124px !important;
+        left: max(12px, env(safe-area-inset-left, 12px)) !important;
+        bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+      }
+      #ocVirtualJoyKnob {
+        width: 54px !important;
+        height: 54px !important;
+        margin: -27px 0 0 -27px !important;
+      }
+      .oc-joy-knob-img {
+        width: 36px !important;
+        height: 36px !important;
+      }
+      #ocTouchModePill {
+        left: max(12px, env(safe-area-inset-left, 12px)) !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 132px) !important;
+      }
+      #ocTouchControlCluster.left-handed #ocVirtualJoystickWrap,
+      #ocTouchControlCluster.left-handed #ocTouchModePill {
+        left: auto !important;
+        right: max(12px, env(safe-area-inset-right, 12px)) !important;
+      }
+      .oc-gun-crown-frame {
+        width: 108px !important;
+        height: 108px !important;
+        margin: -54px 0 0 -54px !important;
+      }
+      #ocTouchGunBtn {
+        width: 88px !important;
+        height: 88px !important;
+      }
+      #ocTouchSkill2Btn {
+        width: 62px !important;
+        height: 62px !important;
+      }
+      #ocTouchUltBtn {
+        width: 70px !important;
+        height: 70px !important;
+      }
+      #ocTouchPulseBtn {
+        width: 50px !important;
+        height: 50px !important;
+      }
+      .oc-pad-wrap-gun {
+        right: max(10px, env(safe-area-inset-right, 10px)) !important;
+        bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+      }
+      .oc-pad-wrap-skill2 {
+        right: calc(max(10px, env(safe-area-inset-right, 10px)) + 84px) !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 80px) !important;
+      }
+      .oc-pad-wrap-ult {
+        right: calc(max(10px, env(safe-area-inset-right, 10px)) + 12px) !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 144px) !important;
+      }
+      .oc-pad-wrap-pulse {
+        right: calc(max(10px, env(safe-area-inset-right, 10px)) + 114px) !important;
+        bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+      }
+      #ocTouchControlCluster.left-handed .oc-pad-wrap-gun {
+        left: max(10px, env(safe-area-inset-left, 10px)) !important;
+      }
+      #ocTouchControlCluster.left-handed .oc-pad-wrap-skill2 {
+        left: calc(max(10px, env(safe-area-inset-left, 10px)) + 84px) !important;
+      }
+      #ocTouchControlCluster.left-handed .oc-pad-wrap-ult {
+        left: calc(max(10px, env(safe-area-inset-left, 10px)) + 12px) !important;
+      }
+      #ocTouchControlCluster.left-handed .oc-pad-wrap-pulse {
+        left: calc(max(10px, env(safe-area-inset-left, 10px)) + 114px) !important;
+      }
     }
 
     @keyframes ocReadyPulse {
       0% { transform: scale(1); filter: brightness(1.0); }
-      45% { transform: scale(1.12); filter: brightness(1.45); }
+      45% { transform: scale(1.10); filter: brightness(1.38); }
       100% { transform: scale(1); filter: brightness(1.0); }
     }
     @keyframes ocCooldownShake {
@@ -1111,7 +1439,7 @@
     .oc-ready-pulse { animation: ocReadyPulse 0.42s ease-out !important; }
     .oc-cd-shake { animation: ocCooldownShake 0.26s ease-in-out !important; }
 
-    /* === CHANGED (v387): DESKTOP-ONLY SKILL COOLDOWN & KEYCAP STRIP (Not touch buttons!) === */
+    /* === CHANGED (v410): ENHANCED LUXURY DESKTOP SKILL CARDS (Interactive + Keycaps + Emblems) === */
     #ocDesktopSkillHud {
       position: absolute !important;
       right: 18px !important;
@@ -1119,8 +1447,8 @@
       z-index: 40 !important;
       display: flex !important;
       align-items: center !important;
-      gap: 8px !important;
-      pointer-events: none !important;
+      gap: 9px !important;
+      pointer-events: auto !important;
       user-select: none !important;
     }
     #ocDesktopSkillHud.oc-desk-hidden {
@@ -1130,24 +1458,32 @@
       position: relative !important;
       display: flex !important;
       align-items: center !important;
-      gap: 7px !important;
-      padding: 6px 10px !important;
-      border-radius: 10px !important;
-      background: rgba(8, 12, 26, 0.88) !important;
-      border: 1.5px solid rgba(148, 163, 184, 0.32) !important;
+      gap: 8px !important;
+      padding: 7px 12px 8px 9px !important;
+      border-radius: 12px !important;
+      cursor: pointer !important;
+      background: linear-gradient(165deg, rgba(18, 28, 54, 0.90) 0%, rgba(6, 10, 24, 0.94) 100%) !important;
+      border: 1.5px solid rgba(253, 224, 71, 0.36) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.16) !important;
       font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
       overflow: hidden !important;
-      transition: border-color 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease !important;
+      transition: transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease !important;
     }
-    .oc-desk-chip[data-skill="gun"] { border-color: rgba(251, 146, 60, 0.55) !important; }
-    .oc-desk-chip[data-skill="skill2"] { border-color: rgba(34, 211, 238, 0.55) !important; }
-    .oc-desk-chip[data-skill="ult"] { border-color: rgba(250, 204, 21, 0.58) !important; }
+    .oc-desk-chip:hover {
+      transform: translateY(-2px) !important;
+      border-color: rgba(253, 224, 71, 0.72) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.56), 0 0 16px rgba(56, 189, 248, 0.24) !important;
+    }
+    .oc-desk-chip[data-skill="gun"] { border-color: rgba(251, 146, 60, 0.58) !important; }
+    .oc-desk-chip[data-skill="skill2"] { border-color: rgba(34, 211, 238, 0.58) !important; }
+    .oc-desk-chip[data-skill="ult"] { border-color: rgba(250, 204, 21, 0.62) !important; }
     .oc-desk-chip.is-active {
+      transform: scale(0.96) !important;
       border-color: #fde047 !important;
-      box-shadow: 0 0 18px rgba(251, 146, 60, 0.55) !important;
+      box-shadow: 0 0 22px rgba(251, 146, 60, 0.62), inset 0 0 12px rgba(253, 224, 71, 0.20) !important;
     }
     .oc-desk-chip.on-cooldown {
-      opacity: 0.62 !important;
+      opacity: 0.64 !important;
     }
     .oc-desk-chip .oc-desk-cdbar {
       position: absolute !important;
@@ -1161,6 +1497,24 @@
     .oc-desk-chip[data-skill="ult"] .oc-desk-cdbar {
       background: linear-gradient(90deg, #facc15, #f97316) !important;
     }
+    .oc-desk-emblem {
+      width: 24px !important;
+      height: 24px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 7px !important;
+      background: rgba(15, 23, 42, 0.86) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      padding: 2px !important;
+      flex-shrink: 0 !important;
+    }
+    .oc-desk-emblem svg,
+    .oc-desk-emblem img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+    }
     .oc-desk-keycap {
       display: inline-flex !important;
       align-items: center !important;
@@ -1169,17 +1523,17 @@
       height: 22px !important;
       padding: 0 5px !important;
       border-radius: 6px !important;
-      background: rgba(30, 41, 59, 0.92) !important;
-      border: 1px solid rgba(226, 232, 240, 0.35) !important;
+      background: linear-gradient(180deg, rgba(51, 65, 85, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+      border: 1px solid rgba(253, 224, 71, 0.44) !important;
       color: #fef08a !important;
       font-size: 11px !important;
       font-weight: 900 !important;
-      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.5) !important;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.55), 0 0 6px rgba(250, 204, 21, 0.16) !important;
     }
     .oc-desk-meta {
       display: flex !important;
       flex-direction: column !important;
-      line-height: 1.1 !important;
+      line-height: 1.12 !important;
     }
     .oc-desk-name {
       font-size: 9px !important;
@@ -1193,10 +1547,26 @@
       color: #f8fafc !important;
       white-space: nowrap !important;
     }
+
+    /* Enhanced Topbar Icon & Close Jewel Buttons */
+    body .game-controls-actions .game-btn-icon,
+    body .game-controls-actions .game-btn-close {
+      background: linear-gradient(165deg, rgba(30, 41, 59, 0.88) 0%, rgba(8, 12, 26, 0.94) 100%) !important;
+      border: 1px solid rgba(253, 224, 71, 0.30) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
+      border-radius: 9px !important;
+      transition: transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease !important;
+    }
+    body .game-controls-actions .game-btn-icon:hover,
+    body .game-controls-actions .game-btn-close:hover {
+      transform: translateY(-1px) !important;
+      border-color: rgba(253, 224, 71, 0.72) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.52), 0 0 12px rgba(56, 189, 248, 0.34) !important;
+    }
     .game-btn-icon.oc-btn-off { opacity: 0.42 !important; }
     .game-btn-icon.oc-btn-active {
-      border-color: rgba(250, 204, 21, 0.72) !important;
-      box-shadow: 0 0 10px rgba(250, 204, 21, 0.35) !important;
+      border-color: rgba(250, 204, 21, 0.78) !important;
+      box-shadow: 0 0 12px rgba(250, 204, 21, 0.42), inset 0 1px 2px rgba(254, 240, 138, 0.3) !important;
     }
   </style>
 
@@ -2712,7 +3082,7 @@
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-dynamo" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <span class="oc-realm-orb-clip"><img src="assets/core-dynamo-t5.png?v=arcade409_tier6_true3d" alt="" class="oc-realm-orb-img" /></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-dynamo-t5.png?v=arcade410_luxury_joystick" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">DYNAMO</span>
         </button>
@@ -2721,7 +3091,7 @@
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-helix" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <span class="oc-realm-orb-clip"><img src="assets/core-helix-t5.png?v=arcade409_tier6_true3d" alt="" class="oc-realm-orb-img" /></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-helix-t5.png?v=arcade410_luxury_joystick" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">HELIX</span>
         </button>
@@ -2730,7 +3100,7 @@
           <canvas class="oc-realm-btn-fx" aria-hidden="true"></canvas>
           <span class="oc-realm-orb oc-realm-orb-meteor" aria-hidden="true">
             <span class="oc-realm-orb-ring"></span>
-            <span class="oc-realm-orb-clip"><img src="assets/core-meteor-t5.png?v=arcade409_tier6_true3d" alt="" class="oc-realm-orb-img" /></span>
+            <span class="oc-realm-orb-clip"><img src="assets/core-meteor-t5.png?v=arcade410_luxury_joystick" alt="" class="oc-realm-orb-img" /></span>
           </span>
           <span class="game-btn-label oc-realm-label">METEOR</span>
         </button>
@@ -3010,7 +3380,13 @@
 
         <!-- Controls -->
         <div class="game-controls-actions">
-          <!-- === CHANGED (v387): Left-Handed Touch Mirror Toggle (visible on touch only) & Futuristic Music Toggle === -->
+          <!-- === CHANGED (v410): Touch Steering Mode Toggle (Joystick / On-Point), Left-Handed Mirror & Music === -->
+          <button type="button" class="game-btn-icon" id="cgMoveModeBtn" style="display:none;" title="Touch Steering: Virtual Joystick (Tap for On-Point)">
+            <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
+              <circle cx="12" cy="12" r="8.5" stroke="#fde047" stroke-width="1.7" stroke-dasharray="3 2.2"/>
+              <circle cx="12" cy="12" r="3.4" fill="#38bdf8" stroke="#fef08a" stroke-width="1.2"/>
+            </svg>
+          </button>
           <button type="button" class="game-btn-icon" id="cgLeftHandBtn" style="display:none;" title="Toggle Left-Handed / Right-Handed Touch Layout">
             <svg viewBox="0 0 24 24" fill="none" width="15" height="15">
               <path d="M7 16l-4-4 4-4M17 8l4 4-4 4M3 12h18" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -3178,7 +3554,7 @@
                 <span class="oc-go-emblem-ring"></span>
                 <span class="oc-go-emblem-ring-inner"></span>
                 <span class="oc-go-emblem-clip">
-                  <img id="cgRealmEmblemImg" class="oc-go-emblem-img" src="assets/core-dynamo-t6-showcase.png?v=arcade409_tier6_true3d" alt="" />
+                  <img id="cgRealmEmblemImg" class="oc-go-emblem-img" src="assets/core-dynamo-t6-showcase.png?v=arcade410_luxury_joystick" alt="" />
                 </span>
               </div>
 
@@ -3314,7 +3690,7 @@
       </div>
     </div>
   </div>
-  <script src="game.js?v=arcade409_tier6_true3d"></script>
+  <script src="game.js?v=arcade410_luxury_joystick"></script>
   <!-- BuildStamp: 2026-11-17T13:55:00.000Z - Quantum Chromatic Monogram v314 -->
 
 </body>

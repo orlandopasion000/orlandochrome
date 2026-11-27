@@ -211,13 +211,17 @@ async function main() {
     // 2. Verify In-Game Model vs Strict Idle Weapon Hiding (Idle, 0-Ammo Hold, Active Firing, Skill Cast) + Debrief Presentation Stage
     for (const mode of ['meteor', 'helix', 'dynamo']) {
       await cdp.send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html?arcade=${mode}&tier=6&test_ammo=250` });
-      await sleep(1200);
+      for (let w = 0; w < 60; w++) {
+        await sleep(100);
+        const ready = await cdp.eval(`Boolean(window.chromeSynapseGame && window.chromeSynapseGame.getState().active)`);
+        if (ready) break;
+      }
       await cdp.eval(`(() => {
         window.chromeSynapseGame.setTier(6, false);
         window.chromeSynapseGame.setPointerX(0.5);
         window.chromeSynapseGame.setPointerY(0.66);
       })()`);
-      await sleep(250);
+      await sleep(300);
 
       const idleSt = await cdp.eval(`(() => {
         const s = window.chromeSynapseGame.getState();
