@@ -2408,7 +2408,7 @@
   // Ensures zero wing clipping at sprite/viewport edges and unified size scaling across all realms & tiers
   // ─────────────────────────────────────────────────────────────
   const CORE_GEOMETRY_DB = {
-    version: 'v410_luxury_joystick',
+    version: 'v411_mlbb_joystick',
     refCanvasW: 1024,
     refCanvasH: 576,
     wingCanvasW: 512,
@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade410_luxury_joystick')
+      fetch('assets/core-geometry-db.json?v=arcade411_mlbb_joystick')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2663,12 +2663,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade410_luxury_joystick';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade411_mlbb_joystick';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade410_luxury_joystick';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade411_mlbb_joystick';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade410_luxury_joystick';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade411_mlbb_joystick';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2687,30 +2687,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade410_luxury_joystick`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade411_mlbb_joystick`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade410_luxury_joystick`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade411_mlbb_joystick`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade410_luxury_joystick`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade411_mlbb_joystick`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade410_luxury_joystick`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade411_mlbb_joystick`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade410_luxury_joystick`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade411_mlbb_joystick`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade410_luxury_joystick`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade411_mlbb_joystick`;
       }
     }
   });
@@ -8145,17 +8145,18 @@
       meteor: { gun: 'EMBER CANNON',  skill2: 'SEEKER COMETS', ult: 'CALDERA NOVA', s2Icon: '☄️', ultIcon: '🌋', s2Count: 4, s2Dmg: 3.0 }
     },
     ui: {
-      gunBtnSize: 104,
-      skill2BtnSize: 72,
-      ultBtnSize: 82,
-      pulseBtnSize: 56,
-      btnOpacity: 0.90,
+      gunBtnSize: 106,
+      skill2BtnSize: 74,
+      ultBtnSize: 84,
+      pulseBtnSize: 58,
+      btnOpacity: 0.92,
       pressedScale: 0.92,
       leftHandedKey: 'oc_left_handed_controls',
       moveModeKey: 'oc_touch_move_mode',
-      joyMaxRadius: 50,
-      joyDeadZone: 6,
-      joyMaxSpeedPx: 820
+      joyMaxRadius: 44,
+      joyFloatingTether: 34,
+      joyDeadZone: 4,
+      joyMaxSpeedPx: 940
     },
     gun: {
       fireDelayMs: 120,      // FIRE_DELAY = 120 ms (requestAnimationFrame gated, never setInterval)
@@ -8268,8 +8269,9 @@
     })(),
     activePointers: new Map(), // pointerId -> { role: 'JOYSTICK'|'MOVE'|'GUN'|'SKILL2'|'ULT'|'PULSE', el }
     heldKeys: new Set(),       // Desktop held keyboard codes ('KeyA', 'KeyF', etc.)
-    joyState: { active: false, pointerId: null, dx: 0, dy: 0, ux: 0, uy: 0, mag: 0, angleDeg: 0, centerX: 0, centerY: 0 },
+    joyState: { active: false, pointerId: null, dx: 0, dy: 0, ux: 0, uy: 0, mag: 0, angleDeg: 0, homeX: 0, homeY: 0, originX: 0, originY: 0, baseX: 0, baseY: 0 },
     clusterEl: null,
+    joyZoneEl: null,
     joyWrapEl: null,
     joyEl: null,
     joyDirArcEl: null,
@@ -8498,26 +8500,53 @@
       this.joyState.ux = 0;
       this.joyState.uy = 0;
       this.joyState.mag = 0;
+      this.joyState.baseX = 0;
+      this.joyState.baseY = 0;
       if (this.joyEl) {
         this.joyEl.classList.remove('is-active');
+        this.joyEl.style.setProperty('--joy-base-x', '0px');
+        this.joyEl.style.setProperty('--joy-base-y', '0px');
         this.joyEl.style.setProperty('--joy-x', '0px');
         this.joyEl.style.setProperty('--joy-y', '0px');
         this.joyEl.style.setProperty('--joy-mag', '0');
       }
     },
 
+    _beginJoystickAt(clientX, clientY) {
+      if (!this.joyWrapEl || !this.joyEl) return;
+      const wRect = this.joyWrapEl.getBoundingClientRect();
+      const homeX = wRect.left + wRect.width * 0.5;
+      const homeY = wRect.top + wRect.height * 0.5;
+      const tether = CONFIG.ui.joyFloatingTether || 34;
+      const ox = clientX - homeX;
+      const oy = clientY - homeY;
+      const od = Math.hypot(ox, oy);
+      let bx = ox;
+      let by = oy;
+      if (od > tether && od > 0.001) {
+        bx = (ox / od) * tether;
+        by = (oy / od) * tether;
+      }
+      this.joyState.homeX = homeX;
+      this.joyState.homeY = homeY;
+      this.joyState.baseX = bx;
+      this.joyState.baseY = by;
+      this.joyState.originX = homeX + bx;
+      this.joyState.originY = homeY + by;
+      this.joyEl.style.setProperty('--joy-base-x', `${bx.toFixed(1)}px`);
+      this.joyEl.style.setProperty('--joy-base-y', `${by.toFixed(1)}px`);
+      this._updateJoystickVector(clientX, clientY);
+    },
+
     _updateJoystickVector(clientX, clientY) {
       if (!this.joyEl) return;
-      const rect = this.joyEl.getBoundingClientRect();
-      const cx = rect.width > 10 ? (rect.left + rect.width * 0.5) : this.joyState.centerX;
-      const cy = rect.height > 10 ? (rect.top + rect.height * 0.5) : this.joyState.centerY;
-      this.joyState.centerX = cx;
-      this.joyState.centerY = cy;
+      const ox = this.joyState.originX || this.joyState.homeX;
+      const oy = this.joyState.originY || this.joyState.homeY;
 
-      const maxR = Math.min(CONFIG.ui.joyMaxRadius || 50, Math.max(32, (rect.width || 148) * 0.34));
-      const dead = CONFIG.ui.joyDeadZone || 6;
-      const rawDx = clientX - cx;
-      const rawDy = clientY - cy;
+      const maxR = CONFIG.ui.joyMaxRadius || 44;
+      const dead = CONFIG.ui.joyDeadZone || 4;
+      const rawDx = clientX - ox;
+      const rawDy = clientY - oy;
       const dist = Math.hypot(rawDx, rawDy);
       const angleRad = Math.atan2(rawDy, rawDx);
       const clampedR = Math.min(maxR, dist);
@@ -8533,8 +8562,7 @@
         uy = Math.sin(angleRad);
       }
 
-      // Rotate directional highlight arc so conic wedge centers on pointer angle
-      const angleDeg = (angleRad * 180 / Math.PI) + 90 - 90;
+      const angleDeg = (angleRad * 180 / Math.PI);
       this.joyState.dx = visX;
       this.joyState.dy = visY;
       this.joyState.ux = ux;
@@ -8548,16 +8576,17 @@
       this.joyEl.style.setProperty('--joy-mag', mag.toFixed(3));
     },
 
-    _bindJoystickEvents(joyEl) {
+    _bindJoystickEvents(targetEl) {
+      if (!targetEl) return;
       ['touchstart', 'touchmove', 'touchend'].forEach((evt) => {
-        joyEl.addEventListener(evt, (e) => {
+        targetEl.addEventListener(evt, (e) => {
           if (e.cancelable) e.preventDefault();
           e.stopPropagation();
         }, { passive: false });
       });
-      joyEl.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
+      targetEl.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
 
-      joyEl.addEventListener('pointerdown', (e) => {
+      targetEl.addEventListener('pointerdown', (e) => {
         if (!this.isTouch || !state.active || this.moveMode !== 'joystick') return;
         e.preventDefault();
         e.stopPropagation();
@@ -8566,15 +8595,15 @@
         if (this.joyState.active && this.joyState.pointerId !== null && this.joyState.pointerId !== e.pointerId) {
           this.releasePointer(this.joyState.pointerId);
         }
-        this.activePointers.set(e.pointerId, { role: 'JOYSTICK', el: joyEl });
-        try { joyEl.setPointerCapture(e.pointerId); } catch (_) {}
-        joyEl.classList.add('is-active');
+        this.activePointers.set(e.pointerId, { role: 'JOYSTICK', el: targetEl });
+        try { targetEl.setPointerCapture(e.pointerId); } catch (_) {}
+        if (this.joyEl) this.joyEl.classList.add('is-active');
         this.joyState.active = true;
         this.joyState.pointerId = e.pointerId;
-        this._updateJoystickVector(e.clientX, e.clientY);
+        this._beginJoystickAt(e.clientX, e.clientY);
       }, { passive: false });
 
-      joyEl.addEventListener('pointermove', (e) => {
+      targetEl.addEventListener('pointermove', (e) => {
         if (!this.isTouch || !state.active || this.moveMode !== 'joystick') return;
         if (this.joyState.pointerId !== e.pointerId) return;
         e.preventDefault();
@@ -8588,9 +8617,9 @@
         if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
         if (e && e.pointerId !== undefined) this.releasePointer(e.pointerId);
       };
-      joyEl.addEventListener('pointerup', onRelease, { passive: true });
-      joyEl.addEventListener('pointercancel', onRelease, { passive: true });
-      joyEl.addEventListener('lostpointercapture', onRelease, { passive: true });
+      targetEl.addEventListener('pointerup', onRelease, { passive: true });
+      targetEl.addEventListener('pointercancel', onRelease, { passive: true });
+      targetEl.addEventListener('lostpointercapture', onRelease, { passive: true });
     },
 
     _bindPadPointerEvents(el, role, onDownAction) {
@@ -8688,8 +8717,8 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 6
-          ? `assets/core-${m}-t6-showcase.png?v=arcade410_luxury_joystick`
-          : `assets/core-${m}-t5.png?v=arcade410_luxury_joystick`;
+          ? `assets/core-${m}-t6-showcase.png?v=arcade411_mlbb_joystick`
+          : `assets/core-${m}-t5.png?v=arcade411_mlbb_joystick`;
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -8810,14 +8839,15 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 6
-        ? `assets/core-${curMode}-t6-showcase.png?v=arcade410_luxury_joystick`
-        : `assets/core-${curMode}-t5.png?v=arcade410_luxury_joystick`;
+        ? `assets/core-${curMode}-t6-showcase.png?v=arcade411_mlbb_joystick`
+        : `assets/core-${curMode}-t5.png?v=arcade411_mlbb_joystick`;
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
           '<button type="button" class="oc-mode-seg' + (this.moveMode === 'joystick' ? ' is-active' : '') + '" id="ocModeSegStick" data-mode="joystick">STICK</button>' +
           '<button type="button" class="oc-mode-seg' + (this.moveMode === 'onpoint' ? ' is-active' : '') + '" id="ocModeSegOnPoint" data-mode="onpoint">ON-POINT</button>' +
         '</div>' +
+        '<div id="ocVirtualJoystickZone" aria-hidden="true"></div>' +
         '<div id="ocVirtualJoystickWrap">' +
           '<div id="ocVirtualJoystick" role="slider" aria-label="Virtual Flight Joystick" aria-valuemin="0" aria-valuemax="100">' +
             this._buildJoyDialSvg(curMode) +
@@ -8870,6 +8900,7 @@
 
       host.appendChild(cluster);
       this.clusterEl = cluster;
+      this.joyZoneEl = cluster.querySelector('#ocVirtualJoystickZone');
       this.joyWrapEl = cluster.querySelector('#ocVirtualJoystickWrap');
       this.joyEl = cluster.querySelector('#ocVirtualJoystick');
       this.joyDirArcEl = cluster.querySelector('#ocJoyDirArc');
@@ -8897,6 +8928,7 @@
       this.gunCapEl = cluster.querySelector('#ocTouchGunCap');
       this.gunCrestEl = cluster.querySelector('#ocTouchGunCrest');
 
+      if (this.joyZoneEl) this._bindJoystickEvents(this.joyZoneEl);
       if (this.joyEl) this._bindJoystickEvents(this.joyEl);
 
       if (this.modePillEl) {
@@ -9031,6 +9063,7 @@
         this.clusterEl.parentNode.removeChild(this.clusterEl);
       }
       this.clusterEl = null;
+      this.joyZoneEl = null;
       this.joyWrapEl = null;
       this.joyEl = null;
       this.joyDirArcEl = null;
@@ -9207,8 +9240,8 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = isT6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade410_luxury_joystick`
-          : `assets/core-${curMode}-t5.png?v=arcade410_luxury_joystick`;
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade411_mlbb_joystick`
+          : `assets/core-${curMode}-t5.png?v=arcade411_mlbb_joystick`;
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -14906,7 +14939,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade410_luxury_joystick',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade411_mlbb_joystick',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -14917,7 +14950,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade410_luxury_joystick',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade411_mlbb_joystick',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -14928,7 +14961,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade410_luxury_joystick',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade411_mlbb_joystick',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
@@ -15168,8 +15201,8 @@
     state.catcherY = 0.82;
     targetCatcherX = 0.5;
     currentCatcherX = 0.5;
-    targetCatcherY = 0.82;
-    currentCatcherY = 0.82;
+    targetCatcherY = (TouchFireControls.isTouch || deviceInputMode === 'touch') ? 0.68 : 0.82;
+    currentCatcherY = targetCatcherY;
     state.lastTransmuteTime = performance.now();
     state.particles = [];
     state.floatingTexts = [];
@@ -15407,8 +15440,8 @@
     state._lastJoyTs = timestamp;
     if (TouchFireControls.isTouch && TouchFireControls.moveMode === 'joystick' && TouchFireControls.joyState.active && TouchFireControls.joyState.mag > 0) {
       const j = TouchFireControls.joyState;
-      const speedCurve = j.mag * (0.32 + 0.68 * j.mag);
-      const maxSpd = isEmpSlowed ? 430 : (CONFIG.ui.joyMaxSpeedPx || 820);
+      const speedCurve = Math.pow(j.mag, 0.78);
+      const maxSpd = isEmpSlowed ? 480 : (CONFIG.ui.joyMaxSpeedPx || 940);
       const spdPx = maxSpd * speedCurve * joyDt;
       targetCatcherX = Math.max(0.04, Math.min(0.96, targetCatcherX + (j.ux * spdPx) / Math.max(320, w)));
       targetCatcherY = Math.max(0.06, Math.min(0.94, targetCatcherY + (j.uy * spdPx) / Math.max(320, h)));
@@ -18047,6 +18080,9 @@
     // Window Resize & ResizeObserver Handler to guarantee pixel-perfect resolution with ZERO per-frame reflow!
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('orientationchange', resizeCanvas);
+    if (window.visualViewport && window.visualViewport.addEventListener) {
+      window.visualViewport.addEventListener('resize', resizeCanvas);
+    }
     if (typeof ResizeObserver !== 'undefined' && dom.canvasReflex) {
       try {
         const ro = new ResizeObserver(() => resizeCanvas());

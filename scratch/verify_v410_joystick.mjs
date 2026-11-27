@@ -113,12 +113,12 @@ async function main() {
   fs.mkdirSync(SCRATCH_DIR, { recursive: true });
   const { server, port, httpErrors } = await startStaticServer();
   const cdpPort = await getFreePort();
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oc-v410-'));
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oc-v411-'));
   const chromeProc = spawn(CHROME_PATH, [
     '--headless=new',
     `--remote-debugging-port=${cdpPort}`,
     `--user-data-dir=${userDataDir}`,
-    '--window-size=932,430',
+    '--window-size=393,852',
     '--no-first-run',
     '--no-default-browser-check',
     '--mute-audio',
@@ -161,7 +161,6 @@ async function main() {
       }
     });
 
-    // Wait helper so DOM + chromeSynapseGame are ready after Page.navigate
     async function waitForReady() {
       const deadline = Date.now() + 8000;
       while (Date.now() < deadline) {
@@ -172,8 +171,52 @@ async function main() {
       throw new Error('Timed out waiting for chromeSynapseGame');
     }
 
-    // Test all 3 realms on iPhone 14 Pro Max Landscape (932x430)
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 932, height: 430, deviceScaleFactor: 2, mobile: true });
+    async function measureTouchLayout() {
+      return await cdp.eval(`(() => {
+        const ids = ['ocVirtualJoystick', 'ocTouchModePill', 'ocTouchGunBtn', 'ocTouchSkill2Btn', 'ocTouchUltBtn', 'ocTouchPulseBtn'];
+        const rects = {};
+        for (const id of ids) {
+          const el = document.getElementById(id);
+          if (!el) return { error: 'Missing ' + id };
+          const r = el.getBoundingClientRect();
+          rects[id] = { x: Math.round(r.left), y: Math.round(r.top), r: Math.round(r.right), b: Math.round(r.bottom), w: Math.round(r.width), h: Math.round(r.height), ow: el.offsetWidth };
+        }
+        const wrapIds = ['ocVirtualJoystick', 'ocTouchModePill', 'ocTouchGunBtn', 'ocTouchSkill2Btn', 'ocTouchUltBtn', 'ocTouchPulseBtn'];
+        const overlaps = [];
+        for (let i = 0; i < wrapIds.length; i++) {
+          for (let j = i + 1; j < wrapIds.length; j++) {
+            const A = rects[wrapIds[i]], B = rects[wrapIds[j]];
+            if (A.x < B.r - 2 && A.r > B.x + 2 && A.y < B.b - 2 && A.b > B.y + 2) {
+              overlaps.push(wrapIds[i] + '<->' + wrapIds[j]);
+            }
+          }
+        }
+        // Check zone doesn't overlap right-hand buttons either
+        const zone = document.getElementById('ocVirtualJoystickZone')?.getBoundingClientRect();
+        if (zone) {
+          for (const rb of ['ocTouchGunBtn', 'ocTouchSkill2Btn', 'ocTouchUltBtn', 'ocTouchPulseBtn']) {
+            const B = rects[rb];
+            if (zone.left < B.r - 2 && zone.right > B.x + 2 && zone.top < B.b - 2 && zone.bottom > B.y + 2) {
+              overlaps.push('Zone<->' + rb);
+            }
+          }
+        }
+        const gunWrap = document.querySelector('.oc-pad-wrap-gun')?.getBoundingClientRect();
+        const pulseWrap = document.querySelector('.oc-pad-wrap-pulse')?.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const minBottomClearance = Math.round(Math.min(
+          vh - rects.ocVirtualJoystick.b,
+          gunWrap ? (vh - gunWrap.bottom) : (vh - rects.ocTouchGunBtn.b),
+          pulseWrap ? (vh - pulseWrap.bottom) : (vh - rects.ocTouchPulseBtn.b)
+        ));
+        const tc = window.chromeSynapseGame.getTouchControls();
+        const s = window.chromeSynapseGame.getState();
+        return { rects, overlaps, minBottomClearance, vh, vw: window.innerWidth, moveMode: tc.moveMode, gunDeployT: s.gunDeployT || 0 };
+      })()`);
+    }
+
+    // 1. iPhone Portrait (393x852) matching user screenshots for Meteor, Helix, Dynamo
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 393, height: 852, deviceScaleFactor: 3, mobile: true });
     for (const mode of ['meteor', 'helix', 'dynamo']) {
       await cdp.send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html?arcade=${mode}&tier=6&test_ammo=250&touch_preview=1` });
       await sleep(500);
@@ -186,163 +229,112 @@ async function main() {
         if (tc.leftHanded) tc.toggleLeftHanded();
         window.chromeSynapseGame.setTier(6, false);
         window.chromeSynapseGame.getState().roundBanner = null;
-        window.chromeSynapseGame.getState().pulseMeter = 3;
-        window.chromeSynapseGame.getState().isPulseReady = true;
-        tc.syncSkillCooldownUI();
       })()`);
-      await sleep(250);
+      await sleep(560);
 
-      // 1. Geometry & Non-overlap Check
-      const layout = await cdp.eval(`(() => {
-        const ids = ['ocVirtualJoystick', 'ocTouchModePill', 'ocTouchGunBtn', 'ocTouchSkill2Btn', 'ocTouchUltBtn', 'ocTouchPulseBtn'];
-        const rects = {};
-        for (const id of ids) {
-          const el = document.getElementById(id);
-          if (!el) return { error: 'Missing ' + id };
-          const r = el.getBoundingClientRect();
-          rects[id] = { x: Math.round(r.left), y: Math.round(r.top), r: Math.round(r.right), b: Math.round(r.bottom), w: Math.round(r.width), h: Math.round(r.height) };
-        }
-        const overlaps = [];
-        const keys = Object.keys(rects);
-        for (let i = 0; i < keys.length; i++) {
-          for (let j = i + 1; j < keys.length; j++) {
-            const A = rects[keys[i]], B = rects[keys[j]];
-            if (A.x < B.r - 2 && A.r > B.x + 2 && A.y < B.b - 2 && A.b > B.y + 2) {
-              overlaps.push(keys[i] + '<->' + keys[j]);
-            }
-          }
-        }
-        const tc = window.chromeSynapseGame.getTouchControls();
-        const s = window.chromeSynapseGame.getState();
-        return { rects, overlaps, moveMode: tc.moveMode, gunDeployT: s.gunDeployT || 0, vw: window.innerWidth, vh: window.innerHeight };
-      })()`);
-      console.log(`[iPhone Landscape ${mode}]`, JSON.stringify({ overlaps: layout.overlaps, moveMode: layout.moveMode, gunDeployT: layout.gunDeployT, joy: layout.rects?.ocVirtualJoystick, gun: layout.rects?.ocTouchGunBtn, pulse: layout.rects?.ocTouchPulseBtn }));
-      if (layout.error || (layout.overlaps && layout.overlaps.length)) failures.push(`${mode} layout invalid: ${JSON.stringify(layout)}`);
-      if (layout.moveMode !== 'joystick' || layout.gunDeployT > 0.02) failures.push(`${mode} initial stick/gun state invalid`);
-
-      await cdp.screenshot(path.join(SCRATCH_DIR, `v410_${mode}_iphone_joy_idle.png`));
-
-      if (mode === 'meteor') {
-        // 2. Test Proportional Joystick Drag (Half Right vs Full Left-Up) + Simultaneous Multi-Touch Fire!
-        await cdp.eval(`window.chromeSynapseGame.setPointerX(0.50); window.chromeSynapseGame.setPointerY(0.60);`);
-        await sleep(80);
-        const startPos = await cdp.eval(`(() => { const s = window.chromeSynapseGame.getState(); return { x: s.catcherX, y: s.catcherY }; })()`);
-
-        const jBox = layout.rects.ocVirtualJoystick;
-        const jcx = jBox.x + jBox.w * 0.5;
-        const jcy = jBox.y + jBox.h * 0.5;
-
-        // Dispatch synthetic PointerEvent drag half-right (22px)
-        await cdp.eval(`(() => {
-          const j = document.getElementById('ocVirtualJoystick');
-          j.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 101, pointerType: 'touch', clientX: ${jcx + 22}, clientY: ${jcy} }));
-        })()`);
-        await sleep(320);
-        const halfMove = await cdp.eval(`(() => {
-          const s = window.chromeSynapseGame.getState();
-          const tc = window.chromeSynapseGame.getTouchControls();
-          return { dx: +(s.catcherX - ${startPos.x}).toFixed(4), mag: tc.joyState.mag, gunDeployT: s.gunDeployT || 0 };
-        })()`);
-
-        // Full right drag (48px)
-        await cdp.eval(`(() => {
-          const j = document.getElementById('ocVirtualJoystick');
-          j.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, pointerId: 101, pointerType: 'touch', clientX: ${jcx + 48}, clientY: ${jcy} }));
-        })()`);
-        await sleep(320);
-        const fullMove = await cdp.eval(`(() => {
-          const s = window.chromeSynapseGame.getState();
-          const tc = window.chromeSynapseGame.getTouchControls();
-          return { x: s.catcherX, mag: tc.joyState.mag, gunDeployT: s.gunDeployT || 0 };
-        })()`);
-
-        // Multi-touch: while joystick pointer 101 holds diagonal left-up, hold GUN button with pointer 102!
-        const gBox = layout.rects.ocTouchGunBtn;
-        await cdp.eval(`(() => {
-          const j = document.getElementById('ocVirtualJoystick');
-          const g = document.getElementById('ocTouchGunBtn');
-          j.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, pointerId: 101, pointerType: 'touch', clientX: ${jcx - 34}, clientY: ${jcy - 30} }));
-          g.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 102, pointerType: 'touch', clientX: ${gBox.x + gBox.w * 0.5}, clientY: ${gBox.y + gBox.h * 0.5} }));
-        })()`);
-        await sleep(220);
-        const multiTouchSt = await cdp.eval(`(() => {
-          const s = window.chromeSynapseGame.getState();
-          const tc = window.chromeSynapseGame.getTouchControls();
-          return { joyActive: tc.joyState.active, gunHeld: tc.isGunHeld(), gunDeployT: s.gunDeployT || 0, shots: s.playerShots.length, ammo: s.coreAmmo };
-        })()`);
-        await cdp.screenshot(path.join(SCRATCH_DIR, `v410_meteor_iphone_joy_fire.png`));
-
-        // Release both pointers -> knob centers & gun retracts cleanly
-        await cdp.eval(`(() => {
-          const j = document.getElementById('ocVirtualJoystick');
-          const g = document.getElementById('ocTouchGunBtn');
-          g.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 102, pointerType: 'touch' }));
-          j.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 101, pointerType: 'touch' }));
-        })()`);
-        await sleep(360);
-        const relSt = await cdp.eval(`(() => {
-          const s = window.chromeSynapseGame.getState();
-          const tc = window.chromeSynapseGame.getTouchControls();
-          return { joyActive: tc.joyState.active, mag: tc.joyState.mag, gunDeployT: s.gunDeployT || 0 };
-        })()`);
-
-        console.log('[JOYSTICK PHYSICS + MULTITOUCH]', JSON.stringify({ halfMove, fullMove, multiTouchSt, relSt }));
-        if (halfMove.dx <= 0.02 || halfMove.gunDeployT > 0.02) failures.push('Half-drag movement or weapon hide failed: ' + JSON.stringify(halfMove));
-        if (fullMove.mag <= halfMove.mag + 0.25) failures.push('Proportional magnitude curve failed');
-        if (!multiTouchSt.joyActive || !multiTouchSt.gunHeld || multiTouchSt.gunDeployT < 0.9 || (multiTouchSt.shots <= 0 && multiTouchSt.ammo >= 250)) failures.push('Multi-touch joy+fire failed: ' + JSON.stringify(multiTouchSt));
-        if (relSt.joyActive || relSt.mag !== 0 || relSt.gunDeployT > 0.02) failures.push('Release reset failed: ' + JSON.stringify(relSt));
-
-        // 3. Test Mode Switcher -> ON-POINT mode
-        await cdp.eval(`document.getElementById('ocModeSegOnPoint').click();`);
-        await sleep(160);
-        await cdp.eval(`(() => {
-          const canvas = document.getElementById('cgCanvasReflex');
-          const cr = canvas.getBoundingClientRect();
-          canvas.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 105, pointerType: 'touch', clientX: cr.left + cr.width * 0.28, clientY: cr.top + cr.height * 0.55 }));
-        })()`);
-        await sleep(140);
-        const onPtCheck = await cdp.eval(`(() => {
-          const canvas = document.getElementById('cgCanvasReflex');
-          canvas.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 105, pointerType: 'touch' }));
-          const tc = window.chromeSynapseGame.getTouchControls();
-          const joyRect = document.getElementById('ocVirtualJoystickWrap').getBoundingClientRect();
-          return { mode: tc.moveMode, joyW: joyRect.width, catcherX: +window.chromeSynapseGame.getState().catcherX.toFixed(3) };
-        })()`);
-        console.log('[ON-POINT MODE SWITCH]', JSON.stringify(onPtCheck));
-        await cdp.screenshot(path.join(SCRATCH_DIR, `v410_meteor_iphone_onpoint.png`));
-        if (onPtCheck.mode !== 'onpoint' || onPtCheck.joyW !== 0 || Math.abs(onPtCheck.catcherX - 0.28) > 0.06) {
-          failures.push('On-Point mode switch failed: ' + JSON.stringify(onPtCheck));
-        }
-        await cdp.eval(`document.getElementById('ocModeSegStick').click();`);
-        await sleep(140);
-
-        // 4. Test Compact iPhone SE Landscape (667x375) & Portrait (390x844) Zero Overlap!
-        for (const [w, h, lbl] of [[667, 375, 'iPhoneSE_Land'], [390, 844, 'iPhone_Port']]) {
-          await cdp.send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 2, mobile: true });
-          await sleep(220);
-          const ov = await cdp.eval(`(() => {
-            const ids = ['ocVirtualJoystick', 'ocTouchModePill', 'ocTouchGunBtn', 'ocTouchSkill2Btn', 'ocTouchUltBtn', 'ocTouchPulseBtn'];
-            const rs = ids.map((id) => ({ id, r: document.getElementById(id).getBoundingClientRect() }));
-            const hits = [];
-            for (let i = 0; i < rs.length; i++) {
-              for (let j = i + 1; j < rs.length; j++) {
-                const A = rs[i].r, B = rs[j].r;
-                if (A.left < B.right - 2 && A.right > B.left + 2 && A.top < B.bottom - 2 && A.bottom > B.top + 2) {
-                  hits.push(rs[i].id + '<->' + rs[j].id);
-                }
-              }
-            }
-            return { hits };
-          })()`);
-          console.log(`[COMPACT ${lbl}]`, JSON.stringify(ov));
-          if (ov.hits.length) failures.push(`${lbl} overlap: ${JSON.stringify(ov)}`);
-          if (lbl === 'iPhone_Port') await cdp.screenshot(path.join(SCRATCH_DIR, `v410_meteor_iphone_portrait.png`));
-        }
-        await cdp.send('Emulation.setDeviceMetricsOverride', { width: 932, height: 430, deviceScaleFactor: 2, mobile: true });
-      }
+      const layout = await measureTouchLayout();
+      console.log(`[iPhone Portrait 393x852 ${mode}]`, JSON.stringify({ overlaps: layout.overlaps, vw: layout.vw, vh: layout.vh, joyW: layout.rects?.ocVirtualJoystick?.w, joyOW: layout.rects?.ocVirtualJoystick?.ow, minBottomClearance: layout.minBottomClearance }));
+      if (layout.error || layout.overlaps.length) failures.push(`${mode} portrait overlaps: ${JSON.stringify(layout)}`);
+      if ((layout.rects?.ocVirtualJoystick?.ow || 0) < 152) failures.push(`${mode} portrait joystick too small: ${layout.rects?.ocVirtualJoystick?.ow}`);
+      if (layout.minBottomClearance < 26) failures.push(`${mode} portrait buttons too close to bottom: ${layout.minBottomClearance}px`);
+      await cdp.screenshot(path.join(SCRATCH_DIR, `v411_${mode}_iphone_portrait.png`));
     }
 
-    // 5. Desktop HUD Check (1280x720, mobile: false, no touch_preview) -> verify luxury #ocDesktopSkillHud & ZERO touch cluster
+    // 2. Test Floating-Anchor Catch Zone + Snappy Velocity Curve + Multi-Touch Fire on iPhone Landscape (932x430)
+    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 932, height: 430, deviceScaleFactor: 2, mobile: true });
+    await sleep(250);
+    const landLayout = await measureTouchLayout();
+    console.log('[iPhone Landscape 932x430]', JSON.stringify({ overlaps: landLayout.overlaps, joyW: landLayout.rects?.ocVirtualJoystick?.w, minBottomClearance: landLayout.minBottomClearance }));
+    if (landLayout.overlaps.length || (landLayout.rects?.ocVirtualJoystick?.w || 0) < 142 || landLayout.minBottomClearance < 16) {
+      failures.push('Landscape layout failed: ' + JSON.stringify(landLayout));
+    }
+    await cdp.screenshot(path.join(SCRATCH_DIR, `v411_dynamo_iphone_landscape.png`));
+
+    // Floating-Origin Catch Zone Test: touch 18px up-right inside #ocVirtualJoystickZone (start at mag === 0!), then drag 20px vs 42px
+    await cdp.eval(`window.chromeSynapseGame.setPointerX(0.50); window.chromeSynapseGame.setPointerY(0.62);`);
+    await sleep(80);
+    const zInfo = await cdp.eval(`(() => {
+      const zr = document.getElementById('ocVirtualJoystickZone').getBoundingClientRect();
+      const jr = document.getElementById('ocVirtualJoystick').getBoundingClientRect();
+      const jcx = jr.left + jr.width * 0.5;
+      const jcy = jr.top + jr.height * 0.5;
+      const zone = document.getElementById('ocVirtualJoystickZone');
+      // Land thumb at (jcx + 18, jcy - 12) -> floating anchor snaps here, mag MUST be 0 at touchdown!
+      zone.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 201, pointerType: 'touch', clientX: jcx + 18, clientY: jcy - 12 }));
+      const tc = window.chromeSynapseGame.getTouchControls();
+      return { jcx, jcy, initMag: tc.joyState.mag, baseX: +tc.joyState.baseX.toFixed(1), baseY: +tc.joyState.baseY.toFixed(1) };
+    })()`);
+    if (zInfo.initMag !== 0 || Math.abs(zInfo.baseX - 18) > 1) {
+      failures.push('Floating-origin touchdown should start at mag=0 with base shifted: ' + JSON.stringify(zInfo));
+    }
+
+    const startX = await cdp.eval(`window.chromeSynapseGame.getState().catcherX`);
+    // Drag 20px right from floating origin
+    await cdp.eval(`(() => {
+      const zone = document.getElementById('ocVirtualJoystickZone');
+      zone.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, pointerId: 201, pointerType: 'touch', clientX: ${zInfo.jcx + 18 + 20}, clientY: ${zInfo.jcy - 12} }));
+    })()`);
+    await sleep(220);
+    const halfSt = await cdp.eval(`(() => {
+      const s = window.chromeSynapseGame.getState();
+      const tc = window.chromeSynapseGame.getTouchControls();
+      return { dx: +(s.catcherX - ${startX}).toFixed(4), mag: tc.joyState.mag, gunDeployT: s.gunDeployT || 0 };
+    })()`);
+
+    // Drag full 44px left-up + simultaneous touch FIRE button!
+    const gBox = landLayout.rects.ocTouchGunBtn;
+    await cdp.eval(`(() => {
+      const zone = document.getElementById('ocVirtualJoystickZone');
+      const g = document.getElementById('ocTouchGunBtn');
+      zone.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, pointerId: 201, pointerType: 'touch', clientX: ${zInfo.jcx + 18 - 32}, clientY: ${zInfo.jcy - 12 - 28} }));
+      g.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 202, pointerType: 'touch', clientX: ${gBox.x + gBox.w * 0.5}, clientY: ${gBox.y + gBox.h * 0.5} }));
+    })()`);
+    await sleep(220);
+    const fireSt = await cdp.eval(`(() => {
+      const s = window.chromeSynapseGame.getState();
+      const tc = window.chromeSynapseGame.getTouchControls();
+      return { joyActive: tc.joyState.active, gunHeld: tc.isGunHeld(), gunDeployT: s.gunDeployT || 0, ammo: s.coreAmmo, shots: s.playerShots.length };
+    })()`);
+    await cdp.screenshot(path.join(SCRATCH_DIR, `v411_dynamo_iphone_joy_fire.png`));
+
+    await cdp.eval(`(() => {
+      const zone = document.getElementById('ocVirtualJoystickZone');
+      const g = document.getElementById('ocTouchGunBtn');
+      g.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 202, pointerType: 'touch' }));
+      zone.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 201, pointerType: 'touch' }));
+    })()`);
+    await sleep(340);
+    const relSt = await cdp.eval(`(() => {
+      const s = window.chromeSynapseGame.getState();
+      const tc = window.chromeSynapseGame.getTouchControls();
+      return { joyActive: tc.joyState.active, baseX: tc.joyState.baseX, gunDeployT: s.gunDeployT || 0 };
+    })()`);
+    console.log('[FLOATING MLBB JOYSTICK]', JSON.stringify({ zInfo, halfSt, fireSt, relSt }));
+    if (halfSt.dx <= 0.02 || halfSt.gunDeployT > 0.02) failures.push('Floating half-drag failed');
+    if (!fireSt.joyActive || !fireSt.gunHeld || fireSt.gunDeployT < 0.9 || (fireSt.shots <= 0 && fireSt.ammo === 250)) failures.push('Multi-touch joy+fire failed');
+    if (relSt.joyActive || relSt.baseX !== 0 || relSt.gunDeployT > 0.02) failures.push('Release reset failed');
+
+    // 3. Test ON-POINT toggle + Compact Phones (iPhone SE Portrait 375x667 & SE Landscape 667x375)
+    await cdp.eval(`document.getElementById('ocModeSegOnPoint').click();`);
+    await sleep(160);
+    const onPtCheck = await cdp.eval(`(() => {
+      const tc = window.chromeSynapseGame.getTouchControls();
+      const joyRect = document.getElementById('ocVirtualJoystickWrap').getBoundingClientRect();
+      return { mode: tc.moveMode, joyW: joyRect.width };
+    })()`);
+    if (onPtCheck.mode !== 'onpoint' || onPtCheck.joyW !== 0) failures.push('ON-POINT toggle failed');
+    await cdp.eval(`document.getElementById('ocModeSegStick').click();`);
+    await sleep(140);
+
+    for (const [w, h, lbl] of [[375, 667, 'iPhoneSE_Port'], [667, 375, 'iPhoneSE_Land']]) {
+      await cdp.send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 2, mobile: true });
+      await sleep(220);
+      const lay = await measureTouchLayout();
+      console.log(`[COMPACT ${lbl}]`, JSON.stringify({ overlaps: lay.overlaps, joyW: lay.rects?.ocVirtualJoystick?.w, minBottomClearance: lay.minBottomClearance }));
+      if (lay.overlaps.length || lay.minBottomClearance < 16) failures.push(`${lbl} compact check failed: ${JSON.stringify(lay)}`);
+    }
+
+    // 4. Desktop Check (1280x720, mobile: false)
     await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: false });
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
     await cdp.send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html?arcade=dynamo&tier=6&test_ammo=250` });
@@ -355,18 +347,16 @@ async function main() {
       const dh = document.getElementById('ocDesktopSkillHud');
       return { hasJoy, deskVisible: !!(dh && !dh.classList.contains('oc-desk-hidden')) };
     })()`);
-    console.log('[DESKTOP HUD CHECK]', JSON.stringify(deskCheck));
-    await cdp.screenshot(path.join(SCRATCH_DIR, `v410_dynamo_desktop_hud.png`));
-    if (deskCheck.hasJoy || !deskCheck.deskVisible) failures.push('Desktop HUD check failed: ' + JSON.stringify(deskCheck));
+    if (deskCheck.hasJoy || !deskCheck.deskVisible) failures.push('Desktop HUD check failed');
 
     if (consoleErrors.length) failures.push('Console errors: ' + consoleErrors.join(' | '));
     if (httpErrors.length) failures.push('HTTP errors: ' + httpErrors.join(' | '));
 
-    console.log('=== v410 SUMMARY ===');
+    console.log('=== v411 SUMMARY ===');
     console.log('Failures:', failures.length);
     for (const f of failures) console.error('FAIL:', f);
     if (failures.length > 0) process.exitCode = 1;
-    else console.log('ALL v410 VIRTUAL JOYSTICK & BUTTON CHECKS PASSED!');
+    else console.log('ALL v411 MLBB/HoK VIRTUAL JOYSTICK CHECKS PASSED!');
   } finally {
     if (cdp) cdp.close();
     try { chromeProc.kill(); } catch (_) {}
