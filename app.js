@@ -1,4 +1,4 @@
-/* OrlandoChrome · Chrome Taskbar Notes & Command Center
+﻿/* OrlandoChrome · Chrome Taskbar Notes & Command Center
  * OLED Pure Black (#000000) Theme · Small Green & White / Red & White Radiant Gradient Pins & Reset States
  * 7 High-Impact Enhancements + Wispr Flow Pro Dictation + App Distribution & Command Suite (PWA & Blank Edition)
  */
@@ -739,7 +739,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=arcade414_sanctuary_aegis', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=arcade415_brilliant_good_relics', { scope: './', updateViaCache: 'none' }).then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }

@@ -155,15 +155,18 @@ def defringe_white_halo(png_path: pathlib.Path) -> None:
 
 
 def main():
-    # 1. Process 8 image-generator JPGs into transparent RGBA PNGs
-    for src_name, dst_name, sz, is_ring in JPG_ASSETS:
-        src = ART / src_name
-        if not src.exists():
-            raise FileNotFoundError(f"Missing generated JPG: {src}")
-        out_img = extract_clean_rgba(src, sz, is_ring)
-        out_path = ASSETS / dst_name
-        out_img.save(out_path, optimize=True)
-        print(f"PROCESSED_JPG -> {dst_name} ({sz}x{sz}, ring={is_ring})")
+    import sys
+    pbr_only = '--pbr-only' in sys.argv
+    if not pbr_only:
+        # 1. Process 8 image-generator JPGs into transparent RGBA PNGs
+        for src_name, dst_name, sz, is_ring in JPG_ASSETS:
+            src = ART / src_name
+            if not src.exists():
+                raise FileNotFoundError(f"Missing generated JPG: {src}")
+            out_img = extract_clean_rgba(src, sz, is_ring)
+            out_path = ASSETS / dst_name
+            out_img.save(out_path, optimize=True)
+            print(f"PROCESSED_JPG -> {dst_name} ({sz}x{sz}, ring={is_ring})")
 
     # 2. Crop & resize 8 Three.js 512x512 PBR renders to 256x256
     for pbr_file in sorted(PBR_RAW.glob("*.png")):
@@ -172,11 +175,12 @@ def main():
         out_img.save(out_path, optimize=True)
         print(f"PROCESSED_PBR -> {pbr_file.name} (256x256)")
 
-    # 3. De-fringe all 15 hazard-powered-*.png assets
-    powered_list = sorted(ASSETS.glob("hazard-powered-*.png"))
-    for p in powered_list:
-        defringe_white_halo(p)
-        print(f"DEFRINGED -> {p.name}")
+    if not pbr_only:
+        # 3. De-fringe all 15 hazard-powered-*.png assets
+        powered_list = sorted(ASSETS.glob("hazard-powered-*.png"))
+        for p in powered_list:
+            defringe_white_halo(p)
+            print(f"DEFRINGED -> {p.name}")
 
     # Also build a visual contact sheet of all 16 new assets so we can inspect them fast!
     all_new = [

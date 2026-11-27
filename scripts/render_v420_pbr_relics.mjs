@@ -85,18 +85,48 @@ scene.add(rimLight);
 const rootGroup = new THREE.Group();
 scene.add(rootGroup);
 
+// Procedural 512x512 Luxury Guilloche & Filigree Engraving Bump Map
+function makeGuillocheBump() {
+  const cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 512;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#808080';
+  g.fillRect(0, 0, 512, 512);
+  g.strokeStyle = '#ffffff';
+  g.lineWidth = 2;
+  for (let i = 0; i < 64; i++) {
+    const y = i * 8;
+    g.beginPath();
+    for (let x = 0; x <= 512; x += 8) {
+      const yy = y + Math.sin(x * 0.049 + i * 0.5) * 4;
+      if (x === 0) g.moveTo(x, yy); else g.lineTo(x, yy);
+    }
+    g.globalAlpha = (i % 2 === 0) ? 0.45 : 0.25;
+    g.stroke();
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(3, 3);
+  return tex;
+}
+const filigreeBump = makeGuillocheBump();
+
 // High-Contrast Deep Luxury PBR Metals & Deep Saturated Gemstones (Zero Milky Pastels!)
 const matGold24k = new THREE.MeshPhysicalMaterial({
-  color: 0xe6a82e, metalness: 0.98, roughness: 0.16, clearcoat: 0.65, clearcoatRoughness: 0.10, envMapIntensity: 1.9
+  color: 0xe6a82e, metalness: 0.98, roughness: 0.17, clearcoat: 0.68, clearcoatRoughness: 0.09,
+  bumpMap: filigreeBump, bumpScale: 0.022, envMapIntensity: 1.95
 });
 const matGoldDark = new THREE.MeshPhysicalMaterial({
-  color: 0xa66e14, metalness: 0.95, roughness: 0.26, clearcoat: 0.35, envMapIntensity: 1.5
+  color: 0xa66e14, metalness: 0.95, roughness: 0.26, clearcoat: 0.35,
+  bumpMap: filigreeBump, bumpScale: 0.025, envMapIntensity: 1.5
 });
 const matPlatinum = new THREE.MeshPhysicalMaterial({
-  color: 0xdbe5f2, metalness: 0.98, roughness: 0.13, clearcoat: 0.70, clearcoatRoughness: 0.08, envMapIntensity: 1.9
+  color: 0xdbe5f2, metalness: 0.98, roughness: 0.13, clearcoat: 0.72, clearcoatRoughness: 0.08,
+  bumpMap: filigreeBump, bumpScale: 0.018, envMapIntensity: 1.95
 });
 const matSapphireMetal = new THREE.MeshPhysicalMaterial({
-  color: 0x0c3466, metalness: 0.90, roughness: 0.20, clearcoat: 0.85, envMapIntensity: 1.75
+  color: 0x0c3466, metalness: 0.90, roughness: 0.20, clearcoat: 0.85,
+  bumpMap: filigreeBump, bumpScale: 0.02, envMapIntensity: 1.8
 });
 const matObsidianDark = new THREE.MeshPhysicalMaterial({
   color: 0x0b0d14, metalness: 0.86, roughness: 0.20, clearcoat: 0.85, clearcoatRoughness: 0.12, envMapIntensity: 1.65
@@ -218,32 +248,41 @@ function buildCluster() {
     pts.push(new THREE.Vector3(1.24 * Math.cos(t) / denom, 1.04 * Math.sin(t) * Math.cos(t) / denom, 0.20 * Math.sin(t * 2)));
   }
   const curve = new THREE.CatmullRomCurve3(pts, true);
-  g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 128, 0.08, 16, true), matGold24k));
-  const infPlat = new THREE.Mesh(new THREE.TubeGeometry(curve, 128, 0.042, 12, true), matPlatinum);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 128, 0.082, 18, true), matGold24k));
+  const infPlat = new THREE.Mesh(new THREE.TubeGeometry(curve, 128, 0.044, 14, true), matPlatinum);
   infPlat.scale.set(1.09, 1.16, 0.85);
   g.add(infPlat);
 
-  g.add(new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.048, 16, 48), matGoldDark));
-  addDiamondRing(g, 1.18, 8, 0.068, matDiamond, 0.04);
+  g.add(new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.052, 18, 64), matGoldDark));
+  addDiamondRing(g, 1.18, 12, 0.055, matDiamond, 0.045);
 
-  // Rich Saturated Aquamarine-Sapphire & Imperial Amethyst Twin Gems with Gold Filigree Bezels
-  const gemCyan = new THREE.Mesh(new THREE.IcosahedronGeometry(0.42, 1), makeDeepJewelMat(0x0284c7, 0x06b6d4, 0.48));
+  // Brilliant-Cut Multi-Faceted Cyan-Sapphire & Imperial-Amethyst Gemstones (detail=2 crystal cuts!)
+  const gemCyan = new THREE.Mesh(new THREE.IcosahedronGeometry(0.43, 2), makeDeepJewelMat(0x0369a1, 0x22d3ee, 0.42));
   gemCyan.position.set(-0.56, 0, 0.05);
   g.add(gemCyan);
-  const ringL = new THREE.Mesh(new THREE.TorusGeometry(0.49, 0.05, 16, 36), matPlatinum);
+  const crownCyan = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.028, 12, 32), matGold24k);
+  crownCyan.position.set(-0.56, 0, 0.28);
+  g.add(crownCyan);
+  const ringL = new THREE.Mesh(new THREE.TorusGeometry(0.49, 0.052, 16, 36), matPlatinum);
   ringL.position.set(-0.56, 0, 0.05);
   ringL.rotation.set(0.32, 0.52, 0);
   g.add(ringL);
 
-  const gemMag = new THREE.Mesh(new THREE.IcosahedronGeometry(0.42, 1), makeDeepJewelMat(0x7e22ce, 0xc026d3, 0.48));
+  const gemMag = new THREE.Mesh(new THREE.IcosahedronGeometry(0.43, 2), makeDeepJewelMat(0x7e22ce, 0xe879f9, 0.42));
   gemMag.position.set(0.56, 0, -0.05);
   g.add(gemMag);
-  const ringR = new THREE.Mesh(new THREE.TorusGeometry(0.49, 0.05, 16, 36), matGold24k);
+  const crownMag = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.028, 12, 32), matPlatinum);
+  crownMag.position.set(0.56, 0, 0.18);
+  g.add(crownMag);
+  const ringR = new THREE.Mesh(new THREE.TorusGeometry(0.49, 0.052, 16, 36), matGold24k);
   ringR.position.set(0.56, 0, -0.05);
   ringR.rotation.set(-0.32, 0.52, 0);
   g.add(ringR);
 
-  g.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.24, 0), matDiamond));
+  // Pavé Diamond Bridge Clasp
+  const claspRing = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.04, 12, 24), matGold24k);
+  g.add(claspRing);
+  g.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.17, 1), matDiamond));
   const l1 = new THREE.PointLight(0x06b6d4, 1.8, 3); l1.position.set(-0.6, 0, 1.0); g.add(l1);
   const l2 = new THREE.PointLight(0xc026d3, 1.8, 3); l2.position.set(0.6, 0, 1.0); g.add(l2);
   g.rotation.set(0.22, -0.15, -0.14);
@@ -252,46 +291,46 @@ function buildCluster() {
 
 function buildSupercharge() {
   const g = new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.TorusGeometry(0.84, 0.10, 20, 48), matGold24k));
-  const platInner = new THREE.Mesh(new THREE.TorusGeometry(0.69, 0.05, 16, 48), matPlatinum);
+  g.add(new THREE.Mesh(new THREE.TorusGeometry(0.84, 0.105, 20, 64), matGold24k));
+  const platInner = new THREE.Mesh(new THREE.TorusGeometry(0.69, 0.052, 16, 64), matPlatinum);
   platInner.position.z = 0.07;
   g.add(platInner);
-  addDiamondRing(g, 0.84, 12, 0.06, matDiamond, 0.09);
+  addDiamondRing(g, 0.84, 16, 0.052, matDiamond, 0.095);
 
   const majorShape = new THREE.Shape();
-  majorShape.moveTo(-0.15, 0);
-  majorShape.quadraticCurveTo(-0.08, 0.38, 0.04, 0.65);
-  majorShape.quadraticCurveTo(0.12, 0.32, 0.15, 0);
+  majorShape.moveTo(-0.14, 0);
+  majorShape.quadraticCurveTo(-0.07, 0.40, 0.04, 0.68);
+  majorShape.quadraticCurveTo(0.11, 0.34, 0.14, 0);
   majorShape.closePath();
   const majorGeo = new THREE.ExtrudeGeometry(majorShape, { depth: 0.09, bevelEnabled: true, bevelThickness: 0.035, bevelSize: 0.03, bevelSegments: 2 });
 
   const minorShape = new THREE.Shape();
-  minorShape.moveTo(-0.085, 0);
-  minorShape.lineTo(0, 0.38);
-  minorShape.lineTo(0.085, 0);
+  minorShape.moveTo(-0.075, 0);
+  minorShape.lineTo(0, 0.42);
+  minorShape.lineTo(0.075, 0);
   minorShape.closePath();
   const minorGeo = new THREE.ExtrudeGeometry(minorShape, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.02, bevelSegments: 2 });
 
-  for (let i = 0; i < 12; i++) {
-    const a = (i / 12) * Math.PI * 2;
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
     const isMaj = (i % 2 === 0);
-    const ray = new THREE.Mesh(isMaj ? majorGeo : minorGeo, isMaj ? matGold24k : matGoldDark);
-    ray.position.set(Math.cos(a) * 0.76, Math.sin(a) * 0.76, -0.03);
+    const ray = new THREE.Mesh(isMaj ? majorGeo : minorGeo, (i % 4 === 0) ? matGold24k : ((i % 2 === 0) ? matGoldDark : matPlatinum));
+    ray.position.set(Math.cos(a) * 0.77, Math.sin(a) * 0.77, -0.03);
     ray.rotation.z = a - Math.PI * 0.5;
     g.add(ray);
   }
 
-  // Deep Amber-Citrine Star Core Gem + Golden Filigree Overlay
-  const starCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.57, 1), makeDeepJewelMat(0xd97706, 0xf59e0b, 0.52));
+  // Stepped Brilliant-Cut Golden Citrine Sun Core + Filigree Compass Star
+  const starCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.57, 2), makeDeepJewelMat(0xd97706, 0xf59e0b, 0.44));
   g.add(starCore);
-  const innerJewel = new THREE.Mesh(new THREE.OctahedronGeometry(0.40, 0), makeDeepJewelMat(0xfbbf24, 0xfef08a, 0.45));
-  innerJewel.position.z = 0.24;
-  g.add(innerJewel);
-  const coreCage = new THREE.Mesh(new THREE.TorusGeometry(0.48, 0.035, 12, 6), matPlatinum);
-  coreCage.position.z = 0.22;
+  const tableJewel = new THREE.Mesh(new THREE.IcosahedronGeometry(0.36, 1), makeDeepJewelMat(0xf59e0b, 0xfde047, 0.55));
+  tableJewel.position.z = 0.25;
+  g.add(tableJewel);
+  const coreCage = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.038, 12, 8), matGold24k);
+  coreCage.position.z = 0.23;
   g.add(coreCage);
 
-  const l1 = new THREE.PointLight(0xf59e0b, 2.2, 4); l1.position.set(0, 0, 1.2); g.add(l1);
+  const l1 = new THREE.PointLight(0xf59e0b, 2.0, 4); l1.position.set(0, 0, 1.2); g.add(l1);
   g.rotation.set(0.16, 0.12, 0.06);
   return g;
 }
@@ -299,83 +338,104 @@ function buildSupercharge() {
 function buildSingularity() {
   const g = new THREE.Group();
   const ringConfigs = [
-    { r: 1.18, tube: 0.070, rx: 0.16, ry: 0.26, rz: 0, mat: matGold24k },
+    { r: 1.18, tube: 0.072, rx: 0.16, ry: 0.26, rz: 0, mat: matGold24k },
     { r: 1.02, tube: 0.058, rx: 1.05, ry: 0.45, rz: 0.4, mat: matGoldDark },
-    { r: 0.86, tube: 0.052, rx: -0.95, ry: 0.55, rz: -0.5, mat: matPlatinum },
-    { r: 0.72, tube: 0.044, rx: 0.35, ry: -1.10, rz: 0.2, mat: matGold24k }
+    { r: 0.86, tube: 0.054, rx: -0.95, ry: 0.55, rz: -0.5, mat: matPlatinum },
+    { r: 0.72, tube: 0.045, rx: 0.35, ry: -1.10, rz: 0.2, mat: matGold24k }
   ];
   for (const rc of ringConfigs) {
     const rm = new THREE.Mesh(new THREE.TorusGeometry(rc.r, rc.tube, 18, 64), rc.mat);
     rm.rotation.set(rc.rx, rc.ry, rc.rz);
     g.add(rm);
   }
-  addDiamondRing(g, 1.18, 4, 0.09, makeDeepJewelMat(0x1d4ed8, 0x38bdf8, 0.45), 0.18);
+  addDiamondRing(g, 1.18, 8, 0.072, makeDeepJewelMat(0x1d4ed8, 0x38bdf8, 0.42), 0.16);
 
-  const coreSphere = new THREE.Mesh(new THREE.IcosahedronGeometry(0.47, 1), makeDeepJewelMat(0x1e3a8a, 0x0284c7, 0.45));
+  const coreSphere = new THREE.Mesh(new THREE.IcosahedronGeometry(0.47, 2), makeDeepJewelMat(0x1e40af, 0x0284c7, 0.42));
   g.add(coreSphere);
-  const eqBand = new THREE.Mesh(new THREE.TorusGeometry(0.50, 0.042, 12, 36), matGold24k);
+  const eqBand = new THREE.Mesh(new THREE.TorusGeometry(0.51, 0.045, 14, 40), matGold24k);
   eqBand.rotation.x = 1.25;
   g.add(eqBand);
+  const pearlCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.24, 1), makeDeepJewelMat(0x67e8f9, 0xe0f2fe, 0.52));
+  pearlCore.position.z = 0.28;
+  g.add(pearlCore);
 
-  const l1 = new THREE.PointLight(0x38bdf8, 2.0, 4); l1.position.set(0, 0, 1.2); g.add(l1);
+  const l1 = new THREE.PointLight(0x38bdf8, 1.9, 4); l1.position.set(0, 0, 1.2); g.add(l1);
   g.rotation.set(0.22, -0.20, 0.12);
   return g;
 }
 
 function buildCatalyst() {
   const g = new THREE.Group();
-  const hs = new THREE.Shape();
-  hs.moveTo(0, 0.26);
-  hs.bezierCurveTo(0.06, 0.52, 0.52, 0.62, 0.62, 0.22);
-  hs.bezierCurveTo(0.70, -0.14, 0.30, -0.46, 0, -0.74);
-  hs.bezierCurveTo(-0.30, -0.46, -0.70, -0.14, -0.62, 0.22);
-  hs.bezierCurveTo(-0.52, 0.62, -0.06, 0.52, 0, 0.26);
+  const makeHeartShape = (sc) => {
+    const hs = new THREE.Shape();
+    hs.moveTo(0, 0.26 * sc);
+    hs.bezierCurveTo(0.06 * sc, 0.52 * sc, 0.52 * sc, 0.62 * sc, 0.62 * sc, 0.22 * sc);
+    hs.bezierCurveTo(0.70 * sc, -0.14 * sc, 0.30 * sc, -0.46 * sc, 0, -0.74 * sc);
+    hs.bezierCurveTo(-0.30 * sc, -0.46 * sc, -0.70 * sc, -0.14 * sc, -0.62 * sc, 0.22 * sc);
+    hs.bezierCurveTo(-0.52 * sc, 0.62 * sc, -0.06 * sc, 0.52 * sc, 0, 0.26 * sc);
+    return hs;
+  };
 
-  const heartMat = makeDeepJewelMat(0x047857, 0x10b981, 0.48);
-  const heartGeo = new THREE.ExtrudeGeometry(hs, { depth: 0.24, bevelEnabled: true, bevelThickness: 0.13, bevelSize: 0.09, bevelSegments: 3 });
-  heartGeo.center();
-  const heartMesh = new THREE.Mesh(heartGeo, heartMat);
-  heartMesh.position.set(0, -0.04, 0.06);
-  g.add(heartMesh);
+  // Ornate 24K Gold Heart Setting + Stepped 3-Tier Brilliant-Cut Imperial Emerald Heart
+  const bezelGeo = new THREE.ExtrudeGeometry(makeHeartShape(1.10), { depth: 0.16, bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.06, bevelSegments: 3 });
+  bezelGeo.center();
+  const bezelMesh = new THREE.Mesh(bezelGeo, matGold24k);
+  bezelMesh.position.set(0, -0.04, -0.02);
+  g.add(bezelMesh);
 
-  // Inner White-Emerald Facet Gem
-  const innerFacet = new THREE.Mesh(new THREE.OctahedronGeometry(0.24, 0), makeDeepJewelMat(0x34d399, 0x6ee7b7, 0.55));
-  innerFacet.position.set(0, -0.02, 0.26);
-  g.add(innerFacet);
+  const emOuterGeo = new THREE.ExtrudeGeometry(makeHeartShape(0.95), { depth: 0.22, bevelEnabled: true, bevelThickness: 0.10, bevelSize: 0.07, bevelSegments: 2 });
+  emOuterGeo.center();
+  const emOuter = new THREE.Mesh(emOuterGeo, makeDeepJewelMat(0x065f46, 0x059669, 0.36));
+  emOuter.position.set(0, -0.04, 0.06);
+  g.add(emOuter);
 
-  // Gold & Diamond Frame Halo + Filigree Bezel
-  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.84, 0.065, 18, 48), matGold24k);
-  halo.position.z = -0.08;
+  const emCrownGeo = new THREE.ExtrudeGeometry(makeHeartShape(0.68), { depth: 0.18, bevelEnabled: true, bevelThickness: 0.10, bevelSize: 0.07, bevelSegments: 1 });
+  emCrownGeo.center();
+  const emCrown = new THREE.Mesh(emCrownGeo, makeDeepJewelMat(0x059669, 0x10b981, 0.48));
+  emCrown.position.set(0, -0.04, 0.16);
+  g.add(emCrown);
+
+  const emTableGeo = new THREE.ExtrudeGeometry(makeHeartShape(0.38), { depth: 0.10, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.04, bevelSegments: 1 });
+  emTableGeo.center();
+  const emTable = new THREE.Mesh(emTableGeo, makeDeepJewelMat(0x34d399, 0x6ee7b7, 0.62));
+  emTable.position.set(0, -0.04, 0.24);
+  g.add(emTable);
+
+  // Gold & Pavé-Diamond Outer Halo Ring
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.88, 0.065, 18, 64), matGold24k);
+  halo.position.z = -0.10;
   g.add(halo);
-  addDiamondRing(g, 0.84, 8, 0.06, matDiamond, -0.06);
+  addDiamondRing(g, 0.88, 14, 0.052, matDiamond, -0.07);
 
-  const crownBase = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.19, 0.12, 16), matGold24k);
-  crownBase.position.set(0, 0.68, 0.04);
+  // Ornate Royal Coronet above the Heart Setting
+  const crownBase = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.19, 0.12, 16), matGold24k);
+  crownBase.position.set(0, 0.69, 0.04);
   g.add(crownBase);
   for (let p = -1; p <= 1; p++) {
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.24, 6), matPlatinum);
-    spike.position.set(p * 0.15, 0.82, 0.04);
-    spike.rotation.z = -p * 0.25;
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.25, 6), p === 0 ? matGold24k : matPlatinum);
+    spike.position.set(p * 0.15, 0.83, 0.04);
+    spike.rotation.z = -p * 0.26;
     g.add(spike);
   }
 
+  // 7-Feather Sculpted Seraph Wing-Guards (Gold & Platinum alternating feathers)
   const featherShape = new THREE.Shape();
   featherShape.moveTo(0, -0.06);
-  featherShape.quadraticCurveTo(0.45, 0.12, 0.72, 0.34);
-  featherShape.quadraticCurveTo(0.46, -0.04, 0, -0.14);
+  featherShape.quadraticCurveTo(0.45, 0.12, 0.78, 0.36);
+  featherShape.quadraticCurveTo(0.48, -0.04, 0, -0.14);
   featherShape.closePath();
   const fGeo = new THREE.ExtrudeGeometry(featherShape, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 });
   for (let side = -1; side <= 1; side += 2) {
-    for (let f = 0; f < 5; f++) {
+    for (let f = 0; f < 6; f++) {
       const fm = new THREE.Mesh(fGeo, (f % 2 === 0) ? matGold24k : matPlatinum);
-      const sc = 1.0 - f * 0.12;
+      const sc = 1.0 - f * 0.10;
       fm.scale.set(side * sc, sc, 1);
-      fm.position.set(side * 0.62, 0.24 - f * 0.14, -0.05 + f * 0.015);
-      fm.rotation.z = side * (0.35 - f * 0.22);
+      fm.position.set(side * 0.64, 0.28 - f * 0.13, -0.06 + f * 0.015);
+      fm.rotation.z = side * (0.38 - f * 0.20);
       g.add(fm);
     }
   }
-  const l1 = new THREE.PointLight(0x10b981, 2.0, 4); l1.position.set(0, 0, 1.1); g.add(l1);
+  const l1 = new THREE.PointLight(0x10b981, 1.9, 4); l1.position.set(0, 0, 1.1); g.add(l1);
   g.rotation.set(0.14, -0.12, 0);
   return g;
 }
