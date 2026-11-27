@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade418_apex_bad_vfx')
+      fetch('assets/core-geometry-db.json?v=arcade419_good_vs_bad_clarity')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2683,12 +2683,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade418_apex_bad_vfx';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade419_good_vs_bad_clarity';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade418_apex_bad_vfx';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade419_good_vs_bad_clarity';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade418_apex_bad_vfx';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade419_good_vs_bad_clarity';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2707,30 +2707,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade419_good_vs_bad_clarity`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade419_good_vs_bad_clarity`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade419_good_vs_bad_clarity`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade419_good_vs_bad_clarity`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade418_apex_bad_vfx`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade419_good_vs_bad_clarity`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade418_apex_bad_vfx`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade419_good_vs_bad_clarity`;
       }
     }
   });
@@ -2776,27 +2776,27 @@
       LayeredT4Assets.poweredHazard[m][hk] = img;
       LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
-      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade418_apex_bad_vfx`;
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade419_good_vs_bad_clarity`;
     });
 
     // v420 Luxury 3D Active Shield Barrier Rings, Heraldic Shield Relics & Upgraded 3D Hazard Cores
     LayeredT4Assets.shieldBarrier[m].onload = () => { LayeredT4Assets.loaded.shieldBarrier[m] = true; };
-    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade419_good_vs_bad_clarity`;
 
     LayeredT4Assets.powerupShield[m].onload = () => { LayeredT4Assets.loaded.powerupShield[m] = true; };
-    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade419_good_vs_bad_clarity`;
 
     LayeredT4Assets.hazardCore3D[m].onload = () => { LayeredT4Assets.loaded.hazardCore3D[m] = true; };
-    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade419_good_vs_bad_clarity`;
   });
 
   ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity', 'catalyst'].forEach((pk) => {
     LayeredT4Assets.powerupRelics[pk].onload = () => { LayeredT4Assets.loaded.powerupRelics[pk] = true; };
-    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade418_apex_bad_vfx`;
+    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade419_good_vs_bad_clarity`;
   });
 
   LayeredT4Assets.hazardSeekerRing.onload = () => { LayeredT4Assets.loaded.hazardSeekerRing = true; };
-  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade418_apex_bad_vfx';
+  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade419_good_vs_bad_clarity';
 
   // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
@@ -7618,15 +7618,16 @@
         if (badges[p.nodeClass]) {
           const b = badges[p.nodeClass];
           const bScale = Math.max(0.68, scale);
+          const flipBelow = (p.y - targetR * 1.62) < 52;
+          const yOff = flipBelow ? (targetR * 1.58 + 8) : (-targetR * 1.62 - 3);
           ctx.save();
           ctx.globalCompositeOperation = 'source-over';
-          ctx.translate(0, -targetR * 1.62 - 3);
+          ctx.translate(0, yOff);
           const bFont = `bold ${Math.round(11 * bScale)}px system-ui, -apple-system, sans-serif`;
           const textW = this._getBadgeWidth(ctx, bFont, b.text);
-          const padX = 8.5 * bScale;
-          const padY = 4.5 * bScale;
+          const padX = 9.0 * bScale;
           const bw = textW + padX * 2;
-          const bh = 17.5 * bScale;
+          const bh = 18.0 * bScale;
           const bx = -bw * 0.5;
           const by = -bh * 0.5;
 
@@ -7634,21 +7635,23 @@
           ctx.strokeStyle = b.border;
           ctx.lineWidth = 1.6 * bScale;
           ctx.beginPath();
-          ctx.roundRect(bx, by, bw, bh, 8 * bScale);
+          ctx.roundRect(bx, by, bw, bh, 8.5 * bScale);
           ctx.fill();
           ctx.stroke();
 
-          // Inner champagne-gold luxury filigree hairline & top specular sheen
-          ctx.strokeStyle = 'rgba(253, 224, 71, 0.35)';
+          ctx.strokeStyle = 'rgba(253, 224, 71, 0.42)';
           ctx.lineWidth = 0.8 * bScale;
           ctx.beginPath();
-          ctx.roundRect(bx + 1.5 * bScale, by + 1.5 * bScale, bw - 3 * bScale, bh - 3 * bScale, 6.5 * bScale);
+          ctx.roundRect(bx + 1.5 * bScale, by + 1.5 * bScale, bw - 3 * bScale, bh - 3 * bScale, 7 * bScale);
           ctx.stroke();
 
           ctx.fillStyle = b.color;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(b.text, 0, 0.5 * bScale);
+
+          // Royal 4-point champagne-gold crown star docked cleanly on Good Relics!
+          CoreKinematics._drawStarGlint(ctx, 0, flipBelow ? (bh * 0.5 + 3.5 * bScale) : (-bh * 0.5 - 3.5 * bScale), 4.6 * bScale, '#fde047');
           ctx.restore();
         }
 
@@ -8361,20 +8364,35 @@
           p.blinkState === 'telegraphing'
         );
         if (showBadPill) {
-          const bScale = Math.max(0.66, scale);
+          const bScale = Math.max(0.68, scale);
+          const flipBelow = (p.y - targetR * 1.62) < 52;
+          const yOff = flipBelow ? (targetR * 1.58 + 8) : (-targetR * 1.62 - 3);
           ctx.save();
           ctx.globalCompositeOperation = 'source-over';
-          ctx.translate(0, -targetR * 1.62 - 3);
+          ctx.translate(0, yOff);
           const bFont = `bold ${Math.round(10.5 * bScale)}px system-ui, -apple-system, sans-serif`;
           const textW = this._getBadgeWidth(ctx, bFont, badLabel);
-          const padX = 7.5 * bScale;
+          const padX = 9.0 * bScale;
           const bw = textW + padX * 2;
-          const bh = 16.5 * bScale;
-          ctx.fillStyle = 'rgba(28, 6, 14, 0.92)';
-          ctx.strokeStyle = (modeKey === 'meteor') ? '#a855f7' : '#f43f5e';
-          ctx.lineWidth = 1.5 * bScale;
+          const bh = 17.5 * bScale;
+          const hx = bw * 0.5;
+          const hy = bh * 0.5;
+          const cut = 5.5 * bScale;
+
+          // Chamfered octagonal danger tag silhouette (instantly distinct from rounded Good Relic pills!)
+          ctx.fillStyle = 'rgba(30, 6, 14, 0.94)';
+          ctx.strokeStyle = (modeKey === 'meteor') ? '#c084fc' : '#f43f5e';
+          ctx.lineWidth = 1.7 * bScale;
           ctx.beginPath();
-          ctx.roundRect(-bw * 0.5, -bh * 0.5, bw, bh, 7.5 * bScale);
+          ctx.moveTo(-hx + cut, -hy);
+          ctx.lineTo(hx - cut, -hy);
+          ctx.lineTo(hx, -hy + cut);
+          ctx.lineTo(hx, hy - cut);
+          ctx.lineTo(hx - cut, hy);
+          ctx.lineTo(-hx + cut, hy);
+          ctx.lineTo(-hx, hy - cut);
+          ctx.lineTo(-hx, -hy + cut);
+          ctx.closePath();
           ctx.fill();
           ctx.stroke();
 
@@ -9000,8 +9018,8 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 6
-          ? `assets/core-${m}-t6-showcase.png?v=arcade418_apex_bad_vfx`
-          : `assets/core-${m}-t5.png?v=arcade418_apex_bad_vfx`;
+          ? `assets/core-${m}-t6-showcase.png?v=arcade419_good_vs_bad_clarity`
+          : `assets/core-${m}-t5.png?v=arcade419_good_vs_bad_clarity`;
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -9122,8 +9140,8 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 6
-        ? `assets/core-${curMode}-t6-showcase.png?v=arcade418_apex_bad_vfx`
-        : `assets/core-${curMode}-t5.png?v=arcade418_apex_bad_vfx`;
+        ? `assets/core-${curMode}-t6-showcase.png?v=arcade419_good_vs_bad_clarity`
+        : `assets/core-${curMode}-t5.png?v=arcade419_good_vs_bad_clarity`;
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -9523,8 +9541,8 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = isT6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade418_apex_bad_vfx`
-          : `assets/core-${curMode}-t5.png?v=arcade418_apex_bad_vfx`;
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade419_good_vs_bad_clarity`
+          : `assets/core-${curMode}-t5.png?v=arcade419_good_vs_bad_clarity`;
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -15229,7 +15247,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade418_apex_bad_vfx',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade419_good_vs_bad_clarity',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -15240,7 +15258,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade418_apex_bad_vfx',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade419_good_vs_bad_clarity',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -15251,7 +15269,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade418_apex_bad_vfx',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade419_good_vs_bad_clarity',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
