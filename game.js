@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade411_mlbb_joystick')
+      fetch('assets/core-geometry-db.json?v=arcade412_armored_shields')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2663,12 +2663,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade411_mlbb_joystick';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade412_armored_shields';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade411_mlbb_joystick';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade412_armored_shields';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade411_mlbb_joystick';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade412_armored_shields';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2687,30 +2687,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade411_mlbb_joystick`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade412_armored_shields`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade411_mlbb_joystick`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade412_armored_shields`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade411_mlbb_joystick`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade412_armored_shields`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade411_mlbb_joystick`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade412_armored_shields`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade411_mlbb_joystick`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade412_armored_shields`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade411_mlbb_joystick`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade412_armored_shields`;
       }
     }
   });
@@ -2822,6 +2822,16 @@
     return nodeClass === 'volatile' || nodeClass === 'seeker' || nodeClass === 'phantom' || nodeClass === 'fragmentation' || nodeClass === 'vortex' || nodeClass === 'gravity_well' || nodeClass === 'pulsar_mine' || nodeClass === 'emp_glitch' || nodeClass === 'emp_detonator' || nodeClass === 'tachyon_fracture' || nodeClass === 'phase_stalker' || nodeClass === 'plasma_flare' || nodeClass === 'hyper_comet' || nodeClass === 'corruptor_laser' || nodeClass === 'broken_arc';
   }
 
+  function getRealmShieldMeta(mode) {
+    if (mode === 'helix') {
+      return { name: 'PRISM AEGIS', badge: '🛡️ PRISM SHIELD', color: '#22d3ee', icon: '🛡️' };
+    }
+    if (mode === 'meteor') {
+      return { name: 'CALDERA BULWARK', badge: '🛡️ BULWARK', color: '#fb923c', icon: '🛡️' };
+    }
+    return { name: 'FARADAY AEGIS', badge: '🛡️ AEGIS SHIELD', color: '#38bdf8', icon: '🛡️' };
+  }
+
   // ─────────────────────────────────────────────────────────────
   // SECONDARY KINEMATICS, ASCENSION MORPHING & LOCK-ON ENGINE
   // ─────────────────────────────────────────────────────────────
@@ -2867,6 +2877,7 @@
     launchFlashes: [],
     grazeSparks: [],
     shieldDeflectFlash: 0,
+    shieldImpacts: [],
 
     // Mode-Specific Capture States
     wingRipples: [],
@@ -2907,6 +2918,7 @@
       this.launchFlashes = [];
       this.grazeSparks = [];
       this.shieldDeflectFlash = 0;
+      this.shieldImpacts = [];
       this.wingRipples = [];
       this.dynamoDischarges = [];
       this.meteorShieldRecoil = { x: 0, vx: 0, y: 0, vy: 0, tilt: 0, vTilt: 0, flash: 0 };
@@ -3149,6 +3161,11 @@
         if (gs.life >= gs.maxLife) this.grazeSparks.splice(i, 1);
       }
       this.shieldDeflectFlash = Math.max(0, this.shieldDeflectFlash - 0.05 * dt);
+      for (let i = this.shieldImpacts.length - 1; i >= 0; i--) {
+        if ((now - this.shieldImpacts[i].startTime) >= this.shieldImpacts[i].duration) {
+          this.shieldImpacts.splice(i, 1);
+        }
+      }
     },
 
     triggerGraze(x, y, now) {
@@ -3167,19 +3184,45 @@
       }
     },
 
-    triggerShieldDeflect(x, y, now) {
+    getShieldOuterRadius(u, tier = 1) {
+      const tierBoost = (tier >= 6) ? 1.26 : 1.0;
+      return Math.max(94, 144 * u) * tierBoost;
+    },
+
+    triggerShieldDeflect(x, y, now, mode = null, contactAng = null) {
       this.shieldDeflectFlash = 1.0;
+      const effMode = mode || ((state.catcherType === 'helix' || state.gameType === 'helix')
+        ? 'helix'
+        : ((state.catcherType === 'meteor' || state.gameType === 'meteor') ? 'meteor' : 'dynamo'));
+      const ang = Number.isFinite(contactAng) ? contactAng : (-Math.PI * 0.5);
+
+      this.shieldImpacts.push({
+        angle: ang,
+        startTime: now,
+        duration: 420,
+        mode: effMode
+      });
+      if (this.shieldImpacts.length > 8) {
+        this.shieldImpacts.shift();
+      }
+
+      const pal = (effMode === 'helix')
+        ? ['#22d3ee', '#e879f9', '#f0f9ff', '#34d399']
+        : ((effMode === 'meteor')
+            ? ['#fde047', '#fb923c', '#f97316', '#ffffff']
+            : ['#38bdf8', '#fde047', '#c084fc', '#e0f2fe']);
+      const directional = Number.isFinite(contactAng);
       for (let k = 0; k < 22; k++) {
-        const a = Math.random() * Math.PI * 2;
-        const spd = 3.6 + Math.random() * 6.4;
+        const a = directional ? (ang + (Math.random() - 0.5) * 1.45) : (Math.random() * Math.PI * 2);
+        const spd = (directional ? 4.4 : 3.6) + Math.random() * 6.8;
         this.grazeSparks.push({
           x: x,
           y: y,
           vx: Math.cos(a) * spd,
           vy: Math.sin(a) * spd,
-          color: '#fbbf24',
+          color: pal[k % pal.length],
           life: 0,
-          maxLife: 24 + Math.random() * 14
+          maxLife: 22 + Math.random() * 12
         });
       }
     },
@@ -3694,7 +3737,9 @@
                 if (state.coreTier === 5) audio.playTier5Ascension();
                 else audio.playOverdriveFanfare();
               } else if (pt.nodeClass === 'shield') {
-                state.applyBuff('shield', 'AEGIS SHIELD', '#f59e0b', '🛡️', 5000, now);
+                const sMeta = getRealmShieldMeta(mMode);
+                state.applyBuff('shield', sMeta.name, sMeta.color, sMeta.icon, 5000, now);
+                CoreKinematics.triggerShieldDeflect(m.x, m.y, now, mMode);
               } else if (pt.nodeClass === 'missiles') {
                 state.applyBuff('missiles', 'ALLIED MISSILES', '#38bdf8', '🚀', 4000, now);
                 this.fireMissiles(m.x, m.y, now, state.particles, mMode);
@@ -3715,56 +3760,418 @@
       ctx.restore();
     },
 
+    _drawApexShieldCrest(ctx, r, mode, warnPulse, now) {
+      ctx.save();
+      ctx.translate(0, -r * 1.02);
+      const cw = Math.max(15, r * 0.165);
+      const ch = Math.max(19, r * 0.215);
+
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+
+      if (mode === 'helix') {
+        // Winged Crystal Heater Shield Crest + Forward Lance Prow
+        for (let side = -1; side <= 1; side += 2) {
+          ctx.beginPath();
+          ctx.moveTo(side * cw * 0.9, -ch * 0.35);
+          ctx.lineTo(side * cw * 2.25, -ch * 0.82);
+          ctx.lineTo(side * cw * 1.65, ch * 0.18);
+          ctx.closePath();
+          ctx.fillStyle = side < 0 ? `rgba(8, 145, 178, ${0.88 * warnPulse})` : `rgba(134, 25, 143, ${0.88 * warnPulse})`;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(224, 242, 254, ${0.9 * warnPulse})`;
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, -ch * 1.08);
+        ctx.lineTo(cw, -ch * 0.55);
+        ctx.lineTo(cw * 0.78, ch * 0.38);
+        ctx.lineTo(0, ch * 0.88);
+        ctx.lineTo(-cw * 0.78, ch * 0.38);
+        ctx.lineTo(-cw, -ch * 0.55);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(12, 24, 48, ${0.92 * warnPulse})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(103, 232, 249, ${0.98 * warnPulse})`;
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        // Split prism facet
+        ctx.beginPath();
+        ctx.moveTo(0, -ch * 0.86);
+        ctx.lineTo(0, ch * 0.72);
+        ctx.strokeStyle = `rgba(232, 121, 249, ${0.92 * warnPulse})`;
+        ctx.lineWidth = 2.0;
+        ctx.stroke();
+      } else if (mode === 'meteor') {
+        // Forged Dragon-Horned Caldera Bulwark Shield Crest
+        for (let side = -1; side <= 1; side += 2) {
+          ctx.beginPath();
+          ctx.moveTo(side * cw * 0.72, -ch * 0.45);
+          ctx.lineTo(side * cw * 2.15, -ch * 1.15);
+          ctx.lineTo(side * cw * 1.45, ch * 0.12);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(41, 18, 8, ${0.94 * warnPulse})`;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(251, 146, 60, ${0.95 * warnPulse})`;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, -ch * 1.05);
+        ctx.lineTo(cw * 1.12, -ch * 0.55);
+        ctx.lineTo(cw * 0.88, ch * 0.35);
+        ctx.lineTo(0, ch * 0.92);
+        ctx.lineTo(-cw * 0.88, ch * 0.35);
+        ctx.lineTo(-cw * 1.12, -ch * 0.55);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(28, 16, 12, ${0.96 * warnPulse})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(253, 224, 71, ${0.98 * warnPulse})`;
+        ctx.lineWidth = 2.6;
+        ctx.stroke();
+
+        // Glowing Magma Chevron Rune
+        ctx.beginPath();
+        ctx.moveTo(-cw * 0.52, -ch * 0.25);
+        ctx.lineTo(0, -ch * 0.65);
+        ctx.lineTo(cw * 0.52, -ch * 0.25);
+        ctx.moveTo(-cw * 0.40, ch * 0.14);
+        ctx.lineTo(0, -ch * 0.24);
+        ctx.lineTo(cw * 0.40, ch * 0.14);
+        ctx.strokeStyle = `rgba(251, 146, 60, ${0.98 * warnPulse})`;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+      } else {
+        // Dynamo Royal Faraday Bastion Kite Shield Crest
+        for (let side = -1; side <= 1; side += 2) {
+          ctx.beginPath();
+          ctx.moveTo(side * cw * 0.88, -ch * 0.42);
+          ctx.lineTo(side * cw * 2.15, -ch * 0.68);
+          ctx.lineTo(side * cw * 1.65, ch * 0.20);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(12, 74, 110, ${0.90 * warnPulse})`;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(253, 224, 71, ${0.92 * warnPulse})`;
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, -ch * 1.05);
+        ctx.lineTo(cw * 1.04, -ch * 0.58);
+        ctx.lineTo(cw * 0.78, ch * 0.36);
+        ctx.lineTo(0, ch * 0.90);
+        ctx.lineTo(-cw * 0.78, ch * 0.36);
+        ctx.lineTo(-cw * 1.04, -ch * 0.58);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(15, 23, 42, ${0.94 * warnPulse})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(251, 191, 36, ${0.98 * warnPulse})`;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Electric Bolt Emblem inside Shield Crest
+        ctx.beginPath();
+        ctx.moveTo(cw * 0.14, -ch * 0.60);
+        ctx.lineTo(-cw * 0.24, -ch * 0.04);
+        ctx.lineTo(cw * 0.12, -ch * 0.04);
+        ctx.lineTo(-cw * 0.18, ch * 0.52);
+        ctx.strokeStyle = `rgba(56, 189, 248, ${0.98 * warnPulse})`;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+      }
+      ctx.restore();
+    },
+
     drawAegisForcefield(ctx, cx, cy, u, now, timeLeft = 5000, mode = 'dynamo') {
       ctx.save();
       ctx.translate(cx, cy);
-      ctx.globalCompositeOperation = 'lighter';
 
-      const baseRadius = Math.max(92, 142 * u);
-      const pulse = 1.0 + 0.03 * Math.sin(now * 0.008);
+      const curTier = (typeof state !== 'undefined' && state.coreTier) ? state.coreTier : 1;
+      const baseRadius = this.getShieldOuterRadius(u, curTier);
+      const pulse = 1.0 + 0.018 * Math.sin(now * 0.008);
       const r = baseRadius * pulse;
       const isExpiring = timeLeft < 1200;
-      const warnPulse = isExpiring ? (0.5 + 0.5 * Math.sin(now * 0.025)) : 1.0;
+      const warnPulse = isExpiring ? (0.45 + 0.55 * Math.sin(now * 0.028)) : 1.0;
 
       const isDyn = (mode === 'dynamo' || mode === 'realm');
       const isHel = (mode === 'helix');
-      const sprKey = isDyn ? 'cyan' : (isHel ? 'helix' : 'amber');
-      const ringCol = isDyn ? `rgba(56, 189, 248, ${0.88 * warnPulse})` : (isHel ? `rgba(34, 211, 238, ${0.88 * warnPulse})` : `rgba(251, 191, 36, ${0.90 * warnPulse})`);
-      const innerCol = isDyn ? `rgba(192, 132, 252, ${0.58 * warnPulse})` : (isHel ? `rgba(110, 231, 183, ${0.58 * warnPulse})` : `rgba(249, 115, 22, ${0.65 * warnPulse})`);
+      const effMode = isDyn ? 'dynamo' : (isHel ? 'helix' : 'meteor');
+      const rot = now * (effMode === 'meteor' ? -0.00055 : 0.00065);
+      const maxDur = (typeof state !== 'undefined' && state.getBuff) ? (state.getBuff('shield', now)?.maxDur || 5000) : 5000;
+      const pctLeft = Math.max(0.02, Math.min(1, timeLeft / Math.max(5000, maxDur)));
 
-      // 1. Pre-baked GPU halo blit (zero per-frame gradient allocation!)
-      ctx.globalAlpha = 0.35 * warnPulse;
-      ctx.drawImage(QuantumRenderer._getGlowSprite(sprKey), -r * 1.1, -r * 1.1, r * 2.2, r * 2.2);
-      ctx.globalAlpha = 1.0;
-
-      // 2. Crisp solid outer containment ring
-      ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.strokeStyle = ringCol;
-      ctx.lineWidth = 3.0;
-      ctx.stroke();
-
-      // 3. Counter-rotating dashed inner energy ring
+      // 0. Soft Backdrop Halo (lightweighted pre-baked sprite blit)
       ctx.save();
-      ctx.setLineDash([10, 8]);
-      ctx.lineDashOffset = -now * 0.03;
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 0.88, 0, Math.PI * 2);
-      ctx.strokeStyle = innerCol;
-      ctx.lineWidth = 1.8;
-      ctx.stroke();
-      ctx.setLineDash([]);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.26 * warnPulse;
+      const sprKey = isDyn ? 'cyan' : (isHel ? 'helix' : 'gold');
+      ctx.drawImage(QuantumRenderer._getGlowSprite(sprKey), -r * 1.15, -r * 1.15, r * 2.3, r * 2.3);
       ctx.restore();
 
-      // 4. Shield Deflection Shockwave Flash (Shared Across Modes)
-      if (this.shieldDeflectFlash > 0.02) {
+      if (effMode === 'dynamo') {
+        // ════════════════════════════════════════════════════════════════
+        // DYNAMO: FARADAY BASTION AEGIS (8 Armored Capacitor Plates + V-Prow + Lightning Links)
+        // ════════════════════════════════════════════════════════════════
+        const segs = 8;
+        const step = (Math.PI * 2) / segs;
+
+        // Pass 1: Chiseled Straight-Edged Octagonal Fortress Plates + Gold-Rimmed Faraday Ram Pylons!
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
         ctx.beginPath();
-        ctx.arc(0, 0, r * (1.1 + (1.0 - this.shieldDeflectFlash) * 0.4), 0, Math.PI * 2);
+        ctx.arc(0, 0, r * 0.90, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(14, 116, 144, ${0.10 * warnPulse})`;
+        ctx.fill();
+
+        for (let s = 0; s < segs; s++) {
+          const a0 = rot + s * step + 0.065;
+          const a1 = rot + (s + 1) * step - 0.065;
+          const am = (a0 + a1) * 0.5;
+          const a0m = a0 + (am - a0) * 0.45;
+          const a1m = a1 - (a1 - am) * 0.45;
+
+          // Chiseled flat-faceted armor plate + outward-projecting ram-pylon crest
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a0) * r * 0.87, Math.sin(a0) * r * 0.87);
+          ctx.lineTo(Math.cos(a0) * r * 1.00, Math.sin(a0) * r * 1.00);
+          ctx.lineTo(Math.cos(a0m) * r * 1.00, Math.sin(a0m) * r * 1.00);
+          ctx.lineTo(Math.cos(am) * r * 1.07, Math.sin(am) * r * 1.07);
+          ctx.lineTo(Math.cos(a1m) * r * 1.00, Math.sin(a1m) * r * 1.00);
+          ctx.lineTo(Math.cos(a1) * r * 1.00, Math.sin(a1) * r * 1.00);
+          ctx.lineTo(Math.cos(a1) * r * 0.87, Math.sin(a1) * r * 0.87);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(12, 34, 68, ${0.70 * warnPulse})`;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(56, 189, 248, ${0.95 * warnPulse})`;
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+
+          // Gold-rimmed Faraday ram-pylon accent chevron
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a0m) * r * 0.96, Math.sin(a0m) * r * 0.96);
+          ctx.lineTo(Math.cos(am) * r * 1.045, Math.sin(am) * r * 1.045);
+          ctx.lineTo(Math.cos(a1m) * r * 0.96, Math.sin(a1m) * r * 0.96);
+          ctx.strokeStyle = `rgba(251, 191, 36, ${0.96 * warnPulse})`;
+          ctx.lineWidth = 1.9;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Pass 2: Crackling Faraday Lightning Linking Armor Nodes + Inner Bastion Ring
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const tick = Math.floor(now / 52);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        for (let s = 0; s < segs; s++) {
+          const aStart = rot + s * step - 0.06;
+          const aEnd = rot + s * step + 0.06;
+          const sx = Math.cos(aStart) * (r * 0.98);
+          const sy = Math.sin(aStart) * (r * 0.98);
+          const ex = Math.cos(aEnd) * (r * 0.98);
+          const ey = Math.sin(aEnd) * (r * 0.98);
+          const mx = (sx + ex) * 0.5 + Math.cos(s * 2.1 + tick * 3.7) * 7.5;
+          const my = (sy + ey) * 0.5 + Math.sin(s * 2.9 + tick * 4.3) * 7.5;
+
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(mx, my);
+          ctx.lineTo(ex, ey);
+          ctx.strokeStyle = `rgba(125, 211, 252, ${0.95 * warnPulse})`;
+          ctx.lineWidth = 2.6;
+          ctx.stroke();
+        }
+
+        // Remaining Duration Royal Gold Arc
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.82, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * pctLeft);
+        ctx.strokeStyle = isExpiring ? `rgba(254, 240, 138, ${warnPulse})` : 'rgba(251, 191, 36, 0.85)';
+        ctx.lineWidth = 3.2;
+        ctx.stroke();
+        ctx.restore();
+
+      } else if (effMode === 'helix') {
+        // ════════════════════════════════════════════════════════════════
+        // HELIX: PRISMATIC GEODESIC CRYSTAL AEGIS (Stained-Glass Prism Facets + Braided DNA Wall)
+        // ════════════════════════════════════════════════════════════════
+        const segs = 12;
+        const step = (Math.PI * 2) / segs;
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        for (let s = 0; s < segs; s++) {
+          const a0 = rot + s * step;
+          const a1 = rot + (s + 1) * step;
+          const am = (a0 + a1) * 0.5;
+          const rOuter = r * 1.03;
+          const rInner = r * 0.88;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a0) * r * 0.96, Math.sin(a0) * r * 0.96);
+          ctx.lineTo(Math.cos(am) * rOuter, Math.sin(am) * rOuter);
+          ctx.lineTo(Math.cos(a1) * r * 0.96, Math.sin(a1) * r * 0.96);
+          ctx.lineTo(Math.cos(a1) * rInner, Math.sin(a1) * rInner);
+          ctx.lineTo(Math.cos(a0) * rInner, Math.sin(a0) * rInner);
+          ctx.closePath();
+
+          ctx.fillStyle = (s % 2 === 0)
+            ? `rgba(8, 145, 178, ${0.42 * warnPulse})`
+            : `rgba(162, 28, 175, ${0.38 * warnPulse})`;
+          ctx.fill();
+          ctx.strokeStyle = (s % 2 === 0)
+            ? `rgba(103, 232, 249, ${0.95 * warnPulse})`
+            : `rgba(240, 171, 252, ${0.92 * warnPulse})`;
+          ctx.lineWidth = 2.1;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Pass 2: Twin Braided Cyan & Magenta Helix Energy Strands around perimeter
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const strandPts = 48;
+        for (let strand = -1; strand <= 1; strand += 2) {
+          ctx.beginPath();
+          for (let p = 0; p <= strandPts; p++) {
+            const ang = (p / strandPts) * Math.PI * 2;
+            const wave = Math.sin(ang * 6 - now * 0.005 * strand) * (r * 0.042) * strand;
+            const rr = r * 0.94 + wave;
+            const px = Math.cos(ang) * rr;
+            const py = Math.sin(ang) * rr;
+            if (p === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = strand > 0
+            ? `rgba(34, 211, 238, ${0.88 * warnPulse})`
+            : `rgba(232, 121, 249, ${0.85 * warnPulse})`;
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+        }
+
+        // Remaining Duration Crystal Gauge
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.83, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * pctLeft);
+        ctx.strokeStyle = isExpiring ? `rgba(255, 255, 255, ${warnPulse})` : 'rgba(103, 232, 249, 0.90)';
+        ctx.lineWidth = 3.0;
+        ctx.stroke();
+        ctx.restore();
+
+      } else {
+        // ════════════════════════════════════════════════════════════════
+        // METEOR: MOLTEN OBSIDIAN-GOLD DRAGON BULWARK (Spiked Forged Bastion Plates + Magma Seams)
+        // ════════════════════════════════════════════════════════════════
+        const segs = 8;
+        const step = (Math.PI * 2) / segs;
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        for (let s = 0; s < segs; s++) {
+          const a0 = rot + s * step + 0.05;
+          const a1 = rot + (s + 1) * step - 0.05;
+          const am = (a0 + a1) * 0.5;
+          // Outward serrated battering spike per bastion plate!
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a0) * r * 0.88, Math.sin(a0) * r * 0.88);
+          ctx.lineTo(Math.cos(a0 + 0.14) * r * 1.00, Math.sin(a0 + 0.14) * r * 1.00);
+          ctx.lineTo(Math.cos(am) * r * 1.09, Math.sin(am) * r * 1.09);
+          ctx.lineTo(Math.cos(a1 - 0.14) * r * 1.00, Math.sin(a1 - 0.14) * r * 1.00);
+          ctx.lineTo(Math.cos(a1) * r * 0.88, Math.sin(a1) * r * 0.88);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(38, 17, 9, ${0.78 * warnPulse})`;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(251, 146, 60, ${0.96 * warnPulse})`;
+          ctx.lineWidth = 2.6;
+          ctx.stroke();
+
+          // Forged Gold Inner Edge Highlight on Spike
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a0 + 0.16) * r * 0.96, Math.sin(a0 + 0.16) * r * 0.96);
+          ctx.lineTo(Math.cos(am) * r * 1.05, Math.sin(am) * r * 1.05);
+          ctx.lineTo(Math.cos(a1 - 0.16) * r * 0.96, Math.sin(a1 - 0.16) * r * 0.96);
+          ctx.strokeStyle = `rgba(253, 224, 71, ${0.94 * warnPulse})`;
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Pass 2: Molten Magma Armor Ring & Remaining Time Gauge
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.87, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(249, 115, 22, ${0.70 * warnPulse})`;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.81, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * pctLeft);
+        ctx.strokeStyle = isExpiring ? `rgba(255, 255, 255, ${warnPulse})` : 'rgba(253, 224, 71, 0.92)';
+        ctx.lineWidth = 3.4;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Forward Heraldic Shield Crest Emblem (Mounted at Upper Ram Apex for Instant Shield Identity!)
+      this._drawApexShieldCrest(ctx, r, effMode, warnPulse, now);
+
+      // Directional Enemy-Crushing Impact Shockwaves right on the Shield Outer Wall!
+      if (this.shieldImpacts && this.shieldImpacts.length > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        for (let i = 0; i < this.shieldImpacts.length; i++) {
+          const imp = this.shieldImpacts[i];
+          const prog = (now - imp.startTime) / imp.duration;
+          if (prog < 0 || prog >= 1) continue;
+          const fade = 1.0 - prog;
+          const ix = Math.cos(imp.angle) * r;
+          const iy = Math.sin(imp.angle) * r;
+          const crushCol = (effMode === 'helix') ? '#22d3ee' : ((effMode === 'meteor') ? '#fbbf24' : '#38bdf8');
+
+          // Armor-wall crush crescent shockwave
+          ctx.globalAlpha = fade * 0.95;
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3.6 * fade;
+          ctx.beginPath();
+          ctx.arc(0, 0, r * (1.02 + prog * 0.14), imp.angle - 0.55, imp.angle + 0.55);
+          ctx.stroke();
+
+          ctx.strokeStyle = crushCol;
+          ctx.lineWidth = 5.5 * fade;
+          ctx.beginPath();
+          ctx.arc(ix, iy, 12 + prog * 42, imp.angle - 1.15, imp.angle + 1.15);
+          ctx.stroke();
+
+          // Outward shatter lances
+          for (let ray = -2; ray <= 2; ray++) {
+            const ra = imp.angle + ray * 0.28;
+            const r0 = 8 + prog * 14;
+            const r1 = 24 + prog * 48;
+            ctx.beginPath();
+            ctx.moveTo(ix + Math.cos(ra) * r0, iy + Math.sin(ra) * r0);
+            ctx.lineTo(ix + Math.cos(ra) * r1, iy + Math.sin(ra) * r1);
+            ctx.strokeStyle = (ray % 2 === 0) ? '#ffffff' : crushCol;
+            ctx.lineWidth = 2.4 * fade;
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
+
+      // Full-dome Deflection Shockwave Flash on Activation or Heavy Impact
+      if (this.shieldDeflectFlash > 0.04) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(0, 0, r * (1.06 + (1.0 - this.shieldDeflectFlash) * 0.26), 0, Math.PI * 2);
         const flashColor = isDyn ? '#38bdf8' : (isHel ? '#22d3ee' : '#fbbf24');
         ctx.strokeStyle = flashColor;
-        ctx.globalAlpha = this.shieldDeflectFlash * 0.95;
-        ctx.lineWidth = 4.5;
+        ctx.globalAlpha = this.shieldDeflectFlash * 0.82;
+        ctx.lineWidth = 4.0;
         ctx.stroke();
+        ctx.restore();
       }
 
       ctx.restore();
@@ -7361,29 +7768,167 @@
           ctx.restore();
 
         } else if (p.nodeClass === 'shield') {
-          // 5-SECOND AEGIS FORCEFIELD CRYSTAL: Rotating 3D Golden Hexagonal Shield
+          // UNMISTAKABLE 3D REALM-BESPOKE HERALDIC SHIELD POWER-UP PICKUP
+          const sMode = (mode === 'helix') ? 'helix' : ((mode === 'meteor') ? 'meteor' : 'dynamo');
+          const rotS = now * 0.003 + animPhase;
+
+          // 1. Rotating Armored Bastion Guard Brackets around the Power-Up
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const hexAngle = now * 0.0035 + animPhase;
-          const hxR = targetR * 1.25;
-          ctx.beginPath();
-          for (let hx = 0; hx < 6; hx++) {
-            const ha = hexAngle + (hx * Math.PI / 3);
-            const px = Math.cos(ha) * hxR;
-            const py = Math.sin(ha) * hxR;
-            if (hx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          const guardR = targetR * 1.32;
+          const arcCol = (sMode === 'helix') ? '#22d3ee' : ((sMode === 'meteor') ? '#fb923c' : '#fde047');
+          const secCol = (sMode === 'helix') ? '#e879f9' : ((sMode === 'meteor') ? '#fde047' : '#38bdf8');
+          for (let g = 0; g < 4; g++) {
+            const ga = rotS + g * (Math.PI * 0.5);
+            ctx.beginPath();
+            ctx.arc(0, 0, guardR, ga - 0.34, ga + 0.34);
+            ctx.strokeStyle = (g % 2 === 0) ? arcCol : secCol;
+            ctx.lineWidth = 2.8 * scale;
+            ctx.lineCap = 'round';
+            ctx.stroke();
           }
-          ctx.closePath();
-          ctx.strokeStyle = '#fbbf24';
-          ctx.lineWidth = 2.4 * scale;
-          ctx.stroke();
-          ctx.fillStyle = 'rgba(245, 158, 11, 0.28)';
-          ctx.fill();
+          ctx.restore();
 
-          const pCoreR = targetR * (0.45 + 0.15 * Math.sin(now * 0.009));
-          ctx.globalAlpha = 0.92;
-          ctx.drawImage(this._getGlowSprite('gold'), -pCoreR, -pCoreR, pCoreR * 2, pCoreR * 2);
-          ctx.globalAlpha = 1.0;
+          // 2. Sculpted 3D Heraldic Shield Emblem (Opaque Dark Metal/Crystal Bevel + Gleaming Trim)
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.lineJoin = 'round';
+          ctx.lineCap = 'round';
+          const sw = targetR * 0.72;
+          const sh = targetR * 0.88;
+
+          if (sMode === 'helix') {
+            // Side translucent crystal wing-guards
+            for (let side = -1; side <= 1; side += 2) {
+              ctx.beginPath();
+              ctx.moveTo(side * sw * 0.88, -sh * 0.34);
+              ctx.lineTo(side * sw * 1.52, -sh * 0.65);
+              ctx.lineTo(side * sw * 1.18, sh * 0.14);
+              ctx.closePath();
+              ctx.fillStyle = side < 0 ? 'rgba(6, 182, 212, 0.85)' : 'rgba(192, 38, 211, 0.85)';
+              ctx.fill();
+              ctx.strokeStyle = '#f0f9ff';
+              ctx.lineWidth = 1.6 * scale;
+              ctx.stroke();
+            }
+            // Faceted Diamond-Cut Crystal Kite Shield Body
+            ctx.beginPath();
+            ctx.moveTo(0, -sh);
+            ctx.lineTo(sw, -sh * 0.52);
+            ctx.lineTo(sw * 0.76, sh * 0.32);
+            ctx.lineTo(0, sh);
+            ctx.lineTo(-sw * 0.76, sh * 0.32);
+            ctx.lineTo(-sw, -sh * 0.52);
+            ctx.closePath();
+            ctx.fillStyle = '#082f49';
+            ctx.fill();
+            // Right stained-glass amethyst half-facet
+            ctx.beginPath();
+            ctx.moveTo(0, -sh);
+            ctx.lineTo(sw, -sh * 0.52);
+            ctx.lineTo(sw * 0.76, sh * 0.32);
+            ctx.lineTo(0, sh);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(162, 28, 175, 0.68)';
+            ctx.fill();
+            // Platinum-Cyan Outer Bevel Rim & Helix Rune
+            ctx.beginPath();
+            ctx.moveTo(0, -sh);
+            ctx.lineTo(sw, -sh * 0.52);
+            ctx.lineTo(sw * 0.76, sh * 0.32);
+            ctx.lineTo(0, sh);
+            ctx.lineTo(-sw * 0.76, sh * 0.32);
+            ctx.lineTo(-sw, -sh * 0.52);
+            ctx.closePath();
+            ctx.strokeStyle = '#67e8f9';
+            ctx.lineWidth = 3.0 * scale;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0, -sh * 0.68);
+            ctx.lineTo(0, sh * 0.68);
+            ctx.moveTo(-sw * 0.42, -sh * 0.10);
+            ctx.lineTo(sw * 0.42, -sh * 0.10);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2.0 * scale;
+            ctx.stroke();
+
+          } else if (sMode === 'meteor') {
+            // Spiked Obsidian & Molten-Gold Dragon Bulwark Shield
+            ctx.beginPath();
+            ctx.moveTo(0, -sh * 1.06);
+            ctx.lineTo(sw * 0.56, -sh * 0.72);
+            ctx.lineTo(sw * 1.18, -sh * 0.88);
+            ctx.lineTo(sw * 0.96, -sh * 0.10);
+            ctx.lineTo(sw * 0.72, sh * 0.44);
+            ctx.lineTo(0, sh * 1.04);
+            ctx.lineTo(-sw * 0.72, sh * 0.44);
+            ctx.lineTo(-sw * 0.96, -sh * 0.10);
+            ctx.lineTo(-sw * 1.18, -sh * 0.88);
+            ctx.lineTo(-sw * 0.56, -sh * 0.72);
+            ctx.closePath();
+            ctx.fillStyle = '#1c0f08';
+            ctx.fill();
+            ctx.strokeStyle = '#fde047';
+            ctx.lineWidth = 3.2 * scale;
+            ctx.stroke();
+
+            // Glowing Molten Chevron Crest inside Bulwark
+            ctx.beginPath();
+            ctx.moveTo(-sw * 0.52, -sh * 0.22);
+            ctx.lineTo(0, -sh * 0.66);
+            ctx.lineTo(sw * 0.52, -sh * 0.22);
+            ctx.moveTo(-sw * 0.40, sh * 0.20);
+            ctx.lineTo(0, -sh * 0.22);
+            ctx.lineTo(sw * 0.40, sh * 0.20);
+            ctx.strokeStyle = '#fb923c';
+            ctx.lineWidth = 2.8 * scale;
+            ctx.stroke();
+
+          } else {
+            // Royal Sapphire-Gold Faraday Kite Shield
+            ctx.beginPath();
+            ctx.moveTo(0, -sh * 1.02);
+            ctx.lineTo(sw * 1.02, -sh * 0.56);
+            ctx.lineTo(sw * 0.78, sh * 0.34);
+            ctx.lineTo(0, sh * 1.02);
+            ctx.lineTo(-sw * 0.78, sh * 0.34);
+            ctx.lineTo(-sw * 1.02, -sh * 0.56);
+            ctx.closePath();
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            // Right specular royal blue facet
+            ctx.beginPath();
+            ctx.moveTo(0, -sh * 1.02);
+            ctx.lineTo(sw * 1.02, -sh * 0.56);
+            ctx.lineTo(sw * 0.78, sh * 0.34);
+            ctx.lineTo(0, sh * 1.02);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(30, 64, 175, 0.78)';
+            ctx.fill();
+            // 24K Gold Bevel Trim
+            ctx.beginPath();
+            ctx.moveTo(0, -sh * 1.02);
+            ctx.lineTo(sw * 1.02, -sh * 0.56);
+            ctx.lineTo(sw * 0.78, sh * 0.34);
+            ctx.lineTo(0, sh * 1.02);
+            ctx.lineTo(-sw * 0.78, sh * 0.34);
+            ctx.lineTo(-sw * 1.02, -sh * 0.56);
+            ctx.closePath();
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 3.2 * scale;
+            ctx.stroke();
+
+            // Cyan Faraday Lightning Bolt inside Shield
+            ctx.beginPath();
+            ctx.moveTo(sw * 0.16, -sh * 0.58);
+            ctx.lineTo(-sw * 0.28, -sh * 0.02);
+            ctx.lineTo(sw * 0.14, -sh * 0.02);
+            ctx.lineTo(-sw * 0.20, sh * 0.56);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2.8 * scale;
+            ctx.stroke();
+          }
           ctx.restore();
 
         } else if (p.nodeClass === 'missiles') {
@@ -7461,7 +8006,12 @@
 
         // Floating Holographic Badges for Power-Ups (High-Contrast Dark Obsidian Pill Backdrop so Text Pops Over Bright Flames/Lightning!)
         const badges = {
-          shield: { text: '🛡️ SHIELD', color: '#f59e0b', bg: 'rgba(10, 14, 28, 0.88)', border: '#fbbf24' },
+          shield: {
+            text: getRealmShieldMeta(mode).badge,
+            color: getRealmShieldMeta(mode).color,
+            bg: 'rgba(10, 14, 28, 0.90)',
+            border: (mode === 'helix') ? '#22d3ee' : ((mode === 'meteor') ? '#fb923c' : '#fbbf24')
+          },
           missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#38bdf8' },
           cluster: { text: '✨ 2X DUP', color: '#ffffff', bg: 'rgba(10, 14, 28, 0.88)', border: '#c084fc' },
           supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(10, 14, 28, 0.88)', border: '#fef08a' },
@@ -8717,8 +9267,8 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 6
-          ? `assets/core-${m}-t6-showcase.png?v=arcade411_mlbb_joystick`
-          : `assets/core-${m}-t5.png?v=arcade411_mlbb_joystick`;
+          ? `assets/core-${m}-t6-showcase.png?v=arcade412_armored_shields`
+          : `assets/core-${m}-t5.png?v=arcade412_armored_shields`;
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -8839,8 +9389,8 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 6
-        ? `assets/core-${curMode}-t6-showcase.png?v=arcade411_mlbb_joystick`
-        : `assets/core-${curMode}-t5.png?v=arcade411_mlbb_joystick`;
+        ? `assets/core-${curMode}-t6-showcase.png?v=arcade412_armored_shields`
+        : `assets/core-${curMode}-t5.png?v=arcade412_armored_shields`;
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -9240,8 +9790,8 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = isT6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade411_mlbb_joystick`
-          : `assets/core-${curMode}-t5.png?v=arcade411_mlbb_joystick`;
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade412_armored_shields`
+          : `assets/core-${curMode}-t5.png?v=arcade412_armored_shields`;
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -11740,7 +12290,8 @@
       // Respect Aegis Forcefield Shield Buff & Invulnerability (e.g. Caldera Nova 1.5s invuln)
       if (state.hasBuff('shield', now) || (state.playerInvulnUntil && now < state.playerInvulnUntil)) {
         state.score += 200;
-        CoreKinematics.triggerShieldDeflect(cx, cy, now);
+        const cAng = Math.atan2(vb.y - cy, vb.x - cx);
+        CoreKinematics.triggerShieldDeflect(vb.x, vb.y, now, state.catcherType || 'dynamo', cAng);
         audio.playPerfectCatch(state.combo);
         return;
       }
@@ -11886,8 +12437,11 @@
           continue;
         }
 
-        // Ship Collision Check
-        if (Math.hypot(vb.x - cx, vb.y - cy) < vb.radius * 0.86 + shipHitR) {
+        // Ship / Outer Armored Shield Perimeter Collision Check
+        const vbShieldDefR = state.hasBuff('shield', now)
+          ? Math.max(shipHitR, CoreKinematics.getShieldOuterRadius(u, state.coreTier) * 0.96)
+          : shipHitR;
+        if (Math.hypot(vb.x - cx, vb.y - cy) < vb.radius * 0.86 + vbShieldDefR) {
           this._onShipContact(vb, cx, cy, now);
           this.nodes.splice(i, 1);
           continue;
@@ -13787,11 +14341,14 @@
           ctx.arc(b.x, b.y, r * 0.58, 0, Math.PI * 2);
           ctx.fill();
 
-          // Player Collision Check
+          // Player / Outer Armored Shield Perimeter Collision Check
           const dist = Math.hypot(cx - b.x, cy - b.y);
-          if (dist < coreHitR * 0.75 + r) {
+          const hasBossShield = state.hasBuff('shield', now);
+          const bDefR = hasBossShield ? CoreKinematics.getShieldOuterRadius(u, state.coreTier) : (coreHitR * 0.75);
+          if (dist < bDefR + r) {
             state.bossBullets.splice(i, 1);
-            this._onPlayerHitByBoss(cx, cy, now);
+            const bAng = Math.atan2(b.y - cy, b.x - cx);
+            this._onPlayerHitByBoss(b.x, b.y, now, bAng);
           }
         }
         ctx.restore();
@@ -13960,10 +14517,10 @@
       }
     },
 
-    _onPlayerHitByBoss(cx, cy, now) {
+    _onPlayerHitByBoss(ix, iy, now, contactAng = null) {
       if (state.hasBuff('shield', now)) {
         state.score += 150;
-        CoreKinematics.triggerShieldDeflect(cx, cy, now);
+        CoreKinematics.triggerShieldDeflect(ix, iy, now, state.catcherType || 'dynamo', contactAng);
         audio.playPerfectCatch(state.combo);
         return;
       }
@@ -14939,7 +15496,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade411_mlbb_joystick',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade412_armored_shields',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -14950,7 +15507,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade411_mlbb_joystick',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade412_armored_shields',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -14961,7 +15518,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade411_mlbb_joystick',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade412_armored_shields',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
@@ -17286,9 +17843,12 @@
         // ─────────────────────────────────────────────────────────────
         // COLLISION CHECK, PRECISION CATCH & SPECIAL ARCHETYPE POWERS
         // ─────────────────────────────────────────────────────────────
-        const coreSphereRadius = 68.0 * u;
+        const hasActiveShield = state.hasBuff('shield', now);
+        const coreSphereRadius = (isHazard && hasActiveShield)
+          ? CoreKinematics.getShieldOuterRadius(u, state.coreTier)
+          : (68.0 * u);
         const nodeSphereRadius = p.headR ? (p.headR * (isMobile ? 0.72 : 1.0)) : (isMobile ? 26.0 : 36.0);
-        const hazardContactRadius = coreSphereRadius + nodeSphereRadius;
+        const hazardContactRadius = coreSphereRadius + nodeSphereRadius * (hasActiveShield ? 0.88 : 1.0);
         const effectiveHitRadius = isHazard ? hazardContactRadius : hitRadius;
 
         // Evasion Graze Mechanic for Hazards (Tiered Bonus for Apex Feature Hazards!)
@@ -17317,7 +17877,13 @@
                 state.pulseMeter = Math.min(100, (state.pulseMeter || 0) + 15);
                 if (state.pulseMeter >= 100) state.isPulseReady = true;
               }
-              CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
+              const contactAng = Math.atan2(p.y - catcherPixelY, p.x - catcherPixelX);
+              const shieldR = CoreKinematics.getShieldOuterRadius(u, state.coreTier);
+              const impactX = catcherPixelX + Math.cos(contactAng) * shieldR;
+              const impactY = catcherPixelY + Math.sin(contactAng) * shieldR;
+              const shieldMode = (p.type === 'helix') ? 'helix' : ((p.type === 'meteor') ? 'meteor' : 'dynamo');
+              CoreKinematics.triggerShieldDeflect(impactX, impactY, now, shieldMode, contactAng);
+              QuantumRenderer.drawContactBurst(ctx, impactX, impactY, shieldMode, 1.0, now, contactAng);
               audio.playPerfectCatch(state.combo);
               state.particles.splice(i, 1);
               updateHeaderUI();
@@ -17419,8 +17985,9 @@
             else audio.playOverdriveFanfare();
 
           } else if (p.nodeClass === 'shield') {
-            state.applyBuff('shield', 'AEGIS SHIELD', '#f59e0b', '🛡️', 5000, now);
-            CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY, now);
+            const sMeta = getRealmShieldMeta(state.catcherType || 'dynamo');
+            state.applyBuff('shield', sMeta.name, sMeta.color, sMeta.icon, 5000, now);
+            CoreKinematics.triggerShieldDeflect(catcherPixelX, catcherPixelY - 80, now, state.catcherType || 'dynamo', -Math.PI * 0.5);
             audio.playPulseCharged();
             classMultiplier = 3.0;
 
@@ -18425,6 +18992,7 @@
     setLevel: (lvl) => { state.mathLevel = lvl; },
     getState: () => state,
     getTouchControls: () => TouchFireControls,
+    getKinematics: () => CoreKinematics,
     setPointerX: (nx) => { targetCatcherX = Math.max(0.04, Math.min(0.96, nx)); },
     setPointerY: (ny) => { targetCatcherY = Math.max(0.06, Math.min(0.94, ny)); },
     setTier: (t, allowHatch = true) => {

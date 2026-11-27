@@ -164,7 +164,7 @@ async function main() {
     async function waitForReady() {
       const deadline = Date.now() + 8000;
       while (Date.now() < deadline) {
-        const ok = await cdp.eval(`Boolean(window.chromeSynapseGame && window.chromeSynapseGame.getTouchControls && document.getElementById('cgCanvasReflex'))`);
+        const ok = await cdp.eval(`Boolean(window.chromeSynapseGame && window.chromeSynapseGame.getTouchControls && window.chromeSynapseGame.getState().active && document.getElementById('cgCanvasReflex'))`);
         if (ok) return;
         await sleep(100);
       }

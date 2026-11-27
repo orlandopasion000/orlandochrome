@@ -171,7 +171,12 @@ async function main() {
 
     // 1. Verify Topbar Hover Presentation Cards use Character Showcase Render
     await cdp.send('Page.navigate', { url: `http://127.0.0.1:${port}/index.html` });
-    await sleep(1200);
+    for (let t = 0; t < 40; t++) {
+      const ok = await cdp.eval(`Boolean(document.getElementById('ocRealmPortalCard') && window.chromeSynapseGame)`);
+      if (ok) break;
+      await sleep(150);
+    }
+    await sleep(150);
     const btnMap = { dynamo: '#btnLaunchGame', helix: '#btnLaunchHelixGame', meteor: '#btnLaunchMeteorGame' };
     for (const [mode, sel] of Object.entries(btnMap)) {
       const portalInfo = await cdp.eval(`(() => {
