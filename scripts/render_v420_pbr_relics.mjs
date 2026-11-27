@@ -440,52 +440,96 @@ function buildCatalyst() {
   return g;
 }
 
+// Cracked Volcanic Obsidian Bump Texture for Classic Hazard Cores
+function makeCrackedBump() {
+  const cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 512;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#909090';
+  g.fillRect(0, 0, 512, 512);
+  g.strokeStyle = '#181818';
+  g.lineWidth = 4;
+  for (let i = 0; i < 42; i++) {
+    let x = ((i * 97) % 512), y = ((i * 53) % 512);
+    g.beginPath();
+    g.moveTo(x, y);
+    for (let s = 0; s < 5; s++) {
+      x += Math.sin(i * 1.7 + s * 2.3) * 44;
+      y += Math.cos(i * 2.1 + s * 1.9) * 44;
+      g.lineTo(x, y);
+    }
+    g.stroke();
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 2);
+  return tex;
+}
+const obsidianBump = makeCrackedBump();
+const matObsidianCracked = new THREE.MeshPhysicalMaterial({
+  color: 0x090b10, metalness: 0.88, roughness: 0.24, clearcoat: 0.90, clearcoatRoughness: 0.14,
+  bumpMap: obsidianBump, bumpScale: 0.055, envMapIntensity: 1.85
+});
+const matDarkCrimsonIron = new THREE.MeshPhysicalMaterial({
+  color: 0x2b0a12, metalness: 0.92, roughness: 0.22, clearcoat: 0.6, envMapIntensity: 1.7
+});
+
 function buildHazardDynamo() {
   const g = new THREE.Group();
-  const innerPlasma = new THREE.Mesh(new THREE.IcosahedronGeometry(0.84, 1), makeDeepJewelMat(0x9f1239, 0xe11d48, 0.65));
+  // Deep Obsidian Cracked Sphere Shell with Recessed Crimson Reactor Faults (Zero Pink Pastel!)
+  const innerPlasma = new THREE.Mesh(new THREE.IcosahedronGeometry(0.76, 2), makeDeepJewelMat(0x5b091d, 0x9f1239, 0.34));
   g.add(innerPlasma);
 
-  const plateGeo = new THREE.SphereGeometry(0.95, 24, 16, 0, Math.PI * 0.42, 0.25, Math.PI * 0.42);
-  for (let i = 0; i < 4; i++) {
-    const pm = new THREE.Mesh(plateGeo, matObsidianDark);
-    pm.rotation.y = i * Math.PI * 0.5 + 0.3;
-    pm.rotation.x = (i % 2 === 0) ? 0.35 : -0.35;
-    g.add(pm);
+  // 8 Sculpted Cracked Obsidian Armor Segments hugging the core
+  for (let i = 0; i < 8; i++) {
+    const phi = (i % 2 === 0) ? 0.52 : 1.05;
+    const theta = (i * Math.PI * 0.25);
+    const seg = new THREE.Mesh(new THREE.DodecahedronGeometry(0.42, 0), matObsidianCracked);
+    seg.position.setFromSphericalCoords(0.62, phi * 1.5, theta);
+    seg.scale.set(1.15, 0.72, 1.05);
+    seg.lookAt(0, 0, 0);
+    g.add(seg);
   }
 
-  const bandMats = [matBronzeDark, matObsidianDark, matBronzeDark];
-  const rots = [[0.2, 0.1, 0], [1.1, 0.4, 0.6], [-0.9, 0.5, -0.7]];
+  // 3 Heavy Dark-Bronze & Smoked-Iron Machined Faraday Containment Gyro-Rings
+  const rots = [[0.24, 0.12, 0], [1.14, 0.42, 0.58], [-0.92, 0.48, -0.68]];
   for (let b = 0; b < 3; b++) {
-    const bm = new THREE.Mesh(new THREE.TorusGeometry(1.03, 0.09, 14, 48), bandMats[b]);
+    const bm = new THREE.Mesh(new THREE.TorusGeometry(1.02, 0.075, 16, 64), (b === 1) ? matObsidianCracked : matBronzeDark);
     bm.rotation.set(rots[b][0], rots[b][1], rots[b][2]);
     g.add(bm);
   }
+  addDiamondRing(g, 1.02, 8, 0.06, makeDeepJewelMat(0x7f1d1d, 0xdc2626, 0.45), 0.14);
 
-  const spMat = makeDeepJewelMat(0x881337, 0xf43f5e, 0.58);
-  const spGeo = new THREE.ConeGeometry(0.14, 0.46, 6);
+  // 8 Short Smoked-Bronze & Dark-Ruby Crystal Spikes
+  const spMat = makeDeepJewelMat(0x6b0f26, 0xb91c1c, 0.38);
+  const spGeo = new THREE.ConeGeometry(0.11, 0.38, 6);
   for (let k = 0; k < 8; k++) {
     const a = (k / 8) * Math.PI * 2;
-    const sp = new THREE.Mesh(spGeo, (k % 2 === 0) ? spMat : matObsidianDark);
-    sp.position.set(Math.cos(a) * 1.10, Math.sin(a) * 1.10, (k % 2 === 0 ? 0.14 : -0.14));
+    const sp = new THREE.Mesh(spGeo, (k % 2 === 0) ? spMat : matObsidianCracked);
+    sp.position.set(Math.cos(a) * 1.06, Math.sin(a) * 1.06, (k % 2 === 0 ? 0.12 : -0.12));
     sp.rotation.z = a - Math.PI * 0.5;
     g.add(sp);
   }
-  const l1 = new THREE.PointLight(0xe11d48, 2.0, 4); l1.position.set(0, 0, 1.1); g.add(l1);
+  const l1 = new THREE.PointLight(0xdc2626, 1.4, 4); l1.position.set(0, 0, 1.1); g.add(l1);
   g.rotation.set(0.28, 0.34, 0.15);
   return g;
 }
 
 function buildHazardHelix() {
   const g = new THREE.Group();
-  const rubyCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.84, 1), makeDeepJewelMat(0x881337, 0xbe123c, 0.58));
-  g.add(rubyCore);
+  // Dark Smoked-Obsidian & Deep Blood-Ruby Crystal Shatter Core (Rich Dark Contrast!)
+  const obsidianBase = new THREE.Mesh(new THREE.IcosahedronGeometry(0.84, 2), matObsidianCracked);
+  g.add(obsidianBase);
 
-  const shardGeo = new THREE.TetrahedronGeometry(0.42, 0);
-  for (let i = 0; i < 14; i++) {
-    const phi = Math.acos(1 - 2 * (i + 0.5) / 14);
+  const shardMatDark = matDarkCrimsonIron;
+  const shardMatRuby = makeDeepJewelMat(0x7f1d1d, 0x9f1239, 0.32);
+  const shardGeo = new THREE.OctahedronGeometry(0.34, 0);
+  for (let i = 0; i < 18; i++) {
+    const phi = Math.acos(1 - 2 * (i + 0.5) / 18);
     const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-    const sm = new THREE.Mesh(shardGeo, (i % 3 === 0) ? makeDeepJewelMat(0x9f1239, 0xf43f5e, 0.52) : matObsidianDark);
-    sm.position.setFromSphericalCoords(0.84, phi, theta);
+    const sm = new THREE.Mesh(shardGeo, (i % 3 === 0) ? shardMatRuby : shardMatDark);
+    sm.scale.set(0.75, 0.75, 1.45);
+    sm.position.setFromSphericalCoords(0.78, phi, theta);
     sm.lookAt(0, 0, 0);
     g.add(sm);
   }
@@ -494,53 +538,55 @@ function buildHazardHelix() {
     const pts = [];
     for (let t = 0; t <= 40; t++) {
       const a = (t / 40) * Math.PI * 1.65;
-      pts.push(new THREE.Vector3(Math.cos(a) * 1.08 * s, (t / 40 - 0.5) * 1.75, Math.sin(a) * 1.08));
+      pts.push(new THREE.Vector3(Math.cos(a) * 1.06 * s, (t / 40 - 0.5) * 1.72, Math.sin(a) * 1.06));
     }
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, 0.08, 10, false), matObsidianDark));
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, 0.068, 12, false), matBronzeDark));
   }
 
-  const fault = new THREE.Mesh(new THREE.TorusGeometry(0.96, 0.042, 12, 48), makeDeepJewelMat(0xbe123c, 0xf43f5e, 0.72));
+  const fault = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.036, 12, 64), makeDeepJewelMat(0x991b1b, 0xe11d48, 0.45));
   fault.rotation.set(0.55, 0.25, 0);
   g.add(fault);
 
-  const l1 = new THREE.PointLight(0xbe123c, 2.2, 4); l1.position.set(0, 0, 1.2); g.add(l1);
+  const l1 = new THREE.PointLight(0xbe123c, 1.3, 4); l1.position.set(0, 0, 1.2); g.add(l1);
   g.rotation.set(0.18, -0.28, 0.22);
   return g;
 }
 
 function buildSeekerRing() {
   const g = new THREE.Group();
-  const ringArmor = new THREE.Mesh(new THREE.TorusGeometry(0.98, 0.115, 18, 48), matObsidianDark);
+  // Hollow Machined Smoked-Gunmetal & Dark-Bronze Bladed Shuriken Ring (Zero Pink!)
+  const ringArmor = new THREE.Mesh(new THREE.TorusGeometry(0.98, 0.11, 18, 64), matObsidianCracked);
   g.add(ringArmor);
-  const bronzeTrim = new THREE.Mesh(new THREE.TorusGeometry(0.89, 0.045, 14, 48), matBronzeDark);
-  bronzeTrim.position.z = 0.06;
+  const bronzeTrim = new THREE.Mesh(new THREE.TorusGeometry(0.89, 0.042, 14, 64), matBronzeDark);
+  bronzeTrim.position.z = 0.065;
   g.add(bronzeTrim);
-  const crimsonVein = new THREE.Mesh(new THREE.TorusGeometry(0.98, 0.04, 12, 48), makeDeepJewelMat(0x9f1239, 0xf43f5e, 0.78));
-  crimsonVein.position.z = 0.095;
+  const crimsonVein = new THREE.Mesh(new THREE.TorusGeometry(0.98, 0.032, 12, 64), makeDeepJewelMat(0x991b1b, 0xef4444, 0.55));
+  crimsonVein.position.z = 0.098;
   g.add(crimsonVein);
+  addDiamondRing(g, 0.98, 8, 0.045, makeDeepJewelMat(0x9f1239, 0xf43f5e, 0.50), 0.105);
 
   const scythe = new THREE.Shape();
-  scythe.moveTo(0, -0.14);
-  scythe.quadraticCurveTo(0.32, -0.06, 0.60, 0.36);
-  scythe.quadraticCurveTo(0.22, 0.26, -0.06, 0.12);
+  scythe.moveTo(0, -0.15);
+  scythe.quadraticCurveTo(0.32, -0.06, 0.62, 0.38);
+  scythe.quadraticCurveTo(0.24, 0.28, -0.06, 0.12);
   scythe.closePath();
   const sGeo = new THREE.ExtrudeGeometry(scythe, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 2 });
-  const veinMat = makeDeepJewelMat(0xbe123c, 0xf43f5e, 0.72);
+  const veinMat = makeDeepJewelMat(0x7f1d1d, 0xdc2626, 0.52);
 
   for (let b = 0; b < 4; b++) {
     const a = b * (Math.PI * 0.5);
     const blade = new THREE.Group();
     blade.rotation.z = a;
-    const bm = new THREE.Mesh(sGeo, matObsidianDark);
+    const bm = new THREE.Mesh(sGeo, matDarkCrimsonIron);
     bm.position.set(0.95, 0, -0.04);
     blade.add(bm);
-    const edge = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.045, 0.12), veinMat);
-    edge.position.set(1.22, 0.18, 0.02);
-    edge.rotation.z = 0.65;
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.038, 0.11), veinMat);
+    edge.position.set(1.24, 0.20, 0.02);
+    edge.rotation.z = 0.66;
     blade.add(edge);
     g.add(blade);
   }
-  const l1 = new THREE.PointLight(0xef4444, 1.8, 4); l1.position.set(0, 0, 1.2); g.add(l1);
+  const l1 = new THREE.PointLight(0xdc2626, 1.3, 4); l1.position.set(0, 0, 1.2); g.add(l1);
   return g;
 }
 
