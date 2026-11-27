@@ -2459,7 +2459,7 @@
     TIER6_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade412_armored_shields')
+      fetch('assets/core-geometry-db.json?v=arcade420_luxury_nodes')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2622,6 +2622,18 @@
       meteorCenter: new Image()
     },
     poweredHazard: { dynamo: {}, helix: {}, meteor: {} },
+    shieldBarrier: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    powerupShield: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    powerupRelics: {
+      missiles: new Image(),
+      cluster: new Image(),
+      supercharge: new Image(),
+      chronos: new Image(),
+      singularity: new Image(),
+      catalyst: new Image()
+    },
+    hazardCore3D: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
+    hazardSeekerRing: new Image(),
     bosses: {},
     loaded: {
       halo: { dynamo: false, helix: false, meteor: false },
@@ -2645,6 +2657,14 @@
         meteorCenter: false
       },
       poweredHazard: { dynamo: {}, helix: {}, meteor: {} },
+      shieldBarrier: { dynamo: false, helix: false, meteor: false },
+      powerupShield: { dynamo: false, helix: false, meteor: false },
+      powerupRelics: {
+        missiles: false, cluster: false, supercharge: false,
+        chronos: false, singularity: false, catalyst: false
+      },
+      hazardCore3D: { dynamo: false, helix: false, meteor: false },
+      hazardSeekerRing: false,
       bosses: {}
     }
   };
@@ -2663,12 +2683,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade412_armored_shields';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade420_luxury_nodes';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade412_armored_shields';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade420_luxury_nodes';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade412_armored_shields';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade420_luxury_nodes';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2687,30 +2707,30 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade412_armored_shields`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade420_luxury_nodes`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade412_armored_shields`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade420_luxury_nodes`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade412_armored_shields`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade420_luxury_nodes`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade412_armored_shields`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade420_luxury_nodes`;
 
     for (let t = 1; t <= 6; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade412_armored_shields`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade420_luxury_nodes`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade412_armored_shields`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade420_luxury_nodes`;
       }
     }
   });
@@ -2748,7 +2768,7 @@
   LayeredT4Assets.hazard.meteorCenter.onload = () => { LayeredT4Assets.loaded.hazard.meteorCenter = true; };
   LayeredT4Assets.hazard.meteorCenter.src = 'assets/layer-hazard-meteor-center.png?v=arcade374';
 
-  // Preload all 15 Bespoke Luxury Raytraced Powered Bad Chrome Core Sprites (3 Games x 5 Powered Hazards)
+  // Preload all 15 De-Fringed Luxury Raytraced Powered Bad Chrome Core Sprites (3 Games x 5 Powered Hazards)
   const POWERED_HAZARD_KEYS = ['hyper_comet', 'corruptor_laser', 'gravity_well', 'emp_detonator', 'phase_stalker'];
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     POWERED_HAZARD_KEYS.forEach((hk) => {
@@ -2756,9 +2776,27 @@
       LayeredT4Assets.poweredHazard[m][hk] = img;
       LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
-      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade378`;
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade420_luxury_nodes`;
     });
+
+    // v420 Luxury 3D Active Shield Barrier Rings, Heraldic Shield Relics & Upgraded 3D Hazard Cores
+    LayeredT4Assets.shieldBarrier[m].onload = () => { LayeredT4Assets.loaded.shieldBarrier[m] = true; };
+    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade420_luxury_nodes`;
+
+    LayeredT4Assets.powerupShield[m].onload = () => { LayeredT4Assets.loaded.powerupShield[m] = true; };
+    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade420_luxury_nodes`;
+
+    LayeredT4Assets.hazardCore3D[m].onload = () => { LayeredT4Assets.loaded.hazardCore3D[m] = true; };
+    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade420_luxury_nodes`;
   });
+
+  ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity', 'catalyst'].forEach((pk) => {
+    LayeredT4Assets.powerupRelics[pk].onload = () => { LayeredT4Assets.loaded.powerupRelics[pk] = true; };
+    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade420_luxury_nodes`;
+  });
+
+  LayeredT4Assets.hazardSeekerRing.onload = () => { LayeredT4Assets.loaded.hazardSeekerRing = true; };
+  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade420_luxury_nodes';
 
   // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
@@ -2824,7 +2862,7 @@
 
   function getRealmShieldMeta(mode) {
     if (mode === 'helix') {
-      return { name: 'PRISM AEGIS', badge: '🛡️ PRISM SHIELD', color: '#22d3ee', icon: '🛡️' };
+      return { name: 'PRISM AEGIS', badge: '🛡️ PRISM AEGIS', color: '#22d3ee', icon: '🛡️' };
     }
     if (mode === 'meteor') {
       return { name: 'CALDERA BULWARK', badge: '🛡️ BULWARK', color: '#fb923c', icon: '🛡️' };
@@ -3760,128 +3798,18 @@
       ctx.restore();
     },
 
-    _drawApexShieldCrest(ctx, r, mode, warnPulse, now) {
+    _drawStarGlint(ctx, x, y, r, color = '#ffffff') {
       ctx.save();
-      ctx.translate(0, -r * 1.02);
-      const cw = Math.max(15, r * 0.165);
-      const ch = Math.max(19, r * 0.215);
-
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-
-      if (mode === 'helix') {
-        // Winged Crystal Heater Shield Crest + Forward Lance Prow
-        for (let side = -1; side <= 1; side += 2) {
-          ctx.beginPath();
-          ctx.moveTo(side * cw * 0.9, -ch * 0.35);
-          ctx.lineTo(side * cw * 2.25, -ch * 0.82);
-          ctx.lineTo(side * cw * 1.65, ch * 0.18);
-          ctx.closePath();
-          ctx.fillStyle = side < 0 ? `rgba(8, 145, 178, ${0.88 * warnPulse})` : `rgba(134, 25, 143, ${0.88 * warnPulse})`;
-          ctx.fill();
-          ctx.strokeStyle = `rgba(224, 242, 254, ${0.9 * warnPulse})`;
-          ctx.lineWidth = 1.6;
-          ctx.stroke();
-        }
-        ctx.beginPath();
-        ctx.moveTo(0, -ch * 1.08);
-        ctx.lineTo(cw, -ch * 0.55);
-        ctx.lineTo(cw * 0.78, ch * 0.38);
-        ctx.lineTo(0, ch * 0.88);
-        ctx.lineTo(-cw * 0.78, ch * 0.38);
-        ctx.lineTo(-cw, -ch * 0.55);
-        ctx.closePath();
-        ctx.fillStyle = `rgba(12, 24, 48, ${0.92 * warnPulse})`;
-        ctx.fill();
-        ctx.strokeStyle = `rgba(103, 232, 249, ${0.98 * warnPulse})`;
-        ctx.lineWidth = 2.4;
-        ctx.stroke();
-
-        // Split prism facet
-        ctx.beginPath();
-        ctx.moveTo(0, -ch * 0.86);
-        ctx.lineTo(0, ch * 0.72);
-        ctx.strokeStyle = `rgba(232, 121, 249, ${0.92 * warnPulse})`;
-        ctx.lineWidth = 2.0;
-        ctx.stroke();
-      } else if (mode === 'meteor') {
-        // Forged Dragon-Horned Caldera Bulwark Shield Crest
-        for (let side = -1; side <= 1; side += 2) {
-          ctx.beginPath();
-          ctx.moveTo(side * cw * 0.72, -ch * 0.45);
-          ctx.lineTo(side * cw * 2.15, -ch * 1.15);
-          ctx.lineTo(side * cw * 1.45, ch * 0.12);
-          ctx.closePath();
-          ctx.fillStyle = `rgba(41, 18, 8, ${0.94 * warnPulse})`;
-          ctx.fill();
-          ctx.strokeStyle = `rgba(251, 146, 60, ${0.95 * warnPulse})`;
-          ctx.lineWidth = 2.0;
-          ctx.stroke();
-        }
-        ctx.beginPath();
-        ctx.moveTo(0, -ch * 1.05);
-        ctx.lineTo(cw * 1.12, -ch * 0.55);
-        ctx.lineTo(cw * 0.88, ch * 0.35);
-        ctx.lineTo(0, ch * 0.92);
-        ctx.lineTo(-cw * 0.88, ch * 0.35);
-        ctx.lineTo(-cw * 1.12, -ch * 0.55);
-        ctx.closePath();
-        ctx.fillStyle = `rgba(28, 16, 12, ${0.96 * warnPulse})`;
-        ctx.fill();
-        ctx.strokeStyle = `rgba(253, 224, 71, ${0.98 * warnPulse})`;
-        ctx.lineWidth = 2.6;
-        ctx.stroke();
-
-        // Glowing Magma Chevron Rune
-        ctx.beginPath();
-        ctx.moveTo(-cw * 0.52, -ch * 0.25);
-        ctx.lineTo(0, -ch * 0.65);
-        ctx.lineTo(cw * 0.52, -ch * 0.25);
-        ctx.moveTo(-cw * 0.40, ch * 0.14);
-        ctx.lineTo(0, -ch * 0.24);
-        ctx.lineTo(cw * 0.40, ch * 0.14);
-        ctx.strokeStyle = `rgba(251, 146, 60, ${0.98 * warnPulse})`;
-        ctx.lineWidth = 2.2;
-        ctx.stroke();
-      } else {
-        // Dynamo Royal Faraday Bastion Kite Shield Crest
-        for (let side = -1; side <= 1; side += 2) {
-          ctx.beginPath();
-          ctx.moveTo(side * cw * 0.88, -ch * 0.42);
-          ctx.lineTo(side * cw * 2.15, -ch * 0.68);
-          ctx.lineTo(side * cw * 1.65, ch * 0.20);
-          ctx.closePath();
-          ctx.fillStyle = `rgba(12, 74, 110, ${0.90 * warnPulse})`;
-          ctx.fill();
-          ctx.strokeStyle = `rgba(253, 224, 71, ${0.92 * warnPulse})`;
-          ctx.lineWidth = 1.8;
-          ctx.stroke();
-        }
-        ctx.beginPath();
-        ctx.moveTo(0, -ch * 1.05);
-        ctx.lineTo(cw * 1.04, -ch * 0.58);
-        ctx.lineTo(cw * 0.78, ch * 0.36);
-        ctx.lineTo(0, ch * 0.90);
-        ctx.lineTo(-cw * 0.78, ch * 0.36);
-        ctx.lineTo(-cw * 1.04, -ch * 0.58);
-        ctx.closePath();
-        ctx.fillStyle = `rgba(15, 23, 42, ${0.94 * warnPulse})`;
-        ctx.fill();
-        ctx.strokeStyle = `rgba(251, 191, 36, ${0.98 * warnPulse})`;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        // Electric Bolt Emblem inside Shield Crest
-        ctx.beginPath();
-        ctx.moveTo(cw * 0.14, -ch * 0.60);
-        ctx.lineTo(-cw * 0.24, -ch * 0.04);
-        ctx.lineTo(cw * 0.12, -ch * 0.04);
-        ctx.lineTo(-cw * 0.18, ch * 0.52);
-        ctx.strokeStyle = `rgba(56, 189, 248, ${0.98 * warnPulse})`;
-        ctx.lineWidth = 2.2;
-        ctx.stroke();
-      }
+      ctx.translate(x, y);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.quadraticCurveTo(r * 0.16, -r * 0.16, r, 0);
+      ctx.quadraticCurveTo(r * 0.16, r * 0.16, 0, r);
+      ctx.quadraticCurveTo(-r * 0.16, r * 0.16, -r, 0);
+      ctx.quadraticCurveTo(-r * 0.16, -r * 0.16, 0, -r);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
     },
 
@@ -3891,232 +3819,138 @@
 
       const curTier = (typeof state !== 'undefined' && state.coreTier) ? state.coreTier : 1;
       const baseRadius = this.getShieldOuterRadius(u, curTier);
-      const pulse = 1.0 + 0.018 * Math.sin(now * 0.008);
+      const pulse = 1.0 + 0.016 * Math.sin(now * 0.0075);
       const r = baseRadius * pulse;
       const isExpiring = timeLeft < 1200;
-      const warnPulse = isExpiring ? (0.45 + 0.55 * Math.sin(now * 0.028)) : 1.0;
+      const warnPulse = isExpiring ? (0.48 + 0.52 * Math.sin(now * 0.028)) : 1.0;
 
       const isDyn = (mode === 'dynamo' || mode === 'realm');
       const isHel = (mode === 'helix');
       const effMode = isDyn ? 'dynamo' : (isHel ? 'helix' : 'meteor');
-      const rot = now * (effMode === 'meteor' ? -0.00055 : 0.00065);
       const maxDur = (typeof state !== 'undefined' && state.getBuff) ? (state.getBuff('shield', now)?.maxDur || 5000) : 5000;
       const pctLeft = Math.max(0.02, Math.min(1, timeLeft / Math.max(5000, maxDur)));
 
-      // 0. Soft Backdrop Halo (lightweighted pre-baked sprite blit)
+      // LAYER 1: Radiant Sanctuary Dome Aura + Soft Interior Jewel Sheen
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      ctx.globalAlpha = 0.26 * warnPulse;
+      ctx.globalAlpha = 0.28 * warnPulse;
       const sprKey = isDyn ? 'cyan' : (isHel ? 'helix' : 'gold');
-      ctx.drawImage(QuantumRenderer._getGlowSprite(sprKey), -r * 1.15, -r * 1.15, r * 2.3, r * 2.3);
+      ctx.drawImage(QuantumRenderer._getGlowSprite(sprKey), -r * 1.25, -r * 1.25, r * 2.5, r * 2.5);
+
+      const sheen = ctx.createRadialGradient(0, -r * 0.18, r * 0.45, 0, 0, r * 0.94);
+      sheen.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+      sheen.addColorStop(0.74, isDyn ? `rgba(56, 189, 248, ${0.07 * warnPulse})` : (isHel ? `rgba(34, 211, 238, ${0.08 * warnPulse})` : `rgba(251, 191, 36, ${0.08 * warnPulse})`));
+      sheen.addColorStop(0.95, isDyn ? `rgba(251, 191, 36, ${0.14 * warnPulse})` : (isHel ? `rgba(232, 121, 249, ${0.14 * warnPulse})` : `rgba(251, 146, 60, ${0.15 * warnPulse})`));
+      sheen.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = sheen;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.94, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
 
-      if (effMode === 'dynamo') {
-        // ════════════════════════════════════════════════════════════════
-        // DYNAMO: FARADAY BASTION AEGIS (8 Armored Capacitor Plates + V-Prow + Lightning Links)
-        // ════════════════════════════════════════════════════════════════
-        const segs = 8;
-        const step = (Math.PI * 2) / segs;
+      // LAYER 2: Counter-Rotating 24K Champagne-Gold Filigree Inner Gyro Ring + Diamond Glints
+      const gyroRot = -now * 0.00075;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const innerR = r * 0.72;
+      ctx.strokeStyle = isExpiring ? `rgba(254, 240, 138, ${0.85 * warnPulse})` : 'rgba(253, 224, 71, 0.42)';
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([14, 9]);
+      ctx.lineDashOffset = now * 0.025;
+      ctx.beginPath();
+      ctx.arc(0, 0, innerR, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      for (let d = 0; d < 4; d++) {
+        const da = gyroRot + d * (Math.PI * 0.5);
+        this._drawStarGlint(ctx, Math.cos(da) * innerR, Math.sin(da) * innerR, 5.2, (d % 2 === 0) ? '#fef08a' : '#e0f2fe');
+      }
+      ctx.restore();
 
-        // Pass 1: Chiseled Straight-Edged Octagonal Fortress Plates + Gold-Rimmed Faraday Ram Pylons!
+      // LAYER 3: Photorealistic 3D Raytraced Luxury Shield Barrier Frame Ring (Zero Dull Polygon Lines!)
+      const bSpr = LayeredT4Assets.shieldBarrier && LayeredT4Assets.shieldBarrier[effMode];
+      const bLoaded = LayeredT4Assets.loaded.shieldBarrier && LayeredT4Assets.loaded.shieldBarrier[effMode] && bSpr && bSpr.naturalWidth > 0;
+      if (bLoaded) {
+        const sway = Math.sin(now * 0.0024) * 0.042;
+        const drawD = r * 2.48;
         ctx.save();
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 0.90, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(14, 116, 144, ${0.10 * warnPulse})`;
-        ctx.fill();
+        ctx.rotate(sway);
+        ctx.globalAlpha = warnPulse;
+        ctx.drawImage(bSpr, -drawD * 0.5, -drawD * 0.5, drawD, drawD);
 
-        for (let s = 0; s < segs; s++) {
-          const a0 = rot + s * step + 0.065;
-          const a1 = rot + (s + 1) * step - 0.065;
-          const am = (a0 + a1) * 0.5;
-          const a0m = a0 + (am - a0) * 0.45;
-          const a1m = a1 - (a1 - am) * 0.45;
-
-          // Chiseled flat-faceted armor plate + outward-projecting ram-pylon crest
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(a0) * r * 0.87, Math.sin(a0) * r * 0.87);
-          ctx.lineTo(Math.cos(a0) * r * 1.00, Math.sin(a0) * r * 1.00);
-          ctx.lineTo(Math.cos(a0m) * r * 1.00, Math.sin(a0m) * r * 1.00);
-          ctx.lineTo(Math.cos(am) * r * 1.07, Math.sin(am) * r * 1.07);
-          ctx.lineTo(Math.cos(a1m) * r * 1.00, Math.sin(a1m) * r * 1.00);
-          ctx.lineTo(Math.cos(a1) * r * 1.00, Math.sin(a1) * r * 1.00);
-          ctx.lineTo(Math.cos(a1) * r * 0.87, Math.sin(a1) * r * 0.87);
-          ctx.closePath();
-          ctx.fillStyle = `rgba(12, 34, 68, ${0.70 * warnPulse})`;
-          ctx.fill();
-          ctx.strokeStyle = `rgba(56, 189, 248, ${0.95 * warnPulse})`;
-          ctx.lineWidth = 2.4;
-          ctx.stroke();
-
-          // Gold-rimmed Faraday ram-pylon accent chevron
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(a0m) * r * 0.96, Math.sin(a0m) * r * 0.96);
-          ctx.lineTo(Math.cos(am) * r * 1.045, Math.sin(am) * r * 1.045);
-          ctx.lineTo(Math.cos(a1m) * r * 0.96, Math.sin(a1m) * r * 0.96);
-          ctx.strokeStyle = `rgba(251, 191, 36, ${0.96 * warnPulse})`;
-          ctx.lineWidth = 1.9;
-          ctx.stroke();
-        }
-        ctx.restore();
-
-        // Pass 2: Crackling Faraday Lightning Linking Armor Nodes + Inner Bastion Ring
-        ctx.save();
+        // Specular 24K Gold & Gemstone Luster Pass (makes metals gleam luxuriously!)
         ctx.globalCompositeOperation = 'lighter';
-        const tick = Math.floor(now / 52);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        for (let s = 0; s < segs; s++) {
-          const aStart = rot + s * step - 0.06;
-          const aEnd = rot + s * step + 0.06;
-          const sx = Math.cos(aStart) * (r * 0.98);
-          const sy = Math.sin(aStart) * (r * 0.98);
-          const ex = Math.cos(aEnd) * (r * 0.98);
-          const ey = Math.sin(aEnd) * (r * 0.98);
-          const mx = (sx + ex) * 0.5 + Math.cos(s * 2.1 + tick * 3.7) * 7.5;
-          const my = (sy + ey) * 0.5 + Math.sin(s * 2.9 + tick * 4.3) * 7.5;
-
-          ctx.beginPath();
-          ctx.moveTo(sx, sy);
-          ctx.lineTo(mx, my);
-          ctx.lineTo(ex, ey);
-          ctx.strokeStyle = `rgba(125, 211, 252, ${0.95 * warnPulse})`;
-          ctx.lineWidth = 2.6;
-          ctx.stroke();
-        }
-
-        // Remaining Duration Royal Gold Arc
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 0.82, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * pctLeft);
-        ctx.strokeStyle = isExpiring ? `rgba(254, 240, 138, ${warnPulse})` : 'rgba(251, 191, 36, 0.85)';
-        ctx.lineWidth = 3.2;
-        ctx.stroke();
+        ctx.globalAlpha = (0.28 + 0.12 * Math.sin(now * 0.0085)) * warnPulse;
+        ctx.drawImage(bSpr, -drawD * 0.5, -drawD * 0.5, drawD, drawD);
         ctx.restore();
-
-      } else if (effMode === 'helix') {
-        // ════════════════════════════════════════════════════════════════
-        // HELIX: PRISMATIC GEODESIC CRYSTAL AEGIS (Stained-Glass Prism Facets + Braided DNA Wall)
-        // ════════════════════════════════════════════════════════════════
-        const segs = 12;
-        const step = (Math.PI * 2) / segs;
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'source-over';
-        for (let s = 0; s < segs; s++) {
-          const a0 = rot + s * step;
-          const a1 = rot + (s + 1) * step;
-          const am = (a0 + a1) * 0.5;
-          const rOuter = r * 1.03;
-          const rInner = r * 0.88;
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(a0) * r * 0.96, Math.sin(a0) * r * 0.96);
-          ctx.lineTo(Math.cos(am) * rOuter, Math.sin(am) * rOuter);
-          ctx.lineTo(Math.cos(a1) * r * 0.96, Math.sin(a1) * r * 0.96);
-          ctx.lineTo(Math.cos(a1) * rInner, Math.sin(a1) * rInner);
-          ctx.lineTo(Math.cos(a0) * rInner, Math.sin(a0) * rInner);
-          ctx.closePath();
-
-          ctx.fillStyle = (s % 2 === 0)
-            ? `rgba(8, 145, 178, ${0.42 * warnPulse})`
-            : `rgba(162, 28, 175, ${0.38 * warnPulse})`;
-          ctx.fill();
-          ctx.strokeStyle = (s % 2 === 0)
-            ? `rgba(103, 232, 249, ${0.95 * warnPulse})`
-            : `rgba(240, 171, 252, ${0.92 * warnPulse})`;
-          ctx.lineWidth = 2.1;
-          ctx.stroke();
-        }
-        ctx.restore();
-
-        // Pass 2: Twin Braided Cyan & Magenta Helix Energy Strands around perimeter
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        const strandPts = 48;
-        for (let strand = -1; strand <= 1; strand += 2) {
-          ctx.beginPath();
-          for (let p = 0; p <= strandPts; p++) {
-            const ang = (p / strandPts) * Math.PI * 2;
-            const wave = Math.sin(ang * 6 - now * 0.005 * strand) * (r * 0.042) * strand;
-            const rr = r * 0.94 + wave;
-            const px = Math.cos(ang) * rr;
-            const py = Math.sin(ang) * rr;
-            if (p === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-          }
-          ctx.closePath();
-          ctx.strokeStyle = strand > 0
-            ? `rgba(34, 211, 238, ${0.88 * warnPulse})`
-            : `rgba(232, 121, 249, ${0.85 * warnPulse})`;
-          ctx.lineWidth = 2.4;
-          ctx.stroke();
-        }
-
-        // Remaining Duration Crystal Gauge
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 0.83, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * pctLeft);
-        ctx.strokeStyle = isExpiring ? `rgba(255, 255, 255, ${warnPulse})` : 'rgba(103, 232, 249, 0.90)';
-        ctx.lineWidth = 3.0;
-        ctx.stroke();
-        ctx.restore();
-
       } else {
-        // ════════════════════════════════════════════════════════════════
-        // METEOR: MOLTEN OBSIDIAN-GOLD DRAGON BULWARK (Spiked Forged Bastion Plates + Magma Seams)
-        // ════════════════════════════════════════════════════════════════
-        const segs = 8;
-        const step = (Math.PI * 2) / segs;
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'source-over';
-        for (let s = 0; s < segs; s++) {
-          const a0 = rot + s * step + 0.05;
-          const a1 = rot + (s + 1) * step - 0.05;
-          const am = (a0 + a1) * 0.5;
-          // Outward serrated battering spike per bastion plate!
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(a0) * r * 0.88, Math.sin(a0) * r * 0.88);
-          ctx.lineTo(Math.cos(a0 + 0.14) * r * 1.00, Math.sin(a0 + 0.14) * r * 1.00);
-          ctx.lineTo(Math.cos(am) * r * 1.09, Math.sin(am) * r * 1.09);
-          ctx.lineTo(Math.cos(a1 - 0.14) * r * 1.00, Math.sin(a1 - 0.14) * r * 1.00);
-          ctx.lineTo(Math.cos(a1) * r * 0.88, Math.sin(a1) * r * 0.88);
-          ctx.closePath();
-          ctx.fillStyle = `rgba(38, 17, 9, ${0.78 * warnPulse})`;
-          ctx.fill();
-          ctx.strokeStyle = `rgba(251, 146, 60, ${0.96 * warnPulse})`;
-          ctx.lineWidth = 2.6;
-          ctx.stroke();
-
-          // Forged Gold Inner Edge Highlight on Spike
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(a0 + 0.16) * r * 0.96, Math.sin(a0 + 0.16) * r * 0.96);
-          ctx.lineTo(Math.cos(am) * r * 1.05, Math.sin(am) * r * 1.05);
-          ctx.lineTo(Math.cos(a1 - 0.16) * r * 0.96, Math.sin(a1 - 0.16) * r * 0.96);
-          ctx.strokeStyle = `rgba(253, 224, 71, ${0.94 * warnPulse})`;
-          ctx.lineWidth = 1.6;
-          ctx.stroke();
-        }
-        ctx.restore();
-
-        // Pass 2: Molten Magma Armor Ring & Remaining Time Gauge
+        // Lightweight fallback only before PNG completes initial decode
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = isDyn ? `rgba(56, 189, 248, ${0.88 * warnPulse})` : (isHel ? `rgba(34, 211, 238, ${0.88 * warnPulse})` : `rgba(251, 191, 36, ${0.90 * warnPulse})`);
+        ctx.lineWidth = 4.0;
         ctx.beginPath();
-        ctx.arc(0, 0, r * 0.87, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(249, 115, 22, ${0.70 * warnPulse})`;
-        ctx.lineWidth = 2.2;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(0, 0, r * 0.81, -Math.PI * 0.5, -Math.PI * 0.5 + Math.PI * 2 * pctLeft);
-        ctx.strokeStyle = isExpiring ? `rgba(255, 255, 255, ${warnPulse})` : 'rgba(253, 224, 71, 0.92)';
-        ctx.lineWidth = 3.4;
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
 
-      // Forward Heraldic Shield Crest Emblem (Mounted at Upper Ram Apex for Instant Shield Identity!)
-      this._drawApexShieldCrest(ctx, r, effMode, warnPulse, now);
+      // LAYER 4: Realm-Signature Live Micro-Energy Accents on Outer Crest
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineCap = 'round';
+      if (effMode === 'dynamo') {
+        // Fine crackling Faraday arcs skipping around the 8 sapphire cabochon mounts
+        const tick = Math.floor(now / 58);
+        for (let k = 0; k < 8; k++) {
+          if (((tick + k) % 3) !== 0) continue;
+          const a0 = k * (Math.PI * 0.25) - 0.10;
+          const a1 = k * (Math.PI * 0.25) + 0.10;
+          const am = (a0 + a1) * 0.5;
+          const jit = Math.sin(tick * 4.3 + k * 2.7) * 6.5;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a0) * r * 0.99, Math.sin(a0) * r * 0.99);
+          ctx.lineTo(Math.cos(am) * (r * 1.03 + jit), Math.sin(am) * (r * 1.03 + jit));
+          ctx.lineTo(Math.cos(a1) * r * 0.99, Math.sin(a1) * r * 0.99);
+          ctx.strokeStyle = `rgba(125, 211, 252, ${0.92 * warnPulse})`;
+          ctx.lineWidth = 2.0;
+          ctx.stroke();
+        }
+      } else if (effMode === 'helix') {
+        // Orbiting iridescent cyan & amethyst diamond star-glints
+        for (let k = 0; k < 6; k++) {
+          const ka = now * 0.0014 + k * (Math.PI / 3);
+          const sc = 4.5 + 2.5 * Math.sin(now * 0.011 + k * 1.7);
+          this._drawStarGlint(ctx, Math.cos(ka) * r * 0.98, Math.sin(ka) * r * 0.98, sc * warnPulse, (k % 2 === 0) ? '#67e8f9' : '#f0abfc');
+        }
+      } else {
+        // Orbiting blazing solar-gold cinders along the Dragon Bulwark
+        for (let k = 0; k < 6; k++) {
+          const ka = -now * 0.0016 + k * (Math.PI / 3);
+          const sc = 4.8 + 2.2 * Math.sin(now * 0.012 + k * 2.1);
+          this._drawStarGlint(ctx, Math.cos(ka) * r * 0.99, Math.sin(ka) * r * 0.99, sc * warnPulse, (k % 2 === 0) ? '#fde047' : '#fb923c');
+        }
+      }
+      ctx.restore();
 
-      // Directional Enemy-Crushing Impact Shockwaves right on the Shield Outer Wall!
+      // LAYER 5: Double-Pass Luminous 24K Gold / Jewel Remaining-Duration Gauge Arc
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineCap = 'round';
+      const gaugeR = r * 0.70;
+      const gStart = -Math.PI * 0.5;
+      const gEnd = gStart + Math.PI * 2 * pctLeft;
+      ctx.beginPath();
+      ctx.arc(0, 0, gaugeR, gStart, gEnd);
+      ctx.strokeStyle = isExpiring ? `rgba(251, 146, 60, ${0.85 * warnPulse})` : (isDyn ? 'rgba(56, 189, 248, 0.55)' : (isHel ? 'rgba(34, 211, 238, 0.55)' : 'rgba(251, 191, 36, 0.65)'));
+      ctx.lineWidth = 4.5;
+      ctx.stroke();
+      ctx.strokeStyle = isExpiring ? `rgba(255, 255, 255, ${warnPulse})` : 'rgba(254, 249, 195, 0.92)';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+      ctx.restore();
+
+      // LAYER 6: Directional 24K Gold & Jewel Enemy-Crushing Impact Shockwave Crowns
       if (this.shieldImpacts && this.shieldImpacts.length > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
@@ -4128,23 +3962,21 @@
           const fade = 1.0 - prog;
           const ix = Math.cos(imp.angle) * r;
           const iy = Math.sin(imp.angle) * r;
-          const crushCol = (effMode === 'helix') ? '#22d3ee' : ((effMode === 'meteor') ? '#fbbf24' : '#38bdf8');
+          const crushCol = (effMode === 'helix') ? '#67e8f9' : ((effMode === 'meteor') ? '#fbbf24' : '#38bdf8');
 
-          // Armor-wall crush crescent shockwave
           ctx.globalAlpha = fade * 0.95;
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 3.6 * fade;
+          ctx.strokeStyle = '#fef9c3';
+          ctx.lineWidth = 3.8 * fade;
           ctx.beginPath();
-          ctx.arc(0, 0, r * (1.02 + prog * 0.14), imp.angle - 0.55, imp.angle + 0.55);
+          ctx.arc(0, 0, r * (1.03 + prog * 0.14), imp.angle - 0.52, imp.angle + 0.52);
           ctx.stroke();
 
           ctx.strokeStyle = crushCol;
-          ctx.lineWidth = 5.5 * fade;
+          ctx.lineWidth = 5.2 * fade;
           ctx.beginPath();
           ctx.arc(ix, iy, 12 + prog * 42, imp.angle - 1.15, imp.angle + 1.15);
           ctx.stroke();
 
-          // Outward shatter lances
           for (let ray = -2; ray <= 2; ray++) {
             const ra = imp.angle + ray * 0.28;
             const r0 = 8 + prog * 14;
@@ -4156,20 +3988,20 @@
             ctx.lineWidth = 2.4 * fade;
             ctx.stroke();
           }
+          this._drawStarGlint(ctx, ix, iy, 14 * fade, '#ffffff');
         }
         ctx.restore();
       }
 
-      // Full-dome Deflection Shockwave Flash on Activation or Heavy Impact
       if (this.shieldDeflectFlash > 0.04) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         ctx.beginPath();
-        ctx.arc(0, 0, r * (1.06 + (1.0 - this.shieldDeflectFlash) * 0.26), 0, Math.PI * 2);
-        const flashColor = isDyn ? '#38bdf8' : (isHel ? '#22d3ee' : '#fbbf24');
+        ctx.arc(0, 0, r * (1.06 + (1.0 - this.shieldDeflectFlash) * 0.24), 0, Math.PI * 2);
+        const flashColor = isDyn ? '#38bdf8' : (isHel ? '#67e8f9' : '#fde047');
         ctx.strokeStyle = flashColor;
-        ctx.globalAlpha = this.shieldDeflectFlash * 0.82;
-        ctx.lineWidth = 4.0;
+        ctx.globalAlpha = this.shieldDeflectFlash * 0.80;
+        ctx.lineWidth = 3.6;
         ctx.stroke();
         ctx.restore();
       }
@@ -7443,613 +7275,226 @@
       // Render Scientific Game-Aligned Trailing Wake behind every Good, Powered-Good, and Regular-Bad node!
       this._drawScientificNodeWake(ctx, mode, p, targetR, scale, now, isHazard, isHazard ? isPoweredBad : isPoweredGood);
 
+      const isGoodLuxuryRelic = (!isHazard && p.nodeClass !== 'standard');
+      const sModeKey = (mode === 'helix') ? 'helix' : ((mode === 'meteor') ? 'meteor' : 'dynamo');
+      const relicImg = isGoodLuxuryRelic
+        ? ((p.nodeClass === 'shield') ? LayeredT4Assets.powerupShield[sModeKey] : LayeredT4Assets.powerupRelics[p.nodeClass])
+        : null;
+      const relicLoaded = isGoodLuxuryRelic && relicImg && relicImg.naturalWidth > 0 && (
+        (p.nodeClass === 'shield') ? LayeredT4Assets.loaded.powerupShield[sModeKey] : LayeredT4Assets.loaded.powerupRelics[p.nodeClass]
+      );
+
       if (!isHazard) {
-        if (mode === 'dynamo' || mode === 'realm') {
-          // High-Clarity 3D Sapphire-Violet Refractive Glass Orb with Outer Bloom, Internal Tesla Singularity & Dual-Polarity Rim!
+        if (isGoodLuxuryRelic && relicLoaded) {
+          // ════════════════════════════════════════════════════════════════════════
+          // STANDALONE 3D LUXURY POWERED-UP GOOD RELICS (NO REGULAR ORB CLUTTER!)
+          // ════════════════════════════════════════════════════════════════════════
+          const relicMeta = {
+            shield: { glow: (sModeKey === 'helix' ? 'helix' : (sModeKey === 'meteor' ? 'gold' : 'cyan')), starA: '#fde047', starB: (sModeKey === 'helix' ? '#f0abfc' : '#67e8f9'), ring: '#f59e0b', spin: false },
+            missiles: { glow: 'cyan', starA: '#38bdf8', starB: '#fde047', ring: '#38bdf8', spin: true },
+            cluster: { glow: 'helix', starA: '#22d3ee', starB: '#e879f9', ring: '#fde047', spin: false },
+            supercharge: { glow: 'gold', starA: '#fef08a', starB: '#fb923c', ring: '#fbbf24', spin: true },
+            chronos: { glow: 'cyan', starA: '#67e8f9', starB: '#e0f2fe', ring: '#67e8f9', spin: false },
+            singularity: { glow: 'cyan', starA: '#fde047', starB: '#7dd3fc', ring: '#fbbf24', spin: true },
+            catalyst: { glow: 'emPt', starA: '#34d399', starB: '#fef08a', ring: '#34d399', spin: false }
+          }[p.nodeClass] || { glow: 'gold', starA: '#fde047', starB: '#ffffff', ring: '#fbbf24', spin: false };
+
+          const gyroSpin = now * 0.0028 + animPhase;
+          const ringRx = targetR * 1.32;
+          const ringTilt = 0.24 * Math.sin(now * 0.0018 + animPhase);
+
+          // 1. Soft Luminous Luxury Jewel Corona
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          ctx.globalAlpha = 0.55;
-          ctx.drawImage(this._getGlowSprite('helix'), -targetR * 1.16, -targetR * 1.16, targetR * 2.32, targetR * 2.32);
-          ctx.restore();
-
-          if (LayeredT4Assets.loaded.nodeShell.dynamo) {
-            ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
-          }
-          // Luminous 3D Volumetric Sapphire-Violet Plasma Core Fill (guarantees high contrast against deep space!)
-          const pOrb = ctx.createRadialGradient(-targetR * 0.22, -targetR * 0.25, targetR * 0.04, 0, 0, targetR);
-          pOrb.addColorStop(0.0, 'rgba(255, 255, 255, 0.96)');
-          pOrb.addColorStop(0.24, 'rgba(125, 211, 252, 0.88)');
-          pOrb.addColorStop(0.55, 'rgba(147, 51, 234, 0.78)');
-          pOrb.addColorStop(0.88, 'rgba(30, 58, 138, 0.82)');
-          pOrb.addColorStop(1.0, 'rgba(56, 189, 248, 0.90)');
-          ctx.fillStyle = pOrb;
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.94, 0, Math.PI * 2);
-          ctx.fill();
-
-          drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.88, now, animPhase, false, 4);
-
-          // Dual-Polarity Fresnel Rim Polarization (24K Gold Anode & Electric Cyan Cathode Rim!)
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.lineCap = 'round';
-          // Left-bottom Warm Gold Anode Rim
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.96, Math.PI * 0.55, Math.PI * 1.48);
-          ctx.strokeStyle = 'rgba(251, 191, 36, 0.88)';
-          ctx.lineWidth = 2.8 * scale;
-          ctx.stroke();
-          // Right-top Cool Electric-Cyan Cathode Rim
-          ctx.beginPath();
-          ctx.arc(0, 0, targetR * 0.96, -Math.PI * 0.45, Math.PI * 0.48);
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.92)';
-          ctx.lineWidth = 2.8 * scale;
-          ctx.stroke();
-          ctx.restore();
-
-          // Outer Resonance Ring & Twin Satellite Motes
-          const ringR = targetR * 1.16;
-          ctx.beginPath();
-          ctx.arc(0, 0, ringR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(192, 132, 252, 0.45)';
-          ctx.lineWidth = 1.4 * scale;
-          ctx.stroke();
-
-          const moteAngle = now * 0.0035 + animPhase;
-          const mx1 = Math.cos(moteAngle) * ringR;
-          const my1 = Math.sin(moteAngle) * ringR * 0.55;
-          ctx.beginPath();
-          ctx.arc(mx1, my1, 4.2 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = '#00f0ff';
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(mx1, my1, 1.8 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fill();
-
-          const mx2 = -mx1;
-          const my2 = -my1;
-          ctx.beginPath();
-          ctx.arc(mx2, my2, 4.2 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = '#c084fc';
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(mx2, my2, 1.8 * scale, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fill();
-        } else if (mode === 'helix') {
-          if (LayeredT4Assets.loaded.nodeShell.helix) {
-            ctx.drawImage(LayeredT4Assets.nodeShell.helix, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
-          }
-          drawRotating3DDNAInsideGlass(ctx, 0, 0, targetR * 0.36, targetR * 0.78, now, animPhase, false, 4);
-
-          // Bioluminescent Quartz Glass Rim & Swirling Core Highlight (GPU sprite blit!)
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.globalAlpha = 0.52;
-          ctx.drawImage(this._getGlowSprite('helix'), -targetR * 1.04, -targetR * 1.04, targetR * 2.08, targetR * 2.08);
-          ctx.restore();
-        } else {
-          const tumbleDir = p.tumbleDir || 1;
-          const rockAngle = now * 0.00145 * tumbleDir + animPhase;
-
-          ctx.save();
-          ctx.rotate(rockAngle);
-          if (LayeredT4Assets.loaded.nodeShell.meteor) {
-            ctx.drawImage(LayeredT4Assets.nodeShell.meteor, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
-          }
-          ctx.restore();
-
-          drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4, false);
-
-          // Incandescent Atmospheric Bow-Shock Plasma Rim hugging leading lower edge (GPU sprite blit!)
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
+          const coronaR = targetR * (1.52 + 0.10 * Math.sin(now * 0.007 + animPhase));
           ctx.globalAlpha = 0.56;
-          ctx.drawImage(this._getGlowSprite('gold'), -targetR * 1.18, targetR * 0.25 - targetR * 1.18, targetR * 2.36, targetR * 2.36);
-          ctx.restore();
-        }
-
-        // BESPOKE 3D RENDERING FOR COLLECTIBLE ARCHETYPES (Enhanced with Scientific Visual Metaphors):
-        if (p.nodeClass === 'cluster') {
-          // BIFURCATION FLUX NODE (CLUSTER DOUBLER / 2X DUP — Mitotic/Quantum Split Satellites!)
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          const pulseR = targetR * (1.18 + 0.06 * Math.sin(now * 0.006 + animPhase));
-          ctx.beginPath();
-          ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(192, 132, 252, 0.44)';
-          ctx.lineWidth = 1.4 * scale;
-          ctx.stroke();
-
-          // Twin phase-locked bifurcation twin orbs orbiting 180° apart (GPU sprite blits!)
-          const bAng = now * 0.0042 + animPhase;
-          const twinR = 7.5 * scale;
-          for (let bSide = -1; bSide <= 1; bSide += 2) {
-            const bx = Math.cos(bAng) * pulseR * bSide;
-            const by = Math.sin(bAng) * pulseR * 0.62 * bSide;
-            ctx.drawImage(this._getGlowSprite(bSide > 0 ? 'cyanPt' : 'magPt'), bx - twinR, by - twinR, twinR * 2, twinR * 2);
-          }
+          ctx.drawImage(this._getGlowSprite(relicMeta.glow), -coronaR, -coronaR, coronaR * 2, coronaR * 2);
           ctx.restore();
 
-        } else if (p.nodeClass === 'supercharge') {
-          // DELUXE SOLAR HYPER-SURGE CORE: Warm golden solar plasma & elegant prominence loops
+          // 2. Back Half of Tilted 24K-Gold Celestial Gyro Ring
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          // 1. Soft atmospheric solar plasma corona (GPU sprite blit!)
-          const coronaR = targetR * (1.18 + 0.12 * Math.sin(now * 0.007 + animPhase));
-          ctx.globalAlpha = 0.58;
-          ctx.drawImage(this._getGlowSprite('gold'), -coronaR, -coronaR, coronaR * 2, coronaR * 2);
-          ctx.globalAlpha = 1.0;
-
-          // 2. Three Organic Curving Solar Prominence Arches (Magnetic loops)
-          const promAngle = now * 0.0022 + animPhase;
-          for (let pIdx = 0; pIdx < 3; pIdx++) {
-            const pa = promAngle + (pIdx * Math.PI * 2 / 3);
-            const rInner = targetR * 0.85;
-            const rOuter = targetR * (1.25 + 0.10 * Math.sin(now * 0.005 + pIdx * 1.8));
-            const p1x = Math.cos(pa - 0.32) * rInner;
-            const p1y = Math.sin(pa - 0.32) * rInner;
-            const p2x = Math.cos(pa + 0.32) * rInner;
-            const p2y = Math.sin(pa + 0.32) * rInner;
-            const cpx = Math.cos(pa) * rOuter;
-            const cpy = Math.sin(pa) * rOuter;
-            ctx.beginPath();
-            ctx.moveTo(p1x, p1y);
-            ctx.quadraticCurveTo(cpx, cpy, p2x, p2y);
-            ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 + 0.25 * Math.sin(now * 0.004 + pIdx)})`;
-            ctx.lineWidth = 2.2 * scale;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-          }
-
-          // 3. Gentle rotating solar flare filaments
-          const flareR = targetR * 0.95;
+          ctx.rotate(ringTilt);
+          ctx.scale(1.0, 0.36);
+          ctx.strokeStyle = relicMeta.ring;
+          ctx.globalAlpha = 0.45;
+          ctx.lineWidth = 2.6 * scale;
           ctx.beginPath();
-          ctx.arc(0, 0, flareR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
-          ctx.lineWidth = 1.4 * scale;
+          ctx.arc(0, 0, ringRx, Math.PI, Math.PI * 2);
           ctx.stroke();
           ctx.restore();
 
-        } else if (p.nodeClass === 'chronos') {
-          // CHRONOS STASIS PEARL: Frosted Relativistic Time-Dilation Ripple + Crystalline Chronometer Reticle
+          // 3. Standalone Photorealistic 3D Raytraced Luxury Relic + Specular Luster Pass
+          const relicSize = ((p.nodeClass === 'shield') ? 168 : 156) * scale * (1.0 + 0.028 * Math.sin(now * 0.006 + animPhase));
+          const relicRot = relicMeta.spin
+            ? ((p.nodeClass === 'missiles' ? 0.0011 : 0.0015) * now + animPhase * 0.25)
+            : (Math.sin(now * 0.0032 + animPhase) * 0.085);
+          ctx.save();
+          ctx.rotate(relicRot);
+          ctx.drawImage(relicImg, -relicSize * 0.5, -relicSize * 0.5, relicSize, relicSize);
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = 0.26 + 0.12 * Math.sin(now * 0.0085 + animPhase);
+          ctx.drawImage(relicImg, -relicSize * 0.5, -relicSize * 0.5, relicSize, relicSize);
+          ctx.restore();
+
+          // 4. Front Half of Tilted 24K-Gold Gyro Ring + Twin 4-Point Diamond Starlight Flares
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
-          const dilPhase = (now * 0.0022 + animPhase) % 1.0;
-          const dilR = targetR * (1.05 + dilPhase * 0.50);
-          const dilG = ctx.createRadialGradient(0, 0, dilR * 0.65, 0, 0, dilR);
-          dilG.addColorStop(0.0, 'rgba(34, 211, 238, 0)');
-          dilG.addColorStop(0.75, `rgba(103, 232, 249, ${(1.0 - dilPhase) * 0.36})`);
-          dilG.addColorStop(1.0, 'rgba(6, 182, 212, 0)');
-          ctx.fillStyle = dilG;
+          ctx.rotate(ringTilt);
+          ctx.save();
+          ctx.scale(1.0, 0.36);
+          ctx.strokeStyle = '#fef9c3';
+          ctx.globalAlpha = 0.72;
+          ctx.lineWidth = 2.2 * scale;
           ctx.beginPath();
-          ctx.arc(0, 0, dilR, 0, Math.PI * 2);
-          ctx.fill();
-
-          const reticleR = targetR * 1.28;
-          ctx.beginPath();
-          ctx.arc(0, 0, reticleR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(6, 182, 212, 0.85)';
-          ctx.lineWidth = 1.8;
+          ctx.arc(0, 0, ringRx, 0, Math.PI);
           ctx.stroke();
-
-          // 12 Chronometer Ticks
-          const tickRot = now * 0.002;
-          for (let t = 0; t < 12; t++) {
-            const ta = tickRot + (t * Math.PI / 6);
-            const isMajor = (t % 3 === 0);
-            const tLen = isMajor ? 5 * scale : 2.5 * scale;
-            ctx.beginPath();
-            ctx.moveTo(Math.cos(ta) * reticleR, Math.sin(ta) * reticleR);
-            ctx.lineTo(Math.cos(ta) * (reticleR - tLen), Math.sin(ta) * (reticleR - tLen));
-            ctx.strokeStyle = isMajor ? '#38bdf8' : 'rgba(147, 197, 253, 0.6)';
-            ctx.lineWidth = isMajor ? 2.0 : 1.2;
-            ctx.stroke();
-          }
           ctx.restore();
 
-        } else if (p.nodeClass === 'singularity') {
-          // GRAVITON SINGULARITY NODE: Celestial Gold & Starlight Cyan Accretion Discs + Inward Geodesic Motes
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          const vortexAngle = -now * 0.008;
-          for (let v = 0; v < 3; v++) {
-            const va = vortexAngle + (v * Math.PI * 2 / 3);
-            ctx.beginPath();
-            ctx.arc(0, 0, targetR * (1.15 + v * 0.15), va, va + 1.2);
-            ctx.strokeStyle = (v % 2 === 0) ? `rgba(56, 189, 248, ${0.85 - v * 0.20})` : `rgba(254, 240, 138, ${0.85 - v * 0.20})`;
-            ctx.lineWidth = 2.4;
-            ctx.stroke();
-          }
-          for (let gm = 0; gm < 4; gm++) {
-            const gp = ((now * 0.0020 + gm * 0.25 + animPhase) % 1.0);
-            const ga = vortexAngle * 1.4 + gm * (Math.PI / 2) + gp * 1.8;
-            const gr = targetR * (1.65 * (1.0 - gp * 0.65));
-            const gx = Math.cos(ga) * gr;
-            const gy = Math.sin(ga) * gr;
-            ctx.fillStyle = gm % 2 === 0 ? `rgba(125, 211, 252, ${Math.sin(gp * Math.PI) * 0.9})` : `rgba(254, 240, 138, ${Math.sin(gp * Math.PI) * 0.9})`;
-            ctx.beginPath();
-            ctx.arc(gx, gy, 2.2 * scale, 0, Math.PI * 2);
-            ctx.fill();
-          }
-          ctx.restore();
-
-        } else if (p.nodeClass === 'catalyst') {
-          // SUPREME VITALITY LIFE RECOVERY NODE (+1 LIFE RESTORATION)
-          // 1. Refined Contained Heartbeat Pulse (Soft & Non-Distracting - ZERO Full-Screen Vertical Line!)
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          const heartPhase = (now * 0.005) % 1.0;
-          const rRing = targetR * (1.02 + heartPhase * 0.30);
-          const aRing = (1.0 - heartPhase) * 0.35;
-          ctx.beginPath();
-          ctx.arc(0, 0, rRing, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(52, 211, 153, ${aRing})`;
-          ctx.lineWidth = 1.2 * scale;
-          ctx.stroke();
-
-          // 2. Faceted Octahedral Emerald & Diamond Star Core
-          const gemRot = now * 0.0028 + animPhase;
-          const gemR = targetR * 0.95;
-          ctx.save();
-          ctx.rotate(gemRot);
-
-          // Outer Vitality Star
-          const numPts = 8;
-          ctx.beginPath();
-          for (let pt = 0; pt < numPts; pt++) {
-            const a = (pt * Math.PI * 2) / numPts;
-            const r = (pt % 2 === 0) ? gemR : gemR * 0.58;
-            const gx = Math.cos(a) * r;
-            const gy = Math.sin(a) * r;
-            if (pt === 0) ctx.moveTo(gx, gy); else ctx.lineTo(gx, gy);
-          }
-          ctx.closePath();
-          ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(240, 253, 244, 0.95)';
-          ctx.lineWidth = 2.0 * scale;
-          ctx.stroke();
-
-          // Internal Brilliant Facets (Emerald Green & Diamond White)
-          for (let f = 0; f < numPts; f++) {
-            const fa = (f * Math.PI * 2) / numPts;
-            const r = (f % 2 === 0) ? gemR : gemR * 0.58;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(fa) * r, Math.sin(fa) * r);
-            ctx.strokeStyle = (f % 2 === 0) ? 'rgba(52, 211, 153, 0.90)' : 'rgba(255, 255, 255, 0.95)';
-            ctx.lineWidth = 1.4 * scale;
-            ctx.stroke();
-          }
-
-          // Central Radiant Vitality Heart-Light Core (GPU sprite blit!)
-          const hGlowR = gemR * 0.65;
-          ctx.globalAlpha = 0.95;
-          ctx.drawImage(this._getGlowSprite('emPt'), -hGlowR, -hGlowR, hGlowR * 2, hGlowR * 2);
-          ctx.globalAlpha = 1.0;
-          ctx.restore();
-
-          // 3. Floating Vitality Badge ("💚 +1 LIFE") — cached width + source-over
-          ctx.save();
-          ctx.globalCompositeOperation = 'source-over';
-          const badgeText = '💚 +1 LIFE';
-          const bFont = `bold ${Math.round(11 * scale)}px system-ui, -apple-system, sans-serif`;
-          const textW = this._getBadgeWidth(ctx, bFont, badgeText);
-          const padX = 7 * scale;
-          const padY = 3.5 * scale;
-          ctx.translate(0, -targetR * 1.35);
-          ctx.fillStyle = 'rgba(4, 34, 26, 0.90)';
-          ctx.strokeStyle = '#34d399';
-          ctx.lineWidth = 1.2 * scale;
-          ctx.beginPath();
-          ctx.roundRect(-textW / 2 - padX, -padY - 7 * scale, textW + padX * 2, 16 * scale, 7 * scale);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#6ee7b7';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(badgeText, 0, 0);
-          ctx.restore();
-
-          // 4. Subtle Ambient Motes (Crisp & Non-Distracting)
-          for (let s = 0; s < 3; s++) {
-            const sAngle = -now * 0.0035 + (s * Math.PI * 2 / 3);
-            const sDist = targetR * 1.18;
-            const sx = Math.cos(sAngle) * sDist;
-            const sy = Math.sin(sAngle) * sDist * 0.70;
-            ctx.beginPath();
-            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
-            ctx.fillStyle = (s % 2 === 0) ? '#34d399' : '#ffffff';
-            ctx.fill();
-          }
-          ctx.restore();
-
-        } else if (p.nodeClass === 'shield') {
-          // UNMISTAKABLE 3D REALM-BESPOKE HERALDIC SHIELD POWER-UP PICKUP
-          const sMode = (mode === 'helix') ? 'helix' : ((mode === 'meteor') ? 'meteor' : 'dynamo');
-          const rotS = now * 0.003 + animPhase;
-
-          // 1. Rotating Armored Bastion Guard Brackets around the Power-Up
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          const guardR = targetR * 1.32;
-          const arcCol = (sMode === 'helix') ? '#22d3ee' : ((sMode === 'meteor') ? '#fb923c' : '#fde047');
-          const secCol = (sMode === 'helix') ? '#e879f9' : ((sMode === 'meteor') ? '#fde047' : '#38bdf8');
-          for (let g = 0; g < 4; g++) {
-            const ga = rotS + g * (Math.PI * 0.5);
-            ctx.beginPath();
-            ctx.arc(0, 0, guardR, ga - 0.34, ga + 0.34);
-            ctx.strokeStyle = (g % 2 === 0) ? arcCol : secCol;
-            ctx.lineWidth = 2.8 * scale;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-          }
-          ctx.restore();
-
-          // 2. Sculpted 3D Heraldic Shield Emblem (Opaque Dark Metal/Crystal Bevel + Gleaming Trim)
-          ctx.save();
-          ctx.globalCompositeOperation = 'source-over';
-          ctx.lineJoin = 'round';
-          ctx.lineCap = 'round';
-          const sw = targetR * 0.72;
-          const sh = targetR * 0.88;
-
-          if (sMode === 'helix') {
-            // Side translucent crystal wing-guards
-            for (let side = -1; side <= 1; side += 2) {
-              ctx.beginPath();
-              ctx.moveTo(side * sw * 0.88, -sh * 0.34);
-              ctx.lineTo(side * sw * 1.52, -sh * 0.65);
-              ctx.lineTo(side * sw * 1.18, sh * 0.14);
-              ctx.closePath();
-              ctx.fillStyle = side < 0 ? 'rgba(6, 182, 212, 0.85)' : 'rgba(192, 38, 211, 0.85)';
-              ctx.fill();
-              ctx.strokeStyle = '#f0f9ff';
-              ctx.lineWidth = 1.6 * scale;
-              ctx.stroke();
+          for (let st = 0; st < 2; st++) {
+            const sa = gyroSpin + st * Math.PI;
+            const sx = Math.cos(sa) * ringRx;
+            const sy = Math.sin(sa) * ringRx * 0.36;
+            if (Math.sin(sa) >= -0.15) {
+              CoreKinematics._drawStarGlint(ctx, sx, sy, 8.5 * scale, st === 0 ? relicMeta.starA : relicMeta.starB);
             }
-            // Faceted Diamond-Cut Crystal Kite Shield Body
-            ctx.beginPath();
-            ctx.moveTo(0, -sh);
-            ctx.lineTo(sw, -sh * 0.52);
-            ctx.lineTo(sw * 0.76, sh * 0.32);
-            ctx.lineTo(0, sh);
-            ctx.lineTo(-sw * 0.76, sh * 0.32);
-            ctx.lineTo(-sw, -sh * 0.52);
-            ctx.closePath();
-            ctx.fillStyle = '#082f49';
-            ctx.fill();
-            // Right stained-glass amethyst half-facet
-            ctx.beginPath();
-            ctx.moveTo(0, -sh);
-            ctx.lineTo(sw, -sh * 0.52);
-            ctx.lineTo(sw * 0.76, sh * 0.32);
-            ctx.lineTo(0, sh);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(162, 28, 175, 0.68)';
-            ctx.fill();
-            // Platinum-Cyan Outer Bevel Rim & Helix Rune
-            ctx.beginPath();
-            ctx.moveTo(0, -sh);
-            ctx.lineTo(sw, -sh * 0.52);
-            ctx.lineTo(sw * 0.76, sh * 0.32);
-            ctx.lineTo(0, sh);
-            ctx.lineTo(-sw * 0.76, sh * 0.32);
-            ctx.lineTo(-sw, -sh * 0.52);
-            ctx.closePath();
-            ctx.strokeStyle = '#67e8f9';
-            ctx.lineWidth = 3.0 * scale;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(0, -sh * 0.68);
-            ctx.lineTo(0, sh * 0.68);
-            ctx.moveTo(-sw * 0.42, -sh * 0.10);
-            ctx.lineTo(sw * 0.42, -sh * 0.10);
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2.0 * scale;
-            ctx.stroke();
-
-          } else if (sMode === 'meteor') {
-            // Spiked Obsidian & Molten-Gold Dragon Bulwark Shield
-            ctx.beginPath();
-            ctx.moveTo(0, -sh * 1.06);
-            ctx.lineTo(sw * 0.56, -sh * 0.72);
-            ctx.lineTo(sw * 1.18, -sh * 0.88);
-            ctx.lineTo(sw * 0.96, -sh * 0.10);
-            ctx.lineTo(sw * 0.72, sh * 0.44);
-            ctx.lineTo(0, sh * 1.04);
-            ctx.lineTo(-sw * 0.72, sh * 0.44);
-            ctx.lineTo(-sw * 0.96, -sh * 0.10);
-            ctx.lineTo(-sw * 1.18, -sh * 0.88);
-            ctx.lineTo(-sw * 0.56, -sh * 0.72);
-            ctx.closePath();
-            ctx.fillStyle = '#1c0f08';
-            ctx.fill();
-            ctx.strokeStyle = '#fde047';
-            ctx.lineWidth = 3.2 * scale;
-            ctx.stroke();
-
-            // Glowing Molten Chevron Crest inside Bulwark
-            ctx.beginPath();
-            ctx.moveTo(-sw * 0.52, -sh * 0.22);
-            ctx.lineTo(0, -sh * 0.66);
-            ctx.lineTo(sw * 0.52, -sh * 0.22);
-            ctx.moveTo(-sw * 0.40, sh * 0.20);
-            ctx.lineTo(0, -sh * 0.22);
-            ctx.lineTo(sw * 0.40, sh * 0.20);
-            ctx.strokeStyle = '#fb923c';
-            ctx.lineWidth = 2.8 * scale;
-            ctx.stroke();
-
-          } else {
-            // Royal Sapphire-Gold Faraday Kite Shield
-            ctx.beginPath();
-            ctx.moveTo(0, -sh * 1.02);
-            ctx.lineTo(sw * 1.02, -sh * 0.56);
-            ctx.lineTo(sw * 0.78, sh * 0.34);
-            ctx.lineTo(0, sh * 1.02);
-            ctx.lineTo(-sw * 0.78, sh * 0.34);
-            ctx.lineTo(-sw * 1.02, -sh * 0.56);
-            ctx.closePath();
-            ctx.fillStyle = '#0f172a';
-            ctx.fill();
-            // Right specular royal blue facet
-            ctx.beginPath();
-            ctx.moveTo(0, -sh * 1.02);
-            ctx.lineTo(sw * 1.02, -sh * 0.56);
-            ctx.lineTo(sw * 0.78, sh * 0.34);
-            ctx.lineTo(0, sh * 1.02);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(30, 64, 175, 0.78)';
-            ctx.fill();
-            // 24K Gold Bevel Trim
-            ctx.beginPath();
-            ctx.moveTo(0, -sh * 1.02);
-            ctx.lineTo(sw * 1.02, -sh * 0.56);
-            ctx.lineTo(sw * 0.78, sh * 0.34);
-            ctx.lineTo(0, sh * 1.02);
-            ctx.lineTo(-sw * 0.78, sh * 0.34);
-            ctx.lineTo(-sw * 1.02, -sh * 0.56);
-            ctx.closePath();
-            ctx.strokeStyle = '#fbbf24';
-            ctx.lineWidth = 3.2 * scale;
-            ctx.stroke();
-
-            // Cyan Faraday Lightning Bolt inside Shield
-            ctx.beginPath();
-            ctx.moveTo(sw * 0.16, -sh * 0.58);
-            ctx.lineTo(-sw * 0.28, -sh * 0.02);
-            ctx.lineTo(sw * 0.14, -sh * 0.02);
-            ctx.lineTo(-sw * 0.20, sh * 0.56);
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 2.8 * scale;
-            ctx.stroke();
           }
           ctx.restore();
 
-        } else if (p.nodeClass === 'missiles') {
-          // ALLIED TACTICAL ORDNANCE POD (Electric Cyan & Burnished Aerospace Titanium - Absolutely NO Red!)
-          ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          const podAngle = now * 0.0028 + animPhase;
-
-          // 1. Sleek Hexagonal Titanium Launch Canister
-          const podR = targetR * 0.95;
-          ctx.beginPath();
-          for (let hx = 0; hx < 6; hx++) {
-            const ha = podAngle + (hx * Math.PI / 3);
-            const px = Math.cos(ha) * podR;
-            const py = Math.sin(ha) * podR;
-            if (hx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-          }
-          ctx.closePath();
-          ctx.fillStyle = 'rgba(14, 165, 233, 0.22)';
-          ctx.fill();
-          ctx.strokeStyle = '#38bdf8';
-          ctx.lineWidth = 2.0 * scale;
-          ctx.stroke();
-
-          // 2. 4 Precision Missile Silo Ports with Glowing Cyan/Gold Telemetry LEDs
-          const siloDist = podR * 0.52;
-          for (let s = 0; s < 4; s++) {
-            const sa = podAngle + (s * Math.PI / 2) + Math.PI / 4;
-            const sx = Math.cos(sa) * siloDist;
-            const sy = Math.sin(sa) * siloDist;
-
-            // Silo launch port
-            ctx.beginPath();
-            ctx.arc(sx, sy, 4.2 * scale, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(2, 132, 199, 0.85)';
-            ctx.fill();
-            ctx.strokeStyle = '#e0f2fe';
-            ctx.lineWidth = 1.0 * scale;
-            ctx.stroke();
-
-            // Active guidance rocket warhead tip
-            ctx.beginPath();
-            ctx.arc(sx, sy, 2.0 * scale, 0, Math.PI * 2);
-            ctx.fillStyle = (s % 2 === 0) ? '#38bdf8' : '#fbbf24';
-            ctx.fill();
-          }
-
-          // 3. Friendly Tactical Radar Alignment Brackets in Electric Cyan (Friendly, NON-HAZARD!)
-          const bracketR = targetR * 1.30;
-          const radarRot = -now * 0.002;
-          for (let b = 0; b < 4; b++) {
-            const ba = radarRot + (b * Math.PI / 2);
+        } else {
+          // Standard Mode Collectible Orb (and fallback only if 3D relic PNG hasn't decoded yet)
+          if (mode === 'dynamo' || mode === 'realm') {
             ctx.save();
-            ctx.translate(Math.cos(ba) * bracketR, Math.sin(ba) * bracketR);
-            ctx.rotate(ba);
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = 0.55;
+            ctx.drawImage(this._getGlowSprite('helix'), -targetR * 1.16, -targetR * 1.16, targetR * 2.32, targetR * 2.32);
+            ctx.restore();
+
+            if (LayeredT4Assets.loaded.nodeShell.dynamo) {
+              ctx.drawImage(LayeredT4Assets.nodeShell.dynamo, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+            }
+            const pOrb = ctx.createRadialGradient(-targetR * 0.22, -targetR * 0.25, targetR * 0.04, 0, 0, targetR);
+            pOrb.addColorStop(0.0, 'rgba(255, 255, 255, 0.96)');
+            pOrb.addColorStop(0.24, 'rgba(125, 211, 252, 0.88)');
+            pOrb.addColorStop(0.55, 'rgba(147, 51, 234, 0.78)');
+            pOrb.addColorStop(0.88, 'rgba(30, 58, 138, 0.82)');
+            pOrb.addColorStop(1.0, 'rgba(56, 189, 248, 0.90)');
+            ctx.fillStyle = pOrb;
             ctx.beginPath();
-            ctx.moveTo(-5 * scale, 0);
-            ctx.lineTo(0, 0);
-            ctx.lineTo(0, -5 * scale);
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
-            ctx.lineWidth = 1.5 * scale;
+            ctx.arc(0, 0, targetR * 0.94, 0, Math.PI * 2);
+            ctx.fill();
+            drawInternalPlasmaArcs(ctx, 0, 0, targetR * 0.88, now, animPhase, false, 4);
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * 0.96, Math.PI * 0.55, Math.PI * 1.48);
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.88)';
+            ctx.lineWidth = 2.8 * scale;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, targetR * 0.96, -Math.PI * 0.45, Math.PI * 0.48);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.92)';
+            ctx.lineWidth = 2.8 * scale;
             ctx.stroke();
             ctx.restore();
-          }
 
-          // 4. Pulsing Friendly Telemetry Halo
-          const telR = targetR * (1.10 + 0.08 * Math.sin(now * 0.006));
-          ctx.beginPath();
-          ctx.arc(0, 0, telR, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-          ctx.lineWidth = 1.2 * scale;
-          ctx.stroke();
-          ctx.restore();
+            const ringR = targetR * 1.16;
+            ctx.beginPath();
+            ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(192, 132, 252, 0.45)';
+            ctx.lineWidth = 1.4 * scale;
+            ctx.stroke();
+            const moteAngle = now * 0.0035 + animPhase;
+            const mx1 = Math.cos(moteAngle) * ringR;
+            const my1 = Math.sin(moteAngle) * ringR * 0.55;
+            ctx.beginPath(); ctx.arc(mx1, my1, 4.2 * scale, 0, Math.PI * 2); ctx.fillStyle = '#00f0ff'; ctx.fill();
+            ctx.beginPath(); ctx.arc(-mx1, -my1, 4.2 * scale, 0, Math.PI * 2); ctx.fillStyle = '#c084fc'; ctx.fill();
+          } else if (mode === 'helix') {
+            if (LayeredT4Assets.loaded.nodeShell.helix) {
+              ctx.drawImage(LayeredT4Assets.nodeShell.helix, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+            }
+            drawRotating3DDNAInsideGlass(ctx, 0, 0, targetR * 0.36, targetR * 0.78, now, animPhase, false, 4);
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = 0.52;
+            ctx.drawImage(this._getGlowSprite('helix'), -targetR * 1.04, -targetR * 1.04, targetR * 2.08, targetR * 2.08);
+            ctx.restore();
+          } else {
+            const tumbleDir = p.tumbleDir || 1;
+            const rockAngle = now * 0.00145 * tumbleDir + animPhase;
+            ctx.save();
+            ctx.rotate(rockAngle);
+            if (LayeredT4Assets.loaded.nodeShell.meteor) {
+              ctx.drawImage(LayeredT4Assets.nodeShell.meteor, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+            }
+            ctx.restore();
+            drawMeteorMagmaFissuresAndPlates(ctx, targetR, now, animPhase, rockAngle, 4, false);
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = 0.56;
+            ctx.drawImage(this._getGlowSprite('gold'), -targetR * 1.18, targetR * 0.25 - targetR * 1.18, targetR * 2.36, targetR * 2.36);
+            ctx.restore();
+          }
         }
 
-        // Floating Holographic Badges for Power-Ups (High-Contrast Dark Obsidian Pill Backdrop so Text Pops Over Bright Flames/Lightning!)
+        // Gilded Luxury Double-Bevel Obsidian-Glass Badges for All 7 Powered-Up Good Nodes!
         const badges = {
           shield: {
             text: getRealmShieldMeta(mode).badge,
-            color: getRealmShieldMeta(mode).color,
-            bg: 'rgba(10, 14, 28, 0.90)',
-            border: (mode === 'helix') ? '#22d3ee' : ((mode === 'meteor') ? '#fb923c' : '#fbbf24')
+            color: '#fef9c3',
+            bg: 'rgba(10, 14, 28, 0.93)',
+            border: (sModeKey === 'helix') ? '#67e8f9' : ((sModeKey === 'meteor') ? '#fde047' : '#fbbf24')
           },
-          missiles: { text: '🚀 MISSILES', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#38bdf8' },
-          cluster: { text: '✨ 2X DUP', color: '#ffffff', bg: 'rgba(10, 14, 28, 0.88)', border: '#c084fc' },
-          supercharge: { text: '⚡ HYPER', color: '#fbbf24', bg: 'rgba(10, 14, 28, 0.88)', border: '#fef08a' },
-          chronos: { text: '⏳ STASIS', color: '#22d3ee', bg: 'rgba(10, 14, 28, 0.88)', border: '#67e8f9' },
-          singularity: { text: '🧲 VACUUM', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#7dd3fc' },
-          catalyst: { text: '💎 CATALYST', color: '#38bdf8', bg: 'rgba(10, 14, 28, 0.88)', border: '#7dd3fc' }
+          missiles: { text: '🚀 MISSILES', color: '#e0f2fe', bg: 'rgba(8, 16, 34, 0.93)', border: '#38bdf8' },
+          cluster: { text: '✨ 2X DUP', color: '#fae8ff', bg: 'rgba(18, 10, 32, 0.93)', border: '#e879f9' },
+          supercharge: { text: '⚡ HYPER', color: '#fef9c3', bg: 'rgba(24, 15, 6, 0.93)', border: '#fbbf24' },
+          chronos: { text: '⏳ STASIS', color: '#cffafe', bg: 'rgba(8, 22, 34, 0.93)', border: '#22d3ee' },
+          singularity: { text: '🧲 VACUUM', color: '#e0f2fe', bg: 'rgba(10, 14, 30, 0.93)', border: '#fbbf24' },
+          catalyst: { text: '💚 +1 LIFE', color: '#d1fae5', bg: 'rgba(4, 28, 22, 0.93)', border: '#34d399' }
         };
 
-        if (badges[p.nodeClass] && p.nodeClass !== 'catalyst') {
+        if (badges[p.nodeClass]) {
           const b = badges[p.nodeClass];
-          const bScale = Math.max(0.65, scale);
+          const bScale = Math.max(0.68, scale);
           ctx.save();
           ctx.globalCompositeOperation = 'source-over';
-          ctx.translate(0, -targetR * 1.46 - 3);
+          ctx.translate(0, -targetR * 1.62 - 3);
           const bFont = `bold ${Math.round(11 * bScale)}px system-ui, -apple-system, sans-serif`;
           const textW = this._getBadgeWidth(ctx, bFont, b.text);
-          const padX = 7.5 * bScale;
-          const padY = 4 * bScale;
+          const padX = 8.5 * bScale;
+          const padY = 4.5 * bScale;
+          const bw = textW + padX * 2;
+          const bh = 17.5 * bScale;
+          const bx = -bw * 0.5;
+          const by = -bh * 0.5;
 
           ctx.fillStyle = b.bg;
           ctx.strokeStyle = b.border;
-          ctx.lineWidth = 1.3 * bScale;
+          ctx.lineWidth = 1.6 * bScale;
           ctx.beginPath();
-          ctx.roundRect(-textW / 2 - padX, -padY - 7 * bScale, textW + padX * 2, 16 * bScale, 7 * bScale);
+          ctx.roundRect(bx, by, bw, bh, 8 * bScale);
           ctx.fill();
           ctx.stroke();
 
-          ctx.fillStyle = '#ffffff';
+          // Inner champagne-gold luxury filigree hairline & top specular sheen
+          ctx.strokeStyle = 'rgba(253, 224, 71, 0.35)';
+          ctx.lineWidth = 0.8 * bScale;
+          ctx.beginPath();
+          ctx.roundRect(bx + 1.5 * bScale, by + 1.5 * bScale, bw - 3 * bScale, bh - 3 * bScale, 6.5 * bScale);
+          ctx.stroke();
+
+          ctx.fillStyle = b.color;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(b.text, 0, 0);
+          ctx.fillText(b.text, 0, 0.5 * bScale);
           ctx.restore();
         }
 
       } else {
         // ─────────────────────────────────────────────────────────────
         // RENDER HAZARD TRAPS & 15 BESPOKE LUXURY RAYTRACED BAD CHROME CORES
-        // (3 Games x 5 Powered Feature Hazards — ZERO thin wireframe lines!)
         // ─────────────────────────────────────────────────────────────
         const hClass = p.nodeClass;
         const modeKey = (mode === 'helix') ? 'helix' : (mode === 'meteor' ? 'meteor' : 'dynamo');
@@ -8059,7 +7504,6 @@
         const isEmpDetonator = (hClass === 'emp_detonator' || hClass === 'emp_glitch' || hClass === 'pulsar_mine');
         const isPhaseStalker = (hClass === 'phase_stalker' || hClass === 'tachyon_fracture');
 
-        // Mode-Specific Luxury VFX Color Palettes matching each game's Chrome Core aesthetic
         const mPal = (modeKey === 'meteor')
           ? { primary: 'rgba(16, 185, 129, ', secondary: 'rgba(168, 85, 247, ', accent: 'rgba(249, 115, 22, ', hex: '#10b981' }
           : (modeKey === 'helix'
@@ -8476,50 +7920,50 @@
           ctx.restore();
 
         } else {
-          // ═══ CLASSIC MODE-SPECIFIC HAZARDS (volatile, seeker, fragmentation, phantom) ═══
+          // ═══ UPGRADED v420 CLASSIC 3D BAD CORES & HOLLOW SEEKER SHURIKEN RING ═══
           const proxHeat = Math.max(0, Math.min(1, p._proxHeat || 0));
           if (mode === 'dynamo' || mode === 'realm') {
-            const gSpr = LayeredT4Assets.hazard.dynamoGlitch;
-            if (gSpr && LayeredT4Assets.loaded.hazard.dynamoGlitch) {
+            const gSpr = LayeredT4Assets.loaded.hazardCore3D.dynamo ? LayeredT4Assets.hazardCore3D.dynamo : LayeredT4Assets.hazard.dynamoGlitch;
+            const gReady = LayeredT4Assets.loaded.hazardCore3D.dynamo || LayeredT4Assets.loaded.hazard.dynamoGlitch;
+            if (gSpr && gReady) {
               const numSlices = 7;
-              const srcSize = 140;
+              const srcSize = gSpr.naturalWidth || 256;
               const sliceH = srcSize / numSlices;
               const glitchTick = Math.floor(now * (0.022 + proxHeat * 0.014) + animPhase * 3.0);
+              const drawBox = LayeredT4Assets.loaded.hazardCore3D.dynamo ? 136 : 140;
+              const outSliceH = (drawBox / numSlices) + 0.6;
 
               for (let s = 0; s < numSlices; s++) {
                 const wave = Math.sin(glitchTick * 1.9 + s * 2.4 + animPhase);
                 const isGlitchBand = (Math.abs(wave) > (0.42 - proxHeat * 0.14)) || (s === 2 || s === 4);
-                const dxGlitch = isGlitchBand ? (wave * (8.5 + proxHeat * 4.5) * scale) : 0;
+                const dxGlitch = isGlitchBand ? (wave * (7.5 + proxHeat * 4.5) * scale) : 0;
 
                 const sy = s * sliceH;
-                const dy = (-70 + s * sliceH) * scale;
-                const dw = 140 * scale;
-                const dh = (sliceH + 0.6) * scale;
+                const dy = (-drawBox * 0.5 + s * (drawBox / numSlices)) * scale;
+                const dw = drawBox * scale;
+                const dh = outSliceH * scale;
 
                 if (Math.abs(dxGlitch) > 3.2 * scale) {
                   ctx.save();
-                  ctx.globalAlpha = 0.48 + proxHeat * 0.20;
-                  ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, -70 * scale - dxGlitch * 0.65, dy, dw, dh);
+                  ctx.globalAlpha = 0.45 + proxHeat * 0.20;
+                  ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, (-drawBox * 0.5) * scale - dxGlitch * 0.65, dy, dw, dh);
                   ctx.restore();
                 }
-                ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, -70 * scale + dxGlitch, dy, dw, dh);
+                ctx.drawImage(gSpr, 0, sy, srcSize, sliceH, (-drawBox * 0.5) * scale + dxGlitch, dy, dw, dh);
               }
-            } else {
-              const hazGrad = ctx.createRadialGradient(-targetR * 0.25, -targetR * 0.25, targetR * 0.1, 0, 0, targetR);
-              hazGrad.addColorStop(0.0, 'rgba(239, 68, 68, 0.95)');
-              hazGrad.addColorStop(0.45, 'rgba(185, 28, 28, 0.95)');
-              hazGrad.addColorStop(0.85, 'rgba(127, 29, 29, 0.98)');
-              hazGrad.addColorStop(1.0, 'rgba(69, 10, 10, 1.0)');
-              ctx.fillStyle = hazGrad;
-              ctx.beginPath();
-              ctx.arc(0, 0, targetR, 0, Math.PI * 2);
-              ctx.fill();
             }
           } else if (mode === 'helix') {
-            if (LayeredT4Assets.loaded.hazard.helixClean) {
-              ctx.drawImage(LayeredT4Assets.hazard.helixClean, -60 * scale, -60 * scale, 120 * scale, 120 * scale);
+            const hSpr = LayeredT4Assets.loaded.hazardCore3D.helix ? LayeredT4Assets.hazardCore3D.helix : LayeredT4Assets.hazard.helixClean;
+            const hReady = LayeredT4Assets.loaded.hazardCore3D.helix || LayeredT4Assets.loaded.hazard.helixClean;
+            if (hSpr && hReady) {
+              const hBox = (LayeredT4Assets.loaded.hazardCore3D.helix ? 136 : 120) * scale;
+              ctx.save();
+              ctx.rotate(now * 0.0012 + animPhase);
+              ctx.drawImage(hSpr, -hBox * 0.5, -hBox * 0.5, hBox, hBox);
+              ctx.restore();
             }
             ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
             ctx.beginPath();
             ctx.arc(0, 0, targetR * 0.95, 0, Math.PI * 2);
             ctx.clip();
@@ -8531,17 +7975,16 @@
               const rMid = targetR * (0.35 + 0.22 * (f % 2));
               const fx = Math.cos(fAng) * rMid;
               const fy = Math.sin(fAng) * rMid;
-              const fr = targetR * 0.36;
+              const fr = targetR * 0.34;
               ctx.beginPath();
               for (let v = 0; v < 3; v++) {
                 const va = fAng + v * (Math.PI * 2 / 3) + Math.sin(fPhase * 0.7 + v) * 0.22;
                 const vx = fx + Math.cos(va) * fr;
                 const vy = fy + Math.sin(va) * fr;
-                if (v === 0) ctx.moveTo(vx, vy);
-                else ctx.lineTo(vx, vy);
+                if (v === 0) ctx.moveTo(vx, vy); else ctx.lineTo(vx, vy);
               }
               ctx.closePath();
-              ctx.fillStyle = `rgba(255, 100, 110, ${0.14 + glint * (0.48 + proxHeat * 0.28)})`;
+              ctx.fillStyle = `rgba(255, 90, 115, ${0.10 + glint * (0.38 + proxHeat * 0.28)})`;
               ctx.fill();
             }
             ctx.restore();
@@ -8552,66 +7995,73 @@
             if (LayeredT4Assets.loaded.hazard.meteorBlades) {
               ctx.save();
               ctx.rotate(counterAngle);
-              ctx.scale(0.76, 0.76);
+              ctx.scale(0.84, 0.84);
               ctx.globalAlpha = 0.78;
               ctx.drawImage(LayeredT4Assets.hazard.meteorBlades, -80 * scale, -80 * scale, 160 * scale, 160 * scale);
               ctx.restore();
 
               ctx.save();
               ctx.rotate(bladeAngle);
+              ctx.scale(1.06, 1.06);
               ctx.drawImage(LayeredT4Assets.hazard.meteorBlades, -80 * scale, -80 * scale, 160 * scale, 160 * scale);
               ctx.restore();
             }
-            if (LayeredT4Assets.loaded.hazard.meteorCenter) {
+            if (LayeredT4Assets.loaded.hazardCore3D.meteor) {
+              ctx.save();
+              ctx.rotate(now * 0.0014 + animPhase);
+              ctx.drawImage(LayeredT4Assets.hazardCore3D.meteor, -64 * scale, -64 * scale, 128 * scale, 128 * scale);
+              ctx.restore();
+            } else if (LayeredT4Assets.loaded.hazard.meteorCenter) {
               ctx.drawImage(LayeredT4Assets.hazard.meteorCenter, -80 * scale, -80 * scale, 160 * scale, 160 * scale);
             }
             const eyePulse = 0.65 + 0.35 * Math.sin(now * 0.007 + animPhase) + proxHeat * 0.22;
             const eg = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * (0.34 + proxHeat * 0.12));
-            eg.addColorStop(0.0, `rgba(254, 202, 202, ${Math.min(1, 0.92 * eyePulse)})`);
-            eg.addColorStop(0.5, `rgba(239, 68, 68, ${Math.min(1, 0.58 * eyePulse)})`);
-            eg.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
+            eg.addColorStop(0.0, `rgba(167, 243, 208, ${Math.min(1, 0.85 * eyePulse)})`);
+            eg.addColorStop(0.5, `rgba(16, 185, 129, ${Math.min(1, 0.52 * eyePulse)})`);
+            eg.addColorStop(1.0, 'rgba(6, 78, 59, 0)');
             ctx.fillStyle = eg;
             ctx.beginPath();
             ctx.arc(0, 0, targetR * (0.34 + proxHeat * 0.12), 0, Math.PI * 2);
             ctx.fill();
           }
 
-          // Upgraded Volumetric Overlays for Classic Archetypes (ZERO Thin Wireframes!)
+          // Upgraded 3D Bladed Hunter-Seeker Shuriken Ring (Replaces Flat 2D Red Triangles!)
           if (p.nodeClass === 'seeker') {
-            // SEEKER HARBINGER: Solid Shaded Metallic Hunter Fins + Soft Volumetric Forward Scanner Cone
             ctx.save();
-            const finRot = now * 0.0032 + animPhase;
-            for (let f = 0; f < 4; f++) {
-              const fa = finRot + f * (Math.PI / 2);
-              ctx.save();
-              ctx.rotate(fa);
-              const fGrad = ctx.createLinearGradient(targetR * 0.75, -targetR * 0.18, targetR * 1.32, targetR * 0.18);
-              fGrad.addColorStop(0.0, '#991b1b');
-              fGrad.addColorStop(0.5, '#ef4444');
-              fGrad.addColorStop(1.0, '#fecaca');
-              ctx.fillStyle = fGrad;
-              ctx.beginPath();
-              ctx.moveTo(targetR * 0.76, -targetR * 0.18);
-              ctx.lineTo(targetR * 1.34, 0);
-              ctx.lineTo(targetR * 0.76, targetR * 0.18);
-              ctx.closePath();
-              ctx.fill();
-              ctx.restore();
+            const finRot = now * 0.0042 + animPhase;
+            if (LayeredT4Assets.loaded.hazardSeekerRing && LayeredT4Assets.hazardSeekerRing.naturalWidth > 0) {
+              const srSize = 170 * scale;
+              ctx.rotate(finRot);
+              ctx.drawImage(LayeredT4Assets.hazardSeekerRing, -srSize * 0.5, -srSize * 0.5, srSize, srSize);
+              ctx.globalCompositeOperation = 'lighter';
+              ctx.globalAlpha = 0.36;
+              ctx.drawImage(LayeredT4Assets.hazardSeekerRing, -srSize * 0.5, -srSize * 0.5, srSize, srSize);
+            } else {
+              for (let f = 0; f < 4; f++) {
+                ctx.save();
+                ctx.rotate(finRot + f * (Math.PI / 2));
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.moveTo(targetR * 0.76, -targetR * 0.16);
+                ctx.lineTo(targetR * 1.32, 0);
+                ctx.lineTo(targetR * 0.76, targetR * 0.16);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+              }
             }
-            // Volumetric Glowing Crimson Targeting Eye
             ctx.globalCompositeOperation = 'lighter';
-            const sEye = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * 0.55);
+            const sEye = ctx.createRadialGradient(0, 0, 0, 0, 0, targetR * 0.48);
             sEye.addColorStop(0.0, '#ffffff');
-            sEye.addColorStop(0.38, 'rgba(248, 113, 113, 0.90)');
-            sEye.addColorStop(1.0, 'rgba(220, 38, 38, 0)');
+            sEye.addColorStop(0.38, 'rgba(244, 63, 94, 0.85)');
+            sEye.addColorStop(1.0, 'rgba(190, 18, 60, 0)');
             ctx.fillStyle = sEye;
             ctx.beginPath();
-            ctx.arc(0, 0, targetR * 0.55, 0, Math.PI * 2);
+            ctx.arc(0, 0, targetR * 0.48, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
 
           } else if (p.nodeClass === 'fragmentation') {
-            // FRAGMENTATION BOLIDE: Mode-Aligned Swelling Critical Pressure Bloom (Meteor: Radioactive Emerald/Amethyst vs Crimson!)
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
             const fragPulse = 0.65 + 0.35 * Math.sin(now * 0.022 + animPhase);
@@ -8634,7 +8084,6 @@
             ctx.restore();
           }
 
-          // Freshly Corrupted Node Flare (when a Good Node is instantly converted by Corruptor Laser!)
           if (p.justCorruptedUntil && p.justCorruptedUntil > now) {
             const cFrac = Math.min(1.0, (p.justCorruptedUntil - now) / 900);
             ctx.save();
@@ -8650,6 +8099,45 @@
             ctx.fill();
             ctx.restore();
           }
+        }
+
+        // Crisp Crimson-Obsidian Threat Callout Pills for Powered Bad Nodes (Instant Contrast vs Gold Good Relics!)
+        const badLabel = isHyperComet ? '☄️ COMET'
+          : (isCorruptor ? '⚠️ LASER'
+          : (isGravityWell ? '🕳️ VORTEX'
+          : (isEmpDetonator ? '💥 EMP'
+          : (isPhaseStalker ? '⚡ BLINK' : null))));
+        const showBadPill = badLabel && (
+          p.showThreatBadge ||
+          (p._proxHeat || 0) > 0.12 ||
+          p.cometPhase === 'charging' ||
+          p.laserState === 'charging' ||
+          (p.empCharge || 0) > 0.15 ||
+          p.blinkState === 'telegraphing'
+        );
+        if (showBadPill) {
+          const bScale = Math.max(0.66, scale);
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.translate(0, -targetR * 1.62 - 3);
+          const bFont = `bold ${Math.round(10.5 * bScale)}px system-ui, -apple-system, sans-serif`;
+          const textW = this._getBadgeWidth(ctx, bFont, badLabel);
+          const padX = 7.5 * bScale;
+          const bw = textW + padX * 2;
+          const bh = 16.5 * bScale;
+          ctx.fillStyle = 'rgba(28, 6, 14, 0.92)';
+          ctx.strokeStyle = (modeKey === 'meteor') ? '#a855f7' : '#f43f5e';
+          ctx.lineWidth = 1.5 * bScale;
+          ctx.beginPath();
+          ctx.roundRect(-bw * 0.5, -bh * 0.5, bw, bh, 7.5 * bScale);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#fecdd3';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(badLabel, 0, 0.5 * bScale);
+          ctx.restore();
         }
       }
 
@@ -9267,8 +8755,8 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 6
-          ? `assets/core-${m}-t6-showcase.png?v=arcade412_armored_shields`
-          : `assets/core-${m}-t5.png?v=arcade412_armored_shields`;
+          ? `assets/core-${m}-t6-showcase.png?v=arcade420_luxury_nodes`
+          : `assets/core-${m}-t5.png?v=arcade420_luxury_nodes`;
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -9389,8 +8877,8 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 6
-        ? `assets/core-${curMode}-t6-showcase.png?v=arcade412_armored_shields`
-        : `assets/core-${curMode}-t5.png?v=arcade412_armored_shields`;
+        ? `assets/core-${curMode}-t6-showcase.png?v=arcade420_luxury_nodes`
+        : `assets/core-${curMode}-t5.png?v=arcade420_luxury_nodes`;
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -9790,8 +9278,8 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = isT6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade412_armored_shields`
-          : `assets/core-${curMode}-t5.png?v=arcade412_armored_shields`;
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade420_luxury_nodes`
+          : `assets/core-${curMode}-t5.png?v=arcade420_luxury_nodes`;
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -15496,7 +14984,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade412_armored_shields',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade420_luxury_nodes',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -15507,7 +14995,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade412_armored_shields',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade420_luxury_nodes',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -15518,7 +15006,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade412_armored_shields',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade420_luxury_nodes',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
