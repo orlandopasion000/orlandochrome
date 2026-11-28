@@ -290,7 +290,7 @@ async function run() {
     }
   }
 
-  // 3. Progression I -> VII -> I
+  // 3. Progression I -> VII -> VIII -> I
   const progCheck = await cdp.evalExpr(`(async () => {
     const api = window.chromeSynapseGame;
     api.setCombo(64, false);
@@ -298,11 +298,13 @@ async function run() {
     api.addCombo(1, true);
     const tAfter = api.getState().coreTier;
     document.getElementById('cgTierPill')?.click();
+    const tTier8 = api.getState().coreTier;
+    document.getElementById('cgTierPill')?.click();
     const tWrapped = api.getState().coreTier;
-    return { tBefore, tAfter, tWrapped };
+    return { tBefore, tAfter, tTier8, tWrapped };
   })()`);
   console.log('[CHECK Progression]', JSON.stringify(progCheck));
-  if (progCheck.tBefore !== 6 || progCheck.tAfter !== 7 || progCheck.tWrapped !== 1) {
+  if (progCheck.tBefore !== 6 || progCheck.tAfter !== 7 || progCheck.tTier8 !== 8 || progCheck.tWrapped !== 1) {
     failures.push('Tier progression / wrap failed: ' + JSON.stringify(progCheck));
   }
 

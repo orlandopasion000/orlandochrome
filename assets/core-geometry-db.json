@@ -1,5 +1,5 @@
 {
-  "version": "v427_t7_evolution_audio",
+  "version": "v428_tier8_sovereign",
   "refCanvasW": 1024,
   "refCanvasH": 576,
   "wingCanvasW": 512,
@@ -13,7 +13,8 @@
     "4": 416,
     "5": 496,
     "6": 516,
-    "7": 524
+    "7": 524,
+    "8": 532
   },
   "models": {
     "dynamo": {
@@ -484,6 +485,117 @@
         "y": 18
       },
       "scaleMult": 1.18
+    }
+  },
+  "tier8Specs": {
+    "meteor": {
+      "name": "METEOR DRAGON",
+      "title": "SOLAR FORGE EMPEROR",
+      "width": 1024,
+      "height": 682,
+      "anchorX": 512,
+      "anchorY": 268,
+      "centerMuzzle": {
+        "x": 512,
+        "y": 12
+      },
+      "muzzleL": {
+        "x": 404,
+        "y": 26
+      },
+      "muzzleR": {
+        "x": 620,
+        "y": 26
+      },
+      "auxMuzzles": [
+        {
+          "x": 452,
+          "y": 88
+        },
+        {
+          "x": 572,
+          "y": 88
+        }
+      ],
+      "scaleMult": 1.24
+    },
+    "helix": {
+      "name": "HELIX UNICORN",
+      "title": "PRISM RAIL SERAPH",
+      "width": 1024,
+      "height": 682,
+      "anchorX": 512,
+      "anchorY": 296,
+      "centerMuzzle": {
+        "x": 512,
+        "y": 20
+      },
+      "muzzleL": {
+        "x": 382,
+        "y": 94
+      },
+      "muzzleR": {
+        "x": 642,
+        "y": 94
+      },
+      "auxMuzzles": [
+        {
+          "x": 446,
+          "y": 148
+        },
+        {
+          "x": 578,
+          "y": 148
+        }
+      ],
+      "scaleMult": 1.24
+    },
+    "dynamo": {
+      "name": "DYNAMO PRINCESS",
+      "title": "ROYAL SAPPHIRE SOVEREIGN",
+      "width": 1024,
+      "height": 682,
+      "anchorX": 512,
+      "anchorY": 276,
+      "centerMuzzle": {
+        "x": 512,
+        "y": 5
+      },
+      "muzzleL": {
+        "x": 342,
+        "y": 8
+      },
+      "muzzleR": {
+        "x": 682,
+        "y": 8
+      },
+      "auxMuzzles": [
+        {
+          "x": 258,
+          "y": 60
+        },
+        {
+          "x": 224,
+          "y": 102
+        },
+        {
+          "x": 248,
+          "y": 148
+        },
+        {
+          "x": 766,
+          "y": 60
+        },
+        {
+          "x": 800,
+          "y": 102
+        },
+        {
+          "x": 776,
+          "y": 148
+        }
+      ],
+      "scaleMult": 1.25
     }
   }
 }

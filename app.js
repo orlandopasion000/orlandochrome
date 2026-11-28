@@ -739,7 +739,7 @@ const Icons = {
   // Register Service Worker for Offline PWA & iOS Home Screen Support
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=arcade427_t7_evolution_audio', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=arcade428_tier8_sovereign', { scope: './', updateViaCache: 'none' }).then(reg => {
         if (reg) {
           reg.update().catch(() => {});
         }
