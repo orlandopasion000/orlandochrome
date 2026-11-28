@@ -2527,7 +2527,7 @@
     TIER7_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade425_dynamo_arc')
+      fetch('assets/core-geometry-db.json?v=arcade426_meteor_mouth')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2805,12 +2805,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade425_dynamo_arc';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade426_meteor_mouth';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade425_dynamo_arc';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade426_meteor_mouth';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade425_dynamo_arc';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade426_meteor_mouth';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2829,39 +2829,39 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.coreT7Body[m].onload = () => { LayeredT4Assets.loaded.coreT7Body[m] = true; };
-    LayeredT4Assets.coreT7Body[m].src = `assets/core-${m}-t7-body.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.coreT7Body[m].src = `assets/core-${m}-t7-body.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.coreT7Guns[m].onload = () => { LayeredT4Assets.loaded.coreT7Guns[m] = true; };
-    LayeredT4Assets.coreT7Guns[m].src = `assets/core-${m}-t7-guns.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.coreT7Guns[m].src = `assets/core-${m}-t7-guns.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.coreT7Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT7Showcase[m] = true; };
-    LayeredT4Assets.coreT7Showcase[m].src = `assets/core-${m}-t7-showcase.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.coreT7Showcase[m].src = `assets/core-${m}-t7-showcase.png?v=arcade426_meteor_mouth`;
 
     for (let t = 1; t <= 7; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade425_dynamo_arc`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade426_meteor_mouth`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade425_dynamo_arc`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade426_meteor_mouth`;
       }
     }
   });
@@ -2907,23 +2907,23 @@
       LayeredT4Assets.poweredHazard[m][hk] = img;
       LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
-      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade425_dynamo_arc`;
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade426_meteor_mouth`;
     });
 
     // v420 Luxury 3D Active Shield Barrier Rings, Heraldic Shield Relics & Upgraded 3D Hazard Cores
     LayeredT4Assets.shieldBarrier[m].onload = () => { LayeredT4Assets.loaded.shieldBarrier[m] = true; };
-    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.powerupShield[m].onload = () => { LayeredT4Assets.loaded.powerupShield[m] = true; };
-    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade426_meteor_mouth`;
 
     LayeredT4Assets.hazardCore3D[m].onload = () => { LayeredT4Assets.loaded.hazardCore3D[m] = true; };
-    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade426_meteor_mouth`;
   });
 
   ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity', 'catalyst'].forEach((pk) => {
     LayeredT4Assets.powerupRelics[pk].onload = () => { LayeredT4Assets.loaded.powerupRelics[pk] = true; };
-    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade425_dynamo_arc`;
+    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade426_meteor_mouth`;
   });
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity'].forEach((pk) => {
@@ -2931,12 +2931,12 @@
       LayeredT4Assets.powerupRelicsByRealm[m][pk] = rImg;
       LayeredT4Assets.loaded.powerupRelicsByRealm[m][pk] = false;
       rImg.onload = () => { LayeredT4Assets.loaded.powerupRelicsByRealm[m][pk] = true; };
-      rImg.src = `assets/powerup-${m}-${pk}.png?v=arcade425_dynamo_arc`;
+      rImg.src = `assets/powerup-${m}-${pk}.png?v=arcade426_meteor_mouth`;
     });
   });
 
   LayeredT4Assets.hazardSeekerRing.onload = () => { LayeredT4Assets.loaded.hazardSeekerRing = true; };
-  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade425_dynamo_arc';
+  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade426_meteor_mouth';
 
   // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
@@ -2966,7 +2966,10 @@
     dynamoArcs: [],
     dynamoTeslaBolt: null,
     dynamoOriginBurst: null,
-    loaded: { novaFlame: {}, novaWisps: {}, novaCorona: {}, gunBolt: {}, seekerMissile: false, t7DynamoCannon: false, meteorFireMissile: false, dynamoArcsCount: 0, dynamoArcs: false, dynamoTeslaBolt: false, dynamoOriginBurst: false }
+    meteorBreathFrames: [],
+    meteorCheekVents: null,
+    meteorSnoutFg: null,
+    loaded: { novaFlame: {}, novaWisps: {}, novaCorona: {}, gunBolt: {}, seekerMissile: false, t7DynamoCannon: false, meteorFireMissile: false, dynamoArcsCount: 0, dynamoArcs: false, dynamoTeslaBolt: false, dynamoOriginBurst: false, meteorBreathCount: 0, meteorBreath: false, meteorCheekVents: false, meteorSnoutFg: false }
   };
   (['meteor', 'dynamo', 'helix']).forEach((rm) => {
     const fImg = new Image();
@@ -3002,12 +3005,12 @@
     const dcImg = new Image();
     VfxUltraAssets.t7DynamoCannon = dcImg;
     dcImg.onload = () => { VfxUltraAssets.loaded.t7DynamoCannon = true; };
-    dcImg.src = 'assets/vfx-t7-dynamo-cannon-3d.png?v=arcade425_dynamo_arc';
+    dcImg.src = 'assets/vfx-t7-dynamo-cannon-3d.png?v=arcade426_meteor_mouth';
 
     const mfImg = new Image();
     VfxUltraAssets.meteorFireMissile = mfImg;
     mfImg.onload = () => { VfxUltraAssets.loaded.meteorFireMissile = true; };
-    mfImg.src = 'assets/vfx-meteor-fire-missile.png?v=arcade425_dynamo_arc';
+    mfImg.src = 'assets/vfx-meteor-fire-missile.png?v=arcade426_meteor_mouth';
 
     VfxUltraAssets.dynamoArcs = [0, 1, 2, 3].map((idx) => {
       const aImg = new Image();
@@ -3015,19 +3018,39 @@
         VfxUltraAssets.loaded.dynamoArcsCount += 1;
         if (VfxUltraAssets.loaded.dynamoArcsCount >= 4) VfxUltraAssets.loaded.dynamoArcs = true;
       };
-      aImg.src = `assets/vfx-dynamo-arc-${idx}.png?v=arcade425_dynamo_arc`;
+      aImg.src = `assets/vfx-dynamo-arc-${idx}.png?v=arcade426_meteor_mouth`;
       return aImg;
     });
 
     const dtImg = new Image();
     VfxUltraAssets.dynamoTeslaBolt = dtImg;
     dtImg.onload = () => { VfxUltraAssets.loaded.dynamoTeslaBolt = true; };
-    dtImg.src = 'assets/vfx-dynamo-tesla-bolt.png?v=arcade425_dynamo_arc';
+    dtImg.src = 'assets/vfx-dynamo-tesla-bolt.png?v=arcade426_meteor_mouth';
 
     const dobImg = new Image();
     VfxUltraAssets.dynamoOriginBurst = dobImg;
     dobImg.onload = () => { VfxUltraAssets.loaded.dynamoOriginBurst = true; };
-    dobImg.src = 'assets/vfx-dynamo-origin-burst.png?v=arcade425_dynamo_arc';
+    dobImg.src = 'assets/vfx-dynamo-origin-burst.png?v=arcade426_meteor_mouth';
+
+    VfxUltraAssets.meteorBreathFrames = [0, 1, 2, 3].map((idx) => {
+      const bImg = new Image();
+      bImg.onload = () => {
+        VfxUltraAssets.loaded.meteorBreathCount += 1;
+        if (VfxUltraAssets.loaded.meteorBreathCount >= 4) VfxUltraAssets.loaded.meteorBreath = true;
+      };
+      bImg.src = `assets/vfx-meteor-breath-${idx}.png?v=arcade426_meteor_mouth`;
+      return bImg;
+    });
+
+    const mcvImg = new Image();
+    VfxUltraAssets.meteorCheekVents = mcvImg;
+    mcvImg.onload = () => { VfxUltraAssets.loaded.meteorCheekVents = true; };
+    mcvImg.src = 'assets/vfx-meteor-cheek-vents.png?v=arcade426_meteor_mouth';
+
+    const msfImg = new Image();
+    VfxUltraAssets.meteorSnoutFg = msfImg;
+    msfImg.onload = () => { VfxUltraAssets.loaded.meteorSnoutFg = true; };
+    msfImg.src = 'assets/vfx-meteor-t7-snout-fg.png?v=arcade426_meteor_mouth';
   })();
 
   // Helper: Identifies any hazard trap or anomaly archetype
@@ -9750,10 +9773,10 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 7
-          ? `assets/core-${m}-t7-showcase.png?v=arcade425_dynamo_arc`
+          ? `assets/core-${m}-t7-showcase.png?v=arcade426_meteor_mouth`
           : (curTier >= 6
-            ? `assets/core-${m}-t6-showcase.png?v=arcade425_dynamo_arc`
-            : `assets/core-${m}-t5.png?v=arcade425_dynamo_arc`);
+            ? `assets/core-${m}-t6-showcase.png?v=arcade426_meteor_mouth`
+            : `assets/core-${m}-t5.png?v=arcade426_meteor_mouth`);
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -9874,10 +9897,10 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 7
-        ? `assets/core-${curMode}-t7-showcase.png?v=arcade425_dynamo_arc`
+        ? `assets/core-${curMode}-t7-showcase.png?v=arcade426_meteor_mouth`
         : (curTier >= 6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade425_dynamo_arc`
-          : `assets/core-${curMode}-t5.png?v=arcade425_dynamo_arc`);
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade426_meteor_mouth`
+          : `assets/core-${curMode}-t5.png?v=arcade426_meteor_mouth`);
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -10278,10 +10301,10 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = curT >= 7
-          ? `assets/core-${curMode}-t7-showcase.png?v=arcade425_dynamo_arc`
+          ? `assets/core-${curMode}-t7-showcase.png?v=arcade426_meteor_mouth`
           : (curT >= 6
-            ? `assets/core-${curMode}-t6-showcase.png?v=arcade425_dynamo_arc`
-            : `assets/core-${curMode}-t5.png?v=arcade425_dynamo_arc`);
+            ? `assets/core-${curMode}-t6-showcase.png?v=arcade426_meteor_mouth`
+            : `assets/core-${curMode}-t5.png?v=arcade426_meteor_mouth`);
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -14175,27 +14198,29 @@
           }
 
         } else if (mode === 'meteor') {
-          // METEOR DRAGON v424: Continuous Photorealistic Roaring Volumetric Fluid-Fire Inferno + Hot Embers!
+          // METEOR DRAGON v426: Option B Foreground Snout + Cheek Vents & Option C Seamless Helical Inferno Breath!
+          const pxScale = Math.max(0.18, (mzs7W.right.x - mzs7W.left.x) / 220);
           const flameTexList = QuantumRenderer._getDragonFlameTextures();
-          const mFlameImg = VfxUltraAssets.novaFlame && VfxUltraAssets.novaFlame.meteor;
           const mWispsImg = VfxUltraAssets.novaWisps && VfxUltraAssets.novaWisps.meteor;
-          const mRealReady = Boolean(
-            VfxUltraAssets.loaded && VfxUltraAssets.loaded.novaFlame && VfxUltraAssets.loaded.novaFlame.meteor &&
-            mFlameImg && mFlameImg.naturalWidth > 0 && mWispsImg && mWispsImg.naturalWidth > 0
+          const mWispsReady = Boolean(
+            VfxUltraAssets.loaded && VfxUltraAssets.loaded.novaWisps && VfxUltraAssets.loaded.novaWisps.meteor &&
+            mWispsImg && mWispsImg.naturalWidth > 0
           );
+          const bFrames = VfxUltraAssets.meteorBreathFrames || [];
+          const bReady = Boolean(VfxUltraAssets.loaded && VfxUltraAssets.loaded.meteorBreath && bFrames.length >= 4);
           if (!this._t7DragonFlames) this._t7DragonFlames = [];
           if (!this._t7DragonEmbers) this._t7DragonEmbers = [];
 
           for (let sp = 0; sp < 4; sp++) {
             if (this._t7DragonFlames.length < 48) {
-              const spread = (Math.random() - 0.5) * 0.62;
+              const spread = (Math.random() - 0.5) * 0.54;
               this._t7DragonFlames.push({
-                x: cX + (Math.random() - 0.5) * 16 * u,
-                y: cY - 8 * u,
-                vx: Math.sin(spread) * (5.2 + Math.random() * 5.2),
-                vy: -(14.5 + Math.random() * 8.5),
-                size: (68 + Math.random() * 44) * u,
-                grow: 4.8 * u,
+                x: cX + (Math.random() - 0.5) * 14 * u,
+                y: cY - 12 * u,
+                vx: Math.sin(spread) * (4.6 + Math.random() * 4.8),
+                vy: -(15.0 + Math.random() * 8.5),
+                size: (60 + Math.random() * 42) * u,
+                grow: 4.5 * u,
                 rot: (Math.random() - 0.5) * 0.7,
                 vRot: (Math.random() - 0.5) * 0.05,
                 texIdx: Math.floor(Math.random() * flameTexList.length),
@@ -14207,12 +14232,12 @@
           }
           for (let ep = 0; ep < 4; ep++) {
             if (this._t7DragonEmbers.length < 55) {
-              const spread = (Math.random() - 0.5) * 0.80;
+              const spread = (Math.random() - 0.5) * 0.76;
               this._t7DragonEmbers.push({
-                x: cX + (Math.random() - 0.5) * 24 * u,
-                y: cY - 10 * u,
-                vx: Math.sin(spread) * (9.5 + Math.random() * 9.0),
-                vy: -(17.5 + Math.random() * 12.0),
+                x: cX + (Math.random() - 0.5) * 18 * u,
+                y: cY - 12 * u,
+                vx: Math.sin(spread) * (8.8 + Math.random() * 9.0),
+                vy: -(18.0 + Math.random() * 11.5),
                 len: (14 + Math.random() * 20) * u,
                 life: 0,
                 maxLife: 18 + Math.random() * 12
@@ -14220,17 +14245,16 @@
             }
           }
 
-          const coneLen = Math.min(580, Math.max(360, h * 0.72));
-          // Layer 1: Wide Deep-Crimson Thermal Glow Wash Under Entire Fire Corridor
+          const coneLen = Math.min(590, Math.max(370, h * 0.73));
+          // Layer 1 (Option C): Whole-Head & Neck Volcanic Maw Rimlight + Deep Thermal Corridor Wash
           ctx.save();
-          ctx.translate(cX, cY - coneLen * 0.46);
-          ctx.scale(0.62, 1.0);
-          const washR = coneLen * 0.68;
-          const washGrad = ctx.createRadialGradient(0, washR * 0.40, 14 * u, 0, 0, washR);
-          washGrad.addColorStop(0.0, 'rgba(255, 245, 200, 0.78)');
-          washGrad.addColorStop(0.28, 'rgba(251, 146, 60, 0.52)');
-          washGrad.addColorStop(0.62, 'rgba(220, 38, 38, 0.28)');
-          washGrad.addColorStop(0.90, 'rgba(153, 27, 27, 0.10)');
+          ctx.translate(cX, cY - coneLen * 0.45);
+          ctx.scale(0.60, 1.0);
+          const washR = coneLen * 0.66;
+          const washGrad = ctx.createRadialGradient(0, washR * 0.42, 12 * u, 0, 0, washR);
+          washGrad.addColorStop(0.0, 'rgba(255, 240, 185, 0.68)');
+          washGrad.addColorStop(0.28, 'rgba(251, 146, 60, 0.46)');
+          washGrad.addColorStop(0.62, 'rgba(220, 38, 38, 0.24)');
           washGrad.addColorStop(1.0, 'rgba(127, 29, 29, 0)');
           ctx.fillStyle = washGrad;
           ctx.beginPath();
@@ -14238,45 +14262,86 @@
           ctx.fill();
           ctx.restore();
 
-          // Layer 2: Dual-Layer Upward-Scrolling Real Photographic Fluid-Fire Sheets Clipped Inside Roaring Flame Envelope!
-          if (mRealReady) {
+          const mawRim = ctx.createRadialGradient(cX, cY + 34 * pxScale, 6 * pxScale, cX, cY + 34 * pxScale, 92 * pxScale);
+          mawRim.addColorStop(0.0, 'rgba(255, 190, 90, 0.52)');
+          mawRim.addColorStop(0.45, 'rgba(234, 88, 12, 0.34)');
+          mawRim.addColorStop(1.0, 'rgba(153, 27, 27, 0)');
+          ctx.fillStyle = mawRim;
+          ctx.beginPath();
+          ctx.arc(cX, cY + 34 * pxScale, 92 * pxScale, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Layer 2 (Option B): Twin Swept Cheek-Vent Afterburner Exhaust Plumes
+          if (VfxUltraAssets.loaded.meteorCheekVents && VfxUltraAssets.meteorCheekVents && VfxUltraAssets.meteorCheekVents.naturalWidth > 0) {
+            ctx.save();
+            ctx.globalAlpha = 0.88 + 0.12 * Math.sin(now * 0.045);
+            const cvW = 256 * pxScale * 0.92;
+            const cvH = 160 * pxScale * 0.92;
+            ctx.drawImage(VfxUltraAssets.meteorCheekVents, cX - cvW * 0.5, cY + 28 * pxScale - cvH * 0.5, cvW, cvH);
+            ctx.restore();
+          }
+
+          // Layer 3 (Option C): Continuous Helical Turbulent Inferno Cross-Faded Frames + Wisp Ribbons!
+          if (bReady) {
+            const bPhase = (now * 0.015) % 4;
+            const bI0 = Math.floor(bPhase);
+            const bI1 = (bI0 + 1) % 4;
+            const bMix = bPhase - bI0;
+            const bW = 276 * u + Math.sin(now * 0.018) * 10 * u;
+            const bBaseY = cY + 14 * pxScale;
+            const bH = coneLen + 30 * u;
+            const sway = Math.sin(now * 0.016) * 6 * u;
+            ctx.save();
+            ctx.globalAlpha = (1.0 - bMix) * 0.94;
+            ctx.drawImage(bFrames[bI0], cX - bW * 0.5 + sway, bBaseY - bH, bW, bH);
+            ctx.globalAlpha = bMix * 0.94;
+            ctx.drawImage(bFrames[bI1], cX - bW * 0.5 - sway * 0.7, bBaseY - bH, bW, bH);
+            ctx.restore();
+          }
+
+          if (mWispsReady) {
             ctx.save();
             ctx.beginPath();
             const steps = 16;
             for (let si = 0; si <= steps; si++) {
               const f = si / steps;
               const py = cY - f * coneLen;
-              const hw = (26 + Math.pow(f, 0.78) * 145) * u + Math.sin(now * 0.022 + f * 7.0) * 14 * u * f;
+              const hw = (18 + Math.pow(f, 0.78) * 135) * u + Math.sin(now * 0.022 + f * 7.0) * 14 * u * f;
               if (si === 0) ctx.moveTo(cX - hw, py); else ctx.lineTo(cX - hw, py);
             }
             for (let si = steps; si >= 0; si--) {
               const f = si / steps;
               const py = cY - f * coneLen;
-              const hw = (26 + Math.pow(f, 0.78) * 145) * u + Math.cos(now * 0.025 + f * 7.0) * 14 * u * f;
+              const hw = (18 + Math.pow(f, 0.78) * 135) * u + Math.cos(now * 0.025 + f * 7.0) * 14 * u * f;
               ctx.lineTo(cX + hw, py);
             }
             ctx.closePath();
             ctx.clip();
 
             const sheetH = 440 * u;
-            const scrA = (now * 0.68) % sheetH;
-            const scrB = (now * 0.94) % sheetH;
+            const scrB = (now * 0.98) % sheetH;
             for (let yTile = cY - coneLen - sheetH; yTile < cY + 40; yTile += sheetH) {
-              const drawY = yTile - scrA;
-              const topProg = Math.max(0, Math.min(1, (cY - (drawY + sheetH * 0.5)) / coneLen));
-              const wSheet = (120 + topProg * 210) * u;
-              ctx.globalAlpha = 0.88 * (1.0 - topProg * 0.42);
-              ctx.drawImage(mFlameImg, cX - wSheet * 0.5, drawY, wSheet, sheetH + 16 * u);
-
               const drawYB = yTile - scrB;
-              const swayX = Math.sin(now * 0.012 + yTile * 0.02) * 18 * u;
-              ctx.globalAlpha = 0.76 * (1.0 - topProg * 0.35);
-              ctx.drawImage(mWispsImg, cX - wSheet * 0.45 + swayX, drawYB, wSheet * 0.9, sheetH + 16 * u);
+              const topProg = Math.max(0, Math.min(1, (cY - (drawYB + sheetH * 0.5)) / coneLen));
+              const wSheet = (108 + topProg * 200) * u;
+              const swayX = Math.sin(now * 0.015 + yTile * 0.024) * 20 * u;
+              ctx.globalAlpha = 0.74 * (1.0 - topProg * 0.35);
+              ctx.drawImage(mWispsImg, cX - wSheet * 0.5 + swayX, drawYB, wSheet, sheetH + 16 * u);
             }
             ctx.restore();
           }
 
-          // Layer 3: Billowing Real Photographic Fire-Cloud Puffs + 55 Streaking Incandescent Embers
+          // Tight Hot Throat Core Directly at Open Jaws (Drawn Underneath Foreground Snout!)
+          const jawGrad = ctx.createRadialGradient(cX, cY - 2 * pxScale, 1.5 * u, cX, cY - 4 * pxScale, 20 * u);
+          jawGrad.addColorStop(0.0, 'rgba(255, 255, 240, 0.96)');
+          jawGrad.addColorStop(0.45, 'rgba(253, 224, 71, 0.85)');
+          jawGrad.addColorStop(1.0, 'rgba(249, 115, 22, 0)');
+          ctx.fillStyle = jawGrad;
+          ctx.beginPath();
+          ctx.arc(cX, cY - 4 * pxScale, 20 * u, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Billowing Real Photographic Fire-Cloud Puffs + 55 Streaking Incandescent Embers
           for (let fIdx = this._t7DragonFlames.length - 1; fIdx >= 0; fIdx--) {
             const fl = this._t7DragonFlames[fIdx];
             const dS = Math.max(0.5, dtScale || 1);
@@ -14290,7 +14355,7 @@
               continue;
             }
             const tF = fl.life / fl.maxLife;
-            const fa = Math.sin((1.0 - tF) * Math.PI * 0.5) * 0.78;
+            const fa = Math.sin((1.0 - tF) * Math.PI * 0.5) * 0.72;
             ctx.save();
             ctx.translate(fl.x, fl.y);
             ctx.rotate(fl.rot);
@@ -14319,16 +14384,15 @@
             ctx.stroke();
           }
 
-          // Layer 4: Incandescent Blue-White Plasma Dragon Jaw Ignition Core
-          const jawGrad = ctx.createRadialGradient(cX, cY, 2 * u, cX, cY - 10 * u, 44 * u);
-          jawGrad.addColorStop(0.0, '#ffffff');
-          jawGrad.addColorStop(0.30, 'rgba(96, 165, 250, 0.92)');
-          jawGrad.addColorStop(0.62, 'rgba(253, 224, 71, 0.78)');
-          jawGrad.addColorStop(1.0, 'rgba(249, 115, 22, 0)');
-          ctx.fillStyle = jawGrad;
-          ctx.beginPath();
-          ctx.arc(cX, cY - 10 * u, 44 * u, 0, Math.PI * 2);
-          ctx.fill();
+          // Layer 4 (Option B): Foreground Real Armored Dragon Snout Bridge ON TOP of Flame Root!
+          if (VfxUltraAssets.loaded.meteorSnoutFg && VfxUltraAssets.meteorSnoutFg && VfxUltraAssets.meteorSnoutFg.naturalWidth > 0) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = 1.0;
+            const snSize = 220 * pxScale;
+            ctx.drawImage(VfxUltraAssets.meteorSnoutFg, cX - 110 * pxScale, cY - 34 * pxScale, snSize, snSize);
+            ctx.restore();
+          }
 
           for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
             const pt = state.particles[pIdx];
@@ -16649,7 +16713,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade425_dynamo_arc',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade426_meteor_mouth',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -16660,7 +16724,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade425_dynamo_arc',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade426_meteor_mouth',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -16671,7 +16735,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade425_dynamo_arc',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade426_meteor_mouth',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
@@ -16686,7 +16750,7 @@
       const peakCombo = Math.max(state.maxComboReached || 1, state.combo || 1);
       const tierRoman = { 1: 'TIER I', 2: 'TIER II', 3: 'TIER III', 4: 'TIER IV', 5: 'TIER V', 6: 'TIER VI', 7: 'TIER VII' }[peakTier] || 'TIER I';
       const emblemSrc = (peakTier >= 7)
-        ? `assets/core-${rKey}-t7-showcase.png?v=arcade425_dynamo_arc`
+        ? `assets/core-${rKey}-t7-showcase.png?v=arcade426_meteor_mouth`
         : cfg.emblem;
       const nodesCaught = state.nodesCaughtTotal || 0;
       const bossesSlain = state.bossesDefeated || 0;
