@@ -1,5 +1,5 @@
 {
-  "version": "v409_tier6_true3d",
+  "version": "v421_tier7_celestial",
   "refCanvasW": 1024,
   "refCanvasH": 576,
   "wingCanvasW": 512,
@@ -12,7 +12,8 @@
     "3": 336,
     "4": 416,
     "5": 496,
-    "6": 516
+    "6": 516,
+    "7": 524
   },
   "models": {
     "dynamo": {
@@ -418,6 +419,71 @@
         "h": 647
       },
       "cornersTransparent": true
+    }
+  },
+  "tier7Specs": {
+    "meteor": {
+      "name": "METEOR DRAGON",
+      "title": "SOLAR WYRM SOVEREIGN",
+      "width": 1024,
+      "height": 682,
+      "anchorX": 512,
+      "anchorY": 256,
+      "centerMuzzle": {
+        "x": 512,
+        "y": 34
+      },
+      "muzzleL": {
+        "x": 402,
+        "y": 16
+      },
+      "muzzleR": {
+        "x": 622,
+        "y": 16
+      },
+      "scaleMult": 1.14
+    },
+    "helix": {
+      "name": "HELIX UNICORN",
+      "title": "SERAPHIC PRISM PEGASUS",
+      "width": 1024,
+      "height": 682,
+      "anchorX": 512,
+      "anchorY": 268,
+      "centerMuzzle": {
+        "x": 512,
+        "y": 10
+      },
+      "muzzleL": {
+        "x": 378,
+        "y": 18
+      },
+      "muzzleR": {
+        "x": 646,
+        "y": 18
+      },
+      "scaleMult": 1.15
+    },
+    "dynamo": {
+      "name": "DYNAMO PRINCESS",
+      "title": "CELESTIAL CANNON EMPRESS",
+      "width": 1024,
+      "height": 682,
+      "anchorX": 512,
+      "anchorY": 286,
+      "centerMuzzle": {
+        "x": 512,
+        "y": 108
+      },
+      "muzzleL": {
+        "x": 334,
+        "y": 18
+      },
+      "muzzleR": {
+        "x": 690,
+        "y": 18
+      },
+      "scaleMult": 1.18
     }
   }
 }
