@@ -2527,7 +2527,7 @@
     TIER7_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade422_tier7_ultra')
+      fetch('assets/core-geometry-db.json?v=arcade423_aaa_relics')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2749,6 +2749,7 @@
       singularity: new Image(),
       catalyst: new Image()
     },
+    powerupRelicsByRealm: { dynamo: {}, helix: {}, meteor: {} },
     hazardCore3D: { dynamo: new Image(), helix: new Image(), meteor: new Image() },
     hazardSeekerRing: new Image(),
     bosses: {},
@@ -2783,6 +2784,7 @@
         missiles: false, cluster: false, supercharge: false,
         chronos: false, singularity: false, catalyst: false
       },
+      powerupRelicsByRealm: { dynamo: {}, helix: {}, meteor: {} },
       hazardCore3D: { dynamo: false, helix: false, meteor: false },
       hazardSeekerRing: false,
       bosses: {}
@@ -2803,12 +2805,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade422_tier7_ultra';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade423_aaa_relics';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade422_tier7_ultra';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade423_aaa_relics';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade422_tier7_ultra';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade423_aaa_relics';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2827,39 +2829,39 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.coreT7Body[m].onload = () => { LayeredT4Assets.loaded.coreT7Body[m] = true; };
-    LayeredT4Assets.coreT7Body[m].src = `assets/core-${m}-t7-body.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.coreT7Body[m].src = `assets/core-${m}-t7-body.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.coreT7Guns[m].onload = () => { LayeredT4Assets.loaded.coreT7Guns[m] = true; };
-    LayeredT4Assets.coreT7Guns[m].src = `assets/core-${m}-t7-guns.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.coreT7Guns[m].src = `assets/core-${m}-t7-guns.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.coreT7Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT7Showcase[m] = true; };
-    LayeredT4Assets.coreT7Showcase[m].src = `assets/core-${m}-t7-showcase.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.coreT7Showcase[m].src = `assets/core-${m}-t7-showcase.png?v=arcade423_aaa_relics`;
 
     for (let t = 1; t <= 7; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade422_tier7_ultra`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade423_aaa_relics`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade422_tier7_ultra`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade423_aaa_relics`;
       }
     }
   });
@@ -2905,27 +2907,36 @@
       LayeredT4Assets.poweredHazard[m][hk] = img;
       LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
-      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade422_tier7_ultra`;
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade423_aaa_relics`;
     });
 
     // v420 Luxury 3D Active Shield Barrier Rings, Heraldic Shield Relics & Upgraded 3D Hazard Cores
     LayeredT4Assets.shieldBarrier[m].onload = () => { LayeredT4Assets.loaded.shieldBarrier[m] = true; };
-    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.powerupShield[m].onload = () => { LayeredT4Assets.loaded.powerupShield[m] = true; };
-    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade423_aaa_relics`;
 
     LayeredT4Assets.hazardCore3D[m].onload = () => { LayeredT4Assets.loaded.hazardCore3D[m] = true; };
-    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade423_aaa_relics`;
   });
 
   ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity', 'catalyst'].forEach((pk) => {
     LayeredT4Assets.powerupRelics[pk].onload = () => { LayeredT4Assets.loaded.powerupRelics[pk] = true; };
-    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade422_tier7_ultra`;
+    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade423_aaa_relics`;
+  });
+  ['dynamo', 'helix', 'meteor'].forEach((m) => {
+    ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity'].forEach((pk) => {
+      const rImg = new Image();
+      LayeredT4Assets.powerupRelicsByRealm[m][pk] = rImg;
+      LayeredT4Assets.loaded.powerupRelicsByRealm[m][pk] = false;
+      rImg.onload = () => { LayeredT4Assets.loaded.powerupRelicsByRealm[m][pk] = true; };
+      rImg.src = `assets/powerup-${m}-${pk}.png?v=arcade423_aaa_relics`;
+    });
   });
 
   LayeredT4Assets.hazardSeekerRing.onload = () => { LayeredT4Assets.loaded.hazardSeekerRing = true; };
-  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade422_tier7_ultra';
+  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade423_aaa_relics';
 
   // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
@@ -2987,7 +2998,7 @@
     const dcImg = new Image();
     VfxUltraAssets.t7DynamoCannon = dcImg;
     dcImg.onload = () => { VfxUltraAssets.loaded.t7DynamoCannon = true; };
-    dcImg.src = 'assets/vfx-t7-dynamo-cannon-3d.png?v=arcade422_tier7_ultra';
+    dcImg.src = 'assets/vfx-t7-dynamo-cannon-3d.png?v=arcade423_aaa_relics';
   })();
 
   // Helper: Identifies any hazard trap or anomaly archetype
@@ -7890,11 +7901,17 @@
 
       const isGoodLuxuryRelic = (!isHazard && p.nodeClass !== 'standard');
       const sModeKey = (mode === 'helix') ? 'helix' : ((mode === 'meteor') ? 'meteor' : 'dynamo');
+      const realmRelicSpr = LayeredT4Assets.powerupRelicsByRealm[sModeKey] && LayeredT4Assets.powerupRelicsByRealm[sModeKey][p.nodeClass];
+      const realmRelicOk = !!(LayeredT4Assets.loaded.powerupRelicsByRealm[sModeKey] && LayeredT4Assets.loaded.powerupRelicsByRealm[sModeKey][p.nodeClass] && realmRelicSpr && realmRelicSpr.naturalWidth > 0);
       const relicImg = isGoodLuxuryRelic
-        ? ((p.nodeClass === 'shield') ? LayeredT4Assets.powerupShield[sModeKey] : LayeredT4Assets.powerupRelics[p.nodeClass])
+        ? ((p.nodeClass === 'shield')
+            ? LayeredT4Assets.powerupShield[sModeKey]
+            : (realmRelicOk ? realmRelicSpr : LayeredT4Assets.powerupRelics[p.nodeClass]))
         : null;
       const relicLoaded = isGoodLuxuryRelic && relicImg && relicImg.naturalWidth > 0 && (
-        (p.nodeClass === 'shield') ? LayeredT4Assets.loaded.powerupShield[sModeKey] : LayeredT4Assets.loaded.powerupRelics[p.nodeClass]
+        (p.nodeClass === 'shield')
+          ? LayeredT4Assets.loaded.powerupShield[sModeKey]
+          : (realmRelicOk || LayeredT4Assets.loaded.powerupRelics[p.nodeClass])
       );
 
       if (!isHazard) {
@@ -8494,9 +8511,40 @@
           // ═══ FEATURE BAD NODE #3: EVENT-HORIZON SINGULARITY (Game-Matched Luxury Raytraced Black Hole + Tidal Swirl) ═══
           const swirlRot = now * 0.0022 + animPhase;
 
-          // 1. Soft Volumetric Tidal Gravity Distortion Aura + 3D Relativistic Photon Lensing Ring (v418)
+          // 1. v423 High-Visibility Gravity Capture Field Perimeter + Inward Spiraling Pull Currents
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
+          const pullFieldR = Math.max(targetR * 2.55, 138 * scale);
+          const fieldPulse = 0.68 + 0.32 * Math.sin(now * 0.0065 + animPhase);
+          ctx.strokeStyle = `${mPal.primary}${0.34 * fieldPulse})`;
+          ctx.lineWidth = Math.max(1.4, 2.0 * scale);
+          ctx.setLineDash([12 * scale, 10 * scale]);
+          ctx.lineDashOffset = -now * 0.045;
+          ctx.beginPath();
+          ctx.arc(0, 0, pullFieldR, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          for (let sp = 0; sp < 8; sp++) {
+            const sa = swirlRot * 1.45 + sp * (Math.PI * 0.25);
+            const sxOuter = Math.cos(sa) * pullFieldR;
+            const syOuter = Math.sin(sa) * pullFieldR;
+            const smx = Math.cos(sa + 0.42) * (pullFieldR * 0.56);
+            const smy = Math.sin(sa + 0.42) * (pullFieldR * 0.56);
+            const sxIn = Math.cos(sa + 0.72) * (targetR * 0.85);
+            const syIn = Math.sin(sa + 0.72) * (targetR * 0.85);
+            const fg = ctx.createLinearGradient(sxOuter, syOuter, sxIn, syIn);
+            fg.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
+            fg.addColorStop(0.5, `${(sp % 2 === 0) ? mPal.primary : mPal.secondary}${0.45 * fieldPulse})`);
+            fg.addColorStop(1.0, 'rgba(255, 255, 255, 0.72)');
+            ctx.strokeStyle = fg;
+            ctx.lineWidth = Math.max(1.2, 1.8 * scale);
+            ctx.beginPath();
+            ctx.moveTo(sxOuter, syOuter);
+            ctx.quadraticCurveTo(smx, smy, sxIn, syIn);
+            ctx.stroke();
+          }
+
           ctx.save();
           ctx.rotate((modeKey === 'dynamo') ? -0.30 : (modeKey === 'meteor' ? -0.18 : 0.14));
           ctx.scale(1.0, 0.38);
@@ -8506,10 +8554,10 @@
           ctx.arc(0, 0, targetR * 1.56, Math.PI, Math.PI * 2);
           ctx.stroke();
           ctx.restore();
-          const tidalR = targetR * (2.05 + 0.16 * Math.sin(now * 0.006));
+          const tidalR = targetR * (2.15 + 0.18 * Math.sin(now * 0.006));
           const tidalGrad = ctx.createRadialGradient(0, 0, targetR * 0.55, 0, 0, tidalR);
-          tidalGrad.addColorStop(0.0, `${mPal.primary}0.32)`);
-          tidalGrad.addColorStop(0.50, `${mPal.secondary}0.22)`);
+          tidalGrad.addColorStop(0.0, `${mPal.primary}0.36)`);
+          tidalGrad.addColorStop(0.55, `${mPal.secondary}0.24)`);
           tidalGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
           ctx.fillStyle = tidalGrad;
           ctx.beginPath();
@@ -8622,7 +8670,29 @@
           }
           ctx.restore();
 
-          // 3. Central Pressurized Reactor Surge Flash when approaching 100% charge
+          // 3. v423 High-Visibility 220px Blast-Zone Countdown Danger Ring + Converging Shock Timer!
+          if (empCharge > 0.02) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const dangerR = 220;
+            const convergeR = dangerR - (dangerR - targetR * 1.05) * empCharge;
+            ctx.strokeStyle = `rgba(244, 63, 94, ${0.42 + 0.48 * empCharge})`;
+            ctx.lineWidth = Math.max(1.8, 2.5 * scale);
+            ctx.setLineDash([12, 8]);
+            ctx.lineDashOffset = -now * 0.06;
+            ctx.beginPath();
+            ctx.arc(0, 0, dangerR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.strokeStyle = `rgba(255, 228, 230, ${0.55 + 0.45 * empCharge})`;
+            ctx.lineWidth = Math.max(2.0, 2.8 * scale);
+            ctx.beginPath();
+            ctx.arc(0, 0, convergeR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          }
+          // 4. Central Pressurized Reactor Surge Flash when approaching 100% charge
           if (empCharge > 0.15) {
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
@@ -9561,10 +9631,10 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 7
-          ? `assets/core-${m}-t7-showcase.png?v=arcade422_tier7_ultra`
+          ? `assets/core-${m}-t7-showcase.png?v=arcade423_aaa_relics`
           : (curTier >= 6
-            ? `assets/core-${m}-t6-showcase.png?v=arcade422_tier7_ultra`
-            : `assets/core-${m}-t5.png?v=arcade422_tier7_ultra`);
+            ? `assets/core-${m}-t6-showcase.png?v=arcade423_aaa_relics`
+            : `assets/core-${m}-t5.png?v=arcade423_aaa_relics`);
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -9685,10 +9755,10 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 7
-        ? `assets/core-${curMode}-t7-showcase.png?v=arcade422_tier7_ultra`
+        ? `assets/core-${curMode}-t7-showcase.png?v=arcade423_aaa_relics`
         : (curTier >= 6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade422_tier7_ultra`
-          : `assets/core-${curMode}-t5.png?v=arcade422_tier7_ultra`);
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade423_aaa_relics`
+          : `assets/core-${curMode}-t5.png?v=arcade423_aaa_relics`);
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -10089,10 +10159,10 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = curT >= 7
-          ? `assets/core-${curMode}-t7-showcase.png?v=arcade422_tier7_ultra`
+          ? `assets/core-${curMode}-t7-showcase.png?v=arcade423_aaa_relics`
           : (curT >= 6
-            ? `assets/core-${curMode}-t6-showcase.png?v=arcade422_tier7_ultra`
-            : `assets/core-${curMode}-t5.png?v=arcade422_tier7_ultra`);
+            ? `assets/core-${curMode}-t6-showcase.png?v=arcade423_aaa_relics`
+            : `assets/core-${curMode}-t5.png?v=arcade423_aaa_relics`);
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -14873,10 +14943,10 @@
         laserCharge: 0,
         laserChargeStart: 0,
         laserTargets: [],
-        laserSalvosLeft: 2,
-        laserNextReady: now + 750,
+        laserSalvosLeft: 3,
+        laserNextReady: now + 260,
         empCharge: 0,
-        empNextPulse: now + 1500,
+        empNextPulse: now + 1100,
         blinkState: 'idle',
         blinkProgress: 0,
         blinkStartTime: 0,
@@ -16493,7 +16563,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade422_tier7_ultra',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade423_aaa_relics',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -16504,7 +16574,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade422_tier7_ultra',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade423_aaa_relics',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -16515,7 +16585,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade422_tier7_ultra',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade423_aaa_relics',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
@@ -16530,7 +16600,7 @@
       const peakCombo = Math.max(state.maxComboReached || 1, state.combo || 1);
       const tierRoman = { 1: 'TIER I', 2: 'TIER II', 3: 'TIER III', 4: 'TIER IV', 5: 'TIER V', 6: 'TIER VI', 7: 'TIER VII' }[peakTier] || 'TIER I';
       const emblemSrc = (peakTier >= 7)
-        ? `assets/core-${rKey}-t7-showcase.png?v=arcade422_tier7_ultra`
+        ? `assets/core-${rKey}-t7-showcase.png?v=arcade423_aaa_relics`
         : cfg.emblem;
       const nodesCaught = state.nodesCaughtTotal || 0;
       const bossesSlain = state.bossesDefeated || 0;
@@ -17467,11 +17537,11 @@
           laserCharge: 0,
           laserChargeStart: 0,
           laserTargets: [],
-          laserSalvosLeft: 2,
-          laserNextReady: now + 650,
+          laserSalvosLeft: 3,
+          laserNextReady: now + 240,
           // Feature #4: EMP Detonator Shockwave Timer
           empCharge: 0,
-          empNextPulse: now + 1550,
+          empNextPulse: now + 1100,
           // Feature #5: Quantum Blink Stalker Wormhole Teleport State
           blinkState: 'idle',
           blinkProgress: 0,
@@ -18178,7 +18248,7 @@
         for (let swIdx = state.empShockwaves.length - 1; swIdx >= 0; swIdx--) {
           const sw = state.empShockwaves[swIdx];
           const swPal = _getHazVfxPal(sw.mode || state.catcherType);
-          sw.r += 4.4 * dtScale;
+          sw.r += 5.4 * dtScale;
           const prog = Math.min(1.0, sw.r / sw.maxR);
           sw.alpha = Math.max(0, 1.0 - Math.pow(prog, 1.4));
 
@@ -18189,8 +18259,8 @@
               const dxs = pt.x - sw.x;
               const dys = pt.y - sw.y;
               const ds = Math.hypot(dxs, dys);
-              if (ds > 1 && Math.abs(ds - sw.r) < 28) {
-                pt.x += (dxs / ds) * 2.8 * dtScale;
+              if (ds > 1 && Math.abs(ds - sw.r) < 34) {
+                pt.x += (dxs / ds) * 4.6 * dtScale;
                 pt.x = Math.max(30, Math.min(w - 30, pt.x));
               }
             }
@@ -18201,9 +18271,9 @@
           if (!sw.hitPlayer && Math.abs(distSwCore - sw.r) < 34) {
             sw.hitPlayer = true;
             if (!state.hasBuff('shield', now)) {
-              state.pulseMeter = Math.max(0, (state.pulseMeter || 0) - 30);
+              state.pulseMeter = Math.max(0, (state.pulseMeter || 0) - 35);
               if (state.pulseMeter < 100) state.isPulseReady = false;
-              state.empSlowUntil = now + 650;
+              state.empSlowUntil = now + 1350;
               updateHeaderUI();
             }
           }
@@ -18221,15 +18291,21 @@
           ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
           ctx.fill();
 
-          // Crawling Mode-Matched Plasma Crest Filaments riding the shockwave perimeter!
+          // 8 High-Voltage Crackling EMP Perimeter Arcs (unmistakable electric shockwave!)
           ctx.lineCap = 'round';
-          const crestR = sw.r * 0.85;
-          for (let ca = 0; ca < 4; ca++) {
-            const a0 = now * 0.004 + ca * (Math.PI * 0.5) + sw.r * 0.02;
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.58 * sw.alpha})`;
-            ctx.lineWidth = 2.0;
+          const crestR = sw.r * 0.90;
+          const empTickSw = Math.floor(now / 52);
+          for (let ca = 0; ca < 8; ca++) {
+            const a0 = now * 0.005 + ca * (Math.PI * 0.25) + sw.r * 0.02;
+            const am = a0 + 0.22;
+            const a1 = a0 + 0.44;
+            const jit = Math.sin(empTickSw * 3.7 + ca * 2.1) * 11.0;
+            ctx.strokeStyle = ca % 2 === 0 ? `rgba(255, 255, 255, ${0.78 * sw.alpha})` : `rgba(244, 63, 94, ${0.85 * sw.alpha})`;
+            ctx.lineWidth = ca % 2 === 0 ? 2.4 : 2.0;
             ctx.beginPath();
-            ctx.arc(sw.x, sw.y, crestR, a0, a0 + 0.48);
+            ctx.moveTo(sw.x + Math.cos(a0) * crestR, sw.y + Math.sin(a0) * crestR);
+            ctx.lineTo(sw.x + Math.cos(am) * (crestR + jit), sw.y + Math.sin(am) * (crestR + jit));
+            ctx.lineTo(sw.x + Math.cos(a1) * crestR, sw.y + Math.sin(a1) * crestR);
             ctx.stroke();
           }
 
@@ -18412,18 +18488,18 @@
           }
         }
 
-        // ═══ FEATURE #2: CORRUPTOR OVERLORD (Lasers Several Good Nodes -> Instant Bad Nodes!) ═══
+        // ═══ FEATURE #2: CORRUPTOR OVERLORD (Fast Lock-On & Rapid Good-to-Bad Corruption!) ═══
         if (p.nodeClass === 'corruptor_laser') {
-          if (p.laserState === 'idle' && (p.laserSalvosLeft || 0) > 0 && now >= (p.laserNextReady || 0) && p.y > 70 && p.y < h * 0.60) {
-            // Scan for up to 3 nearby good nodes above the danger floor (never corrupts life catalyst/shield/missiles or nodes right on player)
+          if (p.laserState === 'idle' && (p.laserSalvosLeft || 0) > 0 && now >= (p.laserNextReady || 0) && p.y > 40 && p.y < h * 0.72) {
+            // Scan for up to 3 nearby good nodes above the danger floor (never corrupts life catalyst/shield/missiles)
             const candidates = [];
             for (let k = 0; k < state.particles.length; k++) {
               const other = state.particles[k];
               if (other !== p && !isHazardNode(other.nodeClass) && !other.hasDetonated &&
                   other.nodeClass !== 'catalyst' && other.nodeClass !== 'shield' && other.nodeClass !== 'missiles' &&
-                  other.y > 40 && other.y < catcherPixelY - 115) {
+                  other.y > 30 && other.y < catcherPixelY - 95) {
                 const distL = Math.hypot(other.x - p.x, other.y - p.y);
-                if (distL < 430) {
+                if (distL < 520) {
                   candidates.push({ node: other, dist: distL });
                 }
               }
@@ -18442,7 +18518,8 @@
               p.laserState = 'idle';
               p.laserCharge = 0;
             } else {
-              p.laserCharge = Math.min(1.0, (now - p.laserChargeStart) / 550);
+              // 260ms fast charge (more than 2x faster corruption!)
+              p.laserCharge = Math.min(1.0, (now - p.laserChargeStart) / 260);
 
               // Render Mode-Matched Volumetric Lock-On Focus Cones & Target Corruption Halos during Charge!
               const cPal = _getHazVfxPal(p.type || state.catcherType);
@@ -18504,8 +18581,8 @@
                 }
                 p.laserSalvosLeft = Math.max(0, (p.laserSalvosLeft || 1) - 1);
                 p.laserState = 'firing';
-                p.laserFireEnd = now + 380;
-                p.laserNextReady = now + 1850;
+                p.laserFireEnd = now + 240;
+                p.laserNextReady = now + 850;
                 p.laserTargets = [];
               }
             }
@@ -18515,48 +18592,77 @@
           }
         }
 
-        // ═══ FEATURE #3: EVENT-HORIZON SINGULARITY (Black Hole Orbital Slingshot & Core Tidal Pull) ═══
+        // ═══ FEATURE #3: EVENT-HORIZON SINGULARITY (High-Visibility Gravity Pull Field & Visible Tractor Streams) ═══
         if (p.nodeClass === 'gravity_well' || p.nodeClass === 'vortex') {
+          const vPal = _getHazVfxPal(p.type || state.catcherType);
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.lineCap = 'round';
           for (let k = 0; k < state.particles.length; k++) {
             const other = state.particles[k];
             if (other !== p && !isHazardNode(other.nodeClass)) {
               const dxV = p.x - other.x;
               const dyV = p.y - other.y;
               const distV = Math.hypot(dxV, dyV);
-              if (distV < 215 && distV > 32) {
-                const pullFactor = (1.0 - distV / 215);
-                // Inward orbital capture + tangential swirl curve around event horizon
+              if (distV < 265 && distV > 30) {
+                const pullFactor = (1.0 - distV / 265);
                 const nx = dxV / distV;
                 const ny = dyV / distV;
-                const swirlX = -ny * pullFactor * 2.1 * dtScale;
-                const pullX = nx * pullFactor * 1.85 * dtScale;
+                const swirlX = -ny * pullFactor * 2.8 * dtScale;
+                const pullX = nx * pullFactor * 3.1 * dtScale;
                 other.x = Math.max(30, Math.min(w - 30, other.x + pullX + swirlX));
                 other.gravityTuggedUntil = now + 1500;
+
+                // Visible Curved Gravitational Tractor Stream from Pulled Node -> Vortex!
+                const mx = (other.x + p.x) * 0.5 - ny * 22 * pullFactor;
+                const my = (other.y + p.y) * 0.5 + nx * 22 * pullFactor;
+                const tsGrad = ctx.createLinearGradient(other.x, other.y, p.x, p.y);
+                tsGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.25)');
+                tsGrad.addColorStop(0.55, `${vPal.p}${0.45 + 0.45 * pullFactor})`);
+                tsGrad.addColorStop(1.0, `${vPal.s}0.90)`);
+                ctx.strokeStyle = tsGrad;
+                ctx.lineWidth = Math.max(1.5, 3.0 * pullFactor);
+                ctx.beginPath();
+                ctx.moveTo(other.x, other.y);
+                ctx.quadraticCurveTo(mx, my, p.x, p.y);
+                ctx.stroke();
               }
             }
           }
-          // Subtle Tidal Gravitational Pull on Player Core (when within 230px & unshielded)
+          // Strong Visible Tidal Gravitational Pull Tether on Unshielded Player Core
           const distCoreG = Math.hypot(catcherPixelX - p.x, catcherPixelY - p.y);
-          if (distCoreG < 230 && distCoreG > 55 && !state.hasBuff('shield', now)) {
-            const tidalStr = (1.0 - distCoreG / 230) * 0.0042 * dtScale;
+          if (distCoreG < 275 && distCoreG > 52 && !state.hasBuff('shield', now)) {
+            const corePull = (1.0 - distCoreG / 275);
+            const tidalStr = corePull * 0.0085 * dtScale;
             targetCatcherX = Math.max(0.05, Math.min(0.95, targetCatcherX + Math.sign(p.x - catcherPixelX) * tidalStr));
+
+            ctx.strokeStyle = `${vPal.p}${0.55 + 0.35 * corePull})`;
+            ctx.lineWidth = 2.6;
+            ctx.setLineDash([8, 7]);
+            ctx.lineDashOffset = now * 0.05;
+            ctx.beginPath();
+            ctx.moveTo(catcherPixelX, catcherPixelY);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
           }
+          ctx.restore();
         }
 
-        // ═══ FEATURE #4: OVERLOAD EMP SHOCK-MINE (Timed Expanding Volumetric Plasma EMP Dome) ═══
+        // ═══ FEATURE #4: OVERLOAD EMP SHOCK-MINE (High-Visibility 680ms Countdown + 220px Plasma EMP Dome) ═══
         if (p.nodeClass === 'emp_detonator' || p.nodeClass === 'emp_glitch' || p.nodeClass === 'pulsar_mine') {
-          if (!p.empNextPulse) p.empNextPulse = now + 1500;
+          if (!p.empNextPulse) p.empNextPulse = now + 1100;
           const timeToPulse = p.empNextPulse - now;
-          if (timeToPulse <= 550 && timeToPulse > 0) {
-            p.empCharge = Math.min(1.0, 1.0 - (timeToPulse / 550));
+          if (timeToPulse <= 680 && timeToPulse > 0) {
+            p.empCharge = Math.min(1.0, 1.0 - (timeToPulse / 680));
           } else if (timeToPulse <= 0 && p.y > 55 && p.y < h - 60) {
             p.empCharge = 0;
-            p.empNextPulse = now + 2100;
+            p.empNextPulse = now + 2000;
             audio.playEmpShockwave();
             state.empShockwaves.push({
               x: p.x, y: p.y,
-              r: 26,
-              maxR: 148,
+              r: 28,
+              maxR: 220,
               alpha: 1.0,
               hitPlayer: false,
               mode: p.type
@@ -19289,21 +19395,45 @@
         ctx.restore();
       }
 
-      // EMP Thruster Static Halo on Player Core when momentarily dampened by EMP Shockwave
+      // v423 High-Visibility EMP Thruster Static Halo + Crackling Arcs + Clear Badge on Disrupted Player Core
       if (state.empSlowUntil && state.empSlowUntil > now && !state.hasBuff('shield', now)) {
-        const empFrac = Math.min(1.0, (state.empSlowUntil - now) / 650);
+        const empFrac = Math.min(1.0, (state.empSlowUntil - now) / 1350);
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const sR = 76 * u;
-        const empG = ctx.createRadialGradient(catcherPixelX, catcherPixelY, sR * 0.5, catcherPixelX, catcherPixelY, sR * 1.3);
+        const sR = 82 * u;
+        const empG = ctx.createRadialGradient(catcherPixelX, catcherPixelY, sR * 0.45, catcherPixelX, catcherPixelY, sR * 1.35);
         empG.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
-        empG.addColorStop(0.55, `rgba(56, 189, 248, ${0.35 * empFrac})`);
-        empG.addColorStop(0.82, `rgba(244, 63, 94, ${0.30 * empFrac})`);
+        empG.addColorStop(0.55, `rgba(56, 189, 248, ${0.46 * empFrac})`);
+        empG.addColorStop(0.82, `rgba(244, 63, 94, ${0.42 * empFrac})`);
         empG.addColorStop(1.0, 'rgba(15, 23, 42, 0)');
         ctx.fillStyle = empG;
         ctx.beginPath();
-        ctx.arc(catcherPixelX, catcherPixelY, sR * 1.3, 0, Math.PI * 2);
+        ctx.arc(catcherPixelX, catcherPixelY, sR * 1.35, 0, Math.PI * 2);
         ctx.fill();
+
+        const eTick = Math.floor(now / 50);
+        ctx.lineCap = 'round';
+        for (let ea = 0; ea < 6; ea++) {
+          const a0 = ea * (Math.PI / 3) + now * 0.008;
+          const am = a0 + 0.35;
+          const a1 = a0 + 0.68;
+          const rJ = sR * (0.94 + 0.14 * Math.sin(eTick * 3.1 + ea));
+          ctx.strokeStyle = ea % 2 === 0 ? `rgba(56, 189, 248, ${0.88 * empFrac})` : `rgba(244, 63, 94, ${0.88 * empFrac})`;
+          ctx.lineWidth = Math.max(1.8, 2.5 * u);
+          ctx.beginPath();
+          ctx.moveTo(catcherPixelX + Math.cos(a0) * sR * 0.85, catcherPixelY + Math.sin(a0) * sR * 0.85);
+          ctx.lineTo(catcherPixelX + Math.cos(am) * rJ, catcherPixelY + Math.sin(am) * rJ);
+          ctx.lineTo(catcherPixelX + Math.cos(a1) * sR * 0.85, catcherPixelY + Math.sin(a1) * sR * 0.85);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha = Math.min(1.0, empFrac * 1.4);
+        ctx.font = `800 ${Math.round(12 * u)}px "Orbitron", system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fda4af';
+        ctx.fillText('⚡ EMP SLOWDOWN', catcherPixelX, catcherPixelY - 86 * u);
         ctx.restore();
       }
 
