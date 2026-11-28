@@ -2527,7 +2527,7 @@
     TIER7_SPECS,
     load() {
       if (typeof fetch !== 'function') return;
-      fetch('assets/core-geometry-db.json?v=arcade424_fire_lightning')
+      fetch('assets/core-geometry-db.json?v=arcade425_dynamo_arc')
         .then((r) => (r && r.ok ? r.json() : null))
         .then((json) => {
           if (!json || !json.tierMaxTipXRef) return;
@@ -2805,12 +2805,12 @@
   }
 
   LayeredT4Assets.helixGlassShell.onload = () => { LayeredT4Assets.loaded.helixGlassShell = true; };
-  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade424_fire_lightning';
+  LayeredT4Assets.helixGlassShell.src = 'assets/core-helix-glass-shell.png?v=arcade425_dynamo_arc';
 
   LayeredT4Assets.bezelT5.dynamo.onload = () => { LayeredT4Assets.loaded.bezelT5.dynamo = true; };
-  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade424_fire_lightning';
+  LayeredT4Assets.bezelT5.dynamo.src = 'assets/core-dynamo-bezel-t5.png?v=arcade425_dynamo_arc';
   LayeredT4Assets.bezelT5.helix.onload = () => { LayeredT4Assets.loaded.bezelT5.helix = true; };
-  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade424_fire_lightning';
+  LayeredT4Assets.bezelT5.helix.src = 'assets/core-helix-bezel-t5.png?v=arcade425_dynamo_arc';
 
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     LayeredT4Assets.halo[m].onload = () => { LayeredT4Assets.loaded.halo[m] = true; };
@@ -2829,39 +2829,39 @@
     LayeredT4Assets.coreBaseT5[m].onload = () => {
       LayeredT4Assets.loaded.coreBaseT5[m] = true;
     };
-    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.coreBaseT5[m].src = `assets/core-${m}-t5.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.coreT6Body[m].onload = () => { LayeredT4Assets.loaded.coreT6Body[m] = true; };
-    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.coreT6Body[m].src = `assets/core-${m}-t6-body.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.coreT6Guns[m].onload = () => { LayeredT4Assets.loaded.coreT6Guns[m] = true; };
-    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.coreT6Guns[m].src = `assets/core-${m}-t6-guns.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.coreT6Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT6Showcase[m] = true; };
-    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.coreT6Showcase[m].src = `assets/core-${m}-t6-showcase.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.coreT7Body[m].onload = () => { LayeredT4Assets.loaded.coreT7Body[m] = true; };
-    LayeredT4Assets.coreT7Body[m].src = `assets/core-${m}-t7-body.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.coreT7Body[m].src = `assets/core-${m}-t7-body.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.coreT7Guns[m].onload = () => { LayeredT4Assets.loaded.coreT7Guns[m] = true; };
-    LayeredT4Assets.coreT7Guns[m].src = `assets/core-${m}-t7-guns.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.coreT7Guns[m].src = `assets/core-${m}-t7-guns.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.coreT7Showcase[m].onload = () => { LayeredT4Assets.loaded.coreT7Showcase[m] = true; };
-    LayeredT4Assets.coreT7Showcase[m].src = `assets/core-${m}-t7-showcase.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.coreT7Showcase[m].src = `assets/core-${m}-t7-showcase.png?v=arcade425_dynamo_arc`;
 
     for (let t = 1; t <= 7; t++) {
       const cImg = new Image();
       LayeredT4Assets.coreTierSprites[m][t] = cImg;
       LayeredT4Assets.loaded.coreTierSprites[m][t] = false;
       cImg.onload = () => { LayeredT4Assets.loaded.coreTierSprites[m][t] = true; };
-      cImg.src = `assets/core-${m}-t${t}.png?v=arcade424_fire_lightning`;
+      cImg.src = `assets/core-${m}-t${t}.png?v=arcade425_dynamo_arc`;
 
       if (t >= 2 && t <= 5) {
         const wImg = new Image();
         LayeredT4Assets.wingRightTiers[m][t] = wImg;
         LayeredT4Assets.loaded.wingRightTiers[m][t] = false;
         wImg.onload = () => { LayeredT4Assets.loaded.wingRightTiers[m][t] = true; };
-        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade424_fire_lightning`;
+        wImg.src = `assets/core-${m}-wing-r-t${t}.png?v=arcade425_dynamo_arc`;
       }
     }
   });
@@ -2907,23 +2907,23 @@
       LayeredT4Assets.poweredHazard[m][hk] = img;
       LayeredT4Assets.loaded.poweredHazard[m][hk] = false;
       img.onload = () => { LayeredT4Assets.loaded.poweredHazard[m][hk] = true; };
-      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade424_fire_lightning`;
+      img.src = `assets/hazard-powered-${m}-${hk}.png?v=arcade425_dynamo_arc`;
     });
 
     // v420 Luxury 3D Active Shield Barrier Rings, Heraldic Shield Relics & Upgraded 3D Hazard Cores
     LayeredT4Assets.shieldBarrier[m].onload = () => { LayeredT4Assets.loaded.shieldBarrier[m] = true; };
-    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.shieldBarrier[m].src = `assets/shield-barrier-${m}.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.powerupShield[m].onload = () => { LayeredT4Assets.loaded.powerupShield[m] = true; };
-    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.powerupShield[m].src = `assets/powerup-shield-${m}.png?v=arcade425_dynamo_arc`;
 
     LayeredT4Assets.hazardCore3D[m].onload = () => { LayeredT4Assets.loaded.hazardCore3D[m] = true; };
-    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.hazardCore3D[m].src = `assets/hazard-core-${m}-3d.png?v=arcade425_dynamo_arc`;
   });
 
   ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity', 'catalyst'].forEach((pk) => {
     LayeredT4Assets.powerupRelics[pk].onload = () => { LayeredT4Assets.loaded.powerupRelics[pk] = true; };
-    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade424_fire_lightning`;
+    LayeredT4Assets.powerupRelics[pk].src = `assets/powerup-${pk}-3d.png?v=arcade425_dynamo_arc`;
   });
   ['dynamo', 'helix', 'meteor'].forEach((m) => {
     ['missiles', 'cluster', 'supercharge', 'chronos', 'singularity'].forEach((pk) => {
@@ -2931,12 +2931,12 @@
       LayeredT4Assets.powerupRelicsByRealm[m][pk] = rImg;
       LayeredT4Assets.loaded.powerupRelicsByRealm[m][pk] = false;
       rImg.onload = () => { LayeredT4Assets.loaded.powerupRelicsByRealm[m][pk] = true; };
-      rImg.src = `assets/powerup-${m}-${pk}.png?v=arcade424_fire_lightning`;
+      rImg.src = `assets/powerup-${m}-${pk}.png?v=arcade425_dynamo_arc`;
     });
   });
 
   LayeredT4Assets.hazardSeekerRing.onload = () => { LayeredT4Assets.loaded.hazardSeekerRing = true; };
-  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade424_fire_lightning';
+  LayeredT4Assets.hazardSeekerRing.src = 'assets/hazard-seeker-ring-3d.png?v=arcade425_dynamo_arc';
 
   // Preload all 5 Bespoke 3D Sculpted Sovereign Round Boss Sprites (Rounds 1 -> 5+)
   const BOSS_SPRITE_FILES = {
@@ -2963,7 +2963,10 @@
     seekerMissile: null,
     t7DynamoCannon: null,
     meteorFireMissile: null,
-    loaded: { novaFlame: {}, novaWisps: {}, novaCorona: {}, gunBolt: {}, seekerMissile: false, t7DynamoCannon: false, meteorFireMissile: false }
+    dynamoArcs: [],
+    dynamoTeslaBolt: null,
+    dynamoOriginBurst: null,
+    loaded: { novaFlame: {}, novaWisps: {}, novaCorona: {}, gunBolt: {}, seekerMissile: false, t7DynamoCannon: false, meteorFireMissile: false, dynamoArcsCount: 0, dynamoArcs: false, dynamoTeslaBolt: false, dynamoOriginBurst: false }
   };
   (['meteor', 'dynamo', 'helix']).forEach((rm) => {
     const fImg = new Image();
@@ -2999,12 +3002,32 @@
     const dcImg = new Image();
     VfxUltraAssets.t7DynamoCannon = dcImg;
     dcImg.onload = () => { VfxUltraAssets.loaded.t7DynamoCannon = true; };
-    dcImg.src = 'assets/vfx-t7-dynamo-cannon-3d.png?v=arcade424_fire_lightning';
+    dcImg.src = 'assets/vfx-t7-dynamo-cannon-3d.png?v=arcade425_dynamo_arc';
 
     const mfImg = new Image();
     VfxUltraAssets.meteorFireMissile = mfImg;
     mfImg.onload = () => { VfxUltraAssets.loaded.meteorFireMissile = true; };
-    mfImg.src = 'assets/vfx-meteor-fire-missile.png?v=arcade424_fire_lightning';
+    mfImg.src = 'assets/vfx-meteor-fire-missile.png?v=arcade425_dynamo_arc';
+
+    VfxUltraAssets.dynamoArcs = [0, 1, 2, 3].map((idx) => {
+      const aImg = new Image();
+      aImg.onload = () => {
+        VfxUltraAssets.loaded.dynamoArcsCount += 1;
+        if (VfxUltraAssets.loaded.dynamoArcsCount >= 4) VfxUltraAssets.loaded.dynamoArcs = true;
+      };
+      aImg.src = `assets/vfx-dynamo-arc-${idx}.png?v=arcade425_dynamo_arc`;
+      return aImg;
+    });
+
+    const dtImg = new Image();
+    VfxUltraAssets.dynamoTeslaBolt = dtImg;
+    dtImg.onload = () => { VfxUltraAssets.loaded.dynamoTeslaBolt = true; };
+    dtImg.src = 'assets/vfx-dynamo-tesla-bolt.png?v=arcade425_dynamo_arc';
+
+    const dobImg = new Image();
+    VfxUltraAssets.dynamoOriginBurst = dobImg;
+    dobImg.onload = () => { VfxUltraAssets.loaded.dynamoOriginBurst = true; };
+    dobImg.src = 'assets/vfx-dynamo-origin-burst.png?v=arcade425_dynamo_arc';
   })();
 
   // Helper: Identifies any hazard trap or anomaly archetype
@@ -4001,6 +4024,36 @@
       ctx.quadraticCurveTo(-r * 0.16, -r * 0.16, 0, -r);
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
+    },
+
+    _drawLightningSprite(ctx, x1, y1, x2, y2, widthPx, frameIdx, alpha = 0.95) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 2) return;
+      const idxRaw = Math.abs(Math.floor(frameIdx));
+      const arcs = VfxUltraAssets.dynamoArcs || [];
+      const tex = arcs[idxRaw % Math.max(1, arcs.length)];
+      const flip = ((idxRaw >> 2) & 1) === 1 ? -1 : 1;
+      const ang = Math.atan2(dy, dx) - Math.PI * 0.5;
+      ctx.save();
+      ctx.translate(x1, y1);
+      ctx.rotate(ang);
+      ctx.scale(flip, 1);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+      if (tex && tex.complete && tex.naturalWidth > 0) {
+        const w = Math.max(12, widthPx);
+        ctx.drawImage(tex, -w * 0.5, 0, w, dist);
+      } else {
+        const g = ctx.createLinearGradient(0, 0, 0, dist);
+        g.addColorStop(0.0, 'rgba(224, 242, 254, 0.95)');
+        g.addColorStop(0.5, 'rgba(56, 189, 248, 0.72)');
+        g.addColorStop(1.0, 'rgba(168, 85, 247, 0.25)');
+        ctx.fillStyle = g;
+        ctx.fillRect(-widthPx * 0.12, 0, widthPx * 0.24, dist);
+      }
       ctx.restore();
     },
 
@@ -9697,10 +9750,10 @@
       if (role === 'ult' || role === 'joyknob') {
         const cls = role === 'joyknob' ? 'oc-joy-knob-img' : 'oc-ult-mini-core';
         const src = curTier >= 7
-          ? `assets/core-${m}-t7-showcase.png?v=arcade424_fire_lightning`
+          ? `assets/core-${m}-t7-showcase.png?v=arcade425_dynamo_arc`
           : (curTier >= 6
-            ? `assets/core-${m}-t6-showcase.png?v=arcade424_fire_lightning`
-            : `assets/core-${m}-t5.png?v=arcade424_fire_lightning`);
+            ? `assets/core-${m}-t6-showcase.png?v=arcade425_dynamo_arc`
+            : `assets/core-${m}-t5.png?v=arcade425_dynamo_arc`);
         return `<img class="${cls}" src="${src}" alt="" draggable="false" />`;
       }
       if (role === 'pulse') {
@@ -9821,10 +9874,10 @@
       cluster.setAttribute('aria-label', 'Touch Combat & Virtual Joystick Controls');
 
       const knobSrc = curTier >= 7
-        ? `assets/core-${curMode}-t7-showcase.png?v=arcade424_fire_lightning`
+        ? `assets/core-${curMode}-t7-showcase.png?v=arcade425_dynamo_arc`
         : (curTier >= 6
-          ? `assets/core-${curMode}-t6-showcase.png?v=arcade424_fire_lightning`
-          : `assets/core-${curMode}-t5.png?v=arcade424_fire_lightning`);
+          ? `assets/core-${curMode}-t6-showcase.png?v=arcade425_dynamo_arc`
+          : `assets/core-${curMode}-t5.png?v=arcade425_dynamo_arc`);
 
       cluster.innerHTML =
         '<div id="ocTouchModePill" role="group" aria-label="Touch Movement Mode">' +
@@ -10225,10 +10278,10 @@
       }
       if (this.joyKnobImgEl) {
         this.joyKnobImgEl.src = curT >= 7
-          ? `assets/core-${curMode}-t7-showcase.png?v=arcade424_fire_lightning`
+          ? `assets/core-${curMode}-t7-showcase.png?v=arcade425_dynamo_arc`
           : (curT >= 6
-            ? `assets/core-${curMode}-t6-showcase.png?v=arcade424_fire_lightning`
-            : `assets/core-${curMode}-t5.png?v=arcade424_fire_lightning`);
+            ? `assets/core-${curMode}-t6-showcase.png?v=arcade425_dynamo_arc`
+            : `assets/core-${curMode}-t5.png?v=arcade425_dynamo_arc`);
       }
       if (this.ultIconEl) this.ultIconEl.innerHTML = this._buildTouchPadArtwork(curMode, 'ult', tierNum);
       if (this.ultCapEl) this.ultCapEl.textContent = ars.ult;
@@ -14310,7 +14363,7 @@
           }
 
         } else {
-          // DYNAMO PRINCESS v424: Pure High-Voltage Astral-Lightning Mega-Cannon (Inspired by Uploaded Layla References!)
+          // DYNAMO PRINCESS v425: Photorealistic Fractal Lichtenberg Astral-Lightning Torrent (Zero Stick Lines!)
           const dFlameImg = VfxUltraAssets.novaFlame && VfxUltraAssets.novaFlame.dynamo;
           const dWispsImg = VfxUltraAssets.novaWisps && VfxUltraAssets.novaWisps.dynamo;
           const dPlasmaReady = Boolean(
@@ -14321,117 +14374,113 @@
           const originY = cY - 26 * u;
           const beamTop = -32;
           const beamLen = Math.max(150, originY - beamTop);
-          const halfBeam = (38 + Math.sin(now * 0.036) * 5) * u;
+          const halfBeam = (44 + Math.sin(now * 0.036) * 5) * u;
+          const lTick = Math.floor(now / 40);
 
-          // 1. Twin High-Voltage Multi-Branch Faraday Conduits from Shoulder Towers -> Her Raised Hands
+          // 1. Real Fractal Lichtenberg Faraday Conduits from Shoulder Towers -> Her Raised Hands & Cannon Core
           [mzs7W.left, mzs7W.right].forEach((sMuz, sIdx) => {
             const handX = cX + (sIdx === 0 ? -18 : 18) * u;
             const handY = cY + 4 * u;
-            CoreKinematics._drawTeslaBolt(ctx, sMuz.x, sMuz.y, handX, handY, 15 * u, 5, 'rgba(56, 189, 248, 0.85)', '#ffffff', 2.4 * u, now * 0.04 + sIdx * 3.7, true);
-            CoreKinematics._drawTeslaBolt(ctx, sMuz.x, sMuz.y, originX, originY, 18 * u, 6, 'rgba(168, 85, 247, 0.78)', 'rgba(224, 242, 254, 0.96)', 2.0 * u, now * 0.05 + sIdx * 9.1, true);
+            CoreKinematics._drawLightningSprite(ctx, sMuz.x, sMuz.y, handX, handY, 34 * u, lTick + sIdx * 3, 0.94);
+            CoreKinematics._drawLightningSprite(ctx, sMuz.x, sMuz.y, originX, originY, 30 * u, lTick + sIdx * 5 + 1, 0.88);
           });
 
-          // 2. Signature Dark-Indigo Starburst Contrast Silhouette Behind Discharge Origin (Sharp Anime-Sci-Fi Impact!)
+          // 2. Soft Ionized Astral Plasma Aura Behind Main Discharge Core
+          const originGlow = QuantumRenderer._getGlowSprite('cyan');
           ctx.save();
-          ctx.globalCompositeOperation = 'source-over';
-          ctx.translate(originX, originY);
-          ctx.fillStyle = 'rgba(8, 6, 26, 0.86)';
-          ctx.beginPath();
-          const dSpikes = 10;
-          for (let sp = 0; sp < dSpikes * 2; sp++) {
-            const a = (sp / (dSpikes * 2)) * Math.PI * 2 + Math.sin(now * 0.015) * 0.08;
-            const rad = (sp % 2 === 0) ? (56 + 18 * Math.sin(now * 0.04 + sp)) * u : 16 * u;
-            if (sp === 0) ctx.moveTo(Math.cos(a) * rad, Math.sin(a) * rad);
-            else ctx.lineTo(Math.cos(a) * rad, Math.sin(a) * rad);
-          }
-          ctx.closePath();
-          ctx.fill();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = 0.72;
+          ctx.drawImage(originGlow, originX - 88 * u, originY - 88 * u, 176 * u, 176 * u);
           ctx.restore();
 
-          // 3. Colossal Electric Rail-Cannon Torrent Beam (Scrolling Plasma Sheets + Holographic Rail Sight Lines!)
+          // 3. Fluid Volumetric Plasma Torrent Beam (Counter-Scrolling Plasma & Wisp Sheets, ZERO Stick Lines or Plain Ellipses!)
           ctx.save();
-          const bGrad = ctx.createLinearGradient(originX - halfBeam, 0, originX + halfBeam, 0);
-          bGrad.addColorStop(0.0, 'rgba(56, 189, 248, 0)');
-          bGrad.addColorStop(0.16, 'rgba(56, 189, 248, 0.62)');
-          bGrad.addColorStop(0.30, 'rgba(168, 85, 247, 0.82)');
-          bGrad.addColorStop(0.46, 'rgba(224, 242, 254, 0.95)');
+          const bGrad = ctx.createLinearGradient(originX - halfBeam * 1.15, 0, originX + halfBeam * 1.15, 0);
+          bGrad.addColorStop(0.0, 'rgba(99, 102, 241, 0)');
+          bGrad.addColorStop(0.18, 'rgba(56, 189, 248, 0.42)');
+          bGrad.addColorStop(0.34, 'rgba(168, 85, 247, 0.76)');
+          bGrad.addColorStop(0.47, 'rgba(224, 242, 254, 0.94)');
           bGrad.addColorStop(0.50, '#ffffff');
-          bGrad.addColorStop(0.54, 'rgba(224, 242, 254, 0.95)');
-          bGrad.addColorStop(0.70, 'rgba(232, 121, 249, 0.78)');
-          bGrad.addColorStop(0.84, 'rgba(56, 189, 248, 0.62)');
-          bGrad.addColorStop(1.0, 'rgba(56, 189, 248, 0)');
+          bGrad.addColorStop(0.53, 'rgba(224, 242, 254, 0.94)');
+          bGrad.addColorStop(0.66, 'rgba(232, 121, 249, 0.74)');
+          bGrad.addColorStop(0.82, 'rgba(56, 189, 248, 0.42)');
+          bGrad.addColorStop(1.0, 'rgba(99, 102, 241, 0)');
           ctx.fillStyle = bGrad;
-          ctx.fillRect(originX - halfBeam, beamTop, halfBeam * 2, beamLen);
+          ctx.fillRect(originX - halfBeam * 1.15, beamTop, halfBeam * 2.3, beamLen);
 
           if (dPlasmaReady) {
             ctx.save();
             ctx.beginPath();
-            ctx.rect(originX - halfBeam * 0.92, beamTop, halfBeam * 1.84, beamLen);
+            ctx.rect(originX - halfBeam * 1.05, beamTop, halfBeam * 2.1, beamLen);
             ctx.clip();
             const dSheetH = 420 * u;
-            const dScr = (now * 0.85) % dSheetH;
-            for (let yT = beamTop - dSheetH; yT < originY + 30; yT += dSheetH) {
-              ctx.globalAlpha = 0.62;
-              ctx.drawImage(dWispsImg, originX - halfBeam * 0.88, yT - dScr, halfBeam * 1.76, dSheetH + 14 * u);
+            const dScr1 = (now * 0.95) % dSheetH;
+            const dScr2 = (now * 1.32) % dSheetH;
+            for (let yT = beamTop - dSheetH; yT < originY + dSheetH; yT += dSheetH) {
+              ctx.globalAlpha = 0.65;
+              ctx.drawImage(dFlameImg, originX - halfBeam * 0.98, yT - dScr1, halfBeam * 1.96, dSheetH + 16 * u);
+              ctx.globalAlpha = 0.74;
+              ctx.drawImage(dWispsImg, originX - halfBeam * 0.92, yT - dScr2, halfBeam * 1.84, dSheetH + 16 * u);
             }
             ctx.restore();
           }
-
-          // Twin Sleek Holographic Rail-Sight Corridor Lines + Rising Electric Shock-Rings
-          for (const side of [-1, 1]) {
-            ctx.strokeStyle = side === -1 ? 'rgba(56, 189, 248, 0.96)' : 'rgba(240, 171, 252, 0.94)';
-            ctx.lineWidth = Math.max(2.0, 3.0 * u);
-            ctx.beginPath();
-            ctx.moveTo(originX + side * 26 * u, cY);
-            ctx.lineTo(originX + side * (halfBeam * 0.82), beamTop);
-            ctx.stroke();
-          }
-          const ePhase = (now * 0.007) % 1.0;
-          for (let er = 0; er < 5; er++) {
-            const ef = ((er / 5) + ePhase) % 1.0;
-            const ey = originY - ef * beamLen;
-            ctx.strokeStyle = er % 2 === 0 ? 'rgba(56, 189, 248, 0.85)' : 'rgba(240, 171, 252, 0.85)';
-            ctx.lineWidth = Math.max(1.8, 2.6 * u);
-            ctx.beginPath();
-            ctx.ellipse(originX, ey, halfBeam * 0.92, 9 * u, 0, 0, Math.PI * 2);
-            ctx.stroke();
-          }
           ctx.restore();
 
-          // 4. MASSIVE RECURSIVE FORKED TESLA LIGHTNING SURGING UP THE BEAM & CRACKLING OUTWARD!
-          const lTick = Math.floor(now / 42);
-          for (let lb = 0; lb < 6; lb++) {
-            const xOff = Math.sin(lTick * 3.1 + lb * 1.9) * halfBeam * 0.65;
-            const topOff = Math.cos(lTick * 2.7 + lb * 2.3) * halfBeam * 0.85;
-            const colOuter = (lb % 3 === 0) ? 'rgba(56, 189, 248, 0.92)' : ((lb % 3 === 1) ? 'rgba(168, 85, 247, 0.90)' : 'rgba(244, 114, 182, 0.88)');
-            CoreKinematics._drawTeslaBolt(ctx, originX + xOff * 0.35, originY, originX + topOff, beamTop + 20, 26 * u, 9, colOuter, '#ffffff', 2.4 * u, lTick + lb * 4.3, true);
+          // 4. Layered Flickering Fractal Lichtenberg Lightning Sprites Surging Upward + Outward Radial Ion Arcs!
+          const lLayers = [
+            { xOff: 0, w: 120 * u, frame: lTick, alpha: 0.98 },
+            { xOff: -12 * u, w: 96 * u, frame: lTick + 1, alpha: 0.88 },
+            { xOff: 12 * u, w: 96 * u, frame: lTick + 2, alpha: 0.88 },
+            { xOff: Math.sin(now * 0.03) * 16 * u, w: 84 * u, frame: lTick + 7, alpha: 0.80 }
+          ];
+          for (const lay of lLayers) {
+            CoreKinematics._drawLightningSprite(
+              ctx,
+              originX + lay.xOff * 0.4,
+              originY,
+              originX + lay.xOff * 1.25,
+              beamTop + 12,
+              lay.w,
+              lay.frame,
+              lay.alpha
+            );
           }
-          // Radial Sideway Snap Lightning Arcs from Cannon Origin
+
+          // Outward fractal dielectric discharge tendrils from origin
           for (let sa = 0; sa < 4; sa++) {
-            const ang = (sa < 2 ? -Math.PI * 0.82 : -Math.PI * 0.18) + Math.sin(lTick * 2.3 + sa) * 0.25;
-            const reach = (82 + 45 * Math.abs(Math.cos(lTick * 1.9 + sa))) * u;
-            CoreKinematics._drawTeslaBolt(ctx, originX, originY - 12 * u, originX + Math.cos(ang) * reach, originY - 12 * u + Math.sin(ang) * reach, 16 * u, 5, 'rgba(56, 189, 248, 0.88)', '#ffffff', 2.0 * u, lTick * 1.3 + sa * 7.1, true);
+            const ang = (sa < 2 ? -Math.PI * 0.80 : -Math.PI * 0.20) + Math.sin(lTick * 2.1 + sa * 1.7) * 0.24;
+            const reach = (96 + 38 * Math.abs(Math.cos(lTick * 1.8 + sa))) * u;
+            CoreKinematics._drawLightningSprite(
+              ctx,
+              originX,
+              originY - 10 * u,
+              originX + Math.cos(ang) * reach,
+              originY - 10 * u + Math.sin(ang) * reach,
+              46 * u,
+              lTick + sa * 3,
+              0.86
+            );
           }
 
-          // 5. Holographic Swept Crystal-Cannon Wing Fins + Blinding Origin Flare
-          ctx.save();
-          ctx.translate(originX, originY);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-          ctx.beginPath();
-          ctx.arc(0, 0, 16 * u, 0, Math.PI * 2);
-          ctx.fill();
-          CoreKinematics._drawStarGlint(ctx, 0, 0, 42 * u * (0.9 + 0.18 * mfT7), '#38bdf8');
-          CoreKinematics._drawStarGlint(ctx, 0, 0, 24 * u, '#f0abfc');
-          ctx.restore();
+          // 5. Layla-Style Photorealistic Astral Discharge Origin Burst (Zero Flat Polygons!)
+          if (VfxUltraAssets.loaded.dynamoOriginBurst && VfxUltraAssets.dynamoOriginBurst && VfxUltraAssets.dynamoOriginBurst.naturalWidth > 0) {
+            ctx.save();
+            ctx.translate(originX, originY - 6 * u);
+            ctx.rotate(Math.sin(now * 0.014) * 0.16);
+            ctx.globalCompositeOperation = 'lighter';
+            const bSize = (138 + 14 * mfT7) * u;
+            ctx.drawImage(VfxUltraAssets.dynamoOriginBurst, -bSize * 0.5, -bSize * 0.5, bSize, bSize);
+            ctx.restore();
+          }
 
-          // 6. Continuous Corridor Electro-Damage + Live Chain-Lightning Snap Arcs to Nearby Bad Nodes!
+          // 6. Continuous Corridor Electro-Damage + Real Fractal Chain-Lightning Arcs to Hazard Nodes!
           for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
             const pt = state.particles[pIdx];
             if (!pt || !isHazardNode(pt.nodeClass)) continue;
             const dxAbs = Math.abs(pt.x - originX);
-            const hr = (pt.headR || 28) + 42;
+            const hr = (pt.headR || 28) + 44;
             if (pt.y <= originY + 24 && dxAbs < hr) {
-              CoreKinematics._drawTeslaBolt(ctx, originX, Math.max(20, pt.y + 36), pt.x, pt.y, 12 * u, 4, 'rgba(56, 189, 248, 0.90)', '#ffffff', 2.0 * u, lTick + pIdx * 2.1, false);
+              CoreKinematics._drawLightningSprite(ctx, originX, Math.max(20, pt.y + 42), pt.x, pt.y, 44 * u, lTick + pIdx * 2, 0.94);
               if (pt.shotHp === undefined) pt.shotHp = (pt.nodeClass === 'volatile') ? 3 : 5;
               pt.shotHp -= 0.42 * Math.max(0.5, dtScale || 1);
               if (Math.random() < 0.45) this._spawnHitSparks(pt.x, pt.y, '#38bdf8', 2);
@@ -14607,47 +14656,20 @@
 
         if (s.isTier7) {
           if (s.t7Kind === 'princess_cannon') {
-            // Blazing Layla-Inspired Astral-Lightning Spearhead + Dual Energy Rings + Forked Lightning Tail
-            const lg = ctx.createRadialGradient(0, 0, 4, 0, 0, 52);
-            lg.addColorStop(0.0, '#ffffff');
-            lg.addColorStop(0.28, 'rgba(56, 189, 248, 0.94)');
-            lg.addColorStop(0.62, 'rgba(168, 85, 247, 0.62)');
-            lg.addColorStop(1.0, 'rgba(168, 85, 247, 0)');
-            ctx.fillStyle = lg;
-            ctx.beginPath();
-            ctx.arc(0, 0, 52, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#e0f2fe';
-            ctx.beginPath();
-            ctx.moveTo(0, -48);
-            ctx.lineTo(13, -6);
-            ctx.lineTo(0, 32);
-            ctx.lineTo(-13, -6);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.moveTo(0, -38);
-            ctx.lineTo(6, -6);
-            ctx.lineTo(0, 20);
-            ctx.lineTo(-6, -6);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 2.6;
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 34, 12, now * 0.018 + s.phase, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.strokeStyle = '#f0abfc';
-            ctx.lineWidth = 2.2;
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 30, 10, -now * 0.022 + s.phase, 0, Math.PI * 2);
-            ctx.stroke();
-
-            CoreKinematics._drawTeslaBolt(ctx, 0, 12, Math.sin(now * 0.06 + s.phase) * 8, 64, 14, 5, 'rgba(56, 189, 248, 0.92)', '#ffffff', 2.4, now * 0.05 + s.phase, true);
+            // Photorealistic Electric Spearhead + Discharge Burst + Fractal Lichtenberg Tail (Zero Stick Lines!)
+            const pGlow = QuantumRenderer._getGlowSprite('cyan');
+            ctx.drawImage(pGlow, -48, -48, 96, 96);
+            if (VfxUltraAssets.loaded.dynamoOriginBurst && VfxUltraAssets.dynamoOriginBurst && VfxUltraAssets.dynamoOriginBurst.naturalWidth > 0) {
+              ctx.save();
+              ctx.rotate(now * 0.012 + s.phase);
+              ctx.globalAlpha = 0.85;
+              ctx.drawImage(VfxUltraAssets.dynamoOriginBurst, -42, -42, 84, 84);
+              ctx.restore();
+            }
+            if (VfxUltraAssets.loaded.dynamoTeslaBolt && VfxUltraAssets.dynamoTeslaBolt && VfxUltraAssets.dynamoTeslaBolt.naturalWidth > 0) {
+              ctx.drawImage(VfxUltraAssets.dynamoTeslaBolt, -28, -56, 56, 104);
+            }
+            CoreKinematics._drawLightningSprite(ctx, 0, 8, Math.sin(now * 0.05 + s.phase) * 8, 72, 34, Math.floor(now / 38) + Math.floor(s.phase * 10), 0.92);
           } else if (s.t7Kind === 'dragon_breath') {
             const ftList = QuantumRenderer._getDragonFlameTextures();
             const fImg = ftList[Math.floor((s.phase * 10 + now * 0.01) % ftList.length)];
@@ -14700,9 +14722,14 @@
               ctx.drawImage(fg, -26, -26, 52, 52);
             }
           } else {
-            // Jagged High-Voltage Forked Tesla Bolt from Shoulder Towers
-            CoreKinematics._drawTeslaBolt(ctx, 0, -28, 0, 28, 10, 5, 'rgba(56, 189, 248, 0.92)', '#ffffff', 2.2, now * 0.08 + s.phase, true);
-            CoreKinematics._drawStarGlint(ctx, 0, -24, 11, '#fde047');
+            // Photorealistic Electric Plasma Spear Side-Bolt (Zero Stick Zig-Zags or Yellow Stars!)
+            if (VfxUltraAssets.loaded.dynamoTeslaBolt && VfxUltraAssets.dynamoTeslaBolt && VfxUltraAssets.dynamoTeslaBolt.naturalWidth > 0) {
+              ctx.drawImage(VfxUltraAssets.dynamoTeslaBolt, -20, -40, 40, 80);
+            } else {
+              const sGlow = QuantumRenderer._getGlowSprite('cyan');
+              ctx.drawImage(sGlow, -22, -28, 44, 56);
+            }
+            CoreKinematics._drawLightningSprite(ctx, 0, -14, 0, 32, 22, Math.floor(now / 36) + Math.floor(s.phase * 7), 0.72);
           }
           ctx.restore();
           continue;
@@ -16622,7 +16649,7 @@
         dynamo: {
           status: 'FARADAY CONTAINMENT BREACH · SHIELDS DEPLETED',
           title: 'FARADAY SHIELDS DEPLETED',
-          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade424_fire_lightning',
+          emblem: 'assets/core-dynamo-t6-showcase.png?v=arcade425_dynamo_arc',
           ctaMain: 'RE-IGNITE CHROME DYNAMO',
           ctaSub: 'FARADAY RAIL-ARC CORE',
           btnPng: 'assets/btn-dynamo-4k.png?v=arcade384',
@@ -16633,7 +16660,7 @@
         helix: {
           status: 'BIO-LATTICE DESYNC · SHIELDS DEPLETED',
           title: 'HELIX SHIELDS DEPLETED',
-          emblem: 'assets/core-helix-t6-showcase.png?v=arcade424_fire_lightning',
+          emblem: 'assets/core-helix-t6-showcase.png?v=arcade425_dynamo_arc',
           ctaMain: 'RE-SEQUENCE CHROME HELIX',
           ctaSub: 'PHOTONIC DNA LATTICE',
           btnPng: 'assets/btn-helix-4k.png?v=arcade384',
@@ -16644,7 +16671,7 @@
         meteor: {
           status: 'AEGIS CALDERA CRITICAL · SHIELDS DEPLETED',
           title: 'CALDERA SHIELDS DEPLETED',
-          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade424_fire_lightning',
+          emblem: 'assets/core-meteor-t6-showcase.png?v=arcade425_dynamo_arc',
           ctaMain: 'RE-LAUNCH CHROME METEOR',
           ctaSub: 'AEGIS SOLAR CALDERA',
           btnPng: 'assets/btn-meteor-4k.png?v=arcade384',
@@ -16659,7 +16686,7 @@
       const peakCombo = Math.max(state.maxComboReached || 1, state.combo || 1);
       const tierRoman = { 1: 'TIER I', 2: 'TIER II', 3: 'TIER III', 4: 'TIER IV', 5: 'TIER V', 6: 'TIER VI', 7: 'TIER VII' }[peakTier] || 'TIER I';
       const emblemSrc = (peakTier >= 7)
-        ? `assets/core-${rKey}-t7-showcase.png?v=arcade424_fire_lightning`
+        ? `assets/core-${rKey}-t7-showcase.png?v=arcade425_dynamo_arc`
         : cfg.emblem;
       const nodesCaught = state.nodesCaughtTotal || 0;
       const bossesSlain = state.bossesDefeated || 0;
