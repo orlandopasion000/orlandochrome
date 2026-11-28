@@ -14,16 +14,20 @@ SCRATCH = ROOT / "scratch"
 
 SOURCES = {
     "dynamo": UPLOADS / "media_1795824205636_62391e86.jpg",
-    "helix":  UPLOADS / "media_1795824205674_9c2a4997.png",
+    "helix":  UPLOADS / "media_1795827904574_df67edce.png",
     "meteor": UPLOADS / "media_1795824205685_383a1a72.png",
 }
 
+SHOWCASE_SOURCES = {
+    "helix": UPLOADS / "media_1795827904550_823f6c1f.jpg",
+}
+
 # Symmetric left-side twin shoulder weapon polygons calibrated on 1024x682 Tier VII renders.
-# Keeps Dynamo's raised hands (x >= 408), Helix's central horn & mane (x >= 468),
+# Keeps Dynamo's raised hands (x >= 408), Helix's central horn & mane (x >= 460),
 # and Meteor's central dragon head (x >= 472) 100% intact on core-{mode}-t7-body.png.
 LEFT_GUN_POLYS = {
     "dynamo": [(246, 0), (404, 0), (405, 168), (392, 196), (368, 212), (296, 212), (246, 178)],
-    "helix":  [(296, 0), (458, 0), (460, 174), (442, 204), (322, 204), (294, 172)],
+    "helix":  [(362, 12), (446, 12), (448, 188), (432, 206), (370, 206), (362, 186)],
     "meteor": [(346, 0), (456, 0), (456, 158), (438, 182), (362, 182), (346, 158)],
 }
 
@@ -153,7 +157,15 @@ def main():
         full_out = ASSETS / f"core-{mode}-t7.png"
         showcase_out = ASSETS / f"core-{mode}-t7-showcase.png"
         full_img.save(full_out, optimize=True)
-        full_img.save(showcase_out, optimize=True)
+        if mode in SHOWCASE_SOURCES:
+            sh_src = SHOWCASE_SOURCES[mode]
+            if not sh_src.exists():
+                raise FileNotFoundError(f"Missing Tier VII showcase image: {sh_src}")
+            showcase_img = extract_dynamo_rgba(sh_src)
+            assert showcase_img.size == (1024, 682), f"Unexpected showcase size for {mode}: {showcase_img.size}"
+            showcase_img.save(showcase_out, optimize=True)
+        else:
+            full_img.save(showcase_out, optimize=True)
 
         w, h = full_img.size
         arr = np.asarray(full_img, dtype=np.float32)

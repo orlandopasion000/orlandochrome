@@ -1,5 +1,5 @@
 {
-  "version": "v421_tier7_celestial",
+  "version": "v422_tier7_ultra",
   "refCanvasW": 1024,
   "refCanvasH": 576,
   "wingCanvasW": 512,
@@ -455,12 +455,12 @@
         "y": 10
       },
       "muzzleL": {
-        "x": 378,
-        "y": 18
+        "x": 404,
+        "y": 20
       },
       "muzzleR": {
-        "x": 646,
-        "y": 18
+        "x": 620,
+        "y": 20
       },
       "scaleMult": 1.15
     },
